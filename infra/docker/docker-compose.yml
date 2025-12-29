@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: classmate-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: classmate
+      POSTGRES_PASSWORD: classmate
+      POSTGRES_DB: classmate
+    ports:
+      - "5433:5432"
+    volumes:
+      - classmate_pgdata:/var/lib/postgresql/data
+volumes:
+  classmate_pgdata:

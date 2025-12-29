@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+  PARENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+
+  roles     UserRole[]
+  studentProfile StudentProfile?
+
+  createdAt DateTime @default(now())
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+}
+
+model Cohort {
+  id   String @id @default(uuid())
+  name String @unique
+
+  students StudentProfile[]
+}
+
+model StudentProfile {
+  userId       String @id
+  cohortId     String
+  englishLevel Int
+  mathLevel    Int
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cohort Cohort @relation(fields: [cohortId], references: [id])
+
+  @@index([cohortId])
+}
+
+model ParentChild {
+  id       String @id @default(uuid())
+  parentId String
+  childId  String
+
+  @@index([parentId])
+  @@index([childId])
+}
