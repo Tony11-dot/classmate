@@ -14,16 +14,45 @@ enum Role {
   PARENT
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
+enum AccountStatus {
+  AUTH_ONLY
+  PENDING
+  ACTIVE
+}
 
-  roles     UserRole[]
+enum ParentChildStatus {
+  PENDING
+  APPROVED
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+  name     String
+
+  // NEW: identity/profile
+  displayName String?
+  legalName   String?
+  phone       String?
+  status      AccountStatus @default(AUTH_ONLY)
+
+  // optional future tzfonet fields
+  tzfonetEmail      String?
+  tzfonetVerifiedAt DateTime?
+
+  roles          UserRole[]
   studentProfile StudentProfile?
 
-  createdAt DateTime @default(now())
+  // parent-child links
+  parentLinks ParentChild[] @relation("ParentLinks")
+  childLinks  ParentChild[] @relation("ChildLinks")
+
+  // back-relation for teacher-owned courses
+  taughtCourses Course[] @relation("TeacherCourses")
+
+  createdAt   DateTime     @default(now())
+  assessments Assessment[]
 }
 
 model UserRole {
@@ -36,10 +65,29 @@ model UserRole {
 }
 
 model Cohort {
-  id   String @id @default(uuid())
-  name String @unique
+  id    String @id @default(uuid())
+  name  String @unique // e.g. "10th-2"
+  grade Int // 7..12
 
-  students StudentProfile[]
+  students           StudentProfile[]
+  courses            Course[]
+  scheduleSlots      ScheduleSlot[]
+  joinCodes          CohortJoinCode[]
+  scheduleOverrides  ScheduleOverride[]
+  attendanceSessions AttendanceSession[]
+}
+
+model CohortJoinCode {
+  id        String    @id @default(uuid())
+  cohortId  String
+  codeHash  String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+
+  @@index([cohortId])
 }
 
 model StudentProfile {
@@ -48,17 +96,203 @@ model StudentProfile {
   englishLevel Int
   mathLevel    Int
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cohort Cohort @relation(fields: [cohortId], references: [id])
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cohort            Cohort             @relation(fields: [cohortId], references: [id])
+  studentMajors     StudentMajor[]
+  enrollments       Enrollment[]
+  attendanceRecords AttendanceRecord[]
+  gradeRecords      GradeRecord[]
 
   @@index([cohortId])
 }
 
 model ParentChild {
-  id       String @id @default(uuid())
+  id       String            @id @default(uuid())
   parentId String
   childId  String
+  status   ParentChildStatus @default(APPROVED)
 
+  parent User @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
+  child  User @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
   @@index([parentId])
   @@index([childId])
+}
+
+enum CourseRuleType {
+  COHORT
+  ENGLISH_LEVEL
+  MATH_LEVEL
+  MAJOR_REQUIRED
+  ELECTIVE_OPT_IN
+}
+
+enum EnrollmentSource {
+  AUTO
+  MANUAL
+}
+
+model Major {
+  id   String @id @default(uuid())
+  name String @unique
+
+  students StudentMajor[]
+}
+
+model StudentMajor {
+  id        String @id @default(uuid())
+  studentId String
+  majorId   String
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  major   Major          @relation(fields: [majorId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, majorId])
+  @@index([majorId])
+}
+
+model Course {
+  id        String  @id @default(uuid())
+  name      String
+  subject   String
+  teacherId String?
+
+  cohortId String?
+  groupTag String?
+
+  teacher User?   @relation("TeacherCourses", fields: [teacherId], references: [id])
+  cohort  Cohort? @relation(fields: [cohortId], references: [id])
+
+  rules              CourseRule[]
+  slots              ScheduleSlot[]
+  enrollments        Enrollment[]
+  scheduleOverrides  ScheduleOverride[]
+  attendanceSessions AttendanceSession[]
+  assessments        Assessment[]
+
+  @@index([teacherId])
+  @@index([cohortId])
+}
+
+model CourseRule {
+  id       String         @id @default(uuid())
+  courseId String
+  type     CourseRuleType
+  value    String
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  courseId  String
+  studentId String
+  source    EnrollmentSource @default(AUTO)
+
+  course  Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+}
+
+model ScheduleSlot {
+  id        String  @id @default(uuid())
+  cohortId  String
+  dayOfWeek Int
+  period    Int
+  courseId  String?
+
+  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id])
+
+  @@unique([cohortId, dayOfWeek, period])
+  @@index([courseId])
+}
+
+model ScheduleOverride {
+  id       String   @id @default(uuid())
+  cohortId String
+  date     DateTime // midnight UTC is fine; we'll treat as date in Asia/Jerusalem
+  period   Int
+  courseId String?
+
+  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id])
+
+  @@unique([cohortId, date, period])
+  @@index([courseId])
+  @@index([cohortId, date])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model AttendanceSession {
+  id       String   @id @default(uuid())
+  cohortId String
+  date     DateTime
+  period   Int
+  courseId String?
+
+  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id])
+
+  records AttendanceRecord[]
+
+  @@unique([cohortId, date, period])
+  @@index([courseId])
+  @@index([cohortId, date])
+}
+
+model AttendanceRecord {
+  id        String           @id @default(uuid())
+  sessionId String
+  studentId String
+  status    AttendanceStatus @default(PRESENT)
+  note      String?
+
+  session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student StudentProfile    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+}
+
+model Assessment {
+  id        String   @id @default(uuid())
+  courseId  String
+  title     String
+  date      DateTime
+  maxGrade  Int      @default(100)
+  createdBy String // teacher user id
+
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  grades GradeRecord[]
+
+  @@index([courseId])
+  @@index([createdBy])
+}
+
+model GradeRecord {
+  id           String  @id @default(uuid())
+  assessmentId String
+  studentId    String
+  grade        Int
+  comment      String?
+
+  assessment Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  student    StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([assessmentId, studentId])
+  @@index([studentId])
 }

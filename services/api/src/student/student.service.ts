@@ -1,0 +1,127 @@
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { ScheduleService } from '../schedule/schedule.service';
+
+@Injectable()
+export class StudentService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly schedule: ScheduleService,
+  ) {}
+
+  private ensureStudent(user: any) {
+    if (!user?.roles?.includes('STUDENT')) throw new ForbiddenException('Student only');
+  }
+
+  async onboard(
+    user: any,
+    body: {
+      cohortId: string;
+      joinCode: string;
+      displayName?: string;
+      phone?: string;
+      englishLevel: number;
+      mathLevel: number;
+    },
+  ) {
+    this.ensureStudent(user);
+
+    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    if (!body?.joinCode) throw new BadRequestException('joinCode is required');
+
+    const cohort = await this.prisma.cohort.findUnique({ where: { id: body.cohortId } });
+    if (!cohort) throw new BadRequestException('Invalid cohortId');
+
+    const codes = await this.prisma.cohortJoinCode.findMany({
+      where: { cohortId: body.cohortId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    });
+
+    const now = new Date();
+    let ok = false;
+    for (const c of codes) {
+      if (c.expiresAt && c.expiresAt < now) continue;
+      if (await bcrypt.compare(body.joinCode, c.codeHash)) {
+        ok = true;
+        break;
+      }
+    }
+    if (!ok) throw new BadRequestException('Invalid join code');
+
+    const studentId = user.sub ?? user.id;
+
+    await this.prisma.studentProfile.upsert({
+      where: { userId: studentId },
+      update: {
+        cohortId: body.cohortId,
+        englishLevel: Math.round(Number(body.englishLevel)),
+        mathLevel: Math.round(Number(body.mathLevel)),
+      },
+      create: {
+        userId: studentId,
+        cohortId: body.cohortId,
+        englishLevel: Math.round(Number(body.englishLevel)),
+        mathLevel: Math.round(Number(body.mathLevel)),
+      },
+    });
+
+    return { ok: true };
+  }
+
+  async todaySchedule(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
+    if (!sp) throw new BadRequestException("Student not onboarded");
+    return this.schedule.getTodayForCohort(sp.cohortId);
+  }
+
+  async weekSchedule(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
+    if (!sp) throw new BadRequestException("Student not onboarded");
+    return this.schedule.getWeekForCohort(sp.cohortId);
+  }
+
+  async myGrades(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
+    if (!sp) throw new BadRequestException('Student not onboarded');
+
+    const rows = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      orderBy: { id: 'desc' },
+      include: {
+        assessment: {
+          include: {
+            course: true,
+          },
+        },
+      },
+    });
+
+    return {
+      ok: true,
+      grades: rows.map((r) => ({
+        id: r.id,
+        grade: r.grade,
+        comment: r.comment,
+        assessment: {
+          id: r.assessment.id,
+          title: (r.assessment as any).title,
+          date: r.assessment.date,
+        },
+        course: {
+          id: r.assessment.course.id,
+          name: r.assessment.course.name,
+          subject: r.assessment.course.subject,
+        },
+      })),
+    };
+  }
+}
