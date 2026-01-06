@@ -64,4 +64,22 @@ export class ParentController {
   dashboard(@Req() req: any) {
     return this.parent.dashboard(req.user);
   }
+  @Get('notifications')
+  notifications(
+    @Req() req: any,
+    @Query('studentId') studentId: string | undefined,
+    @Query('take') take: string | undefined,
+  ) {
+    return this.parent.notifications(req.user, {
+      studentId: studentId || undefined,
+      take: take ? Number(take) : undefined,
+    });
+  }
+
+  @Get('notifications/unread-count')
+  unreadCount(@Req() req: any) {
+    return this.parent.unreadCount(req.user);
+  }
+
+
 }

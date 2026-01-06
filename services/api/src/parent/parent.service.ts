@@ -380,4 +380,122 @@ export class ParentService {
   }
 
 
+  async notifications(
+    user: any,
+    opts?: { studentId?: string; take?: number },
+  ) {
+    this.ensureParent(user);
+    const parentId = user.sub ?? user.id;
+
+    const take = Math.max(1, Math.min(100, Number(opts?.take ?? 20)));
+    const studentId = opts?.studentId?.trim() || null;
+
+    // allowed children (optionally filtered by studentId)
+    const links = await this.prisma.parentChild.findMany({
+      where: {
+        parentId,
+        status: 'APPROVED',
+        ...(studentId ? { childId: studentId } : {}),
+      },
+      select: { childId: true },
+    });
+
+    const childIds = links.map((l) => l.childId);
+    if (childIds.length === 0) return { ok: true, notifications: [] };
+
+    const students = await this.prisma.user.findMany({
+      where: { id: { in: childIds } },
+      select: { id: true, name: true },
+    });
+    const nameById = new Map(students.map((s) => [s.id, s.name ?? s.id]));
+
+    const grades = await this.prisma.gradeRecord.findMany({
+      where: { studentId: { in: childIds } },
+      take,
+      orderBy: { id: 'desc' },
+      include: {
+        assessment: {
+          include: {
+            course: { select: { id: true, name: true, subject: true } },
+          },
+        },
+      },
+    });
+
+    const notifications: any[] = grades.map((g) => ({
+type: 'GRADE_POSTED',
+      at: g.assessment.date.toISOString(),
+      studentId: g.studentId,
+      studentName: nameById.get(g.studentId) ?? null,
+      title: `New grade in ${g.assessment.course?.name ?? 'course'}`,
+      data: {
+        grade: g.grade,
+        comment: g.comment,
+        assessment: {
+          id: g.assessment.id,
+          title: g.assessment.title,
+          date: g.assessment.date.toISOString(),
+        },
+        course: g.assessment.course
+          ? { id: g.assessment.course.id, name: g.assessment.course.name, subject: g.assessment.course.subject }
+          : null,
+      },
+    }));
+
+    
+
+    
+    // Fetch today's attendance sessions for linked children
+    const now = new Date();
+    const ymd = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Jerusalem',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(now); // YYYY-MM-DD
+
+    const start = new Date(`${ymd}T00:00:00.000Z`);
+    const end = new Date(`${ymd}T23:59:59.999Z`);
+
+    const attendanceSessions = await this.prisma.attendanceSession.findMany({
+      where: {
+        date: { gte: start, lte: end },
+        records: { some: { studentId: { in: childIds } } },
+      },
+      include: { course: true, records: true },
+    });
+
+// Append attendance notifications (TODAY)
+    for (const ses of attendanceSessions ?? []) {
+      for (const r of ses.records ?? []) {
+        notifications.push({
+          type: 'ATTENDANCE_MARKED',
+          at: ses.date.toISOString(),
+          studentId: r.studentId,
+          studentName: nameById.get(r.studentId) ?? null,
+          title: `Attendance: ${ses.course?.name ?? 'course'} (period ${ses.period})`,
+          data: {
+            date: ses.date.toISOString(),
+            period: ses.period,
+            status: r.status,
+            note: r.note ?? null,
+            course: ses.course ? { id: ses.course.id, name: ses.course.name, subject: ses.course.subject } : null,
+          },
+        });
+      }
+    }
+
+    // newest first
+    notifications.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+
+return { ok: true, notifications };
+  }
+
+  async unreadCount(user: any) {
+    this.ensureParent(user);
+    // v0 stub
+    return { ok: true, unread: 0 };
+  }
+
+
 }
