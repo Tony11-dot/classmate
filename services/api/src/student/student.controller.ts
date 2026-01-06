@@ -12,6 +12,11 @@ export class StudentController {
     return this.student.onboard(req.user, body);
   }
 
+  @Post('parent-link-code')
+  parentLinkCode(@Req() req: any, @Body() body: any) {
+    return this.student.generateParentLinkCode(req.user, body);
+  }
+
   @Get('schedule/today')
   today(@Req() req: any) {
     return this.student.todaySchedule(req.user);

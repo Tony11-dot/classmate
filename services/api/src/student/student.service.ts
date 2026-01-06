@@ -124,4 +124,34 @@ export class StudentService {
       })),
     };
   }
+
+  async generateParentLinkCode(user: any, body: { expiresInHours?: number; length?: number }) {
+    this.ensureStudent(user);
+    const childId = user.sub ?? user.id;
+
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: childId } });
+    if (!sp) throw new BadRequestException('Student not onboarded');
+
+    const len = body?.length && body.length >= 4 && body.length <= 8 ? Math.floor(body.length) : 6;
+    const hours = body?.expiresInHours && body.expiresInHours > 0 ? Math.floor(body.expiresInHours) : 72;
+
+    const digits = '0123456789';
+    let code = '';
+    for (let i = 0; i < len; i++) code += digits[Math.floor(Math.random() * digits.length)];
+
+    const codeHash = await bcrypt.hash(code, 10);
+
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + hours);
+
+    // keep only one active code per child (anti-chaos)
+    await this.prisma.parentLinkCode.deleteMany({ where: { childId } });
+
+    await this.prisma.parentLinkCode.create({
+      data: { childId, codeHash, expiresAt },
+    });
+
+    return { ok: true, code, expiresAt: expiresAt.toISOString() };
+  }
+
 }
