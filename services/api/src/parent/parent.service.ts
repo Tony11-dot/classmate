@@ -124,8 +124,8 @@ export class ParentService {
 
     const rows = await this.prisma.gradeRecord.findMany({
       take,
-      orderBy: { id: 'desc' },
       where: { studentId: { in: childIds } },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       include: { assessment: { include: { course: true } } },
     });
 
@@ -150,8 +150,8 @@ export class ParentService {
 
     const records = await this.prisma.gradeRecord.findMany({
       take: 20,
-      orderBy: { id: 'desc' },
       where: { studentId },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       include: { assessment: { include: { course: { select: { id: true, name: true, subject: true } } } } },
     });
 
@@ -378,7 +378,16 @@ export class ParentService {
     const parentId = user.sub ?? user.id;
 
     const take = Math.max(1, Math.min(100, Number(opts?.take ?? 20)));
+
+    // If studentId was provided but becomes empty after trim -> reject (prevents accidental all-children).
+    if (typeof opts?.studentId === 'string' && opts.studentId.length > 0 && !opts.studentId.trim()) {
+      throw new BadRequestException('studentId is invalid');
+    }
     const studentId = opts?.studentId?.trim() || null;
+
+    if (studentId) {
+      await this.assertLinked(parentId, studentId);
+    }
 
     const links = await this.prisma.parentChild.findMany({
       where: {
@@ -401,7 +410,7 @@ export class ParentService {
     const grades = await this.prisma.gradeRecord.findMany({
       where: { studentId: { in: childIds } },
       take,
-      orderBy: { id: 'desc' },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       include: {
         assessment: {
           include: {
@@ -431,15 +440,8 @@ export class ParentService {
       },
     }));
 
-    // Fetch today's attendance sessions for linked children
-    const now = new Date();
-    const ymd = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Jerusalem',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(now); // YYYY-MM-DD
-
+    // Attendance notifications for TODAY
+    const ymd = ymdInJerusalem(new Date());
     const start = new Date(`${ymd}T00:00:00.000Z`);
     const end = new Date(`${ymd}T23:59:59.999Z`);
 
@@ -448,10 +450,12 @@ export class ParentService {
         date: { gte: start, lte: end },
         records: { some: { studentId: { in: childIds } } },
       },
-      include: { course: true, records: true },
+      include: {
+        course: true,
+        records: { where: { studentId: { in: childIds } } }, // critical: avoid leaking other students
+      },
     });
 
-    // Append attendance notifications (TODAY)
     for (const ses of attendanceSessions ?? []) {
       for (const r of ses.records ?? []) {
         notifications.push({
@@ -471,9 +475,7 @@ export class ParentService {
       }
     }
 
-    // newest first
     notifications.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
-
     return { ok: true, notifications };
   }
 
@@ -491,19 +493,19 @@ export class ParentService {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
-    // determine cutoff
+    // determine cutoff (STRICT)
     let cutoff: Date | null = null;
 
     if (since) {
       const d = new Date(since);
-      if (!Number.isNaN(d.getTime())) cutoff = d;
+      if (Number.isNaN(d.getTime())) {
+        throw new BadRequestException('since must be a valid ISO date');
+      }
+      cutoff = d;
     }
 
-    if (!cutoff) {
-      cutoff = await this.getLastSeenAt(parentId);
-    }
+    if (!cutoff) cutoff = await this.getLastSeenAt(parentId);
 
-    // get children
     const links = await this.prisma.parentChild.findMany({
       where: { parentId, status: 'APPROVED' },
       select: { childId: true },
@@ -511,7 +513,6 @@ export class ParentService {
     const childIds = links.map((l) => l.childId);
 
     if (studentId) {
-      // must be linked to this specific child
       await this.assertLinked(parentId, studentId);
     }
 
@@ -521,7 +522,6 @@ export class ParentService {
       return { ok: true, unread: 0, since: cutoff.toISOString(), breakdown: { grades: 0, attendance: 0 } };
     }
 
-    // grades newer than cutoff (use assessment.date)
     const gradeCount = await this.prisma.gradeRecord.count({
       where: {
         studentId: { in: targetIds },
@@ -529,7 +529,6 @@ export class ParentService {
       },
     });
 
-    // attendance newer than cutoff (use session.date)
     const attendanceCount = await this.prisma.attendanceRecord.count({
       where: {
         studentId: { in: targetIds },
@@ -549,10 +548,11 @@ export class ParentService {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
+    const now = new Date();
     const row = await this.prisma.parentNotificationState.upsert({
       where: { parentId },
-      update: { lastSeenAt: new Date() },
-      create: { parentId, lastSeenAt: new Date() },
+      update: { lastSeenAt: now },
+      create: { parentId, lastSeenAt: now },
       select: { lastSeenAt: true },
     });
 

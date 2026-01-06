@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Req,
+  UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
@@ -18,13 +29,18 @@ export class ParentController {
   }
 
   @Get('grades')
-  grades(@Req() req: any) {
-    return this.parent.grades(req.user);
+  grades(
+    @Req() req: any,
+    @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
+  ) {
+    // ParentService clamps 1..100 anyway, but ParseIntPipe guarantees it's a number.
+    return this.parent.grades(req.user, take);
   }
 
   @Get('schedule/today')
   scheduleToday(@Req() req: any, @Query('studentId') studentId: string) {
-    return this.parent.scheduleToday(req.user, studentId);
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.scheduleToday(req.user, studentId.trim());
   }
 
   @Get('schedule/week')
@@ -33,12 +49,14 @@ export class ParentController {
     @Query('studentId') studentId: string,
     @Query('weekOf') weekOf?: string,
   ) {
-    return this.parent.scheduleWeek(req.user, studentId, weekOf);
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.scheduleWeek(req.user, studentId.trim(), weekOf);
   }
 
   @Get('attendance/today')
   attendanceToday(@Req() req: any, @Query('studentId') studentId: string) {
-    return this.parent.attendanceToday(req.user, studentId);
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.attendanceToday(req.user, studentId.trim());
   }
 
   @Get('attendance/week')
@@ -47,22 +65,20 @@ export class ParentController {
     @Query('studentId') studentId: string,
     @Query('weekOf') weekOf?: string,
   ) {
-    return this.parent.attendanceWeek(req.user, studentId, weekOf);
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.attendanceWeek(req.user, studentId.trim(), weekOf);
   }
 
   @Get('overview')
   overview(@Req() req: any, @Query('studentId') studentId: string) {
-    return this.parent.overview(req.user, studentId);
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.overview(req.user, studentId.trim());
   }
 
   @Get('overview/week')
-  overviewWeek(
-    @Req() req: any,
-    @Query('studentId') studentId: string,
-    @Query('weekOf') weekOf?: string,
-  ) {
-    // If you don't want weekOf support here, delete weekOf + pass only studentId.
-    return this.parent.overviewWeek(req.user, studentId /*, weekOf */);
+  overviewWeek(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.overviewWeek(req.user, studentId.trim());
   }
 
   @Get('dashboard')
@@ -74,11 +90,16 @@ export class ParentController {
   notifications(
     @Req() req: any,
     @Query('studentId') studentId: string | undefined,
-    @Query('take') take: string | undefined,
+    @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
   ) {
+    // If studentId is provided but only whitespace -> reject (prevents accidental "all children").
+    if (typeof studentId === 'string' && studentId.length > 0 && !studentId.trim()) {
+      throw new BadRequestException('studentId is invalid');
+    }
+
     return this.parent.notifications(req.user, {
-      studentId: studentId || undefined,
-      take: take ? Number(take) : undefined,
+      studentId: studentId?.trim() || undefined,
+      take,
     });
   }
 
@@ -88,7 +109,11 @@ export class ParentController {
     @Query('studentId') studentId: string | undefined,
     @Query('since') since: string | undefined,
   ) {
-    return this.parent.unreadCount(req.user, studentId, since);
+    if (typeof studentId === 'string' && studentId.length > 0 && !studentId.trim()) {
+      throw new BadRequestException('studentId is invalid');
+    }
+
+    return this.parent.unreadCount(req.user, studentId?.trim() || undefined, since);
   }
 
   @Post('notifications/mark-seen')
