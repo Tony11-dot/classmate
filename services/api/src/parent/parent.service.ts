@@ -138,6 +138,40 @@ export class ParentService {
     };
   }
 
+
+  async childGrades(user: any, studentId: string) {
+    this.ensureParent(user);
+    const parentId = user.sub ?? user.id;
+
+    if (!studentId) throw new BadRequestException('studentId is required');
+    await this.assertLinked(parentId, studentId);
+
+    const records = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      orderBy: { id: 'desc' },
+      include: {
+        assessment: {
+          include: {
+            course: { select: { id: true, name: true, subject: true } },
+          },
+        },
+      },
+    });
+
+    return {
+      ok: true,
+      grades: records.map((r) => ({
+        studentId: r.studentId,
+        grade: r.grade,
+        comment: r.comment,
+        assessment: { id: r.assessment.id, title: r.assessment.title, date: r.assessment.date.toISOString() },
+        course: r.assessment.course
+          ? { id: r.assessment.course.id, name: r.assessment.course.name, subject: r.assessment.course.subject }
+          : null,
+      })),
+    };
+  }
+
   async scheduleToday(user: any, studentId: string) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
@@ -250,6 +284,37 @@ export class ParentService {
     };
   }
 
+
+
+  async overviewWeek(user: any, studentId: string) {
+    this.ensureParent(user);
+
+    const parentId = user.sub ?? user.id;
+
+    if (!studentId) throw new BadRequestException('studentId is required');
+    await this.assertLinked(parentId, studentId);
+
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+    if (!sp) throw new BadRequestException('Student not onboarded');
+
+    // weekSchedule includes template + overrides (same shape you already use)
+    const [weekSchedule, attendanceWeek, grades] = await Promise.all([
+      this.schedule.getWeekForCohort(sp.cohortId),
+      this.attendanceWeek(user, studentId),
+      this.childGrades(user, studentId),
+    ]);
+
+    return {
+      studentId,
+      cohortId: sp.cohortId,
+      weekSchedule,
+      attendanceWeek,
+      grades,
+    };
+  }
 
 
 }
