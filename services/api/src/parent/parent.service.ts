@@ -210,4 +210,46 @@ export class ParentService {
       })),
     };
   }
+
+  async overview(user: any, studentId: string) {
+    this.ensureParent(user);
+
+    const parentId = user.sub ?? user.id;
+    if (!studentId) throw new BadRequestException('studentId is required');
+
+    // Must be linked (and approved)
+    await this.assertLinked(parentId, studentId);
+
+    const child = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      select: { id: true, name: true },
+    });
+
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+
+    const [todaySchedule, todayAttendance, allGrades] = await Promise.all([
+      sp ? this.schedule.getTodayForCohort(sp.cohortId) : { dayOfWeek: null, date: null, slots: [] },
+      this.attendanceToday(user, studentId),
+      this.grades(user),
+    ]);
+
+    const grades = (allGrades?.grades || []).filter((g: any) => g.studentId === studentId);
+
+    return {
+      student: {
+        studentId,
+        name: child?.name ?? null,
+        cohortId: sp?.cohortId ?? null,
+      },
+      todaySchedule,
+      todayAttendance,
+      grades: { ok: true, grades },
+    };
+  }
+
+
+
 }

@@ -32,6 +32,11 @@ export class ParentController {
     return this.parent.attendanceToday(req.user, studentId);
   }
 
+  @Get('overview')
+  overview(@Req() req: any, @Query('studentId') studentId: string) {
+    return this.parent.overview(req.user, studentId);
+  }
+
   @Get('attendance/week')
   attendanceWeek(@Req() req: any, @Query('studentId') studentId: string) {
     return this.parent.attendanceWeek(req.user, studentId);
