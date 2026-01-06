@@ -56,14 +56,20 @@ export class ParentController {
   }
 
   @Get('overview/week')
-  overviewWeek(@Req() req: any, @Query('studentId') studentId: string) {
-    return this.parent.overviewWeek(req.user, studentId);
+  overviewWeek(
+    @Req() req: any,
+    @Query('studentId') studentId: string,
+    @Query('weekOf') weekOf?: string,
+  ) {
+    // If you don't want weekOf support here, delete weekOf + pass only studentId.
+    return this.parent.overviewWeek(req.user, studentId /*, weekOf */);
   }
 
   @Get('dashboard')
   dashboard(@Req() req: any) {
     return this.parent.dashboard(req.user);
   }
+
   @Get('notifications')
   notifications(
     @Req() req: any,
@@ -77,9 +83,16 @@ export class ParentController {
   }
 
   @Get('notifications/unread-count')
-  unreadCount(@Req() req: any) {
-    return this.parent.unreadCount(req.user);
+  unreadCount(
+    @Req() req: any,
+    @Query('studentId') studentId: string | undefined,
+    @Query('since') since: string | undefined,
+  ) {
+    return this.parent.unreadCount(req.user, studentId, since);
   }
 
-
+  @Post('notifications/mark-seen')
+  markSeen(@Req() req: any) {
+    return this.parent.markSeen(req.user);
+  }
 }
