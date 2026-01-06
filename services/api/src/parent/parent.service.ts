@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -13,8 +17,19 @@ function ymdInJerusalem(date = new Date()): string {
 }
 
 function dayOfWeekInJerusalem(date = new Date()): number {
-  const wk = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', weekday: 'short' }).format(date);
-  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const wk = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jerusalem',
+    weekday: 'short',
+  }).format(date);
+  const map: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
   return map[wk] ?? 0;
 }
 
@@ -34,7 +49,8 @@ export class ParentService {
   ) {}
 
   private ensureParent(user: any) {
-    if (!user?.roles?.includes('PARENT')) throw new ForbiddenException('Parent only');
+    if (!user?.roles?.includes('PARENT'))
+      throw new ForbiddenException('Parent only');
   }
 
   private async assertLinked(parentId: string, childId: string) {
@@ -42,7 +58,8 @@ export class ParentService {
       where: { parentId_childId: { parentId, childId } },
       select: { status: true },
     });
-    if (!link || link.status !== 'APPROVED') throw new ForbiddenException('Not linked to this child');
+    if (!link || link.status !== 'APPROVED')
+      throw new ForbiddenException('Not linked to this child');
   }
 
   async link(user: any, body: { code: string }) {
@@ -135,8 +152,16 @@ export class ParentService {
         studentId: r.studentId,
         grade: r.grade,
         comment: r.comment,
-        assessment: { id: r.assessment.id, title: r.assessment.title, date: r.assessment.date.toISOString() },
-        course: { id: r.assessment.course.id, name: r.assessment.course.name, subject: r.assessment.course.subject },
+        assessment: {
+          id: r.assessment.id,
+          title: r.assessment.title,
+          date: r.assessment.date.toISOString(),
+        },
+        course: {
+          id: r.assessment.course.id,
+          name: r.assessment.course.name,
+          subject: r.assessment.course.subject,
+        },
       })),
     };
   }
@@ -152,7 +177,13 @@ export class ParentService {
       take: 20,
       where: { studentId },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-      include: { assessment: { include: { course: { select: { id: true, name: true, subject: true } } } } },
+      include: {
+        assessment: {
+          include: {
+            course: { select: { id: true, name: true, subject: true } },
+          },
+        },
+      },
     });
 
     return {
@@ -161,9 +192,17 @@ export class ParentService {
         studentId: r.studentId,
         grade: r.grade,
         comment: r.comment,
-        assessment: { id: r.assessment.id, title: r.assessment.title, date: r.assessment.date.toISOString() },
+        assessment: {
+          id: r.assessment.id,
+          title: r.assessment.title,
+          date: r.assessment.date.toISOString(),
+        },
         course: r.assessment.course
-          ? { id: r.assessment.course.id, name: r.assessment.course.name, subject: r.assessment.course.subject }
+          ? {
+              id: r.assessment.course.id,
+              name: r.assessment.course.name,
+              subject: r.assessment.course.subject,
+            }
           : null,
       })),
     };
@@ -176,7 +215,9 @@ export class ParentService {
     if (!studentId) throw new BadRequestException('studentId is required');
     await this.assertLinked(parentId, studentId);
 
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+    });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     return this.schedule.getTodayForCohort(sp.cohortId);
@@ -217,7 +258,9 @@ export class ParentService {
         period: s.period,
         status: s.records[0]?.status ?? 'UNMARKED',
         note: s.records[0]?.note ?? null,
-        course: s.course ? { id: s.course.id, name: s.course.name, subject: s.course.subject } : null,
+        course: s.course
+          ? { id: s.course.id, name: s.course.name, subject: s.course.subject }
+          : null,
       })),
     };
   }
@@ -230,7 +273,9 @@ export class ParentService {
     await this.assertLinked(parentId, studentId);
 
     const base = weekOf ? new Date(`${weekOf}T00:00:00.000Z`) : new Date();
-    const start = startOfWeekSundayInJerusalem(Number.isNaN(base.getTime()) ? new Date() : base);
+    const start = startOfWeekSundayInJerusalem(
+      Number.isNaN(base.getTime()) ? new Date() : base,
+    );
     const end = new Date(start.getTime());
     end.setDate(end.getDate() + 7);
 
@@ -251,7 +296,9 @@ export class ParentService {
         period: s.period,
         status: s.records[0]?.status ?? 'UNMARKED',
         note: s.records[0]?.note ?? null,
-        course: s.course ? { id: s.course.id, name: s.course.name, subject: s.course.subject } : null,
+        course: s.course
+          ? { id: s.course.id, name: s.course.name, subject: s.course.subject }
+          : null,
       })),
     };
   }
@@ -275,12 +322,16 @@ export class ParentService {
     });
 
     const [todaySchedule, todayAttendance, allGrades] = await Promise.all([
-      sp ? this.schedule.getTodayForCohort(sp.cohortId) : { dayOfWeek: null, date: null, slots: [] },
+      sp
+        ? this.schedule.getTodayForCohort(sp.cohortId)
+        : { dayOfWeek: null, date: null, slots: [] },
       this.attendanceToday(user, studentId),
       this.grades(user),
     ]);
 
-    const grades = (allGrades?.grades || []).filter((g: any) => g.studentId === studentId);
+    const grades = (allGrades?.grades || []).filter(
+      (g: any) => g.studentId === studentId,
+    );
 
     return {
       student: {
@@ -353,10 +404,12 @@ export class ParentService {
     const children: any[] = [];
     for (const childId of studentIds) {
       const sp = profileById.get(childId);
-      const cohort = sp ? cohortById.get(sp.cohortId) ?? null : null;
+      const cohort = sp ? (cohortById.get(sp.cohortId) ?? null) : null;
 
       const [todaySchedule, todayAttendance, grades] = await Promise.all([
-        sp ? this.schedule.getTodayForCohort(sp.cohortId) : { dayOfWeek: null, date: null, slots: [] },
+        sp
+          ? this.schedule.getTodayForCohort(sp.cohortId)
+          : { dayOfWeek: null, date: null, slots: [] },
         this.attendanceToday(user, childId),
         this.childGrades(user, childId),
       ]);
@@ -380,7 +433,11 @@ export class ParentService {
     const take = Math.max(1, Math.min(100, Number(opts?.take ?? 20)));
 
     // If studentId was provided but becomes empty after trim -> reject (prevents accidental all-children).
-    if (typeof opts?.studentId === 'string' && opts.studentId.length > 0 && !opts.studentId.trim()) {
+    if (
+      typeof opts?.studentId === 'string' &&
+      opts.studentId.length > 0 &&
+      !opts.studentId.trim()
+    ) {
       throw new BadRequestException('studentId is invalid');
     }
     const studentId = opts?.studentId?.trim() || null;
@@ -435,7 +492,11 @@ export class ParentService {
           date: g.assessment.date.toISOString(),
         },
         course: g.assessment.course
-          ? { id: g.assessment.course.id, name: g.assessment.course.name, subject: g.assessment.course.subject }
+          ? {
+              id: g.assessment.course.id,
+              name: g.assessment.course.name,
+              subject: g.assessment.course.subject,
+            }
           : null,
       },
     }));
@@ -460,16 +521,22 @@ export class ParentService {
       for (const r of ses.records ?? []) {
         notifications.push({
           type: 'ATTENDANCE_MARKED',
-          at: ses.date.toISOString(),
+          at: (r.updatedAt ?? r.markedAt).toISOString(),
           studentId: r.studentId,
           studentName: nameById.get(r.studentId) ?? null,
           title: `Attendance: ${ses.course?.name ?? 'course'} (period ${ses.period})`,
           data: {
-            date: ses.date.toISOString(),
+            date: (r.updatedAt ?? r.markedAt).toISOString(),
             period: ses.period,
             status: r.status,
             note: r.note ?? null,
-            course: ses.course ? { id: ses.course.id, name: ses.course.name, subject: ses.course.subject } : null,
+            course: ses.course
+              ? {
+                  id: ses.course.id,
+                  name: ses.course.name,
+                  subject: ses.course.subject,
+                }
+              : null,
           },
         });
       }
@@ -519,7 +586,12 @@ export class ParentService {
     const targetIds = studentId ? [studentId] : childIds;
 
     if (targetIds.length === 0) {
-      return { ok: true, unread: 0, since: cutoff.toISOString(), breakdown: { grades: 0, attendance: 0 } };
+      return {
+        ok: true,
+        unread: 0,
+        since: cutoff.toISOString(),
+        breakdown: { grades: 0, attendance: 0 },
+      };
     }
 
     const gradeCount = await this.prisma.gradeRecord.count({
@@ -532,10 +604,9 @@ export class ParentService {
     const attendanceCount = await this.prisma.attendanceRecord.count({
       where: {
         studentId: { in: targetIds },
-        session: { date: { gt: cutoff } },
+        markedAt: { gt: cutoff },
       },
     });
-
     return {
       ok: true,
       unread: gradeCount + attendanceCount,
