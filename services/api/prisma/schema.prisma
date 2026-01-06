@@ -26,10 +26,11 @@ enum ParentChildStatus {
 }
 
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  password String
-  name     String
+  id                      String                   @id @default(uuid())
+  email                   String                   @unique
+  password                String
+  name                    String
+  parentNotificationState ParentNotificationState?
 
   // NEW: identity/profile
   displayName String?
@@ -309,4 +310,13 @@ model ParentLinkCode {
 
   @@index([childId])
   @@index([expiresAt])
+}
+
+model ParentNotificationState {
+  id         String   @id @default(uuid())
+  parentId   String   @unique
+  lastSeenAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  parent User @relation(fields: [parentId], references: [id], onDelete: Cascade)
 }
