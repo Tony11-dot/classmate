@@ -108,8 +108,10 @@ export class ParentService {
     }));
   }
 
-  async grades(user: any) {
+  async grades(user: any, limit?: number) {
     this.ensureParent(user);
+
+    const take = Math.max(1, Math.min(100, Number(limit ?? 20)));
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
@@ -121,8 +123,9 @@ export class ParentService {
     if (childIds.length === 0) return { ok: true, grades: [] };
 
     const rows = await this.prisma.gradeRecord.findMany({
+      take,
+      orderBy: { id: "desc" },
       where: { studentId: { in: childIds } },
-      orderBy: { id: 'desc' },
       include: { assessment: { include: { course: true } } },
     });
 
@@ -147,15 +150,10 @@ export class ParentService {
     await this.assertLinked(parentId, studentId);
 
     const records = await this.prisma.gradeRecord.findMany({
+      take: 20,
+      orderBy: { id: "desc" },
       where: { studentId },
-      orderBy: { id: 'desc' },
-      include: {
-        assessment: {
-          include: {
-            course: { select: { id: true, name: true, subject: true } },
-          },
-        },
-      },
+      include: { assessment: { include: { course: { select: { id: true, name: true, subject: true } } } } },
     });
 
     return {
@@ -185,6 +183,20 @@ export class ParentService {
     return this.schedule.getTodayForCohort(sp.cohortId);
   }
 
+  async scheduleWeek(user: any, studentId: string, weekOf?: string) {
+    this.ensureParent(user);
+    await this.assertLinked(user.sub ?? user.id, studentId);
+
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+    if (!sp) throw new BadRequestException("Student not onboarded");
+
+    return this.schedule.getWeekForCohort(sp.cohortId, weekOf);
+  }
+
+
   async attendanceToday(user: any, studentId: string) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
@@ -212,7 +224,7 @@ export class ParentService {
     };
   }
 
-  async attendanceWeek(user: any, studentId: string) {
+  async attendanceWeek(user: any, studentId: string, weekOf?: string) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
@@ -314,6 +326,57 @@ export class ParentService {
       attendanceWeek,
       grades,
     };
+  }
+
+
+  async dashboard(user: any) {
+    this.ensureParent(user);
+    const parentId = user.sub ?? user.id;
+
+    const links = await this.prisma.parentChild.findMany({
+      where: { parentId, status: 'APPROVED' },
+      include: { child: { select: { id: true, name: true } } },
+      orderBy: { id: 'asc' },
+    });
+
+    const studentIds = links.map((l) => l.childId);
+
+    const profiles = await this.prisma.studentProfile.findMany({
+      where: { userId: { in: studentIds } },
+      select: { userId: true, cohortId: true },
+    });
+    const profileById = new Map(profiles.map((p) => [p.userId, p]));
+
+    const cohortIds = Array.from(new Set(profiles.map((p) => p.cohortId)));
+    const cohorts = await this.prisma.cohort.findMany({
+      where: { id: { in: cohortIds } },
+      select: { id: true, name: true, grade: true },
+    });
+    const cohortById = new Map(cohorts.map((c) => [c.id, c]));
+
+    const nameById = new Map(links.map((l) => [l.childId, l.child.name]));
+
+    const children: any[] = [];
+    for (const childId of studentIds) {
+      const sp = profileById.get(childId);
+      const cohort = sp ? cohortById.get(sp.cohortId) ?? null : null;
+
+      const [todaySchedule, todayAttendance, grades] = await Promise.all([
+        sp ? this.schedule.getTodayForCohort(sp.cohortId) : { dayOfWeek: null, date: null, slots: [] },
+        this.attendanceToday(user, childId),
+        this.childGrades(user, childId),
+      ]);
+
+      children.push({
+        student: { studentId: childId, name: nameById.get(childId) ?? null },
+        cohort,
+        todaySchedule,
+        todayAttendance,
+        grades,
+      });
+    }
+
+    return { ok: true, count: children.length, children };
   }
 
 
