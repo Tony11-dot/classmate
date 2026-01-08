@@ -179,6 +179,12 @@ export class ScheduleService {
     const weekEnd = new Date(weekStart.getTime());
     weekEnd.setDate(weekEnd.getDate() + 7);
 
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: cohortId },
+      select: { id: true, name: true, grade: true },
+    });
+    if (!cohort) throw new BadRequestException('Invalid cohortId');
+
     const slots = await this.prisma.scheduleSlot.findMany({
       where: { cohortId },
       orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
@@ -190,6 +196,18 @@ export class ScheduleService {
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
       include: { course: true },
     });
+
+    const maxTemplatePeriod = slots.reduce((m, t) => Math.max(m, t.period), 0);
+    const maxOverridePeriod = overrides.reduce(
+      (m, o) => Math.max(m, o.period),
+      0,
+    );
+    const maxPeriod = Math.max(maxTemplatePeriod, maxOverridePeriod, 8);
+
+    const templateKey = (dow: number, period: number) => `${dow}::${period}`;
+    const templateByKey = new Map(
+      slots.map((t) => [templateKey(t.dayOfWeek, t.period), t]),
+    );
 
     const overrideByKey = new Map<string, any>();
     for (const o of overrides) {
@@ -203,53 +221,51 @@ export class ScheduleService {
       d.setDate(d.getDate() + dow);
       const ymd = ymdInJerusalem(d);
 
-      const templateForDay = slots.filter((x) => x.dayOfWeek === dow);
-      const periods = Array.from(new Set(templateForDay.map((t) => t.period)));
-
-      // add override-only periods for that day
-      for (const o of overrides) {
-        const oYmd = ymdInJerusalem(o.date);
-        if (oYmd === ymd && !periods.includes(o.period)) periods.push(o.period);
-      }
-
-      periods.sort((a, b) => a - b);
-
-      const outSlots = periods.map((p) => {
+      const outSlots: any[] = [];
+      for (let p = 1; p <= maxPeriod; p++) {
         const o = overrideByKey.get(`${ymd}::${p}`);
         if (o) {
-          return {
+          outSlots.push({
             period: p,
             source: 'OVERRIDE',
-            course: o.course
+            course: o.courseId
               ? {
-                  id: o.course.id,
-                  name: o.course.name,
-                  subject: o.course.subject,
-                  teacherId: o.course.teacherId,
+                  id: o.course?.id,
+                  name: o.course?.name,
+                  subject: o.course?.subject,
+                  teacherId: o.course?.teacherId,
                 }
               : null,
-          };
+          });
+          continue;
         }
 
-        const t = templateForDay.find((x) => x.period === p);
-        return {
-          period: p,
-          source: 'TEMPLATE',
-          course: t?.course
-            ? {
-                id: t.course.id,
-                name: t.course.name,
-                subject: t.course.subject,
-                teacherId: t.course.teacherId,
-              }
-            : null,
-        };
-      });
+        const t = templateByKey.get(templateKey(dow, p));
+        if (t) {
+          outSlots.push({
+            period: p,
+            source: 'TEMPLATE',
+            course: t.course
+              ? {
+                  id: t.course.id,
+                  name: t.course.name,
+                  subject: t.course.subject,
+                  teacherId: t.course.teacherId,
+                }
+              : null,
+          });
+          continue;
+        }
+
+        outSlots.push({ period: p, source: 'EMPTY', course: null });
+      }
 
       days.push({ dayOfWeek: dow, date: ymd, slots: outSlots });
     }
 
     return {
+      cohort,
+      maxPeriod,
       weekStart: weekStart.toISOString(),
       weekEnd: weekEnd.toISOString(),
       days,
