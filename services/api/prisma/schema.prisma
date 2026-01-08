@@ -12,6 +12,7 @@ enum Role {
   TEACHER
   ADMIN
   PARENT
+  SECRETARY
 }
 
 enum AccountStatus {
@@ -52,9 +53,11 @@ model User {
   // back-relation for teacher-owned courses
   taughtCourses Course[] @relation("TeacherCourses")
 
-  createdAt       DateTime         @default(now())
-  assessments     Assessment[]
-  parentLinkCodes ParentLinkCode[]
+  createdAt         DateTime           @default(now())
+  assessments       Assessment[]
+  parentLinkCodes   ParentLinkCode[]
+  announcements     Announcement[]
+  announcementSeens AnnouncementSeen[]
 }
 
 model UserRole {
@@ -261,11 +264,17 @@ model AttendanceRecord {
   status    AttendanceStatus @default(PRESENT)
   note      String?
 
+  // ✅ NEW: event time + change time (for unread + ordering)
+  markedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   student StudentProfile    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
   @@unique([sessionId, studentId])
   @@index([studentId])
+  @@index([sessionId])
+  @@index([markedAt])
 }
 
 model Assessment {
@@ -319,4 +328,58 @@ model ParentNotificationState {
   updatedAt  DateTime @updatedAt
 
   parent User @relation(fields: [parentId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  body      String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  publishAt DateTime  @default(now())
+  expiresAt DateTime?
+  pinned    Boolean   @default(false)
+
+  creator           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  targets           AnnouncementTarget[]
+  announcementSeens AnnouncementSeen[]
+
+  @@index([publishAt])
+  @@index([expiresAt])
+  @@index([pinned])
+  @@index([createdBy])
+}
+
+model AnnouncementTarget {
+  id             String @id @default(uuid())
+  announcementId String
+
+  // Target selectors (any of these can be used)
+  userId   String?
+  role     Role?
+  grade    Int?
+  cohortId String?
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@index([announcementId])
+  @@index([userId])
+  @@index([role])
+  @@index([grade])
+  @@index([cohortId])
+}
+
+model AnnouncementSeen {
+  id             String   @id @default(uuid())
+  userId         String
+  announcementId String
+  seenAt         DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, announcementId])
+  @@index([userId])
+  @@index([announcementId])
 }

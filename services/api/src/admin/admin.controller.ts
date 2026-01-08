@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 
@@ -15,7 +23,8 @@ export class AdminController {
   @Post('cohorts/join-code')
   joinCode(
     @Req() req: any,
-    @Body() body: { cohortId: string; expiresInHours?: number; length?: number },
+    @Body()
+    body: { cohortId: string; expiresInHours?: number; length?: number },
   ) {
     return this.admin.generateJoinCode(req.user, body);
   }
@@ -28,7 +37,13 @@ export class AdminController {
   @Post('schedule/slot')
   setSlot(
     @Req() req: any,
-    @Body() body: { cohortId: string; dayOfWeek: number; period: number; courseId?: string | null },
+    @Body()
+    body: {
+      cohortId: string;
+      dayOfWeek: number;
+      period: number;
+      courseId?: string | null;
+    },
   ) {
     return this.admin.setScheduleSlot(req.user, body);
   }
@@ -48,7 +63,13 @@ export class AdminController {
   @Post('schedule/override')
   setOverride(
     @Req() req: any,
-    @Body() body: { cohortId: string; date: string; period: number; courseId?: string | null },
+    @Body()
+    body: {
+      cohortId: string;
+      date: string;
+      period: number;
+      courseId?: string | null;
+    },
   ) {
     return this.admin.setScheduleOverride(req.user, body);
   }

@@ -1,11 +1,16 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
   let out = '';
-  for (let i = 0; i < len; i++) out += digits[Math.floor(Math.random() * digits.length)];
+  for (let i = 0; i < len; i++)
+    out += digits[Math.floor(Math.random() * digits.length)];
   return out;
 }
 
@@ -14,12 +19,14 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   private ensureAdmin(user: any) {
-    if (!user?.roles?.includes('ADMIN')) throw new ForbiddenException('Admin only');
+    if (!user?.roles?.includes('ADMIN'))
+      throw new ForbiddenException('Admin only');
   }
 
   async createCohort(user: any, body: { name: string; grade: number }) {
     this.ensureAdmin(user);
-    if (!body?.name || !body?.grade) throw new BadRequestException('name and grade are required');
+    if (!body?.name || !body?.grade)
+      throw new BadRequestException('name and grade are required');
 
     return this.prisma.cohort.create({
       data: { name: body.name, grade: body.grade },
@@ -33,10 +40,13 @@ export class AdminService {
     this.ensureAdmin(user);
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
-    const cohort = await this.prisma.cohort.findUnique({ where: { id: body.cohortId } });
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: body.cohortId },
+    });
     if (!cohort) throw new BadRequestException('Invalid cohortId');
 
-    const len = body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
+    const len =
+      body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
     const code = randomDigits(len);
     const codeHash = await bcrypt.hash(code, 10);
 
@@ -74,7 +84,12 @@ export class AdminService {
 
   async setScheduleSlot(
     user: any,
-    body: { cohortId: string; dayOfWeek: number; period: number; courseId?: string | null },
+    body: {
+      cohortId: string;
+      dayOfWeek: number;
+      period: number;
+      courseId?: string | null;
+    },
   ) {
     this.ensureAdmin(user);
 
@@ -86,7 +101,9 @@ export class AdminService {
       throw new BadRequestException('period must be 1..20');
 
     if (courseId) {
-      const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+      });
       if (!course) throw new BadRequestException('Invalid courseId');
     }
 
@@ -99,13 +116,17 @@ export class AdminService {
 
   async setScheduleBulk(
     user: any,
-    body: { cohortId: string; slots: { dayOfWeek: number; period: number; courseId?: string | null }[] },
+    body: {
+      cohortId: string;
+      slots: { dayOfWeek: number; period: number; courseId?: string | null }[];
+    },
   ) {
     this.ensureAdmin(user);
 
     const { cohortId, slots } = body ?? ({} as any);
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    if (!Array.isArray(slots) || slots.length === 0) throw new BadRequestException('slots[] is required');
+    if (!Array.isArray(slots) || slots.length === 0)
+      throw new BadRequestException('slots[] is required');
 
     for (const s of slots) {
       if (s.dayOfWeek === undefined || s.dayOfWeek < 0 || s.dayOfWeek > 6)
@@ -117,9 +138,20 @@ export class AdminService {
     let count = 0;
     for (const s of slots) {
       await this.prisma.scheduleSlot.upsert({
-        where: { cohortId_dayOfWeek_period: { cohortId, dayOfWeek: s.dayOfWeek, period: s.period } },
+        where: {
+          cohortId_dayOfWeek_period: {
+            cohortId,
+            dayOfWeek: s.dayOfWeek,
+            period: s.period,
+          },
+        },
         update: { courseId: s.courseId ?? null },
-        create: { cohortId, dayOfWeek: s.dayOfWeek, period: s.period, courseId: s.courseId ?? null },
+        create: {
+          cohortId,
+          dayOfWeek: s.dayOfWeek,
+          period: s.period,
+          courseId: s.courseId ?? null,
+        },
       });
       count++;
     }
@@ -129,7 +161,12 @@ export class AdminService {
 
   async setScheduleOverride(
     user: any,
-    body: { cohortId: string; date: string; period: number; courseId?: string | null },
+    body: {
+      cohortId: string;
+      date: string;
+      period: number;
+      courseId?: string | null;
+    },
   ) {
     this.ensureAdmin(user);
 
@@ -140,10 +177,13 @@ export class AdminService {
       throw new BadRequestException('period must be 1..20');
 
     const dt = new Date(`${date}T00:00:00.000Z`);
-    if (Number.isNaN(dt.getTime())) throw new BadRequestException('Invalid date format');
+    if (Number.isNaN(dt.getTime()))
+      throw new BadRequestException('Invalid date format');
 
     if (courseId) {
-      const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+      });
       if (!course) throw new BadRequestException('Invalid courseId');
     }
 

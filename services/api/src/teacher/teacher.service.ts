@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 function ymdInJerusalem(date = new Date()): string {
@@ -12,7 +16,8 @@ function ymdInJerusalem(date = new Date()): string {
 
 function parseYmdToUtcMidnight(ymd: string): Date {
   const dt = new Date(`${ymd}T00:00:00.000Z`);
-  if (Number.isNaN(dt.getTime())) throw new BadRequestException('Invalid date (YYYY-MM-DD)');
+  if (Number.isNaN(dt.getTime()))
+    throw new BadRequestException('Invalid date (YYYY-MM-DD)');
   return dt;
 }
 
@@ -22,7 +27,15 @@ function dayOfWeekInJerusalem(date = new Date()): number {
     weekday: 'short',
   }).format(date);
 
-  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const map: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
   return map[wk] ?? 0;
 }
 
@@ -49,12 +62,23 @@ export class TeacherService {
 
     return slots.map((s) => ({
       period: s.period,
-      cohort: { id: s.cohort.id, name: s.cohort.name, grade: (s.cohort as any).grade },
-      course: { id: s.course?.id, name: s.course?.name, subject: s.course?.subject },
+      cohort: {
+        id: s.cohort.id,
+        name: s.cohort.name,
+        grade: (s.cohort as any).grade,
+      },
+      course: {
+        id: s.course?.id,
+        name: s.course?.name,
+        subject: s.course?.subject,
+      },
     }));
   }
 
-  async getAttendanceSession(user: any, query: { cohortId: string; date?: string; period: number }) {
+  async getAttendanceSession(
+    user: any,
+    query: { cohortId: string; date?: string; period: number },
+  ) {
     this.ensureTeacher(user);
 
     const teacherId = user.sub ?? user.id;
@@ -62,12 +86,15 @@ export class TeacherService {
     const period = Number(query.period);
 
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    if (!Number.isInteger(period)) throw new BadRequestException('period is required');
+    if (!Number.isInteger(period))
+      throw new BadRequestException('period is required');
 
     const dateYmd = query.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
-    const dayOfWeek = dayOfWeekInJerusalem(new Date(`${dateYmd}T12:00:00.000Z`));
+    const dayOfWeek = dayOfWeekInJerusalem(
+      new Date(`${dateYmd}T12:00:00.000Z`),
+    );
 
     const template = await this.prisma.scheduleSlot.findUnique({
       where: { cohortId_dayOfWeek_period: { cohortId, dayOfWeek, period } },
@@ -81,8 +108,10 @@ export class TeacherService {
 
     const course = override?.course ?? template?.course ?? null;
 
-    if (!course) throw new BadRequestException('No course scheduled for this slot');
-    if (course.teacherId !== teacherId) throw new ForbiddenException('Not your course');
+    if (!course)
+      throw new BadRequestException('No course scheduled for this slot');
+    if (course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your course');
 
     const session = await this.prisma.attendanceSession.upsert({
       where: { cohortId_date_period: { cohortId, date, period } },
@@ -97,10 +126,16 @@ export class TeacherService {
       orderBy: { user: { name: 'asc' } },
     });
 
-    const recordByStudent = new Map(session.records.map((r) => [r.studentId, r]));
+    const recordByStudent = new Map(
+      session.records.map((r) => [r.studentId, r]),
+    );
 
     return {
-      cohort: { id: session.cohort.id, name: session.cohort.name, grade: (session.cohort as any).grade },
+      cohort: {
+        id: session.cohort.id,
+        name: session.cohort.name,
+        grade: (session.cohort as any).grade,
+      },
       date: dateYmd,
       period,
       course: { id: course.id, name: course.name, subject: course.subject },
@@ -133,32 +168,61 @@ export class TeacherService {
     const teacherId = user.sub ?? user.id;
 
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
-    if (!Number.isInteger(body?.period)) throw new BadRequestException('period is required');
-    if (!body?.studentId) throw new BadRequestException('studentId is required');
+    if (!Number.isInteger(body?.period))
+      throw new BadRequestException('period is required');
+    if (!body?.studentId)
+      throw new BadRequestException('studentId is required');
     if (!body?.status) throw new BadRequestException('status is required');
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
     if (body.courseId) {
-      const c = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+      const c = await this.prisma.course.findUnique({
+        where: { id: body.courseId },
+      });
       if (!c) throw new BadRequestException('Invalid courseId');
-      if (c.teacherId !== teacherId) throw new ForbiddenException('Not your course');
+      if (c.teacherId !== teacherId)
+        throw new ForbiddenException('Not your course');
     }
 
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: body.studentId } });
-    if (!sp || sp.cohortId !== body.cohortId) throw new BadRequestException('Student not in cohort');
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: body.studentId },
+    });
+    if (!sp || sp.cohortId !== body.cohortId)
+      throw new BadRequestException('Student not in cohort');
 
     const session = await this.prisma.attendanceSession.upsert({
-      where: { cohortId_date_period: { cohortId: body.cohortId, date, period: body.period } },
+      where: {
+        cohortId_date_period: {
+          cohortId: body.cohortId,
+          date,
+          period: body.period,
+        },
+      },
       update: { courseId: body.courseId ?? undefined },
-      create: { cohortId: body.cohortId, date, period: body.period, courseId: body.courseId ?? undefined },
+      create: {
+        cohortId: body.cohortId,
+        date,
+        period: body.period,
+        courseId: body.courseId ?? undefined,
+      },
     });
 
     const record = await this.prisma.attendanceRecord.upsert({
-      where: { sessionId_studentId: { sessionId: session.id, studentId: body.studentId } },
+      where: {
+        sessionId_studentId: {
+          sessionId: session.id,
+          studentId: body.studentId,
+        },
+      },
       update: { status: body.status as any, note: body.note ?? null },
-      create: { sessionId: session.id, studentId: body.studentId, status: body.status as any, note: body.note ?? null },
+      create: {
+        sessionId: session.id,
+        studentId: body.studentId,
+        status: body.status as any,
+        note: body.note ?? null,
+      },
     });
 
     return { ok: true, sessionId: session.id, recordId: record.id };
@@ -171,7 +235,11 @@ export class TeacherService {
       date?: string;
       period: number;
       courseId?: string | null;
-      records: { studentId: string; status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'; note?: string }[];
+      records: {
+        studentId: string;
+        status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+        note?: string;
+      }[];
     },
   ) {
     this.ensureTeacher(user);
@@ -179,7 +247,8 @@ export class TeacherService {
     const teacherId = user.sub ?? user.id;
 
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
-    if (!Number.isInteger(body?.period)) throw new BadRequestException('period is required');
+    if (!Number.isInteger(body?.period))
+      throw new BadRequestException('period is required');
     if (!Array.isArray(body?.records) || body.records.length === 0)
       throw new BadRequestException('records[] is required');
 
@@ -187,15 +256,29 @@ export class TeacherService {
     const date = parseYmdToUtcMidnight(dateYmd);
 
     if (body.courseId) {
-      const c = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+      const c = await this.prisma.course.findUnique({
+        where: { id: body.courseId },
+      });
       if (!c) throw new BadRequestException('Invalid courseId');
-      if (c.teacherId !== teacherId) throw new ForbiddenException('Not your course');
+      if (c.teacherId !== teacherId)
+        throw new ForbiddenException('Not your course');
     }
 
     const session = await this.prisma.attendanceSession.upsert({
-      where: { cohortId_date_period: { cohortId: body.cohortId, date, period: body.period } },
+      where: {
+        cohortId_date_period: {
+          cohortId: body.cohortId,
+          date,
+          period: body.period,
+        },
+      },
       update: { courseId: body.courseId ?? undefined },
-      create: { cohortId: body.cohortId, date, period: body.period, courseId: body.courseId ?? undefined },
+      create: {
+        cohortId: body.cohortId,
+        date,
+        period: body.period,
+        courseId: body.courseId ?? undefined,
+      },
     });
 
     const studentIds = body.records.map((r) => r.studentId);
@@ -203,32 +286,55 @@ export class TeacherService {
       where: { userId: { in: studentIds } },
       select: { userId: true, cohortId: true },
     });
-    const okSet = new Set(profiles.filter((p) => p.cohortId === body.cohortId).map((p) => p.userId));
+    const okSet = new Set(
+      profiles.filter((p) => p.cohortId === body.cohortId).map((p) => p.userId),
+    );
 
     let written = 0;
     for (const r of body.records) {
       if (!okSet.has(r.studentId)) continue;
       await this.prisma.attendanceRecord.upsert({
-        where: { sessionId_studentId: { sessionId: session.id, studentId: r.studentId } },
+        where: {
+          sessionId_studentId: {
+            sessionId: session.id,
+            studentId: r.studentId,
+          },
+        },
         update: { status: r.status as any, note: r.note ?? null },
-        create: { sessionId: session.id, studentId: r.studentId, status: r.status as any, note: r.note ?? null },
+        create: {
+          sessionId: session.id,
+          studentId: r.studentId,
+          status: r.status as any,
+          note: r.note ?? null,
+        },
       });
       written++;
     }
 
-    return { ok: true, sessionId: session.id, written, skipped: body.records.length - written };
+    return {
+      ok: true,
+      sessionId: session.id,
+      written,
+      skipped: body.records.length - written,
+    };
   }
 
-  async createAssessment(user: any, body: { courseId: string; title: string; date?: string }) {
+  async createAssessment(
+    user: any,
+    body: { courseId: string; title: string; date?: string },
+  ) {
     this.ensureTeacher(user);
     const teacherId = user.sub ?? user.id;
 
     if (!body?.courseId) throw new BadRequestException('courseId is required');
     if (!body?.title) throw new BadRequestException('title is required');
 
-    const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+    const course = await this.prisma.course.findUnique({
+      where: { id: body.courseId },
+    });
     if (!course) throw new BadRequestException('Invalid courseId');
-    if (course.teacherId !== teacherId) throw new ForbiddenException('Not your course');
+    if (course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your course');
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
@@ -245,20 +351,26 @@ export class TeacherService {
 
   async bulkGrades(
     user: any,
-    body: { assessmentId: string; grades: { studentId: string; grade: number; comment?: string }[] },
+    body: {
+      assessmentId: string;
+      grades: { studentId: string; grade: number; comment?: string }[];
+    },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.sub ?? user.id;
 
-    if (!body?.assessmentId) throw new BadRequestException('assessmentId is required');
-    if (!Array.isArray(body?.grades) || body.grades.length === 0) throw new BadRequestException('grades[] is required');
+    if (!body?.assessmentId)
+      throw new BadRequestException('assessmentId is required');
+    if (!Array.isArray(body?.grades) || body.grades.length === 0)
+      throw new BadRequestException('grades[] is required');
 
     const assessment = await this.prisma.assessment.findUnique({
       where: { id: body.assessmentId },
       include: { course: true },
     });
     if (!assessment) throw new BadRequestException('Invalid assessmentId');
-    if (assessment.course.teacherId !== teacherId) throw new ForbiddenException('Not your assessment');
+    if (assessment.course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your assessment');
 
     const cohortId = assessment.course.cohortId ?? null;
 
@@ -268,7 +380,11 @@ export class TeacherService {
       select: { userId: true, cohortId: true },
     });
 
-    const okSet = new Set(profiles.filter((p) => (cohortId ? p.cohortId === cohortId : true)).map((p) => p.userId));
+    const okSet = new Set(
+      profiles
+        .filter((p) => (cohortId ? p.cohortId === cohortId : true))
+        .map((p) => p.userId),
+    );
 
     let written = 0;
     for (const g of body.grades) {
@@ -277,13 +393,28 @@ export class TeacherService {
       if (!Number.isFinite(grade)) continue;
 
       await this.prisma.gradeRecord.upsert({
-        where: { assessmentId_studentId: { assessmentId: assessment.id, studentId: g.studentId } },
+        where: {
+          assessmentId_studentId: {
+            assessmentId: assessment.id,
+            studentId: g.studentId,
+          },
+        },
         update: { grade, comment: g.comment ?? null },
-        create: { assessmentId: assessment.id, studentId: g.studentId, grade, comment: g.comment ?? null },
+        create: {
+          assessmentId: assessment.id,
+          studentId: g.studentId,
+          grade,
+          comment: g.comment ?? null,
+        },
       });
       written++;
     }
 
-    return { ok: true, assessmentId: assessment.id, written, skipped: body.grades.length - written };
+    return {
+      ok: true,
+      assessmentId: assessment.id,
+      written,
+      skipped: body.grades.length - written,
+    };
   }
 }

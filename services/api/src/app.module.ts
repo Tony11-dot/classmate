@@ -6,8 +6,18 @@ import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ScheduleModule, StudentModule, AdminModule, TeacherModule, ParentModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    ScheduleModule,
+    StudentModule,
+    AdminModule,
+    TeacherModule,
+    ParentModule,
+    AnnouncementsModule,
+  ],
 })
 export class AppModule {}

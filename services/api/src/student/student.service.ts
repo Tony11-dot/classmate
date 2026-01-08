@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -11,7 +15,8 @@ export class StudentService {
   ) {}
 
   private ensureStudent(user: any) {
-    if (!user?.roles?.includes('STUDENT')) throw new ForbiddenException('Student only');
+    if (!user?.roles?.includes('STUDENT'))
+      throw new ForbiddenException('Student only');
   }
 
   async onboard(
@@ -30,7 +35,9 @@ export class StudentService {
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!body?.joinCode) throw new BadRequestException('joinCode is required');
 
-    const cohort = await this.prisma.cohort.findUnique({ where: { id: body.cohortId } });
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: body.cohortId },
+    });
     if (!cohort) throw new BadRequestException('Invalid cohortId');
 
     const codes = await this.prisma.cohortJoinCode.findMany({
@@ -73,16 +80,20 @@ export class StudentService {
   async todaySchedule(user: any) {
     this.ensureStudent(user);
     const studentId = user.sub ?? user.id;
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
-    if (!sp) throw new BadRequestException("Student not onboarded");
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+    });
+    if (!sp) throw new BadRequestException('Student not onboarded');
     return this.schedule.getTodayForCohort(sp.cohortId);
   }
 
   async weekSchedule(user: any) {
     this.ensureStudent(user);
     const studentId = user.sub ?? user.id;
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
-    if (!sp) throw new BadRequestException("Student not onboarded");
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+    });
+    if (!sp) throw new BadRequestException('Student not onboarded');
     return this.schedule.getWeekForCohort(sp.cohortId);
   }
 
@@ -90,7 +101,9 @@ export class StudentService {
     this.ensureStudent(user);
     const studentId = user.sub ?? user.id;
 
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId } });
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+    });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     const rows = await this.prisma.gradeRecord.findMany({
@@ -125,19 +138,31 @@ export class StudentService {
     };
   }
 
-  async generateParentLinkCode(user: any, body: { expiresInHours?: number; length?: number }) {
+  async generateParentLinkCode(
+    user: any,
+    body: { expiresInHours?: number; length?: number },
+  ) {
     this.ensureStudent(user);
     const childId = user.sub ?? user.id;
 
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: childId } });
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: childId },
+    });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
-    const len = body?.length && body.length >= 4 && body.length <= 8 ? Math.floor(body.length) : 6;
-    const hours = body?.expiresInHours && body.expiresInHours > 0 ? Math.floor(body.expiresInHours) : 72;
+    const len =
+      body?.length && body.length >= 4 && body.length <= 8
+        ? Math.floor(body.length)
+        : 6;
+    const hours =
+      body?.expiresInHours && body.expiresInHours > 0
+        ? Math.floor(body.expiresInHours)
+        : 72;
 
     const digits = '0123456789';
     let code = '';
-    for (let i = 0; i < len; i++) code += digits[Math.floor(Math.random() * digits.length)];
+    for (let i = 0; i < len; i++)
+      code += digits[Math.floor(Math.random() * digits.length)];
 
     const codeHash = await bcrypt.hash(code, 10);
 
@@ -153,5 +178,4 @@ export class StudentService {
 
     return { ok: true, code, expiresAt: expiresAt.toISOString() };
   }
-
 }

@@ -7,7 +7,15 @@ function dayOfWeekInJerusalem(date = new Date()): number {
     weekday: 'short',
   }).format(date);
 
-  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const map: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
   return map[wk] ?? 0;
 }
 
@@ -31,7 +39,8 @@ function startOfWeekSundayInJerusalem(anyDate: Date): Date {
 function parseYmd(ymd: string): Date {
   // Use noon UTC to avoid timezone edge cases when converting to Jerusalem weekday
   const dt = new Date(`${ymd}T12:00:00.000Z`);
-  if (Number.isNaN(dt.getTime())) throw new BadRequestException('Invalid date (expected YYYY-MM-DD)');
+  if (Number.isNaN(dt.getTime()))
+    throw new BadRequestException('Invalid date (expected YYYY-MM-DD)');
   return dt;
 }
 
@@ -71,7 +80,12 @@ export class ScheduleService {
         dayOfWeek: s.dayOfWeek,
         period: s.period,
         course: s.course
-          ? { id: s.course.id, name: s.course.name, subject: s.course.subject, teacherId: s.course.teacherId }
+          ? {
+              id: s.course.id,
+              name: s.course.name,
+              subject: s.course.subject,
+              teacherId: s.course.teacherId,
+            }
           : null,
       })),
       overrides: overrides.map((o) => ({
@@ -80,7 +94,12 @@ export class ScheduleService {
         date: o.date.toISOString(),
         period: o.period,
         course: o.course
-          ? { id: o.course.id, name: o.course.name, subject: o.course.subject, teacherId: o.course.teacherId }
+          ? {
+              id: o.course.id,
+              name: o.course.name,
+              subject: o.course.subject,
+              teacherId: o.course.teacherId,
+            }
           : null,
       })),
     };
@@ -112,7 +131,8 @@ export class ScheduleService {
     for (const o of overrides) overrideByPeriod.set(o.period, o);
 
     const periods = template.map((t) => t.period);
-    for (const o of overrides) if (!periods.includes(o.period)) periods.push(o.period);
+    for (const o of overrides)
+      if (!periods.includes(o.period)) periods.push(o.period);
     periods.sort((a, b) => a - b);
 
     return {
@@ -125,7 +145,12 @@ export class ScheduleService {
             period: p,
             source: 'OVERRIDE',
             course: o.course
-              ? { id: o.course.id, name: o.course.name, subject: o.course.subject, teacherId: o.course.teacherId }
+              ? {
+                  id: o.course.id,
+                  name: o.course.name,
+                  subject: o.course.subject,
+                  teacherId: o.course.teacherId,
+                }
               : null,
           };
         }
@@ -134,7 +159,12 @@ export class ScheduleService {
           period: p,
           source: 'TEMPLATE',
           course: t?.course
-            ? { id: t.course.id, name: t.course.name, subject: t.course.subject, teacherId: t.course.teacherId }
+            ? {
+                id: t.course.id,
+                name: t.course.name,
+                subject: t.course.subject,
+                teacherId: t.course.teacherId,
+              }
             : null,
         };
       }),

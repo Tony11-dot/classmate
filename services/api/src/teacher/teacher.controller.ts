@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TeacherService } from './teacher.service';
 
@@ -19,7 +27,11 @@ export class TeacherController {
     @Query('date') date: string | undefined,
     @Query('period') period: string,
   ) {
-    return this.teacher.getAttendanceSession(req.user, { cohortId, date, period: Number(period) });
+    return this.teacher.getAttendanceSession(req.user, {
+      cohortId,
+      date,
+      period: Number(period),
+    });
   }
 
   @Post('attendance/mark')
