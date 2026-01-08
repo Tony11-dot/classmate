@@ -526,7 +526,7 @@ export class ParentService {
           studentName: nameById.get(r.studentId) ?? null,
           title: `Attendance: ${ses.course?.name ?? 'course'} (period ${ses.period})`,
           data: {
-            date: (r.updatedAt ?? r.markedAt).toISOString(),
+            date: ses.date.toISOString(),
             period: ses.period,
             status: r.status,
             note: r.note ?? null,
