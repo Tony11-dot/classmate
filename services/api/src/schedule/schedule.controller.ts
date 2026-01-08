@@ -34,7 +34,8 @@ export class ScheduleController {
       });
       const cid = u?.studentProfile?.cohortId;
       if (!cid) throw new BadRequestException('Student is missing cohortId');
-      return this.schedule.getTodayForCohort(cid);
+      const data = await this.schedule.getTodayForCohort(cid);
+      return { ok: true, ...data };
     }
 
     // PARENT: require childId and verify APPROVED link
@@ -52,12 +53,14 @@ export class ScheduleController {
         throw new BadRequestException(
           'Child has no cohortId (no StudentProfile?)',
         );
-      return this.schedule.getTodayForCohort(cid);
+      const data = await this.schedule.getTodayForCohort(cid);
+      return { ok: true, ...data };
     }
 
     // TEACHER/ADMIN/SECRETARY: for now require cohortId (fast MVP)
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    return this.schedule.getTodayForCohort(cohortId);
+    const data = await this.schedule.getTodayForCohort(cohortId);
+    return { ok: true, ...data };
   }
 
   @Get('week')
@@ -77,7 +80,8 @@ export class ScheduleController {
       });
       const cid = u?.studentProfile?.cohortId;
       if (!cid) throw new BadRequestException('Student is missing cohortId');
-      return this.schedule.getWeekForCohort(cid, weekOf);
+      const data = await this.schedule.getWeekForCohort(cid, weekOf);
+      return { ok: true, ...data };
     }
 
     // PARENT: require childId and verify APPROVED link
@@ -95,12 +99,14 @@ export class ScheduleController {
         throw new BadRequestException(
           'Child has no cohortId (no StudentProfile?)',
         );
-      return this.schedule.getWeekForCohort(cid, weekOf);
+      const data = await this.schedule.getWeekForCohort(cid, weekOf);
+      return { ok: true, ...data };
     }
 
     // TEACHER/ADMIN/SECRETARY: require cohortId (fast MVP)
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    return this.schedule.getWeekForCohort(cohortId, weekOf);
+    const data = await this.schedule.getWeekForCohort(cohortId, weekOf);
+    return { ok: true, ...data };
   }
 
   @Get('week-grid')
@@ -120,7 +126,8 @@ export class ScheduleController {
       });
       const cid = u?.studentProfile?.cohortId;
       if (!cid) throw new BadRequestException('Student is missing cohortId');
-      return this.schedule.getWeekGridForCohort(cid, weekOf);
+      const data = await this.schedule.getWeekGridForCohort(cid, weekOf);
+      return { ok: true, ...data };
     }
 
     // PARENT: require childId and verify APPROVED link
@@ -138,11 +145,13 @@ export class ScheduleController {
         throw new BadRequestException(
           'Child has no cohortId (no StudentProfile?)',
         );
-      return this.schedule.getWeekGridForCohort(cid, weekOf);
+      const data = await this.schedule.getWeekGridForCohort(cid, weekOf);
+      return { ok: true, ...data };
     }
 
     // TEACHER/ADMIN/SECRETARY: require cohortId (fast MVP)
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    return this.schedule.getWeekGridForCohort(cohortId, weekOf);
+    const data = await this.schedule.getWeekGridForCohort(cohortId, weekOf);
+    return { ok: true, ...data };
   }
 }
