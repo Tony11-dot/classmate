@@ -414,7 +414,7 @@ export class TeacherService {
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
-    return this.prisma.assessment.create({
+    const assessment = await this.prisma.assessment.create({
       data: {
         courseId: body.courseId,
         title: body.title,
@@ -422,6 +422,8 @@ export class TeacherService {
         createdBy: teacherId,
       },
     });
+
+    return { ok: true, assessment };
   }
 
   async bulkGrades(
@@ -491,5 +493,117 @@ export class TeacherService {
       written,
       skipped: body.grades.length - written,
     };
+  }
+  // ---- Assessments (list/update/delete) ----
+
+  async listAssessments(user: any, query?: { courseId?: string }) {
+    this.ensureTeacher(user);
+    const teacherId = user.sub ?? user.id;
+
+    const courseId = query?.courseId;
+
+    // If courseId is provided: validate ownership and list assessments for that course
+    if (courseId) {
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+      });
+      if (!course) throw new BadRequestException('Invalid courseId');
+      if (course.teacherId !== teacherId)
+        throw new ForbiddenException('Not your course');
+
+      const assessments = await this.prisma.assessment.findMany({
+        where: { courseId: course.id },
+        orderBy: [{ date: 'desc' }, { id: 'desc' }],
+      });
+
+      return { ok: true, course, assessments };
+    }
+
+    // Otherwise: list all assessments for all courses owned by this teacher
+    const courses = await this.prisma.course.findMany({
+      where: { teacherId },
+      select: { id: true, name: true, subject: true, cohortId: true },
+      orderBy: { name: 'asc' },
+    });
+
+    const courseIds = courses.map((c) => c.id);
+    if (courseIds.length === 0)
+      return { ok: true, courses: [], assessments: [] };
+
+    const assessments = await this.prisma.assessment.findMany({
+      where: { courseId: { in: courseIds } },
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
+      include: { course: true },
+    });
+
+    return { ok: true, courses, assessments };
+  }
+
+  async updateAssessment(
+    user: any,
+    id: string,
+    body: { title?: string; date?: string | null },
+  ) {
+    this.ensureTeacher(user);
+    const teacherId = user.sub ?? user.id;
+
+    if (!id) throw new BadRequestException('id is required');
+    if (!body || (body.title === undefined && body.date === undefined))
+      throw new BadRequestException('Nothing to update');
+
+    const existing = await this.prisma.assessment.findUnique({
+      where: { id },
+      include: { course: true },
+    });
+    if (!existing) throw new BadRequestException('Invalid assessment id');
+    if (existing.course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your course');
+
+    const data: any = {};
+    if (body.title !== undefined) {
+      const t = String(body.title).trim();
+      if (!t) throw new BadRequestException('title cannot be empty');
+      data.title = t;
+    }
+
+    if (body.date !== undefined) {
+      if (body.date === null || String(body.date).trim() === '') {
+        // Keep strict: assessment.date is probably required. If you DO want nullable, update Prisma schema.
+        throw new BadRequestException('date cannot be null/empty');
+      } else {
+        const dateYmd = String(body.date);
+        const dt = parseYmdToUtcMidnight(dateYmd);
+        data.date = dt;
+      }
+    }
+
+    const updated = await this.prisma.assessment.update({
+      where: { id },
+      data,
+    });
+
+    return { ok: true, assessment: updated };
+  }
+
+  async deleteAssessment(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.sub ?? user.id;
+
+    if (!id) throw new BadRequestException('id is required');
+
+    const existing = await this.prisma.assessment.findUnique({
+      where: { id },
+      include: { course: true },
+    });
+    if (!existing) throw new BadRequestException('Invalid assessment id');
+    if (existing.course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your course');
+
+    // If Prisma schema doesn't cascade grade records, delete them first
+    await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: id } });
+
+    await this.prisma.assessment.delete({ where: { id } });
+
+    return { ok: true };
   }
 }
