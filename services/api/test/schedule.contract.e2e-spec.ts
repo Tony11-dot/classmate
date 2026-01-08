@@ -55,8 +55,7 @@ describe('Schedule contract (e2e)', () => {
   }
 
   it('GET /schedule/week-grid (student) matches /schedule/week output shape', async () => {
-    const STUDENT_TOKEN =
-      (await getToken('STUDENT')) || process.env.STUDENT_TOKEN || null;
+    const STUDENT_TOKEN = await getToken('STUDENT');
     if (!STUDENT_TOKEN) return;
 
     const a = await request(app.getHttpServer())
@@ -69,12 +68,8 @@ describe('Schedule contract (e2e)', () => {
       .set('Authorization', `Bearer ${STUDENT_TOKEN}`)
       .expect(200);
 
-    expect(a.body.ok).toBe(true);
-    expect(b.body.ok).toBe(true);
-    expect(a.body.cohort?.id).toEqual(b.body.cohort?.id);
-    expect(a.body.maxPeriod).toEqual(b.body.maxPeriod);
-    expect(Array.isArray(a.body.days)).toBe(true);
-    expect(Array.isArray(b.body.days)).toBe(true);
+    // Hard contract: week-grid MUST equal week (alias behavior)
+    expect(b.body).toEqual(a.body);
   });
 
   it('GET /schedule/week-grid (parent) requires childId and APPROVED link', async () => {
