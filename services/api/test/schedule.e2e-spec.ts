@@ -139,4 +139,56 @@ describe('Schedule (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(400);
   });
+  it('student: /schedule/today returns ok + day payload', async () => {
+    const token = await getToken('STUDENT');
+    if (!token) return;
+
+    const res = await request(app.getHttpServer())
+      .get('/schedule/today')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveProperty('ok', true);
+    // be flexible about exact payload fields, but enforce the important ones
+    // usually today returns { date, dayOfWeek, slots } (or similar)
+    // if your service returns something else, tweak these 2 lines.
+    expect(res.body).toHaveProperty('date');
+    expect(res.body).toHaveProperty('dayOfWeek');
+    expect(res.body).toHaveProperty('slots');
+    expect(Array.isArray(res.body.slots)).toBe(true);
+  });
+
+  it('parent: /schedule/today requires childId (when authenticated)', async () => {
+    const token = await getToken('PARENT');
+    const childId = process.env.CHILD_ID || null;
+    if (!token || !childId) return;
+
+    const res = await request(app.getHttpServer())
+      .get(`/schedule/today?childId=${encodeURIComponent(childId)}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveProperty('ok', true);
+    expect(res.body).toHaveProperty('date');
+    expect(res.body).toHaveProperty('dayOfWeek');
+    expect(res.body).toHaveProperty('slots');
+    expect(Array.isArray(res.body.slots)).toBe(true);
+  });
+
+  it('admin: /schedule/today requires cohortId (when authenticated)', async () => {
+    const token = await getToken('ADMIN');
+    const cohortId = process.env.COHORT_ID || null;
+    if (!token || !cohortId) return;
+
+    const res = await request(app.getHttpServer())
+      .get(`/schedule/today?cohortId=${encodeURIComponent(cohortId)}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveProperty('ok', true);
+    expect(res.body).toHaveProperty('date');
+    expect(res.body).toHaveProperty('dayOfWeek');
+    expect(res.body).toHaveProperty('slots');
+    expect(Array.isArray(res.body.slots)).toBe(true);
+  });
 });
