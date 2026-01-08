@@ -9,6 +9,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from './schedule.service';
+import { resolveCohortIdForSchedule } from './schedule.auth';
 
 @UseGuards(JwtAuthGuard)
 @Controller('schedule')
@@ -18,105 +19,97 @@ export class ScheduleController {
     private readonly prisma: PrismaService,
   ) {}
 
+  /**
+   * Resolve cohortId based on role:
+   * - STUDENT: from own StudentProfile
+   * - PARENT: require childId, verify APPROVED link, use child's StudentProfile
+   * - TEACHER/ADMIN/SECRETARY: require cohortId (fast MVP)
+   */
+  private async resolveCohortId(
+    req: any,
+    cohortId?: string,
+    childId?: string,
+  ): Promise<string> {
+    const roles: string[] = req.user?.roles ?? [];
+
+    if (roles.includes('STUDENT')) {
+      const u = await this.prisma.user.findUnique({
+        where: { id: req.user.id },
+        select: { studentProfile: { select: { cohortId: true } } },
+      });
+      const cid = u?.studentProfile?.cohortId;
+      if (!cid) throw new BadRequestException('Student is missing cohortId');
+      return cid;
+    }
+
+    if (roles.includes('PARENT')) {
+      if (!childId)
+        throw new BadRequestException('childId is required for parents');
+
+      const link = await this.prisma.parentChild.findFirst({
+        where: { parentId: req.user.id, childId, status: 'APPROVED' },
+        select: {
+          child: { select: { studentProfile: { select: { cohortId: true } } } },
+        },
+      });
+
+      const cid = link?.child?.studentProfile?.cohortId;
+      if (!cid)
+        throw new BadRequestException(
+          'Child has no cohortId (no StudentProfile?)',
+        );
+
+      return cid;
+    }
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    return cohortId;
+  }
+
   @Get('today')
   async today(
     @Req() req: any,
     @Query('cohortId') cohortId?: string,
     @Query('childId') childId?: string,
   ) {
-    const roles: string[] = req.user?.roles ?? [];
+    const cid = await resolveCohortIdForSchedule({
+      prisma: this.prisma,
+      req,
+      cohortId,
+      childId,
+    });
 
-    // STUDENT: from own StudentProfile -> cohortId
-    if (roles.includes('STUDENT')) {
-      const u = await this.prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { studentProfile: { select: { cohortId: true } } },
-      });
-      const cid = u?.studentProfile?.cohortId;
-      if (!cid) throw new BadRequestException('Student is missing cohortId');
-      const data = await this.schedule.getTodayForCohort(cid);
-      return { ok: true, ...data };
-    }
-
-    // PARENT: require childId and verify APPROVED link
-    if (roles.includes('PARENT')) {
-      if (!childId)
-        throw new BadRequestException('childId is required for parents');
-      const link = await this.prisma.parentChild.findFirst({
-        where: { parentId: req.user.id, childId, status: 'APPROVED' },
-        select: {
-          child: { select: { studentProfile: { select: { cohortId: true } } } },
-        },
-      });
-      const cid = link?.child?.studentProfile?.cohortId;
-      if (!cid)
-        throw new BadRequestException(
-          'Child has no cohortId (no StudentProfile?)',
-        );
-      const data = await this.schedule.getTodayForCohort(cid);
-      return { ok: true, ...data };
-    }
-
-    // TEACHER/ADMIN/SECRETARY: for now require cohortId (fast MVP)
-    if (!cohortId) throw new BadRequestException('cohortId is required');
-    const data = await this.schedule.getTodayForCohort(cohortId);
+    const data = await this.schedule.getTodayForCohort(cid);
     return { ok: true, ...data };
   }
 
   @Get('week')
-  week(
+  async week(
     @Req() req: any,
     @Query('cohortId') cohortId?: string,
     @Query('childId') childId?: string,
     @Query('weekOf') weekOf?: string,
   ) {
-    // Alias to /schedule/week-grid (same output shape)
-    return this.weekGrid(req, cohortId, childId, weekOf);
+    const cid = await resolveCohortIdForSchedule({
+      prisma: this.prisma,
+      req,
+      cohortId,
+      childId,
+    });
+
+    const data = await this.schedule.getWeekGridForCohort(cid, weekOf);
+
+    return { ok: true, ...data };
   }
 
   @Get('week-grid')
-  async weekGrid(
+  weekGrid(
     @Req() req: any,
     @Query('cohortId') cohortId?: string,
     @Query('childId') childId?: string,
     @Query('weekOf') weekOf?: string,
   ) {
-    const roles: string[] = req.user?.roles ?? [];
-
-    // STUDENT: from own StudentProfile -> cohortId
-    if (roles.includes('STUDENT')) {
-      const u = await this.prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { studentProfile: { select: { cohortId: true } } },
-      });
-      const cid = u?.studentProfile?.cohortId;
-      if (!cid) throw new BadRequestException('Student is missing cohortId');
-      const data = await this.schedule.getWeekGridForCohort(cid, weekOf);
-      return { ok: true, ...data };
-    }
-
-    // PARENT: require childId and verify APPROVED link
-    if (roles.includes('PARENT')) {
-      if (!childId)
-        throw new BadRequestException('childId is required for parents');
-      const link = await this.prisma.parentChild.findFirst({
-        where: { parentId: req.user.id, childId, status: 'APPROVED' },
-        select: {
-          child: { select: { studentProfile: { select: { cohortId: true } } } },
-        },
-      });
-      const cid = link?.child?.studentProfile?.cohortId;
-      if (!cid)
-        throw new BadRequestException(
-          'Child has no cohortId (no StudentProfile?)',
-        );
-      const data = await this.schedule.getWeekGridForCohort(cid, weekOf);
-      return { ok: true, ...data };
-    }
-
-    // TEACHER/ADMIN/SECRETARY: require cohortId (fast MVP)
-    if (!cohortId) throw new BadRequestException('cohortId is required');
-    const data = await this.schedule.getWeekGridForCohort(cohortId, weekOf);
-    return { ok: true, ...data };
+    // Alias to /schedule/week (same output shape)
+    return this.week(req, cohortId, childId, weekOf);
   }
 }
