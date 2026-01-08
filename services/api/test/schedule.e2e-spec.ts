@@ -1,6 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 const request = require('supertest');
+
+// --- token helpers ---
+async function login(app: any, email: string, password: string) {
+  const res = await request(app.getHttpServer())
+    .post('/auth/login')
+    .send({ email, password })
+    .expect(201); // change to 200 if your login returns 200
+
+  const token =
+    res.body?.access_token || res.body?.accessToken || res.body?.token;
+  if (!token) throw new Error('Login did not return an access token');
+  return token;
+}
+
+function requireEnv(name: string) {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing env var ${name}`);
+  return v;
+}
+
+function authHeader(token: string) {
+  return { Authorization: `Bearer ${token}` };
+}
 import { AppModule } from '../src/app.module';
 
 const env = (k: string) => process.env[k] ?? '';
@@ -32,7 +55,12 @@ describe('Schedule (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .get('/schedule/week')
-      .set(getAuth(env('STUDENT_TOKEN')))
+      .set(
+        getAuth(
+          process.env.STUDENT_TOKEN ??
+            (await login(app, env('STUDENT_EMAIL'), env('STUDENT_PASSWORD'))),
+        ),
+      )
       .expect(200);
 
     expect(res.body).toHaveProperty('ok', true);
@@ -48,11 +76,21 @@ describe('Schedule (e2e)', () => {
     const [a, b] = await Promise.all([
       request(app.getHttpServer())
         .get('/schedule/week')
-        .set(getAuth(env('STUDENT_TOKEN')))
+        .set(
+          getAuth(
+            process.env.STUDENT_TOKEN ??
+              (await login(app, env('STUDENT_EMAIL'), env('STUDENT_PASSWORD'))),
+          ),
+        )
         .expect(200),
       request(app.getHttpServer())
         .get('/schedule/week-grid')
-        .set(getAuth(env('STUDENT_TOKEN')))
+        .set(
+          getAuth(
+            process.env.STUDENT_TOKEN ??
+              (await login(app, env('STUDENT_EMAIL'), env('STUDENT_PASSWORD'))),
+          ),
+        )
         .expect(200),
     ]);
 
