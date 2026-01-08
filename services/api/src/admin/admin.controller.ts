@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -72,5 +75,83 @@ export class AdminController {
     },
   ) {
     return this.admin.setScheduleOverride(req.user, body);
+  }
+
+  // ---- Courses ----
+
+  @Get('courses')
+  listCourses(@Req() req: any, @Query('cohortId') cohortId?: string) {
+    return this.admin.listCourses(req.user, { cohortId });
+  }
+
+  @Post('courses')
+  createCourse(
+    @Req() req: any,
+    @Body()
+    body: {
+      name: string;
+      subject: string;
+      teacherId?: string | null;
+      cohortId?: string | null;
+      groupTag?: string | null;
+    },
+  ) {
+    return this.admin.createCourse(req.user, body);
+  }
+
+  @Patch('courses/:id')
+  updateCourse(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      name?: string;
+      subject?: string;
+      teacherId?: string | null;
+      cohortId?: string | null;
+      groupTag?: string | null;
+    },
+  ) {
+    return this.admin.updateCourse(req.user, id, body);
+  }
+
+  @Delete('courses/:id')
+  deleteCourse(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deleteCourse(req.user, id);
+  }
+
+  // ---- Schedule template helpers ----
+
+  @Delete('schedule/template')
+  clearTemplate(@Req() req: any, @Query('cohortId') cohortId: string) {
+    return this.admin.clearScheduleTemplate(req.user, cohortId);
+  }
+
+  @Post('schedule/template/clear-period')
+  clearPeriod(
+    @Req() req: any,
+    @Body() body: { cohortId: string; period: number },
+  ) {
+    return this.admin.clearSchedulePeriodAcrossWeek(req.user, body);
+  }
+
+  // ---- Schedule overrides helpers ----
+
+  @Get('schedule/overrides')
+  listOverrides(
+    @Req() req: any,
+    @Query('cohortId') cohortId: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ) {
+    return this.admin.listScheduleOverrides(req.user, { cohortId, from, to });
+  }
+
+  @Post('schedule/override/delete')
+  deleteOverride(
+    @Req() req: any,
+    @Body() body: { cohortId: string; date: string; period: number },
+  ) {
+    return this.admin.deleteScheduleOverride(req.user, body);
   }
 }

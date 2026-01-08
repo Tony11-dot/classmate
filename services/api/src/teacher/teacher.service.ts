@@ -52,27 +52,102 @@ export class TeacherService {
     this.ensureTeacher(user);
 
     const teacherId = user.sub ?? user.id;
-    const dayOfWeek = dayOfWeekInJerusalem(new Date());
+    const now = new Date();
+    const dayOfWeek = dayOfWeekInJerusalem(now);
+    const dateYmd = ymdInJerusalem(now);
+    const date = parseYmdToUtcMidnight(dateYmd);
 
-    const slots = await this.prisma.scheduleSlot.findMany({
+    // template lessons for this teacher today
+    const template = await this.prisma.scheduleSlot.findMany({
       where: { dayOfWeek, course: { teacherId } },
       orderBy: [{ period: 'asc' }],
       include: { cohort: true, course: true },
     });
 
-    return slots.map((s) => ({
-      period: s.period,
-      cohort: {
-        id: s.cohort.id,
-        name: s.cohort.name,
-        grade: (s.cohort as any).grade,
+    if (template.length === 0) {
+      return { ok: true, date: dateYmd, dayOfWeek, slots: [] };
+    }
+
+    const cohortIds = Array.from(new Set(template.map((t) => t.cohortId)));
+
+    // one-time overrides for today for those cohorts
+    const overrides = await this.prisma.scheduleOverride.findMany({
+      where: {
+        cohortId: { in: cohortIds },
+        date,
       },
-      course: {
-        id: s.course?.id,
-        name: s.course?.name,
-        subject: s.course?.subject,
-      },
-    }));
+      include: { course: true },
+    });
+
+    const overrideKey = (cohortId: string, period: number) =>
+      `${cohortId}::${period}`;
+    const overrideByKey = new Map(
+      overrides.map((o) => [overrideKey(o.cohortId, o.period), o]),
+    );
+
+    const out: any[] = [];
+
+    for (const t of template) {
+      const o = overrideByKey.get(overrideKey(t.cohortId, t.period));
+
+      if (o) {
+        // override exists
+        if (!o.courseId) {
+          out.push({
+            period: t.period,
+            source: 'OVERRIDE',
+            cohort: {
+              id: t.cohort.id,
+              name: t.cohort.name,
+              grade: (t.cohort as any).grade,
+            },
+            course: null,
+          });
+          continue;
+        }
+
+        // override course belongs to someone else -> not your slot anymore
+        if (o.course?.teacherId && o.course.teacherId !== teacherId) {
+          continue;
+        }
+
+        out.push({
+          period: t.period,
+          source: 'OVERRIDE',
+          cohort: {
+            id: t.cohort.id,
+            name: t.cohort.name,
+            grade: (t.cohort as any).grade,
+          },
+          course: o.course
+            ? {
+                id: o.course.id,
+                name: o.course.name,
+                subject: o.course.subject,
+              }
+            : null,
+        });
+        continue;
+      }
+
+      // template slot
+      out.push({
+        period: t.period,
+        source: 'TEMPLATE',
+        cohort: {
+          id: t.cohort.id,
+          name: t.cohort.name,
+          grade: (t.cohort as any).grade,
+        },
+        course: t.course
+          ? { id: t.course.id, name: t.course.name, subject: t.course.subject }
+          : null,
+      });
+    }
+
+    out.sort((a, b) => a.period - b.period);
+
+    return { ok: true, date: dateYmd, dayOfWeek, slots: out };
   }
 
   async getAttendanceSession(

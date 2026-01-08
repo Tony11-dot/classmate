@@ -193,4 +193,311 @@ export class AdminService {
       create: { cohortId, date: dt, period, courseId: courseId ?? null },
     });
   }
+
+  async upsertScheduleTemplate(body: {
+    cohortId: string;
+    slots: { dayOfWeek: number; period: number; courseId?: string | null }[];
+  }) {
+    const { cohortId, slots } = body;
+
+    if (!cohortId) return { ok: false, error: 'cohortId is required' };
+    if (!Array.isArray(slots))
+      return { ok: false, error: 'slots must be an array' };
+
+    const cleaned = slots.map((s) => ({
+      cohortId,
+      dayOfWeek: Number(s.dayOfWeek),
+      period: Number(s.period),
+      courseId: s.courseId ?? null,
+    }));
+
+    // upsert each slot (simple + reliable MVP)
+    for (const s of cleaned) {
+      await this.prisma.scheduleSlot.upsert({
+        where: {
+          cohortId_dayOfWeek_period: {
+            cohortId: s.cohortId,
+            dayOfWeek: s.dayOfWeek,
+            period: s.period,
+          },
+        },
+        create: {
+          cohortId: s.cohortId,
+          dayOfWeek: s.dayOfWeek,
+          period: s.period,
+          courseId: s.courseId,
+        },
+        update: { courseId: s.courseId },
+      });
+    }
+
+    return { ok: true, upserted: cleaned.length };
+  }
+
+  // ---- Courses ----
+
+  async listCourses(user: any, query: { cohortId?: string }) {
+    this.ensureAdmin(user);
+
+    const cohortId = query?.cohortId || undefined;
+
+    const rows = await this.prisma.course.findMany({
+      where: cohortId ? { cohortId } : {},
+      orderBy: [{ subject: 'asc' }, { name: 'asc' }],
+      include: {
+        cohort: true,
+        teacher: { select: { id: true, email: true, name: true } },
+      },
+      take: 500,
+    });
+
+    return {
+      ok: true,
+      courses: rows.map((c) => ({
+        id: c.id,
+        name: c.name,
+        subject: c.subject,
+        teacherId: c.teacherId,
+        cohortId: c.cohortId,
+        groupTag: c.groupTag ?? null,
+        cohort: c.cohort
+          ? {
+              id: c.cohort.id,
+              name: c.cohort.name,
+              grade: (c.cohort as any).grade,
+            }
+          : null,
+        teacher: c.teacher
+          ? { id: c.teacher.id, email: c.teacher.email, name: c.teacher.name }
+          : null,
+      })),
+    };
+  }
+
+  async createCourse(
+    user: any,
+    body: {
+      name: string;
+      subject: string;
+      teacherId?: string | null;
+      cohortId?: string | null;
+      groupTag?: string | null;
+    },
+  ) {
+    this.ensureAdmin(user);
+
+    const name = (body?.name ?? '').trim();
+    const subject = (body?.subject ?? '').trim();
+    const teacherId = body?.teacherId ?? null;
+    const cohortId = body?.cohortId ?? null;
+    const groupTag = body?.groupTag ?? null;
+
+    if (!name) throw new BadRequestException('name is required');
+    if (!subject) throw new BadRequestException('subject is required');
+
+    if (teacherId) {
+      const t = await this.prisma.user.findUnique({ where: { id: teacherId } });
+      if (!t) throw new BadRequestException('Invalid teacherId');
+    }
+
+    if (cohortId) {
+      const c = await this.prisma.cohort.findUnique({
+        where: { id: cohortId },
+      });
+      if (!c) throw new BadRequestException('Invalid cohortId');
+    }
+
+    const course = await this.prisma.course.create({
+      data: {
+        name,
+        subject,
+        teacherId,
+        cohortId,
+        groupTag,
+      },
+    });
+
+    return { ok: true, course };
+  }
+
+  async updateCourse(
+    user: any,
+    id: string,
+    body: {
+      name?: string;
+      subject?: string;
+      teacherId?: string | null;
+      cohortId?: string | null;
+      groupTag?: string | null;
+    },
+  ) {
+    this.ensureAdmin(user);
+    if (!id) throw new BadRequestException('id is required');
+
+    const exists = await this.prisma.course.findUnique({ where: { id } });
+    if (!exists) throw new BadRequestException('Course not found');
+
+    const data: any = {};
+
+    if (body?.name !== undefined) {
+      const v = body.name.trim();
+      if (!v) throw new BadRequestException('name cannot be empty');
+      data.name = v;
+    }
+
+    if (body?.subject !== undefined) {
+      const v = body.subject.trim();
+      if (!v) throw new BadRequestException('subject cannot be empty');
+      data.subject = v;
+    }
+
+    if (body?.teacherId !== undefined) {
+      if (body.teacherId) {
+        const t = await this.prisma.user.findUnique({
+          where: { id: body.teacherId },
+        });
+        if (!t) throw new BadRequestException('Invalid teacherId');
+      }
+      data.teacherId = body.teacherId;
+    }
+
+    if (body?.cohortId !== undefined) {
+      if (body.cohortId) {
+        const c = await this.prisma.cohort.findUnique({
+          where: { id: body.cohortId },
+        });
+        if (!c) throw new BadRequestException('Invalid cohortId');
+      }
+      data.cohortId = body.cohortId;
+    }
+
+    if (body?.groupTag !== undefined) {
+      data.groupTag = body.groupTag;
+    }
+
+    const course = await this.prisma.course.update({
+      where: { id },
+      data,
+    });
+
+    return { ok: true, course };
+  }
+
+  async deleteCourse(user: any, id: string) {
+    this.ensureAdmin(user);
+    if (!id) throw new BadRequestException('id is required');
+
+    // will cascade where relations use onDelete; otherwise Prisma will throw and we surface it
+    await this.prisma.course.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ---- Schedule admin helpers ----
+
+  async clearScheduleTemplate(user: any, cohortId: string) {
+    this.ensureAdmin(user);
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+
+    const res = await this.prisma.scheduleSlot.deleteMany({
+      where: { cohortId },
+    });
+    return { ok: true, deleted: res.count };
+  }
+
+  async clearSchedulePeriodAcrossWeek(
+    user: any,
+    body: { cohortId: string; period: number },
+  ) {
+    this.ensureAdmin(user);
+
+    const cohortId = body?.cohortId;
+    const period = Number(body?.period);
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    if (!Number.isInteger(period) || period < 1 || period > 20)
+      throw new BadRequestException('period must be 1..20');
+
+    const res = await this.prisma.scheduleSlot.updateMany({
+      where: { cohortId, period },
+      data: { courseId: null },
+    });
+
+    return { ok: true, updated: res.count };
+  }
+
+  async listScheduleOverrides(
+    user: any,
+    query: { cohortId: string; from: string; to: string },
+  ) {
+    this.ensureAdmin(user);
+
+    const cohortId = query?.cohortId;
+    const from = query?.from;
+    const to = query?.to;
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    if (!from) throw new BadRequestException('from is required (YYYY-MM-DD)');
+    if (!to) throw new BadRequestException('to is required (YYYY-MM-DD)');
+
+    const fromDt = new Date(`${from}T00:00:00.000Z`);
+    const toDt = new Date(`${to}T00:00:00.000Z`);
+    if (Number.isNaN(fromDt.getTime()) || Number.isNaN(toDt.getTime()))
+      throw new BadRequestException('Invalid date format');
+
+    // inclusive range: [from, to+1day)
+    const end = new Date(toDt.getTime());
+    end.setUTCDate(end.getUTCDate() + 1);
+
+    const rows = await this.prisma.scheduleOverride.findMany({
+      where: { cohortId, date: { gte: fromDt, lt: end } },
+      orderBy: [{ date: 'asc' }, { period: 'asc' }],
+      include: { course: true },
+      take: 2000,
+    });
+
+    return {
+      ok: true,
+      overrides: rows.map((o) => ({
+        id: o.id,
+        cohortId: o.cohortId,
+        date: o.date.toISOString(),
+        period: o.period,
+        course: o.course
+          ? {
+              id: o.course.id,
+              name: o.course.name,
+              subject: o.course.subject,
+              teacherId: o.course.teacherId,
+            }
+          : null,
+        courseId: o.courseId ?? null,
+      })),
+    };
+  }
+
+  async deleteScheduleOverride(
+    user: any,
+    body: { cohortId: string; date: string; period: number },
+  ) {
+    this.ensureAdmin(user);
+
+    const cohortId = body?.cohortId;
+    const date = body?.date;
+    const period = Number(body?.period);
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    if (!date) throw new BadRequestException('date is required (YYYY-MM-DD)');
+    if (!Number.isInteger(period) || period < 1 || period > 20)
+      throw new BadRequestException('period must be 1..20');
+
+    const dt = new Date(`${date}T00:00:00.000Z`);
+    if (Number.isNaN(dt.getTime()))
+      throw new BadRequestException('Invalid date format');
+
+    await this.prisma.scheduleOverride.delete({
+      where: { cohortId_date_period: { cohortId, date: dt, period } },
+    });
+
+    return { ok: true };
+  }
 }
