@@ -23,8 +23,8 @@ export class AnnouncementsController {
       title: string;
       body: string;
       pinned?: boolean;
-      publishAt?: string; // ISO or YYYY-MM-DD
-      expiresAt?: string; // ISO or YYYY-MM-DD
+      publishAt?: string;
+      expiresAt?: string;
       targets?: {
         userId?: string;
         role?: 'STUDENT' | 'TEACHER' | 'ADMIN' | 'PARENT' | 'SECRETARY';
@@ -46,6 +46,11 @@ export class AnnouncementsController {
       take: take ? Number(take) : 20,
       skip: skip ? Number(skip) : 0,
     });
+  }
+
+  @Get('targets')
+  targets(@Req() req: any) {
+    return this.announcements.targets(req.user);
   }
 
   @Get('unread-count')

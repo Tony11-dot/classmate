@@ -291,4 +291,28 @@ export class AnnouncementsService {
 
     return { ok: true, marked: rows.count };
   }
+
+  async targets(user: any) {
+    const roles = ['STUDENT', 'PARENT', 'TEACHER', 'SECRETARY', 'ADMIN'];
+
+    const gradeRows = await this.prisma.cohort.findMany({
+      select: { grade: true },
+      distinct: ['grade'],
+      orderBy: { grade: 'asc' },
+    });
+
+    const grades = gradeRows
+      .map((r) => r.grade)
+      .filter((g) => g !== null && g !== undefined) as number[];
+
+    const gradeList = grades.length ? grades : [7, 8, 9, 10, 11, 12];
+
+    const cohorts = await this.prisma.cohort.findMany({
+      select: { id: true, name: true, grade: true },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+      take: 500,
+    });
+
+    return { ok: true, roles, grades: gradeList, cohorts };
+  }
 }
