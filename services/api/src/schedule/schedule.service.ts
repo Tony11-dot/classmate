@@ -170,4 +170,89 @@ export class ScheduleService {
       }),
     };
   }
+
+  async getWeekGridForCohort(cohortId: string, weekOfYmd?: string) {
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+
+    const refDate = weekOfYmd ? parseYmd(weekOfYmd) : new Date();
+    const weekStart = startOfWeekSundayInJerusalem(refDate);
+    const weekEnd = new Date(weekStart.getTime());
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const slots = await this.prisma.scheduleSlot.findMany({
+      where: { cohortId },
+      orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
+      include: { course: true },
+    });
+
+    const overrides = await this.prisma.scheduleOverride.findMany({
+      where: { cohortId, date: { gte: weekStart, lt: weekEnd } },
+      orderBy: [{ date: 'asc' }, { period: 'asc' }],
+      include: { course: true },
+    });
+
+    const overrideByKey = new Map<string, any>();
+    for (const o of overrides) {
+      const ymd = ymdInJerusalem(o.date);
+      overrideByKey.set(`${ymd}::${o.period}`, o);
+    }
+
+    const days: any[] = [];
+    for (let dow = 0; dow <= 6; dow++) {
+      const d = new Date(weekStart.getTime());
+      d.setDate(d.getDate() + dow);
+      const ymd = ymdInJerusalem(d);
+
+      const templateForDay = slots.filter((x) => x.dayOfWeek === dow);
+      const periods = Array.from(new Set(templateForDay.map((t) => t.period)));
+
+      // add override-only periods for that day
+      for (const o of overrides) {
+        const oYmd = ymdInJerusalem(o.date);
+        if (oYmd === ymd && !periods.includes(o.period)) periods.push(o.period);
+      }
+
+      periods.sort((a, b) => a - b);
+
+      const outSlots = periods.map((p) => {
+        const o = overrideByKey.get(`${ymd}::${p}`);
+        if (o) {
+          return {
+            period: p,
+            source: 'OVERRIDE',
+            course: o.course
+              ? {
+                  id: o.course.id,
+                  name: o.course.name,
+                  subject: o.course.subject,
+                  teacherId: o.course.teacherId,
+                }
+              : null,
+          };
+        }
+
+        const t = templateForDay.find((x) => x.period === p);
+        return {
+          period: p,
+          source: 'TEMPLATE',
+          course: t?.course
+            ? {
+                id: t.course.id,
+                name: t.course.name,
+                subject: t.course.subject,
+                teacherId: t.course.teacherId,
+              }
+            : null,
+        };
+      });
+
+      days.push({ dayOfWeek: dow, date: ymd, slots: outSlots });
+    }
+
+    return {
+      weekStart: weekStart.toISOString(),
+      weekEnd: weekEnd.toISOString(),
+      days,
+    };
+  }
 }

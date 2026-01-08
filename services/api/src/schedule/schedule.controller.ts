@@ -68,4 +68,12 @@ export class ScheduleController {
     if (!cohortId) throw new BadRequestException('cohortId is required');
     return this.schedule.getWeekForCohort(cohortId, weekOf);
   }
+  @Get('week-grid')
+  async weekGrid(
+    @Query('cohortId') cohortId?: string,
+    @Query('weekOf') weekOf?: string,
+  ) {
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    return this.schedule.getWeekGridForCohort(cohortId, weekOf);
+  }
 }
