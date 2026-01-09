@@ -37,7 +37,42 @@ if [[ -n "${DATE:-}" ]]; then
   curl -s "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" \
     -H "Authorization: Bearer $TOKEN" | head -c 800 && echo -e "\n"
 
-  echo "✅ teacher smoke ok"
+  
+# --- optional: mark one student + verify (SMOKE_MARK=1) ---
+if [[ "${SMOKE_MARK:-}" == "1" ]]; then
+  echo "== fetch attendance session (for mark/verify)"
+  SESSION_JSON="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
+  echo "$SESSION_JSON" | head -c 800 && echo -e "\n"
+
+  STUDENT_ID="$(echo "$SESSION_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); ss=d.get('students') or []; print((ss[0].get('studentId') if ss else '') or '')" 2>/dev/null || true)"
+  if [[ -z "$STUDENT_ID" ]]; then
+    echo "No students found in session; skipping mark/verify."
+    exit 0
+  fi
+
+  echo "== mark attendance (studentId=$STUDENT_ID => LATE)"
+  MARK_RES="$(curl -sS "$BASE/teacher/attendance/mark" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"cohortId\":\"$COHORT_ID\",\"date\":\"$DATE\",\"period\":$PERIOD,\"studentId\":\"$STUDENT_ID\",\"status\":\"LATE\",\"note\":\"smoke\"}")"
+  echo "$MARK_RES" | head -c 400 && echo -e "\n"
+
+  echo "== verify"
+  VERIFY_JSON="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
+  STATUS="$(echo "$VERIFY_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$STUDENT_ID'; out=''; 
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('status') or ''
+print(out)" 2>/dev/null || true)"
+
+  if [[ "$STATUS" != "LATE" ]]; then
+    echo "❌ verify failed: expected status LATE, got '$STATUS'"
+    exit 1
+  fi
+  echo "✅ mark/verify ok"
+fi
+
+echo "✅ teacher smoke ok"
   exit 0
 fi
 
