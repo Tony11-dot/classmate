@@ -8,7 +8,7 @@ import { StudentService } from './student.service';
 
 @Module({
   imports: [ScheduleModule],
-  controllers: [StudentController],
+  controllers: [StudentController, StudentAttendanceController],
   providers: [StudentService, PrismaService],
 })
 export class StudentModule {}
