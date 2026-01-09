@@ -1,10 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  Patch,
   Post,
   Query,
   Req,
+  ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -25,12 +29,12 @@ export class TeacherController {
     @Req() req: any,
     @Query('cohortId') cohortId: string,
     @Query('date') date: string | undefined,
-    @Query('period') period: string,
+    @Query('period', ParseIntPipe) period: number,
   ) {
     return this.teacher.getAttendanceSession(req.user, {
       cohortId,
       date,
-      period: Number(period),
+      period,
     });
   }
 
@@ -54,5 +58,24 @@ export class TeacherController {
   @Post('grades/bulk')
   bulkGrades(@Req() req: any, @Body() body: any) {
     return this.teacher.bulkGrades(req.user, body);
+  }
+
+  @Get('grades/assessments')
+  listAssessments(@Req() req: any, @Query('courseId') courseId?: string) {
+    return this.teacher.listAssessments(req.user, { courseId });
+  }
+
+  @Patch('grades/assessment/:id')
+  updateAssessment(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.teacher.updateAssessment(req.user, id, body);
+  }
+
+  @Delete('grades/assessment/:id')
+  deleteAssessment(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.deleteAssessment(req.user, id);
   }
 }
