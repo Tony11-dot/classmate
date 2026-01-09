@@ -23,6 +23,25 @@ echo "== teacher schedule today"
 TODAY="$(curl -s "$BASE/teacher/schedule/today" -H "Authorization: Bearer $TOKEN")"
 echo "$TODAY" | head -c 400 && echo -e "\n"
 
+# Optional: force a specific date for attendance test (YYYY-MM-DD)
+# Example:
+#   DATE=2026-01-08 PERIOD=1 COHORT_ID=... ./scripts/smoke-teacher.sh
+if [[ -n "${DATE:-}" ]]; then
+  if [[ -z "${COHORT_ID:-}" ]]; then
+    echo "Set COHORT_ID when using DATE=..."
+    exit 1
+  fi
+  PERIOD="${PERIOD:-1}"
+
+  echo "== attendance session (forced date=$DATE cohortId=$COHORT_ID period=$PERIOD)"
+  curl -s "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" \
+    -H "Authorization: Bearer $TOKEN" | head -c 800 && echo -e "\n"
+
+  echo "✅ teacher smoke ok"
+  exit 0
+fi
+
+
 # Try to extract cohortId + period from payload if present
 INFER_COHORT_ID="$(echo "$TODAY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('cohortId') or d.get('cohort',{}).get('id') or '')" 2>/dev/null || true)"
 COHORT_ID="${COHORT_ID:-$INFER_COHORT_ID}"
