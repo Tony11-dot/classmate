@@ -629,4 +629,69 @@ export class ParentService {
 
     return { ok: true, lastSeenAt: row.lastSeenAt.toISOString() };
   }
+
+  async getChildAttendance(
+    user: any,
+    q: { childId: string; from?: string; to?: string },
+  ) {
+    // allow ADMIN for testing
+    if (!user?.roles?.includes('PARENT') && !user?.roles?.includes('ADMIN')) {
+      throw new ForbiddenException('Parent only');
+    }
+
+    const parentId = user.sub ?? user.id;
+    const childId = q.childId;
+    if (!childId) throw new BadRequestException('childId is required');
+
+    const link = await this.prisma.parentChild.findFirst({
+      where: { parentId, childId, status: 'APPROVED' as any },
+    });
+    if (!link) throw new ForbiddenException('Not linked');
+
+    const toYmd =
+      q.to ??
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(
+        new Date(),
+      );
+
+    const fromYmd =
+      q.from ??
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(
+        new Date(Date.now() - 29 * 24 * 60 * 60 * 1000),
+      );
+
+    const from = new Date(fromYmd + 'T00:00:00.000Z');
+    const to = new Date(toYmd + 'T00:00:00.000Z');
+    const toPlus = new Date(to.getTime() + 24 * 60 * 60 * 1000);
+
+    const records = await this.prisma.attendanceRecord.findMany({
+      where: {
+        studentId: childId,
+        session: { date: { gte: from, lt: toPlus } },
+      },
+      include: { session: { include: { course: true } } },
+      orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
+    });
+
+    return {
+      ok: true,
+      from: fromYmd,
+      to: toYmd,
+      items: records.map((r) => ({
+        date: new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC' }).format(
+          r.session.date,
+        ),
+        period: r.session.period,
+        status: r.status,
+        note: r.note,
+        course: r.session.course
+          ? {
+              id: r.session.course.id,
+              name: r.session.course.name,
+              subject: r.session.course.subject,
+            }
+          : null,
+      })),
+    };
+  }
 }

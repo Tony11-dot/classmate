@@ -178,4 +178,70 @@ export class StudentService {
 
     return { ok: true, code, expiresAt: expiresAt.toISOString() };
   }
+
+  async getMyAttendance(user: any, q: { from?: string; to?: string }) {
+    // allow ADMIN for testing
+    if (!user?.roles?.includes('STUDENT') && !user?.roles?.includes('ADMIN')) {
+      throw new ForbiddenException('Student only');
+    }
+
+    const studentId = user.sub ?? user.id;
+
+    const toYmd =
+      q.to ??
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(
+        new Date(),
+      );
+
+    const fromYmd =
+      q.from ??
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(
+        new Date(Date.now() - 29 * 24 * 60 * 60 * 1000),
+      );
+
+    const from = new Date(fromYmd + 'T00:00:00.000Z');
+    const to = new Date(toYmd + 'T00:00:00.000Z');
+    const toPlus = new Date(to.getTime() + 24 * 60 * 60 * 1000);
+
+    const profile = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      include: { cohort: true, user: true },
+    });
+
+    if (!profile) {
+      throw new BadRequestException('Student profile not found');
+    }
+
+    const records = await this.prisma.attendanceRecord.findMany({
+      where: {
+        studentId,
+        session: { date: { gte: from, lt: toPlus } },
+      },
+      include: { session: { include: { course: true } } },
+      orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
+    });
+
+    return {
+      ok: true,
+      student: { id: studentId, name: profile.user.name },
+      cohort: { id: profile.cohort.id, name: profile.cohort.name },
+      from: fromYmd,
+      to: toYmd,
+      items: records.map((r) => ({
+        date: new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC' }).format(
+          r.session.date,
+        ),
+        period: r.session.period,
+        status: r.status,
+        note: r.note,
+        course: r.session.course
+          ? {
+              id: r.session.course.id,
+              name: r.session.course.name,
+              subject: r.session.course.subject,
+            }
+          : null,
+      })),
+    };
+  }
 }
