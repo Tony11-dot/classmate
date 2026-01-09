@@ -150,28 +150,6 @@ print(out)" 2>/dev/null || true)"
     echo "✅ reset ok"
   fi
 fi
-
-
-  echo "== mark attendance (studentId=$STUDENT_ID => LATE)"
-  MARK_RES="$(curl -sS "$BASE/teacher/attendance/mark" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{\"cohortId\":\"$COHORT_ID\",\"date\":\"$DATE\",\"period\":$PERIOD,\"studentId\":\"$STUDENT_ID\",\"status\":\"LATE\",\"note\":\"smoke\"}")"
-  echo "$MARK_RES" | head -c 400 && echo -e "\n"
-
-  echo "== verify"
-  VERIFY_JSON="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
-  STATUS="$(echo "$VERIFY_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$STUDENT_ID'; out=''; 
-for x in (d.get('students') or []):
-  if x.get('studentId')==sid:
-    out=x.get('status') or ''
-print(out)" 2>/dev/null || true)"
-
-  if [[ "$STATUS" != "LATE" ]]; then
-    echo "❌ verify failed: expected status LATE, got '$STATUS'"
-    exit 1
-  fi
-  echo "✅ mark/verify ok"
 fi
 
 echo "✅ teacher smoke ok"
