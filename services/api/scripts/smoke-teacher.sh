@@ -59,7 +59,17 @@ fi
 
 if [[ -z "$PERIOD" ]]; then
   echo "No scheduled lessons today (no slot with a course)."
-  exit 0
+echo "↪ trying yesterday for attendance session…"
+
+YESTERDAY="$(python3 -c "import datetime as d; print((d.date.today()-d.timedelta(days=1)).isoformat())")"
+PERIOD="${PERIOD:-1}"
+
+echo "== attendance session (auto date=$YESTERDAY cohortId=$COHORT_ID period=$PERIOD)"
+curl -s "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$YESTERDAY&period=$PERIOD" \
+  -H "Authorization: Bearer $TOKEN" | head -c 800 && echo -e "\n"
+
+echo "✅ teacher smoke ok"
+exit 0
 fi
 
 echo "== attendance session (cohortId=$COHORT_ID period=$PERIOD)"
