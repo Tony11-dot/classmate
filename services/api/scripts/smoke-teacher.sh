@@ -38,17 +38,119 @@ if [[ -n "${DATE:-}" ]]; then
     -H "Authorization: Bearer $TOKEN" | head -c 800 && echo -e "\n"
 
   
-# --- optional: mark one student + verify (SMOKE_MARK=1) ---
+# --- optional: mark + bulk + verify (SMOKE_MARK=1) ---
+# knobs:
+#   MARK_STATUS=ABSENT|PRESENT|LATE|EXCUSED
+#   MARK_NOTE="text"
+#   MARK_TOGGLE=1        # toggles PRESENT<->ABSENT based on current value
+#   MARK_RESET=1         # restores original status/note after verify
+#   STUDENT_ID=...       # override selection
 if [[ "${SMOKE_MARK:-}" == "1" ]]; then
-  echo "== fetch attendance session (for mark/verify)"
+  echo "== fetch attendance session (for mark/bulk/verify)"
   SESSION_JSON="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
-  echo "$SESSION_JSON" | head -c 800 && echo -e "\n"
+  echo "$SESSION_JSON" | head -c 800 && echo -e "
+"
 
-  STUDENT_ID="$(echo "$SESSION_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); ss=d.get('students') or []; print((ss[0].get('studentId') if ss else '') or '')" 2>/dev/null || true)"
-  if [[ -z "$STUDENT_ID" ]]; then
-    echo "No students found in session; skipping mark/verify."
+  # pick student
+  PICKED_ID="${STUDENT_ID:-}"
+  if [[ -z "$PICKED_ID" ]]; then
+    PICKED_ID="$(echo "$SESSION_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); ss=d.get('students') or []; print((ss[0].get('studentId') if ss else '') or '')" 2>/dev/null || true)"
+  fi
+  if [[ -z "$PICKED_ID" ]]; then
+    echo "No students found in session; skipping mark/bulk/verify."
     exit 0
   fi
+
+  # read current status/note
+  CUR_STATUS="$(echo "$SESSION_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('status') or ''
+print(out)" 2>/dev/null || true)"
+  CUR_NOTE="$(echo "$SESSION_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('note') or ''
+print(out)" 2>/dev/null || true)"
+
+  # decide mark status
+  TARGET_STATUS="${MARK_STATUS:-LATE}"
+  TARGET_NOTE="${MARK_NOTE:-smoke}"
+
+  if [[ "${MARK_TOGGLE:-}" == "1" ]]; then
+    if [[ "$CUR_STATUS" == "PRESENT" ]]; then
+      TARGET_STATUS="ABSENT"
+      TARGET_NOTE="${MARK_NOTE:-toggle}"
+    else
+      TARGET_STATUS="PRESENT"
+      TARGET_NOTE="${MARK_NOTE:-toggle}"
+    fi
+  fi
+
+  echo "== mark attendance (studentId=$PICKED_ID => $TARGET_STATUS)"
+  MARK_RES="$(curl -sS "$BASE/teacher/attendance/mark" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"cohortId\":\"$COHORT_ID\",\"date\":\"$DATE\",\"period\":$PERIOD,\"studentId\":\"$PICKED_ID\",\"status\":\"$TARGET_STATUS\",\"note\":\"$TARGET_NOTE\"}")"
+  echo "$MARK_RES" | head -c 400 && echo -e "
+"
+
+  echo "== verify mark (expect $TARGET_STATUS/$TARGET_NOTE)"
+  VERIFY1="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
+  STATUS1="$(echo "$VERIFY1" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('status') or ''
+print(out)" 2>/dev/null || true)"
+  NOTE1="$(echo "$VERIFY1" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('note') or ''
+print(out)" 2>/dev/null || true)"
+  if [[ "$STATUS1" != "$TARGET_STATUS" || "$NOTE1" != "$TARGET_NOTE" ]]; then
+    echo "❌ mark verify failed: expected $TARGET_STATUS/$TARGET_NOTE, got '$STATUS1'/'$NOTE1'"
+    exit 1
+  fi
+  echo "✅ mark verify ok"
+
+  echo "== bulk attendance (studentId=$PICKED_ID => PRESENT/bulk)"
+  BULK_RES="$(curl -sS "$BASE/teacher/attendance/bulk" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"cohortId\":\"$COHORT_ID\",\"date\":\"$DATE\",\"period\":$PERIOD,\"records\":[{\"studentId\":\"$PICKED_ID\",\"status\":\"PRESENT\",\"note\":\"bulk\"}]}")"
+  echo "$BULK_RES" | head -c 500 && echo -e "
+"
+
+  echo "== verify bulk (expect PRESENT/bulk)"
+  VERIFY2="$(curl -sS "$BASE/teacher/attendance/session?cohortId=$COHORT_ID&date=$DATE&period=$PERIOD" -H "Authorization: Bearer $TOKEN")"
+  STATUS2="$(echo "$VERIFY2" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('status') or ''
+print(out)" 2>/dev/null || true)"
+  NOTE2="$(echo "$VERIFY2" | python3 -c "import sys,json; d=json.load(sys.stdin); sid='$PICKED_ID'; out='';
+for x in (d.get('students') or []):
+  if x.get('studentId')==sid:
+    out=x.get('note') or ''
+print(out)" 2>/dev/null || true)"
+  if [[ "$STATUS2" != "PRESENT" || "$NOTE2" != "bulk" ]]; then
+    echo "❌ bulk verify failed: expected PRESENT/bulk, got '$STATUS2'/'$NOTE2'"
+    exit 1
+  fi
+  echo "✅ bulk verify ok"
+
+  if [[ "${MARK_RESET:-}" == "1" && -n "$CUR_STATUS" ]]; then
+    echo "== reset back to original ($CUR_STATUS/$CUR_NOTE)"
+    curl -sS "$BASE/teacher/attendance/mark" \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d "{\"cohortId\":\"$COHORT_ID\",\"date\":\"$DATE\",\"period\":$PERIOD,\"studentId\":\"$PICKED_ID\",\"status\":\"$CUR_STATUS\",\"note\":\"$CUR_NOTE\"}" \
+      | head -c 300 && echo -e "
+"
+    echo "✅ reset ok"
+  fi
+fi
+
 
   echo "== mark attendance (studentId=$STUDENT_ID => LATE)"
   MARK_RES="$(curl -sS "$BASE/teacher/attendance/mark" \
