@@ -1,12 +1,26 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RequireAuth } from '../../components/RequireAuth';
 import { AdminShell } from '../../components/AdminShell';
 import { apiFetch } from '../../lib/api';
 import { toast } from '../../components/Toast';
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+
+type TeacherTodaySlot = {
+  period: number;
+  source: 'TEMPLATE' | 'OVERRIDE' | 'EMPTY';
+  cohort?: { id: string; name: string; grade: number } | null;
+  course?: { id: string; name: string; subject: string } | null;
+};
+
+type TeacherTodayResponse = {
+  ok: true;
+  date: string; // YYYY-MM-DD
+  dayOfWeek: number;
+  slots: TeacherTodaySlot[];
+};
 
 type SessionStudent = {
   studentId: string;
@@ -33,11 +47,13 @@ type BulkRequest = {
 };
 
 export default function AttendancePage() {
-  const [cohortId, setCohortId] = useState('84dd70e6-7739-49a9-93bf-8f9afae41246');
-  const [date, setDate] = useState('2026-01-08');
+  const [cohortId, setCohortId] = useState('');
+  const [date, setDate] = useState('');
   const [period, setPeriod] = useState<number>(1);
 
   const [loading, setLoading] = useState(false);
+  const [todayLoading, setTodayLoading] = useState(false);
+  const [today, setToday] = useState<TeacherTodayResponse | null>(null);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -64,18 +80,29 @@ export default function AttendancePage() {
 
   const dirtyCount = dirtyIds.length;
 
-  // Cmd+S / Ctrl+S to Save (feels pro)
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      const isSave = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's';
-      if (!isSave) return;
-      e.preventDefault();
-      if (dirtyCount > 0 && !saving) saveBulk();
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [dirtyCount, saving]);
+  async function loadToday() {
+    setErr(null);
+    setTodayLoading(true);
+    try {
+      const res = await apiFetch<TeacherTodayResponse>('/teacher/schedule/today');
+      setToday(res);
 
+      // If date isn't set yet, default to today date.
+      setDate((d) => d || res.date);
+      toast('Loaded today schedule', 'success');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to load today schedule';
+      setErr(msg);
+      toast(msg, 'error');
+      setToday(null);
+    } finally {
+      setTodayLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadToday();
+  }, []);
 
   function getRow(student: SessionStudent): DraftRow {
     const d = draft[student.studentId];
@@ -83,7 +110,20 @@ export default function AttendancePage() {
     return { status: student.status, note: student.note ?? '' };
   }
 
-  async function loadSession() {
+  const loadSession = useCallback(async () => {
+    if (!cohortId) {
+      const msg = 'Pick a session first (cohortId missing)';
+      setErr(msg);
+      toast(msg, 'error');
+      return;
+    }
+    if (!date) {
+      const msg = 'Pick a session first (date missing)';
+      setErr(msg);
+      toast(msg, 'error');
+      return;
+    }
+
     setErr(null);
     setLoading(true);
     try {
@@ -109,7 +149,7 @@ export default function AttendancePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [cohortId, date, period]);
 
   function setAllStatus(status: AttendanceStatus) {
     if (!data) return;
@@ -135,7 +175,7 @@ export default function AttendancePage() {
     });
   }
 
-  async function saveBulk() {
+  const saveBulk = useCallback(async () => {
     if (!data) return;
     if (dirtyCount === 0) return;
 
@@ -176,9 +216,20 @@ export default function AttendancePage() {
     } finally {
       setSaving(false);
     }
-  }
+  }, [data, dirtyCount, dirtyIds, draft, cohortId, date, period, loadSession]);
 
-  const visibleStudents = useMemo(() => {
+  // Cmd+S / Ctrl+S to Save (feels pro)
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const isSave = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's';
+      if (!isSave) return;
+      e.preventDefault();
+      if (dirtyCount > 0 && !saving) saveBulk();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [dirtyCount, saving, saveBulk]);
+const visibleStudents = useMemo(() => {
     if (!data) return [];
     if (!showChangedOnly) return data.students;
     const set = new Set(dirtyIds);
@@ -223,6 +274,62 @@ export default function AttendancePage() {
             >
               {saving ? 'Saving…' : `Save (${dirtyCount})`}
             </button>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded border p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-medium">Today sessions</div>
+              <div className="text-xs text-gray-600">
+                {today ? `Date: ${today.date}` : '—'}
+              </div>
+            </div>
+
+            <button
+              className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+              disabled={todayLoading}
+              onClick={loadToday}
+            >
+              {todayLoading ? 'Refreshing…' : 'Refresh'}
+            </button>
+          </div>
+
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
+            {(today?.slots ?? [])
+              .filter((s) => s.course && s.cohort)
+              .map((slot) => {
+                const active = slot.cohort?.id === cohortId && slot.period === period && today?.date === date;
+                return (
+                  <button
+                    key={`${slot.cohort?.id}-${slot.period}`}
+                    className={
+                      'rounded border px-3 py-2 text-left text-sm hover:bg-gray-50 ' +
+                      (active ? 'border-black bg-black text-white hover:bg-black' : '')
+                    }
+                    onClick={() => {
+                      setCohortId(slot.cohort!.id);
+                      setPeriod(slot.period);
+                      setDate(today!.date);
+                      setDraft({});
+                      setData(null);
+                      toast('Session selected', 'success');
+                      // auto-load
+                      void loadSession();
+                    }}
+                  >
+                    <div className="text-xs opacity-80">Period {slot.period}</div>
+                    <div className="font-medium">{slot.course!.name}</div>
+                    <div className="text-xs opacity-80">{slot.cohort!.name}</div>
+                  </button>
+                );
+              })}
+
+            {(today?.slots ?? []).filter((s) => s.course && s.cohort).length === 0 && (
+              <div className="text-sm text-gray-600">
+                No sessions for today.
+              </div>
+            )}
           </div>
         </div>
 
