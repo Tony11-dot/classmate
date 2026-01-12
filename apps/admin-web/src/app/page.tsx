@@ -1,16 +1,16 @@
-import { RequireAuth } from '../components/RequireAuth';
-import { AdminShell } from '../components/AdminShell';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getToken } from '../lib/api';
 
 export default function HomePage() {
-  return (
-    <RequireAuth>
-      <AdminShell>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="mt-2 text-gray-700">
-          Next step: wire real admin panels (attendance, schedule overrides,
-          cohorts, etc.).
-        </p>
-      </AdminShell>
-    </RequireAuth>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = getToken();
+    router.replace(token ? '/attendance' : '/login');
+  }, [router]);
+
+  return null;
 }
