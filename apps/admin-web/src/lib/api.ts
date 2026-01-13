@@ -1,9 +1,9 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ?? 'http://localhost:3000';
 
-const TOKEN_KEY = 'classmate_token';
+export const TOKEN_KEY = 'classmate_token';
 
-const TOKEN_EVT = 'classmate_token_change';
+export const TOKEN_EVT = 'classmate_token_change';
 function notifyTokenChange() {
   try { window.dispatchEvent(new Event(TOKEN_EVT)); } catch {}
 }
@@ -12,6 +12,7 @@ function notifyTokenChange() {
 export function setToken(token: string) {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(TOKEN_KEY, token);
+  notifyTokenChange();
 }
 
 export function getToken(): string | null {
@@ -22,6 +23,7 @@ export function getToken(): string | null {
 export function clearToken() {
   if (typeof window === 'undefined') return;
   window.localStorage.removeItem(TOKEN_KEY);
+  notifyTokenChange();
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

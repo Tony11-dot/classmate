@@ -13,8 +13,6 @@ function todayYmd() {
 }
 
 test('grades e2e: create assessment -> enter grade -> prefill on reopen', async ({ page, request }) => {
-  page.on('console', (msg) => console.log('BROWSER:', msg.type(), msg.text()));
-  page.on('pageerror', (err) => console.log('PAGEERROR:', err.message));
 
   // login via backend (teacher)
   const resp = await request.post(`${API}/auth/login`, {
@@ -32,10 +30,6 @@ test('grades e2e: create assessment -> enter grade -> prefill on reopen', async 
     window.localStorage.setItem(key, token);
     window.dispatchEvent(new Event('classmate_token_change'));
   }, { key: TOKEN_KEY, token });
-
-  // DEBUG_TOKEN: verify token persisted
-  const tok = await page.evaluate((k) => window.localStorage.getItem(k), TOKEN_KEY);
-  expect(tok).toBeTruthy();
 
   // open grades page
   await page.goto(`${BASE}/grades`, { waitUntil: 'domcontentloaded' });

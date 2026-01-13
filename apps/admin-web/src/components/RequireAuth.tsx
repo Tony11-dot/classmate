@@ -2,9 +2,8 @@
 
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
+import { TOKEN_KEY, TOKEN_EVT } from '@/lib/api';
 
-const TOKEN_KEY = 'classmate_token';
-const TOKEN_EVT = 'classmate_token_change';
 const SSR_TOKEN_SENTINEL = '__SSR__';
 
 function subscribe(onStoreChange: () => void) {
