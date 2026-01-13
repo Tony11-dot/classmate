@@ -3,6 +3,12 @@ const API_BASE =
 
 const TOKEN_KEY = 'classmate_token';
 
+const TOKEN_EVT = 'classmate_token_change';
+function notifyTokenChange() {
+  try { window.dispatchEvent(new Event(TOKEN_EVT)); } catch {}
+}
+
+
 export function setToken(token: string) {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(TOKEN_KEY, token);
