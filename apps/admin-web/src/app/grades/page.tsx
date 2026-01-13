@@ -319,6 +319,12 @@ export default function GradesPage() {
                           >
                             Open
                           </button>
+                          <button
+                            className="rounded border px-2 py-1 text-xs hover:bg-gray-50"
+                            onClick={() => deleteAssessment(a.id)}
+                          >
+                            Delete
+                          </button>
                           </td>
                             </tr>
                           ))}
