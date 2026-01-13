@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { apiFetch, fetchCohortStudents, type CohortStudent } from '@/lib/api';
+import { apiFetch, fetchAssessmentGrades, fetchCohortStudents, type CohortStudent } from '@/lib/api';
 import { RequireAuth } from '@/components/RequireAuth';
 import { AdminShell } from '@/components/AdminShell';
 
@@ -98,6 +98,23 @@ export default function GradesPage() {
         return;
       }
       const res = await fetchCohortStudents(cohortId);
+      // prefill any existing grades for this assessment
+      const g = await fetchAssessmentGrades(a.id);
+      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));
+      const commentMap = new Map(g.grades.map((r) => [r.studentId, r.comment ?? '']));
+
+      setGradesDraft(() => {
+        const d: Record<string, number | ''> = {};
+        for (const st of res.students) d[st.studentId] = gradeMap.get(st.studentId) ?? '';
+        return d;
+      });
+
+      setCommentsDraft(() => {
+        const d: Record<string, string> = {};
+        for (const st of res.students) d[st.studentId] = commentMap.get(st.studentId) ?? '';
+        return d;
+      });
+
       setStudents(res.students);
     } catch (e: unknown) {
       setErr(errMsg(e, 'Failed to load cohort students'));

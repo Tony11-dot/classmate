@@ -69,3 +69,11 @@ export async function fetchCohortStudents(cohortId: string) {
   );
 }
 
+
+export type GradeRow = { studentId: string; grade: number; comment: string | null };
+
+export async function fetchAssessmentGrades(assessmentId: string) {
+  return apiFetch<{ ok: true; assessmentId: string; grades: GradeRow[] }>(
+    `/teacher/grades/assessment/${assessmentId}/grades`,
+  );
+}
