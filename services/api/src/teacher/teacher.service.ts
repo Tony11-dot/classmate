@@ -410,8 +410,11 @@ export class TeacherService {
 
     const rows = await this.prisma.studentProfile.findMany({
       where: { cohortId },
-      select: { userId: true },
-      orderBy: [{ userId: 'asc' }],
+      select: {
+        userId: true,
+        user: { select: { name: true, displayName: true, legalName: true, email: true } },
+      },
+      orderBy: [{ user: { name: 'asc' } }, { userId: 'asc' }],
     });
 
     return {
@@ -419,7 +422,7 @@ export class TeacherService {
       cohortId,
       students: rows.map((r) => ({
         studentId: r.userId,
-        name: r.userId, // TODO: enrich with real name/email once we confirm Prisma relations
+        name: r.user.displayName || r.user.legalName || r.user.name || r.user.email || r.userId
       })),
     };
   }
@@ -567,6 +570,30 @@ export class TeacherService {
     });
 
     return { ok: true, courses, assessments };
+  }
+
+
+  async assessmentGrades(user: any, assessmentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.sub ?? user.id;
+
+    if (!assessmentId) throw new BadRequestException('assessmentId is required');
+
+    const assessment = await this.prisma.assessment.findUnique({
+      where: { id: assessmentId },
+      include: { course: true },
+    });
+    if (!assessment) throw new BadRequestException('Invalid assessmentId');
+    if (assessment.course.teacherId !== teacherId)
+      throw new ForbiddenException('Not your assessment');
+
+    const rows = await this.prisma.gradeRecord.findMany({
+      where: { assessmentId },
+      select: { studentId: true, grade: true, comment: true },
+      orderBy: [{ studentId: 'asc' }],
+    });
+
+    return { ok: true, assessmentId, grades: rows };
   }
 
   async updateAssessment(

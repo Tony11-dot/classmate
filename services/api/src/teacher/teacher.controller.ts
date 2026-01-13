@@ -70,6 +70,11 @@ export class TeacherController {
     return this.teacher.listAssessments(req.user, { courseId });
   }
 
+  @Get('grades/assessment/:id/grades')
+  assessmentGrades(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.assessmentGrades(req.user, id);
+  }
+
   @Patch('grades/assessment/:id')
   updateAssessment(
     @Req() req: any,
