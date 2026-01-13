@@ -59,3 +59,13 @@ export async function apiFetch<T>(
 
   return data as T;
 }
+
+
+export type CohortStudent = { studentId: string; name: string };
+
+export async function fetchCohortStudents(cohortId: string) {
+  return apiFetch<{ ok: true; cohortId: string; students: CohortStudent[] }>(
+    `/teacher/cohort/${cohortId}/students`,
+  );
+}
+

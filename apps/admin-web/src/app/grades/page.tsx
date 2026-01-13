@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, fetchCohortStudents, type CohortStudent } from '@/lib/api';
 import { RequireAuth } from '@/components/RequireAuth';
 import { AdminShell } from '@/components/AdminShell';
 
@@ -31,6 +31,12 @@ export default function GradesPage() {
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [students, setStudents] = useState<CohortStudent[]>([]);
+  const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
+  const [savingGrades, setSavingGrades] = useState(false);
+
 
   // create form
   const [courseId, setCourseId] = useState('');
@@ -77,6 +83,48 @@ export default function GradesPage() {
       setErr(errMsg(e, 'Create assessment failed'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function openAssessment(a: Assessment) {
+    setErr(null);
+    setSelectedId(a.id);
+    setStudents([]);
+    setGradesDraft({});
+    try {
+      const cohortId = a.course?.cohortId ?? courses.find((c) => c.id === a.courseId)?.cohortId ?? null;
+      if (!cohortId) {
+        setErr('Course cohortId missing (cannot load students)');
+        return;
+      }
+      const res = await fetchCohortStudents(cohortId);
+      setStudents(res.students);
+    } catch (e: unknown) {
+      setErr(errMsg(e, 'Failed to load cohort students'));
+    }
+  }
+
+  async function saveGrades() {
+    if (!selectedId) return;
+    setErr(null);
+    setSavingGrades(true);
+    try {
+      const grades = students
+        .map((st) => ({ studentId: st.studentId, grade: gradesDraft[st.studentId] }))
+        .filter((g) => g.grade !== '' && g.grade !== undefined)
+        .map((g) => ({ studentId: g.studentId, grade: Number(g.grade) }));
+      if (grades.length === 0) {
+        setErr('Enter at least one grade');
+        return;
+      }
+      await apiFetch('/teacher/grades/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ assessmentId: selectedId, grades }),
+      });
+    } catch (e: unknown) {
+      setErr(errMsg(e, 'Save grades failed'));
+    } finally {
+      setSavingGrades(false);
     }
   }
 
@@ -177,6 +225,60 @@ export default function GradesPage() {
             </div>
           </div>
 
+          {selectedId && (
+            <div className="rounded border p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">Grade entry</div>
+                <button
+                  className="rounded bg-black px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+                  disabled={savingGrades || students.length === 0}
+                  onClick={saveGrades}
+                >
+                  {savingGrades ? 'Saving…' : 'Save grades'}
+                </button>
+              </div>
+
+              <div className="mt-3 text-xs text-gray-600">
+                Selected assessment: {selectedId}
+              </div>
+
+              {students.length === 0 ? (
+                <div className="mt-3 text-sm text-gray-500">No students loaded.</div>
+              ) : (
+                <div className="mt-3 overflow-hidden rounded border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-left text-gray-600">
+                      <tr>
+                        <th className="px-3 py-2">Student</th>
+                        <th className="px-3 py-2">Grade</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((st) => (
+                        <tr key={st.studentId} className="border-t">
+                          <td className="px-3 py-2">{st.name}</td>
+                          <td className="px-3 py-2">
+                            <input
+                              className="w-28 rounded border px-2 py-1"
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={gradesDraft[st.studentId] ?? ''}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                setGradesDraft((d) => ({ ...d, [st.studentId]: v === '' ? '' : Number(v) }));
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {err && (
             <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {err}
@@ -211,14 +313,13 @@ export default function GradesPage() {
                               <td className="py-2">{a.title}</td>
                               <td className="py-2">{new Date(a.date).toISOString().slice(0, 10)}</td>
                               <td className="py-2 text-right">
-                                <button
-                                  className="rounded border px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-50"
-                                  disabled={loading}
-                                  onClick={() => deleteAssessment(a.id)}
-                                >
-                                  Delete
-                                </button>
-                              </td>
+                          <button
+                            className="mr-2 rounded border px-2 py-1 text-xs hover:bg-gray-50"
+                            onClick={() => openAssessment(a)}
+                          >
+                            Open
+                          </button>
+                          </td>
                             </tr>
                           ))}
                         </tbody>
