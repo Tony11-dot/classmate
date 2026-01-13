@@ -100,21 +100,11 @@ export default function GradesPage() {
       const res = await fetchCohortStudents(cohortId);
       // prefill any existing grades for this assessment
       const g = await fetchAssessmentGrades(a.id);
-      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));
-      const commentMap = new Map(g.grades.map((r) => [r.studentId, r.comment ?? '']));
-
-      setGradesDraft(() => {
+      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));      setGradesDraft(() => {
         const d: Record<string, number | ''> = {};
         for (const st of res.students) d[st.studentId] = gradeMap.get(st.studentId) ?? '';
         return d;
       });
-
-      setCommentsDraft(() => {
-        const d: Record<string, string> = {};
-        for (const st of res.students) d[st.studentId] = commentMap.get(st.studentId) ?? '';
-        return d;
-      });
-
       setStudents(res.students);
     } catch (e: unknown) {
       setErr(errMsg(e, 'Failed to load cohort students'));
@@ -243,7 +233,7 @@ export default function GradesPage() {
           </div>
 
           {selectedId && (
-            <div className="rounded border p-4">
+            <div className="rounded border p-4" data-testid="grade-entry">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium">Grade entry</div>
                 <button
@@ -263,7 +253,7 @@ export default function GradesPage() {
                 <div className="mt-3 text-sm text-gray-500">No students loaded.</div>
               ) : (
                 <div className="mt-3 overflow-hidden rounded border">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm" data-testid="grades-entry-table">
                     <thead className="bg-gray-50 text-left text-gray-600">
                       <tr>
                         <th className="px-3 py-2">Student</th>
@@ -278,6 +268,7 @@ export default function GradesPage() {
                             <input
                               className="w-28 rounded border px-2 py-1"
                               type="number"
+                              data-testid={`grade-${st.studentId}`}
                               min={0}
                               max={100}
                               value={gradesDraft[st.studentId] ?? ''}
