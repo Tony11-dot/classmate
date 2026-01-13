@@ -16,6 +16,11 @@ type Assessment = {
   course?: { id: string; name: string; subject: string; cohortId?: string | null };
 };
 
+
+function errMsg(e: unknown, fallback: string) {
+  return e instanceof Error ? e.message : fallback;
+}
+
 type ListAssessmentsResp =
   | { ok: true; courses: Course[]; assessments: Assessment[] }
   | { ok: true; course: Course; assessments: Assessment[] };
@@ -47,8 +52,8 @@ export default function GradesPage() {
         setAssessments(res.assessments);
         if (!courseId) setCourseId(res.course.id);
       }
-    } catch (e: any) {
-      setErr(e?.message ?? 'Failed to load grades');
+    } catch (e: unknown) {
+      setErr(errMsg(e, 'Failed to load grades'));
     } finally {
       setLoading(false);
     }
@@ -58,7 +63,7 @@ export default function GradesPage() {
     setErr(null);
     setLoading(true);
     try {
-      const body: any = { courseId, title };
+      const body: { courseId: string; title: string; date?: string } = { courseId, title };
       if (date) body.date = date; // service expects YYYY-MM-DD
       const res = await apiFetch<{ ok: true; assessment: Assessment }>(
         '/teacher/grades/assessment',
@@ -68,8 +73,8 @@ export default function GradesPage() {
       setAssessments((a) => [res.assessment, ...a]);
       setTitle('');
       setDate('');
-    } catch (e: any) {
-      setErr(e?.message ?? 'Create assessment failed');
+    } catch (e: unknown) {
+      setErr(errMsg(e, 'Create assessment failed'));
     } finally {
       setLoading(false);
     }
@@ -82,8 +87,8 @@ export default function GradesPage() {
     try {
       await apiFetch(`/teacher/grades/assessment/${id}`, { method: 'DELETE' });
       setAssessments((a) => a.filter((x) => x.id !== id));
-    } catch (e: any) {
-      setErr(e?.message ?? 'Delete failed');
+    } catch (e: unknown) {
+      setErr(errMsg(e, 'Delete failed'));
     } finally {
       setLoading(false);
     }
