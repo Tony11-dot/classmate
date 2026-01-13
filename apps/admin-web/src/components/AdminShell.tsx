@@ -33,6 +33,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <nav className="space-y-1">
             <NavItem href="/" label="Dashboard" />
             <NavItem href="/attendance" label="Attendance" />
+            <NavItem href="/grades" label="Grades" />
           </nav>
         </aside>
 
