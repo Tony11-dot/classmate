@@ -48,6 +48,11 @@ export class TeacherController {
     return this.teacher.bulkAttendance(req.user, body);
   }
 
+  @Get('cohort/:cohortId/students')
+  cohortStudents(@Req() req: any, @Param('cohortId') cohortId: string) {
+    return this.teacher.cohortStudents(req.user, cohortId);
+  }
+
   // ---- Grades ----
 
   @Post('grades/assessment')

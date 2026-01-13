@@ -394,6 +394,36 @@ export class TeacherService {
     };
   }
 
+
+  async cohortStudents(user: any, cohortId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.sub ?? user.id;
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+
+    // ensure teacher owns at least one course in this cohort (authorization)
+    const owns = await this.prisma.course.findFirst({
+      where: { teacherId, cohortId },
+      select: { id: true },
+    });
+    if (!owns) throw new ForbiddenException('Not your cohort');
+
+    const rows = await this.prisma.studentProfile.findMany({
+      where: { cohortId },
+      select: { userId: true },
+      orderBy: [{ userId: 'asc' }],
+    });
+
+    return {
+      ok: true,
+      cohortId,
+      students: rows.map((r) => ({
+        studentId: r.userId,
+        name: r.userId, // TODO: enrich with real name/email once we confirm Prisma relations
+      })),
+    };
+  }
+
   async createAssessment(
     user: any,
     body: { courseId: string; title: string; date?: string },
