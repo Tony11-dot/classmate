@@ -429,7 +429,7 @@ export class TeacherService {
 
   async createAssessment(
     user: any,
-    body: { courseId: string; title: string; date?: string },
+    body: { courseId: string; title: string; date?: string; maxGrade?: number },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.sub ?? user.id;
@@ -452,7 +452,7 @@ export class TeacherService {
         courseId: body.courseId,
         title: body.title,
         date,
-        maxGrade: body.maxGrade ?? null,
+        maxGrade: body.maxGrade ?? undefined,
         createdBy: teacherId,
       },
     });
