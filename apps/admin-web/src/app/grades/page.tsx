@@ -36,11 +36,8 @@ export default function GradesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 const [students, setStudents] = useState<CohortStudent[]>([]);
   const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
-  const [saving, setSavingGrades] = useState(false);
-  const [saveError, setSaveError] = useState('');
-
   const [saving, setSaving] = useState(false);
-  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState('');const [savedAt, setSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
     if (!savedAt) return;
@@ -137,7 +134,7 @@ setLoading(false);
   async function saveGrades() {
     if (!selectedId) return;
     setErr(null);
-    setSavingGrades(true);
+    setSaving(true);
     try {
       const grades = students
         .map((st) => ({ studentId: st.studentId, grade: gradesDraft[st.studentId] }))
@@ -158,7 +155,7 @@ setLoading(false);
     } catch (e: unknown) {
       setErr(errMsg(e, 'Save grades failed'));
     } finally {
-      setSavingGrades(false);
+      setSaving(false);
     }
   }
 
