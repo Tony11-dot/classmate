@@ -18,9 +18,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install deps
+        run: pnpm -r install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm -r exec tsc --noEmit
+
+      - name: API unit tests
+        run: pnpm -C services/api test
+
+      - name: Install Playwright browsers
+        run: pnpm -C apps/admin-web exec playwright install --with-deps
+
+      - name: Start API
+        run: |
+          pnpm -C services/api start:dev > /tmp/api.log 2>&1 &
+          echo $! > /tmp/api.pid
+
+      - name: Start admin-web
+        run: |
+          pnpm -C apps/admin-web dev --port 3001 > /tmp/admin.log 2>&1 &
+          echo $! > /tmp/admin.pid
+
+      - name: Wait for servers
+        run: |
+          node -e "const http=require('http'); const urls=['http://localhost:3001','http://localhost:3001/api/health']; let tries=0; (function tick(){tries++; Promise.all(urls.map(u=>new Promise((res,rej)=>{const r=http.get(u,resp=>{resp.resume(); res(resp.statusCode)}); r.on('error',rej);}))).then(()=>process.exit(0)).catch(()=>{ if(tries>60){console.error('servers not ready'); process.exit(1)} setTimeout(tick,1000);});})()"
+
+      - name: Admin-web e2e
+        run: pnpm -C apps/admin-web exec playwright test --timeout=60000 --reporter=line
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: |
+            /tmp/api.log
+            /tmp/admin.log
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
+      cache: pnpm
           node-version: 20
           cache: 'pnpm'
 
@@ -65,4 +109,5 @@ jobs:
           name: logs
           path: |
             /tmp/api.log
+      if-no-files-found: ignore
             /tmp/admin.log
