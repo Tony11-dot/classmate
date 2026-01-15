@@ -406,7 +406,7 @@ export class ParentService {
 
     const children: any[] = [];
     for (const childId of studentIds) {
-      const sp = profileById.get(childId);
+      const sp = profileById.get(childId) as any;
       const cohort = sp ? (cohortById.get(sp.cohortId) ?? null) : null;
 
       const [todaySchedule, todayAttendance, grades] = await Promise.all([
@@ -575,6 +575,8 @@ export class ParentService {
     }
 
     if (!cutoff) cutoff = await this.getLastSeenAt(parentId);
+
+    const cutoffDate: Date = (cutoff ?? new Date(0));
     if (!cutoff) cutoff = new Date(0);
 const links = await this.prisma.parentChild.findMany({
       where: { parentId, status: 'APPROVED' },
@@ -592,7 +594,7 @@ const links = await this.prisma.parentChild.findMany({
       return {
         ok: true,
         unread: 0,
-        since: cutoff.toISOString(),
+        since: cutoffDate.toISOString(),
         breakdown: { grades: 0, attendance: 0 },
       };
     }
@@ -600,20 +602,20 @@ const links = await this.prisma.parentChild.findMany({
     const gradeCount = await this.prisma.gradeRecord.count({
       where: {
         studentId: { in: targetIds },
-        assessment: { date: { gt: cutoff } },
+        assessment: { date: { gt: cutoffDate } },
       },
     });
 
     const attendanceCount = await this.prisma.attendanceRecord.count({
       where: {
         studentId: { in: targetIds },
-        markedAt: { gt: cutoff },
+        markedAt: { gt: cutoffDate },
       },
     });
     return {
       ok: true,
       unread: gradeCount + attendanceCount,
-      since: cutoff.toISOString(),
+      since: cutoffDate.toISOString(),
       breakdown: { grades: gradeCount, attendance: attendanceCount },
     };
   }

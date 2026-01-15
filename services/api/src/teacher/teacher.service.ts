@@ -185,7 +185,7 @@ export class TeacherService {
       include: { course: true },
     });
 
-    const course = override?.course ?? template?.course ?? null;
+    const course: any = override?.course ?? template?.course ?? null;
 
     if (!course)
       throw new BadRequestException('No course scheduled for this slot');
