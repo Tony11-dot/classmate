@@ -120,6 +120,11 @@ await firstInput.fill('97');
     throw new Error('UI displayed save error: ' + (msg ?? ''));
   }
 
+    // winner is either a Playwright Response (success) or a string sentinel (failure)
+  if (typeof winner === 'string') {
+    throw new Error('Unexpected non-response winner: ' + winner);
+  }
+
   const saveBulkResp = winner;
   // eslint-disable-next-line no-console
   console.log('Matched response:', saveBulkResp.url(), saveBulkResp.status());
