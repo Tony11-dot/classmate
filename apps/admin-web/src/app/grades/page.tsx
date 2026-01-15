@@ -42,6 +42,7 @@ export default function GradesPage() {
   const [courseId, setCourseId] = useState('');
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(''); // YYYY-MM-DD optional
+  const [maxGrade, setMaxGrade] = useState(''); // optional number
 
   async function refresh() {
     setErr(null);
@@ -69,7 +70,13 @@ export default function GradesPage() {
     setErr(null);
     setLoading(true);
     try {
-      const body: { courseId: string; title: string; date?: string } = { courseId, title };
+      const body: { courseId: string; title: string; date?: string; maxGrade?: number } = { courseId, title };
+      const mg = maxGrade.trim();
+      if (mg) {
+        const n = Number(mg);
+        if (!Number.isFinite(n) || n <= 0) throw new Error('Max grade must be a positive number');
+        body.maxGrade = Math.round(n);
+      }
       if (date) body.date = date; // service expects YYYY-MM-DD
       const res = await apiFetch<{ ok: true; assessment: Assessment }>(
         '/teacher/grades/assessment',
@@ -79,6 +86,7 @@ export default function GradesPage() {
       setAssessments((a) => [res.assessment, ...a]);
       setTitle('');
       setDate('');
+      setMaxGrade('');
     } catch (e: unknown) {
       setErr(errMsg(e, 'Create assessment failed'));
     } finally {
@@ -186,7 +194,7 @@ export default function GradesPage() {
 
           <div className="rounded border p-4">
             <div className="text-sm text-gray-700">Create assessment</div>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <div className="mt-3 grid gap-3 md:grid-cols-4">
               <div>
                 <label className="text-xs text-gray-600">Course</label>
                 <select
@@ -217,6 +225,16 @@ export default function GradesPage() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   placeholder="YYYY-MM-DD"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600">Max grade (optional)</label>
+                <input
+                  className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                  value={maxGrade}
+                  onChange={(e) => setMaxGrade(e.target.value)}
+                  placeholder="e.g. 100 or 120"
+                  inputMode="numeric"
                 />
               </div>
             </div>
