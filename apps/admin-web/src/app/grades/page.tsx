@@ -36,6 +36,8 @@ export default function GradesPage() {
   const [students, setStudents] = useState<CohortStudent[]>([]);
   const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
   const [savingGrades, setSavingGrades] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [gradeErrors, setGradeErrors] = useState<Record<string, string>>({});
 
 
   // create form
@@ -96,7 +98,15 @@ export default function GradesPage() {
 
   async function openAssessment(a: Assessment) {
     setErr(null);
-    setSelectedId(a.id);
+    setSelectedId((prev) => {
+      if (prev === a.id) {
+        setTimeout(() => setSelectedId(a.id), 0);
+        return null;
+      }
+      return a.id;
+    });
+setSaveError('');
+    setGradeErrors({});
     setStudents([]);
     setGradesDraft({});
     try {
@@ -177,6 +187,7 @@ export default function GradesPage() {
     return m;
   }, [assessments]);
   const selected = assessments.find((a) => a.id === selectedId);
+  const selectedMax = selected?.maxGrade ?? null;
 
 
   return (
@@ -258,7 +269,7 @@ export default function GradesPage() {
                 <div className="text-sm font-medium">Grade entry</div>
                 <button
                   className="rounded bg-black px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
-                  disabled={savingGrades || students.length === 0}
+                  disabled={savingGrades || students.length === 0 || Object.keys(gradeErrors).length > 0}
                   onClick={saveGrades}
                 >
                   {savingGrades ? 'Saving…' : 'Save grades'}
@@ -289,15 +300,41 @@ export default function GradesPage() {
                           <td className="px-3 py-2">
                             <input
                               className="w-28 rounded border px-2 py-1"
-                              type="number"
+                              type="number" min={0} max={selectedMax ?? undefined}
                               data-testid={`grade-${st.studentId}`}
-                              min={0}
-                              max={100}
+                             
+                             
                               value={gradesDraft[st.studentId] ?? ''}
                               onChange={(e) => {
-                                const v = e.target.value;
-                                setGradesDraft((d) => ({ ...d, [st.studentId]: v === '' ? '' : Number(v) }));
-                              }}
+      setSaveError('');
+      const raw = e.target.value;
+      const n = raw === '' ? null : Number(raw);
+
+      setGrades((prev) => ({ ...prev, [st.studentId]: raw }));
+
+      setGradeErrors((prev) => {
+        const next = { ...prev };
+
+        if (raw === '') {
+          delete next[st.studentId];
+          return next;
+        }
+        if (!Number.isFinite(n) || n == null) {
+          next[st.studentId] = 'Invalid number';
+          return next;
+        }
+        if (n < 0) {
+          next[st.studentId] = 'Cannot be negative';
+          return next;
+        }
+        if (selectedMax != null && n > selectedMax) {
+          next[st.studentId] = `Max is ${selectedMax}`;
+          return next;
+        }
+        delete next[st.studentId];
+        return next;
+      });
+    }}
                             />
                           </td>
                         </tr>
