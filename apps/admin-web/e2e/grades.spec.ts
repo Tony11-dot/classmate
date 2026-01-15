@@ -81,6 +81,5 @@ test('grades e2e: create assessment -> enter grade -> prefill on reopen', async 
   // reopen same assessment and expect prefill
   await row.getByRole('button', { name: /^open$/i }).click();
 
-  const firstVal = await gradeInputs.first().inputValue();
-  expect(firstVal).toBe('97');
+  await expect.poll(async () => await gradeInputs.first().inputValue(), { timeout: 30000 }).toBe('97');
 });

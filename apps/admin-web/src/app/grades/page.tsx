@@ -295,8 +295,6 @@ setSaveError('');
                       {students.map((st) => (
                         <tr key={st.studentId} className="border-t">
                           <td className="px-3 py-2">{st.name}</td>
-                          
-                          <td className="py-2 pr-4 text-sm text-gray-900">{st.name}</td>
                           <td className="px-3 py-2">
                             <input
                               className="w-28 rounded border px-2 py-1"
