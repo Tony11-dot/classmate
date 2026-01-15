@@ -73,7 +73,9 @@ test('grades e2e: create assessment -> enter grade -> prefill on reopen', async 
 
   const saveGradesBtn = page.getByRole('button', { name: /save grades/i });
   await expect(saveGradesBtn).toBeEnabled({ timeout: 20000 });
+  const saveResp = page.waitForResponse((r) => r.url().includes('/teacher/grades/bulk') && r.status() === 201, { timeout: 30000 });
   await saveGradesBtn.click();
+  await saveResp;
 
   // wait a beat for save to complete (no toast currently guaranteed)
   await expect.poll(async () => await saveGradesBtn.isEnabled(), { timeout: 20000 }).toBe(true);

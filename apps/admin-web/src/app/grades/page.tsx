@@ -33,7 +33,9 @@ export default function GradesPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [students, setStudents] = useState<CohortStudent[]>([]);
+  
+  const [openNonce, setOpenNonce] = useState(0);
+const [students, setStudents] = useState<CohortStudent[]>([]);
   const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
   const [savingGrades, setSavingGrades] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -191,6 +193,12 @@ setSaveError('');
 
 
   return (
+
+      {saveError ? (
+        <div data-testid="save-error" className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {saveError}
+        </div>
+      ) : null}
     <RequireAuth>
       <AdminShell>
         <div className="space-y-4">
