@@ -292,6 +292,9 @@ setLoading(false);
                 >
                   {saving ? 'Saving…' : 'Save grades'}
                 </button>
+                {savedAt ? (
+                  <span className="ml-2 text-xs text-green-700">Saved!</span>
+                ) : null}
               </div>
 
               <div className="mt-3 text-xs text-gray-600">
