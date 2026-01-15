@@ -36,8 +36,17 @@ export default function GradesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 const [students, setStudents] = useState<CohortStudent[]>([]);
   const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
-  const [savingGrades, setSavingGrades] = useState(false);
+  const [saving, setSavingGrades] = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!savedAt) return;
+    const t = setTimeout(() => setSavedAt(null), 2000);
+    return () => clearTimeout(t);
+  }, [savedAt]);
   const [gradeErrors, setGradeErrors] = useState<Record<string, string>>({});
 
 
@@ -65,7 +74,9 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
     } catch (e: unknown) {
       setErr(errMsg(e, 'Failed to load grades'));
     } finally {
-      setLoading(false);
+      
+    setSaving(false);
+setLoading(false);
     }
   }
 
@@ -136,7 +147,11 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
         setErr('Enter at least one grade');
         return;
       }
-      await apiFetch('/teacher/grades/bulk', {
+      setSaveError('');
+    setSavedAt(null);
+    setSaving(true);
+
+    await apiFetch('/teacher/grades/bulk', {
         method: 'POST',
         body: JSON.stringify({ assessmentId: selectedId, grades }),
       });
@@ -195,6 +210,10 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
             >
               {saveError}
             </div>
+          ) : null}
+
+          {savedAt ? (
+            <div data-testid="save-ok" className="text-sm text-green-700">Saved!</div>
           ) : null}
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold">Grades</h1>
@@ -271,10 +290,10 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
                 <div className="text-sm font-medium">Grade entry</div>
                 <button
                   className="rounded bg-black px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
-                  disabled={savingGrades || students.length === 0 || Object.keys(gradeErrors).length > 0}
+                  disabled={saving || students.length === 0 || Object.keys(gradeErrors).length > 0}
                   onClick={saveGrades}
                 >
-                  {savingGrades ? 'Saving…' : 'Save grades'}
+                  {saving ? 'Saving…' : 'Save grades'}
                 </button>
               </div>
 
