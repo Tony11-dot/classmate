@@ -501,6 +501,14 @@ export class TeacherService {
     for (const g of body.grades) {
       if (!okSet.has(g.studentId)) continue;
       const grade = Math.round(Number(g.grade));
+
+      if (assessment.maxGrade !== null && assessment.maxGrade !== undefined && grade > assessment.maxGrade) {
+        throw new BadRequestException(`Grade ${grade} exceeds maxGrade ${assessment.maxGrade}`);
+      }
+      if (grade < 0) {
+        throw new BadRequestException('Grade cannot be negative');
+      }
+
       if (!Number.isFinite(grade)) continue;
 
       await this.prisma.gradeRecord.upsert({
