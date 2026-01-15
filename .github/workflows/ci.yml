@@ -32,6 +32,9 @@ jobs:
       - name: Install deps
         run: pnpm -r install --frozen-lockfile
 
+      - name: Prisma generate (api)
+        run: pnpm -C services/api exec prisma generate
+
       - name: Typecheck
         run: pnpm -r exec tsc --noEmit
 

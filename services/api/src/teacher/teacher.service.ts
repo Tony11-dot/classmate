@@ -39,6 +39,10 @@ function dayOfWeekInJerusalem(date = new Date()): number {
   return map[wk] ?? 0;
 }
 
+
+type CourseLite = { id: string; name: string; subject: string | null; teacherId?: string | null };
+type AttendanceRowLite = { studentId: string; status?: string; note?: string | null };
+
 @Injectable()
 export class TeacherService {
   constructor(private readonly prisma: PrismaService) {}
@@ -215,7 +219,7 @@ export class TeacherService {
       period,
       course: { id: course.id, name: course.name, subject: course.subject },
       students: students.map((s) => {
-        const r = recordByStudent.get(s.userId);
+        const r = recordByStudent.get(s.userId) as AttendanceRowLite | undefined;
         return {
           studentId: s.userId,
           name: s.user.name,

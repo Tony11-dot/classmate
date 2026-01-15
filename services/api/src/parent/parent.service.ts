@@ -41,6 +41,9 @@ function startOfWeekSundayInJerusalem(anyDate: Date): Date {
   return d;
 }
 
+
+type StudentProfileLite = { userId: string; cohortId: string };
+
 @Injectable()
 export class ParentService {
   constructor(
@@ -386,11 +389,11 @@ export class ParentService {
 
     const studentIds = links.map((l) => l.childId);
 
-    const profiles = await this.prisma.studentProfile.findMany({
+    const profiles: StudentProfileLite[] = await this.prisma.studentProfile.findMany({
       where: { userId: { in: studentIds } },
       select: { userId: true, cohortId: true },
     });
-    const profileById = new Map(profiles.map((p) => [p.userId, p]));
+    const profileById = new Map<string, StudentProfileLite>(profiles.map((p) => [p.userId, p]));
 
     const cohortIds = Array.from(new Set(profiles.map((p) => p.cohortId)));
     const cohorts = await this.prisma.cohort.findMany({
@@ -572,8 +575,8 @@ export class ParentService {
     }
 
     if (!cutoff) cutoff = await this.getLastSeenAt(parentId);
-
-    const links = await this.prisma.parentChild.findMany({
+    if (!cutoff) cutoff = new Date(0);
+const links = await this.prisma.parentChild.findMany({
       where: { parentId, status: 'APPROVED' },
       select: { childId: true },
     });

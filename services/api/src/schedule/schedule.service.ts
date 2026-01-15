@@ -44,6 +44,10 @@ function parseYmd(ymd: string): Date {
   return dt;
 }
 
+
+type CourseLite = { id: string; name: string; subject: string | null; teacherId: string | null };
+type TemplateSlotLite = { period: number; course: CourseLite | null };
+
 @Injectable()
 export class ScheduleService {
   constructor(private readonly prisma: PrismaService) {}
