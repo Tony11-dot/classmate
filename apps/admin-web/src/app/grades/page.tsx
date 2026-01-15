@@ -187,15 +187,9 @@ setSaveError('');
 
 
   return (
-
-      {saveError ? (
-        <div data-testid="save-error" className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {saveError}
-        </div>
-      ) : null}
     <RequireAuth>
       <AdminShell>
-        <div className="space-y-4">
+        <div className="space-y-4">\n          {saveError ? (\n            <div data-testid="save-error" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">\n              {saveError}\n            </div>\n          ) : null}\n
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold">Grades</h1>
             <button
