@@ -33,4 +33,4 @@ jobs:
         run: pnpm -r install --frozen-lockfile
 
       - name: Prisma generate (api)
-        run: pnpm -r --filter ./services/api exec prisma generate
+        run: pnpm -r --filter api exec prisma generate
