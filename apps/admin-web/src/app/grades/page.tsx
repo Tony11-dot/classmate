@@ -17,6 +17,7 @@ type Assessment = {
 };
 
 
+
 function errMsg(e: unknown, fallback: string) {
   return e instanceof Error ? e.message : fallback;
 }
@@ -33,8 +34,6 @@ export default function GradesPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  
-  const [openNonce, setOpenNonce] = useState(0);
 const [students, setStudents] = useState<CohortStudent[]>([]);
   const [gradesDraft, setGradesDraft] = useState<Record<string, number | ''>>({});
   const [savingGrades, setSavingGrades] = useState(false);
@@ -97,16 +96,14 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
       setLoading(false);
     }
   }
-
   async function openAssessment(a: Assessment) {
     setErr(null);
-    openAssessment(a.id);
-setSaveError('');
+    setSelectedId(a.id);
+    setSaveError('');
     setGradeErrors({});
     setStudents([]);
     setGradesDraft({});
-    try {
-      const cohortId = a.course?.cohortId ?? courses.find((c) => c.id === a.courseId)?.cohortId ?? null;
+    try {      const cohortId = courses.find((c) => c.id === a.courseId)?.cohortId ?? null;
       if (!cohortId) {
         setErr('Course cohortId missing (cannot load students)');
         return;
@@ -114,7 +111,8 @@ setSaveError('');
       const res = await fetchCohortStudents(cohortId);
       // prefill any existing grades for this assessment
       const g = await fetchAssessmentGrades(a.id);
-      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));      setGradesDraft(() => {
+      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));      
+      setGradesDraft(() => {
         const d: Record<string, number | ''> = {};
         for (const st of res.students) d[st.studentId] = gradeMap.get(st.studentId) ?? '';
         return d;
@@ -189,7 +187,15 @@ setSaveError('');
   return (
     <RequireAuth>
       <AdminShell>
-        <div className="space-y-4">\n          {saveError ? (\n            <div data-testid="save-error" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">\n              {saveError}\n            </div>\n          ) : null}\n
+        <div className="space-y-4">
+          {saveError ? (
+            <div
+              data-testid="save-error"
+              className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              {saveError}
+            </div>
+          ) : null}
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold">Grades</h1>
             <button
@@ -304,7 +310,7 @@ setSaveError('');
       const raw = e.target.value;
       const n = raw === '' ? null : Number(raw);
 
-      setGrades((prev) => ({ ...prev, [st.studentId]: raw }));
+      setGradesDraft((prev) => ({ ...prev, [st.studentId]: n === null ? '' : n }));
 
       setGradeErrors((prev) => {
         const next = { ...prev };
