@@ -176,6 +176,8 @@ export default function GradesPage() {
     }
     return m;
   }, [assessments]);
+  const selected = assessments.find((a) => a.id === selectedId);
+
 
   return (
     <RequireAuth>
@@ -264,7 +266,7 @@ export default function GradesPage() {
               </div>
 
               <div className="mt-3 text-xs text-gray-600">
-                Selected assessment: {selectedId}
+                Selected assessment: {selected?.title ?? selectedId}{selected?.maxGrade != null ? (' (Max ' + selected.maxGrade + ')') : ''}
               </div>
 
               {students.length === 0 ? (
@@ -340,6 +342,7 @@ export default function GradesPage() {
                             <tr key={a.id} className="border-t">
                               <td className="py-2">{a.title}</td>
                               <td className="py-2">{new Date(a.date).toISOString().slice(0, 10)}</td>
+                <td className="px-3 py-2 text-sm">{a.maxGrade ?? '-'}</td>
                               <td className="py-2 text-right">
                           <button
                             className="mr-2 rounded border px-2 py-1 text-xs hover:bg-gray-50"
