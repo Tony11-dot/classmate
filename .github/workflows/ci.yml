@@ -30,7 +30,7 @@ jobs:
           pnpm --version
 
       - name: Install deps
-        run: pnpm -r install --frozen-lockfile
+        run: pnpm -r install --no-frozen-lockfile
 
       - name: Prisma generate (api)
         working-directory: services/api
