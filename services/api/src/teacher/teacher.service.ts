@@ -452,6 +452,7 @@ export class TeacherService {
         courseId: body.courseId,
         title: body.title,
         date,
+        maxGrade: body.maxGrade ?? null,
         createdBy: teacherId,
       },
     });
