@@ -100,13 +100,7 @@ const [students, setStudents] = useState<CohortStudent[]>([]);
 
   async function openAssessment(a: Assessment) {
     setErr(null);
-    setSelectedId((prev) => {
-      if (prev === a.id) {
-        setTimeout(() => setSelectedId(a.id), 0);
-        return null;
-      }
-      return a.id;
-    });
+    openAssessment(a.id);
 setSaveError('');
     setGradeErrors({});
     setStudents([]);
