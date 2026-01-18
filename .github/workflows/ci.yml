@@ -31,53 +31,34 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres:5432/classmate_test
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate_test
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Enable pnpm (corepack)
+      - name: Enable pnpm
         run: |
           corepack enable
           corepack prepare pnpm@10.26.2 --activate
-          pnpm --version
 
-      - name: Install deps (workspace)
+      - name: Install deps
         run: pnpm -r install --frozen-lockfile
 
-      - name: Allow pnpm build scripts + rebuild
-        run: |
-          pnpm config set ignore-scripts false
-          pnpm -r rebuild
+      - name: Prisma generate
+        run: pnpm -C services/api exec prisma generate
+
+      - name: Prisma db push
+        run: pnpm -C services/api exec prisma db push
+
+      - name: Prisma seed
+        run: pnpm -C services/api exec prisma db seed
 
       - name: Install Playwright browsers
         run: pnpm -C apps/admin-web exec playwright install --with-deps
 
-      - name: Prisma generate (api)
-        run: pnpm -C services/api exec prisma generate
-
-      - name: Prisma db push (api)
-        run: pnpm -C services/api exec prisma db push
-
-      - name: Prisma seed (api)
-        run: pnpm -C services/api exec prisma db seed
-
-      - name: Run full health checks (API + admin-web e2e)
-        run: |
-          chmod +x ./scripts/health.sh
-          ./scripts/health.sh
-
-      - name: Upload Playwright artifacts (on failure)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-artifacts
-          path: |
-            apps/admin-web/test-results
-            apps/admin-web/playwright-report
+      - name: Run health checks
+        run: ./scripts/health.sh
