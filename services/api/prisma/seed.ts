@@ -1,10 +1,14 @@
+// REPLACE ENTIRE FILE WITH THIS (services/api/prisma/seed.ts)
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.user.deleteMany({ where: { email: 'admin@classmate.app' } });
+  // delete admin if exists
+  await prisma.user.deleteMany({
+    where: { email: 'admin@classmate.app' },
+  });
 
   const hashed = await bcrypt.hash('admin123', 10);
 
@@ -13,11 +17,17 @@ async function main() {
       email: 'admin@classmate.app',
       password: hashed,
       name: 'Admin',
-      roles: { create: [{ role: 'ADMIN' }] },
+      roles: {
+        create: [{ role: 'ADMIN' }],
+      },
     },
   });
 
   console.log('Seeded admin:', admin.email);
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch(console.error)
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
