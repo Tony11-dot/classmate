@@ -15,7 +15,7 @@ function todayYmd() {
 test('grades e2e: create assessment -> enter grade -> prefill on reopen', async ({ page, request }) => {
 
   // login via backend (teacher)
-  const resp = await request.post(`${API}/auth/login`, {
+  const resp = await request.post(`${API}/api/auth/login`, {
     data: { email: 'teacher1@classmate.app', password: 'dev' },
   });
   expect(resp.status()).toBe(201);
@@ -99,7 +99,7 @@ await firstInput.fill('97');
 
   const respP = page.waitForResponse((r) => {
     const u = r.url();
-    return u.includes('bulk') || u.includes('/teacher/grades') || u.includes('/grades/');
+    return u.includes('bulk') || u.includes('/api/teacher/grades') || u.includes('/grades/');
   }, { timeout: 30000 });
 
   const failP = page.waitForEvent('requestfailed', { timeout: 30000 }).then(() => 'REQFAILED');
