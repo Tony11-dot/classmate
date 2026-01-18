@@ -1,10 +1,5 @@
-set -euo pipefail
-
-pnpm -C services/api exec prisma generate
-pnpm -C services/api exec prisma db push
-
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 echo "▶ API tests"
 cd services/api
@@ -15,4 +10,3 @@ cd ../../apps/admin-web
 pnpm exec playwright test
 
 echo "✅ ALL SYSTEMS GREEN"
-
