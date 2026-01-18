@@ -1,3 +1,8 @@
+set -euo pipefail
+
+pnpm -C services/api exec prisma generate
+pnpm -C services/api exec prisma db push
+
 #!/usr/bin/env bash
 set -e
 
