@@ -3,11 +3,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+API_PORT="${API_PORT:-3000}"
+API_BASE="${E2E_API_BASE_URL:-http://localhost:${API_PORT}}"
+
 echo "▶ Start API (background)"
 cd "$ROOT/services/api"
-
-# Start Nest in background (adjust if your start command differs)
-# If you don't have a start script that runs TS directly, we'll tweak after.
 pnpm start &
 API_PID=$!
 
@@ -19,17 +19,21 @@ trap cleanup EXIT
 
 echo "▶ Wait for API"
 for i in $(seq 1 60); do
-  if curl -sSf "http://localhost:3000/api/auth/me" >/dev/null 2>&1; then
-    break
-  fi
-  # /api/auth/me returns 401 when up; treat that as "up"
-  if curl -sS "http://localhost:3000/api/auth/me" 2>/dev/null | rg -q "Unauthorized"; then
+  code="$(curl -s -o /dev/null -w "%{http_code}" "${API_BASE}/api/auth/me" || true)"
+  if [ "$code" = "401" ] || [ "$code" = "200" ]; then
     break
   fi
   sleep 1
 done
 
+code="$(curl -s -o /dev/null -w "%{http_code}" "${API_BASE}/api/auth/me" || true)"
+if [ "$code" != "401" ] && [ "$code" != "200" ]; then
+  echo "❌ API did not become ready (last status: $code)"
+  exit 1
+fi
+
 echo "▶ API tests"
+cd "$ROOT/services/api"
 pnpm test
 
 echo "▶ Admin-web E2E tests"
