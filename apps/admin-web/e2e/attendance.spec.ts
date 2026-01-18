@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const BASE = 'http://localhost:3001';
+const API = 'http://localhost:3000';
 const TOKEN_KEY = 'classmate_token';
 
 test('attendance e2e', async ({ page, request }) => {
-  const resp = await request.post(`${BASE}/api/auth/login`, {
+  const resp = await request.post(`${API}/api/auth/login`, {
     data: { email: 'teacher1@classmate.app', password: 'dev' },
   });
   expect(resp.status()).toBe(201);
@@ -30,7 +31,6 @@ test('attendance e2e', async ({ page, request }) => {
   const row = page.locator('table tbody tr').first();
   await expect(row).toBeVisible({ timeout: 30000 });
 
-  // ALWAYS create a diff vs original:
   const statusSelect = row.locator('select');
   const curStatus = await statusSelect.inputValue();
   const nextStatus = curStatus === 'LATE' ? 'PRESENT' : 'LATE';
@@ -40,8 +40,6 @@ test('attendance e2e', async ({ page, request }) => {
   await row.locator('input[placeholder="optional note"]').fill(note);
 
   const saveBtn = page.getByRole('button', { name: /^save/i });
-
-  // Wait until UI says Save (>=1) and button enabled
   await expect.poll(async () => await saveBtn.innerText(), { timeout: 20000 })
     .toMatch(/Save\s*\(([1-9]\d*)\)/);
 
