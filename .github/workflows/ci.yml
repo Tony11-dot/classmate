@@ -41,7 +41,8 @@ jobs:
       # If health.sh uses Playwright, browsers + deps must exist in CI
       - name: Install Playwright browsers
         run: pnpm -C apps/admin-web exec playwright install --with-deps
-
+      - name: Prisma generate (api)
+        run: pnpm -C services/api exec prisma generate
       - name: Run full health checks (API + admin-web e2e)
         run: |
           chmod +x ./scripts/health.sh
