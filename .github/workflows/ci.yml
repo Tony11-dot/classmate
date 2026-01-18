@@ -12,7 +12,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -26,11 +26,26 @@ jobs:
       - name: Enable pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@9.15.4 --activate
+          corepack prepare pnpm@10.26.2 --activate
           pnpm --version
 
-      - name: Install deps
+      - name: Install deps (workspace)
         run: pnpm -r install --frozen-lockfile
 
-      - name: Prisma generate (api)
-        run: pnpm -r --filter api exec prisma generate
+      # If health.sh uses Playwright, browsers + deps must exist in CI
+      - name: Install Playwright browsers
+        run: pnpm -C apps/admin-web exec playwright install --with-deps
+
+      - name: Run full health checks (API + admin-web e2e)
+        run: |
+          chmod +x ./scripts/health.sh
+          ./scripts/health.sh
+
+      - name: Upload Playwright artifacts (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            apps/admin-web/test-results
+            apps/admin-web/playwright-report
