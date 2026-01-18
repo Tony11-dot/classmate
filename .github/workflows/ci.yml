@@ -31,7 +31,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres:5432/classmate_test
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate_test
 
     steps:
       - name: Checkout
