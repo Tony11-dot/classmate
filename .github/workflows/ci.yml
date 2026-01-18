@@ -24,14 +24,14 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
+          --health-cmd "pg_isready -U postgres -d classmate_test"
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 20
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate_test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
 
     steps:
       - uses: actions/checkout@v4
@@ -44,21 +44,38 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@10.26.2 --activate
+          pnpm --version
 
       - name: Install deps
         run: pnpm -r install --frozen-lockfile
 
-      - name: Prisma generate
+      - name: Allow pnpm build scripts + rebuild
+        run: |
+          pnpm config set ignore-scripts false
+          pnpm -r rebuild
+
+      - name: Prisma generate (api)
         run: pnpm -C services/api exec prisma generate
 
-      - name: Prisma db push
-        run: DATABASE_URL=postgresql://postgres:postgres:5432/classmate_test pnpm -C services/api exec prisma db push
+      - name: Prisma db push (api)
+        run: pnpm -C services/api exec prisma db push
 
-      - name: Prisma seed
-        run: DATABASE_URL=postgresql://postgres:postgres:5432/classmate_test pnpm -C services/api exec prisma db seed
+      - name: Prisma seed (api)
+        run: pnpm -C services/api exec prisma db seed
 
       - name: Install Playwright browsers
         run: pnpm -C apps/admin-web exec playwright install --with-deps
 
       - name: Run health checks
-        run: ./scripts/health.sh
+        run: |
+          chmod +x ./scripts/health.sh
+          ./scripts/health.sh
+
+      - name: Upload Playwright artifacts (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            apps/admin-web/test-results
+            apps/admin-web/playwright-report
