@@ -32,6 +32,12 @@ jobs:
       - name: Install deps (workspace)
         run: pnpm -r install --frozen-lockfile
 
+      - name: Allow pnpm build scripts + rebuild
+        run: |
+          pnpm config set ignore-scripts false
+          pnpm -r rebuild
+
+
       # If health.sh uses Playwright, browsers + deps must exist in CI
       - name: Install Playwright browsers
         run: pnpm -C apps/admin-web exec playwright install --with-deps
