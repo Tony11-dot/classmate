@@ -4,7 +4,7 @@ const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
 async function loginTeacher() {
   const res = await request(BASE)
-    .post('/auth/login')
+    .post('/api/auth/login')
     .send({ email: 'teacher1@classmate.app', password: 'dev' })
     .expect(201);
 
@@ -19,7 +19,7 @@ describe('grades: maxGrade enforcement', () => {
 
     // list courses + assessments
     const list = await request(BASE)
-      .get('/teacher/grades/assessments')
+      .get('/api/teacher/grades/assessments')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -33,7 +33,7 @@ describe('grades: maxGrade enforcement', () => {
 
     // create assessment with maxGrade 120
     const created = await request(BASE)
-      .post('/teacher/grades/assessment')
+      .post('/api/teacher/grades/assessment')
       .set('Authorization', `Bearer ${token}`)
       .send({ courseId: course.id, title: `E2E MaxGrade ${Date.now()}`, maxGrade: 120 })
       .expect(201);
@@ -44,7 +44,7 @@ describe('grades: maxGrade enforcement', () => {
 
     // load cohort students
     const studentsRes = await request(BASE)
-      .get(`/teacher/cohort/${course.cohortId}/students`)
+      .get(`/api/teacher/cohort/${course.cohortId}/students`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -57,14 +57,14 @@ describe('grades: maxGrade enforcement', () => {
 
     // PASS: 120
     await request(BASE)
-      .post('/teacher/grades/bulk')
+      .post('/api/teacher/grades/bulk')
       .set('Authorization', `Bearer ${token}`)
       .send({ assessmentId, grades: [{ studentId, grade: 120 }] })
       .expect(201);
 
     // FAIL: 121
     const bad = await request(BASE)
-      .post('/teacher/grades/bulk')
+      .post('/api/teacher/grades/bulk')
       .set('Authorization', `Bearer ${token}`)
       .send({ assessmentId, grades: [{ studentId, grade: 121 }] })
       .expect(400);
