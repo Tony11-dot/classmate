@@ -14,10 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    env:
-      NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres:5432/classmate_test
-
     services:
       postgres:
         image: postgres:16
@@ -32,6 +28,10 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
 
     steps:
       - name: Checkout
@@ -56,11 +56,14 @@ jobs:
           pnpm config set ignore-scripts false
           pnpm -r rebuild
 
-
-      # If health.sh uses Playwright, browsers + deps must exist in CI
       - name: Install Playwright browsers
-        run: pnpm -C apps/admin-web exec playwright install --with-deps      - name: Prisma generate (api)
-        run: pnpm -C services/api exec prisma generate
+        run: pnpm -C apps/admin-web exec playwright install --with-deps
+
+      - name: Prisma generate + db push (api)
+        run: |
+          pnpm -C services/api exec prisma generate
+          pnpm -C services/api exec prisma db push
+
       - name: Run full health checks (API + admin-web e2e)
         run: |
           chmod +x ./scripts/health.sh
