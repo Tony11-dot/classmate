@@ -31,7 +31,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate_test
+      DATABASE_URL: postgresql://postgres:postgres:5432/classmate_test
 
     steps:
       - name: Checkout
@@ -59,14 +59,14 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm -C apps/admin-web exec playwright install --with-deps
 
-      - name: Prisma generate + db push (api)
-        run: |
-          pnpm -C services/api exec prisma generate
-          pnpm -C services/api exec prisma db push
+      - name: Prisma generate (api)
+        run: pnpm -C services/api exec prisma generate
+
+      - name: Prisma db push (api)
+        run: pnpm -C services/api exec prisma db push
 
       - name: Prisma seed (api)
         run: pnpm -C services/api exec prisma db seed
-
 
       - name: Run full health checks (API + admin-web e2e)
         run: |
