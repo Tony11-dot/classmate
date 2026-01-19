@@ -80,7 +80,7 @@ export class E2ESeedController {
 
     const today = new Date();
 
-    today.setHours(0, 0, 0, 0);
+    today.setHours(12, 0, 0, 0);
 
 
     const session = await this.prisma.attendanceSession.create({
