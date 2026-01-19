@@ -77,6 +77,46 @@ export class E2ESeedController {
       },
     });
 
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+
+    const session = await this.prisma.attendanceSession.create({
+
+      data: {
+
+        cohortId: cohort.id,
+
+        date: today,
+
+        period: 1,
+
+        courseId: course.id,
+
+      },
+
+      select: { id: true },
+
+    });
+
+
+    await this.prisma.attendanceRecord.create({
+
+      data: {
+
+        sessionId: session.id,
+
+        studentId: student.id,
+
+        status: "PRESENT",
+
+      },
+
+    });
+
+
     return { ok: true, cohortId: cohort.id, courseId: course.id };
   }
 }
