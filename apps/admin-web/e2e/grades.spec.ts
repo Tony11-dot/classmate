@@ -1,5 +1,5 @@
-import { test, expect }
-import { loginAsTeacher } from './helpers/auth' from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from './helpers/auth';
 
 const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:3001';
 const API = 'http://localhost:3000';
