@@ -1,21 +1,11 @@
 import request from 'supertest';
+import { loginAsTeacher } from './helpers/auth';
 
 const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
-async function loginTeacher() {
-  const res = await request(BASE)
-    .post('/api/auth/login')
-    .send({ email: 'teacher1@classmate.app', password: 'dev' })
-    .expect(201);
-
-  const token = res.body?.token;
-  expect(token).toBeTruthy();
-  return token as string;
-}
-
-describe.skip('grades: maxGrade enforcement', () => {
+ describe.skip('grades: maxGrade enforcement', () => {
   it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
-    const token = await loginTeacher();
+    const token = await loginAsTeacher();
 
     // list courses + assessments
     const list = await request(BASE)
