@@ -6,6 +6,7 @@ const API = 'http://localhost:3000';
 const TOKEN_KEY = 'classmate_token';
 
 test('attendance e2e', async ({ page, request }) => {
+  await request.post(`${API}/test/seed/admin-web`);
   const resp = await request.post(`${API}/api/auth/login`, {
     data: { email: 'teacher1@classmate.app', password: 'dev' },
   });

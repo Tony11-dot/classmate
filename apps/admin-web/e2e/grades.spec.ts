@@ -14,6 +14,7 @@ function todayYmd() {
 }
 
 test('grades e2e: create assessment -> enter grade -> prefill on reopen', async ({ page, request }) => {
+  await request.post(`${API}/test/seed/admin-web`);
 
   // login via backend (teacher)
   const resp = await request.post(`${API}/api/auth/login`, {
