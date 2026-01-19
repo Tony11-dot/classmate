@@ -1,0 +1,52 @@
+name: E2E (admin-web)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # nightly
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: classmate_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: |
+          corepack enable
+          corepack prepare pnpm@10.26.2 --activate
+
+      - run: pnpm -r install --frozen-lockfile
+
+      - run: pnpm -C services/api exec prisma generate
+      - run: pnpm -C services/api exec prisma db push
+      - run: pnpm -C services/api exec prisma db seed
+
+      - run: pnpm -C services/api start &
+      - run: sleep 8
+
+      - run: pnpm -C apps/admin-web exec playwright install --with-deps
+      - run: pnpm -C apps/admin-web exec playwright test
