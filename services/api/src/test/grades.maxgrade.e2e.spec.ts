@@ -1,31 +1,23 @@
 import request from 'supertest';
 import { loginAsTeacher } from './helpers/auth';
+import { seedTeacherWithCourse } from './helpers/seed';
 
 const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
- describe.skip('grades: maxGrade enforcement', () => {
+ describe('grades: maxGrade enforcement', () => {
   it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
     const token = await loginAsTeacher();
 
-    // list courses + assessments
-    const list = await request(BASE)
-      .get('/api/teacher/grades/assessments')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
+    const seeded = await seedTeacherWithCourse('teacher1@classmate.app');
 
-    expect(list.body.ok).toBe(true);
-    expect(Array.isArray(list.body.courses)).toBe(true);
-    expect(list.body.courses.length).toBeGreaterThan(0);
-
-    const course = list.body.courses[0];
-    expect(course.id).toBeTruthy();
-    expect(course.cohortId).toBeTruthy();
+    const courseId = seeded.courseId;
+    const cohortId = seeded.cohortId;
 
     // create assessment with maxGrade 120
     const created = await request(BASE)
       .post('/api/teacher/grades/assessment')
       .set('Authorization', `Bearer ${token}`)
-      .send({ courseId: course.id, title: `E2E MaxGrade ${Date.now()}`, maxGrade: 120 })
+      .send({ courseId: courseId, title: `E2E MaxGrade ${Date.now()}`, maxGrade: 120 })
       .expect(201);
 
     expect(created.body.ok).toBe(true);
@@ -34,7 +26,7 @@ const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
     // load cohort students
     const studentsRes = await request(BASE)
-      .get(`/api/teacher/cohort/${course.cohortId}/students`)
+      .get(`/api/teacher/cohort/${cohortId}/students`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
