@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect }
+import { loginAsTeacher } from './helpers/auth' from '@playwright/test';
 
 const BASE = 'http://localhost:3001';
 const API = 'http://localhost:3000';
