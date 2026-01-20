@@ -1,6 +1,6 @@
 import { HealthModule } from './health/health.module';
 import { Module } from '@nestjs/common';
-import { E2ESeedController } from './test/seed.e2e.controller';
+import { E2ESeedController } from './e2e/seed.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from './schedule/schedule.module';
@@ -11,7 +11,9 @@ import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 
 @Module({
+  controllers: [E2ESeedController],
   imports: [
+    HealthModule,
     PrismaModule,
     AuthModule,
     ScheduleModule,
