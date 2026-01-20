@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParentAuth } from '@/lib/useParentAuth';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { parentOverview, parentOverviewWeek } from '@/lib/api';
@@ -11,6 +12,7 @@ function fmtDate(d?: string) {
 }
 
 export default function ChildPage() {
+  const token = useParentAuth();
   const { studentId } = useParams<{ studentId: string }>();
   const [today, setToday] = useState<any>(null);
   const [week, setWeek] = useState<any>(null);
@@ -29,7 +31,7 @@ export default function ChildPage() {
         setErr(e?.message ?? 'Failed to load');
       }
     })();
-  }, [studentId]);
+  }, [studentId, token]);
 
   return (
     <main className="min-h-screen p-6 max-w-3xl mx-auto">

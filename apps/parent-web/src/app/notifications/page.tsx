@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParentAuth } from '@/lib/useParentAuth';
 import Link from 'next/link';
 import { parentNotifications, parentUnreadCount, parentMarkSeen } from '@/lib/api';
 
@@ -10,11 +11,13 @@ function fmt(ts?: string) {
 }
 
 export default function NotificationsPage() {
+  const token = useParentAuth();
   const [rows, setRows] = useState<any[]>([]);
   const [unread, setUnread] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
 
   async function load() {
+    if (!token) return;
     setErr(null);
     try {
       const [n, u] = await Promise.all([
@@ -28,7 +31,7 @@ export default function NotificationsPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (token) load(); }, [token]);
 
   return (
     <main className="min-h-screen p-6 max-w-3xl mx-auto">

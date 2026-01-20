@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParentAuth } from '@/lib/useParentAuth';
 import Link from 'next/link';
 import { parentChildren, getToken, clearToken } from '@/lib/api';
 
 export default function DashboardPage() {
+  const token = useParentAuth();
   const [kids, setKids] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
 
@@ -22,7 +24,7 @@ export default function DashboardPage() {
         setErr(e?.message ?? 'Failed to load');
       }
     })();
-  }, []);
+  }, [token]);
 
   return (
     <main className="min-h-screen p-6 max-w-3xl mx-auto">
