@@ -164,10 +164,10 @@ export class ScheduleService {
           source: 'TEMPLATE',
           course: t?.course
             ? {
-                id: t.course.id,
-                name: t.course.name,
-                subject: t.course.subject,
-                teacherId: t.course.teacherId,
+                id: (t as any).course.id,
+                name: (t as any).course.name,
+                subject: (t as any).course.subject,
+                teacherId: (t as any).course.teacherId,
               }
             : null,
         };
@@ -249,12 +249,12 @@ export class ScheduleService {
           outSlots.push({
             period: p,
             source: 'TEMPLATE',
-            course: t.course
+            course: (t as any).course
               ? {
-                  id: t.course.id,
-                  name: t.course.name,
-                  subject: t.course.subject,
-                  teacherId: t.course.teacherId,
+                  id: (t as any).course.id,
+                  name: (t as any).course.name,
+                  subject: (t as any).course.subject,
+                  teacherId: (t as any).course.teacherId,
                 }
               : null,
           });

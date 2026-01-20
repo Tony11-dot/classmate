@@ -96,7 +96,7 @@ export class TeacherService {
 
       if (o) {
         // override exists
-        if (!o.courseId) {
+        if (!(o as any).courseId) {
           out.push({
             period: t.period,
             source: 'OVERRIDE',
@@ -111,7 +111,7 @@ export class TeacherService {
         }
 
         // override course belongs to someone else -> not your slot anymore
-        if (o.course?.teacherId && o.course.teacherId !== teacherId) {
+        if ((o as any).course?.teacherId && (o as any).course.teacherId !== teacherId) {
           continue;
         }
 
@@ -123,11 +123,11 @@ export class TeacherService {
             name: t.cohort.name,
             grade: (t.cohort as any).grade,
           },
-          course: o.course
+          course: (o as any).course
             ? {
-                id: o.course.id,
-                name: o.course.name,
-                subject: o.course.subject,
+                id: (o as any).course.id,
+                name: (o as any).course.name,
+                subject: (o as any).course.subject,
               }
             : null,
         });
