@@ -58,7 +58,6 @@ test('attendance e2e', async ({ page, request }) => {
   await loadBtn.click();
   await page.waitForTimeout(500);
   const msg = await page.locator('body').innerText();
-  console.log('AFTER_LOAD_SNIP', msg.slice(0, 500));
 
 
   // now table rows should appear
