@@ -1,6 +1,10 @@
 const API_BASE = "http://localhost:3000";
 
 
+export async function parentUnreadCount() {
+  return api('/api/parent/notifications/unread-count');
+}
+
 export async function parentChildren() {
   return api('/api/parent/children');
 }

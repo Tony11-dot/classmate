@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const token = useParentAuth();
   const [kids, setKids] = useState<any[]>([]);
   const [kidSummary, setKidSummary] = useState<Record<string, any>>({});
+  const [unreadCount, setUnreadCount] = useState<number | null>(null);
 
   function computeKidSummary(week: any, gradesResp: any) {
     const sessions = week?.attendanceWeek?.sessions ?? [];
@@ -131,7 +132,7 @@ export default function DashboardPage() {
 
       <div className="mt-6">
         <Link className="text-sm underline opacity-80" href="/notifications">
-          Notifications
+          Notifications{typeof unreadCount === 'number' && unreadCount > 0 ? ` (${unreadCount})` : ''}
         </Link>
       </div>
     </main>
