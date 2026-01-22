@@ -1,64 +1,70 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParentAuth } from '@/lib/useParentAuth';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { parentChildren, getToken, clearToken, parentOverviewWeek, parentGrades } from "@/lib/api";
+import { useParentAuth } from '@/lib/useParentAuth';
+import {
+  parentChildren,
+  parentOverviewWeek,
+  parentGrades,
+  getToken,
+  clearToken,
+} from '@/lib/api';
 
 export default function DashboardPage() {
   const token = useParentAuth();
+
   const [kids, setKids] = useState<any[]>([]);
   const [kidSummary, setKidSummary] = useState<Record<string, any>>({});
-  const [unreadCount, setUnreadCount] = useState<number | null>(null);
-
-  function computeKidSummary(week: any, gradesResp: any) {
-    const sessions = week?.attendanceWeek?.sessions ?? [];
-    const total = sessions.length || 0;
-    const present = sessions.filter((x: any) => x.status === 'PRESENT').length;
-    const late = sessions.filter((x: any) => x.status === 'LATE').length;
-    const absent = sessions.filter((x: any) => x.status === 'ABSENT').length;
-    const presentPct = total ? Math.round((present / total) * 100) : null;
-
-    const grades = gradesResp?.grades ?? gradesResp ?? [];
-    const scored = grades.filter((g: any) => typeof g.score === 'number' && typeof g.maxScore === 'number' && g.maxScore > 0);
-    const avg = scored.length
-      ? Math.round(scored.reduce((a: number, g: any) => a + (g.score / g.maxScore) * 100, 0) / scored.length)
-      : null;
-
-    return { presentPct, present, late, absent, avg, total };
-  }
-
   const [err, setErr] = useState<string | null>(null);
 
-  if (!token) {
-    return (
-      <main className="min-h-screen p-6 max-w-3xl mx-auto">
-        <div className="rounded-lg border p-4 text-sm opacity-80">Loading dashboard…</div>
-      </main>
-    );
-  }
+  const computeKidSummary = useMemo(() => {
+    return (week: any, gradesResp: any) => {
+      const sessions = week?.attendanceWeek?.sessions ?? [];
+      const total = sessions.length || 0;
 
-  if (!token) {
-    return (
-      <main className="min-h-screen p-6 max-w-3xl mx-auto">
-        <div className="rounded-lg border p-4 text-sm opacity-80">Loading dashboard…</div>
-      </main>
-    );
-  }
+      const present = sessions.filter((x: any) => x.status === 'PRESENT').length;
+      const late = sessions.filter((x: any) => x.status === 'LATE').length;
+      const absent = sessions.filter((x: any) => x.status === 'ABSENT').length;
+
+      const presentPct = total ? Math.round((present / total) * 100) : null;
+
+      const grades = gradesResp?.grades ?? gradesResp ?? [];
+      const scored = grades.filter(
+        (g: any) =>
+          typeof g.score === 'number' &&
+          typeof g.maxScore === 'number' &&
+          g.maxScore > 0
+      );
+
+      const avg = scored.length
+        ? Math.round(
+            scored.reduce(
+              (a: number, g: any) => a + (g.score / g.maxScore) * 100,
+              0
+            ) / scored.length
+          )
+        : null;
+
+      return { presentPct, present, late, absent, avg, total };
+    };
+  }, []);
 
   useEffect(() => {
-    (async () => {
+    if (!token) return;
+
+    ;(async () => {
       try {
         const t = getToken();
         if (!t) {
           window.location.href = '/login';
           return;
         }
-        const data = await parentChildren();
-        setKids(Array.isArray(data) ? data : []);
 
+        const data = await parentChildren();
         const kidsList = Array.isArray(data) ? data : [];
-        // load per-child summaries (week attendance + grades)
+        setKids(kidsList);
+
         const entries = await Promise.all(
           kidsList.map(async (k: any) => {
             try {
@@ -67,17 +73,30 @@ export default function DashboardPage() {
                 parentGrades(k.studentId),
               ]);
               return [k.studentId, computeKidSummary(w, g)];
-            } catch (e) {
+            } catch {
               return [k.studentId, { error: true }];
             }
           })
         );
+
         setKidSummary(Object.fromEntries(entries));
+        setErr(null);
       } catch (e: any) {
         setErr(e?.message ?? 'Failed to load');
       }
     })();
-  }, [token]);
+  }, [token, computeKidSummary]);
+
+  // ✅ Render guard AFTER hooks
+  if (!token) {
+    return (
+      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+        <div className="rounded-lg border p-4 text-sm opacity-80">
+          Loading dashboard…
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen p-6 max-w-3xl mx-auto">
@@ -98,6 +117,7 @@ export default function DashboardPage() {
 
       <section className="mt-6">
         <h2 className="font-semibold">Children</h2>
+
         <div className="mt-2 space-y-2">
           {kids.map((k) => (
             <Link
@@ -109,6 +129,7 @@ export default function DashboardPage() {
               <div className="text-sm opacity-70">
                 {k.cohort?.name} · Grade {k.cohort?.grade} · {k.status}
               </div>
+
               <div className="text-sm opacity-70 mt-1">
                 {kidSummary[k.studentId]?.error ? (
                   <span>Summary unavailable</span>
@@ -117,22 +138,35 @@ export default function DashboardPage() {
                     <span>
                       Attendance: {kidSummary[k.studentId]?.presentPct ?? '—'}%
                       {kidSummary[k.studentId]?.total ? (
-                        <> (P {kidSummary[k.studentId].present} · L {kidSummary[k.studentId].late} · A {kidSummary[k.studentId].absent})</>
+                        <>
+                          {' '}
+                          (P {kidSummary[k.studentId].present} · L{' '}
+                          {kidSummary[k.studentId].late} · A{' '}
+                          {kidSummary[k.studentId].absent})
+                        </>
                       ) : null}
                     </span>
-                    <span>{' '}· Avg grade: {kidSummary[k.studentId]?.avg ?? '—'}%</span>
+                    <span>
+                      {' '}
+                      · Avg grade: {kidSummary[k.studentId]?.avg ?? '—'}%
+                    </span>
                   </>
                 )}
               </div>
             </Link>
           ))}
-          {kids.length === 0 && <div className="opacity-70">No children linked yet. Ask the school for a parent link code.</div>}
+
+          {kids.length === 0 && (
+            <div className="opacity-70">
+              No children linked yet. Ask the school for a parent link code.
+            </div>
+          )}
         </div>
       </section>
 
       <div className="mt-6">
         <Link className="text-sm underline opacity-80" href="/notifications">
-          Notifications{typeof unreadCount === 'number' && unreadCount > 0 ? ` (${unreadCount})` : ''}
+          Notifications
         </Link>
       </div>
     </main>

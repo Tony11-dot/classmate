@@ -383,3 +383,20 @@ model AnnouncementSeen {
   @@index([userId])
   @@index([announcementId])
 }
+
+model AlertSettings {
+  id          String   @id @default(uuid())
+  ownerId     String
+  studentId   String
+
+  minGrade    Int      @default(70)
+  maxAbsences Int      @default(1)
+  maxLates    Int      @default(3)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([ownerId, studentId])
+  @@index([studentId])
+  @@index([ownerId])
+}

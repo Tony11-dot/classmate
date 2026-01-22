@@ -55,3 +55,54 @@ async function api(path: string) {
   }
   return text ? JSON.parse(text) : null;
 }
+
+
+export async function getAlertSettings(studentId: string) {
+  return api(`/api/parent/alerts/settings?studentId=${encodeURIComponent(studentId)}`);
+}
+
+export async function updateAlertSettings(input: {
+  studentId: string;
+  minGrade?: number;
+  maxAbsences?: number;
+  maxLates?: number;
+}) {
+  const token = getToken();
+  if (!token) throw new Error('Missing parent token. Go to /login and sign in.');
+
+  const res = await fetch(`${API_BASE}/api/parent/alerts/settings`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(input),
+    cache: 'no-store',
+  });
+
+  const text = await res.text();
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${text}`);
+  return text ? JSON.parse(text) : null;
+}
+
+
+export async function parentNotifications() {
+  return api('/api/parent/notifications');
+}
+
+
+export async function parentMarkSeen(input: { notificationIds: string[] }) {
+  const res = await fetch(`${API_BASE}/api/parent/notifications/mark-seen`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(input),
+    cache: 'no-store',
+  });
+
+  const text = await res.text();
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${text}`);
+  return text ? JSON.parse(text) : null;
+}
