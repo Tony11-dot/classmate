@@ -18,6 +18,14 @@ export default function ChildPage() {
   const [week, setWeek] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  if (!token) {
+    return (
+      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+        <div className="rounded-lg border p-4 text-sm opacity-80">Loading child overview…</div>
+      </main>
+    );
+  }
+
   useEffect(() => {
     (async () => {
       try {

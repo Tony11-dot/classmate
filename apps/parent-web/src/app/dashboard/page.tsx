@@ -10,6 +10,22 @@ export default function DashboardPage() {
   const [kids, setKids] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
 
+  if (!token) {
+    return (
+      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+        <div className="rounded-lg border p-4 text-sm opacity-80">Loading dashboard…</div>
+      </main>
+    );
+  }
+
+  if (!token) {
+    return (
+      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+        <div className="rounded-lg border p-4 text-sm opacity-80">Loading dashboard…</div>
+      </main>
+    );
+  }
+
   useEffect(() => {
     (async () => {
       try {
@@ -58,7 +74,7 @@ export default function DashboardPage() {
               </div>
             </Link>
           ))}
-          {kids.length === 0 && <div className="opacity-70">No children linked.</div>}
+          {kids.length === 0 && <div className="opacity-70">No children linked yet. Ask the school for a parent link code.</div>}
         </div>
       </section>
 
