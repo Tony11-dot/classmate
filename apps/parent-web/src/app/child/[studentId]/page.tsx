@@ -40,8 +40,24 @@ export default function ChildPage() {
   const [err, setErr] = useState<string | null>(null);
 
   if (!token) {
-    return (
-      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+    function isoDate(d: any) {
+  if (!d) return '';
+  const x = new Date(d);
+  return x.toISOString().slice(0, 10);
+}
+
+function addDays(date: Date, days: number) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function dowLabel(i: number) {
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i] ?? String(i);
+}
+
+return (
+    <main className="min-h-screen p-6 max-w-3xl mx-auto">
         <div className="rounded-lg border p-4 text-sm opacity-80">Loading child overview…</div>
       </main>
     );
