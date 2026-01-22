@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParentAuth } from '@/lib/useParentAuth';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { parentOverview, parentOverviewWeek } from '@/lib/api';
+import { parentOverview, parentOverviewWeek, parentGrades } from '@/lib/api';
 
 function fmtDate(d?: string) {
   if (!d) return '';
@@ -16,6 +16,7 @@ export default function ChildPage() {
   const { studentId } = useParams<{ studentId: string }>();
   const [today, setToday] = useState<any>(null);
   const [week, setWeek] = useState<any>(null);
+  const [grades, setGrades] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
 
   if (!token) {
