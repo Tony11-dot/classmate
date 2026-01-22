@@ -3,11 +3,30 @@
 import { useEffect, useState } from 'react';
 import { useParentAuth } from '@/lib/useParentAuth';
 import Link from 'next/link';
-import { parentChildren, getToken, clearToken } from '@/lib/api';
+import { parentChildren, getToken, clearToken, parentOverviewWeek, parentGrades } from "@/lib/api";
 
 export default function DashboardPage() {
   const token = useParentAuth();
   const [kids, setKids] = useState<any[]>([]);
+  const [kidSummary, setKidSummary] = useState<Record<string, any>>({});
+
+  function computeKidSummary(week: any, gradesResp: any) {
+    const sessions = week?.attendanceWeek?.sessions ?? [];
+    const total = sessions.length || 0;
+    const present = sessions.filter((x: any) => x.status === 'PRESENT').length;
+    const late = sessions.filter((x: any) => x.status === 'LATE').length;
+    const absent = sessions.filter((x: any) => x.status === 'ABSENT').length;
+    const presentPct = total ? Math.round((present / total) * 100) : null;
+
+    const grades = gradesResp?.grades ?? gradesResp ?? [];
+    const scored = grades.filter((g: any) => typeof g.score === 'number' && typeof g.maxScore === 'number' && g.maxScore > 0);
+    const avg = scored.length
+      ? Math.round(scored.reduce((a: number, g: any) => a + (g.score / g.maxScore) * 100, 0) / scored.length)
+      : null;
+
+    return { presentPct, present, late, absent, avg, total };
+  }
+
   const [err, setErr] = useState<string | null>(null);
 
   if (!token) {
@@ -36,6 +55,23 @@ export default function DashboardPage() {
         }
         const data = await parentChildren();
         setKids(Array.isArray(data) ? data : []);
+
+        const kidsList = Array.isArray(data) ? data : [];
+        // load per-child summaries (week attendance + grades)
+        const entries = await Promise.all(
+          kidsList.map(async (k: any) => {
+            try {
+              const [w, g] = await Promise.all([
+                parentOverviewWeek(k.studentId),
+                parentGrades(k.studentId),
+              ]);
+              return [k.studentId, computeKidSummary(w, g)];
+            } catch (e) {
+              return [k.studentId, { error: true }];
+            }
+          })
+        );
+        setKidSummary(Object.fromEntries(entries));
       } catch (e: any) {
         setErr(e?.message ?? 'Failed to load');
       }
@@ -71,6 +107,21 @@ export default function DashboardPage() {
               <div className="font-medium">{k.name}</div>
               <div className="text-sm opacity-70">
                 {k.cohort?.name} · Grade {k.cohort?.grade} · {k.status}
+              </div>
+              <div className="text-sm opacity-70 mt-1">
+                {kidSummary[k.studentId]?.error ? (
+                  <span>Summary unavailable</span>
+                ) : (
+                  <>
+                    <span>
+                      Attendance: {kidSummary[k.studentId]?.presentPct ?? '—'}%
+                      {kidSummary[k.studentId]?.total ? (
+                        <> (P {kidSummary[k.studentId].present} · L {kidSummary[k.studentId].late} · A {kidSummary[k.studentId].absent})</>
+                      ) : null}
+                    </span>
+                    <span>{' '}· Avg grade: {kidSummary[k.studentId]?.avg ?? '—'}%</span>
+                  </>
+                )}
               </div>
             </Link>
           ))}
