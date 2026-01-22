@@ -9,6 +9,10 @@ export async function parentOverview(studentId: string) {
   return api(`/api/parent/overview?studentId=${encodeURIComponent(studentId)}`);
 }
 
+export async function parentGrades(studentId: string) {
+  return api(`/api/parent/grades?studentId=${encodeURIComponent(studentId)}`);
+}
+
 export async function parentOverviewWeek(studentId: string) {
   return api(`/api/parent/overview/week?studentId=${encodeURIComponent(studentId)}`);
 }
