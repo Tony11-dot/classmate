@@ -17,6 +17,26 @@ export default function ChildPage() {
   const [today, setToday] = useState<any>(null);
   const [week, setWeek] = useState<any>(null);
   const [grades, setGrades] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any>(null);
+
+  function computeSummary(week: any, grades: any[]) {
+    const sessions = week?.attendanceWeek?.sessions ?? [];
+    const total = sessions.length || 0;
+    const late = sessions.filter((x: any) => x.status === 'LATE').length;
+    const absent = sessions.filter((x: any) => x.status === 'ABSENT').length;
+    const present = sessions.filter((x: any) => x.status === 'PRESENT').length;
+
+    const pct = total ? Math.round((present / total) * 100) : null;
+
+    const scored = (grades ?? []).filter(
+      (g: any) => typeof g.score === 'number' && typeof g.maxScore === 'number' && g.maxScore > 0
+    );
+    const avg = scored.length
+      ? Math.round(scored.reduce((a: number, g: any) => a + (g.score / g.maxScore) * 100, 0) / scored.length)
+      : null;
+
+    return { pct, late, absent, avg };
+  }
   const [err, setErr] = useState<string | null>(null);
 
   if (!token) {
@@ -36,6 +56,7 @@ export default function ChildPage() {
         ]);
         setToday(t);
         setWeek(w);
+        setSummary(computeSummary(w, grades));
       } catch (e: any) {
         setErr(e?.message ?? 'Failed to load');
       }
