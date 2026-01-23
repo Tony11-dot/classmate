@@ -39,9 +39,17 @@ function dayOfWeekInJerusalem(date = new Date()): number {
   return map[wk] ?? 0;
 }
 
-
-type CourseLite = { id: string; name: string; subject: string | null; teacherId?: string | null };
-type AttendanceRowLite = { studentId: string; status?: string; note?: string | null };
+type CourseLite = {
+  id: string;
+  name: string;
+  subject: string | null;
+  teacherId?: string | null;
+};
+type AttendanceRowLite = {
+  studentId: string;
+  status?: string;
+  note?: string | null;
+};
 
 @Injectable()
 export class TeacherService {
@@ -111,7 +119,10 @@ export class TeacherService {
         }
 
         // override course belongs to someone else -> not your slot anymore
-        if ((o as any).course?.teacherId && (o as any).course.teacherId !== teacherId) {
+        if (
+          (o as any).course?.teacherId &&
+          (o as any).course.teacherId !== teacherId
+        ) {
           continue;
         }
 
@@ -219,7 +230,9 @@ export class TeacherService {
       period,
       course: { id: course.id, name: course.name, subject: course.subject },
       students: students.map((s) => {
-        const r = recordByStudent.get(s.userId) as AttendanceRowLite | undefined;
+        const r = recordByStudent.get(s.userId) as
+          | AttendanceRowLite
+          | undefined;
         return {
           studentId: s.userId,
           name: s.user.name,
@@ -288,6 +301,16 @@ export class TeacherService {
       },
     });
 
+    const __existing = await this.prisma.attendanceRecord.findUnique({
+      where: {
+        sessionId_studentId: {
+          sessionId: session.id,
+          studentId: body.studentId,
+        },
+      },
+      select: { id: true, status: true },
+    });
+
     const record = await this.prisma.attendanceRecord.upsert({
       where: {
         sessionId_studentId: {
@@ -303,6 +326,66 @@ export class TeacherService {
         note: body.note ?? null,
       },
     });
+
+    // 🔔 Notify parents: attendance marked (ONLY first time ABSENT/LATE for this session)
+    try {
+      const __newStatus = record.status;
+      const __shouldNotify =
+        (__newStatus === 'ABSENT' || __newStatus === 'LATE') &&
+        (!__existing || __existing.status === 'PRESENT');
+
+      if (__shouldNotify) {
+        const parents = await this.prisma.parentChild.findMany({
+          where: { childId: record.studentId, status: 'APPROVED' as any },
+          select: { parentId: true },
+        });
+
+        if (parents.length) {
+          const title =
+            __newStatus === 'ABSENT'
+              ? 'Absence recorded'
+              : 'Late arrival recorded';
+
+          // dedupe: one notification per parent+student+session+type
+          const existingNotifs = await this.prisma.parentNotification.findMany({
+            where: {
+              parentId: { in: parents.map(p => p.parentId) },
+              studentId: record.studentId,
+              type: 'ATTENDANCE_RECORDED' as any,
+              data: { path: ['sessionId'], equals: record.sessionId },
+            },
+            select: { parentId: true },
+          });
+          const already = new Set(existingNotifs.map(x => x.parentId));
+          const targets = parents.filter(p => !already.has(p.parentId));
+
+          if (!targets.length) return;
+
+          await this.prisma.parentNotification.createMany({
+            data: targets.map((p) => ({
+              parentId: p.parentId,
+              studentId: record.studentId,
+              type: 'ATTENDANCE_RECORDED',
+              title,
+              message: null,
+              data: {
+                status: __newStatus,
+                sessionId: record.sessionId,
+                cohortId: session.cohortId,
+                date: session.date.toISOString(),
+                period: session.period,
+                courseId: session.courseId ?? null,
+              },
+            })),
+          });
+        }
+      }
+    } catch (_e) {
+      // don't break teacher flow on notification failures
+    }
+
+
+    
 
     return { ok: true, sessionId: session.id, recordId: record.id };
   }
@@ -372,7 +455,17 @@ export class TeacherService {
     let written = 0;
     for (const r of body.records) {
       if (!okSet.has(r.studentId)) continue;
-      await this.prisma.attendanceRecord.upsert({
+      const __existing = await this.prisma.attendanceRecord.findUnique({
+        where: {
+          sessionId_studentId: {
+            sessionId: session.id,
+            studentId: r.studentId,
+          },
+        },
+        select: { id: true, status: true },
+      });
+
+      const __upserted = await this.prisma.attendanceRecord.upsert({
         where: {
           sessionId_studentId: {
             sessionId: session.id,
@@ -387,6 +480,64 @@ export class TeacherService {
           note: r.note ?? null,
         },
       });
+
+      // 🔔 Notify parents: attendance marked (ONLY first time ABSENT/LATE for this session)
+      try {
+        const __newStatus = __upserted.status;
+        const __shouldNotify =
+          (__newStatus === 'ABSENT' || __newStatus === 'LATE') &&
+          (!__existing || __existing.status === 'PRESENT');
+
+        if (__shouldNotify) {
+          const parents = await this.prisma.parentChild.findMany({
+            where: { childId: __upserted.studentId, status: 'APPROVED' as any },
+            select: { parentId: true },
+          });
+
+          if (parents.length) {
+            const title =
+              __newStatus === 'ABSENT'
+                ? 'Absence recorded'
+                : 'Late arrival recorded';
+
+            // dedupe: one notification per parent+student+session+type
+            const existingNotifs = await this.prisma.parentNotification.findMany({
+              where: {
+                parentId: { in: parents.map(p => p.parentId) },
+                studentId: __upserted.studentId,
+                type: 'ATTENDANCE_RECORDED' as any,
+                data: { path: ['sessionId'], equals: __upserted.sessionId },
+              },
+              select: { parentId: true },
+            });
+            const already = new Set(existingNotifs.map(x => x.parentId));
+            const targets = parents.filter(p => !already.has(p.parentId));
+
+            if (!targets.length) { /* no-op */ } else
+
+            await this.prisma.parentNotification.createMany({
+              data: targets.map((p) => ({
+                parentId: p.parentId,
+                studentId: __upserted.studentId,
+                type: 'ATTENDANCE_RECORDED',
+                title,
+                message: null,
+                data: {
+                  status: __newStatus,
+                  sessionId: __upserted.sessionId,
+                  cohortId: session.cohortId,
+                  date: session.date.toISOString(),
+                  period: session.period,
+                  courseId: session.courseId ?? null,
+                },
+              })),
+            });
+          }
+        }
+      } catch (_e) {
+        // don't break teacher flow on notification failures
+      }
+
       written++;
     }
 
@@ -397,7 +548,6 @@ export class TeacherService {
       skipped: body.records.length - written,
     };
   }
-
 
   async cohortStudents(user: any, cohortId: string) {
     this.ensureTeacher(user);
@@ -416,7 +566,14 @@ export class TeacherService {
       where: { cohortId },
       select: {
         userId: true,
-        user: { select: { name: true, displayName: true, legalName: true, email: true } },
+        user: {
+          select: {
+            name: true,
+            displayName: true,
+            legalName: true,
+            email: true,
+          },
+        },
       },
       orderBy: [{ user: { name: 'asc' } }, { userId: 'asc' }],
     });
@@ -426,7 +583,12 @@ export class TeacherService {
       cohortId,
       students: rows.map((r) => ({
         studentId: r.userId,
-        name: r.user.displayName || r.user.legalName || r.user.name || r.user.email || r.userId
+        name:
+          r.user.displayName ||
+          r.user.legalName ||
+          r.user.name ||
+          r.user.email ||
+          r.userId,
       })),
     };
   }
@@ -506,8 +668,14 @@ export class TeacherService {
       if (!okSet.has(g.studentId)) continue;
       const grade = Math.round(Number(g.grade));
 
-      if (assessment.maxGrade !== null && assessment.maxGrade !== undefined && grade > assessment.maxGrade) {
-        throw new BadRequestException(`Grade ${grade} exceeds maxGrade ${assessment.maxGrade}`);
+      if (
+        assessment.maxGrade !== null &&
+        assessment.maxGrade !== undefined &&
+        grade > assessment.maxGrade
+      ) {
+        throw new BadRequestException(
+          `Grade ${grade} exceeds maxGrade ${assessment.maxGrade}`,
+        );
       }
       if (grade < 0) {
         throw new BadRequestException('Grade cannot be negative');
@@ -515,7 +683,17 @@ export class TeacherService {
 
       if (!Number.isFinite(grade)) continue;
 
-      await this.prisma.gradeRecord.upsert({
+      
+      const __existing = await this.prisma.gradeRecord.findUnique({
+        where: {
+          assessmentId_studentId: {
+            assessmentId: assessment.id,
+            studentId: g.studentId,
+          },
+        },
+        select: { id: true },
+      });
+      const __upserted = await this.prisma.gradeRecord.upsert({
         where: {
           assessmentId_studentId: {
             assessmentId: assessment.id,
@@ -530,6 +708,51 @@ export class TeacherService {
           comment: g.comment ?? null,
         },
       });
+
+      // 🔔 Notify parents: grade posted (only on first create)
+      if (!__existing) try {
+        const __studentId = g.studentId;
+        const __assessmentId = assessment.id;
+
+        const parents = await this.prisma.parentChild.findMany({
+          where: { childId: __studentId, status: 'APPROVED' },
+          select: { parentId: true },
+        });
+
+        if (parents.length) {
+          const a = await this.prisma.assessment.findUnique({
+            where: { id: __assessmentId },
+            include: { course: { select: { id: true, name: true, subject: true } } },
+          });
+
+          const title = a?.course?.name
+            ? `New grade in ${a.course.name}`
+            : 'New grade posted';
+
+          await this.prisma.parentNotification.createMany({
+            data: parents.map((p) => ({
+              parentId: p.parentId,
+              studentId: __studentId,
+              type: 'GRADE_POSTED',
+              title,
+              message: null,
+              data: {
+                grade: __upserted.grade,
+                comment: __upserted.comment ?? null,
+                assessment: a
+                  ? { id: a.id, title: a.title, date: a.date.toISOString() }
+                  : { id: __assessmentId },
+                course: a?.course
+                  ? { id: a.course.id, name: a.course.name, subject: a.course.subject }
+                  : null,
+              },
+            })),
+          });
+        }
+      } catch (_e) {
+        // don't break teacher flow on notification failures
+      }
+
       written++;
     }
 
@@ -585,12 +808,12 @@ export class TeacherService {
     return { ok: true, courses, assessments };
   }
 
-
   async assessmentGrades(user: any, assessmentId: string) {
     this.ensureTeacher(user);
     const teacherId = user.sub ?? user.id;
 
-    if (!assessmentId) throw new BadRequestException('assessmentId is required');
+    if (!assessmentId)
+      throw new BadRequestException('assessmentId is required');
 
     const assessment = await this.prisma.assessment.findUnique({
       where: { id: assessmentId },

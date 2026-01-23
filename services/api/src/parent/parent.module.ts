@@ -9,7 +9,11 @@ import { ParentService } from './parent.service';
 
 @Module({
   imports: [ScheduleModule],
-  controllers: [ParentAlertsController,ParentController, ParentAttendanceController],
-  providers: [ParentAlertsService,ParentService, PrismaService],
+  controllers: [
+    ParentAlertsController,
+    ParentController,
+    ParentAttendanceController,
+  ],
+  providers: [ParentAlertsService, ParentService, PrismaService],
 })
 export class ParentModule {}

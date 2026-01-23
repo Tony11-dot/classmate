@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "predev": "lsof -ti tcp:3004 | xargs -r kill -9 || true"
+    "predev": "lsof -ti tcp:3004 | xargs -r kill -9 || true",
+    "test:e2e": "playwright test --reporter=line"
   },
   "dependencies": {
     "next": "16.1.4",
@@ -15,6 +16,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

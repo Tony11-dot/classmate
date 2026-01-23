@@ -11,14 +11,14 @@ export class ParentAlertsController {
 
   @Get('settings')
   get(@CurrentUser() u: any, @Query('studentId') studentId: string) {
-    const parentId = (u?.sub ?? u?.userId ?? u?.id);
+    const parentId = u?.sub ?? u?.userId ?? u?.id;
     if (!parentId) throw new Error('CurrentUser missing id (sub/userId/id)');
     return this.svc.get(parentId, studentId);
   }
 
   @Patch('settings')
   patch(@CurrentUser() u: any, @Body() dto: UpdateAlertSettingsDto) {
-    const parentId = (u?.sub ?? u?.userId ?? u?.id);
+    const parentId = u?.sub ?? u?.userId ?? u?.id;
     if (!parentId) throw new Error('CurrentUser missing id (sub/userId/id)');
     return this.svc.update(parentId, dto);
   }

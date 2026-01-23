@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Req,
-  UseGuards,
-  DefaultValuePipe,
-  ParseIntPipe,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Req, UseGuards, DefaultValuePipe, ParseIntPipe, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
@@ -127,15 +116,21 @@ export class ParentController {
       throw new BadRequestException('studentId is invalid');
     }
 
-    return this.parent.unreadCount(
-      req.user,
-      studentId?.trim() || undefined,
+    return this.parent.unreadCount(req.user, {
+      studentId: studentId?.trim() || undefined,
       since,
-    );
+    });
   }
 
   @Post('notifications/mark-seen')
-  markSeen(@Req() req: any) {
-    return this.parent.markSeen(req.user);
+  markSeen(@Req() req: any, @Body() body: any) {
+    return this.parent.markSeen(req.user, body?.ids);
   }
+
+  @Get('lookup')
+  lookup(@Req() req: any) {
+    return this.parent.lookup(req.user);
+  }
+
+
 }

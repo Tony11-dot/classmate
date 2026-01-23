@@ -44,8 +44,12 @@ function parseYmd(ymd: string): Date {
   return dt;
 }
 
-
-type CourseLite = { id: string; name: string; subject: string | null; teacherId: string | null };
+type CourseLite = {
+  id: string;
+  name: string;
+  subject: string | null;
+  teacherId: string | null;
+};
 type TemplateSlotLite = { period: number; course: CourseLite | null };
 
 @Injectable()

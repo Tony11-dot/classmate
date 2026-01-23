@@ -1,0 +1,89 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useParentAuth } from '@/lib/useParentAuth';
+import { parentUnreadCount, parentNotifications } from '@/lib/api';
+
+type Notif = {
+  id?: string;
+  type?: string;
+  title?: string;
+  message?: string;
+  at?: string;
+  studentId?: string;
+};
+
+export default function NotificationsPage() {
+  const token = useParentAuth();
+
+  const [items, setItems] = useState<Notif[]>([]);
+  const [unread, setUnread] = useState<number | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+
+    ;(async () => {
+      try {
+        setErr(null);
+        const [u, n] = await Promise.all([
+          parentUnreadCount(),
+          parentNotifications({ take: 50 }),
+        ]);
+
+        setUnread(typeof u === 'number' ? u : (u?.count ?? u?.unreadCount ?? null));
+
+        const list = n?.notifications ?? n ?? [];
+        setItems(Array.isArray(list) ? list : []);
+      } catch (e: any) {
+        setErr(e?.message ?? 'Load failed');
+      }
+    })();
+  }, [token]);
+
+  // Render guard AFTER hooks
+  if (!token) {
+    return (
+      <main className="min-h-screen p-6 max-w-3xl mx-auto">
+        <div className="rounded-lg border p-4 text-sm opacity-80">Loading notifications…</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen p-6 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Notifications</h1>
+        <Link className="rounded-md border px-3 py-2 text-sm" href="/dashboard">
+          Back
+        </Link>
+      </div>
+
+      <div className="mt-2 text-sm opacity-70">
+        Unread: {typeof unread === 'number' ? unread : '—'}
+      </div>
+
+      {err && <div className="mt-4 text-sm text-red-600">{err}</div>}
+
+      <div className="mt-6 space-y-2">
+        {items.map((n, i) => (
+          <div key={n.id ?? i} className="rounded-lg border p-3">
+            <div className="font-medium">
+              {n.title ?? n.type ?? 'Notification'}
+            </div>
+            {n.message && <div className="text-sm opacity-80 mt-1">{n.message}</div>}
+            <div className="text-xs opacity-60 mt-2">
+              {n.at ? new Date(n.at).toLocaleString() : ''}
+              {n.studentId ? ` · student ${n.studentId}` : ''}
+            </div>
+          </div>
+        ))}
+
+        {items.length === 0 && !err && (
+          <div className="opacity-70">No notifications.</div>
+        )}
+      </div>
+    </main>
+  );
+}

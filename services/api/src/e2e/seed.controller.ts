@@ -69,6 +69,32 @@ export class E2ESeedController {
       },
       select: { id: true },
     });
+    const parent = await this.prisma.user.upsert({
+      where: { email: 'parent1@classmate.app' },
+      update: { password: passwordHash, name: 'Parent One' },
+      create: {
+        email: 'parent1@classmate.app',
+        password: passwordHash,
+        name: 'Parent One',
+        roles: { create: [{ role: 'PARENT' }] },
+      },
+      select: { id: true },
+    });
+
+    await this.prisma.userRole.upsert({
+      where: { userId_role: { userId: parent.id, role: 'PARENT' } },
+      update: {},
+      create: { userId: parent.id, role: 'PARENT' },
+    });
+
+    // Link parent <-> child (student)
+    await this.prisma.parentChild.upsert({
+      where: { parentId_childId: { parentId: parent.id, childId: student.id } },
+      update: { status: 'APPROVED' },
+      create: { parentId: parent.id, childId: student.id, status: 'APPROVED' },
+    });
+
+
 
     await this.prisma.enrollment.create({
       data: {
@@ -77,16 +103,12 @@ export class E2ESeedController {
       },
     });
 
-
     const today = new Date();
 
     today.setHours(12, 0, 0, 0);
 
-
     const session = await this.prisma.attendanceSession.create({
-
       data: {
-
         cohortId: cohort.id,
 
         date: today,
@@ -94,29 +116,28 @@ export class E2ESeedController {
         period: 1,
 
         courseId: course.id,
-
       },
 
       select: { id: true },
-
     });
 
-
     await this.prisma.attendanceRecord.create({
-
       data: {
-
         sessionId: session.id,
 
         studentId: student.id,
 
-        status: "PRESENT",
-
+        status: 'PRESENT',
       },
-
     });
 
-
-    return { ok: true, cohortId: cohort.id, courseId: course.id };
+    return {
+      ok: true,
+      cohortId: cohort.id,
+      courseId: course.id,
+      teacherEmail: 'teacher1@classmate.app',
+      parentEmail: 'parent1@classmate.app',
+      password: 'dev',
+    };
   }
 }

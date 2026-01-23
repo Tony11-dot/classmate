@@ -1,104 +1,212 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { parentLookup, parentMarkSeen, parentNotifications, parentUnreadCount } from '@/lib/api';
 import { useParentAuth } from '@/lib/useParentAuth';
-import Link from 'next/link';
-import { parentNotifications, parentUnreadCount, parentMarkSeen } from '@/lib/api';
 
-function fmt(ts?: string) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleString();
+type Lookup = {
+  students: { id: string; name: string }[];
+  courses: { id: string; name: string; subject: string; cohortId: string }[];
+};
+
+function fmtTime(iso?: string | null) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString();
 }
 
 export default function NotificationsPage() {
   const token = useParentAuth();
-  const [rows, setRows] = useState<any[]>([]);
-  const [unread, setUnread] = useState<any>(null);
+
+  const [lookup, setLookup] = useState<Lookup>({ students: [], courses: [] });
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+
+  const [items, setItems] = useState<any[]>([]);
+  const [unread, setUnread] = useState<{ unread: number; breakdown: Record<string, number> }>({ unread: 0, breakdown: {} });
+
+  const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  async function load() {
+  const courseMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of lookup.courses) m.set(c.id, c.name);
+    return m;
+  }, [lookup.courses]);
+
+  async function refresh(studentId?: string | null) {
+    const sid = studentId ?? selectedStudentId;
+    const [u, n] = await Promise.all([
+      parentUnreadCount({ studentId: sid || undefined }),
+      parentNotifications({ studentId: sid || undefined, take: 50 }),
+    ]);
+    setUnread({ unread: u.unread, breakdown: u.breakdown || {} });
+    setItems(n.notifications || []);
+  }
+
+  useEffect(() => {
     if (!token) return;
-    setErr(null);
+    let mounted = true;
+
+    (async () => {
+      try {
+        setErr(null);
+        setLoading(true);
+
+        const l = await parentLookup();
+        if (!mounted) return;
+        setLookup({ students: l.students || [], courses: l.courses || [] });
+
+        const defaultId = l.students?.[0]?.id ?? null;
+        setSelectedStudentId(defaultId);
+
+        await refresh(defaultId);
+      } catch (e: any) {
+        if (!mounted) return;
+        setErr(e?.message || String(e));
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    })();
+
+    return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  async function markAllRead() {
     try {
-      const [n, u] = await Promise.all([
-        parentNotifications(20),
-        parentUnreadCount(),
-      ]);
-      setRows(n?.notifications ?? []);
-      setUnread(u);
+      await parentMarkSeen({});
+      await refresh(selectedStudentId);
     } catch (e: any) {
-      setErr(e?.message ?? 'Failed to load');
+      setErr(e?.message || String(e));
     }
   }
 
-  useEffect(() => { if (token) load(); }, [token]);
+  async function openNotif(id: string) {
+    try {
+      await parentMarkSeen({ ids: [id] });
+      // optimistic local update
+      setItems((prev) => prev.map((x) => (x.id === id ? { ...x, seenAt: new Date().toISOString() } : x)));
+      await refresh(selectedStudentId);
+    } catch (e: any) {
+      setErr(e?.message || String(e));
+    }
+  }
+
+  if (!token) return null;
 
   return (
-    <main className="min-h-screen p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Notifications</h1>
-        <div className="flex gap-2">
-          <button className="rounded-md border px-3 py-2 text-sm" onClick={load}>
-            Refresh
+    <div className="mx-auto max-w-3xl p-4">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold">Notifications (filtered)</h1>
+
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border px-2 py-0.5 text-sm">
+            Unread: <b>{unread.unread}</b>
+          </span>
+          <button
+            onClick={markAllRead}
+            className="rounded-md border px-3 py-1.5 text-sm hover:bg-black/5"
+          >
+            Mark all read
           </button>
-          <Link className="rounded-md border px-3 py-2 text-sm" href="/dashboard">
-            Back
-          </Link>
         </div>
       </div>
 
-      {err && <div className="mt-4 text-sm text-red-600">{err}</div>}
-
-      {unread && (
-        <div className="mt-4 rounded-lg border p-3 text-sm">
-          <div>
-            Unread: <span className="font-medium">{unread.unread}</span>
-          </div>
-          <div className="opacity-70 text-xs">
-            Since {fmt(unread.since)}
-          </div>
-          <button
-            className="mt-2 rounded-md border px-3 py-2 text-sm"
-            onClick={async () => { await parentMarkSeen(); await load(); }}
-          >
-            Mark all as seen
-          </button>
+      {Object.keys(unread.breakdown || {}).length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          {Object.entries(unread.breakdown).map(([k, v]) => (
+            <span key={k} className="rounded-full border px-2 py-0.5">
+              {k}: <b>{v}</b>
+            </span>
+          ))}
         </div>
       )}
 
-      <div className="mt-6 space-y-3">
-        {rows.map((n, i) => (
-          <div key={i} className="rounded-lg border p-3">
-            <div className="font-medium">
-              {n.title ?? n.type}
-            </div>
-            <div className="text-sm opacity-70">
-              {fmt(n.at)} · {n.studentName}
-            </div>
-
-            {n.type === 'ATTENDANCE_MARKED' && (
-              <div className="mt-2 text-sm">
-                Period {n.data?.period} · {n.data?.status}
-                {n.data?.course && (
-                  <span className="opacity-70">
-                    {' '}· {n.data.course.name}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {n.type === 'GRADE_UPDATED' && (
-              <div className="mt-2 text-sm">
-                Grade updated · {n.data?.assessmentName}
-              </div>
-            )}
-          </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={async () => { setSelectedStudentId(null); await refresh(null); }}
+          className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === null ? 'bg-black text-white' : 'hover:bg-black/5'}`}
+        >
+          All
+        </button>
+        {lookup.students.map((s) => (
+          <button
+            key={s.id}
+            onClick={async () => { setSelectedStudentId(s.id); await refresh(s.id); }}
+            className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === s.id ? 'bg-black text-white' : 'hover:bg-black/5'}`}
+          >
+            {s.name}
+          </button>
         ))}
-
-        {rows.length === 0 && !err && (
-          <div className="opacity-70">No notifications.</div>
-        )}
       </div>
-    </main>
+
+      {err && (
+        <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+          {err}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="mt-6 text-sm opacity-70">Loading…</div>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {items.length === 0 ? (
+            <div className="rounded-md border p-4 text-sm opacity-70">No notifications</div>
+          ) : (
+            items/* LEGACY_TYPES_FILTER */.filter((n: any) => n?.type !== 'ATTENDANCE_MARKED').map((n) => {
+              const courseName =
+                (n?.data?.course?.name as string | undefined) ||
+                (n?.data?.courseId ? courseMap.get(n.data.courseId) : null) ||
+                null;
+
+              const isUnread = !n.seenAt;
+
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => openNotif(n.id)}
+                  className="w-full rounded-md border p-3 text-left hover:bg-black/5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        {isUnread && <span className="inline-block h-2 w-2 rounded-full bg-blue-600" />}
+                        <div className="truncate font-medium">{n.title || n.type}</div>
+                      </div>
+
+                      <div className="mt-1 text-sm opacity-80">
+                        {courseName ? <span>{courseName}</span> : null}
+                        {courseName ? <span className="opacity-50"> · </span> : null}
+                        <span>{fmtTime(n.at)}</span>
+                      </div>
+
+                      {n.message && (
+                        <div className="mt-2 text-sm opacity-90">{n.message}</div>
+                      )}
+
+                      {n.type === 'ATTENDANCE_RECORDED' && n.data && (
+                        <div className="mt-2 text-sm opacity-90">
+                          Status: <b>{n.data.status}</b>
+                          {typeof n.data.period === 'number' ? <> · Period <b>{n.data.period}</b></> : null}
+                        </div>
+                      )}
+
+                      {n.type === 'GRADE_POSTED' && n.data && (
+                        <div className="mt-2 text-sm opacity-90">
+                          Grade: <b>{n.data.grade}</b>
+                          {n.data.assessment?.title ? <> · {n.data.assessment.title}</> : null}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
   );
 }

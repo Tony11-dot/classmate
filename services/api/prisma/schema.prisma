@@ -53,11 +53,12 @@ model User {
   // back-relation for teacher-owned courses
   taughtCourses Course[] @relation("TeacherCourses")
 
-  createdAt         DateTime           @default(now())
-  assessments       Assessment[]
-  parentLinkCodes   ParentLinkCode[]
-  announcements     Announcement[]
-  announcementSeens AnnouncementSeen[]
+  createdAt           DateTime             @default(now())
+  assessments         Assessment[]
+  parentLinkCodes     ParentLinkCode[]
+  announcements       Announcement[]
+  announcementSeens   AnnouncementSeen[]
+  parentNotifications ParentNotification[]
 }
 
 model UserRole {
@@ -321,6 +322,24 @@ model ParentLinkCode {
   @@index([expiresAt])
 }
 
+model ParentNotification {
+  id        String    @id @default(uuid())
+  parentId  String
+  studentId String?
+  type      String
+  title     String
+  message   String?
+  data      Json?
+  createdAt DateTime  @default(now())
+  seenAt    DateTime?
+
+  parent User @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@index([parentId, createdAt])
+  @@index([parentId, seenAt])
+  @@index([studentId, createdAt])
+}
+
 model ParentNotificationState {
   id         String   @id @default(uuid())
   parentId   String   @unique
@@ -385,16 +404,16 @@ model AnnouncementSeen {
 }
 
 model AlertSettings {
-  id          String   @id @default(uuid())
-  ownerId     String
-  studentId   String
+  id        String @id @default(uuid())
+  ownerId   String
+  studentId String
 
-  minGrade    Int      @default(70)
-  maxAbsences Int      @default(1)
-  maxLates    Int      @default(3)
+  minGrade    Int @default(70)
+  maxAbsences Int @default(1)
+  maxLates    Int @default(3)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([ownerId, studentId])
   @@index([studentId])

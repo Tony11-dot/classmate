@@ -4,7 +4,7 @@ import { seedTeacherWithCourse } from './helpers/seed';
 
 const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
- describe('grades: maxGrade enforcement', () => {
+describe('grades: maxGrade enforcement', () => {
   it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
     const token = await loginAsTeacher();
 
@@ -17,7 +17,11 @@ const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
     const created = await request(BASE)
       .post('/api/teacher/grades/assessment')
       .set('Authorization', `Bearer ${token}`)
-      .send({ courseId: courseId, title: `E2E MaxGrade ${Date.now()}`, maxGrade: 120 })
+      .send({
+        courseId: courseId,
+        title: `E2E MaxGrade ${Date.now()}`,
+        maxGrade: 120,
+      })
       .expect(201);
 
     expect(created.body.ok).toBe(true);

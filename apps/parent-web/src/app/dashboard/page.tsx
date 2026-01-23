@@ -9,11 +9,14 @@ import {
   parentGrades,
   getToken,
   clearToken,
+  parentUnreadCount
 } from '@/lib/api';
 
 export default function DashboardPage() {
   const token = useParentAuth();
 
+
+  const [unread, setUnread] = useState<number>(0);
   const [kids, setKids] = useState<any[]>([]);
   const [kidSummary, setKidSummary] = useState<Record<string, any>>({});
   const [err, setErr] = useState<string | null>(null);
@@ -56,6 +59,31 @@ export default function DashboardPage() {
     ;(async () => {
       try {
         const t = getToken();
+
+  useEffect(() => {
+    if (!token) return;
+    let alive = true;
+
+    const load = async () => {
+      try {
+        const r = await parentUnreadCount();
+        if (!alive) return;
+        setUnread(r?.unread ?? 0);
+      } catch {
+        // ignore badge failures
+      }
+    };
+
+    load();
+
+    const onToken = () => load();
+    window.addEventListener('classmate_token_change', onToken);
+    return () => {
+      alive = false;
+      window.removeEventListener('classmate_token_change', onToken);
+    };
+  }, [token]);
+
         if (!t) {
           window.location.href = '/login';
           return;
@@ -165,9 +193,11 @@ export default function DashboardPage() {
       </section>
 
       <div className="mt-6">
-        <Link className="text-sm underline opacity-80" href="/notifications">
-          Notifications
-        </Link>
+        <Link className="text-sm underline opacity-80" href="/notifications"><span className="flex items-center gap-2">Notifications{unread > 0 ? (
+              <span className="rounded-full bg-black/10 px-2 py-0.5 text-xs font-medium">
+                {unread}
+              </span>
+            ) : null}</span></Link>
       </div>
     </main>
   );

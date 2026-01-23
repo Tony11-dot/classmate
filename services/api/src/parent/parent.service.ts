@@ -41,7 +41,6 @@ function startOfWeekSundayInJerusalem(anyDate: Date): Date {
   return d;
 }
 
-
 type StudentProfileLite = { userId: string; cohortId: string };
 
 @Injectable()
@@ -103,7 +102,9 @@ export class ParentService {
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
-      where: { parentId, status: 'APPROVED' },
+      where: {
+        parentId,
+ status: 'APPROVED' },
       include: {
         child: {
           include: {
@@ -389,11 +390,14 @@ export class ParentService {
 
     const studentIds = links.map((l) => l.childId);
 
-    const profiles: StudentProfileLite[] = await this.prisma.studentProfile.findMany({
-      where: { userId: { in: studentIds } },
-      select: { userId: true, cohortId: true },
-    });
-    const profileById = new Map<string, StudentProfileLite>(profiles.map((p) => [p.userId, p]));
+    const profiles: StudentProfileLite[] =
+      await this.prisma.studentProfile.findMany({
+        where: { userId: { in: studentIds } },
+        select: { userId: true, cohortId: true },
+      });
+    const profileById = new Map<string, StudentProfileLite>(
+      profiles.map((p) => [p.userId, p]),
+    );
 
     const cohortIds = Array.from(new Set(profiles.map((p) => p.cohortId)));
     const cohorts = await this.prisma.cohort.findMany({
@@ -432,10 +436,9 @@ export class ParentService {
   async notifications(user: any, opts?: { studentId?: string; take?: number }) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
-
     const take = Math.max(1, Math.min(100, Number(opts?.take ?? 20)));
 
-    // If studentId was provided but becomes empty after trim -> reject (prevents accidental all-children).
+    // If studentId was provided but becomes empty after trim -> reject
     if (
       typeof opts?.studentId === 'string' &&
       opts.studentId.length > 0 &&
@@ -449,104 +452,31 @@ export class ParentService {
       await this.assertLinked(parentId, studentId);
     }
 
-    const links = await this.prisma.parentChild.findMany({
+    const rows = await this.prisma.parentNotification.findMany({
       where: {
         parentId,
-        status: 'APPROVED',
-        ...(studentId ? { childId: studentId } : {}),
+        // hide legacy notifications from older attendance implementation
+        type: { notIn: ['ATTENDANCE_MARKED'] as any },
+
+        ...(studentId ? { studentId } : {}),
       },
-      select: { childId: true },
-    });
-
-    const childIds = links.map((l) => l.childId);
-    if (childIds.length === 0) return { ok: true, notifications: [] };
-
-    const students = await this.prisma.user.findMany({
-      where: { id: { in: childIds } },
-      select: { id: true, name: true },
-    });
-    const nameById = new Map(students.map((s) => [s.id, s.name ?? s.id]));
-
-    const grades = await this.prisma.gradeRecord.findMany({
-      where: { studentId: { in: childIds } },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
-      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-      include: {
-        assessment: {
-          include: {
-            course: { select: { id: true, name: true, subject: true } },
-          },
-        },
-      },
     });
 
-    const notifications: any[] = grades.map((g) => ({
-      type: 'GRADE_POSTED',
-      at: g.assessment.date.toISOString(),
-      studentId: g.studentId,
-      studentName: nameById.get(g.studentId) ?? null,
-      title: `New grade in ${g.assessment.course?.name ?? 'course'}`,
-      data: {
-        grade: g.grade,
-        comment: g.comment,
-        assessment: {
-          id: g.assessment.id,
-          title: g.assessment.title,
-          date: g.assessment.date.toISOString(),
-        },
-        course: g.assessment.course
-          ? {
-              id: g.assessment.course.id,
-              name: g.assessment.course.name,
-              subject: g.assessment.course.subject,
-            }
-          : null,
-      },
-    }));
-
-    // Attendance notifications for TODAY
-    const ymd = ymdInJerusalem(new Date());
-    const start = new Date(`${ymd}T00:00:00.000Z`);
-    const end = new Date(`${ymd}T23:59:59.999Z`);
-
-    const attendanceSessions = await this.prisma.attendanceSession.findMany({
-      where: {
-        date: { gte: start, lte: end },
-        records: { some: { studentId: { in: childIds } } },
-      },
-      include: {
-        course: true,
-        records: { where: { studentId: { in: childIds } } }, // critical: avoid leaking other students
-      },
-    });
-
-    for (const ses of attendanceSessions ?? []) {
-      for (const r of ses.records ?? []) {
-        notifications.push({
-          type: 'ATTENDANCE_MARKED',
-          at: (r.updatedAt ?? r.markedAt).toISOString(),
-          studentId: r.studentId,
-          studentName: nameById.get(r.studentId) ?? null,
-          title: `Attendance: ${ses.course?.name ?? 'course'} (period ${ses.period})`,
-          data: {
-            date: ses.date.toISOString(),
-            period: ses.period,
-            status: r.status,
-            note: r.note ?? null,
-            course: ses.course
-              ? {
-                  id: ses.course.id,
-                  name: ses.course.name,
-                  subject: ses.course.subject,
-                }
-              : null,
-          },
-        });
-      }
-    }
-
-    notifications.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
-    return { ok: true, notifications };
+    return {
+      ok: true,
+      notifications: rows.map((n) => ({
+        id: n.id,
+        type: n.type,
+        at: n.createdAt.toISOString(),
+        studentId: n.studentId,
+        title: n.title,
+        message: n.message,
+        data: n.data,
+        seenAt: n.seenAt ? n.seenAt.toISOString() : null,
+      })),
+    };
   }
 
   private async getLastSeenAt(parentId: string) {
@@ -559,80 +489,131 @@ export class ParentService {
     return row.lastSeenAt;
   }
 
-  async unreadCount(user: any, studentId?: string, since?: string) {
+  async unreadCount(
+    user: any,
+    opts?: { studentId?: string; since?: string },
+  ) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
-    // determine cutoff (STRICT)
-    let cutoff: Date | null = null;
-
-    if (since) {
-      const d = new Date(since);
-      if (Number.isNaN(d.getTime())) {
-        throw new BadRequestException('since must be a valid ISO date');
-      }
-      cutoff = d;
-    }
-
-    if (!cutoff) cutoff = await this.getLastSeenAt(parentId);
-
-    const cutoffDate: Date = (cutoff ?? new Date(0));
-    if (!cutoff) cutoff = new Date(0);
-const links = await this.prisma.parentChild.findMany({
-      where: { parentId, status: 'APPROVED' },
-      select: { childId: true },
-    });
-    const childIds = links.map((l) => l.childId);
-
-    if (studentId) {
-      await this.assertLinked(parentId, studentId);
-    }
-
-    const targetIds = studentId ? [studentId] : childIds;
-
-    if (targetIds.length === 0) {
-      return {
-        ok: true,
-        unread: 0,
-        since: cutoffDate.toISOString(),
-        breakdown: { grades: 0, attendance: 0 },
-      };
-    }
-
-    const gradeCount = await this.prisma.gradeRecord.count({
-      where: {
-        studentId: { in: targetIds },
-        assessment: { date: { gt: cutoffDate } },
-      },
+    const state = await this.prisma.parentNotificationState.findUnique({
+      where: { parentId },
+      select: { lastSeenAt: true },
     });
 
-    const attendanceCount = await this.prisma.attendanceRecord.count({
-      where: {
-        studentId: { in: targetIds },
-        markedAt: { gt: cutoffDate },
-      },
+    const cutoff =
+      opts?.since ? new Date(opts.since) : (state?.lastSeenAt ?? null);
+
+    const where: any = {
+      parentId,
+      seenAt: null,
+    };
+
+    if (opts?.studentId) where.studentId = opts.studentId;
+    // NOTE: unread is based on seenAt=null only (no createdAt cutoff)
+
+    const unread = await this.prisma.parentNotification.count({ where });
+
+    const grouped = await this.prisma.parentNotification.groupBy({
+      by: ['type'],
+      where,
+      _count: { _all: true },
     });
+
+    const breakdown: Record<string, number> = {};
+    for (const g of grouped) breakdown[g.type] = g._count._all;
+
     return {
       ok: true,
-      unread: gradeCount + attendanceCount,
-      since: cutoffDate.toISOString(),
-      breakdown: { grades: gradeCount, attendance: attendanceCount },
+      unread,
+      since: cutoff ? cutoff.toISOString() : null,
+      breakdown,
     };
   }
 
-  async markSeen(user: any) {
+  
+  async lookup(user: any) {
+    this.ensureParent(user);
+    const parentId = user.sub ?? user.id;
+
+    const links = await this.prisma.parentChild.findMany({
+      where: { parentId, status: 'APPROVED' as any },
+      include: {
+        child: {
+          select: {
+            displayName: true,
+            legalName: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    const students = links.map((l) => ({
+      id: l.childId,
+      name:
+        l.child?.displayName ||
+        l.child?.legalName ||
+        l.child?.name ||
+        l.child?.email ||
+        l.childId,
+    }));
+
+    // courses referenced by recent notifications (last 200)
+    const recent = await this.prisma.parentNotification.findMany({
+      where: { parentId },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      select: { data: true },
+    });
+
+    const courseIds = Array.from(
+      new Set(
+        recent
+          .map((n) => (n.data as any)?.courseId || (n.data as any)?.course?.id)
+          .filter(Boolean),
+      ),
+    );
+
+    const courses = courseIds.length
+      ? await this.prisma.course.findMany({
+          where: { id: { in: courseIds } },
+          select: { id: true, name: true, subject: true, cohortId: true },
+        })
+      : [];
+
+    return { ok: true, students, courses };
+  }
+
+  async markSeen(user: any, ids?: string[]) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
     const now = new Date();
-    const row = await this.prisma.parentNotificationState.upsert({
+    const list = Array.isArray(ids) ? ids.filter(Boolean) : [];
+
+    if (list.length > 0) {
+      await this.prisma.parentNotification.updateMany({
+        where: { parentId, id: { in: list } },
+        data: { seenAt: now },
+      });
+    } else {
+      // mark all unseen as seen
+      await this.prisma.parentNotification.updateMany({
+        where: { parentId, seenAt: null },
+        data: { seenAt: now },
+      });
+    }
+
+    // keep state for compatibility with "since"
+    await this.prisma.parentNotificationState.upsert({
       where: { parentId },
       update: { lastSeenAt: now },
       create: { parentId, lastSeenAt: now },
-      select: { lastSeenAt: true },
     });
 
-    return { ok: true, lastSeenAt: row.lastSeenAt.toISOString() };
+    return { ok: true, lastSeenAt: now.toISOString() };
   }
 
   async getChildAttendance(

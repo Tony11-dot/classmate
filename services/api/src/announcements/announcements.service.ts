@@ -303,7 +303,7 @@ export class AnnouncementsService {
 
     const grades = gradeRows
       .map((r) => r.grade)
-      .filter((g) => g !== null && g !== undefined) as number[];
+      .filter((g) => g !== null && g !== undefined);
 
     const gradeList = grades.length ? grades : [7, 8, 9, 10, 11, 12];
 
