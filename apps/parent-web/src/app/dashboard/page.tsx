@@ -69,16 +69,24 @@ export default function DashboardPage() {
 
     loadUnread();
 
+    const interval = setInterval(() => loadUnread(), 30000);
+
     const onToken = () => loadUnread();
     const onNotif = () => loadUnread();
 
     window.addEventListener('classmate_token_change', onToken);
     window.addEventListener('classmate_parent_notifications_changed', onNotif);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'parent_token') loadUnread();
+    };
+    window.addEventListener('storage', onStorage);
 
     return () => {
       alive = false;
+      clearInterval(interval);
       window.removeEventListener('classmate_token_change', onToken);
       window.removeEventListener('classmate_parent_notifications_changed', onNotif);
+      window.removeEventListener('storage', onStorage);
     };
   }, [token]);
 
