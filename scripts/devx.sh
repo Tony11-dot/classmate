@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cmd="${1:-help}"
+
 API_PORT="${API_PORT:-3000}"
 API_BASE="${API_BASE:-http://127.0.0.1:${API_PORT}}"
 LOG="${LOG:-/tmp/classmate-api.log}"
 
-cmd="${1:-help}"
+die () { echo "❌ $*" >&2; exit 1; }
 
-die() { echo "❌ $*" >&2; exit 1; }
-need() { command -v "$1" >/dev/null 2>&1 || die "missing $1"; }
-
-need lsof
-need curl
+need () { command -v "$1" >/dev/null 2>&1 || die "missing required command: $1"; }
 
 stop_port () {
   local port="$1"
@@ -26,10 +24,10 @@ stop_port () {
 }
 
 wait_health () {
-  local url=""
-  echo "⏳ waiting for /api/health"
-  for _ in 20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400seq 1 200); do
-    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "/api/health" | grep -q "\"ok\":true"; then
+  local url="$1"
+  echo "⏳ waiting for ${url}/api/health"
+  for _ in $(seq 1 200); do
+    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "${url}/api/health" | grep -q '"ok":true'; then
       echo "✅ health ok"
       return 0
     fi
@@ -37,7 +35,6 @@ wait_health () {
   done
   die "api health never became ok"
 }
-
 
 start_api () {
   rm -f "${LOG}"
