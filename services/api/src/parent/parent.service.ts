@@ -54,8 +54,15 @@ export class ParentService {
 
   // normalize notification payload
   private notifDto(n: any) {
-    const createdAt = n.createdAt ? new Date(n.createdAt).toISOString() : null;
-    const seenAt = n.seenAt ? new Date(n.seenAt).toISOString() : null;
+    // Prisma may return Date or string depending on serialization; older API used "at"
+    const rawCreated = (n as any).createdAt ?? (n as any).at ?? null;
+    const createdAt =
+      rawCreated ? new Date(rawCreated).toISOString() : null;
+
+    const rawSeen = (n as any).seenAt ?? null;
+    const seenAt =
+      rawSeen ? new Date(rawSeen).toISOString() : null;
+
     return {
       id: n.id,
       parentId: n.parentId,
@@ -65,7 +72,7 @@ export class ParentService {
       message: n.message ?? null,
       data: n.data ?? null,
       createdAt,
-      at: createdAt, // legacy alias
+      at: createdAt, // legacy alias stays in sync
       seenAt,
     };
   }
