@@ -41,7 +41,7 @@ export class E2ESeedController {
         teacher: { connect: { id: teacher.id } },
         cohort: { connect: { id: cohort.id } },
       },
-      select: { id: true },
+      select: { id: true, name: true, subject: true },
     });
 
     await this.prisma.scheduleSlot.create({
@@ -94,36 +94,6 @@ export class E2ESeedController {
       create: { parentId: parent.id, childId: student.id, status: 'APPROVED' },
     });
 
-    // E2E: create deterministic parent notifications
-    // Seed uses Prisma directly (doesn't hit TeacherService), so we create ParentNotification rows here.
-    const at = new Date();
-
-    await this.prisma.parentNotification.createMany({
-      data: [
-        {
-          // attendance
-          parentId: parent.id,
-          studentId: student.id,
-          type: 'ATTENDANCE_RECORDED' as any,
-          title: 'Absence recorded',
-          at,
-          data: { courseId: course.id, status: 'ABSENT', period: 1, date: today } as any,
-        },
-        {
-          // grade
-          parentId: parent.id,
-          studentId: student.id,
-          type: 'GRADE_POSTED' as any,
-          title: 'New grade in Math',
-          at,
-          data: { courseId: course.id, grade: 95 } as any,
-        },
-      ],
-      skipDuplicates: true,
-    });
-
-
-
     await this.prisma.enrollment.create({
       data: {
         courseId: course.id,
@@ -158,6 +128,47 @@ export class E2ESeedController {
         status: 'PRESENT',
       },
     });
+
+    // E2E: create deterministic parent notifications (safe + matches TeacherService payload)
+    try {
+      await this.prisma.parentNotification.createMany({
+        data: [
+          {
+            parentId: parent.id,
+            studentId: student.id,
+            type: 'ATTENDANCE_RECORDED',
+            title: 'Absence recorded',
+            message: null,
+            data: {
+              status: 'ABSENT',
+              sessionId: session.id,
+              cohortId: cohort.id,
+              date: today.toISOString(),
+              period: 1,
+              courseId: course.id,
+            },
+            createdAt: new Date(),
+          },
+          {
+            parentId: parent.id,
+            studentId: student.id,
+            type: 'GRADE_POSTED',
+            title: `New grade in ${course.name}`,
+            message: null,
+            data: {
+              grade: 95,
+              comment: null,
+              assessment: { id: 'e2e-assessment', title: 'E2E Assessment', date: today.toISOString() },
+              course: { id: course.id, name: course.name, subject: course.subject },
+            },
+            createdAt: new Date(),
+          },
+        ],
+      });
+    } catch (_e) {
+      // don't break seed on notification failures
+    }
+
 
     return {
       ok: true,

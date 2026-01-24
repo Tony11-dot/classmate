@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const BASE = 'http://localhost:3001';
-const API = 'http://localhost:3000';
+const API = 'http://127.0.0.1:3000';
 const TOKEN_KEY = 'classmate_token';
 
 function todayYmd() {
