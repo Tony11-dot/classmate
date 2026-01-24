@@ -7,7 +7,7 @@
     "approve-builds": "pnpm approve-builds",
     "dev:api": "pnpm --dir services/api run start:dev",
     "dev:admin": "pnpm --dir apps/admin-web run dev",
-    "test:e2e:attendance": "pnpm --dir apps/admin-web exec playwright test e2e/attendance.spec.ts --reporter=list",
+    "test:e2e:attendance": "WEB_BASE=http://localhost:3001 pnpm --dir apps/admin-web exec playwright test e2e/attendance.spec.ts --reporter=list",
     "test:e2e:grades": "pnpm --dir apps/admin-web exec playwright test e2e/grades.spec.ts --reporter=list",
     "test:e2e": "pnpm run test:e2e:attendance && pnpm run test:e2e:grades",
     "smoke:api": "node scripts/smoke-api.mjs",
