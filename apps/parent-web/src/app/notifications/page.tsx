@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { parentLookup, parentMarkSeen, parentNotifications, parentUnreadCount } from '@/lib/api';
 import { useParentAuth } from '@/lib/useParentAuth';
 
@@ -17,7 +18,10 @@ function fmtTime(iso?: string | null) {
 }
 
 export default function NotificationsPage() {
+  const searchParams = useSearchParams();
   const token = useParentAuth();
+
+  const focusId = searchParams.get('focus');
 
   const [lookup, setLookup] = useState<Lookup>({ students: [], courses: [] });
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -61,6 +65,14 @@ export default function NotificationsPage() {
         setSelectedStudentId(defaultId);
 
         await refresh(defaultId);
+
+        if (focusId) {
+          // wait a tick for DOM to paint
+          setTimeout(() => {
+            const el = document.querySelector(`[data-notif-id="${focusId}"]`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 50);
+        }
       } catch (e: any) {
         if (!mounted) return;
         setErr(e?.message || String(e));
@@ -169,7 +181,7 @@ export default function NotificationsPage() {
                 <button
                   key={n.id}
                   onClick={() => openNotif(n.id)}
-                  className="w-full rounded-md border p-3 text-left hover:bg-black/5"
+                  className={`w-full rounded-md border p-3 text-left hover:bg-black/5 ${focusId === n.id ? "ring-2 ring-black/40" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

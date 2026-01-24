@@ -65,6 +65,11 @@ export function parentUnreadCount(opts?: { studentId?: string; since?: string })
   );
 }
 
+
+export function parentRecentNotifications(take = 5) {
+  return parentNotifications({ take });
+}
+
 export function parentNotifications(opts?: { studentId?: string; take?: number }) {
   const qs = new URLSearchParams();
   if (opts?.studentId) qs.set('studentId', opts.studentId);
