@@ -55,16 +55,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!token) return;
-
-    ;(async () => {
-      try {
-        const t = getToken();
-
-  useEffect(() => {
-    if (!token) return;
     let alive = true;
 
-    const load = async () => {
+    const loadUnread = async () => {
       try {
         const r = await parentUnreadCount();
         if (!alive) return;
@@ -74,16 +67,27 @@ export default function DashboardPage() {
       }
     };
 
-    load();
+    loadUnread();
 
-    const onToken = () => load();
+    const onToken = () => loadUnread();
+    const onNotif = () => loadUnread();
+
     window.addEventListener('classmate_token_change', onToken);
+    window.addEventListener('classmate_parent_notifications_changed', onNotif);
+
     return () => {
       alive = false;
       window.removeEventListener('classmate_token_change', onToken);
+      window.removeEventListener('classmate_parent_notifications_changed', onNotif);
     };
   }, [token]);
 
+  useEffect(() => {
+    if (!token) return;
+
+    ;(async () => {
+      try {
+        const t = getToken();
         if (!t) {
           window.location.href = '/login';
           return;
