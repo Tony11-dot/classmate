@@ -77,6 +77,7 @@ export default function NotificationsPage() {
   async function markAllRead() {
     try {
       await parentMarkSeen({});
+      window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
       await refresh(selectedStudentId);
     } catch (e: any) {
       setErr(e?.message || String(e));
@@ -86,6 +87,7 @@ export default function NotificationsPage() {
   async function openNotif(id: string) {
     try {
       await parentMarkSeen({ ids: [id] });
+      window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
       // optimistic local update
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, seenAt: new Date().toISOString() } : x)));
       await refresh(selectedStudentId);
