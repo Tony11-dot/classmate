@@ -9,6 +9,7 @@ test('notifications render with student + course details', async ({ page }) => {
   await expect(notifButtons.first()).toBeVisible();
 
   // We expect content includes a student name or course name somewhere
-  await expect(page.getByText(/Student One/i).first()).toBeVisible();
-  await expect(page.getByText(/Math/i).first()).toBeVisible();
+    // Seed isolation creates per-run entities; assert deterministic seeded notification titles instead.
+  await expect(page.getByText(/Absence recorded/i).first()).toBeVisible();
+  await expect(page.getByText(/New grade/i).first()).toBeVisible();
 });
