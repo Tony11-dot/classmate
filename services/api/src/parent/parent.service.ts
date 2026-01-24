@@ -45,10 +45,30 @@ type StudentProfileLite = { userId: string; cohortId: string };
 
 @Injectable()
 export class ParentService {
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly schedule: ScheduleService,
   ) {}
+
+
+  // normalize notification payload
+  private notifDto(n: any) {
+    const createdAt = n.createdAt ? new Date(n.createdAt).toISOString() : null;
+    const seenAt = n.seenAt ? new Date(n.seenAt).toISOString() : null;
+    return {
+      id: n.id,
+      parentId: n.parentId,
+      studentId: n.studentId ?? null,
+      type: n.type,
+      title: n.title,
+      message: n.message ?? null,
+      data: n.data ?? null,
+      createdAt,
+      at: createdAt, // legacy alias
+      seenAt,
+    };
+  }
 
   private ensureParent(user: any) {
     if (!user?.roles?.includes('PARENT'))
@@ -466,15 +486,15 @@ export class ParentService {
 
     return {
       ok: true,
-      notifications: rows.map((n) => ({
+      notifications: rows.map((n: any) => this.notifDto(n)).map((n) => ({
         id: n.id,
         type: n.type,
-        at: n.createdAt.toISOString(),
+        at: (n.createdAt ? new Date(n.createdAt as any).toISOString() : null),
         studentId: n.studentId,
         title: n.title,
         message: n.message,
         data: n.data,
-        seenAt: n.seenAt ? n.seenAt.toISOString() : null,
+        seenAt: (n.seenAt ? new Date(n.seenAt as any).toISOString() : null),
       })),
     };
   }
