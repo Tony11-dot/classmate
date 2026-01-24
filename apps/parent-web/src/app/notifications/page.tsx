@@ -179,6 +179,7 @@ export default function NotificationsPage() {
 
               return (
                 <button
+                  data-notif-id={n.id}
                   key={n.id}
                   onClick={() => openNotif(n.id)}
                   className={`w-full rounded-md border p-3 text-left hover:bg-black/5 ${focusId === n.id ? "ring-2 ring-black/40" : ""}`}

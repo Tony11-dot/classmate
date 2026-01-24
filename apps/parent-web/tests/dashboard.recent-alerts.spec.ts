@@ -4,14 +4,12 @@ test('dashboard shows recent alerts and focus link highlights notification', asy
   await page.goto('/dashboard');
   await expect(page).not.toHaveURL(/\/login/);
 
-  await expect(page.getByText(/Recent alerts/i)).toBeVisible();
+  // strict-mode safe: match the heading only
+  await expect(page.getByRole('heading', { name: 'Recent alerts' })).toBeVisible();
 
   // Click the first alert link
   const first = page.locator('a[href^="/notifications?focus="]').first();
   await expect(first).toBeVisible();
-
-  const href = await first.getAttribute('href');
-  expect(href).toBeTruthy();
 
   await first.click();
 
@@ -23,10 +21,10 @@ test('dashboard shows recent alerts and focus link highlights notification', asy
   const focusId = url.searchParams.get('focus');
   expect(focusId).toBeTruthy();
 
-  // Wait for the focused notification element to exist
+  // Wait for the focused notification element to exist (after data load)
   const focused = page.locator(`[data-notif-id="${focusId}"]`);
   await expect(focused).toBeVisible({ timeout: 10_000 });
 
-  // Assert highlight class is applied (ring-2 expected)
+  // Assert highlight class is applied
   await expect(focused).toHaveClass(/ring-2/);
 });
