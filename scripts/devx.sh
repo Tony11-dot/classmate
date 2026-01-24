@@ -26,10 +26,10 @@ stop_port () {
 }
 
 wait_health () {
-  local url="$1"
+  local url=""
   echo "⏳ waiting for /api/health"
-  for _ in $(seq 1 200); do
-    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "/api/health" | grep -q '"ok"':true; then
+  for _ in 20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400seq 1 200); do
+    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "/api/health" | grep -q "\"ok\":true"; then
       echo "✅ health ok"
       return 0
     fi
@@ -37,6 +37,7 @@ wait_health () {
   done
   die "api health never became ok"
 }
+
 
 start_api () {
   rm -f "${LOG}"
