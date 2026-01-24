@@ -179,4 +179,120 @@ export class E2ESeedController {
       password: 'dev',
     };
   }
+  @Post('parent-web')
+  async seedParentWeb(@Body() body: { runId?: string }) {
+    // local/dev only convenience seed
+    const runId =
+      (body?.runId && String(body.runId).trim()) ||
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const email = `parent+${runId}@classmate.app`;
+    const password = 'dev';
+
+    // ---- ensure a cohort exists ----
+    const cohort =
+      (await this.prisma.cohort.findFirst({ orderBy: { createdAt: 'desc' } })) ||
+      (await this.prisma.cohort.create({
+        data: {
+          name: 'Cohort A',
+          grade: 10 as any,
+        } as any,
+      }));
+
+    // ---- ensure a student exists (reuse newest or create one) ----
+    const student =
+      (await this.prisma.user.findFirst({
+        where: { roles: { has: 'STUDENT' as any } },
+        orderBy: { createdAt: 'desc' },
+      })) ||
+      (await this.prisma.user.create({
+        data: {
+          email: `student+${runId}@classmate.app`,
+          name: `Student ${runId.slice(0, 6)}`,
+          roles: ['STUDENT'] as any,
+          cohortId: (cohort as any).id,
+        } as any,
+      }));
+
+    // ---- ensure a course exists in this cohort ----
+    const course =
+      (await this.prisma.course.findFirst({
+        where: { cohortId: (cohort as any).id },
+        orderBy: { createdAt: 'desc' },
+      })) ||
+      (await this.prisma.course.create({
+        data: {
+          cohortId: (cohort as any).id,
+          name: 'Math',
+          subject: 'MATH',
+        } as any,
+      }));
+
+    // ---- create the parent user (unique per run) ----
+    // If your user table has passwordHash, we set it; otherwise we just create and rely on existing auth mechanisms.
+    // IMPORTANT: We do NOT try to mint a JWT here; we return email/password and globalSetup logs in via /api/auth/login.
+    const bcrypt = await import('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const parent = await this.prisma.user.create({
+      data: {
+        email,
+        name: `Parent ${runId.slice(0, 6)}`,
+        roles: ['PARENT'] as any,
+        passwordHash: passwordHash as any,
+      } as any,
+    });
+
+    // ---- link parent<->child ----
+    await this.prisma.parentChild.create({
+      data: {
+        parentId: (parent as any).id,
+        childId: (student as any).id,
+        status: 'APPROVED' as any,
+      } as any,
+    });
+
+    // ---- seed a few notifications (some unread) ----
+    const now = new Date();
+    const mk = (minsAgo: number) => new Date(now.getTime() - minsAgo * 60_000);
+
+    await this.prisma.parentNotification.createMany({
+      data: [
+        {
+          parentId: (parent as any).id,
+          studentId: (student as any).id,
+          type: 'GRADE_POSTED',
+          title: 'New grade posted',
+          message: 'A new grade was posted.',
+          data: { courseId: (course as any).id },
+          createdAt: mk(5),
+          seenAt: null,
+        },
+        {
+          parentId: (parent as any).id,
+          studentId: (student as any).id,
+          type: 'ANNOUNCEMENT',
+          title: 'New announcement',
+          message: 'Please check today’s announcement.',
+          data: { courseId: (course as any).id },
+          createdAt: mk(20),
+          seenAt: mk(10),
+        },
+        {
+          parentId: (parent as any).id,
+          studentId: (student as any).id,
+          type: 'ATTENDANCE',
+          title: 'Attendance updated',
+          message: 'Attendance was updated.',
+          data: { courseId: (course as any).id },
+          createdAt: mk(60),
+          seenAt: null,
+        },
+      ] as any,
+    });
+
+    return { ok: true, runId, email, password };
+  }
+
+
 }

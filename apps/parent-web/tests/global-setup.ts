@@ -1,51 +1,56 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { request, type FullConfig } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
+import { request } from '@playwright/test';
 
 const API_BASE = process.env.API_BASE || 'http://127.0.0.1:3000';
-const WEB_BASE = process.env.WEB_BASE || 'http://localhost:3004';
 const TOKEN_KEY = 'parent_token';
 
-export default async function globalSetup(_config: FullConfig) {
-  const outDir = path.join(process.cwd(), '.playwright/.auth');
-  const outFile = path.join(outDir, 'parent.json');
-  fs.mkdirSync(outDir, { recursive: true });
+export default async function globalSetup() {
+  const runId =
+    process.env.PW_RUN_ID ||
+    `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
   const ctx = await request.newContext({ baseURL: API_BASE });
 
-  // 1) Seed data
-  const seed = await ctx.post('/api/test/seed/admin-web');
-  if (!seed.ok()) {
-    throw new Error(`Seed failed: ${seed.status()} ${await seed.text()}`);
+  // seed isolated parent
+  const seedRes = await ctx.post('/api/test/seed/parent-web', { data: { runId } });
+  if (!seedRes.ok()) {
+    const t = await seedRes.text();
+    throw new Error(`seed parent-web failed: ${seedRes.status()} ${t}`);
   }
+  const seed = await seedRes.json();
 
-  // 2) Login as parent
-  const login = await ctx.post('/api/auth/login', {
-    data: { email: 'parent1@classmate.app', password: 'dev' },
+  // login for token
+  const loginRes = await ctx.post('/api/auth/login', {
+    data: { email: seed.email, password: seed.password },
   });
-
-  if (!login.ok()) {
-    throw new Error(`Login failed: ${login.status()} ${await login.text()}`);
+  if (!loginRes.ok()) {
+    const t = await loginRes.text();
+    throw new Error(`login failed: ${loginRes.status()} ${t}`);
   }
+  const login = await loginRes.json();
+  const token = login.token;
+  if (!token) throw new Error('login did not return token');
 
-  const json = await login.json();
-  const token = json?.token;
+  await ctx.dispose();
 
-  if (!token || typeof token !== 'string' || token.length < 20) {
-    throw new Error(`No token returned from login. Got: ${JSON.stringify(json)}`);
-  }
+  // write storageState with the token in localStorage for http://127.0.0.1:3000
+  const authDir = path.join(process.cwd(), '.playwright', '.auth');
+  fs.mkdirSync(authDir, { recursive: true });
 
-  // 3) Write storageState with parent_token in localStorage for your app origin
+  const storagePath = path.join(authDir, 'parent.json');
+  const origin = API_BASE.replace(/\/$/, '');
+
   const storageState = {
     cookies: [],
     origins: [
       {
-        origin: WEB_BASE,
+        origin,
         localStorage: [{ name: TOKEN_KEY, value: token }],
       },
     ],
   };
 
-  fs.writeFileSync(outFile, JSON.stringify(storageState, null, 2));
-  console.log(`✅ Wrote storageState: ${outFile}`);
+  fs.writeFileSync(storagePath, JSON.stringify(storageState, null, 2));
+  console.log(`✅ parent-web storageState written: ${storagePath} (runId=${runId})`);
 }
