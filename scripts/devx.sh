@@ -26,13 +26,13 @@ stop_port () {
 ps_api () {
   echo "🔎 processes (api/dev):"
   pgrep -fl "Dev/classmate/services/api|pnpm --dir services/api dev|nest.js start --watch|services/api/dist/src/main" || true
-  echo "🔎 port :"
-  lsof -nP -iTCP: -sTCP:LISTEN || true
+  echo "🔎 port ${API_PORT}:"
+  lsof -nP -iTCP:${API_PORT} -sTCP:LISTEN || true
 }
 
 clean_api () {
   # 1) kill by port (most reliable)
-  stop_port ""
+  stop_port "${API_PORT}"
 
   # 2) kill any leftover watchers (best-effort, scoped to services/api)
   pgrep -f "Dev/classmate/services/api" | xargs -r kill -9 || true
