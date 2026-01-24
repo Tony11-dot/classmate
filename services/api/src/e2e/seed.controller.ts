@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
@@ -191,7 +191,7 @@ export class E2ESeedController {
 
     // ---- ensure a cohort exists ----
     const cohort =
-      (await this.prisma.cohort.findFirst({ orderBy: { createdAt: 'desc' } })) ||
+      (await this.prisma.cohort.findFirst({ orderBy: { id: 'desc' } })) ||
       (await this.prisma.cohort.create({
         data: {
           name: 'Cohort A',
@@ -202,8 +202,8 @@ export class E2ESeedController {
     // ---- ensure a student exists (reuse newest or create one) ----
     const student =
       (await this.prisma.user.findFirst({
-        where: { roles: { has: 'STUDENT' as any } },
-        orderBy: { createdAt: 'desc' },
+        where: { roles: { some: { role: 'STUDENT' as any } } },
+        orderBy: { id: 'desc' },
       })) ||
       (await this.prisma.user.create({
         data: {
@@ -218,7 +218,7 @@ export class E2ESeedController {
     const course =
       (await this.prisma.course.findFirst({
         where: { cohortId: (cohort as any).id },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { id: 'desc' },
       })) ||
       (await this.prisma.course.create({
         data: {
@@ -231,7 +231,8 @@ export class E2ESeedController {
     // ---- create the parent user (unique per run) ----
     // If your user table has passwordHash, we set it; otherwise we just create and rely on existing auth mechanisms.
     // IMPORTANT: We do NOT try to mint a JWT here; we return email/password and globalSetup logs in via /api/auth/login.
-    const bcrypt = await import('bcryptjs');
+    // use existing bcrypt import (bcrypt)
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     const parent = await this.prisma.user.create({
