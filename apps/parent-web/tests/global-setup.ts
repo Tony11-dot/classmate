@@ -7,7 +7,7 @@ const WEB_BASE = process.env.WEB_BASE || 'http://localhost:3004';
 const TOKEN_KEY = 'parent_token';
 
 export default async function globalSetup(_config: FullConfig) {
-  const outDir = path.join(__dirname, '.auth');
+  const outDir = path.join(process.cwd(), '.playwright/.auth');
   const outFile = path.join(outDir, 'parent.json');
   fs.mkdirSync(outDir, { recursive: true });
 
