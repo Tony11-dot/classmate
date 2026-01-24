@@ -14,6 +14,10 @@
     "dev": "pnpm -r --parallel --filter api --filter admin-web run dev",
     "test:e2e:parent": "pnpm --dir apps/parent-web exec playwright test --reporter=list",
     "dev:parent": "pnpm --dir apps/parent-web dev",
-    "test:e2e:all": "pnpm -s test:e2e"
+    "test:e2e:all": "pnpm -s test:e2e",
+    "devx:start": "bash scripts/devx.sh start",
+    "devx:stop": "bash scripts/devx.sh stop",
+    "devx:logs": "bash scripts/devx.sh logs",
+    "devx:test": "bash scripts/devx.sh test"
   }
 }
