@@ -31,7 +31,7 @@ export default function ChildGradesPage() {
         // newest first if date exists
         Object.values(grouped).forEach(list =>
           list.sort((a, b) =>
-            String(b.at ?? '').localeCompare(String(a.at ?? ''))
+            String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))
           )
         );
 

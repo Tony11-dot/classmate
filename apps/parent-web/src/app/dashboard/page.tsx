@@ -205,7 +205,7 @@ export default function DashboardPage() {
 
                   <div className="flex items-center gap-2">
                     <span className="text-xs opacity-60">
-                      {fmtTime(n.createdAt ?? n.at)}
+                      {fmtTime(n.createdAt)}
                     </span>
                     {!n.seenAt ? (
                       <span className="rounded-full border px-2 py-0.5 text-xs">New</span>

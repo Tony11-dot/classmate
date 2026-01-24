@@ -200,7 +200,7 @@ export default function NotificationsPage() {
                       <div className="mt-1 text-sm opacity-80">
                         {courseName ? <span>{courseName}</span> : null}
                         {courseName ? <span className="opacity-50"> · </span> : null}
-                        <span>{fmtTime(n.createdAt ?? n.at)}</span>
+                        <span>{fmtTime(n.createdAt)}</span>
                       </div>
 
                       {n.message && (
