@@ -51,17 +51,11 @@ export class ParentService {
     private readonly schedule: ScheduleService,
   ) {}
 
-
   // normalize notification payload
   private notifDto(n: any) {
-    // Prisma may return Date or string depending on serialization; older API used "at"
-    const rawCreated = (n as any).createdAt ?? (n as any).at ?? null;
-    const createdAt =
-      rawCreated ? new Date(rawCreated).toISOString() : null;
-
-    const rawSeen = (n as any).seenAt ?? null;
-    const seenAt =
-      rawSeen ? new Date(rawSeen).toISOString() : null;
+    const rawAt = n?.at ?? n?.createdAt; // DB uses at; some legacy may have createdAt
+    const createdAt = rawAt ? new Date(rawAt).toISOString() : null;
+    const seenAt = n?.seenAt ? new Date(n.seenAt).toISOString() : null;
 
     return {
       id: n.id,
@@ -76,6 +70,7 @@ export class ParentService {
       seenAt,
     };
   }
+
 
   private ensureParent(user: any) {
     if (!user?.roles?.includes('PARENT'))
@@ -496,12 +491,13 @@ export class ParentService {
       notifications: rows.map((n: any) => this.notifDto(n)).map((n) => ({
         id: n.id,
         type: n.type,
-        at: (n.createdAt ? new Date(n.createdAt as any).toISOString() : null),
+        createdAt: n.createdAt,
+        at: n.createdAt, // legacy alias
         studentId: n.studentId,
         title: n.title,
         message: n.message,
         data: n.data,
-        seenAt: (n.seenAt ? new Date(n.seenAt as any).toISOString() : null),
+        seenAt: n.seenAt,
       })),
     };
   }
