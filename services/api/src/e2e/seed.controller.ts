@@ -94,6 +94,34 @@ export class E2ESeedController {
       create: { parentId: parent.id, childId: student.id, status: 'APPROVED' },
     });
 
+    // E2E: create deterministic parent notifications
+    // Seed uses Prisma directly (doesn't hit TeacherService), so we create ParentNotification rows here.
+    const at = new Date();
+
+    await this.prisma.parentNotification.createMany({
+      data: [
+        {
+          // attendance
+          parentId: parent.id,
+          studentId: student.id,
+          type: 'ATTENDANCE_RECORDED' as any,
+          title: 'Absence recorded',
+          at,
+          data: { courseId: course.id, status: 'ABSENT', period: 1, date: today } as any,
+        },
+        {
+          // grade
+          parentId: parent.id,
+          studentId: student.id,
+          type: 'GRADE_POSTED' as any,
+          title: 'New grade in Math',
+          at,
+          data: { courseId: course.id, grade: 95 } as any,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
 
 
     await this.prisma.enrollment.create({
