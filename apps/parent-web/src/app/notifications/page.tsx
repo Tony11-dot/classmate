@@ -62,9 +62,15 @@ export default function NotificationsPage() {
         setLookup({ students: l.students || [], courses: l.courses || [] });
 
         const defaultId = l.students?.[0]?.id ?? null;
-        setSelectedStudentId(defaultId);
 
-        await refresh(defaultId);
+        // If we are deep-linking to a specific notification, load ALL first so it's guaranteed to exist.
+        if (focusId) {
+          setSelectedStudentId(null);
+          await refresh(null);
+        } else {
+          setSelectedStudentId(defaultId);
+          await refresh(defaultId);
+        }
 
         if (focusId) {
           // wait a tick for DOM to paint
