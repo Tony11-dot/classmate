@@ -29,7 +29,7 @@ wait_health () {
   local url="$1"
   echo "⏳ waiting for /api/health"
   for _ in $(seq 1 200); do
-    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null --connect-timeout 1 --max-time 1 "${url}/api/health" | grep -q '"ok":true'; then
+    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "/api/health" | grep -q '"ok"':true; then
       echo "✅ health ok"
       return 0
     fi
