@@ -192,9 +192,15 @@ export default function DashboardPage() {
                     <div className="truncate font-medium">{n.title || n.type}</div>
                     <div className="mt-1 truncate opacity-70">{n.type}</div>
                   </div>
-                  {!n.seenAt ? (
-                    <span className="rounded-full border px-2 py-0.5 text-xs">New</span>
-                  ) : null}
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs opacity-60">
+                      {fmtTime(n.createdAt ?? n.at)}
+                    </span>
+                    {!n.seenAt ? (
+                      <span className="rounded-full border px-2 py-0.5 text-xs">New</span>
+                    ) : null}
+                  </div>
                 </div>
               </Link>
             ))}
