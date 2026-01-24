@@ -13,6 +13,16 @@ import {
   parentRecentNotifications
 } from '@/lib/api';
 
+function fmtTime(v?: string | null) {
+  if (!v) return "";
+  try {
+    const d = new Date(v);
+    return d.toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
 export default function DashboardPage() {
   const token = useParentAuth();
 
@@ -173,7 +183,7 @@ export default function DashboardPage() {
 
       <section className="mt-4 rounded-lg border p-4">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold">Recent alerts</h2>
+          <h2 role="heading" aria-level={2} className="text-sm font-semibold">Recent alerts</h2>
           <Link className="text-sm underline opacity-80" href="/notifications">View all</Link>
         </div>
 
