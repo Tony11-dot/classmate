@@ -9,8 +9,9 @@
     "dev:admin": "pnpm --dir apps/admin-web run dev",
     "test:e2e:attendance": "WEB_BASE=http://localhost:3001 pnpm --dir apps/admin-web exec playwright test e2e/attendance.spec.ts --reporter=list",
     "test:e2e:grades": "pnpm --dir apps/admin-web exec playwright test e2e/grades.spec.ts --reporter=list",
-    "test:e2e": "pnpm run test:e2e:attendance && pnpm run test:e2e:grades",
+    "test:e2e": "pnpm run test:e2e:attendance && pnpm run test:e2e:grades && pnpm run test:e2e:parent",
     "smoke:api": "node scripts/smoke-api.mjs",
-    "dev": "pnpm -r --parallel --filter api --filter admin-web run dev"
+    "dev": "pnpm -r --parallel --filter api --filter admin-web run dev",
+    "test:e2e:parent": "pnpm --dir apps/parent-web exec playwright test --reporter=list"
   }
 }

@@ -5,7 +5,7 @@ export default defineConfig({
   globalSetup: './tests/global-setup.ts',
   use: {
     baseURL: 'http://localhost:3004',
-    storageState: './tests/.auth/parent.json',
+    storageState: './.playwright/.auth/parent.json',
   },
   webServer: {
     command: 'pnpm dev',
