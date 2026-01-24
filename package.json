@@ -18,6 +18,8 @@
     "devx:start": "bash scripts/devx.sh start",
     "devx:stop": "bash scripts/devx.sh stop",
     "devx:logs": "bash scripts/devx.sh logs",
-    "devx:test": "bash scripts/devx.sh test"
+    "devx:test": "bash scripts/devx.sh test",
+    "devx:ps": "bash scripts/devx.sh ps",
+    "devx:clean": "bash scripts/devx.sh clean"
   }
 }
