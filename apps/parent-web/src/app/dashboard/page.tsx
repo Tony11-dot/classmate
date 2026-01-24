@@ -9,7 +9,8 @@ import {
   parentGrades,
   getToken,
   clearToken,
-  parentUnreadCount
+  parentUnreadCount,
+  parentRecentNotifications
 } from '@/lib/api';
 
 export default function DashboardPage() {
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const [unread, setUnread] = useState<number>(0);
   const [kids, setKids] = useState<any[]>([]);
   const [kidSummary, setKidSummary] = useState<Record<string, any>>({});
+  const [recentNotifs, setRecentNotifs] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
 
   const computeKidSummary = useMemo(() => {
@@ -69,10 +71,23 @@ export default function DashboardPage() {
 
     loadUnread();
 
-    const interval = setInterval(() => loadUnread(), 30000);
+    const loadRecent = async () => {
+      try {
+        const r = await parentRecentNotifications(5);
+        if (!alive) return;
+        setRecentNotifs(r?.notifications ?? []);
+      } catch {
+        // ignore recent failures
+      }
+    };
 
-    const onToken = () => loadUnread();
-    const onNotif = () => loadUnread();
+    loadRecent();
+
+
+    const interval = setInterval(() => { loadUnread(); loadRecent(); }, 30000);
+
+    const onToken = () => { loadUnread(); loadRecent(); };
+    const onNotif = () => { loadUnread(); loadRecent(); };
 
     window.addEventListener('classmate_token_change', onToken);
     window.addEventListener('classmate_parent_notifications_changed', onNotif);
@@ -154,6 +169,39 @@ export default function DashboardPage() {
       </div>
 
       {err && <div className="mt-4 text-sm text-red-600">{err}</div>}
+
+
+      <section className="mt-4 rounded-lg border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold">Recent alerts</h2>
+          <Link className="text-sm underline opacity-80" href="/notifications">View all</Link>
+        </div>
+
+        {recentNotifs.length === 0 ? (
+          <div className="mt-3 text-sm opacity-70">No recent alerts</div>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {recentNotifs.slice(0, 5).map((n: any) => (
+              <Link
+                key={n.id}
+                href={`/notifications?focus=${encodeURIComponent(n.id)}`}
+                className="block rounded-md border p-3 text-sm hover:bg-black/5"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate font-medium">{n.title || n.type}</div>
+                    <div className="mt-1 truncate opacity-70">{n.type}</div>
+                  </div>
+                  {!n.seenAt ? (
+                    <span className="rounded-full border px-2 py-0.5 text-xs">New</span>
+                  ) : null}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
 
       <section className="mt-6">
         <h2 className="font-semibold">Children</h2>
