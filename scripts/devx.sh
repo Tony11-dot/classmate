@@ -23,6 +23,24 @@ stop_port () {
   fi
 }
 
+ps_api () {
+  echo "🔎 processes (api/dev):"
+  pgrep -fl "Dev/classmate/services/api|pnpm --dir services/api dev|nest.js start --watch|services/api/dist/src/main" || true
+  echo "🔎 port :"
+  lsof -nP -iTCP: -sTCP:LISTEN || true
+}
+
+clean_api () {
+  # 1) kill by port (most reliable)
+  stop_port ""
+
+  # 2) kill any leftover watchers (best-effort, scoped to services/api)
+  pgrep -f "Dev/classmate/services/api" | xargs -r kill -9 || true
+  pgrep -f "pnpm --dir services/api dev" | xargs -r kill -9 || true
+  pgrep -f "nest.js start --watch" | xargs -r kill -9 || true
+  pgrep -f "services/api/dist/src/main" | xargs -r kill -9 || true
+}
+
 wait_health () {
   local url="$1"
   echo "⏳ waiting for ${url}/api/health"
@@ -44,11 +62,19 @@ start_api () {
 }
 
 case "${cmd}" in
+  ps)
+    ps_api
+    ;;
+  clean)
+    clean_api
+    ps_api
+    ;;
+
   stop)
     stop_port "${API_PORT}"
     ;;
   start)
-    stop_port "${API_PORT}"
+    clean_api
     start_api
     ;;
   logs)
@@ -56,7 +82,7 @@ case "${cmd}" in
     ;;
   test)
     need jq
-    stop_port "${API_PORT}"
+    clean_api
     start_api
     echo "🧪 running repo e2e"
     API_BASE="${API_BASE}" pnpm -s test:e2e
@@ -71,6 +97,8 @@ Usage: scripts/devx.sh <command>
 Commands:
   start   Stop API port and start api (background)
   stop    Kill whatever listens on API port (${API_PORT})
+  ps      Show api-related processes + port listener
+  clean   Kill port + stray api watchers (pnpm/nest/node)
   logs    Tail api log
   test    Start api + run full e2e + parent-web tests
 
