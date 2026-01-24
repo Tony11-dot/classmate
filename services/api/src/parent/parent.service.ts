@@ -53,7 +53,7 @@ export class ParentService {
 
   // normalize notification payload
   private notifDto(n: any) {
-    const rawAt = n?.at ?? n?.createdAt; // DB uses at; some legacy may have createdAt
+    const rawAt = n?.at ?? n?.createdAt; // prefer createdAt; legacy fields may exist
     const createdAt = rawAt ? new Date(rawAt).toISOString() : null;
     const seenAt = n?.seenAt ? new Date(n.seenAt).toISOString() : null;
 
@@ -66,7 +66,6 @@ export class ParentService {
       message: n.message ?? null,
       data: n.data ?? null,
       createdAt,
-      at: createdAt, // legacy alias stays in sync
       seenAt,
     };
   }
@@ -492,7 +491,6 @@ export class ParentService {
         id: n.id,
         type: n.type,
         createdAt: n.createdAt,
-        at: n.createdAt, // legacy alias
         studentId: n.studentId,
         title: n.title,
         message: n.message,
