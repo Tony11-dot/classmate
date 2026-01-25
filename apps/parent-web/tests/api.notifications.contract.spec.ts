@@ -16,6 +16,19 @@ test('notifications API returns createdAt + seenAt', async ({ page }) => {
   expect(res.ok()).toBeTruthy();
   const json = await res.json();
 
+
+  // Strict contract: no legacy keys like "at"
+  const EXPECTED_KEYS = ['createdAt','data','id','message','seenAt','studentId','title','type'];
+
+  expect(Array.isArray(json.notifications)).toBeTruthy();
+  expect(json.notifications.length).toBeGreaterThan(0);
+
+  const keys0 = Object.keys(json.notifications[0]).sort();
+  expect(keys0).toEqual(EXPECTED_KEYS);
+
+  expect(json.notifications[0].createdAt).toBeTruthy();
+  expect(new Date(json.notifications[0].createdAt).toString()).not.toBe('Invalid Date');
+
   for (const n of json.notifications) {
     expect(typeof n.createdAt).toBe('string');
     expect(n.seenAt === null || typeof n.seenAt === 'string').toBeTruthy();
