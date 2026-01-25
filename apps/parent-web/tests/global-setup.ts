@@ -30,7 +30,7 @@ async function waitForApi(ctx: any) {
 
 async function seedParent(ctx: any, runId: string) {
   // try both: with /api prefix and without (controller is /test/seed)
-  const seedPaths = ['/api/test/seed/parent-web', '/test/seed/parent-web'];
+  const seedPaths = ['/api/test/seed/parent-web'];
 
   let lastErr = '';
   for (const p of seedPaths) {
