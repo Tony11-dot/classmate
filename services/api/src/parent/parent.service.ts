@@ -6,6 +6,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { ParentNotificationDtoSchema } from './dto/parent-notification.dto';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -485,19 +486,25 @@ export class ParentService {
       take,
     });
 
-    return {
-      ok: true,
-      notifications: rows.map((n: any) => this.notifDto(n)).map((n) => ({
-        id: n.id,
-        type: n.type,
-        createdAt: n.createdAt,
-        studentId: n.studentId,
-        title: n.title,
-        message: n.message,
-        data: n.data,
-        seenAt: n.seenAt,
-      })),
-    };
+    const notifications = rows
+  .map((n: any) => this.notifDto(n))
+  .map((n) => ({
+    id: n.id,
+    type: n.type,
+    createdAt: n.createdAt,
+    studentId: n.studentId,
+    title: n.title,
+    message: n.message,
+    data: n.data,
+    seenAt: n.seenAt,
+  }));
+
+// dev/test contract guard (prevents legacy keys like "at" from creeping back)
+if (process.env.NODE_ENV !== 'production') {
+  for (const x of notifications) ParentNotificationDtoSchema.parse(x);
+}
+
+return { ok: true, notifications };
   }
 
   private async getLastSeenAt(parentId: string) {
