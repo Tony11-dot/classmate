@@ -17,7 +17,7 @@ stop_port () {
   pids="$(lsof -ti "tcp:${port}" 2>/dev/null || true)"
   if [[ -n "${pids}" ]]; then
     echo "🛑 killing port ${port}: ${pids}"
-    echo "${pids}" | xargs -r kill -9
+    echo "${pids}" | xargs -r kill -9 2>/dev/null || true
   else
     echo "✅ port ${port} already free"
   fi
