@@ -108,4 +108,11 @@ Env:
   LOG=/tmp/classmate-api.log
 EOF
     ;;
+
+  up)
+    db_start
+    db_migrate
+    pnpm -s devx:test
+    ;;
+
 esac
