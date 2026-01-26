@@ -1,5 +1,10 @@
 # DevX (Local dev & tests)
 
+## Fresh clone
+- `pnpm i`
+- `pnpm -s devx:up` (creates DB container if missing, migrates, runs tests)
+
+
 ## Golden commands
 - `pnpm -s devx:up` — start postgres (docker), run prisma migrate deploy, start API, run e2e + parent-web tests
 - `pnpm -s devx:test` — start API + run tests (assumes DB already reachable)
