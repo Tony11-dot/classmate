@@ -169,11 +169,31 @@ case "${cmd}" in
     (cd apps/parent-web && API_BASE="${API_BASE}" pnpm exec playwright test --reporter=line)
     echo "✅ all tests passed"
     ;;
-
   up)
+    set +e
     db_start
+    st=$?
+    if [[ $st -ne 0 ]]; then
+      echo "❌ db_start failed"
+      pnpm -s devx:doctor || true
+      exit $st
+    fi
+
     db_migrate
+    st=$?
+    if [[ $st -ne 0 ]]; then
+      echo "❌ db_migrate failed"
+      pnpm -s devx:doctor || true
+      exit $st
+    fi
+
     pnpm -s devx:test
+    st=$?
+    if [[ $st -ne 0 ]]; then
+      echo "❌ tests failed"
+      pnpm -s devx:doctor || true
+      exit $st
+    fi
     ;;
 
   doctor)
