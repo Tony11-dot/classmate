@@ -1,24 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { loadEnv, parseCorsOrigins } from './env';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is not set');
-  }
-
-  const app = await NestFactory.create(AppModule);
+async function bootstrap() {  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: (origin, cb) => {
-      // allow curl/postman (no Origin) + local dev origins
+      // allow curl/postman (no Origin)
       if (!origin) return cb(null, true);
 
-      const ok =
-        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-        /^http:\/\/(192\.168\.\d+\.\d+)(:\d+)?$/.test(origin);
+      // Dev/test: allow local + LAN
+      if (env.NODE_ENV !== 'production') {
+        const ok =
+          /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+          /^http:\/\/(192\.168\.\d+\.\d+)(:\d+)?$/.test(origin);
 
-      return cb(null, ok);
+        return cb(null, ok);
+      }
+
+      // Prod: strict allowlist
+      const allow = parseCorsOrigins(env.CORS_ORIGINS);
+      return cb(null, allow.includes(origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -28,6 +31,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(env.PORT);
 }
 bootstrap();
