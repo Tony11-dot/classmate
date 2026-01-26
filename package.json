@@ -9,6 +9,7 @@
     "dev:api": "pnpm --dir services/api dev",
     "dev:parent": "pnpm --dir apps/parent-web dev",
     "devx:clean": "bash scripts/devx.sh clean",
+    "devx:doctor": "bash scripts/devx.sh doctor",
     "devx:logs": "bash scripts/devx.sh logs",
     "devx:ps": "bash scripts/devx.sh ps",
     "devx:start": "bash scripts/devx.sh start",

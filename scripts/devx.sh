@@ -176,6 +176,31 @@ case "${cmd}" in
     pnpm -s devx:test
     ;;
 
+  doctor)
+    echo "🩺 devx doctor"
+    echo
+    echo "== versions =="
+    pnpm -v || true
+    node -v || true
+    docker -v || true
+    echo
+    echo "== env =="
+    echo "API_PORT=${API_PORT:-3000}"
+    echo "API_BASE=${API_BASE:-http://127.0.0.1:${API_PORT:-3000}}"
+    echo "DB_CONTAINER_NAME=${DB_CONTAINER_NAME:-classmate-postgres}"
+    echo "DB_PORT=${DB_PORT:-5433}"
+    echo
+    echo "== docker db =="
+    docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>/dev/null | (command -v rg >/dev/null && rg -n 'classmate-postgres|postgres|5433|5432' || cat) || true
+    echo
+    echo "== port listener =="
+    lsof -nP -iTCP:${API_PORT:-3000} -sTCP:LISTEN || true
+    echo
+    echo "== api logs (tail) =="
+    tail -n 120 "${LOG:-/tmp/classmate-api.log}" || true
+    ;;
+
+
   help|*)
     cat <<EOF
 Usage: scripts/devx.sh <command>
@@ -187,6 +212,7 @@ Commands:
   clean   Kill port + stray api watchers (pnpm/nest/node)
   logs    Tail api log
   test    Start api + run full e2e + parent-web tests
+  doctor  Print env, db status, port status, and tail api logs
   up      Start postgres (docker), migrate, then run tests
 
 Env:
