@@ -116,9 +116,27 @@ db_start() {
   return 1
 }
 
+ensure_api_env() {
+  local env_file="services/api/.env"
+  local example_file="services/api/.env.example"
+
+  if [[ -f "${env_file}" ]]; then
+    return 0
+  fi
+
+  if [[ -f "${example_file}" ]]; then
+    echo "📝 creating ${env_file} from ${example_file}"
+    cp "${example_file}" "${env_file}"
+    return 0
+  fi
+
+  die "missing ${env_file} and ${example_file}. Create one with DATABASE_URL."
+}
+
 db_migrate() {
   echo "🧩 prisma migrate deploy (api)"
   export DATABASE_URL="${DATABASE_URL:-$(api_db_url)}"
+  ensure_api_env
   pnpm --filter ./services/api exec prisma migrate deploy
 }
 
