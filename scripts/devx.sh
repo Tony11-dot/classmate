@@ -61,6 +61,67 @@ start_api () {
   wait_health "${API_BASE}"
 }
 
+
+# --- devx db helpers (docker postgres) ---
+DB_CONTAINER_NAME="${DB_CONTAINER_NAME:-classmate-postgres}"
+DB_PORT="${DB_PORT:-5433}"
+DB_USER="${DB_USER:-classmate}"
+DB_PASS="${DB_PASS:-classmate}"
+DB_NAME="${DB_NAME:-classmate}"
+
+api_db_url () {
+  echo "postgresql://${DB_USER}:${DB_PASS}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
+}
+
+db_running() {
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "${DB_CONTAINER_NAME}"
+}
+
+db_exists() {
+  docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "${DB_CONTAINER_NAME}"
+}
+
+db_start() {
+  need docker
+
+  if db_running; then
+    echo "✅ postgres already running (${DB_CONTAINER_NAME})"
+    return 0
+  fi
+
+  if db_exists; then
+    echo "🚀 starting postgres container: ${DB_CONTAINER_NAME}"
+    docker start "${DB_CONTAINER_NAME}" >/dev/null
+  else
+    echo "🚀 creating postgres container: ${DB_CONTAINER_NAME} (port ${DB_PORT}->5432)"
+    docker run -d --name "${DB_CONTAINER_NAME}" \
+      -e POSTGRES_USER="${DB_USER}" \
+      -e POSTGRES_PASSWORD="${DB_PASS}" \
+      -e POSTGRES_DB="${DB_NAME}" \
+      -p "${DB_PORT}:5432" \
+      postgres:16 >/dev/null
+  fi
+
+  echo "⏳ waiting for postgres..."
+  for _ in $(seq 1 60); do
+    if docker exec "${DB_CONTAINER_NAME}" pg_isready -U "${DB_USER}" -d "${DB_NAME}" >/dev/null 2>&1; then
+      echo "✅ postgres ready"
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "❌ postgres not ready in time"
+  docker logs --tail 80 "${DB_CONTAINER_NAME}" || true
+  return 1
+}
+
+db_migrate() {
+  echo "🧩 prisma migrate deploy (api)"
+  export DATABASE_URL="${DATABASE_URL:-$(api_db_url)}"
+  pnpm --filter ./services/api exec prisma migrate deploy
+}
+
 case "${cmd}" in
   ps)
     ps_api
@@ -90,6 +151,13 @@ case "${cmd}" in
     (cd apps/parent-web && API_BASE="${API_BASE}" pnpm exec playwright test --reporter=line)
     echo "✅ all tests passed"
     ;;
+
+  up)
+    db_start
+    db_migrate
+    pnpm -s devx:test
+    ;;
+
   help|*)
     cat <<EOF
 Usage: scripts/devx.sh <command>
@@ -101,18 +169,13 @@ Commands:
   clean   Kill port + stray api watchers (pnpm/nest/node)
   logs    Tail api log
   test    Start api + run full e2e + parent-web tests
+  up      Start postgres (docker), migrate, then run tests
 
 Env:
   API_PORT=3000
   API_BASE=http://127.0.0.1:3000
   LOG=/tmp/classmate-api.log
 EOF
-    ;;
-
-  up)
-    db_start
-    db_migrate
-    pnpm -s devx:test
     ;;
 
 esac
