@@ -23,3 +23,8 @@
 
 ### Port 3000 already in use
 - Run `pnpm -s devx:stop` then `pnpm -s devx:up`.
+
+## Prisma config
+- `services/api/prisma.config.ts` is used by Prisma CLI.
+- Prisma will say it "skips environment variable loading" — that’s OK because the config imports `dotenv/config`.
+- If `DATABASE_URL` is missing, create `services/api/.env` (or run `pnpm -s devx:up` which auto-creates it from `.env.example`).
