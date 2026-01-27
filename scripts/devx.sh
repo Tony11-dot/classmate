@@ -163,8 +163,8 @@ case "${cmd}" in
     need jq
 
     # Avoid stale Next env (web dev servers cache NEXT_PUBLIC_* at startup)
-    kill_port 3001 || true
-    kill_port 3002 || true
+    lsof -ti :3001 | xargs -r kill -9 2>/dev/null || true
+    lsof -ti :3002 | xargs -r kill -9 2>/dev/null || true
 
 
     # Make sure test-only helpers are available during devx:test
