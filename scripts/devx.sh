@@ -35,10 +35,10 @@ clean_api () {
   stop_port "${API_PORT}"
 
   # 2) kill any leftover watchers (best-effort, scoped to services/api)
-  pgrep -f "Dev/classmate/services/api" | xargs -r kill -9 || true
-  pgrep -f "pnpm --dir services/api dev" | xargs -r kill -9 || true
-  pgrep -f "nest.js start --watch" | xargs -r kill -9 || true
-  pgrep -f "services/api/dist/src/main" | xargs -r kill -9 || true
+  pgrep -f "Dev/classmate/services/api" | xargs -r kill -9 2>/dev/null || true || true
+  pgrep -f "pnpm --dir services/api dev" | xargs -r kill -9 2>/dev/null || true || true
+  pgrep -f "nest.js start --watch" | xargs -r kill -9 2>/dev/null || true || true
+  pgrep -f "services/api/dist/src/main" | xargs -r kill -9 2>/dev/null || true || true
 }
 
 wait_health () {
@@ -160,6 +160,17 @@ case "${cmd}" in
     tail -n 120 "${LOG}" || true
     ;;
   test)
+    need jq
+
+    # Avoid stale Next env (web dev servers cache NEXT_PUBLIC_* at startup)
+    kill_port 3001 || true
+    kill_port 3002 || true
+
+
+    # Make sure test-only helpers are available during devx:test
+    export NODE_ENV="test"
+    export ENABLE_E2E_SEED="true"
+
     need jq
     clean_api
     start_api
