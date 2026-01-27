@@ -32,10 +32,6 @@ export function loadEnv(): AppEnv {
   const env = parsed.data;
 
   // Default enable seed in dev/test unless explicitly set
-  if (env.NODE_ENV !== 'production' && process.env.ENABLE_E2E_SEED == null) {
-    (env as any).ENABLE_E2E_SEED = true;
-  }
-
   // Safety: in production, require JWT_SECRET (if your auth relies on it)
   if (env.NODE_ENV === 'production' && !env.JWT_SECRET) {
     throw new Error('JWT_SECRET is required in production');
