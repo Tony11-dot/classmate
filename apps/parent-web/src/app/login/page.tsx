@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_BASE = "http://localhost:3000";
+const RAW_API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ?? 'http://127.0.0.1:3000/api';
+const API_BASE = RAW_API_BASE.endsWith('/api') ? RAW_API_BASE : `${RAW_API_BASE}/api`;
 
 export default function LoginPage() {
   const r = useRouter();
@@ -18,7 +20,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       console.log("LOGIN_API_BASE =", API_BASE);
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
