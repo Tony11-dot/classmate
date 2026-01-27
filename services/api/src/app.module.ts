@@ -9,9 +9,12 @@ import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
+import { loadEnv } from './env';
+
+const env = loadEnv();
 
 @Module({
-  controllers: [E2ESeedController],
+  controllers: [...(env.ENABLE_E2E_SEED ? [E2ESeedController] : [])],
   imports: [
     HealthModule,
     PrismaModule,

@@ -7,6 +7,9 @@ const envSchema = z.object({
   // Required
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
+  // Dev/Test only
+  ENABLE_E2E_SEED: z.coerce.boolean().default(false),
+
   // Optional (but strongly recommended for prod)
   JWT_SECRET: z.string().min(16).optional(),
 
@@ -28,12 +31,21 @@ export function loadEnv(): AppEnv {
 
   const env = parsed.data;
 
+  // Default enable seed in dev/test unless explicitly set
+  if (env.NODE_ENV !== 'production' && process.env.ENABLE_E2E_SEED == null) {
+    (env as any).ENABLE_E2E_SEED = true;
+  }
+
   // Safety: in production, require JWT_SECRET (if your auth relies on it)
   if (env.NODE_ENV === 'production' && !env.JWT_SECRET) {
     throw new Error('JWT_SECRET is required in production');
   }
 
-  return env;
+  if (env.NODE_ENV === 'production' && env.ENABLE_E2E_SEED) {
+    throw new Error('ENABLE_E2E_SEED cannot be true in production');
+  }
+
+return env;
 }
 
 // helper: parse CORS allowlist

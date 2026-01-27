@@ -8,7 +8,8 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-app.enableCors({
+
+  app.enableCors({
     origin: (origin, cb) => {
       // allow curl/postman (no Origin)
       if (!origin) return cb(null, true);
@@ -36,4 +37,5 @@ app.enableCors({
 
   await app.listen(env.PORT);
 }
+
 bootstrap();
