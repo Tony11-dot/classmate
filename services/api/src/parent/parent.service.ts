@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { parentAllowedChildIds, requireParentChild } from '../auth/scope';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -46,6 +47,23 @@ type StudentProfileLite = { userId: string; cohortId: string };
 
 @Injectable()
 export class ParentService {
+
+  private isAdmin(user: any) {
+    const roles: string[] = user?.roles ?? [];
+    return roles.includes('ADMIN');
+  }
+
+  private async ensureParentStudentScope(user: any, studentId?: string) {
+    if (this.isAdmin(user)) return { studentId };
+    const parentId = user?.id;
+    if (!parentId) throw new ForbiddenException('Missing user');
+    if (studentId) {
+      await requireParentChild(this.prisma, parentId, studentId);
+      return { studentId };
+    }
+    const ids = await parentAllowedChildIds(this.prisma, parentId);
+    return { allowedStudentIds: ids };
+  }
 
   constructor(
     private readonly prisma: PrismaService,
