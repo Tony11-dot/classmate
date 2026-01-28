@@ -1,3 +1,4 @@
+import { Roles } from '../auth/roles.decorator';
 import {
   Body,
   Controller,
@@ -11,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 
 @UseGuards(JwtAuthGuard)
+@Roles('ADMIN')
 @Controller('admin/schedule')
 export class AdminScheduleController {
   constructor(private readonly admin: AdminService) {}

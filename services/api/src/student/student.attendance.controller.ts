@@ -1,8 +1,10 @@
+import { Roles } from '../auth/roles.decorator';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StudentService } from './student.service';
 
 @UseGuards(JwtAuthGuard)
+@Roles('STUDENT','ADMIN')
 @Controller('student')
 export class StudentAttendanceController {
   constructor(private readonly student: StudentService) {}
