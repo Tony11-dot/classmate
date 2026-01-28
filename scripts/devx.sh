@@ -162,6 +162,19 @@ case "${cmd}" in
   test)
     need jq
 
+    # Ensure Next picks up NEXT_PUBLIC_* (it is read at server start)
+    lsof -ti :3001 | xargs -r kill -9 2>/dev/null || true
+    lsof -ti :3002 | xargs -r kill -9 2>/dev/null || true
+    lsof -ti :3004 | xargs -r kill -9 2>/dev/null || true
+
+    # Single source of truth for all web apps during tests
+    export NEXT_PUBLIC_API_BASE="http://127.0.0.1:3000/api"
+
+    # E2E helpers (some code uses these)
+    export E2E_API_BASE_URL="http://127.0.0.1:3000"
+    export E2E_API_BASE="http://127.0.0.1:3000"
+
+
     # Avoid stale Next env (web dev servers cache NEXT_PUBLIC_* at startup)
     lsof -ti :3001 | xargs -r kill -9 2>/dev/null || true
     lsof -ti :3002 | xargs -r kill -9 2>/dev/null || true
