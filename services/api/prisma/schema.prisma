@@ -419,3 +419,161 @@ model AlertSettings {
   @@index([studentId])
   @@index([ownerId])
 }
+
+
+//
+// --- Day 1 foundation: materials + learning profile + AI brain + tutor memory + analytics ---
+//
+
+enum MaterialSource {
+  BAGrut
+  TEACHER
+  BOOK
+  OTHER
+}
+
+enum TutorMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum AnalyticsActorRole {
+  STUDENT
+  PARENT
+  TEACHER
+  SECRETARY
+  ADMIN
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // scoping
+  cohortId  String?
+  courseId  String?
+
+  // content
+  title     String
+  subject   String?      // e.g. MATH/PHYSICS/CS
+  grade     Int?         // bagrut target grade (10/11/12)
+  language  String?      // 'he'/'ar'/'en'
+  source    MaterialSource @default(BAGrut)
+
+  // "chunk" style storage (start simple: full text)
+  content   String
+
+  // loose tags for retrieval
+  tags      String[]     @default([])
+
+  @@index([cohortId])
+  @@index([courseId])
+  @@index([subject])
+}
+
+model LearningProfile {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // userId = student user id
+  userId    String   @unique
+
+  // "bagrut level" guardrails
+  targetCurriculum String?  // 'bagrut'
+  targetGrade      Int?     // 10/11/12
+  preferredLanguage String? // 'he'/'ar'/'en'
+
+  // style matching (how tutor behaves)
+  tone        String?  // e.g. "friendly", "strict", "funny"
+  verbosity   Int?     // 1-10
+  explainStyle String? // e.g. "step-by-step", "short hints", "use examples"
+  emojiOk     Boolean  @default(true)
+
+  // learning state
+  strengths   String[] @default([])
+  weaknesses  String[] @default([])
+  goals       String[] @default([])
+
+  // guardrail: avoid advanced topics
+  maxDepth    Int?     // 1=very basic ... 5=advanced (we keep <=3 for bagrut by default)
+}
+
+model StudentBrainSnapshot {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String   // student user id
+  cohortId  String?
+
+  // compact analytics summary the tutor can read
+  // (keep JSON flexible, schema later)
+  metrics   Json
+
+  // example metrics you might store inside JSON:
+  // { "math": {"avg": 78,"trend":"up","weak":["quadratic"],"strong":["trig"]}, ... }
+
+  @@index([userId, createdAt])
+  @@index([cohortId])
+}
+
+model TutorSession {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String   // student user id
+  courseId  String?
+  cohortId  String?
+
+  // optional title/topic
+  title     String?
+  topic     String?
+
+  messages  TutorMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([cohortId])
+  @@index([courseId])
+}
+
+model TutorMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  sessionId String
+  role      TutorMessageRole
+  content   String
+
+  // what tutor used as sources (ids or short refs)
+  sources   String[] @default([])
+
+  session   TutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  actorUserId String?
+  actorRole   AnalyticsActorRole?
+
+  // scope
+  cohortId   String?
+  courseId   String?
+  studentId  String?
+
+  // event
+  name      String
+  payload   Json?
+
+  @@index([name, createdAt])
+  @@index([cohortId])
+  @@index([courseId])
+  @@index([studentId])
+}
+
