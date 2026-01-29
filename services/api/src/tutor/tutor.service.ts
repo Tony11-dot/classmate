@@ -47,19 +47,42 @@ export class TutorService {
   }
 
   // ---------- Materials ----------
-  async listMaterials(query: { subject?: string; topic?: string; level?: string; take?: number }) {
+  async listMaterials(query: {
+    subject?: string;
+    grade?: number;
+    language?: string;
+    take?: number;
+    q?: string;
+  }) {
     const take = Math.min(Math.max(Number(query.take ?? 20), 1), 50);
+
+    const q = query.q ? String(query.q).trim() : '';
+    const where: any = {
+      ...(query.subject ? { subject: String(query.subject) } : {}),
+      ...(query.grade !== undefined && query.grade !== null && !Number.isNaN(Number(query.grade))
+        ? { grade: Number(query.grade) }
+        : {}),
+      ...(query.language ? { language: String(query.language) } : {}),
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: 'insensitive' } },
+              { content: { contains: q, mode: 'insensitive' } },
+              { tags: { has: q } },
+            ],
+          }
+        : {}),
+    };
+
     const rows = await this.prisma.material.findMany({
-      where: {
-        ...(query.subject ? { subject: query.subject } : {}),
-        ...(query.topic ? { topic: query.topic } : {}),
-        ...(query.level ? { level: query.level } : {}),
-      },
+      where,
       orderBy: [{ createdAt: 'desc' }],
       take,
     });
+
     return { ok: true, materials: rows };
   }
+
 
   async createMaterial(user: any, dto: any) {
     // Admin/Secretary only (or tighten later)

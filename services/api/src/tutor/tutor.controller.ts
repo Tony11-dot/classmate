@@ -30,8 +30,20 @@ export class TutorController {
   // ---- Materials ----
   @Roles('STUDENT','ADMIN','SECRETARY')
   @Get('materials')
-  listMaterials(@Query('subject') subject?: string, @Query('topic') topic?: string, @Query('level') level?: string, @Query('take') take?: string) {
-    return this.svc.listMaterials({ subject, topic, level, take: typeof take === 'string' ? Number(take) : undefined });
+  listMaterials(
+    @Query('subject') subject?: string,
+    @Query('grade') grade?: string,
+    @Query('language') language?: string,
+    @Query('q') q?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.svc.listMaterials({
+      subject,
+      grade: typeof grade === 'string' ? Number(grade) : undefined,
+      language,
+      q,
+      take: typeof take === 'string' ? Number(take) : undefined,
+    });
   }
 
   @Roles('ADMIN','SECRETARY')

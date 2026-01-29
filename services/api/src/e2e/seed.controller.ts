@@ -111,7 +111,7 @@ export class E2ESeedController {
           },
         },
       },
-      select: { id: true },
+      select: { id: true, email: true },
     });
     const parent = await this.prisma.user.upsert({
       where: { email: 'parent1@classmate.app' },
@@ -221,6 +221,7 @@ export class E2ESeedController {
       cohort2Id: cohort2.id,
       course2Id: course2.id,
       teacherEmail: 'teacher1@classmate.app',
+      studentEmail: student.email,
       teacher2Email: 'teacher2@classmate.app',
       parentEmail: 'parent1@classmate.app',
       password: 'dev',
