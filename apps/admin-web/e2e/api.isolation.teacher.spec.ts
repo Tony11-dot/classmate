@@ -36,18 +36,24 @@ test('teacher cannot access other teacher cohort/students and course actions', a
 
   const ctx = await pwRequest.newContext();
 
+  // Auth sanity: token must be valid for an allowed endpoint
+  const okRes = await ctx.get(`${API}/teacher/schedule/today`, {
+    headers: { Authorization: `Bearer ${t1}` },
+  });
+  expect(okRes.ok()).toBeTruthy();
+
   // 1) Cohort students for cohort2 should be forbidden (belongs to teacher2)
   const cohortRes = await ctx.get(`${API}/teacher/cohort/${encodeURIComponent(seed.cohort2Id)}/students`, {
     headers: { Authorization: `Bearer ${t1}` },
   });
-  expect([401, 403]).toContain(cohortRes.status());
+  expect(cohortRes.status()).toBe(403);
 
   // 2) Create assessment on course2 should be forbidden
   const assessRes = await ctx.post(`${API}/teacher/grades/assessment`, {
     headers: { Authorization: `Bearer ${t1}` },
     data: { courseId: seed.course2Id, title: 'Should Fail', date: new Date().toISOString(), maxGrade: 100 },
   });
-  expect([401, 403]).toContain(assessRes.status());
+  expect(assessRes.status()).toBe(403);
 
   await ctx.dispose();
 });
