@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { E2ESeedController } from './e2e/seed.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { TutorModule } from './tutor/tutor.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
