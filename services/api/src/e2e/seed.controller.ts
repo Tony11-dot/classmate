@@ -11,6 +11,53 @@ export class E2ESeedController {
     const now = Date.now();
     const passwordHash = await bcrypt.hash('dev', 10);
 
+    // --- Tutor characters (Day 2) ---
+    const mathTutor = await this.prisma.tutorCharacter.create({
+      data: {
+        subject: 'MATH',
+        name: 'Math Tutor',
+        curriculum: 'bagrut',
+        maxGrade: 12,
+        language: 'en',
+        tone: 'friendly',
+        verbosity: 6,
+        explainStyle: 'step-by-step',
+        systemNotes: 'Answer only in Bagrut level. Avoid university-level depth.',
+      } as any,
+      select: { id: true },
+    });
+
+    const physicsTutor = await this.prisma.tutorCharacter.create({
+      data: {
+        subject: 'PHYSICS',
+        name: 'Physics Tutor',
+        curriculum: 'bagrut',
+        maxGrade: 12,
+        language: 'en',
+        tone: 'coach',
+        verbosity: 6,
+        explainStyle: 'examples',
+        systemNotes: 'Use Bagrut physics style, constant acceleration assumptions unless asked otherwise.',
+      } as any,
+      select: { id: true },
+    });
+
+    const csTutor = await this.prisma.tutorCharacter.create({
+      data: {
+        subject: 'CS',
+        name: 'CS Tutor',
+        curriculum: 'bagrut',
+        maxGrade: 12,
+        language: 'en',
+        tone: 'friendly',
+        verbosity: 5,
+        explainStyle: 'step-by-step',
+        systemNotes: 'Keep it high-school level, avoid advanced CS theory unless requested.',
+      } as any,
+      select: { id: true },
+    });
+
+
     const teacher = await this.prisma.user.upsert({
       where: { email: 'teacher1@classmate.app' },
       update: { password: passwordHash, name: 'Teacher One' },
@@ -225,6 +272,9 @@ export class E2ESeedController {
       teacher2Email: 'teacher2@classmate.app',
       parentEmail: 'parent1@classmate.app',
       password: 'dev',
+      mathTutorId: mathTutor.id,
+      physicsTutorId: physicsTutor.id,
+      csTutorId: csTutor.id,
     };
   }
   @Post('parent-web')

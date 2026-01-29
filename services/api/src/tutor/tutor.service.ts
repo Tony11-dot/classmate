@@ -112,11 +112,13 @@ export class TutorService {
   async createSession(user: any, dto: any) {
     const studentId = this.requireStudent(user);
     const subject = dto?.subject ? String(dto.subject) : 'GENERAL';
+    const characterId = dto?.characterId ? String(dto.characterId) : null;
 
     const row = await this.prisma.tutorSession.create({
       data: {
         userId: studentId,
         subject,
+        characterId: characterId ?? undefined,
         title: dto?.title ? String(dto.title) : null,
       } as any,
     });

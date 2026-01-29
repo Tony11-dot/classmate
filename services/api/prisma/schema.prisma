@@ -522,6 +522,9 @@ model StudentBrainSnapshot {
 model TutorSession {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
+
+  characterId String?
+  character   TutorCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
   updatedAt DateTime @updatedAt
 
   userId    String   // student user id
@@ -577,3 +580,44 @@ model AnalyticsEvent {
   @@index([studentId])
 }
 
+
+
+enum TutorCharacterSubject {
+  GENERAL
+  MATH
+  PHYSICS
+  CS
+  ENGLISH
+  HEBREW
+  ARABIC
+}
+
+
+model TutorCharacter {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // scope (optional) – later we can make per cohort/school
+  cohortId  String?
+
+  subject   TutorCharacterSubject @default(GENERAL)
+  name      String                // e.g. "Mr. Derivative", "Physics Coach"
+  // how it speaks/behaves (high-level; real behavior comes later from AI brain + profile)
+  tone      String?               // friendly/strict/etc.
+  verbosity Int?                  // 1-10
+  explainStyle String?            // step-by-step / hints / examples
+
+  // guardrails
+  curriculum String?              // e.g. "bagrut"
+  maxGrade   Int?                 // 10/11/12
+  language   String?              // he/ar/en
+
+  // later: prompt template / system rules
+  systemNotes String?             // short instruction block
+
+  sessions  TutorSession[]
+
+  @@index([cohortId])
+  @@index([subject])
+}
