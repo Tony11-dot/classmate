@@ -29,6 +29,24 @@ export class E2ESeedController {
       create: { userId: teacher.id, role: 'TEACHER' },
     });
 
+    const teacher2 = await this.prisma.user.upsert({
+      where: { email: 'teacher2@classmate.app' },
+      update: { password: passwordHash, name: 'Teacher Two' },
+      create: {
+        email: 'teacher2@classmate.app',
+        password: passwordHash,
+        name: 'Teacher Two',
+        roles: { create: [{ role: 'TEACHER' }] },
+      },
+      select: { id: true },
+    });
+
+    await this.prisma.userRole.upsert({
+      where: { userId_role: { userId: teacher2.id, role: 'TEACHER' } },
+      update: {},
+      create: { userId: teacher2.id, role: 'TEACHER' },
+    });
+
     const cohort = await this.prisma.cohort.create({
       data: { name: `e2e-cohort-${now}`, grade: 10 },
       select: { id: true },
@@ -43,6 +61,32 @@ export class E2ESeedController {
       },
       select: { id: true, name: true, subject: true },
     });
+
+    // --- extra teacher/cohort/course for isolation tests ---
+    const cohort2 = await this.prisma.cohort.create({
+      data: { name: `e2e-cohort2-${now}`, grade: 10 },
+      select: { id: true },
+    });
+
+    const course2 = await this.prisma.course.create({
+      data: {
+        name: `e2e-course2-${now}`,
+        subject: 'MATH',
+        teacher: { connect: { id: teacher2.id } },
+        cohort: { connect: { id: cohort2.id } },
+      },
+      select: { id: true, name: true, subject: true },
+    });
+
+    await this.prisma.scheduleSlot.create({
+      data: {
+        cohortId: cohort2.id,
+        courseId: course2.id,
+        dayOfWeek: new Date().getDay(),
+        period: 2,
+      },
+    });
+
 
     await this.prisma.scheduleSlot.create({
       data: {
@@ -174,7 +218,10 @@ export class E2ESeedController {
       ok: true,
       cohortId: cohort.id,
       courseId: course.id,
+      cohort2Id: cohort2.id,
+      course2Id: course2.id,
       teacherEmail: 'teacher1@classmate.app',
+      teacher2Email: 'teacher2@classmate.app',
       parentEmail: 'parent1@classmate.app',
       password: 'dev',
     };
