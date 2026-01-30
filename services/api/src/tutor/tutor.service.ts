@@ -3,6 +3,71 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class TutorService {
+
+  private buildRefsAndExcerpt(materials: any[]) {
+    const refs = materials?.length
+      ? materials.map((m) => String(m.title ?? '')).slice(0, 5).join(' | ')
+      : '(no materials found)';
+    const excerpt = materials?.length ? String(materials[0].content ?? '').slice(0, 260) : '';
+    return { refs, excerpt };
+  }
+
+  private generateMiniQuiz(args: { subject?: string; topic?: string; verbosity?: number }) {
+    const subject = String(args.subject ?? 'GENERAL').toUpperCase();
+    const topic = String(args.topic ?? 'general').toLowerCase();
+    const v = Number(args.verbosity ?? 6);
+    const easy = v <= 4;
+
+    if (subject.includes('MATH')) {
+      if (topic === 'derivatives') {
+        return easy
+          ? [
+              'Mini-quiz: What is d/dx(x^2)?',
+              'Mini-quiz: What is the slope (derivative) of a constant function?',
+            ]
+          : [
+              'Mini-quiz: Differentiate f(x)=3x^3−2x. Show steps.',
+              "Mini-quiz: If f\'(a)=0, what can that mean about the graph at x=a?",
+            ];
+      }
+      return easy
+        ? ['Mini-quiz: Solve 2x+5=13.', 'Mini-quiz: What is the slope between (1,2) and (3,6)?']
+        : ['Mini-quiz: Simplify (x^2−9)/(x−3).', 'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).'];
+    }
+
+    if (subject.includes('PHYS')) {
+      if (topic === 'kinematics') {
+        return easy
+          ? [
+              'Mini-quiz: If v0=0 and a=2 m/s^2, what is v after 3 s?',
+              'Mini-quiz: In free fall (no air), what is g approximately?',
+            ]
+          : [
+              'Mini-quiz: A car goes from 10 m/s to 25 m/s in 5 s. Find a.',
+              'Mini-quiz: Using v^2=v0^2+2aΔx, compute stopping distance if v0=20 m/s and a=−4 m/s^2.',
+            ];
+      }
+      return easy
+        ? ['Mini-quiz: What are the units of acceleration?', 'Mini-quiz: If distance is 0, what is displacement?']
+        : ['Mini-quiz: Explain the difference between speed and velocity with an example.', 'Mini-quiz: Give one situation where acceleration is negative.'];
+    }
+
+    if (subject.includes('CS') || subject.includes('COMP')) {
+      if (topic.includes('loops')) {
+        return easy
+          ? ['Mini-quiz: What does a loop do?', 'Mini-quiz: Give one example of when you use a for-loop.']
+          : ['Mini-quiz: What is the difference between a for-loop and a while-loop?', 'Mini-quiz: Write a loop that sums numbers 1..n (pseudo-code).'];
+      }
+      return easy
+        ? ['Mini-quiz: What is a variable?', 'Mini-quiz: What does an if-statement do?']
+        : ["Mini-quiz: What\'s the difference between a function parameter and an argument?", 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
+    }
+
+    return easy
+      ? ['Mini-quiz: Restate the main rule in one sentence.', 'Mini-quiz: Give a tiny example.']
+      : ['Mini-quiz: Solve a small example and explain each step.', 'Mini-quiz: Name one common mistake and how to avoid it.'];
+  }
+
   private prisma = new PrismaClient();
 
   private requireStudent(user: any) {
@@ -459,76 +524,24 @@ export class TutorService {
     const emojiOk = ctx.effective.emojiOk;
 
     const topic = this.guessTopic(question, materials, ctx.weak);
+    const { refs, excerpt } = this.buildRefsAndExcerpt(materials);
 
-    const strict = String(tone).toLowerCase().includes('strict');
-    const stepEmoji = emojiOk ? (strict ? '➡️ ' : '👉 ') : '';
-    const warnEmoji = emojiOk ? '⚠️ ' : '';
-    const quizEmoji = emojiOk ? '🧠 ' : '';
-    const headingEmoji = emojiOk ? '📌 ' : '';
+    const assistantContent = this.formatTutorReply({
+      question,
+      excerpt,
+      refs,
+      effective: { ...ctx.effective, tone, explainStyle, verbosity, emojiOk },
+      weak: ctx.weak,
+      strong: ctx.strong,
+      note: ctx.note,
+      topic,
+    });
 
-    const formatSteps = (arr: string[]) => arr.map((x, i) => `${stepEmoji}${i + 1}) ${x}`).join('\n');
-
-    const intro =
-      strict
-        ? 'Bagrut Tutor (focused mode)\n'
-        : 'Bagrut Tutor (friendly mode)\n';
-
-    const brainLine = `AI Brain: ${brainHint}\n`;
-    const sourcesLine = `Sources: ${refs}\n`;
-
-    const steps = [
-      'Derivative means the slope of the tangent line to the graph.',
-      'It tells how fast the function changes at a specific x.',
-      'For polynomials, use the power rule: d/dx(x^n) = n·x^(n-1).',
-    ];
-
-    const exampleLines = [
-      'Example: f(x)=x² → f\'(x)=2x (power rule).',
-      'At x=3: f\'(3)=6, so the slope of the tangent there is 6.',
-    ];
-
-    const mistakeLines = [
-      'Common mistake: mixing f(x) with f\'(x). f\'(x) is a new function.',
-      'Common mistake: forgetting the power rule (x² → 2x, not x).',
-    ];
-
-    const quiz = [
-      'Quick check 1: If f(x)=x³, what is f\'(x)?',
-      'Quick check 2: If f\'(2)=0, what does that suggest about the tangent at x=2?',
-    ];
-    if (!short) quiz.push('Bonus: If f\'(x) is positive on an interval, what is f(x) doing there?');
-
-    let reply = '';
-    reply += intro;
-    reply += brainLine;
-    if (!short) reply += sourcesLine;
-    reply += `\nQ: ${question}\n\n`;
-
-    reply += `${headingEmoji}Explanation:\n`;
-    reply += explainStyle.includes('hints') ? formatSteps(steps) : steps.map(x => `${stepEmoji}${x}`).join('\n');
-
-    reply += `\n\n${headingEmoji}Worked example:\n`;
-    reply += explainStyle.includes('hints') ? formatSteps(exampleLines) : exampleLines.map(x => `${stepEmoji}${x}`).join('\n');
-
-    reply += `\n\n${headingEmoji}Common mistake:\n`;
-    reply += mistakeLines.map(x => `${warnEmoji}${x}`).join('\n');
-
-    reply += `\n\n${quizEmoji}Mini-quiz:\n`;
-    reply += quiz.map((x, i) => `${i + 1}) ${x}`).join('\n');
-
-    if (excerpt && !short) {
-      reply += `\n\n${headingEmoji}From your material:\n`;
-      reply += excerpt;
-    }
-
-    reply += `\n\nReply with your quiz answers and I’ll check them.`;
-
-    // Store ASSISTANT message
     const assistantMsg = await this.prisma.tutorMessage.create({
       data: {
         sessionId,
         role: 'ASSISTANT' as any,
-        content: reply,
+        content: assistantContent,
         sources: materials.map((m) => m.id),
       } as any,
     });
@@ -664,7 +677,7 @@ export class TutorService {
             ]
           : [
               'Mini-quiz: Differentiate f(x)=3x^3−2x. Show steps.',
-              'Mini-quiz: If f'(a)=0, what can that mean about the graph at x=a?',
+              "Mini-quiz: If f\'(a)=0, what can that mean about the graph at x=a?",
             ];
       }
       return easy
@@ -692,7 +705,7 @@ export class TutorService {
     if (subject.includes('CS')) {
       return easy
         ? ['Mini-quiz: What is a variable?', 'Mini-quiz: What does a for-loop do?']
-        : ['Mini-quiz: What’s the difference between a function parameter and an argument?', 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
+        : ['Mini-quiz: What\'s the difference between a function parameter and an argument?', 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
     }
 
     return ['Mini-quiz: Summarize the key idea in 1 sentence.', 'Mini-quiz: Give one example that matches the idea.'];
@@ -700,72 +713,91 @@ export class TutorService {
 
   private formatTutorReply(args: {
     question: string;
-    excerpt: string;
-    refs: string;
-    effective: any;
-    weak: string[];
-    strong: string[];
-    note: string;
-    topic: string;
+    excerpt?: string;
+    refs?: string;
+    effective: {
+      tone?: string;
+      explainStyle?: string;
+      verbosity?: number;
+      emojiOk?: boolean;
+    };
+    weak?: string[];
+    strong?: string[];
+    note?: string;
+    topic?: string;
   }) {
-    const { question, excerpt, refs, effective, weak, strong, note, topic } = args;
+    const question = String(args.question ?? '').trim();
+    const excerpt = String(args.excerpt ?? '').trim();
+    const refs = String(args.refs ?? '').trim();
+    const tone = String(args.effective?.tone ?? 'friendly').toLowerCase();
+    const explainStyle = String(args.effective?.explainStyle ?? 'step-by-step').toLowerCase();
+    const verbosity = Number(args.effective?.verbosity ?? 6);
+    const emojiOk = Boolean(args.effective?.emojiOk ?? true);
+    const weak = Array.isArray(args.weak) ? args.weak : [];
+    const strong = Array.isArray(args.strong) ? args.strong : [];
+    const note = args.note ? String(args.note) : '';
+    const topic = String(args.topic ?? 'general').toLowerCase();
 
-    const tone = String(effective.tone ?? 'friendly').toLowerCase();
-    const style = String(effective.explainStyle ?? 'step-by-step').toLowerCase();
-    const v = Number(effective.verbosity ?? 6);
-    const emojiOk = Boolean(effective.emojiOk ?? true);
+    const short = verbosity <= 4;
 
-    const short = v <= 3;
-    const med = v >= 4 && v <= 6;
+    const emoji = (e: string) => (emojiOk ? e + ' ' : '');
+    const lines: string[] = [];
 
-    const emoji = (x) => (emojiOk ? x : '');
+    // Header
+    if (tone.includes('coach')) lines.push(emoji('💪') + 'Bagrut Tutor (coach mode)');
+    else if (tone.includes('strict')) lines.push(emoji('🧠') + 'Bagrut Tutor (focused mode)');
+    else lines.push(emoji('🙂') + 'Bagrut Tutor (friendly mode)');
 
-    const lines = [];
-
-    // “Tutor personality” opener
-    if (tone.includes('coach')) lines.push(`${emoji('💪')} Let’s train this step by step.`);
-    else if (tone.includes('strict')) lines.push(`${emoji('🧠')} Focus. We’ll keep it clean and Bagrut-level.`);
-    else lines.push(`${emoji('🙂')} Got you. I’ll keep it Bagrut-level and clear.`);
-
-    // Adaptation note (AI brain + learning profile)
-    const adaptBits = [];
-    if (weak?.length) adaptBits.push(`I’ll slow down a bit on **${weak[0]}** since it looks like a weak spot.`);
-    if (strong?.length) adaptBits.push(`We’ll use your strength in **${strong[0]}** to connect ideas.`);
+    // Adaptation hints (from brain/profile)
+    const adaptBits: string[] = [];
+    if (weak.length) adaptBits.push(`Weak spot: ${weak[0]}`);
+    if (strong.length) adaptBits.push(`Strength: ${strong[0]}`);
     if (note) adaptBits.push(`Note: ${note}`);
-    if (adaptBits.length) lines.push(adaptBits.join(' '));
+    if (adaptBits.length) lines.push(adaptBits.join(' | '));
 
-    // Main explanation skeleton
     lines.push('');
-    lines.push(`**Your question:** ${question.trim()}`);
-    lines.push(`**Topic guess:** ${topic}`);
+    lines.push(`Bagrut level only.`);
+    lines.push(`Your question: ${question}`);
+    lines.push(`Topic guess: ${topic}`);
     lines.push('');
 
-    if (style.includes('example')) {
-      lines.push(`**Idea (simple):** ${this.oneLineExplanation(topic)}`);
-      lines.push(`**Example:** ${this.quickExample(topic)}`);
+    // Explanation
+    lines.push(emoji('📌') + 'Explanation:');
+    if (short || explainStyle.includes('simple')) {
+      lines.push(`- ${this.oneLineExplanation(topic)}`);
+      lines.push(`- Example: ${this.quickExample(topic)}`);
     } else {
-      lines.push(`**Idea (simple):** ${this.oneLineExplanation(topic)}`);
-      lines.push(`**Steps:**`);
-      lines.push(`1) ${this.stepOne(topic)}`);
-      lines.push(`2) ${this.stepTwo(topic)}`);
-      if (!short) lines.push(`3) ${this.stepThree(topic)}`);
+      lines.push('- Idea: ' + this.oneLineExplanation(topic));
+      lines.push('- Steps:');
+      lines.push('  1) ' + this.stepOne(topic));
+      lines.push('  2) ' + this.stepTwo(topic));
+      lines.push('  3) ' + this.stepThree(topic));
+      lines.push('- Example: ' + this.quickExample(topic));
     }
 
-    if (!short) {
+    // Materials (optional)
+    if (!short && excerpt) {
       lines.push('');
-      if (excerpt) lines.push(`**From materials:** ${excerpt}`);
-      lines.push(`**References:** ${refs}`);
+      lines.push(emoji('📚') + 'From your materials:');
+      lines.push(excerpt);
+    }
+    if (!short && refs) {
+      lines.push('');
+      lines.push(emoji('🔎') + 'References: ' + refs);
     }
 
-    // Mini quiz always
+    // Mini-quiz
     lines.push('');
-    const quiz = this.buildMiniQuiz({ subject: effective.subject, topic, verbosity: v, weak });
-    for (const q of quiz) lines.push(`- ${q}`);
+    lines.push(emoji('🧠') + 'Mini-quiz:');
+    const quiz = this.generateMiniQuiz({
+      subject: this.normalizeTutorSubject((args as any).subject ?? 'GENERAL'),
+      topic,
+      verbosity,
+    });
+    for (const q of quiz) lines.push('- ' + q);
 
-    if (med) {
-      lines.push('');
-      lines.push(`${emoji('✅')} Reply with your answers and I’ll correct them.`);
-    }
+    lines.push('');
+    lines.push(emoji('✅') + "Reply with your answers and I\'ll correct them.");
 
     return lines.join('\n');
   }
@@ -777,7 +809,7 @@ export class TutorService {
     return 'We identify the rule/definition, then apply it carefully with a small example.';
   }
   private quickExample(topic: string) {
-    if (topic === 'derivatives') return 'If f(x)=x^2, then f'(x)=2x, so at x=3 the slope is 6.';
+    if (topic === 'derivatives') return "If f(x)=x^2, then f\'(x)=2x, so at x=3 the slope is 6.";
     if (topic === 'kinematics') return 'If v0=0 and a=2, after 3s: v=v0+at=6 m/s.';
     return 'Example: pick simple numbers, apply the rule, and check units/logic.';
   }
