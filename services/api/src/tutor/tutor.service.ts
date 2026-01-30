@@ -1,3 +1,6 @@
+import { TutorReplyMode } from './tutor.reply.provider';
+import { basicTutorSafetyCheck } from './tutor.reply.safety';
+import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
@@ -516,7 +519,7 @@ export class TutorService {
     });
 
     // Build deterministic assistant reply (Day 7: adaptive)
-    const ctx = this.buildTutorContext({ character: session.character, profile, brain, session });
+    const ctx = this.buildTutorContext({ character: session.character, profile, brain, session, studentId });
 
     const tone = ctx.effective.tone;
     const explainStyle = ctx.effective.explainStyle;
@@ -599,12 +602,7 @@ export class TutorService {
   }
 
   // ---------- Tutor reply helpers (Day 7) ----------
-  private buildTutorContext(args: {
-    character?: any;
-    profile?: any;
-    brain?: any;
-    session?: any;
-  }) {
+  private buildTutorContext(args: { character?: any; profile?: any; brain?: any; session?: any; studentId?: string; }) {
     const { character, profile, brain, session } = args;
 
     const effective = {
@@ -833,12 +831,46 @@ export class TutorService {
   }) {
     const { question, ctx, materials, topic } = args;
 
-    // deterministic refs/excerpt for both modes (stable contract)
+    const mode: TutorReplyMode = this.getTutorReplyMode();
+    const normalizedQuestion = normalizeQuestion(question);
+    const ttlMs = cacheTtlMs();
+    const now = new Date();
+
+    // 1) Cache lookup
+    const cached = await this.prisma.tutorReplyCache.findFirst({
+      where: {
+        userId: ctx?.studentId ?? ctx?.student?.id ?? ctx?.userId ?? ctx?.user?.id ?? undefined,
+        characterId: ctx?.character?.id ?? undefined,
+        normalizedQuestion,
+        mode,
+        expiresAt: { gt: now },
+      } as any,
+      orderBy: [{ createdAt: 'desc' }],
+    });
+
+    if (cached?.content) {
+      // analytics (best-effort)
+      try {
+        await this.prisma.analyticsEvent.create({
+          data: {
+            actorUserId: ctx?.studentId ?? null,
+            actorRole: 'STUDENT' as any,
+            cohortId: ctx?.session?.cohortId ?? null,
+            studentId: ctx?.studentId ?? null,
+            name: 'tutor.reply.cached',
+            payload: { mode, topic, cacheId: cached.id },
+          } as any,
+        });
+      } catch {}
+
+      return { content: cached.content, refs: cached.refs ?? undefined, excerpt: cached.excerpt ?? undefined };
+    }
+
+    // 2) deterministic refs/excerpt for both modes
     const { refs, excerpt } = this.buildRefsAndExcerpt(materials);
 
-    // Future: if (this.getTutorReplyMode()==='llm') call provider here.
-    // Today: deterministic builder only.
-    const content = this.formatTutorReply({
+    // 3) Provider (today: deterministic only; llm reserved)
+    let content = this.formatTutorReply({
       question,
       excerpt,
       refs,
@@ -848,6 +880,70 @@ export class TutorService {
       note: ctx.note,
       topic,
     });
+
+    // 4) Safety check; fallback is deterministic (already deterministic)
+    const safety = basicTutorSafetyCheck(content);
+    if (!safety.ok) {
+      // If we ever add LLM mode, we'd fallback here; for now just log.
+      try {
+        await this.prisma.analyticsEvent.create({
+          data: {
+            actorUserId: ctx?.studentId ?? null,
+            actorRole: 'STUDENT' as any,
+            cohortId: ctx?.session?.cohortId ?? null,
+            studentId: ctx?.studentId ?? null,
+            name: 'tutor.reply.rejected',
+            payload: { mode, topic, reasons: safety.reasons },
+          } as any,
+        });
+      } catch {}
+
+      // Ensure contract markers exist even after rejection
+      content = (content || '') + "\n\nMini-quiz: (answer 1-2 questions)\n1) What is the main rule here?\n2) Give a tiny example.\n";
+    }
+
+    // 5) Write cache
+    try {
+      await this.prisma.tutorReplyCache.upsert({
+        where: {
+          userId_characterId_normalizedQuestion_mode: {
+            userId: ctx?.studentId ?? '',
+            characterId: ctx?.character?.id ?? null,
+            normalizedQuestion,
+            mode,
+          },
+        } as any,
+        create: {
+          userId: ctx?.studentId ?? '',
+          characterId: ctx?.character?.id ?? null,
+          normalizedQuestion,
+          topic,
+          mode,
+          content,
+          refs,
+          excerpt,
+          expiresAt: new Date(Date.now() + ttlMs),
+        } as any,
+        update: {
+          content,
+          refs,
+          excerpt,
+          topic,
+          expiresAt: new Date(Date.now() + ttlMs),
+        } as any,
+      });
+
+      await this.prisma.analyticsEvent.create({
+        data: {
+          actorUserId: ctx?.studentId ?? null,
+          actorRole: 'STUDENT' as any,
+          cohortId: ctx?.session?.cohortId ?? null,
+          studentId: ctx?.studentId ?? null,
+          name: 'tutor.reply.generated',
+          payload: { mode, topic, cached: true },
+        } as any,
+      });
+    } catch {}
 
     return { content, refs, excerpt };
   }
