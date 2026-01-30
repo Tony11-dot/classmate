@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class TutorService {
+  private replyRateStore = new Map<string, number[]>();
 
   private buildRefsAndExcerpt(materials: any[]) {
     const refs = materials?.length
@@ -465,6 +466,19 @@ export class TutorService {
   }
   async replyToSession(user: any, sessionId: string, dto: any) {
     const studentId = this.requireStudent(user);
+    const rl = require('./tutor.reply.safety');
+    const r = rl.rateLimitTutor({
+      key: String(studentId),
+      now: Date.now(),
+      windowMs: 60_000,
+      max: 12,
+      store: this.replyRateStore,
+    });
+    if (!r.ok) {
+      throw new (require('@nestjs/common').TooManyRequestsException)(
+        'Too many tutor replies. Please wait a bit.'
+      );
+    }
 
     const session = await this.prisma.tutorSession.findFirst({
       where: { id: sessionId, userId: studentId },
@@ -528,7 +542,26 @@ export class TutorService {
 
     const topic = this.guessTopic(question, materials, ctx.weak);
 
+    const t0 = Date.now();
     const gen = await this.generateAssistantReply({ question, ctx, materials, topic });
+    const latencyMs = Date.now() - t0;
+
+    await this.prisma.analyticsEvent.create({
+      data: {
+        actorUserId: studentId,
+        actorRole: 'STUDENT' as any,
+        cohortId: session.cohortId ?? null,
+        studentId,
+        name: 'tutor.reply.generated',
+        payload: {
+          mode: this.getTutorReplyMode(),
+          subject: session.character?.subject ?? null,
+          topic,
+          latencyMs,
+          refsCount: Array.isArray(gen.refs) ? gen.refs.length : String(gen.refs ?? '').split('|').filter(Boolean).length,
+        },
+      } as any,
+    });
 
     const assistantMsg = await this.prisma.tutorMessage.create({
       data: {

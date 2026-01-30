@@ -34,3 +34,22 @@ export function basicTutorSafetyCheck(content: string) {
     },
   };
 }
+
+export function rateLimitTutor(opts: {
+  key: string;
+  now: number;
+  windowMs?: number;
+  max?: number;
+  store: Map<string, number[]>;
+}) {
+  const windowMs = opts.windowMs ?? 60_000;
+  const max = opts.max ?? 10;
+  const arr = opts.store.get(opts.key) ?? [];
+  const fresh = arr.filter(t => opts.now - t < windowMs);
+  if (fresh.length >= max) {
+    return { ok: false, retryAfterMs: windowMs - (opts.now - fresh[0]) };
+  }
+  fresh.push(opts.now);
+  opts.store.set(opts.key, fresh);
+  return { ok: true };
+}
