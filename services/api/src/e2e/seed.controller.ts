@@ -293,6 +293,13 @@ export class E2ESeedController {
       characterIds: (await this.prisma.tutorCharacter.findMany({ select: { id: true, subject: true, name: true } })).map(x=>x),
     };
   }
+  @Post('clear-tutor-characters')
+  async clearTutorCharacters() {
+    // test-only: wipe characters so TutorService must re-create defaults
+    await this.prisma.tutorCharacter.deleteMany({});
+    return { ok: true };
+  }
+
   @Post('parent-web')
   async seedParentWeb(@Body() body: { runId?: string }) {
     const now = Date.now();
