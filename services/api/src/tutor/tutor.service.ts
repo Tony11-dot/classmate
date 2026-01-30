@@ -524,24 +524,14 @@ export class TutorService {
     const emojiOk = ctx.effective.emojiOk;
 
     const topic = this.guessTopic(question, materials, ctx.weak);
-    const { refs, excerpt } = this.buildRefsAndExcerpt(materials);
 
-    const assistantContent = this.formatTutorReply({
-      question,
-      excerpt,
-      refs,
-      effective: { ...ctx.effective, tone, explainStyle, verbosity, emojiOk },
-      weak: ctx.weak,
-      strong: ctx.strong,
-      note: ctx.note,
-      topic,
-    });
+    const gen = await this.generateAssistantReply({ question, ctx, materials, topic });
 
     const assistantMsg = await this.prisma.tutorMessage.create({
       data: {
         sessionId,
         role: 'ASSISTANT' as any,
-        content: assistantContent,
+        content: gen.content,
         sources: materials.map((m) => m.id),
       } as any,
     });
@@ -827,6 +817,39 @@ export class TutorService {
     if (topic === 'derivatives') return 'Simplify and (if asked) plug in the x value to get the slope at that point.';
     if (topic === 'kinematics') return 'Solve, then sanity-check sign and units (m/s, m/s^2, etc.).';
     return 'Check the result makes sense.';
+  }
+
+  private getTutorReplyMode() {
+    // deterministic (default) or llm (future swap)
+    const v = String(process.env.TUTOR_REPLY_MODE ?? 'deterministic').toLowerCase();
+    return v === 'llm' ? 'llm' : 'deterministic';
+  }
+
+  private async generateAssistantReply(args: {
+    question: string;
+    ctx: any;
+    materials: any[];
+    topic: string;
+  }) {
+    const { question, ctx, materials, topic } = args;
+
+    // deterministic refs/excerpt for both modes (stable contract)
+    const { refs, excerpt } = this.buildRefsAndExcerpt(materials);
+
+    // Future: if (this.getTutorReplyMode()==='llm') call provider here.
+    // Today: deterministic builder only.
+    const content = this.formatTutorReply({
+      question,
+      excerpt,
+      refs,
+      effective: ctx.effective,
+      weak: ctx.weak,
+      strong: ctx.strong,
+      note: ctx.note,
+      topic,
+    });
+
+    return { content, refs, excerpt };
   }
 
 
