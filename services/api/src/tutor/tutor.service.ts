@@ -17,7 +17,7 @@ export class TutorService {
   async getMyLearningProfile(user: any) {
     const studentId = this.requireStudent(user);
     const row = await this.prisma.learningProfile.findUnique({
-      where: { userId: studentId },
+      where: { userId: studentId,  },
     });
     return { ok: true, profile: row };
   }
@@ -119,7 +119,19 @@ export class TutorService {
   async createSession(user: any, dto: any) {
     const studentId = this.requireStudent(user);
     const subject = dto?.subject ? String(dto.subject) : 'GENERAL';
-    const characterId = dto?.characterId ? String(dto.characterId) : null;
+    const subjectNorm = this.normalizeTutorSubject(subject);
+    const requestedCharacterId = dto?.characterId ? String(dto.characterId) : null;
+
+    let characterId: string | null = requestedCharacterId;
+    if (!characterId) {
+      // prefer non-cohort character for now; later we can scope per cohort/school
+      const ch = await this.prisma.tutorCharacter.findFirst({
+        where: { subject: subjectNorm as any, cohortId: null },
+        select: { id: true },
+      });
+      characterId = ch?.id ?? null;
+    }
+    const inputCharacterId = dto?.characterId ? String(dto.characterId) : null;
 
     const row = await this.prisma.tutorSession.create({
       data: {
@@ -133,7 +145,7 @@ export class TutorService {
     return { ok: true, session: row };
   }
 
-  async listSessions(user: any) {
+  async listSessions(user: any, query?: { characterId?: string }) {
     const studentId = this.requireStudent(user);
     const rows = await this.prisma.tutorSession.findMany({
       where: { userId: studentId },
@@ -496,5 +508,90 @@ export class TutorService {
 
     return { ok: true, userMessage: userMsg, assistantMessage: assistantMsg };
   }
+
+
+  private normalizeTutorSubject(raw?: string) {
+    const v = String(raw ?? '').trim().toUpperCase();
+    if (!v) return 'GENERAL';
+    // allow synonyms
+    if (v === 'MATH' || v === 'MATHEMATICS') return 'MATH';
+    if (v === 'PHYSICS' || v === 'PHY') return 'PHYSICS';
+    if (v === 'CS' || v === 'COMPUTER_SCIENCE' || v === 'COMPUTERSCIENCE') return 'CS';
+    if (v === 'ENGLISH' || v === 'ENG') return 'ENGLISH';
+    if (v === 'HEBREW') return 'HEBREW';
+    if (v === 'ARABIC') return 'ARABIC';
+    return 'GENERAL';
+  }
+
+  private defaultCharacterName(subject: string) {
+    switch (subject) {
+      case 'MATH': return 'Math Tutor';
+      case 'PHYSICS': return 'Physics Tutor';
+      case 'CS': return 'CS Tutor';
+      case 'ENGLISH': return 'English Tutor';
+      case 'HEBREW': return 'Hebrew Tutor';
+      case 'ARABIC': return 'Arabic Tutor';
+      default: return 'General Tutor';
+    }
+  }
+
+
+
+  async listCharacters(user: any, query?: { subject?: string }) {
+    // students/admin/secretary allowed (controller will guard)
+    const subject = query?.subject ? this.normalizeTutorSubject(query.subject) : undefined;
+
+    const rows = await this.prisma.tutorCharacter.findMany({
+      where: {
+        ...(subject ? { subject: subject as any } : {}),
+      },
+      orderBy: [{ subject: 'asc' }, { name: 'asc' }],
+      take: 200,
+    });
+
+    return { ok: true, characters: rows };
+  }
+
+
+
+  async ensureDefaultCharacters(user: any, dto?: any) {
+    const roles: string[] = user?.roles ?? [];
+    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+      throw new ForbiddenException('Admin/Secretary only');
+    }
+
+    const cohortId = dto?.cohortId ? String(dto.cohortId) : null;
+
+    const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'];
+    const created: any[] = [];
+    for (const subj of subjects) {
+      const existing = await this.prisma.tutorCharacter.findFirst({
+        where: { subject: subj as any, ...(cohortId ? { cohortId } : { cohortId: null }) },
+        select: { id: true },
+      });
+      if (existing) continue;
+
+      const row = await this.prisma.tutorCharacter.create({
+        data: {
+          cohortId,
+          subject: subj as any,
+          name: this.defaultCharacterName(subj),
+          curriculum: 'bagrut',
+          maxGrade: 12,
+          language: 'en',
+          tone: subj === 'PHYSICS' ? 'focused' : 'friendly',
+          verbosity: 5,
+          explainStyle: 'step-by-step',
+          systemNotes:
+            'Use Bagrut-level explanations only. Adapt tone/verbosity to learning profile. Ask short mini-quiz questions.',
+        } as any,
+      });
+
+      created.push(row);
+    }
+
+    return { ok: true, createdCount: created.length, created };
+  }
+
 
 }
