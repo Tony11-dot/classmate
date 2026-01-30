@@ -450,17 +450,16 @@ export class TutorService {
       } as any,
     });
 
-    // Build deterministic assistant reply (LLM comes later; today we make it feel like a real tutor)
-    const tone = profile?.tone ?? session.character?.tone ?? 'friendly';
-    const explainStyle = profile?.explainStyle ?? session.character?.explainStyle ?? 'step-by-step';
-    const verbosity = typeof profile?.verbosity === 'number' ? profile.verbosity : (typeof session.character?.verbosity === 'number' ? session.character.verbosity : 6);
-    const emojiOk = profile?.emojiOk !== undefined ? Boolean(profile.emojiOk) : true;
+    // Build deterministic assistant reply (Day 7: adaptive)
+    const ctx = this.buildTutorContext({ character: session.character, profile, brain, session });
 
-    const brainHint = brain?.metrics ? JSON.stringify(brain.metrics).slice(0, 240) : '(none yet)';
-    const refs = materials.length ? materials.map((m) => m.title).slice(0, 5).join(' | ') : '(no materials found)';
-    const excerpt = materials.length ? String(materials[0].content ?? '').slice(0, 260) : '';
+    const tone = ctx.effective.tone;
+    const explainStyle = ctx.effective.explainStyle;
+    const verbosity = ctx.effective.verbosity;
+    const emojiOk = ctx.effective.emojiOk;
 
-    const short = verbosity <= 3;
+    const topic = this.guessTopic(question, materials, ctx.weak);
+
     const strict = String(tone).toLowerCase().includes('strict');
     const stepEmoji = emojiOk ? (strict ? '➡️ ' : '👉 ') : '';
     const warnEmoji = emojiOk ? '⚠️ ' : '';
@@ -595,6 +594,209 @@ export class TutorService {
     await this.ensureGlobalDefaultCharacters();
     return { ok: true };
   }
+
+  // ---------- Tutor reply helpers (Day 7) ----------
+  private buildTutorContext(args: {
+    character?: any;
+    profile?: any;
+    brain?: any;
+    session?: any;
+  }) {
+    const { character, profile, brain, session } = args;
+
+    const effective = {
+      curriculum: profile?.targetCurriculum ?? character?.curriculum ?? 'bagrut',
+      grade: profile?.targetGrade ?? character?.maxGrade ?? 12,
+      language: profile?.preferredLanguage ?? character?.language ?? 'en',
+      tone: profile?.tone ?? character?.tone ?? 'friendly',
+      explainStyle: profile?.explainStyle ?? character?.explainStyle ?? 'step-by-step',
+      verbosity:
+        typeof profile?.verbosity === 'number'
+          ? profile.verbosity
+          : (typeof character?.verbosity === 'number' ? character.verbosity : 6),
+      emojiOk: profile?.emojiOk !== undefined ? Boolean(profile.emojiOk) : true,
+      systemNotes: character?.systemNotes ?? '',
+      subject: character?.subject ?? session?.subject ?? 'GENERAL',
+    };
+
+    // Brain-derived hints (best effort)
+    const brainMetrics = brain?.metrics ?? null;
+    const weak = Array.isArray(brainMetrics?.weak) ? brainMetrics.weak.map(String) : [];
+    const strong = Array.isArray(brainMetrics?.strong) ? brainMetrics.strong.map(String) : [];
+    const note = brainMetrics?.note ? String(brainMetrics.note) : '';
+
+    return { effective, weak, strong, note, brainMetrics };
+  }
+
+  private guessTopic(question: string, materials: any[], weak: string[]) {
+    const q = (question ?? '').toLowerCase();
+    const fromWeak = weak.map(w => String(w).toLowerCase());
+    const fromMaterials = (materials ?? []).map((m) => String(m?.title ?? '') + ' ' + String(m?.tags ?? '')).join(' ').toLowerCase();
+
+    const hay = q + ' ' + fromMaterials + ' ' + fromWeak.join(' ');
+    if (hay.includes('deriv')) return 'derivatives';
+    if (hay.includes('integral')) return 'integrals';
+    if (hay.includes('kinematic') || hay.includes('acceleration') || hay.includes('velocity') || hay.includes('free fall')) return 'kinematics';
+    if (hay.includes('ohm') || hay.includes('circuit') || hay.includes('resistance')) return 'electricity';
+    if (hay.includes('loop') || hay.includes('array') || hay.includes('function')) return 'programming basics';
+    return 'general';
+  }
+
+  private buildMiniQuiz(args: {
+    subject: string;
+    topic: string;
+    verbosity: number;
+    weak: string[];
+  }) {
+    const subject = String(args.subject ?? 'GENERAL').toUpperCase();
+    const topic = String(args.topic ?? 'general').toLowerCase();
+    const v = Number(args.verbosity ?? 6);
+
+    // difficulty heuristic: lower verbosity => simpler quiz
+    const easy = v <= 4;
+
+    if (subject.includes('MATH')) {
+      if (topic === 'derivatives') {
+        return easy
+          ? [
+              'Mini-quiz: What is d/dx(x^2)?',
+              'Mini-quiz: What is the slope (derivative) of a constant function?',
+            ]
+          : [
+              'Mini-quiz: Differentiate f(x)=3x^3−2x. Show steps.',
+              'Mini-quiz: If f'(a)=0, what can that mean about the graph at x=a?',
+            ];
+      }
+      return easy
+        ? ['Mini-quiz: Solve 2x+5=13.', 'Mini-quiz: What is the slope between (1,2) and (3,6)?']
+        : ['Mini-quiz: Simplify (x^2−9)/(x−3).', 'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).'];
+    }
+
+    if (subject.includes('PHYS')) {
+      if (topic === 'kinematics') {
+        return easy
+          ? [
+              'Mini-quiz: If v0=0 and a=2 m/s^2, what is v after 3 s?',
+              'Mini-quiz: In free fall (no air), what is g approximately?',
+            ]
+          : [
+              'Mini-quiz: A car goes from 10 m/s to 25 m/s in 5 s. Find a.',
+              'Mini-quiz: Using v^2=v0^2+2aΔx, compute stopping distance if v0=20 m/s and a=−4 m/s^2.',
+            ];
+      }
+      return easy
+        ? ['Mini-quiz: What are the units of acceleration?', 'Mini-quiz: If distance is 0, what is displacement?']
+        : ['Mini-quiz: Explain the difference between speed and velocity with an example.', 'Mini-quiz: Give one situation where acceleration is negative.'];
+    }
+
+    if (subject.includes('CS')) {
+      return easy
+        ? ['Mini-quiz: What is a variable?', 'Mini-quiz: What does a for-loop do?']
+        : ['Mini-quiz: What’s the difference between a function parameter and an argument?', 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
+    }
+
+    return ['Mini-quiz: Summarize the key idea in 1 sentence.', 'Mini-quiz: Give one example that matches the idea.'];
+  }
+
+  private formatTutorReply(args: {
+    question: string;
+    excerpt: string;
+    refs: string;
+    effective: any;
+    weak: string[];
+    strong: string[];
+    note: string;
+    topic: string;
+  }) {
+    const { question, excerpt, refs, effective, weak, strong, note, topic } = args;
+
+    const tone = String(effective.tone ?? 'friendly').toLowerCase();
+    const style = String(effective.explainStyle ?? 'step-by-step').toLowerCase();
+    const v = Number(effective.verbosity ?? 6);
+    const emojiOk = Boolean(effective.emojiOk ?? true);
+
+    const short = v <= 3;
+    const med = v >= 4 && v <= 6;
+
+    const emoji = (x) => (emojiOk ? x : '');
+
+    const lines = [];
+
+    // “Tutor personality” opener
+    if (tone.includes('coach')) lines.push(`${emoji('💪')} Let’s train this step by step.`);
+    else if (tone.includes('strict')) lines.push(`${emoji('🧠')} Focus. We’ll keep it clean and Bagrut-level.`);
+    else lines.push(`${emoji('🙂')} Got you. I’ll keep it Bagrut-level and clear.`);
+
+    // Adaptation note (AI brain + learning profile)
+    const adaptBits = [];
+    if (weak?.length) adaptBits.push(`I’ll slow down a bit on **${weak[0]}** since it looks like a weak spot.`);
+    if (strong?.length) adaptBits.push(`We’ll use your strength in **${strong[0]}** to connect ideas.`);
+    if (note) adaptBits.push(`Note: ${note}`);
+    if (adaptBits.length) lines.push(adaptBits.join(' '));
+
+    // Main explanation skeleton
+    lines.push('');
+    lines.push(`**Your question:** ${question.trim()}`);
+    lines.push(`**Topic guess:** ${topic}`);
+    lines.push('');
+
+    if (style.includes('example')) {
+      lines.push(`**Idea (simple):** ${this.oneLineExplanation(topic)}`);
+      lines.push(`**Example:** ${this.quickExample(topic)}`);
+    } else {
+      lines.push(`**Idea (simple):** ${this.oneLineExplanation(topic)}`);
+      lines.push(`**Steps:**`);
+      lines.push(`1) ${this.stepOne(topic)}`);
+      lines.push(`2) ${this.stepTwo(topic)}`);
+      if (!short) lines.push(`3) ${this.stepThree(topic)}`);
+    }
+
+    if (!short) {
+      lines.push('');
+      if (excerpt) lines.push(`**From materials:** ${excerpt}`);
+      lines.push(`**References:** ${refs}`);
+    }
+
+    // Mini quiz always
+    lines.push('');
+    const quiz = this.buildMiniQuiz({ subject: effective.subject, topic, verbosity: v, weak });
+    for (const q of quiz) lines.push(`- ${q}`);
+
+    if (med) {
+      lines.push('');
+      lines.push(`${emoji('✅')} Reply with your answers and I’ll correct them.`);
+    }
+
+    return lines.join('\n');
+  }
+
+  private oneLineExplanation(topic: string) {
+    if (topic === 'derivatives') return 'A derivative is the slope of the tangent line (rate of change) at a point.';
+    if (topic === 'kinematics') return 'Kinematics connects position, velocity, acceleration using constant-acceleration formulas.';
+    if (topic === 'programming basics') return 'Programming is giving the computer step-by-step instructions with variables and control flow.';
+    return 'We identify the rule/definition, then apply it carefully with a small example.';
+  }
+  private quickExample(topic: string) {
+    if (topic === 'derivatives') return 'If f(x)=x^2, then f'(x)=2x, so at x=3 the slope is 6.';
+    if (topic === 'kinematics') return 'If v0=0 and a=2, after 3s: v=v0+at=6 m/s.';
+    return 'Example: pick simple numbers, apply the rule, and check units/logic.';
+  }
+  private stepOne(topic: string) {
+    if (topic === 'derivatives') return 'Write the function clearly and choose the rule (power rule / sum rule).';
+    if (topic === 'kinematics') return 'List known values (v0, v, a, t, Δx) with units.';
+    return 'State the definition/rule you will use.';
+  }
+  private stepTwo(topic: string) {
+    if (topic === 'derivatives') return 'Differentiate term-by-term (e.g., d/dx(x^n)=n·x^(n−1)).';
+    if (topic === 'kinematics') return 'Pick the correct constant-acceleration formula that fits the knowns.';
+    return 'Substitute values carefully.';
+  }
+  private stepThree(topic: string) {
+    if (topic === 'derivatives') return 'Simplify and (if asked) plug in the x value to get the slope at that point.';
+    if (topic === 'kinematics') return 'Solve, then sanity-check sign and units (m/s, m/s^2, etc.).';
+    return 'Check the result makes sense.';
+  }
+
 
 
 
