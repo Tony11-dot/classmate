@@ -17,7 +17,7 @@ export class TutorService {
   async getMyLearningProfile(user: any) {
     const studentId = this.requireStudent(user);
     const row = await this.prisma.learningProfile.findUnique({
-      where: { userId: studentId,  },
+      where: { userId: studentId },
     });
     return { ok: true, profile: row };
   }
@@ -122,23 +122,62 @@ export class TutorService {
     const subjectNorm = this.normalizeTutorSubject(subject);
     const requestedCharacterId = dto?.characterId ? String(dto.characterId) : null;
 
+    // cohortId from student profile (best-effort)
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+
+    const cohortId = sp?.cohortId ?? null;
+
     let characterId: string | null = requestedCharacterId;
+
+    // Resolve default character if none provided
     if (!characterId) {
-      // prefer non-cohort character for now; later we can scope per cohort/school
-      const ch = await this.prisma.tutorCharacter.findFirst({
-        where: { subject: subjectNorm as any, cohortId: null },
-        select: { id: true },
-      });
-      characterId = ch?.id ?? null;
+      // 1) cohort + subject
+      if (cohortId) {
+        const ch1 = await this.prisma.tutorCharacter.findFirst({
+          where: { cohortId, subject: subjectNorm as any },
+          select: { id: true },
+        });
+        characterId = ch1?.id ?? null;
+
+        // 2) cohort + GENERAL
+        if (!characterId) {
+          const ch2 = await this.prisma.tutorCharacter.findFirst({
+            where: { cohortId, subject: 'GENERAL' as any },
+            select: { id: true },
+          });
+          characterId = ch2?.id ?? null;
+        }
+      }
+
+      // 3) global + subject
+      if (!characterId) {
+        const ch3 = await this.prisma.tutorCharacter.findFirst({
+          where: { cohortId: null, subject: subjectNorm as any },
+          select: { id: true },
+        });
+        characterId = ch3?.id ?? null;
+      }
+
+      // 4) global + GENERAL
+      if (!characterId) {
+        const ch4 = await this.prisma.tutorCharacter.findFirst({
+          where: { cohortId: null, subject: 'GENERAL' as any },
+          select: { id: true },
+        });
+        characterId = ch4?.id ?? null;
+      }
     }
-    const inputCharacterId = dto?.characterId ? String(dto.characterId) : null;
 
     const row = await this.prisma.tutorSession.create({
       data: {
         userId: studentId,
-        subject,
+        cohortId: cohortId ?? undefined,
         characterId: characterId ?? undefined,
         title: dto?.title ? String(dto.title) : null,
+        topic: dto?.topic ? String(dto.topic) : null,
       } as any,
     });
 

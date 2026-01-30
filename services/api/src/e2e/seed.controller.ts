@@ -11,53 +11,7 @@ export class E2ESeedController {
     const now = Date.now();
     const passwordHash = await bcrypt.hash('dev', 10);
 
-    // --- Tutor characters (Day 2) ---
-    const mathTutor = await this.prisma.tutorCharacter.create({
-      data: {
-        subject: 'MATH',
-        name: 'Math Tutor',
-        curriculum: 'bagrut',
-        maxGrade: 12,
-        language: 'en',
-        tone: 'friendly',
-        verbosity: 6,
-        explainStyle: 'step-by-step',
-        systemNotes: 'Answer only in Bagrut level. Avoid university-level depth.',
-      } as any,
-      select: { id: true },
-    });
-
-    const physicsTutor = await this.prisma.tutorCharacter.create({
-      data: {
-        subject: 'PHYSICS',
-        name: 'Physics Tutor',
-        curriculum: 'bagrut',
-        maxGrade: 12,
-        language: 'en',
-        tone: 'coach',
-        verbosity: 6,
-        explainStyle: 'examples',
-        systemNotes: 'Use Bagrut physics style, constant acceleration assumptions unless asked otherwise.',
-      } as any,
-      select: { id: true },
-    });
-
-    const csTutor = await this.prisma.tutorCharacter.create({
-      data: {
-        subject: 'CS',
-        name: 'CS Tutor',
-        curriculum: 'bagrut',
-        maxGrade: 12,
-        language: 'en',
-        tone: 'friendly',
-        verbosity: 5,
-        explainStyle: 'step-by-step',
-        systemNotes: 'Keep it high-school level, avoid advanced CS theory unless requested.',
-      } as any,
-      select: { id: true },
-    });
-
-
+    
     const teacher = await this.prisma.user.upsert({
       where: { email: 'teacher1@classmate.app' },
       update: { password: passwordHash, name: 'Teacher One' },
@@ -98,18 +52,15 @@ export class E2ESeedController {
       data: { name: `e2e-cohort-${now}`, grade: 10 },
       select: { id: true },
     });
-    // Tutor seed: default characters (global scope)
+
+    // Tutor seed: default characters (cohort scope)
     const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'] as const;
-    const tutorCharacters: any[] = [];
+    const createdBySubject: Record<string, any> = {};
+
     for (const subj of subjects) {
-      const existing = await this.prisma.tutorCharacter.findFirst({
-        where: { subject: subj as any, cohortId: null },
-        select: { id: true },
-      });
-      if (existing) continue;
       const created = await this.prisma.tutorCharacter.create({
         data: {
-          cohortId: null,
+          cohortId: cohort.id,
           subject: subj as any,
           name: subj === 'MATH' ? 'Math Tutor'
             : subj === 'PHYSICS' ? 'Physics Tutor'
@@ -121,14 +72,19 @@ export class E2ESeedController {
           curriculum: 'bagrut',
           maxGrade: 12,
           language: 'en',
-          tone: 'friendly',
+          tone: subj === 'PHYSICS' ? 'coach' : 'friendly',
           verbosity: 5,
-          explainStyle: 'step-by-step',
+          explainStyle: subj === 'PHYSICS' ? 'examples' : 'step-by-step',
           systemNotes: 'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
         } as any,
+        select: { id: true, subject: true, name: true },
       });
-      tutorCharacters.push(created);
+      createdBySubject[String(subj)] = created;
     }
+
+    const mathTutor = createdBySubject.MATH;
+    const physicsTutor = createdBySubject.PHYSICS;
+    const csTutor = createdBySubject.CS;
 
 
     const course = await this.prisma.course.create({
