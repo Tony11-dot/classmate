@@ -25,16 +25,23 @@ export class TutorService {
   async upsertMyLearningProfile(user: any, dto: any) {
     const studentId = this.requireStudent(user);
 
-    // Keep it flexible for now (dto can contain style, goals, pacing, etc.)
     const data: any = {
       userId: studentId,
+
+      targetCurriculum: dto?.targetCurriculum ?? undefined,
+      targetGrade: dto?.targetGrade !== undefined ? Number(dto.targetGrade) : undefined,
       preferredLanguage: dto?.preferredLanguage ?? undefined,
+
       tone: dto?.tone ?? undefined,
-      pacing: dto?.pacing ?? undefined,
-      difficultyCeiling: dto?.difficultyCeiling ?? undefined,
-      bagrutLevel: dto?.bagrutLevel ?? undefined,
-      subjects: dto?.subjects ?? undefined,
-      notes: dto?.notes ?? undefined,
+      verbosity: dto?.verbosity !== undefined ? Number(dto.verbosity) : undefined,
+      explainStyle: dto?.explainStyle ?? undefined,
+      emojiOk: dto?.emojiOk !== undefined ? Boolean(dto.emojiOk) : undefined,
+
+      strengths: Array.isArray(dto?.strengths) ? dto.strengths.map(String) : undefined,
+      weaknesses: Array.isArray(dto?.weaknesses) ? dto.weaknesses.map(String) : undefined,
+      goals: Array.isArray(dto?.goals) ? dto.goals.map(String) : undefined,
+
+      maxDepth: dto?.maxDepth !== undefined ? Number(dto.maxDepth) : undefined,
     };
 
     const row = await this.prisma.learningProfile.upsert({
@@ -183,15 +190,116 @@ export class TutorService {
   }
 
   // ---------- Brain snapshot (read only for now) ----------
-  async getMyBrainSnapshot(user: any, subject?: string) {
+  async getMyBrainSnapshot(user: any) {
     const studentId = this.requireStudent(user);
     const row = await this.prisma.studentBrainSnapshot.findFirst({
-      where: {
-        userId: studentId,
-        ...(subject ? { subject: String(subject) } : {}),
-      },
+      where: { userId: studentId },
       orderBy: [{ createdAt: 'desc' }],
     });
     return { ok: true, snapshot: row };
   }
+
+  // ---------- Tutor runtime (reply) ----------
+  async replyToSession(user: any, sessionId: string, dto: any) {
+    const studentId = this.requireStudent(user);
+
+    const session = await this.prisma.tutorSession.findFirst({
+      where: { id: sessionId, userId: studentId },
+      include: { character: true },
+    });
+    if (!session) throw new ForbiddenException('Not found');
+
+    const question = dto?.content ? String(dto.content) : '';
+    if (!question.trim()) throw new BadRequestException('content required');
+
+    const profile = await this.prisma.learningProfile.findUnique({
+      where: { userId: studentId },
+    });
+
+    const brain = await this.prisma.studentBrainSnapshot.findFirst({
+      where: { userId: studentId },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+
+    const subj = session.character?.subject && String(session.character.subject) !== 'GENERAL'
+      ? String(session.character.subject)
+      : undefined;
+
+    const grade = profile?.targetGrade ?? session.character?.maxGrade ?? undefined;
+    const language = profile?.preferredLanguage ?? session.character?.language ?? undefined;
+
+    // Retrieve some materials (simple contains search)
+    const q = question.trim();
+    const materials = await this.prisma.material.findMany({
+      where: {
+        ...(subj ? { subject: subj } : {}),
+        ...(grade !== undefined ? { grade: Number(grade) } : {}),
+        ...(language ? { language: String(language) } : {}),
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { content: { contains: q, mode: 'insensitive' } },
+          { tags: { has: q } },
+        ],
+      } as any,
+      orderBy: [{ createdAt: 'desc' }],
+      take: 8,
+    });
+
+    // Store USER message
+    const userMsg = await this.prisma.tutorMessage.create({
+      data: {
+        sessionId,
+        role: 'USER' as any,
+        content: question,
+        sources: [],
+      } as any,
+    });
+
+    // Build deterministic assistant reply (LLM comes Day 4)
+    const tone = profile?.tone ?? session.character?.tone ?? 'friendly';
+    const explainStyle = profile?.explainStyle ?? session.character?.explainStyle ?? 'step-by-step';
+    const brainHint = brain?.metrics ? JSON.stringify(brain.metrics).slice(0, 240) : '(none yet)';
+    const refs = materials.length ? materials.map((m) => m.title).slice(0, 5).join(' | ') : '(no materials found)';
+
+    const reply =
+      'Bagrut-level tutor reply\n'
+      + 'Style: ' + tone + ', ' + explainStyle + '\n'
+      + 'AI Brain: ' + brainHint + '\n'
+      + 'Sources: ' + refs + '\n\n'
+      + 'Q: ' + question + '\n\n'
+      + 'Answer (Bagrut scope):\n'
+      + '1) Key idea\n'
+      + '2) Small example\n'
+      + '3) Common mistake\n'
+      + '4) Quick check question';
+
+    // Store ASSISTANT message
+    const assistantMsg = await this.prisma.tutorMessage.create({
+      data: {
+        sessionId,
+        role: 'ASSISTANT' as any,
+        content: reply,
+        sources: materials.map((m) => m.id),
+      } as any,
+    });
+
+    await this.prisma.analyticsEvent.create({
+      data: {
+        actorUserId: studentId,
+        actorRole: 'STUDENT' as any,
+        cohortId: session.cohortId ?? null,
+        courseId: session.courseId ?? null,
+        studentId,
+        name: 'tutor.reply.generated',
+        payload: {
+          sessionId,
+          characterId: session.characterId,
+          materialsUsed: materials.map((m) => m.id),
+        },
+      } as any,
+    });
+
+    return { ok: true, userMessage: userMsg, assistantMessage: assistantMsg };
+  }
+
 }

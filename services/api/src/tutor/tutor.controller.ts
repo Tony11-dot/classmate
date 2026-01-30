@@ -23,8 +23,8 @@ export class TutorController {
   // ---- Brain snapshot (read) ----
   @Roles('STUDENT','ADMIN')
   @Get('me/brain')
-  getMyBrain(@Req() req: any, @Query('subject') subject?: string) {
-    return this.svc.getMyBrainSnapshot(req.user, subject);
+  getMyBrain(@Req() req: any) {
+    return this.svc.getMyBrainSnapshot(req.user);
   }
 
   // ---- Materials ----
@@ -75,5 +75,10 @@ export class TutorController {
   @Post('sessions/:id/messages')
   addMessage(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.addMessage(req.user, id, body);
+  }
+  @Roles('STUDENT','ADMIN')
+  @Post('sessions/:id/reply')
+  reply(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.svc.replyToSession(req.user, id, body);
   }
 }

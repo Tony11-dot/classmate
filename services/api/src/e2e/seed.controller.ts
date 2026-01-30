@@ -109,6 +109,7 @@ export class E2ESeedController {
       select: { id: true, name: true, subject: true },
     });
 
+
     // --- extra teacher/cohort/course for isolation tests ---
     const cohort2 = await this.prisma.cohort.create({
       data: { name: `e2e-cohort2-${now}`, grade: 10 },
@@ -160,6 +161,32 @@ export class E2ESeedController {
       },
       select: { id: true, email: true },
     });
+    // Tutor seed: one Bagrut material + brain snapshot
+    await this.prisma.material.create({
+      data: {
+        title: `Bagrut: Derivative basics (${now})`,
+        subject: 'MATH',
+        grade: 11,
+        language: 'en',
+        source: 'BAGrut',
+        content: 'Derivative definition: slope of tangent. Basic rules: power rule, sum rule. Example: d/dx(x^2)=2x.',
+        tags: ['derivative', 'calculus', 'bagrut'],
+      } as any,
+    });
+
+    await this.prisma.studentBrainSnapshot.create({
+      data: {
+        userId: student.id,
+        cohortId: cohort.id,
+        metrics: {
+          subjects: {
+            MATH: { avg: 78, trend: 'up', weak: ['derivatives'], strong: ['algebra'] },
+          },
+          note: 'Prefers step-by-step and short quizzes.',
+        },
+      } as any,
+    });
+
     const parent = await this.prisma.user.upsert({
       where: { email: 'parent1@classmate.app' },
       update: { password: passwordHash, name: 'Parent One' },
