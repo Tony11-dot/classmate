@@ -186,8 +186,13 @@ export class TutorService {
 
   async listSessions(user: any, query?: { characterId?: string }) {
     const studentId = this.requireStudent(user);
+    const characterId = query?.characterId ? String(query.characterId) : null;
+
     const rows = await this.prisma.tutorSession.findMany({
-      where: { userId: studentId },
+      where: {
+        userId: studentId,
+        ...(characterId ? { characterId } : {}),
+      },
       orderBy: [{ createdAt: 'desc' }],
       take: 50,
     });

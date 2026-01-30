@@ -66,8 +66,8 @@ export class TutorController {
 
   @Roles('STUDENT','ADMIN')
   @Get('sessions')
-  listSessions(@Req() req: any) {
-    return this.svc.listSessions(req.user);
+  listSessions(@Req() req: any, @Query('characterId') characterId?: string) {
+    return this.svc.listSessions(req.user, { characterId });
   }
 
   @Roles('STUDENT','ADMIN')
