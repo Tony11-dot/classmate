@@ -44,6 +44,8 @@ test('tutor reply stores assistant message and sources', async () => {
   const rj = await r.json();
   expect(rj.assistantMessage?.id).toBeTruthy();
   expect(typeof rj.assistantMessage?.content).toBe('string');
+  expect(rj.assistantMessage.content).toContain('Mini-quiz');
+  expect(rj.assistantMessage.content).toContain('Reply with your quiz answers');
   expect(Array.isArray(rj.assistantMessage?.sources)).toBeTruthy();
 
   // should usually have at least 1 source because we seeded a derivative material
