@@ -864,46 +864,39 @@ export class TutorService {
   }) {
     const { question, ctx, materials, topic } = args;
 
-    const mode: TutorReplyMode = this.getTutorReplyMode();
-    const normalizedQuestion = normalizeQuestion(question);
-    const ttlMs = cacheTtlMs();
-    const now = new Date();
-
-    // 1) Cache lookup
-    const cached = await this.prisma.tutorReplyCache.findFirst({
-      where: {
-        userId: ctx?.studentId ?? ctx?.student?.id ?? ctx?.userId ?? ctx?.user?.id ?? undefined,
-        characterId: ctx?.character?.id ?? undefined,
-        normalizedQuestion,
-        mode,
-        expiresAt: { gt: now },
-      } as any,
-      orderBy: [{ createdAt: 'desc' }],
-    });
-
-    if (cached?.content) {
-      // analytics (best-effort)
-      try {
-        await this.prisma.analyticsEvent.create({
-          data: {
-            actorUserId: ctx?.studentId ?? null,
-            actorRole: 'STUDENT' as any,
-            cohortId: ctx?.session?.cohortId ?? null,
-            studentId: ctx?.studentId ?? null,
-            name: 'tutor.reply.cached',
-            payload: { mode, topic, cacheId: cached.id },
-          } as any,
-        });
-      } catch {}
-
-      return { content: cached.content, refs: cached.refs ?? undefined, excerpt: cached.excerpt ?? undefined };
-    }
-
-    // 2) deterministic refs/excerpt for both modes
+    // deterministic refs/excerpt for both modes (stable contract)
     const { refs, excerpt } = this.buildRefsAndExcerpt(materials);
 
-    // 3) Provider (today: deterministic only; llm reserved)
-    let content = this.formatTutorReply({
+    // Cache key: stable + deterministic
+    const key = this.replyCacheKey({
+      studentId: String(ctx?.studentId ?? ''),
+      characterId: String(ctx?.character?.id ?? ''),
+      subject: String(ctx?.effective?.subject ?? ''),
+      topic: String(topic ?? ''),
+      question: String(question ?? ''),
+      refs,
+      excerpt,
+    });
+
+    // try cache
+    const hit = await this.readReplyCache(key);
+    if (hit?.content) {
+      await this.prisma.analyticsEvent.create({
+        data: {
+          actorUserId: String(ctx?.studentId ?? null) || null,
+          actorRole: 'STUDENT' as any,
+          cohortId: ctx?.session?.cohortId ?? null,
+          studentId: String(ctx?.studentId ?? null) || null,
+          name: 'tutor.reply.cache.hit',
+          payload: { key },
+        } as any,
+      });
+      return { content: String(hit.content), refs, excerpt };
+    }
+
+    // Future: if (this.getTutorReplyMode()==='llm') call provider here.
+    // Today: deterministic builder only.
+    const content = this.formatTutorReply({
       question,
       excerpt,
       refs,
@@ -914,75 +907,58 @@ export class TutorService {
       topic,
     });
 
-    // 4) Safety check; fallback is deterministic (already deterministic)
-    const safety = basicTutorSafetyCheck(content);
-    if (!safety.ok) {
-      // If we ever add LLM mode, we'd fallback here; for now just log.
-      try {
-        await this.prisma.analyticsEvent.create({
-          data: {
-            actorUserId: ctx?.studentId ?? null,
-            actorRole: 'STUDENT' as any,
-            cohortId: ctx?.session?.cohortId ?? null,
-            studentId: ctx?.studentId ?? null,
-            name: 'tutor.reply.rejected',
-            payload: { mode, topic, reasons: safety.reasons },
-          } as any,
-        });
-      } catch {}
+    await this.writeReplyCache(key, content);
 
-      // Ensure contract markers exist even after rejection
-      content = (content || '') + "\n\nMini-quiz: (answer 1-2 questions)\n1) What is the main rule here?\n2) Give a tiny example.\n";
-    }
-
-    // 5) Write cache
-    try {
-      await this.prisma.tutorReplyCache.upsert({
-        where: {
-          userId_characterId_normalizedQuestion_mode: {
-            userId: ctx?.studentId ?? '',
-            characterId: ctx?.character?.id ?? null,
-            normalizedQuestion,
-            mode,
-          },
-        } as any,
-        create: {
-          userId: ctx?.studentId ?? '',
-          characterId: ctx?.character?.id ?? null,
-          normalizedQuestion,
-          topic,
-          mode,
-          content,
-          refs,
-          excerpt,
-          expiresAt: new Date(Date.now() + ttlMs),
-        } as any,
-        update: {
-          content,
-          refs,
-          excerpt,
-          topic,
-          expiresAt: new Date(Date.now() + ttlMs),
-        } as any,
-      });
-
-      await this.prisma.analyticsEvent.create({
-        data: {
-          actorUserId: ctx?.studentId ?? null,
-          actorRole: 'STUDENT' as any,
-          cohortId: ctx?.session?.cohortId ?? null,
-          studentId: ctx?.studentId ?? null,
-          name: 'tutor.reply.generated',
-          payload: { mode, topic, cached: true },
-        } as any,
-      });
-    } catch {}
+    await this.prisma.analyticsEvent.create({
+      data: {
+        actorUserId: String(ctx?.studentId ?? null) || null,
+        actorRole: 'STUDENT' as any,
+        cohortId: ctx?.session?.cohortId ?? null,
+        studentId: String(ctx?.studentId ?? null) || null,
+        name: 'tutor.reply.cache.miss',
+        payload: { key },
+      } as any,
+    });
 
     return { content, refs, excerpt };
+
   }
 
 
+  private async readReplyCache(key: string): Promise<{ content: string } | null> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const cache = require('./tutor.reply.cache');
+      if (cache?.getCachedReply) {
+        const hit = await cache.getCachedReply(this.prisma, key);
+        if (hit?.content) return { content: String(hit.content) };
+      }
+    } catch {}
+    return null;
+  }
 
+  private async writeReplyCache(key: string, content: string) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const cache = require('./tutor.reply.cache');
+      if (cache?.setCachedReply) await cache.setCachedReply(this.prisma, key, content);
+    } catch {}
+  }
+
+  private async emitTutorEvent(userId: string | null, cohortId: string | null, name: string, payload: any) {
+    try {
+      await this.prisma.analyticsEvent.create({
+        data: {
+          actorUserId: userId,
+          actorRole: 'STUDENT' as any,
+          cohortId,
+          studentId: userId,
+          name,
+          payload,
+        } as any,
+      });
+    } catch {}
+  }
 
   private normalizeTutorSubject(raw?: string) {
     const v = String(raw ?? '').trim().toUpperCase();
