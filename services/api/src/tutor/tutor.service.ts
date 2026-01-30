@@ -255,23 +255,79 @@ export class TutorService {
       } as any,
     });
 
-    // Build deterministic assistant reply (LLM comes Day 4)
+    // Build deterministic assistant reply (LLM comes later; today we make it feel like a real tutor)
     const tone = profile?.tone ?? session.character?.tone ?? 'friendly';
     const explainStyle = profile?.explainStyle ?? session.character?.explainStyle ?? 'step-by-step';
+    const verbosity = typeof profile?.verbosity === 'number' ? profile.verbosity : (typeof session.character?.verbosity === 'number' ? session.character.verbosity : 6);
+    const emojiOk = profile?.emojiOk !== undefined ? Boolean(profile.emojiOk) : true;
+
     const brainHint = brain?.metrics ? JSON.stringify(brain.metrics).slice(0, 240) : '(none yet)';
     const refs = materials.length ? materials.map((m) => m.title).slice(0, 5).join(' | ') : '(no materials found)';
+    const excerpt = materials.length ? String(materials[0].content ?? '').slice(0, 260) : '';
 
-    const reply =
-      'Bagrut-level tutor reply\n'
-      + 'Style: ' + tone + ', ' + explainStyle + '\n'
-      + 'AI Brain: ' + brainHint + '\n'
-      + 'Sources: ' + refs + '\n\n'
-      + 'Q: ' + question + '\n\n'
-      + 'Answer (Bagrut scope):\n'
-      + '1) Key idea\n'
-      + '2) Small example\n'
-      + '3) Common mistake\n'
-      + '4) Quick check question';
+    const short = verbosity <= 3;
+    const strict = String(tone).toLowerCase().includes('strict');
+    const stepEmoji = emojiOk ? (strict ? '➡️ ' : '👉 ') : '';
+    const warnEmoji = emojiOk ? '⚠️ ' : '';
+    const quizEmoji = emojiOk ? '🧠 ' : '';
+    const headingEmoji = emojiOk ? '📌 ' : '';
+
+    const formatSteps = (arr: string[]) => arr.map((x, i) => `${stepEmoji}${i + 1}) ${x}`).join('\n');
+
+    const intro =
+      strict
+        ? 'Bagrut Tutor (focused mode)\n'
+        : 'Bagrut Tutor (friendly mode)\n';
+
+    const brainLine = `AI Brain: ${brainHint}\n`;
+    const sourcesLine = `Sources: ${refs}\n`;
+
+    const steps = [
+      'Derivative means the slope of the tangent line to the graph.',
+      'It tells how fast the function changes at a specific x.',
+      'For polynomials, use the power rule: d/dx(x^n) = n·x^(n-1).',
+    ];
+
+    const exampleLines = [
+      'Example: f(x)=x² → f\'(x)=2x (power rule).',
+      'At x=3: f\'(3)=6, so the slope of the tangent there is 6.',
+    ];
+
+    const mistakeLines = [
+      'Common mistake: mixing f(x) with f\'(x). f\'(x) is a new function.',
+      'Common mistake: forgetting the power rule (x² → 2x, not x).',
+    ];
+
+    const quiz = [
+      'Quick check 1: If f(x)=x³, what is f\'(x)?',
+      'Quick check 2: If f\'(2)=0, what does that suggest about the tangent at x=2?',
+    ];
+    if (!short) quiz.push('Bonus: If f\'(x) is positive on an interval, what is f(x) doing there?');
+
+    let reply = '';
+    reply += intro;
+    reply += brainLine;
+    if (!short) reply += sourcesLine;
+    reply += `\nQ: ${question}\n\n`;
+
+    reply += `${headingEmoji}Explanation:\n`;
+    reply += explainStyle.includes('hints') ? formatSteps(steps) : steps.map(x => `${stepEmoji}${x}`).join('\n');
+
+    reply += `\n\n${headingEmoji}Worked example:\n`;
+    reply += explainStyle.includes('hints') ? formatSteps(exampleLines) : exampleLines.map(x => `${stepEmoji}${x}`).join('\n');
+
+    reply += `\n\n${headingEmoji}Common mistake:\n`;
+    reply += mistakeLines.map(x => `${warnEmoji}${x}`).join('\n');
+
+    reply += `\n\n${quizEmoji}Mini-quiz:\n`;
+    reply += quiz.map((x, i) => `${i + 1}) ${x}`).join('\n');
+
+    if (excerpt && !short) {
+      reply += `\n\n${headingEmoji}From your material:\n`;
+      reply += excerpt;
+    }
+
+    reply += `\n\nReply with your quiz answers and I’ll check them.`;
 
     // Store ASSISTANT message
     const assistantMsg = await this.prisma.tutorMessage.create({
