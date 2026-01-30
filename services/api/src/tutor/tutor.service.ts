@@ -548,6 +548,50 @@ export class TutorService {
     return { ok: true, userMessage: userMsg, assistantMessage: assistantMsg };
   }
 
+  private async ensureGlobalDefaultCharacters() {
+    const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'] as const;
+
+    for (const subj of subjects) {
+      const existing = await this.prisma.tutorCharacter.findFirst({
+        where: { subject: subj as any, cohortId: null },
+        select: { id: true },
+      });
+      if (existing) continue;
+
+      await this.prisma.tutorCharacter.create({
+        data: {
+          cohortId: null,
+          subject: subj as any,
+          name:
+            subj === 'MATH' ? 'Math Tutor'
+            : subj === 'PHYSICS' ? 'Physics Tutor'
+            : subj === 'CS' ? 'CS Tutor'
+            : subj === 'ENGLISH' ? 'English Tutor'
+            : subj === 'HEBREW' ? 'Hebrew Tutor'
+            : subj === 'ARABIC' ? 'Arabic Tutor'
+            : 'General Tutor',
+          curriculum: 'bagrut',
+          maxGrade: 12,
+          language: 'en',
+          tone: 'friendly',
+          verbosity: 5,
+          explainStyle: 'step-by-step',
+          systemNotes: 'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
+        } as any,
+      });
+    }
+  }
+
+  async ensureDefaultCharactersAdmin(user: any) {
+    const roles: string[] = user?.roles ?? [];
+    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+      throw new ForbiddenException('Admin/Secretary only');
+    }
+    await this.ensureGlobalDefaultCharacters();
+    return { ok: true };
+  }
+
+
 
   private normalizeTutorSubject(raw?: string) {
     const v = String(raw ?? '').trim().toUpperCase();
