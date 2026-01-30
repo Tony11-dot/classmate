@@ -621,3 +621,20 @@ model TutorCharacter {
   @@index([cohortId])
   @@index([subject])
 }
+
+model TutorReplyCache {
+  id                 String   @id @default(cuid())
+  userId             String
+  characterId        String?
+  normalizedQuestion String
+  topic              String?
+  mode               String   // "deterministic" | "llm"
+  content            String
+  refs               String?
+  excerpt            String?
+  createdAt          DateTime @default(now())
+  expiresAt          DateTime
+
+  @@index([userId, characterId])
+  @@unique([userId, characterId, normalizedQuestion, mode])
+}
