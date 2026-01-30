@@ -200,6 +200,145 @@ export class TutorService {
   }
 
   // ---------- Tutor runtime (reply) ----------
+
+  // ---------- AI Brain (rebuild from real data) ----------
+  private dayMs(n: number) { return n * 24 * 60 * 60 * 1000; }
+
+  private safeCourseSubject(course: any): string {
+    // Course model likely has subject; if not, fall back cleanly
+    const sub = course?.subject ?? course?.name ?? null;
+    if (!sub) return 'GENERAL';
+    return String(sub).toUpperCase().includes('MATH') ? 'MATH'
+      : String(sub).toUpperCase().includes('PHYS') ? 'PHYSICS'
+      : String(sub).toUpperCase().includes('CS') ? 'CS'
+      : String(sub);
+  }
+
+  private async buildBrainMetrics(studentId: string) {
+    const now = new Date();
+    const since14 = new Date(Date.now() - this.dayMs(14));
+
+    // Attendance (last 14 days)
+    const att = await this.prisma.attendanceRecord.findMany({
+      where: { studentId, markedAt: { gte: since14 } },
+      select: { status: true, markedAt: true },
+      orderBy: [{ markedAt: 'desc' }],
+      take: 500,
+    });
+
+    const attCounts: Record<string, number> = {};
+    for (const r of att) attCounts[String(r.status)] = (attCounts[String(r.status)] ?? 0) + 1;
+
+    const present = (attCounts.PRESENT ?? 0) + (attCounts.LATE ?? 0) + (attCounts.EXCUSED ?? 0);
+    const absent = (attCounts.ABSENT ?? 0);
+    const total = att.length;
+    const attendancePct = total ? Math.round((present / total) * 100) : null;
+
+    // Grades (recent)
+    const grades = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      select: {
+        grade: true,
+        assessment: {
+          select: {
+            date: true,
+            maxGrade: true,
+            course: { select: { id: true, name: true, subject: true } },
+          },
+        },
+      },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
+      take: 40,
+    });
+
+    // Normalize grades to 0-100 using assessment.maxGrade
+    const norm = grades.map((g) => {
+      const max = g.assessment?.maxGrade ?? 100;
+      const pct = max ? Math.round((Number(g.grade) / Number(max)) * 100) : Number(g.grade);
+      return {
+        pct,
+        date: g.assessment?.date ? new Date(g.assessment.date) : now,
+        subject: this.safeCourseSubject(g.assessment?.course),
+      };
+    });
+
+    const avg = norm.length ? Math.round(norm.reduce((a, x) => a + x.pct, 0) / norm.length) : null;
+
+    // Trend: last5 avg - prev5 avg
+    const last5 = norm.slice(0, 5);
+    const prev5 = norm.slice(5, 10);
+    const avgLast5 = last5.length ? last5.reduce((a, x) => a + x.pct, 0) / last5.length : null;
+    const avgPrev5 = prev5.length ? prev5.reduce((a, x) => a + x.pct, 0) / prev5.length : null;
+    const trendDelta = (avgLast5 !== null && avgPrev5 !== null) ? Math.round(avgLast5 - avgPrev5) : null;
+
+    let trend: 'up' | 'down' | 'flat' | 'unknown' = 'unknown';
+    if (trendDelta !== null) {
+      if (trendDelta >= 4) trend = 'up';
+      else if (trendDelta <= -4) trend = 'down';
+      else trend = 'flat';
+    }
+
+    // Per-subject averages
+    const bySub: Record<string, number[]> = {};
+    for (const x of norm) {
+      bySub[x.subject] = bySub[x.subject] ?? [];
+      bySub[x.subject].push(x.pct);
+    }
+
+    const perSubject: any = {};
+    for (const k of Object.keys(bySub)) {
+      const arr = bySub[k];
+      perSubject[k] = { avg: Math.round(arr.reduce((a, n) => a + n, 0) / arr.length) };
+    }
+
+    // Weak/strong heuristics: lowest/highest avg subject
+    const subs = Object.entries(perSubject).map(([k, v]: any) => ({ subject: k, avg: v.avg }));
+    subs.sort((a, b) => a.avg - b.avg);
+    const weak = subs.length ? [subs[0].subject] : [];
+    const strong = subs.length ? [subs[subs.length - 1].subject] : [];
+
+    return {
+      generatedAt: now.toISOString(),
+      attendance14d: { total, present, absent, pct: attendancePct, breakdown: attCounts },
+      grades: { count: norm.length, avg, trend, trendDelta, perSubject },
+      weak,
+      strong,
+    };
+  }
+
+  async rebuildMyBrainSnapshot(user: any) {
+    const studentId = this.requireStudent(user);
+
+    // best-effort cohortId (optional) – from latest session if exists
+    const lastSession = await this.prisma.tutorSession.findFirst({
+      where: { userId: studentId },
+      select: { cohortId: true },
+      orderBy: [{ updatedAt: 'desc' }],
+    });
+
+    const metrics = await this.buildBrainMetrics(studentId);
+
+    const row = await this.prisma.studentBrainSnapshot.create({
+      data: {
+        userId: studentId,
+        cohortId: lastSession?.cohortId ?? null,
+        metrics,
+      } as any,
+    });
+
+    await this.prisma.analyticsEvent.create({
+      data: {
+        actorUserId: studentId,
+        actorRole: 'STUDENT' as any,
+        cohortId: row.cohortId ?? null,
+        studentId,
+        name: 'brain.snapshot.rebuilt',
+        payload: { snapshotId: row.id },
+      } as any,
+    });
+
+    return { ok: true, snapshot: row };
+  }
   async replyToSession(user: any, sessionId: string, dto: any) {
     const studentId = this.requireStudent(user);
 

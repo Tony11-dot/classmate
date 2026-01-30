@@ -27,6 +27,11 @@ export class TutorController {
     return this.svc.getMyBrainSnapshot(req.user);
   }
 
+  @Post('me/brain/rebuild')
+  rebuildMyBrain(@Req() req: any) {
+    return this.svc.rebuildMyBrainSnapshot(req.user);
+  }
+
   // ---- Materials ----
   @Roles('STUDENT','ADMIN','SECRETARY')
   @Get('materials')
