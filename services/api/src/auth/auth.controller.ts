@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -12,6 +13,12 @@ export class AuthController {
     const result = await this.auth.login(dto.email, dto.password);
     if (!result) throw new UnauthorizedException('Invalid credentials');
     return result;
+  }
+
+
+  @Post('register')
+  register(@Body() body: RegisterDto) {
+    return this.auth.register(body);
   }
 
   @UseGuards(AuthGuard('jwt'))
