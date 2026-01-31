@@ -6,7 +6,7 @@ import { UpdateAlertSettingsDto } from './dto/update-alert-settings.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
-@Roles('PARENT','ADMIN')
+@Roles('PARENT', 'ADMIN')
 @Controller('parent/alerts')
 export class ParentAlertsController {
   constructor(private svc: ParentAlertsService) {}

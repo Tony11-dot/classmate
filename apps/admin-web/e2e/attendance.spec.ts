@@ -14,7 +14,7 @@ function todayYmd() {
 
 test('attendance e2e', async ({ page, request }) => {
   // seed stable teacher/cohort/course/student + TODAY attendance session
-  const seedResp = await request.post(`${API}/api/test/seed/admin-web`);
+  const seedResp = await request.post(`${API}/test/seed/admin-web`);
   expect(seedResp.ok()).toBeTruthy();
   const seedJson = await seedResp.json();
   const cohortId = seedJson.cohortId;

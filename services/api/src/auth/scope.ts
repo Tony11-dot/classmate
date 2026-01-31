@@ -7,10 +7,13 @@ export async function requireParentChild(
   childUserId: string,
 ) {
   const link = await prisma.parentChild.findUnique({
-    where: { parentId_childId: { parentId: parentUserId, childId: childUserId } },
+    where: {
+      parentId_childId: { parentId: parentUserId, childId: childUserId },
+    },
     select: { status: true },
   });
-  if (!link || link.status !== 'APPROVED') throw new ForbiddenException('Child not linked');
+  if (!link || link.status !== 'APPROVED')
+    throw new ForbiddenException('Child not linked');
 }
 
 export async function parentAllowedChildIds(
@@ -43,5 +46,7 @@ export async function teacherAllowedCohortIds(
     where: { teacherId: teacherUserId },
     select: { cohortId: true },
   });
-  return Array.from(new Set(cohorts.map((c) => c.cohortId).filter(Boolean))) as string[];
+  return Array.from(
+    new Set(cohorts.map((c) => c.cohortId).filter(Boolean)),
+  ) as string[];
 }

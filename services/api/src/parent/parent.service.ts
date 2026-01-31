@@ -47,7 +47,6 @@ type StudentProfileLite = { userId: string; cohortId: string };
 
 @Injectable()
 export class ParentService {
-
   private isAdmin(user: any) {
     const roles: string[] = user?.roles ?? [];
     return roles.includes('ADMIN');
@@ -88,7 +87,6 @@ export class ParentService {
       seenAt,
     };
   }
-
 
   private ensureParent(user: any) {
     if (!user?.roles?.includes('PARENT'))
@@ -144,7 +142,8 @@ export class ParentService {
     const links = await this.prisma.parentChild.findMany({
       where: {
         parentId,
- status: 'APPROVED' },
+        status: 'APPROVED',
+      },
       include: {
         child: {
           include: {
@@ -505,24 +504,24 @@ export class ParentService {
     });
 
     const notifications = rows
-  .map((n: any) => this.notifDto(n))
-  .map((n) => ({
-    id: n.id,
-    type: n.type,
-    createdAt: n.createdAt,
-    studentId: n.studentId,
-    title: n.title,
-    message: n.message,
-    data: n.data,
-    seenAt: n.seenAt,
-  }));
+      .map((n: any) => this.notifDto(n))
+      .map((n) => ({
+        id: n.id,
+        type: n.type,
+        createdAt: n.createdAt,
+        studentId: n.studentId,
+        title: n.title,
+        message: n.message,
+        data: n.data,
+        seenAt: n.seenAt,
+      }));
 
-// dev/test contract guard (prevents legacy keys like "at" from creeping back)
-if (process.env.NODE_ENV !== 'production') {
-  for (const x of notifications) ParentNotificationDtoSchema.parse(x);
-}
+    // dev/test contract guard (prevents legacy keys like "at" from creeping back)
+    if (process.env.NODE_ENV !== 'production') {
+      for (const x of notifications) ParentNotificationDtoSchema.parse(x);
+    }
 
-return { ok: true, notifications };
+    return { ok: true, notifications };
   }
 
   private async getLastSeenAt(parentId: string) {
@@ -535,10 +534,7 @@ return { ok: true, notifications };
     return row.lastSeenAt;
   }
 
-  async unreadCount(
-    user: any,
-    opts?: { studentId?: string; since?: string },
-  ) {
+  async unreadCount(user: any, opts?: { studentId?: string; since?: string }) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;
 
@@ -547,8 +543,9 @@ return { ok: true, notifications };
       select: { lastSeenAt: true },
     });
 
-    const cutoff =
-      opts?.since ? new Date(opts.since) : (state?.lastSeenAt ?? null);
+    const cutoff = opts?.since
+      ? new Date(opts.since)
+      : (state?.lastSeenAt ?? null);
 
     const where: any = {
       parentId,
@@ -577,7 +574,6 @@ return { ok: true, notifications };
     };
   }
 
-  
   async lookup(user: any) {
     this.ensureParent(user);
     const parentId = user.sub ?? user.id;

@@ -20,8 +20,14 @@ export function basicTutorSafetyCheck(content: string) {
     low.includes('manifold');
 
   // High-risk topics (keep simple)
-  const looksMedical = low.includes('diagnos') || low.includes('treatment') || low.includes('dose');
-  const looksLegal = low.includes('lawsuit') || low.includes('contract law') || low.includes('criminal');
+  const looksMedical =
+    low.includes('diagnos') ||
+    low.includes('treatment') ||
+    low.includes('dose');
+  const looksLegal =
+    low.includes('lawsuit') ||
+    low.includes('contract law') ||
+    low.includes('criminal');
 
   return {
     ok: okBagrut && okQuiz && !looksUniversity && !looksMedical && !looksLegal,
@@ -45,7 +51,7 @@ export function rateLimitTutor(opts: {
   const windowMs = opts.windowMs ?? 60_000;
   const max = opts.max ?? 10;
   const arr = opts.store.get(opts.key) ?? [];
-  const fresh = arr.filter(t => opts.now - t < windowMs);
+  const fresh = arr.filter((t) => opts.now - t < windowMs);
   if (fresh.length >= max) {
     return { ok: false, retryAfterMs: windowMs - (opts.now - fresh[0]) };
   }

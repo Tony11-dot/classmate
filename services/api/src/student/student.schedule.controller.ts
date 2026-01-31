@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ScheduleService } from '../schedule/schedule.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('STUDENT','ADMIN')
+@Roles('STUDENT', 'ADMIN')
 @Controller('student/schedule')
 export class StudentScheduleController {
   constructor(private readonly schedule: ScheduleService) {}

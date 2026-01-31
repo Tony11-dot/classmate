@@ -1,46 +1,24 @@
 import { test, expect, request } from '@playwright/test';
 
-const API = process.env.E2E_API ?? 'http://127.0.0.1:3000/api';
+import { expectOk } from './helpers/httpAssert';
+import { seededStudentApi, API } from './helpers/tutorApi';
 
-async function seedAdmin() {
-  const ctx = await request.newContext();
-  const res = await ctx.post(`${API}/test/seed/admin-web`, { data: {} });
-  expect(res.ok()).toBeTruthy();
-  const json = await res.json();
-  await ctx.dispose();
-  return json as any;
-}
+test('createSession auto-creates default tutor characters when none exist (@serial)', async () => {
+  const { seed, ctx } = await seededStudentApi();
 
-async function login(email: string, password: string) {
-  const ctx = await request.newContext();
-  const res = await ctx.post(`${API}/auth/login`, { data: { email, password } });
-  expect(res.ok()).toBeTruthy();
-  const { token } = await res.json();
-  expect(token).toBeTruthy();
-  await ctx.dispose();
-  return token as string;
-}
-
-test('createSession auto-creates global default tutor characters when none exist', async () => {
-  const seed = await seedAdmin();
-  const token = await login(seed.studentEmail, seed.password);
-
-  // wipe characters (test-only)
   const wipeCtx = await request.newContext();
-  const wipe = await wipeCtx.post(`${API}/test/seed/clear-tutor-characters`, { data: {} });
-  expect(wipe.ok()).toBeTruthy();
+  const wipe = await wipeCtx.post(`${API}/test/seed/clear-tutor-characters`, {
+    data: { cohortId: seed.cohortId },
+  });
+  await expectOk(wipe, 'wipe');
   await wipeCtx.dispose();
 
-  const ctx = await request.newContext({
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
   const s = await ctx.post(`${API}/tutor/sessions`, { data: { subject: 'MATH' } });
-  expect(s.ok()).toBeTruthy();
-  const sj = await s.json();
+  await expectOk(s, 's');
 
+  const sj = await s.json();
   expect(sj.session?.id).toBeTruthy();
-  expect(sj.session?.characterId).toBeTruthy(); // proves runtime recreated defaults
+  expect(sj.session?.characterId).toBeTruthy();
 
   await ctx.dispose();
 });

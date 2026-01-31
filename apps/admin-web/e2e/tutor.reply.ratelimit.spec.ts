@@ -1,25 +1,10 @@
 import { test, expect, request } from '@playwright/test';
-const API = 'http://127.0.0.1:3000/api';
 
-async function seed() {
-  const ctx = await request.newContext();
-  const r = await ctx.post(`${API}/test/seed/admin-web`, { data: {} });
-  const j = await r.json();
-  await ctx.dispose();
-  return j;
-}
-async function login(email: string, password: string) {
-  const ctx = await request.newContext();
-  const r = await ctx.post(`${API}/auth/login`, { data: { email, password } });
-  const { token } = await r.json();
-  await ctx.dispose();
-  return token as string;
-}
+import { expectOk } from './helpers/httpAssert';
+import { seededStudentApi, API } from './helpers/tutorApi';
 
 test('tutor reply rate-limit kicks in', async () => {
-  const s = await seed();
-  const token = await login(s.studentEmail, s.password);
-  const ctx = await request.newContext({ headers: { Authorization: `Bearer ${token}` } });
+  const { seed, ctx } = await seededStudentApi();
 
   const sess = await ctx.post(`${API}/tutor/sessions`, { data: { subject: 'MATH', title: 'RL' } });
   const id = (await sess.json()).session.id;

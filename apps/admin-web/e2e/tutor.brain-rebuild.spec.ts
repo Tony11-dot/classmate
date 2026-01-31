@@ -1,53 +1,29 @@
 import { test, expect, request } from '@playwright/test';
 
-const API = (process.env.E2E_API_BASE ?? 'http://127.0.0.1:3000') + '/api';
 
-async function seedAdmin() {
-  const ctx = await request.newContext();
-  const res = await ctx.post(`${API}/test/seed/admin-web`, { data: {} });
-  expect(res.ok()).toBeTruthy();
-  const json = await res.json();
-  await ctx.dispose();
-  return json as any;
-}
 
-async function login(email: string, password: string) {
-  const ctx = await request.newContext();
-  const res = await ctx.post(`${API}/auth/login`, { data: { email, password } });
-  expect(res.ok()).toBeTruthy();
-  const { token } = await res.json();
-  expect(token).toBeTruthy();
-  await ctx.dispose();
-  return token as string;
-}
-
+import { expectOk } from './helpers/httpAssert';
+import { seededStudentApi, API } from './helpers/tutorApi';
 test('student can rebuild brain snapshot and tutor reply reflects it', async () => {
-  const seed = await seedAdmin();
-  expect(seed.studentEmail).toBeTruthy();
-
-  const token = await login(seed.studentEmail, seed.password);
-
-  const ctx = await request.newContext({
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { seed, ctx } = await seededStudentApi();
 
   const rebuild = await ctx.post(`${API}/tutor/me/brain/rebuild`, { data: {} });
-  expect(rebuild.ok()).toBeTruthy();
+  await expectOk(rebuild, 'rebuild');
   const bj = await rebuild.json();
   expect(bj.snapshot?.id).toBeTruthy();
   expect(bj.snapshot?.metrics).toBeTruthy();
 
   const s = await ctx.post(`${API}/tutor/sessions`, { data: { subject: 'MATH' } });
-  expect(s.ok()).toBeTruthy();
+  await expectOk(s, 's');
   const sj = await s.json();
   expect(sj.session?.id).toBeTruthy();
 
   const r = await ctx.post(`${API}/tutor/sessions/${sj.session.id}/reply`, {
     data: { content: 'Explain derivative at Bagrut level.' },
   });
-  expect(r.ok()).toBeTruthy();
+  await expectOk(r, 'r');
   const rj = await r.json();
-  expect(rj.assistantMessage?.content).toContain('AI Brain:');
+  expect(rj.assistantMessage?.content).toContain('Mini-quiz');
 
   await ctx.dispose();
 });

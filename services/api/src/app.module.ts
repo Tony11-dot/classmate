@@ -20,6 +20,7 @@ const env = loadEnv();
     HealthModule,
     PrismaModule,
     AuthModule,
+    TutorModule,
     ScheduleModule,
     StudentModule,
     AdminModule,

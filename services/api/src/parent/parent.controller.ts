@@ -1,10 +1,21 @@
 import { Roles } from '../auth/roles.decorator';
-import { Controller, Get, Post, Body, Query, Req, UseGuards, DefaultValuePipe, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Req,
+  UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('PARENT','ADMIN')
+@Roles('PARENT', 'ADMIN')
 @Controller('parent')
 export class ParentController {
   constructor(private readonly parent: ParentService) {}
@@ -133,6 +144,4 @@ export class ParentController {
   lookup(@Req() req: any) {
     return this.parent.lookup(req.user);
   }
-
-
 }

@@ -1,7 +1,11 @@
 import { TutorReplyMode } from './tutor.reply.provider';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -10,13 +14,22 @@ export class TutorService {
 
   private buildRefsAndExcerpt(materials: any[]) {
     const refs = materials?.length
-      ? materials.map((m) => String(m.title ?? '')).slice(0, 5).join(' | ')
+      ? materials
+          .map((m) => String(m.title ?? ''))
+          .slice(0, 5)
+          .join(' | ')
       : '(no materials found)';
-    const excerpt = materials?.length ? String(materials[0].content ?? '').slice(0, 260) : '';
+    const excerpt = materials?.length
+      ? String(materials[0].content ?? '').slice(0, 260)
+      : '';
     return { refs, excerpt };
   }
 
-  private generateMiniQuiz(args: { subject?: string; topic?: string; verbosity?: number }) {
+  private generateMiniQuiz(args: {
+    subject?: string;
+    topic?: string;
+    verbosity?: number;
+  }) {
     const subject = String(args.subject ?? 'GENERAL').toUpperCase();
     const topic = String(args.topic ?? 'general').toLowerCase();
     const v = Number(args.verbosity ?? 6);
@@ -35,8 +48,14 @@ export class TutorService {
             ];
       }
       return easy
-        ? ['Mini-quiz: Solve 2x+5=13.', 'Mini-quiz: What is the slope between (1,2) and (3,6)?']
-        : ['Mini-quiz: Simplify (x^2−9)/(x−3).', 'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).'];
+        ? [
+            'Mini-quiz: Solve 2x+5=13.',
+            'Mini-quiz: What is the slope between (1,2) and (3,6)?',
+          ]
+        : [
+            'Mini-quiz: Simplify (x^2−9)/(x−3).',
+            'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).',
+          ];
     }
 
     if (subject.includes('PHYS')) {
@@ -52,24 +71,48 @@ export class TutorService {
             ];
       }
       return easy
-        ? ['Mini-quiz: What are the units of acceleration?', 'Mini-quiz: If distance is 0, what is displacement?']
-        : ['Mini-quiz: Explain the difference between speed and velocity with an example.', 'Mini-quiz: Give one situation where acceleration is negative.'];
+        ? [
+            'Mini-quiz: What are the units of acceleration?',
+            'Mini-quiz: If distance is 0, what is displacement?',
+          ]
+        : [
+            'Mini-quiz: Explain the difference between speed and velocity with an example.',
+            'Mini-quiz: Give one situation where acceleration is negative.',
+          ];
     }
 
     if (subject.includes('CS') || subject.includes('COMP')) {
       if (topic.includes('loops')) {
         return easy
-          ? ['Mini-quiz: What does a loop do?', 'Mini-quiz: Give one example of when you use a for-loop.']
-          : ['Mini-quiz: What is the difference between a for-loop and a while-loop?', 'Mini-quiz: Write a loop that sums numbers 1..n (pseudo-code).'];
+          ? [
+              'Mini-quiz: What does a loop do?',
+              'Mini-quiz: Give one example of when you use a for-loop.',
+            ]
+          : [
+              'Mini-quiz: What is the difference between a for-loop and a while-loop?',
+              'Mini-quiz: Write a loop that sums numbers 1..n (pseudo-code).',
+            ];
       }
       return easy
-        ? ['Mini-quiz: What is a variable?', 'Mini-quiz: What does an if-statement do?']
-        : ["Mini-quiz: What\'s the difference between a function parameter and an argument?", 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
+        ? [
+            'Mini-quiz: What is a variable?',
+            'Mini-quiz: What does an if-statement do?',
+          ]
+        : [
+            "Mini-quiz: What\'s the difference between a function parameter and an argument?",
+            'Mini-quiz: Explain (in simple words) what an array is and when you use it.',
+          ];
     }
 
     return easy
-      ? ['Mini-quiz: Restate the main rule in one sentence.', 'Mini-quiz: Give a tiny example.']
-      : ['Mini-quiz: Solve a small example and explain each step.', 'Mini-quiz: Name one common mistake and how to avoid it.'];
+      ? [
+          'Mini-quiz: Restate the main rule in one sentence.',
+          'Mini-quiz: Give a tiny example.',
+        ]
+      : [
+          'Mini-quiz: Solve a small example and explain each step.',
+          'Mini-quiz: Name one common mistake and how to avoid it.',
+        ];
   }
 
   private prisma = new PrismaClient();
@@ -98,16 +141,22 @@ export class TutorService {
       userId: studentId,
 
       targetCurriculum: dto?.targetCurriculum ?? undefined,
-      targetGrade: dto?.targetGrade !== undefined ? Number(dto.targetGrade) : undefined,
+      targetGrade:
+        dto?.targetGrade !== undefined ? Number(dto.targetGrade) : undefined,
       preferredLanguage: dto?.preferredLanguage ?? undefined,
 
       tone: dto?.tone ?? undefined,
-      verbosity: dto?.verbosity !== undefined ? Number(dto.verbosity) : undefined,
+      verbosity:
+        dto?.verbosity !== undefined ? Number(dto.verbosity) : undefined,
       explainStyle: dto?.explainStyle ?? undefined,
       emojiOk: dto?.emojiOk !== undefined ? Boolean(dto.emojiOk) : undefined,
 
-      strengths: Array.isArray(dto?.strengths) ? dto.strengths.map(String) : undefined,
-      weaknesses: Array.isArray(dto?.weaknesses) ? dto.weaknesses.map(String) : undefined,
+      strengths: Array.isArray(dto?.strengths)
+        ? dto.strengths.map(String)
+        : undefined,
+      weaknesses: Array.isArray(dto?.weaknesses)
+        ? dto.weaknesses.map(String)
+        : undefined,
       goals: Array.isArray(dto?.goals) ? dto.goals.map(String) : undefined,
 
       maxDepth: dto?.maxDepth !== undefined ? Number(dto.maxDepth) : undefined,
@@ -135,7 +184,9 @@ export class TutorService {
     const q = query.q ? String(query.q).trim() : '';
     const where: any = {
       ...(query.subject ? { subject: String(query.subject) } : {}),
-      ...(query.grade !== undefined && query.grade !== null && !Number.isNaN(Number(query.grade))
+      ...(query.grade !== undefined &&
+      query.grade !== null &&
+      !Number.isNaN(Number(query.grade))
         ? { grade: Number(query.grade) }
         : {}),
       ...(query.language ? { language: String(query.language) } : {}),
@@ -159,14 +210,14 @@ export class TutorService {
     return { ok: true, materials: rows };
   }
 
-
   async createMaterial(user: any, dto: any) {
     // Admin/Secretary only (or tighten later)
     const roles: string[] = user?.roles ?? [];
     if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
       throw new ForbiddenException('Admin/Secretary only');
     }
-    if (!dto?.subject || !dto?.title) throw new BadRequestException('subject + title required');
+    if (!dto?.subject || !dto?.title)
+      throw new BadRequestException('subject + title required');
 
     const row = await this.prisma.material.create({
       data: {
@@ -189,7 +240,9 @@ export class TutorService {
     const studentId = this.requireStudent(user);
     const subject = dto?.subject ? String(dto.subject) : 'GENERAL';
     const subjectNorm = this.normalizeTutorSubject(subject);
-    const requestedCharacterId = dto?.characterId ? String(dto.characterId) : null;
+    const requestedCharacterId = dto?.characterId
+      ? String(dto.characterId)
+      : null;
 
     // cohortId from student profile (best-effort)
     const sp = await this.prisma.studentProfile.findUnique({
@@ -237,6 +290,43 @@ export class TutorService {
           select: { id: true },
         });
         characterId = ch4?.id ?? null;
+      }
+    }
+
+    // Deterministic fallback: ensure a cohort-scoped default character exists
+    if (!characterId && cohortId) {
+      const existing = await this.prisma.tutorCharacter.findFirst({
+        where: { cohortId, subject: subjectNorm as any },
+        select: { id: true },
+      });
+      if (existing?.id) {
+        characterId = existing.id;
+      } else {
+        const created = await this.prisma.tutorCharacter.create({
+          data: {
+            cohortId,
+            subject: subjectNorm as any,
+            name:
+              subjectNorm === 'MATH'
+                ? 'Math Tutor'
+                : subjectNorm === 'PHYSICS'
+                  ? 'Physics Tutor'
+                  : subjectNorm === 'CS'
+                    ? 'CS Tutor'
+                    : 'General Tutor',
+            curriculum: 'bagrut',
+            maxGrade: 12,
+            language: 'en',
+            tone: subjectNorm === 'PHYSICS' ? 'coach' : 'friendly',
+            verbosity: 5,
+            explainStyle:
+              subjectNorm === 'PHYSICS' ? 'examples' : 'step-by-step',
+            systemNotes:
+              'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
+          } as any,
+          select: { id: true },
+        });
+        characterId = created.id;
       }
     }
 
@@ -327,16 +417,21 @@ export class TutorService {
   // ---------- Tutor runtime (reply) ----------
 
   // ---------- AI Brain (rebuild from real data) ----------
-  private dayMs(n: number) { return n * 24 * 60 * 60 * 1000; }
+  private dayMs(n: number) {
+    return n * 24 * 60 * 60 * 1000;
+  }
 
   private safeCourseSubject(course: any): string {
     // Course model likely has subject; if not, fall back cleanly
     const sub = course?.subject ?? course?.name ?? null;
     if (!sub) return 'GENERAL';
-    return String(sub).toUpperCase().includes('MATH') ? 'MATH'
-      : String(sub).toUpperCase().includes('PHYS') ? 'PHYSICS'
-      : String(sub).toUpperCase().includes('CS') ? 'CS'
-      : String(sub);
+    return String(sub).toUpperCase().includes('MATH')
+      ? 'MATH'
+      : String(sub).toUpperCase().includes('PHYS')
+        ? 'PHYSICS'
+        : String(sub).toUpperCase().includes('CS')
+          ? 'CS'
+          : String(sub);
   }
 
   private async buildBrainMetrics(studentId: string) {
@@ -352,10 +447,14 @@ export class TutorService {
     });
 
     const attCounts: Record<string, number> = {};
-    for (const r of att) attCounts[String(r.status)] = (attCounts[String(r.status)] ?? 0) + 1;
+    for (const r of att)
+      attCounts[String(r.status)] = (attCounts[String(r.status)] ?? 0) + 1;
 
-    const present = (attCounts.PRESENT ?? 0) + (attCounts.LATE ?? 0) + (attCounts.EXCUSED ?? 0);
-    const absent = (attCounts.ABSENT ?? 0);
+    const present =
+      (attCounts.PRESENT ?? 0) +
+      (attCounts.LATE ?? 0) +
+      (attCounts.EXCUSED ?? 0);
+    const absent = attCounts.ABSENT ?? 0;
     const total = att.length;
     const attendancePct = total ? Math.round((present / total) * 100) : null;
 
@@ -379,7 +478,9 @@ export class TutorService {
     // Normalize grades to 0-100 using assessment.maxGrade
     const norm = grades.map((g) => {
       const max = g.assessment?.maxGrade ?? 100;
-      const pct = max ? Math.round((Number(g.grade) / Number(max)) * 100) : Number(g.grade);
+      const pct = max
+        ? Math.round((Number(g.grade) / Number(max)) * 100)
+        : Number(g.grade);
       return {
         pct,
         date: g.assessment?.date ? new Date(g.assessment.date) : now,
@@ -387,14 +488,23 @@ export class TutorService {
       };
     });
 
-    const avg = norm.length ? Math.round(norm.reduce((a, x) => a + x.pct, 0) / norm.length) : null;
+    const avg = norm.length
+      ? Math.round(norm.reduce((a, x) => a + x.pct, 0) / norm.length)
+      : null;
 
     // Trend: last5 avg - prev5 avg
     const last5 = norm.slice(0, 5);
     const prev5 = norm.slice(5, 10);
-    const avgLast5 = last5.length ? last5.reduce((a, x) => a + x.pct, 0) / last5.length : null;
-    const avgPrev5 = prev5.length ? prev5.reduce((a, x) => a + x.pct, 0) / prev5.length : null;
-    const trendDelta = (avgLast5 !== null && avgPrev5 !== null) ? Math.round(avgLast5 - avgPrev5) : null;
+    const avgLast5 = last5.length
+      ? last5.reduce((a, x) => a + x.pct, 0) / last5.length
+      : null;
+    const avgPrev5 = prev5.length
+      ? prev5.reduce((a, x) => a + x.pct, 0) / prev5.length
+      : null;
+    const trendDelta =
+      avgLast5 !== null && avgPrev5 !== null
+        ? Math.round(avgLast5 - avgPrev5)
+        : null;
 
     let trend: 'up' | 'down' | 'flat' | 'unknown' = 'unknown';
     if (trendDelta !== null) {
@@ -413,18 +523,29 @@ export class TutorService {
     const perSubject: any = {};
     for (const k of Object.keys(bySub)) {
       const arr = bySub[k];
-      perSubject[k] = { avg: Math.round(arr.reduce((a, n) => a + n, 0) / arr.length) };
+      perSubject[k] = {
+        avg: Math.round(arr.reduce((a, n) => a + n, 0) / arr.length),
+      };
     }
 
     // Weak/strong heuristics: lowest/highest avg subject
-    const subs = Object.entries(perSubject).map(([k, v]: any) => ({ subject: k, avg: v.avg }));
+    const subs = Object.entries(perSubject).map(([k, v]: any) => ({
+      subject: k,
+      avg: v.avg,
+    }));
     subs.sort((a, b) => a.avg - b.avg);
     const weak = subs.length ? [subs[0].subject] : [];
     const strong = subs.length ? [subs[subs.length - 1].subject] : [];
 
     return {
       generatedAt: now.toISOString(),
-      attendance14d: { total, present, absent, pct: attendancePct, breakdown: attCounts },
+      attendance14d: {
+        total,
+        present,
+        absent,
+        pct: attendancePct,
+        breakdown: attCounts,
+      },
       grades: { count: norm.length, avg, trend, trendDelta, perSubject },
       weak,
       strong,
@@ -476,7 +597,7 @@ export class TutorService {
     });
     if (!r.ok) {
       throw new (require('@nestjs/common').TooManyRequestsException)(
-        'Too many tutor replies. Please wait a bit.'
+        'Too many tutor replies. Please wait a bit.',
       );
     }
 
@@ -498,12 +619,16 @@ export class TutorService {
       orderBy: [{ createdAt: 'desc' }],
     });
 
-    const subj = session.character?.subject && String(session.character.subject) !== 'GENERAL'
-      ? String(session.character.subject)
-      : undefined;
+    const subj =
+      session.character?.subject &&
+      String(session.character.subject) !== 'GENERAL'
+        ? String(session.character.subject)
+        : undefined;
 
-    const grade = profile?.targetGrade ?? session.character?.maxGrade ?? undefined;
-    const language = profile?.preferredLanguage ?? session.character?.language ?? undefined;
+    const grade =
+      profile?.targetGrade ?? session.character?.maxGrade ?? undefined;
+    const language =
+      profile?.preferredLanguage ?? session.character?.language ?? undefined;
 
     // Retrieve some materials (simple contains search)
     const q = question.trim();
@@ -533,7 +658,13 @@ export class TutorService {
     });
 
     // Build deterministic assistant reply (Day 7: adaptive)
-    const ctx = this.buildTutorContext({ character: session.character, profile, brain, session, studentId });
+    const ctx = this.buildTutorContext({
+      character: session.character,
+      profile,
+      brain,
+      session,
+      studentId,
+    });
 
     const tone = ctx.effective.tone;
     const explainStyle = ctx.effective.explainStyle;
@@ -543,7 +674,12 @@ export class TutorService {
     const topic = this.guessTopic(question, materials, ctx.weak);
 
     const t0 = Date.now();
-    const gen = await this.generateAssistantReply({ question, ctx, materials, topic });
+    const gen = await this.generateAssistantReply({
+      question,
+      ctx,
+      materials,
+      topic,
+    });
     const latencyMs = Date.now() - t0;
 
     await this.prisma.analyticsEvent.create({
@@ -558,7 +694,11 @@ export class TutorService {
           subject: session.character?.subject ?? null,
           topic,
           latencyMs,
-          refsCount: Array.isArray(gen.refs) ? gen.refs.length : String(gen.refs ?? '').split('|').filter(Boolean).length,
+          refsCount: Array.isArray(gen.refs)
+            ? gen.refs.length
+            : String(gen.refs ?? '')
+                .split('|')
+                .filter(Boolean).length,
         },
       } as any,
     });
@@ -592,7 +732,15 @@ export class TutorService {
   }
 
   private async ensureGlobalDefaultCharacters() {
-    const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'] as const;
+    const subjects = [
+      'GENERAL',
+      'MATH',
+      'PHYSICS',
+      'CS',
+      'ENGLISH',
+      'HEBREW',
+      'ARABIC',
+    ] as const;
 
     for (const subj of subjects) {
       const existing = await this.prisma.tutorCharacter.findFirst({
@@ -606,20 +754,27 @@ export class TutorService {
           cohortId: null,
           subject: subj as any,
           name:
-            subj === 'MATH' ? 'Math Tutor'
-            : subj === 'PHYSICS' ? 'Physics Tutor'
-            : subj === 'CS' ? 'CS Tutor'
-            : subj === 'ENGLISH' ? 'English Tutor'
-            : subj === 'HEBREW' ? 'Hebrew Tutor'
-            : subj === 'ARABIC' ? 'Arabic Tutor'
-            : 'General Tutor',
+            subj === 'MATH'
+              ? 'Math Tutor'
+              : subj === 'PHYSICS'
+                ? 'Physics Tutor'
+                : subj === 'CS'
+                  ? 'CS Tutor'
+                  : subj === 'ENGLISH'
+                    ? 'English Tutor'
+                    : subj === 'HEBREW'
+                      ? 'Hebrew Tutor'
+                      : subj === 'ARABIC'
+                        ? 'Arabic Tutor'
+                        : 'General Tutor',
           curriculum: 'bagrut',
           maxGrade: 12,
           language: 'en',
           tone: 'friendly',
           verbosity: 5,
           explainStyle: 'step-by-step',
-          systemNotes: 'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
+          systemNotes:
+            'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
         } as any,
       });
     }
@@ -635,19 +790,29 @@ export class TutorService {
   }
 
   // ---------- Tutor reply helpers (Day 7) ----------
-  private buildTutorContext(args: { character?: any; profile?: any; brain?: any; session?: any; studentId?: string; }) {
+  private buildTutorContext(args: {
+    character?: any;
+    profile?: any;
+    brain?: any;
+    session?: any;
+    studentId?: string;
+  }) {
     const { character, profile, brain, session } = args;
 
     const effective = {
-      curriculum: profile?.targetCurriculum ?? character?.curriculum ?? 'bagrut',
+      curriculum:
+        profile?.targetCurriculum ?? character?.curriculum ?? 'bagrut',
       grade: profile?.targetGrade ?? character?.maxGrade ?? 12,
       language: profile?.preferredLanguage ?? character?.language ?? 'en',
       tone: profile?.tone ?? character?.tone ?? 'friendly',
-      explainStyle: profile?.explainStyle ?? character?.explainStyle ?? 'step-by-step',
+      explainStyle:
+        profile?.explainStyle ?? character?.explainStyle ?? 'step-by-step',
       verbosity:
         typeof profile?.verbosity === 'number'
           ? profile.verbosity
-          : (typeof character?.verbosity === 'number' ? character.verbosity : 6),
+          : typeof character?.verbosity === 'number'
+            ? character.verbosity
+            : 6,
       emojiOk: profile?.emojiOk !== undefined ? Boolean(profile.emojiOk) : true,
       systemNotes: character?.systemNotes ?? '',
       subject: character?.subject ?? session?.subject ?? 'GENERAL',
@@ -655,8 +820,12 @@ export class TutorService {
 
     // Brain-derived hints (best effort)
     const brainMetrics = brain?.metrics ?? null;
-    const weak = Array.isArray(brainMetrics?.weak) ? brainMetrics.weak.map(String) : [];
-    const strong = Array.isArray(brainMetrics?.strong) ? brainMetrics.strong.map(String) : [];
+    const weak = Array.isArray(brainMetrics?.weak)
+      ? brainMetrics.weak.map(String)
+      : [];
+    const strong = Array.isArray(brainMetrics?.strong)
+      ? brainMetrics.strong.map(String)
+      : [];
     const note = brainMetrics?.note ? String(brainMetrics.note) : '';
 
     return { effective, weak, strong, note, brainMetrics };
@@ -664,15 +833,34 @@ export class TutorService {
 
   private guessTopic(question: string, materials: any[], weak: string[]) {
     const q = (question ?? '').toLowerCase();
-    const fromWeak = weak.map(w => String(w).toLowerCase());
-    const fromMaterials = (materials ?? []).map((m) => String(m?.title ?? '') + ' ' + String(m?.tags ?? '')).join(' ').toLowerCase();
+    const fromWeak = weak.map((w) => String(w).toLowerCase());
+    const fromMaterials = (materials ?? [])
+      .map((m) => String(m?.title ?? '') + ' ' + String(m?.tags ?? ''))
+      .join(' ')
+      .toLowerCase();
 
     const hay = q + ' ' + fromMaterials + ' ' + fromWeak.join(' ');
     if (hay.includes('deriv')) return 'derivatives';
     if (hay.includes('integral')) return 'integrals';
-    if (hay.includes('kinematic') || hay.includes('acceleration') || hay.includes('velocity') || hay.includes('free fall')) return 'kinematics';
-    if (hay.includes('ohm') || hay.includes('circuit') || hay.includes('resistance')) return 'electricity';
-    if (hay.includes('loop') || hay.includes('array') || hay.includes('function')) return 'programming basics';
+    if (
+      hay.includes('kinematic') ||
+      hay.includes('acceleration') ||
+      hay.includes('velocity') ||
+      hay.includes('free fall')
+    )
+      return 'kinematics';
+    if (
+      hay.includes('ohm') ||
+      hay.includes('circuit') ||
+      hay.includes('resistance')
+    )
+      return 'electricity';
+    if (
+      hay.includes('loop') ||
+      hay.includes('array') ||
+      hay.includes('function')
+    )
+      return 'programming basics';
     return 'general';
   }
 
@@ -702,8 +890,14 @@ export class TutorService {
             ];
       }
       return easy
-        ? ['Mini-quiz: Solve 2x+5=13.', 'Mini-quiz: What is the slope between (1,2) and (3,6)?']
-        : ['Mini-quiz: Simplify (x^2−9)/(x−3).', 'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).'];
+        ? [
+            'Mini-quiz: Solve 2x+5=13.',
+            'Mini-quiz: What is the slope between (1,2) and (3,6)?',
+          ]
+        : [
+            'Mini-quiz: Simplify (x^2−9)/(x−3).',
+            'Mini-quiz: Find the equation of a line with slope 2 passing through (1,−1).',
+          ];
     }
 
     if (subject.includes('PHYS')) {
@@ -719,17 +913,32 @@ export class TutorService {
             ];
       }
       return easy
-        ? ['Mini-quiz: What are the units of acceleration?', 'Mini-quiz: If distance is 0, what is displacement?']
-        : ['Mini-quiz: Explain the difference between speed and velocity with an example.', 'Mini-quiz: Give one situation where acceleration is negative.'];
+        ? [
+            'Mini-quiz: What are the units of acceleration?',
+            'Mini-quiz: If distance is 0, what is displacement?',
+          ]
+        : [
+            'Mini-quiz: Explain the difference between speed and velocity with an example.',
+            'Mini-quiz: Give one situation where acceleration is negative.',
+          ];
     }
 
     if (subject.includes('CS')) {
       return easy
-        ? ['Mini-quiz: What is a variable?', 'Mini-quiz: What does a for-loop do?']
-        : ['Mini-quiz: What\'s the difference between a function parameter and an argument?', 'Mini-quiz: Explain (in simple words) what an array is and when you use it.'];
+        ? [
+            'Mini-quiz: What is a variable?',
+            'Mini-quiz: What does a for-loop do?',
+          ]
+        : [
+            "Mini-quiz: What's the difference between a function parameter and an argument?",
+            'Mini-quiz: Explain (in simple words) what an array is and when you use it.',
+          ];
     }
 
-    return ['Mini-quiz: Summarize the key idea in 1 sentence.', 'Mini-quiz: Give one example that matches the idea.'];
+    return [
+      'Mini-quiz: Summarize the key idea in 1 sentence.',
+      'Mini-quiz: Give one example that matches the idea.',
+    ];
   }
 
   private formatTutorReply(args: {
@@ -751,7 +960,9 @@ export class TutorService {
     const excerpt = String(args.excerpt ?? '').trim();
     const refs = String(args.refs ?? '').trim();
     const tone = String(args.effective?.tone ?? 'friendly').toLowerCase();
-    const explainStyle = String(args.effective?.explainStyle ?? 'step-by-step').toLowerCase();
+    const explainStyle = String(
+      args.effective?.explainStyle ?? 'step-by-step',
+    ).toLowerCase();
     const verbosity = Number(args.effective?.verbosity ?? 6);
     const emojiOk = Boolean(args.effective?.emojiOk ?? true);
     const weak = Array.isArray(args.weak) ? args.weak : [];
@@ -765,8 +976,10 @@ export class TutorService {
     const lines: string[] = [];
 
     // Header
-    if (tone.includes('coach')) lines.push(emoji('💪') + 'Bagrut Tutor (coach mode)');
-    else if (tone.includes('strict')) lines.push(emoji('🧠') + 'Bagrut Tutor (focused mode)');
+    if (tone.includes('coach'))
+      lines.push(emoji('💪') + 'Bagrut Tutor (coach mode)');
+    else if (tone.includes('strict'))
+      lines.push(emoji('🧠') + 'Bagrut Tutor (focused mode)');
     else lines.push(emoji('🙂') + 'Bagrut Tutor (friendly mode)');
 
     // Adaptation hints (from brain/profile)
@@ -824,35 +1037,48 @@ export class TutorService {
   }
 
   private oneLineExplanation(topic: string) {
-    if (topic === 'derivatives') return 'A derivative is the slope of the tangent line (rate of change) at a point.';
-    if (topic === 'kinematics') return 'Kinematics connects position, velocity, acceleration using constant-acceleration formulas.';
-    if (topic === 'programming basics') return 'Programming is giving the computer step-by-step instructions with variables and control flow.';
+    if (topic === 'derivatives')
+      return 'A derivative is the slope of the tangent line (rate of change) at a point.';
+    if (topic === 'kinematics')
+      return 'Kinematics connects position, velocity, acceleration using constant-acceleration formulas.';
+    if (topic === 'programming basics')
+      return 'Programming is giving the computer step-by-step instructions with variables and control flow.';
     return 'We identify the rule/definition, then apply it carefully with a small example.';
   }
   private quickExample(topic: string) {
-    if (topic === 'derivatives') return "If f(x)=x^2, then f\'(x)=2x, so at x=3 the slope is 6.";
-    if (topic === 'kinematics') return 'If v0=0 and a=2, after 3s: v=v0+at=6 m/s.';
+    if (topic === 'derivatives')
+      return "If f(x)=x^2, then f\'(x)=2x, so at x=3 the slope is 6.";
+    if (topic === 'kinematics')
+      return 'If v0=0 and a=2, after 3s: v=v0+at=6 m/s.';
     return 'Example: pick simple numbers, apply the rule, and check units/logic.';
   }
   private stepOne(topic: string) {
-    if (topic === 'derivatives') return 'Write the function clearly and choose the rule (power rule / sum rule).';
-    if (topic === 'kinematics') return 'List known values (v0, v, a, t, Δx) with units.';
+    if (topic === 'derivatives')
+      return 'Write the function clearly and choose the rule (power rule / sum rule).';
+    if (topic === 'kinematics')
+      return 'List known values (v0, v, a, t, Δx) with units.';
     return 'State the definition/rule you will use.';
   }
   private stepTwo(topic: string) {
-    if (topic === 'derivatives') return 'Differentiate term-by-term (e.g., d/dx(x^n)=n·x^(n−1)).';
-    if (topic === 'kinematics') return 'Pick the correct constant-acceleration formula that fits the knowns.';
+    if (topic === 'derivatives')
+      return 'Differentiate term-by-term (e.g., d/dx(x^n)=n·x^(n−1)).';
+    if (topic === 'kinematics')
+      return 'Pick the correct constant-acceleration formula that fits the knowns.';
     return 'Substitute values carefully.';
   }
   private stepThree(topic: string) {
-    if (topic === 'derivatives') return 'Simplify and (if asked) plug in the x value to get the slope at that point.';
-    if (topic === 'kinematics') return 'Solve, then sanity-check sign and units (m/s, m/s^2, etc.).';
+    if (topic === 'derivatives')
+      return 'Simplify and (if asked) plug in the x value to get the slope at that point.';
+    if (topic === 'kinematics')
+      return 'Solve, then sanity-check sign and units (m/s, m/s^2, etc.).';
     return 'Check the result makes sense.';
   }
 
   private getTutorReplyMode() {
     // deterministic (default) or llm (future swap)
-    const v = String(process.env.TUTOR_REPLY_MODE ?? 'deterministic').toLowerCase();
+    const v = String(
+      process.env.TUTOR_REPLY_MODE ?? 'deterministic',
+    ).toLowerCase();
     return v === 'llm' ? 'llm' : 'deterministic';
   }
 
@@ -921,13 +1147,12 @@ export class TutorService {
     });
 
     return { content, refs, excerpt };
-
   }
 
-
-  private async readReplyCache(key: string): Promise<{ content: string } | null> {
+  private async readReplyCache(
+    key: string,
+  ): Promise<{ content: string } | null> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const cache = require('./tutor.reply.cache');
       if (cache?.getCachedReply) {
         const hit = await cache.getCachedReply(this.prisma, key);
@@ -939,13 +1164,18 @@ export class TutorService {
 
   private async writeReplyCache(key: string, content: string) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const cache = require('./tutor.reply.cache');
-      if (cache?.setCachedReply) await cache.setCachedReply(this.prisma, key, content);
+      if (cache?.setCachedReply)
+        await cache.setCachedReply(this.prisma, key, content);
     } catch {}
   }
 
-  private async emitTutorEvent(userId: string | null, cohortId: string | null, name: string, payload: any) {
+  private async emitTutorEvent(
+    userId: string | null,
+    cohortId: string | null,
+    name: string,
+    payload: any,
+  ) {
     try {
       await this.prisma.analyticsEvent.create({
         data: {
@@ -961,12 +1191,15 @@ export class TutorService {
   }
 
   private normalizeTutorSubject(raw?: string) {
-    const v = String(raw ?? '').trim().toUpperCase();
+    const v = String(raw ?? '')
+      .trim()
+      .toUpperCase();
     if (!v) return 'GENERAL';
     // allow synonyms
     if (v === 'MATH' || v === 'MATHEMATICS') return 'MATH';
     if (v === 'PHYSICS' || v === 'PHY') return 'PHYSICS';
-    if (v === 'CS' || v === 'COMPUTER_SCIENCE' || v === 'COMPUTERSCIENCE') return 'CS';
+    if (v === 'CS' || v === 'COMPUTER_SCIENCE' || v === 'COMPUTERSCIENCE')
+      return 'CS';
     if (v === 'ENGLISH' || v === 'ENG') return 'ENGLISH';
     if (v === 'HEBREW') return 'HEBREW';
     if (v === 'ARABIC') return 'ARABIC';
@@ -975,21 +1208,28 @@ export class TutorService {
 
   private defaultCharacterName(subject: string) {
     switch (subject) {
-      case 'MATH': return 'Math Tutor';
-      case 'PHYSICS': return 'Physics Tutor';
-      case 'CS': return 'CS Tutor';
-      case 'ENGLISH': return 'English Tutor';
-      case 'HEBREW': return 'Hebrew Tutor';
-      case 'ARABIC': return 'Arabic Tutor';
-      default: return 'General Tutor';
+      case 'MATH':
+        return 'Math Tutor';
+      case 'PHYSICS':
+        return 'Physics Tutor';
+      case 'CS':
+        return 'CS Tutor';
+      case 'ENGLISH':
+        return 'English Tutor';
+      case 'HEBREW':
+        return 'Hebrew Tutor';
+      case 'ARABIC':
+        return 'Arabic Tutor';
+      default:
+        return 'General Tutor';
     }
   }
 
-
-
   async listCharacters(user: any, query?: { subject?: string }) {
     // students/admin/secretary allowed (controller will guard)
-    const subject = query?.subject ? this.normalizeTutorSubject(query.subject) : undefined;
+    const subject = query?.subject
+      ? this.normalizeTutorSubject(query.subject)
+      : undefined;
 
     const rows = await this.prisma.tutorCharacter.findMany({
       where: {
@@ -1002,8 +1242,6 @@ export class TutorService {
     return { ok: true, characters: rows };
   }
 
-
-
   async ensureDefaultCharacters(user: any, dto?: any) {
     const roles: string[] = user?.roles ?? [];
     if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
@@ -1012,11 +1250,22 @@ export class TutorService {
 
     const cohortId = dto?.cohortId ? String(dto.cohortId) : null;
 
-    const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'];
+    const subjects = [
+      'GENERAL',
+      'MATH',
+      'PHYSICS',
+      'CS',
+      'ENGLISH',
+      'HEBREW',
+      'ARABIC',
+    ];
     const created: any[] = [];
     for (const subj of subjects) {
       const existing = await this.prisma.tutorCharacter.findFirst({
-        where: { subject: subj as any, ...(cohortId ? { cohortId } : { cohortId: null }) },
+        where: {
+          subject: subj as any,
+          ...(cohortId ? { cohortId } : { cohortId: null }),
+        },
         select: { id: true },
       });
       if (existing) continue;
@@ -1043,5 +1292,30 @@ export class TutorService {
     return { ok: true, createdCount: created.length, created };
   }
 
+  private replyCacheKey(input: {
+    studentId: string;
+    characterId: string;
+    subject: string;
+    topic: string;
+    question: string;
+    refs: any;
+    excerpt: any;
+  }) {
+    // Stable, deterministic key (hash of normalized payload)
+    const { createHash } = require('crypto');
 
+    const payload = JSON.stringify({
+      studentId: String(input.studentId ?? ''),
+      characterId: String(input.characterId ?? ''),
+      subject: String(input.subject ?? ''),
+      topic: String(input.topic ?? ''),
+      question: String(input.question ?? ''),
+      refs: input.refs ?? null,
+      excerpt: input.excerpt ?? null,
+    });
+
+    return (
+      'tutorReply|' + createHash('sha256').update(payload, 'utf8').digest('hex')
+    );
+  }
 }

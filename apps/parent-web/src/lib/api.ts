@@ -114,3 +114,13 @@ export function parentAlertsSettings(studentId: string) {
 export function parentSaveAlertsSettings(body: any) {
   return api('/parent/alerts/settings', { method: 'POST', body });
 }
+
+// ---- Alerts settings wrappers (compat for alerts page) ----
+export async function getAlertSettings(studentId: string) {
+  return parentAlertsSettings(studentId);
+}
+
+export async function updateAlertSettings(payload: { studentId: string; minGrade: number; maxAbsences: number; maxLates: number }) {
+  return parentSaveAlertsSettings(payload);
+}
+

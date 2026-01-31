@@ -1,7 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { E2ESeedGuard } from './e2e-seed.guard';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
+@UseGuards(E2ESeedGuard)
 @Controller('/test/seed')
 export class E2ESeedController {
   private prisma = new PrismaClient();
@@ -11,7 +13,6 @@ export class E2ESeedController {
     const now = Date.now();
     const passwordHash = await bcrypt.hash('dev', 10);
 
-    
     const teacher = await this.prisma.user.upsert({
       where: { email: 'teacher1@classmate.app' },
       update: { password: passwordHash, name: 'Teacher One' },
@@ -19,7 +20,7 @@ export class E2ESeedController {
         email: 'teacher1@classmate.app',
         password: passwordHash,
         name: 'Teacher One',
-        roles: { create: [{ role: 'TEACHER' }] },
+        roles: { create: [{ role: 'TEACHER' }, { role: 'ADMIN' }] },
       },
       select: { id: true },
     });
@@ -28,6 +29,12 @@ export class E2ESeedController {
       where: { userId_role: { userId: teacher.id, role: 'TEACHER' } },
       update: {},
       create: { userId: teacher.id, role: 'TEACHER' },
+    });
+
+    await this.prisma.userRole.upsert({
+      where: { userId_role: { userId: teacher.id, role: 'ADMIN' } },
+      update: {},
+      create: { userId: teacher.id, role: 'ADMIN' },
     });
 
     const teacher2 = await this.prisma.user.upsert({
@@ -54,7 +61,15 @@ export class E2ESeedController {
     });
 
     // Tutor seed: default characters (cohort scope)
-    const subjects = ['GENERAL','MATH','PHYSICS','CS','ENGLISH','HEBREW','ARABIC'] as const;
+    const subjects = [
+      'GENERAL',
+      'MATH',
+      'PHYSICS',
+      'CS',
+      'ENGLISH',
+      'HEBREW',
+      'ARABIC',
+    ] as const;
     const createdBySubject: Record<string, any> = {};
 
     for (const subj of subjects) {
@@ -62,20 +77,28 @@ export class E2ESeedController {
         data: {
           cohortId: cohort.id,
           subject: subj as any,
-          name: subj === 'MATH' ? 'Math Tutor'
-            : subj === 'PHYSICS' ? 'Physics Tutor'
-            : subj === 'CS' ? 'CS Tutor'
-            : subj === 'ENGLISH' ? 'English Tutor'
-            : subj === 'HEBREW' ? 'Hebrew Tutor'
-            : subj === 'ARABIC' ? 'Arabic Tutor'
-            : 'General Tutor',
+          name:
+            subj === 'MATH'
+              ? 'Math Tutor'
+              : subj === 'PHYSICS'
+                ? 'Physics Tutor'
+                : subj === 'CS'
+                  ? 'CS Tutor'
+                  : subj === 'ENGLISH'
+                    ? 'English Tutor'
+                    : subj === 'HEBREW'
+                      ? 'Hebrew Tutor'
+                      : subj === 'ARABIC'
+                        ? 'Arabic Tutor'
+                        : 'General Tutor',
           curriculum: 'bagrut',
           maxGrade: 12,
           language: 'en',
           tone: subj === 'PHYSICS' ? 'coach' : 'friendly',
           verbosity: 5,
           explainStyle: subj === 'PHYSICS' ? 'examples' : 'step-by-step',
-          systemNotes: 'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
+          systemNotes:
+            'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
         } as any,
         select: { id: true, subject: true, name: true },
       });
@@ -86,7 +109,6 @@ export class E2ESeedController {
     const physicsTutor = createdBySubject.PHYSICS;
     const csTutor = createdBySubject.CS;
 
-
     const course = await this.prisma.course.create({
       data: {
         name: `e2e-course-${now}`,
@@ -96,7 +118,6 @@ export class E2ESeedController {
       },
       select: { id: true, name: true, subject: true },
     });
-
 
     // --- extra teacher/cohort/course for isolation tests ---
     const cohort2 = await this.prisma.cohort.create({
@@ -122,7 +143,6 @@ export class E2ESeedController {
         period: 2,
       },
     });
-
 
     await this.prisma.scheduleSlot.create({
       data: {
@@ -157,7 +177,8 @@ export class E2ESeedController {
         grade: 11,
         language: 'en',
         source: 'BAGrut',
-        content: 'Derivative definition: slope of tangent. Basic rules: power rule, sum rule. Example: d/dx(x^2)=2x.',
+        content:
+          'Derivative definition: slope of tangent. Basic rules: power rule, sum rule. Example: d/dx(x^2)=2x.',
         tags: ['derivative', 'calculus', 'bagrut'],
       } as any,
     });
@@ -168,7 +189,12 @@ export class E2ESeedController {
         cohortId: cohort.id,
         metrics: {
           subjects: {
-            MATH: { avg: 78, trend: 'up', weak: ['derivatives'], strong: ['algebra'] },
+            MATH: {
+              avg: 78,
+              trend: 'up',
+              weak: ['derivatives'],
+              strong: ['algebra'],
+            },
           },
           note: 'Prefers step-by-step and short quizzes.',
         },
@@ -264,8 +290,16 @@ export class E2ESeedController {
             data: {
               grade: 95,
               comment: null,
-              assessment: { id: 'e2e-assessment', title: 'E2E Assessment', date: today.toISOString() },
-              course: { id: course.id, name: course.name, subject: course.subject },
+              assessment: {
+                id: 'e2e-assessment',
+                title: 'E2E Assessment',
+                date: today.toISOString(),
+              },
+              course: {
+                id: course.id,
+                name: course.name,
+                subject: course.subject,
+              },
             },
             createdAt: new Date(),
           },
@@ -274,7 +308,6 @@ export class E2ESeedController {
     } catch (_e) {
       // don't break seed on notification failures
     }
-
 
     return {
       ok: true,
@@ -290,14 +323,26 @@ export class E2ESeedController {
       mathTutorId: mathTutor.id,
       physicsTutorId: physicsTutor.id,
       csTutorId: csTutor.id,
-      characterIds: (await this.prisma.tutorCharacter.findMany({ select: { id: true, subject: true, name: true } })).map(x=>x),
+      characterIds: (
+        await this.prisma.tutorCharacter.findMany({
+          select: { id: true, subject: true, name: true },
+        })
+      ).map((x) => x),
     };
   }
   @Post('clear-tutor-characters')
-  async clearTutorCharacters() {
-    // test-only: wipe characters so TutorService must re-create defaults
-    await this.prisma.tutorCharacter.deleteMany({});
-    return { ok: true };
+  async clearTutorCharacters(@Body() body: any) {
+    const cohortId = body?.cohortId ? String(body.cohortId) : null;
+
+    if (!cohortId) {
+      return { ok: false, message: 'cohortId required' };
+    }
+
+    const deleted = await this.prisma.tutorCharacter.deleteMany({
+      where: { cohortId },
+    });
+
+    return { ok: true, deletedCount: deleted.count, cohortId };
   }
 
   @Post('parent-web')
@@ -359,7 +404,8 @@ export class E2ESeedController {
     });
 
     const nowDt = new Date();
-    const mk = (minsAgo: number) => new Date(nowDt.getTime() - minsAgo * 60_000);
+    const mk = (minsAgo: number) =>
+      new Date(nowDt.getTime() - minsAgo * 60_000);
 
     await this.prisma.parentNotification.createMany({
       data: [
@@ -388,6 +434,4 @@ export class E2ESeedController {
 
     return { ok: true, runId, email: parent.email, password: 'dev' };
   }
-
-
 }
