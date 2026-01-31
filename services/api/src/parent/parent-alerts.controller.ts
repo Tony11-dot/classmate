@@ -1,5 +1,6 @@
 import { Roles } from '../auth/roles.decorator';
 import { Body, Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentAlertsService } from './parent-alerts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateAlertSettingsDto } from './dto/update-alert-settings.dto';
