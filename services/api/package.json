@@ -16,8 +16,5 @@
     "prestart:dev": "prisma generate --schema prisma/schema.prisma",
     "dev": "pnpm run start:dev",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.3"
   }
 }

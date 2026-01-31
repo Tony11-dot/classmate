@@ -9,7 +9,7 @@ export class RegisterDto {
   name!: string;
 
   @IsString()
-  @MinLength(4)
+  @MinLength(3)
   password!: string;
 
   // Optional: only allow safe roles if you later decide to.
