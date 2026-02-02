@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from './schedule.service';
 import { resolveCohortIdForSchedule } from './schedule.auth';
+import { hasAnyRole } from '../auth/permissions';
 
 @UseGuards(JwtAuthGuard)
 @Controller('schedule')
@@ -32,7 +33,7 @@ export class ScheduleController {
   ): Promise<string> {
     const roles: string[] = req.user?.roles ?? [];
 
-    if (roles.includes('STUDENT')) {
+    if (hasAnyRole({ roles }, ['STUDENT'])) {
       const u = await this.prisma.user.findUnique({
         where: { id: req.user.id },
         select: { studentProfile: { select: { cohortId: true } } },
@@ -42,7 +43,7 @@ export class ScheduleController {
       return cid;
     }
 
-    if (roles.includes('PARENT')) {
+    if (hasAnyRole({ roles }, ['PARENT'])) {
       if (!childId)
         throw new BadRequestException('childId is required for parents');
 

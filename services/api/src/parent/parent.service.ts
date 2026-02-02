@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { ParentNotificationDtoSchema } from './dto/parent-notification.dto';
+import { hasAnyRole } from '../auth/permissions';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -49,7 +50,7 @@ type StudentProfileLite = { userId: string; cohortId: string };
 export class ParentService {
   private isAdmin(user: any) {
     const roles: string[] = user?.roles ?? [];
-    return roles.includes('ADMIN');
+    return hasAnyRole({ roles }, ['ADMIN']);
   }
 
   private async ensureParentStudentScope(user: any, studentId?: string) {

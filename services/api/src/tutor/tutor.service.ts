@@ -120,7 +120,7 @@ export class TutorService {
 
   private requireStudent(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('STUDENT') && !roles.includes('ADMIN')) {
+    if (!hasAnyRole({ roles }, ['STUDENT','ADMIN'])) {
       throw new ForbiddenException('Student only');
     }
     return user?.sub ?? user?.id;
@@ -1245,7 +1245,7 @@ export class TutorService {
 
   async ensureDefaultCharacters(user: any, dto?: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
 

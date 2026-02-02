@@ -1,6 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { loadEnv } from '../env';
+import { hasAnyRole } from '../auth/permissions';
 
 @Injectable()
 export class E2ESeedGuard extends AuthGuard('jwt') {
@@ -17,6 +18,6 @@ export class E2ESeedGuard extends AuthGuard('jwt') {
     // ...and ADMIN role.
     const req = context.switchToHttp().getRequest();
     const roles: string[] = req.user?.roles ?? [];
-    return roles.includes('ADMIN');
+    return hasAnyRole({ roles }, ['ADMIN']);
   }
 }

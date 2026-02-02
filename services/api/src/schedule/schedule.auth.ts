@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 export type ScheduleRole =
   | 'STUDENT'
@@ -18,7 +19,7 @@ export async function resolveCohortIdForSchedule(params: {
   const roles: string[] = req.user?.roles ?? [];
 
   // STUDENT: from own StudentProfile -> cohortId
-  if (roles.includes('STUDENT')) {
+  if (hasAnyRole({ roles }, ['STUDENT'])) {
     const u = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: { studentProfile: { select: { cohortId: true } } },
@@ -29,7 +30,7 @@ export async function resolveCohortIdForSchedule(params: {
   }
 
   // PARENT: require childId and verify APPROVED link
-  if (roles.includes('PARENT')) {
+  if (hasAnyRole({ roles }, ['PARENT'])) {
     if (!childId)
       throw new BadRequestException('childId is required for parents');
 
