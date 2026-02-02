@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 function parseDateish(input?: string): Date | null {
   if (!input) return null;
@@ -21,7 +22,7 @@ export class AnnouncementsService {
 
   private ensureCanPost(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
   }

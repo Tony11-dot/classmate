@@ -59,6 +59,7 @@ model User {
   announcements       Announcement[]
   announcementSeens   AnnouncementSeen[]
   parentNotifications ParentNotification[]
+  solutions           Solution[]
 }
 
 model UserRole {
@@ -638,3 +639,40 @@ model TutorReplyCache {
   @@index([userId, characterId])
   @@unique([userId, characterId, normalizedQuestion, mode])
 }
+
+// ### CLASSMATE:MODELS:BEGIN
+model Solution {
+  id             String   @id @default(uuid())
+  authorId       String
+  subject        String   // "math" | "physics" | ...
+  sourceType     String   // "book" | "bagrut" | "other"
+  sourceName     String?  // book name OR bagrut year/season
+  page           Int?
+  questionNumber String?  // "12" or "12a"
+  title          String?
+  notes          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  images SolutionImage[]
+
+  @@index([subject, sourceType])
+  @@index([subject, sourceName, page])
+  @@index([subject, sourceName, page, questionNumber])
+}
+
+model SolutionImage {
+  id         String   @id @default(uuid())
+  solutionId String
+  url        String
+  width      Int?
+  height     Int?
+  createdAt  DateTime @default(now())
+
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@index([solutionId])
+}
+// ### CLASSMATE:MODELS:END

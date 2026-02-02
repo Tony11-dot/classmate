@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -56,7 +57,7 @@ export class TeacherService {
   constructor(private readonly prisma: PrismaService) {}
 
   private ensureTeacher(user: any) {
-    if (!user?.roles?.includes('TEACHER') && !user?.roles?.includes('ADMIN'))
+    if (!hasAnyRole(user, ['TEACHER','ADMIN']))
       throw new ForbiddenException('Teacher only');
   }
 

@@ -20,6 +20,8 @@ import { ParentService } from './parent.service';
 export class ParentController {
   constructor(private readonly parent: ParentService) {}
 
+  @Roles('STUDENT', 'PARENT', 'ADMIN')
+  @Roles('STUDENT', 'PARENT', 'ADMIN')
   @Post('link')
   link(@Req() req: any, @Body() body: any) {
     return this.parent.link(req.user, body);

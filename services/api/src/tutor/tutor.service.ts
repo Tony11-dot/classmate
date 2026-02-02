@@ -7,6 +7,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { hasAnyRole } from '../auth/permissions';
 
 @Injectable()
 export class TutorService {
@@ -213,7 +214,7 @@ export class TutorService {
   async createMaterial(user: any, dto: any) {
     // Admin/Secretary only (or tighten later)
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
     if (!dto?.subject || !dto?.title)
@@ -782,7 +783,7 @@ export class TutorService {
 
   async ensureDefaultCharactersAdmin(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
     await this.ensureGlobalDefaultCharacters();

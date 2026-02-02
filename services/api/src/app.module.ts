@@ -1,6 +1,8 @@
-import { HealthModule } from './health/health.module';
 import { Module } from '@nestjs/common';
-import { E2ESeedController } from './e2e/seed.controller';
+
+import { loadEnv } from './env';
+
+import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { TutorModule } from './tutor/tutor.module';
@@ -10,12 +12,18 @@ import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
-import { loadEnv } from './env';
+
+import { E2ESeedController } from './e2e/seed.controller';
 
 const env = loadEnv();
 
+// Extra safety: never even register the controller in production
+const controllers = [
+  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
+];
+
 @Module({
-  controllers: [...(env.ENABLE_E2E_SEED ? [E2ESeedController] : [])],
+  controllers,
   imports: [
     HealthModule,
     PrismaModule,

@@ -30,7 +30,6 @@ export class AuthService {
     return { token };
   }
 
-
   async register(dto: RegisterDto) {
     const email = dto.email.trim().toLowerCase();
     const name = dto.name.trim();
@@ -55,6 +54,15 @@ export class AuthService {
       roles: user.roles.map((r) => r.role),
     });
 
-    return { ok: true, token, user: { id: user.id, email: user.email, name: user.name, roles: user.roles.map(r => r.role) } };
+    return {
+      ok: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        roles: user.roles.map((r) => r.role),
+      },
+    };
   }
 }

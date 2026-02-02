@@ -1,14 +1,3 @@
 packages:
-  - apps/*
-  - services/*
-
-ignoredBuiltDependencies:
-  - unrs-resolver
-
-onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@prisma/client'
-  - '@prisma/engines'
-  - bcrypt
-  - prisma
-  - sharp
+  - "apps/*"
+  - "services/*"

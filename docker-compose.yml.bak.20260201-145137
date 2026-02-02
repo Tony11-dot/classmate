@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: classmate
+      POSTGRES_PASSWORD: classmate
+      POSTGRES_DB: classmate
+    ports:
+      - "5432:5432"
+    volumes:
+      - classmate_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classmate -d classmate"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  api:
+      - "3002:3002"
+  env_file:
+    - .env
+volumes:
+  classmate_pg:

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -14,7 +22,6 @@ export class AuthController {
     if (!result) throw new UnauthorizedException('Invalid credentials');
     return result;
   }
-
 
   @Post('register')
   register(@Body() body: RegisterDto) {

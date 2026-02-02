@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -19,7 +20,7 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   private ensureAdmin(user: any) {
-    if (!user?.roles?.includes('ADMIN'))
+    if (!hasAnyRole(user, ['ADMIN']))
       throw new ForbiddenException('Admin only');
   }
 

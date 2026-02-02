@@ -23,11 +23,17 @@
     "test:e2e:attendance": "WEB_BASE=http://localhost:3001 pnpm --dir apps/admin-web exec playwright test e2e/attendance.spec.ts --reporter=list",
     "test:e2e:grades": "pnpm --dir apps/admin-web exec playwright test e2e/grades.spec.ts --reporter=list",
     "test:e2e:parent": "pnpm --dir apps/parent-web exec playwright test --reporter=list",
-    "build": "pnpm -r -w --filter ./services/api --filter ./apps/admin-web --filter ./apps/parent-web run build",
+    "build": "pnpm -r -w --workspace-concurrency=1 --filter ./services/api --filter ./apps/admin-web --filter ./apps/parent-web run build",
     "typecheck": "pnpm -r -w --filter ./services/api --filter ./apps/admin-web --filter ./apps/parent-web run typecheck",
     "lint:all": "pnpm -r -w --filter ./services/api --filter ./apps/admin-web --filter ./apps/parent-web run lint",
     "test:all": "pnpm -r -w --filter ./services/api --filter ./apps/admin-web --filter ./apps/parent-web run test",
-    "test:e2e:tutor": "pnpm --dir apps/admin-web exec playwright test e2e --grep tutor --workers=5 --reporter=line"
+    "test:e2e:tutor": "pnpm --dir apps/admin-web exec playwright test e2e --grep tutor --workers=5 --reporter=line",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down -v",
+    "docker:logs": "docker compose logs -f --tail=120",
+    "docker:ps": "docker compose ps",
+    "smoke:docker": "curl -sS http://localhost:3000/api/health | jq .",
+    "verify:docker": "pnpm -s docker:up && pnpm -s smoke:docker && docker compose ps"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.54.0",

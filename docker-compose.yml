@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: classmate
+      POSTGRES_PASSWORD: classmate
+      POSTGRES_DB: classmate
+    ports:
+      - "5432:5432"
+    volumes:
+      - classmate_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classmate -d classmate"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # IMPORTANT: single quotes inside the CMD-SHELL to avoid yaml quoting hell
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health | grep -q '\"ok\":true'"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    ports:
+      - "3000:3000"
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: apps/admin-web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+  parent-web:
+    build:
+      context: .
+      dockerfile: apps/parent-web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3002:3002"
+
+volumes:
+  classmate_pg:
