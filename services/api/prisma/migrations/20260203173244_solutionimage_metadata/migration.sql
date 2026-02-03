@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - Added the required column `kind` to the `SolutionImage` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `mime` to the `SolutionImage` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `sizeBytes` to the `SolutionImage` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `storagePath` to the `SolutionImage` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- AlterTable
 ALTER TABLE "SolutionImage"
   ADD COLUMN "storagePath" TEXT NOT NULL DEFAULT '',
