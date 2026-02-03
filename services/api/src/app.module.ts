@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { SolutionsModule } from './solutions/solutions.module';
 
 import { loadEnv } from './env';
 
@@ -25,10 +28,15 @@ const controllers = [
 @Module({
   controllers,
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
     HealthModule,
     PrismaModule,
     AuthModule,
     TutorModule,
+    SolutionsModule,
     ScheduleModule,
     StudentModule,
     AdminModule,

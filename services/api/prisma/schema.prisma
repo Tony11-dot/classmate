@@ -651,7 +651,7 @@ model Solution {
   questionNumber String?  // "12" or "12a"
   title          String?
   notes          String?
-
+  body           String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -666,7 +666,18 @@ model Solution {
 model SolutionImage {
   id         String   @id @default(uuid())
   solutionId String
+
+  // public URL (served from /uploads)
   url        String
+
+  // storage + metadata (for PDFs/scans/search)
+  storagePath  String
+  kind         String   // "image" | "pdf" | "other"
+  mime         String
+  sizeBytes    Int
+  originalName String?
+  sha256       String?
+
   width      Int?
   height     Int?
   createdAt  DateTime @default(now())
@@ -674,5 +685,9 @@ model SolutionImage {
   solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
 
   @@index([solutionId])
+  @@index([kind])
+  @@index([mime])
+  @@index([sha256])
 }
+
 // ### CLASSMATE:MODELS:END
