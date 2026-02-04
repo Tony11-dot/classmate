@@ -13,16 +13,16 @@ export class ParentNotificationsController {
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
     const limit = q.limit ? Number(q.limit) : 30;
     const unseenOnly = q.unseenOnly === 'true';
-    return this.svc.list(req.user.sub, { limit, cursor: q.cursor, unseenOnly });
+    return this.svc.list(req.user.id, { limit, cursor: q.cursor, unseenOnly });
   }
 
   @Get('unread-count')
   async unreadCount(@Req() req: any) {
-    return this.svc.unreadCount(req.user.sub);
+    return this.svc.unreadCount(req.user.id);
   }
 
   @Patch('mark-seen')
   async markSeen(@Req() req: any, @Body() dto: MarkNotificationsSeenDto) {
-    return this.svc.markSeen(req.user.sub, dto.ids ?? []);
+    return this.svc.markSeen(req.user.id, dto.ids ?? []);
   }
 }
