@@ -23,7 +23,7 @@ DB_PORT="$(printf '%s' "${DB_BIND:-}" | sed -E 's/.*:([0-9]+)$/\1/')"
 
 # Guardrail: API must be reachable
 echo "== api health =="
-curl -fsS "$BASE/api/health" >/dev/null || { echo "API health failed"; exit 1; }
+./scripts/wait-api.sh "$BASE/api/health" || { echo "API health failed"; exit 1; }
 echo "ok"
 
 echo "== migrate deploy =="
