@@ -1,56 +1,27 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
-  NODE_ENV: z
-    .enum(['development', 'test', 'production'])
-    .default('development'),
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+const EnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 
-  // Required
+  // API
+  PORT: z.coerce.number().int().positive().default(3000),
+  JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 chars'),
+
+  // DB
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
-  // Dev/Test only
-  ENABLE_E2E_SEED: z.coerce.boolean().default(false),
-
-  // Optional (but strongly recommended for prod)
-  JWT_SECRET: z.string().min(16).optional(),
-
-  // Comma-separated allowlist for production CORS.
-  // Example: "https://app.classmate.com,https://admin.classmate.com"
-  CORS_ORIGINS: z.string().optional(),
+  // CORS (optional but common)
+  CORS_ORIGIN: z.string().optional(),
 });
 
-export type AppEnv = z.infer<typeof envSchema>;
+export type Env = z.infer<typeof EnvSchema>;
 
-export function loadEnv(): AppEnv {
-  const parsed = envSchema.safeParse(process.env);
+export function loadEnv(): Env {
+  const parsed = EnvSchema.safeParse(process.env);
   if (!parsed.success) {
-    const msg = parsed.error.issues
-      .map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`)
-      .join('\n');
-    throw new Error('Invalid environment variables:\n' + msg);
+    // eslint-disable-next-line no-console
+    console.error('❌ Invalid environment variables:', parsed.error.flatten().fieldErrors);
+    process.exit(1);
   }
-
-  const env = parsed.data;
-
-  // Default enable seed in dev/test unless explicitly set
-  // Safety: in production, require JWT_SECRET (if your auth relies on it)
-  if (env.NODE_ENV === 'production' && !env.JWT_SECRET) {
-    throw new Error('JWT_SECRET is required in production');
-  }
-
-  if (env.NODE_ENV === 'production' && env.ENABLE_E2E_SEED) {
-    throw new Error('ENABLE_E2E_SEED cannot be true in production');
-  }
-
-  return env;
-}
-
-// helper: parse CORS allowlist
-export function parseCorsOrigins(raw?: string): string[] {
-  if (!raw) return [];
-  return raw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return parsed.data;
 }
