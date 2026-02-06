@@ -1,27 +1,34 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // remove existing admin + roles (safe rerun)
-  await prisma.userRole.deleteMany({
-    where: { user: { email: 'admin@classmate.app' } },
-  });
-  await prisma.user.deleteMany({ where: { email: 'admin@classmate.app' } });
+  const email = 'admin@classmate.dev';
+  const password = 'Admin123!';
+  const name = 'Admin';
 
-  const hashed = await bcrypt.hash('admin123', 10);
+  const hashed = await bcrypt.hash(password, 10);
 
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@classmate.app',
+  const admin = await prisma.user.upsert({
+    where: { email },
+    update: {
       password: hashed,
-      name: 'Admin',
-      roles: {
-        create: [{ role: 'ADMIN' }], // <- matches your UserRole.role enum Role
-      },
+      name,
+    },
+    create: {
+      email,
+      password: hashed,
+      name,
     },
     select: { id: true, email: true },
+  });
+
+  // Ensure the ADMIN role exists for this user (idempotent)
+  await prisma.userRole.upsert({
+    where: { userId_role: { userId: admin.id, role: Role.ADMIN } },
+    update: {},
+    create: { userId: admin.id, role: Role.ADMIN },
   });
 
   console.log('Seeded admin:', admin.email);
