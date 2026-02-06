@@ -10,6 +10,8 @@ const EnvSchema = z.object({
   // DB
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
+  ENABLE_E2E_SEED: z.coerce.boolean().default(false),
+
   // CORS (optional but common)
   CORS_ORIGINS: z.string().optional(),
 });
