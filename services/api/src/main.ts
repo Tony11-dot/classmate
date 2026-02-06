@@ -5,7 +5,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   
-  require("./env").loadEnv();
 const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 

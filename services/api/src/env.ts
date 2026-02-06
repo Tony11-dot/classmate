@@ -11,10 +11,15 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
   // CORS (optional but common)
-  CORS_ORIGIN: z.string().optional(),
+  CORS_ORIGINS: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
+
+export function parseCorsOrigins(v?: string) {
+  if (!v) return [] as string[];
+  return v.split(",").map(s => s.trim()).filter(Boolean);
+}
 
 export function loadEnv(): Env {
   const parsed = EnvSchema.safeParse(process.env);
