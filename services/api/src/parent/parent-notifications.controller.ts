@@ -1,13 +1,21 @@
-import { Controller, Get, Patch, Query, Body, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ParentNotificationsService } from './parent-notifications.service';
-import { NotificationsQueryDto } from './dto/notifications-query.dto';
-import { MarkNotificationsSeenDto } from './dto/mark-notifications-seen.dto';
+import { ParentNotificationsEvents } from './parent-notifications.events';
+import { Observable, filter, map, merge, interval, of, startWith, switchMap } from 'rxjs';
+import {
+ Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent } from '@nestjs/common';
+import {
+ AuthGuard } from '@nestjs/passport';
+import {
+ ParentNotificationsService } from './parent-notifications.service';
+import {
+ NotificationsQueryDto } from './dto/notifications-query.dto';
+import {
+ MarkNotificationsSeenDto } from './dto/mark-notifications-seen.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('parent/notifications')
 export class ParentNotificationsController {
-  constructor(private readonly svc: ParentNotificationsService) {}
+  constructor(private readonly svc: ParentNotificationsService,
+    private readonly events: ParentNotificationsEvents) {}
 
   @Get()
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
@@ -30,4 +38,18 @@ export class ParentNotificationsController {
   async markSeen(@Req() req: any, @Body() dto: MarkNotificationsSeenDto) {
     return this.svc.markSeen(req.user.id, dto.ids ?? []);
   }
+
+  @Sse('notifications/stream')
+  stream(@Req() req: any, @Query('token') token?: string): Observable<MessageEvent> {
+    const parentId = req.user?.id;
+    const heartbeat$ = interval(15000).pipe(map(() => ({ data: { type: 'ping' } })));
+
+    const events$ = this.events.events$.pipe(
+      filter((e) => e.parentId === parentId),
+      map((e) => ({ data: e })),
+    );
+
+    return merge(of({ data: { type: 'hello' } }), events$, heartbeat$);
+  }
+
 }

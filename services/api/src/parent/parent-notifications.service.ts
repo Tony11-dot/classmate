@@ -1,3 +1,4 @@
+import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -5,7 +6,8 @@ type ListArgs = { limit: number; cursor?: string; unseenOnly: boolean };
 
 @Injectable()
 export class ParentNotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    private readonly events: ParentNotificationsEvents) {}
 
   // Always use the real table/model for notifications
   private get model() {

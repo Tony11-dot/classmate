@@ -1,3 +1,4 @@
+import React from 'react';
 'use client';
 
 
@@ -120,6 +121,25 @@ export default function NotificationsPage() {
         setLoading(false);
       }
     })();
+  // realtime notifications (SSE)
+  React.useEffect(() => {
+    try {
+      const base = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
+      const url = base.replace(/\/api$/, '') + '/api/parent/notifications/stream';
+      const t = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
+      const es = new EventSource(t ? `${url}?token=${encodeURIComponent(t)}` : url);
+
+      es.onmessage = () => {
+        // any event = refresh list + unread
+        if (typeof refetch === 'function') refetch();
+      };
+
+      return () => es.close();
+    } catch {
+      // ignore (SSE unsupported)
+    }
+  }, []);
+
 
     return () => {
       mounted = false;
