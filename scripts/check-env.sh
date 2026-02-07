@@ -15,7 +15,11 @@ need_file apps/parent-web/.env.local
 # API essentials (adjust if you use different names)
 need_key DATABASE_URL .env
 need_key JWT_SECRET .env
-need_key PORT .env || true
+
+# PORT is optional (docker/compose can own port mapping)
+if ! grep -qE "^PORT=" .env; then
+  echo "⚠️  PORT missing in .env (ok)";
+fi
 
 # Next.js essentials (adjust if you use different names)
 need_key NEXT_PUBLIC_API_BASE_URL apps/admin-web/.env.local || true
