@@ -17,9 +17,11 @@ export class ParentNotificationsService {
   async list(parentUserId: string, args: ListArgs) {
     if (!parentUserId) throw new UnauthorizedException();
 
-    const take = args.limit;
+    const limitRaw: any = (args as any).limit;
+    const takeNum = Array.isArray(limitRaw) ? Number(limitRaw[0]) : Number(limitRaw);
+    const take = Number.isFinite(takeNum) && takeNum > 0 ? Math.min(takeNum, 100) : 30;
 
-    const where: any = {
+const where: any = {
       parentId: parentUserId,
       ...(args.unseenOnly ? { seenAt: null } : {}),
     };

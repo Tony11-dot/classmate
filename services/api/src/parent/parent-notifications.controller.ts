@@ -11,9 +11,14 @@ export class ParentNotificationsController {
 
   @Get()
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
-    const limit = q.limit ? Number(q.limit) : 30;
-    const unseenOnly = q.unseenOnly === 'true';
-    return this.svc.list(req.user.id, { limit, cursor: q.cursor, unseenOnly });
+    const takeRaw = (q as any)?.take ?? (q as any)?.limit ?? 30;
+    const takeNum = Number(takeRaw);
+    const limit = Number.isFinite(takeNum) && takeNum > 0 ? Math.min(takeNum, 100) : 30;
+
+    const unseenOnly = (q as any)?.unseenOnly === true;
+    const cursor = (q as any)?.cursor ? String((q as any).cursor) : undefined;
+
+    return this.svc.list(req.user.id, { limit, cursor, unseenOnly });
   }
 
   @Get('unread-count')

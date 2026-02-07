@@ -77,9 +77,9 @@ $DB -Atqtc "UPDATE \"ParentNotification\"
 SET \"seenAt\" = now()
 WHERE \"parentId\" = '$PARENT_DEV_ID'
   AND \"seenAt\" IS NULL
-  AND id <> '00000000-0000-0000-0000-000000000001';" >/dev/null
+  AND id <> '00000000-0000-4000-8000-000000000001';" >/dev/null
 
-NEW_ID="00000000-0000-0000-0000-000000000001"
+NEW_ID="00000000-0000-4000-8000-000000000001"
 $DB -Atqtc "INSERT INTO \"ParentNotification\" (id, \"parentId\", \"studentId\", type, title, message, data, \"seenAt\")
 VALUES ('$NEW_ID', '$PARENT_DEV_ID', '$STUDENT_ID', 'TEST', 'smoke-owner', 'x', '{}'::jsonb, null)
 ON CONFLICT (id) DO UPDATE

@@ -31,6 +31,10 @@ export default function NotificationsPage() {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
 
   const [items, setItems] = useState<any[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+
   const [unread, setUnread] = useState<{ unread: number; breakdown: Record<string, number> }>({ unread: 0, breakdown: {} });
 
   const [loading, setLoading] = useState(true);
@@ -42,7 +46,7 @@ export default function NotificationsPage() {
     return m;
   }, [lookup.courses]);
 
-  async function refresh(studentId?: string | null) {
+  async function loadFirstPage(studentId?: string | null) {
     const sid = studentId ?? selectedStudentId;
     const [u, n] = await Promise.all([
       parentUnreadCount({ studentId: sid || undefined }),
@@ -50,7 +54,25 @@ export default function NotificationsPage() {
     ]);
     setUnread({ unread: u.unread, breakdown: u.breakdown || {} });
     setItems(n.notifications || []);
+    setNextCursor(n.nextCursor ?? null);
+    setHasMore(Boolean(n.nextCursor));
   }
+
+  async function loadMore() {
+    if (!hasMore || loadingMore) return;
+    try {
+      setLoadingMore(true);
+      const sid = selectedStudentId;
+      const n = await parentNotifications({ studentId: sid || undefined, take: 50, cursor: nextCursor || undefined });
+      const more = n.notifications || [];
+      setItems((prev) => [...prev, ...more]);
+      setNextCursor(n.nextCursor ?? null);
+      setHasMore(Boolean(n.nextCursor));
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
 
   useEffect(() => {
     if (!token) return;
@@ -63,6 +85,7 @@ export default function NotificationsPage() {
 
         const l = await parentLookup();
         if (!mounted) return;
+
         setLookup({ students: l.students || [], courses: l.courses || [] });
 
         const defaultId = l.students?.[0]?.id ?? null;
@@ -70,10 +93,10 @@ export default function NotificationsPage() {
         // If we are deep-linking to a specific notification, load ALL first so it's guaranteed to exist.
         if (focusId) {
           setSelectedStudentId(null);
-          await refresh(null);
+          await loadFirstPage(null);
         } else {
           setSelectedStudentId(defaultId);
-          await refresh(defaultId);
+          await loadFirstPage(defaultId);
         }
 
         if (focusId) {
@@ -85,25 +108,94 @@ export default function NotificationsPage() {
         }
       } catch (e: any) {
         if (!mounted) return;
-        setErr(e?.message || String(e));
+        const msg = e?.message || String(e);
+        setErr(msg);
+
+        const lower = String(msg).toLowerCase();
+        if (lower.includes('missing parent token') || lower.includes('unauthorized')) {
+          window.location.href = '/login';
+        }
       } finally {
         if (!mounted) return;
         setLoading(false);
       }
     })();
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
+  // ---- 10s polling when visible; paused when hidden ----
+  useEffect(() => {
+    if (!token) return;
+
+    let alive = true;
+    let interval: any = null;
+
+    const tick = async () => {
+      try {
+        const sid = selectedStudentId;
+        const u = await parentUnreadCount({ studentId: sid || undefined });
+        setUnread({ unread: u.unread, breakdown: u.breakdown || {} });
+      } catch {
+        // ignore polling failures
+      }
+    };
+
+    const start = () => {
+      if (interval) return;
+      interval = setInterval(() => { tick(); }, 10000);
+    };
+
+    const stop = () => {
+      if (!interval) return;
+      clearInterval(interval);
+      interval = null;
+    };
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        tick();
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    const onNotif = () => { tick(); };
+
+    onVis();
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('classmate_parent_notifications_changed', onNotif);
+
+    return () => {
+      alive = false;
+      stop();
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('classmate_parent_notifications_changed', onNotif);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, selectedStudentId]);
+
   async function markAllRead() {
     try {
-      await parentMarkSeen({});
+      const ids = (items || []).filter((n) => !n.seenAt).map((n) => n.id);
+      if (ids.length === 0) return;
+
+      await parentMarkSeen({ ids });
       window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
-      await refresh(selectedStudentId);
+
+      // optimistic local update
+      const now = new Date().toISOString();
+      setItems((prev) => prev.map((x) => (!x.seenAt ? { ...x, seenAt: now } : x)));
+
+      await loadFirstPage(selectedStudentId);
     } catch (e: any) {
       setErr(e?.message || String(e));
     }
+
   }
 
   async function openNotif(id: string) {
@@ -112,7 +204,7 @@ export default function NotificationsPage() {
       window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
       // optimistic local update
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, seenAt: new Date().toISOString() } : x)));
-      await refresh(selectedStudentId);
+      await loadFirstPage(selectedStudentId);
     } catch (e: any) {
       setErr(e?.message || String(e));
     }
@@ -123,7 +215,7 @@ export default function NotificationsPage() {
   return (
     <div className="mx-auto max-w-3xl p-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">Notifications (filtered)</h1>
+        <h1 className="text-xl font-semibold">Notifications</h1>
 
         <div className="flex items-center gap-2">
           <span className="rounded-full border px-2 py-0.5 text-sm">
@@ -150,7 +242,7 @@ export default function NotificationsPage() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
-          onClick={async () => { setSelectedStudentId(null); await refresh(null); }}
+          onClick={async () => { setSelectedStudentId(null); await loadFirstPage(null); }}
           className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === null ? 'bg-black text-white' : 'hover:bg-black/5'}`}
         >
           All
@@ -158,7 +250,7 @@ export default function NotificationsPage() {
         {lookup.students.map((s) => (
           <button
             key={s.id}
-            onClick={async () => { setSelectedStudentId(s.id); await refresh(s.id); }}
+            onClick={async () => { setSelectedStudentId(s.id); await loadFirstPage(s.id); }}
             className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === s.id ? 'bg-black text-white' : 'hover:bg-black/5'}`}
           >
             {s.name}
@@ -179,7 +271,8 @@ export default function NotificationsPage() {
           {items.length === 0 ? (
             <div className="rounded-md border p-4 text-sm opacity-70">No notifications</div>
           ) : (
-            items/* LEGACY_TYPES_FILTER */.filter((n: any) => n?.type !== 'ATTENDANCE_MARKED').map((n) => {
+                      <>
+            {items.map((n) => {
               const courseName =
                 (n?.data?.course?.name as string | undefined) ||
                 (n?.data?.courseId ? courseMap.get(n.data.courseId) : null) ||
@@ -228,7 +321,23 @@ export default function NotificationsPage() {
                   </div>
                 </button>
               );
-            })
+            })}
+
+          {hasMore && items.length > 0 ? (
+            <div className="pt-2">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="w-full rounded-md border px-3 py-2 text-sm hover:bg-black/5 disabled:opacity-60"
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            </div>
+          ) : null}
+
+          </>
+
+
           )}
         </div>
       )}

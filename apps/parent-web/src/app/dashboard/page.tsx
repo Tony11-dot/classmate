@@ -94,7 +94,30 @@ export default function DashboardPage() {
     loadRecent();
 
 
-    const interval = setInterval(() => { loadUnread(); loadRecent(); }, 30000);
+    let interval: any = null;
+
+    const start = () => {
+      if (interval) return;
+      interval = setInterval(() => { loadUnread(); loadRecent(); }, 10000);
+    };
+    const stop = () => {
+      if (!interval) return;
+      if (interval) clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVis);
+      interval = null;
+    };
+
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        loadUnread(); loadRecent();
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    onVis();
+    document.addEventListener("visibilitychange", onVis);
 
     const onToken = () => { loadUnread(); loadRecent(); };
     const onNotif = () => { loadUnread(); loadRecent(); };
