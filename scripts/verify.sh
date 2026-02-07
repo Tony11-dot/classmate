@@ -9,6 +9,9 @@ echo "== node/pnpm =="
 node -v
 pnpm -v
 
+echo "== env checks =="
+bash ./scripts/check-env.sh
+
 echo "== build (api + webs) =="
 pnpm -r -w --workspace-concurrency=1 \
   --filter ./services/api \
@@ -18,6 +21,9 @@ pnpm -r -w --workspace-concurrency=1 \
 
 echo "== docker build (api image) =="
 docker compose build api
+
+echo "== db verify ==" 
+bash ./scripts/db-verify.sh
 
 echo "== api runtime smoke =="
 docker compose up -d --force-recreate api db
@@ -43,6 +49,9 @@ curl -fsS "$API_LOCAL/parent/notifications/unread-count" \
   -H "Authorization: Bearer $TOKEN" >/dev/null
 
 echo "api runtime smoke: ok"
+
+echo "== api contract ==" 
+bash ./scripts/api-contract.sh
 
 echo "== smoke (unread preserved) =="
 SMOKE_MARK_SEEN=0 bash ./scripts/green.sh
