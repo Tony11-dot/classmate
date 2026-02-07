@@ -19,10 +19,51 @@ pnpm -r -w --workspace-concurrency=1 \
 echo "== docker build (api image) =="
 docker compose build api
 
+echo "== api runtime smoke =="
+docker compose up -d --force-recreate api db
+
+API_LOCAL="http://localhost:3000/api"
+for i in $(seq 1 60); do
+  if curl -fsS "$API_LOCAL/health" >/dev/null 2>&1; then
+    echo "api: ok"
+    break
+  fi
+  sleep 1
+done
+
+TOKEN="$(curl -fsS -X POST "$API_LOCAL/auth/login" \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}' \
+  | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
+
+curl -fsS "$API_LOCAL/parent/notifications?take=2" \
+  -H "Authorization: Bearer $TOKEN" >/dev/null
+
+curl -fsS "$API_LOCAL/parent/notifications/unread-count" \
+  -H "Authorization: Bearer $TOKEN" >/dev/null
+
+echo "api runtime smoke: ok"
+
 echo "== smoke (unread preserved) =="
 SMOKE_MARK_SEEN=0 bash ./scripts/green.sh
 
+# assert unread preserved (expect 1)
+API_LOCAL="http://localhost:3000/api"
+TOKEN="$(curl -fsS -X POST "$API_LOCAL/auth/login"   -H 'Content-Type: application/json'   --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}'   | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
+
+UNREAD="$(curl -fsS "$API_LOCAL/parent/notifications/unread-count"   -H "Authorization: Bearer $TOKEN" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("unread"))')"
+echo "unread=$UNREAD"
+if [ "$UNREAD" != "1" ]; then echo "❌ expected unread=1 after SMOKE_MARK_SEEN=0" >&2; exit 1; fi
+
 echo "== smoke (mark-seen path) =="
 SMOKE_MARK_SEEN=1 bash ./scripts/green.sh
+
+# assert mark-seen applied (expect 0)
+API_LOCAL="http://localhost:3000/api"
+TOKEN="$(curl -fsS -X POST "$API_LOCAL/auth/login"   -H 'Content-Type: application/json'   --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}'   | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
+
+UNREAD="$(curl -fsS "$API_LOCAL/parent/notifications/unread-count"   -H "Authorization: Bearer $TOKEN" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("unread"))')"
+echo "unread=$UNREAD"
+if [ "$UNREAD" != "0" ]; then echo "❌ expected unread=0 after SMOKE_MARK_SEEN=1" >&2; exit 1; fi
 
 echo "✅ VERIFY OK"
