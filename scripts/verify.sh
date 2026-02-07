@@ -60,6 +60,9 @@ echo "api runtime smoke: ok"
 echo "== api contract ==" 
 bash ./scripts/api-contract.sh
 
+echo "== api contract (inside docker) =="
+bash ./scripts/api-contract-in-docker.sh
+
 echo "== smoke (unread preserved) =="
 SMOKE_MARK_SEEN=0 bash ./scripts/green.sh
 
