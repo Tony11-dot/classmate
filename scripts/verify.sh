@@ -3,6 +3,13 @@ set -euo pipefail
 IFS=$'\n\t'
 trap 'echo "❌ verify failed at line $LINENO: $BASH_COMMAND" >&2' ERR
 
+echo "== git clean check =="
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "❌ working tree not clean. Commit/stash before verify for reproducible results." >&2
+  git status --porcelain
+  exit 1
+fi
+
 cd "$(dirname "$0")/.."
 
 echo "== node/pnpm =="
