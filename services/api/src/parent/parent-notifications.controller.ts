@@ -17,7 +17,7 @@ export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,
     private readonly events: ParentNotificationsEvents) {}
 
-  @Get()
+  
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
     const takeRaw = (q as any)?.take ?? (q as any)?.limit ?? 30;
     const takeNum = Number(takeRaw);
