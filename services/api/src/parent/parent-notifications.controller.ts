@@ -15,32 +15,45 @@ import {
 @Controller('parent/notifications')
 export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,
-    private readonly events: ParentNotificationsEvents) {}
-
-  
+    private readonly events: ParentNotificationsEvents) {}  @Get()
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
-    const takeRaw = (q as any)?.take ?? (q as any)?.limit ?? 30;
-    const takeNum = Number(takeRaw);
-    const limit = Number.isFinite(takeNum) && takeNum > 0 ? Math.min(takeNum, 100) : 30;
+    const raw: any = (req as any)?.query ?? {};
+
+    const limitRaw =
+      (q as any)?.take ??
+      (q as any)?.limit ??
+      raw.take ??
+      raw.limit ??
+      30;
+
+    const limitNum = Number(limitRaw);
+    const limit =
+      Number.isFinite(limitNum) && limitNum > 0
+        ? Math.min(limitNum, 100)
+        : 30;
 
     const unseenOnly = (q as any)?.unseenOnly === true;
-    const cursor = (q as any)?.cursor ? String((q as any).cursor) : undefined;
 
-    
-    const raw: any = (req as any)?.query ?? {};
-    const studentId = (q as any)?.studentId ?? raw.studentId ?? undefined;
+    const cursor =
+      (q as any)?.cursor != null
+        ? String((q as any).cursor)
+        : raw.cursor != null
+        ? String(raw.cursor)
+        : undefined;
 
-    // normalize paging: accept both take & limit
-    const limit = Number((q as any)?.take ?? (q as any)?.limit ?? raw.take ?? raw.limit ?? 30);
+    const studentId =
+      (q as any)?.studentId ??
+      raw.studentId ??
+      undefined;
 
     return this.svc.list(req.user.id, {
       limit,
-      cursor: (q as any)?.cursor ?? raw.cursor,
-      unseenOnly: (q as any)?.unseenOnly,
+      cursor,
+      unseenOnly,
       studentId,
     });
-
   }
+
 
   @Get('unread-count')
   async unreadCount(@Req() req: any) {
