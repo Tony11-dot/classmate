@@ -153,21 +153,18 @@ export class E2ESeedController {
       },
     });
 
-    const student = await this.prisma.user.create({
-      data: {
-        email: `student1+e2e-${now}@classmate.app`,
+    
+    const student = await this.prisma.user.upsert({
+      where: { email: 'student1@classmate.app' },
+      update: { password: passwordHash, name: 'Student One' },
+      create: {
+        id: '6c56edbc-d612-4c91-9073-bfe9986df4d0',
+        email: 'student1@classmate.app',
         password: passwordHash,
         name: 'Student One',
         roles: { create: [{ role: 'STUDENT' }] },
-        studentProfile: {
-          create: {
-            cohort: { connect: { id: cohort.id } },
-            englishLevel: 3,
-            mathLevel: 3,
-          },
-        },
       },
-      select: { id: true, email: true },
+      select: { id: true },
     });
     // Tutor seed: one Bagrut material + brain snapshot
     await this.prisma.material.create({
@@ -377,14 +374,17 @@ export class E2ESeedController {
       select: { id: true },
     });
 
-    const parent = await this.prisma.user.create({
-      data: {
-        email: `parent+pw-${runId}@classmate.app`,
+    
+    const parent = await this.prisma.user.upsert({
+      where: { email: 'parent1@classmate.app' },
+      update: { password: passwordHash, name: 'Parent One' },
+      create: {
+        email: 'parent1@classmate.app',
         password: passwordHash,
-        name: `Parent ${runId.slice(0, 6)}`,
+        name: 'Parent One',
         roles: { create: [{ role: 'PARENT' }] },
-      } as any,
-      select: { id: true, email: true },
+      },
+      select: { id: true },
     });
 
     await this.prisma.parentChild.upsert({
