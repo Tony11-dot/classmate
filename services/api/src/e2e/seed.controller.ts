@@ -326,7 +326,7 @@ export class E2ESeedController {
       cohort2Id: cohort2.id,
       course2Id: course2.id,
       teacherEmail: 'teacher1@classmate.app',
-      studentEmail: student.email,
+      studentEmail: student.id,
       teacher2Email: 'teacher2@classmate.app',
       parentEmail: 'parent1@classmate.app',
       password: 'dev',
@@ -445,6 +445,6 @@ export class E2ESeedController {
       ] as any,
     });
 
-    return { ok: true, runId, email: parent.email, password: 'dev' };
+    return { ok: true, runId, email: parent.id, password: 'dev' };
   }
 }

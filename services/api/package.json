@@ -5,7 +5,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "bash -lc 'set -euo pipefail; cd services/api; if [ -f .env.prod ]; then set -a; source .env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/src/main.js'",
+    "start:prod": "bash -lc 'set -euo pipefail; if [ -f .env.prod ]; then set -a; source .env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/src/main.js'",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "NODE_ENV=test jest -c jest.config.cjs",
     "test:watch": "jest --watch",
