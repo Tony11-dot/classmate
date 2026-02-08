@@ -26,7 +26,9 @@ if ! docker run --rm --network "$NET" curlimages/curl:8.10.1 -fsS \
   http://api:3000/api/health >/dev/null
 then
   echo "❌ api not reachable from inside docker network ($NET)" >&2
+  echo "== docker compose ps ==" >&2
   docker compose ps >&2 || true
+  echo "== api logs (tail) ==" >&2
   docker compose logs --tail 200 api >&2 || true
   exit 1
 fi
