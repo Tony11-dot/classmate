@@ -1,4 +1,4 @@
-import { IsInt, IsString, Max, Min } from 'class-validator';
+import { IsDefined, IsInt, IsString, Max, Min } from 'class-validator';
 
 export class OnboardStudentDto {
   @IsString()
