@@ -1,7 +1,20 @@
 import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Observable, filter, map, merge, interval, of, startWith, switchMap } from 'rxjs';
-import {
- Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent, UnauthorizedException } from '@nestjs/common';
+
+class SseJwtGuard extends AuthGuard('jwt') {
+  // allow EventSource to pass token via ?token= since it can't set Authorization header
+  getRequest(context: any) {
+    const req = context.switchToHttp().getRequest();
+    const q: any = (req.query || {});
+    if (!req.headers?.authorization && q.token) {
+      req.headers = req.headers || {};
+      req.headers.authorization = `Bearer ${q.token}`;
+    }
+    return req;
+  }
+}
+
 import {
  AuthGuard } from '@nestjs/passport';
 import {
@@ -39,17 +52,9 @@ export class ParentNotificationsController {
     return this.svc.markSeen(req.user.id, dto.ids ?? []);
   }
 
+  @UseGuards(SseJwtGuard)
   @Sse('notifications/stream')
-  stream(@Req() req: any, @Query('token') token?: string): Observable<MessageEvent> {
-        let parentId = req.user?.id;
-    if (!parentId && token) {
-      try {
-        const payload: any = this.jwt.verify(token);
-        parentId = payload?.sub || payload?.id || payload?.userId;
-      } catch {
-        // ignore
-      }
-    }
+  stream(@Req() req: any): Observable<MessageEvent> {    const parentId = req.user?.id;
     if (!parentId) throw new UnauthorizedException();
     const heartbeat$ = interval(15000).pipe(map(() => ({ data: { type: 'ping' } })));
 
