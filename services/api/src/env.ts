@@ -28,6 +28,12 @@ export function loadEnv(): Env {
   if (!parsed.success) {
     // eslint-disable-next-line no-console
     console.error('❌ Invalid environment variables:', parsed.error.flatten().fieldErrors);
+
+    // In Jest we must not hard-exit the worker; throw so we see the real failure.
+    if (process.env.NODE_ENV === 'test') {
+      throw new Error('Invalid environment variables (test)');
+    }
+
     process.exit(1);
   }
   return parsed.data;
