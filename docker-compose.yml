@@ -16,6 +16,12 @@ services:
       retries: 20
 
   api:
+
+    environment:
+
+      ENABLE_E2E_SEED: "1"
+
+      NODE_ENV: "development"
     build:
       context: .
       dockerfile: services/api/Dockerfile
