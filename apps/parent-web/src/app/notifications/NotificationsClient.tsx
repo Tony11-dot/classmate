@@ -126,7 +126,7 @@ export default function NotificationsPage() {
 
       es.onmessage = () => {
         // any event = refresh list + unread
-        if (typeof refetch === 'function') refetch();
+        // refresh hook not found; ignore event
       };
 
       return () => es.close();
