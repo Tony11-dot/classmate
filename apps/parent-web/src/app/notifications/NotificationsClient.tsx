@@ -17,7 +17,7 @@ function fmtTime(iso?: string | null) {
   return d.toLocaleString();
 }
 
-export default function NotificationsPage() {
+export default function NotificationsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = useParentAuth();
@@ -70,7 +70,7 @@ export default function NotificationsPage() {
     }
   }
 
-
+  // initial load
   useEffect(() => {
     if (!token) return;
     let mounted = true;
@@ -87,7 +87,6 @@ export default function NotificationsPage() {
 
         const defaultId = l.students?.[0]?.id ?? null;
 
-        // If we are deep-linking to a specific notification, load ALL first so it's guaranteed to exist.
         if (focusId) {
           setSelectedStudentId(null);
           await loadFirstPage(null);
@@ -97,7 +96,6 @@ export default function NotificationsPage() {
         }
 
         if (focusId) {
-          // wait a tick for DOM to paint
           setTimeout(() => {
             const el = document.querySelector(`[data-notif-id="${focusId}"]`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -107,7 +105,6 @@ export default function NotificationsPage() {
         if (!mounted) return;
         const msg = e?.message || String(e);
         setErr(msg);
-
         const lower = String(msg).toLowerCase();
         if (lower.includes('missing parent token') || lower.includes('unauthorized')) {
           window.location.href = '/login';
@@ -117,24 +114,6 @@ export default function NotificationsPage() {
         setLoading(false);
       }
     })();
-  // realtime notifications (SSE)
-  useEffect(() => {
-    try {
-      const base = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
-      const url = base.replace(/\/api$/, '') + '/api/parent/notifications/stream';
-      const t = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
-      const es = new EventSource(t ? `${url}?token=${encodeURIComponent(t)}` : url);
-
-      es.onmessage = () => {
-        router.refresh();
-      };
-
-      return () => es.close();
-    } catch {
-      // ignore (SSE unsupported)
-    }
-  }, []);
-
 
     return () => {
       mounted = false;
@@ -142,11 +121,31 @@ export default function NotificationsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // ---- 10s polling when visible; paused when hidden ----
+  // SSE refresh (safe: just re-fetch, don’t router.refresh())
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const base = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
+      const url = base.replace(/\/api$/, '') + '/api/parent/notifications/stream';
+      const t = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
+      const es = new EventSource(t ? `${url}?token=${encodeURIComponent(t)}` : url);
+
+      es.onmessage = async () => {
+        // keep it deterministic for tests: just refresh counts + list
+        await loadFirstPage(selectedStudentId);
+      };
+
+      return () => es.close();
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, selectedStudentId]);
+
+  // polling unread
   useEffect(() => {
     if (!token) return;
 
-    let alive = true;
     let interval: any = null;
 
     const tick = async () => {
@@ -155,13 +154,13 @@ export default function NotificationsPage() {
         const u = await parentUnreadCount({ studentId: sid || undefined });
         setUnread({ unread: u.unread, breakdown: u.breakdown || {} });
       } catch {
-        // ignore polling failures
+        // ignore
       }
     };
 
     const start = () => {
       if (interval) return;
-      interval = setInterval(() => { tick(); }, 10000);
+      interval = setInterval(() => { tick(); }, 10_000);
     };
 
     const stop = () => {
@@ -179,19 +178,13 @@ export default function NotificationsPage() {
       }
     };
 
-    const onNotif = () => { tick(); };
-
     onVis();
     document.addEventListener('visibilitychange', onVis);
-    window.addEventListener('classmate_parent_notifications_changed', onNotif);
 
     return () => {
-      alive = false;
       stop();
       document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('classmate_parent_notifications_changed', onNotif);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, selectedStudentId]);
 
   async function markAllRead() {
@@ -200,7 +193,6 @@ export default function NotificationsPage() {
       if (ids.length === 0) return;
 
       await parentMarkSeen({ ids });
-      window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
 
       // optimistic local update
       const now = new Date().toISOString();
@@ -210,14 +202,11 @@ export default function NotificationsPage() {
     } catch (e: any) {
       setErr(e?.message || String(e));
     }
-
   }
 
   async function openNotif(id: string) {
     try {
       await parentMarkSeen({ ids: [id] });
-      window.dispatchEvent(new Event('classmate_parent_notifications_changed'));
-      // optimistic local update
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, seenAt: new Date().toISOString() } : x)));
       await loadFirstPage(selectedStudentId);
     } catch (e: any) {
@@ -245,117 +234,70 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      {Object.keys(unread.breakdown || {}).length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          {Object.entries(unread.breakdown).map(([k, v]) => (
-            <span key={k} className="rounded-full border px-2 py-0.5">
-              {k}: <b>{v}</b>
-            </span>
-          ))}
-        </div>
-      )}
+      {err && <div className="mt-3 rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-800">{err}</div>}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={async () => { setSelectedStudentId(null); await loadFirstPage(null); }}
-          className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === null ? 'bg-black text-white' : 'hover:bg-black/5'}`}
+          className={`rounded-md border px-3 py-1.5 text-sm ${selectedStudentId === null ? 'bg-black/5' : ''}`}
         >
-          All
+          All students
         </button>
-        {lookup.students.map((s) => (
+
+        {(lookup.students || []).map((s) => (
           <button
             key={s.id}
             onClick={async () => { setSelectedStudentId(s.id); await loadFirstPage(s.id); }}
-            className={`rounded-full border px-3 py-1 text-sm ${selectedStudentId === s.id ? 'bg-black text-white' : 'hover:bg-black/5'}`}
+            className={`rounded-md border px-3 py-1.5 text-sm ${selectedStudentId === s.id ? 'bg-black/5' : ''}`}
           >
-            {s.name}
+            {s.name || 'Student'}
           </button>
         ))}
       </div>
 
-      {err && (
-        <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-          {err}
-        </div>
-      )}
+      <div className="mt-4 space-y-2">
+        {loading && <div className="text-sm opacity-70">Loading…</div>}
 
-      {loading ? (
-        <div className="mt-6 text-sm opacity-70">Loading…</div>
-      ) : (
-        <div className="mt-4 space-y-2">
-          {items.length === 0 ? (
-            <div className="rounded-md border p-4 text-sm opacity-70">No notifications</div>
-          ) : (
-                      <>
-            {items.map((n) => {
-              const courseName =
-                (n?.data?.course?.name as string | undefined) ||
-                (n?.data?.courseId ? courseMap.get(n.data.courseId) : null) ||
-                null;
+        {!loading && (items || []).length === 0 && (
+          <div className="rounded-md border p-3 text-sm opacity-70">No notifications</div>
+        )}
 
-              const isUnread = !n.seenAt;
+        {(items || []).map((n) => {
+          const isFocused = Boolean(focusId && n.id === focusId);
+          const courseName = n?.data?.courseId ? (courseMap.get(n.data.courseId) || '') : '';
+          return (
+            <button
+              key={n.id}
+              data-notif-id={n.id}
+              onClick={() => openNotif(n.id)}
+              className={[
+                'w-full rounded-md border p-3 text-left',
+                !n.seenAt ? 'bg-yellow-50/40' : '',
+                isFocused ? 'ring-2 ring-black/30' : '',
+              ].join(' ')}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-medium">{n.title || n.type}</div>
+                  <div className="mt-1 text-sm opacity-80">{n.message || ''}</div>
+                  {courseName && <div className="mt-1 text-sm opacity-70">Course: {courseName}</div>}
+                </div>
+                <div className="shrink-0 text-xs opacity-70">{fmtTime(n.createdAt)}</div>
+              </div>
+            </button>
+          );
+        })}
 
-              return (
-                <button
-                  data-notif-id={n.id}
-                  key={n.id}
-                  onClick={() => openNotif(n.id)}
-                  className={`w-full rounded-md border p-3 text-left hover:bg-black/5 ${focusId === n.id ? "ring-2 ring-black/40" : ""}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        {isUnread && <span className="inline-block h-2 w-2 rounded-full bg-blue-600" />}
-                        <div className="truncate font-medium">{n.title || n.type}</div>
-                      </div>
-
-                      <div className="mt-1 text-sm opacity-80">
-                        {courseName ? <span>{courseName}</span> : null}
-                        {courseName ? <span className="opacity-50"> · </span> : null}
-                        <span>{fmtTime(n.createdAt)}</span>
-                      </div>
-
-                      {n.message && (
-                        <div className="mt-2 text-sm opacity-90">{n.message}</div>
-                      )}
-
-                      {n.type === 'ATTENDANCE_RECORDED' && n.data && (
-                        <div className="mt-2 text-sm opacity-90">
-                          Status: <b>{n.data.status}</b>
-                          {typeof n.data.period === 'number' ? <> · Period <b>{n.data.period}</b></> : null}
-                        </div>
-                      )}
-
-                      {n.type === 'GRADE_POSTED' && n.data && (
-                        <div className="mt-2 text-sm opacity-90">
-                          Grade: <b>{n.data.grade}</b>
-                          {n.data.assessment?.title ? <> · {n.data.assessment.title}</> : null}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-
-          {hasMore && items.length > 0 ? (
-            <div className="pt-2">
-              <button
-                onClick={loadMore}
-                disabled={loadingMore}
-                className="w-full rounded-md border px-3 py-2 text-sm hover:bg-black/5 disabled:opacity-60"
-              >
-                {loadingMore ? 'Loading…' : 'Load more'}
-              </button>
-            </div>
-          ) : null}
-
-          </>
-
-
-          )}
-        </div>
-      )}
+        {hasMore && (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="w-full rounded-md border px-3 py-2 text-sm hover:bg-black/5 disabled:opacity-60"
+          >
+            {loadingMore ? 'Loading…' : 'Load more'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
