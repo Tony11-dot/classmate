@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 const EnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    SERVE_UPLOADS: z.string().optional().default('false'),
+NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 
   // API
   PORT: z.coerce.number().int().positive().default(3000),
