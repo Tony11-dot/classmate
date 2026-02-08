@@ -1,3 +1,7 @@
+API_LOCAL="${API_LOCAL:-http://localhost:3000/api}"
+
+# == e2e seed (admin-web) ==
+curl -fsS -X POST "$API_LOCAL/test/seed/admin-web" >/dev/null || true
 #!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
@@ -18,7 +22,7 @@ TOKEN="$(docker run --rm --network "$NET" curlimages/curl:8.10.1 \
   -fsS --connect-timeout 2 --max-time 10 \
   -X POST http://api:3000/api/auth/login \
   -H 'Content-Type: application/json' \
-  --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}')"
+  --data-binary '{"email":"parent1@classmate.app","password":"dev"}')"
 
 # parse token with node (available locally)
 JWT="$(printf '%s' "$TOKEN" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{try{console.log(JSON.parse(d).token||"")}catch(e){console.log("")}})')"
