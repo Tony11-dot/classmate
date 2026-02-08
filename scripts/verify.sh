@@ -36,14 +36,18 @@ echo "== api runtime smoke =="
 docker compose up -d --force-recreate api db
 
 API_LOCAL="http://localhost:3000/api"
+api_ok=0
 for i in $(seq 1 60); do
   if curl -fsS "$API_LOCAL/health" >/dev/null 2>&1; then
     echo "api: ok"
+    api_ok=1
     break
   fi
   sleep 1
 done
 
+
+if [ "$api_ok" != "1" ]; then echo "❌ api: failed to become healthy" >&2; docker logs --tail 200 classmate-api-1 || true; exit 1; fi
 TOKEN="$(curl -fsS -X POST "$API_LOCAL/auth/login" \
   -H 'Content-Type: application/json' \
   --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}' \
