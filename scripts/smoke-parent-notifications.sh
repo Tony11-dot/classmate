@@ -10,7 +10,8 @@ token() {
   email="$1"
   pass="$2"
   t="$(
-    curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors -X POST "$BASE/api/auth/login" \
+    curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors \
+      -X POST "$BASE/api/auth/login" \
       -H 'Content-Type: application/json' \
       -d "{\"email\":\"$email\",\"password\":\"$pass\"}" \
     | jq -r '.token // empty'
@@ -19,17 +20,16 @@ token() {
   printf "%s" "$t"
 }
 
+get_unread() {
+  curl -fsS --connect-timeout 2 --max-time 10 \
+    "$BASE/api/parent/notifications/unread-count" \
+    -H "Authorization: Bearer $TOKEN_DEV" \
+  | jq -r '.unread // 0'
+}
+
 TOKEN_DEV="$(token admin@classmate.dev Admin123!)"
 
-# --- baseline unread (before inserting NEW_ID) ---
-BASE_UNREAD="$(curl -fsS --connect-timeout 2 --max-time 10 \
-  "$BASE/api/parent/notifications/unread-count" \
-  -H "Authorization: Bearer $TOKEN_DEV" \
-  | jq -r '.unread // 0')"
-echo "baseline_unread=$BASE_UNREAD"
-
 ensure_local_parent() {
-  # create admin@classmate.local with password Admin123! and PARENT role (idempotent)
   docker compose exec -T api node - <<'NODE'
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
@@ -45,7 +45,6 @@ const bcrypt = require("bcrypt");
     select: { id: true, email: true },
   });
 
-  // ensure PARENT role
   await prisma.userRole.upsert({
     where: { userId_role: { userId: u.id, role: "PARENT" } },
     update: {},
@@ -60,7 +59,6 @@ NODE
 
 ensure_local_parent
 TOKEN_LOCAL="$(token admin@classmate.local Admin123!)"
-
 
 PARENT_DEV_ID="$($DB -Atc "SELECT id FROM \"User\" WHERE email='admin@classmate.dev' LIMIT 1;" | tr -d '[:space:]')"
 [ -n "$PARENT_DEV_ID" ] || { echo "missing dev parent user" >&2; exit 1; }
@@ -79,12 +77,14 @@ if [ -z "$STUDENT_ID" ]; then
 fi
 [ -n "$STUDENT_ID" ] || { echo "failed to create STUDENT user" >&2; exit 1; }
 
-# keep smoke idempotent + keep unread stable: close old unseen (except fixed smoke id)
+# deterministic baseline: clear ALL unseen for this parent BEFORE measuring
 $DB -Atqtc "UPDATE \"ParentNotification\"
 SET \"seenAt\" = now()
 WHERE \"parentId\" = '$PARENT_DEV_ID'
-  AND \"seenAt\" IS NULL
-  AND id <> '00000000-0000-4000-8000-000000000001';" >/dev/null
+  AND \"seenAt\" IS NULL;" >/dev/null
+
+BASE_UNREAD="$(get_unread)"
+echo "baseline_unread=$BASE_UNREAD"
 
 NEW_ID="${NEW_ID:-$(uuidgen | tr "[:upper:]" "[:lower:]")}"
 $DB -Atqtc "INSERT INTO \"ParentNotification\" (id, \"parentId\", \"studentId\", type, title, message, data, \"seenAt\")
@@ -99,42 +99,35 @@ SET \"parentId\"=EXCLUDED.\"parentId\",
     \"createdAt\"=now(),
     \"seenAt\"=null;" >/dev/null
 
-
 echo "NEW_ID=$NEW_ID"
-$DB -c "SELECT id, \"parentId\", \"seenAt\" FROM \"ParentNotification\" WHERE id='$NEW_ID';" >/dev/null
 
 echo "== list (dev) =="
-curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors "$BASE/api/parent/notifications?limit=5&unseenOnly=true" \
+curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors \
+  "$BASE/api/parent/notifications?limit=5&unseenOnly=true" \
   -H "Authorization: Bearer $TOKEN_DEV" \
-  | jq .
+| jq .
 
-if [ "$SMOKE_MARK_SEEN" = "1" ]; then
+if [ "${SMOKE_MARK_SEEN:-1}" = "1" ]; then
   echo "== wrong owner mark (local) should be updated:0 =="
-  curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors -X PATCH "$BASE/api/parent/notifications/mark-seen" \
+  curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors \
+    -X PATCH "$BASE/api/parent/notifications/mark-seen" \
     -H "Authorization: Bearer $TOKEN_LOCAL" \
     -H "Content-Type: application/json" \
     --data-binary "{\"ids\":[\"$NEW_ID\"]}" \
-    | jq .
-
-  $DB -c "SELECT id, \"parentId\", \"seenAt\" FROM \"ParentNotification\" WHERE id='$NEW_ID';"
+  | jq .
 
   echo "== correct owner mark (dev) should be updated:1 =="
-  curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors -X PATCH "$BASE/api/parent/notifications/mark-seen" \
+  curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors \
+    -X PATCH "$BASE/api/parent/notifications/mark-seen" \
     -H "Authorization: Bearer $TOKEN_DEV" \
     -H "Content-Type: application/json" \
     --data-binary "{\"ids\":[\"$NEW_ID\"]}" \
-    | jq .
-
-  $DB -c "SELECT id, \"parentId\", \"seenAt\" FROM \"ParentNotification\" WHERE id='$NEW_ID';"
+  | jq .
 fi
 
 echo "== unread-count (dev) =="
-unread="$(curl -fsS --connect-timeout 2 --max-time 10 \
-  "$BASE/api/parent/notifications/unread-count" \
-  -H "Authorization: Bearer $TOKEN_DEV" \
-  | jq -r '.unread // 0')"
+unread="$(get_unread)"
 
-# --- delta-based unread assertion ---
 EXPECTED_UNREAD="$BASE_UNREAD"
 if [ "${SMOKE_MARK_SEEN:-1}" = "0" ]; then
   EXPECTED_UNREAD="$((BASE_UNREAD + 1))"
