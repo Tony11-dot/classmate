@@ -8,7 +8,10 @@ docker compose up -d --force-recreate api db
 API_CID="$(docker compose ps -q api)"
 
 # ✅ Use the actual network(s) the api container is attached to (no guessing)
-NET="$(docker inspect "$API_CID" -f "{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}" | head -n1)"
+NET="$(docker inspect "$API_CID" -f "{{range .NetworkSettings.Networks}}{{.NetworkID}} {{end}}" | awk "{print \$1}")"
+NET="$(docker network inspect "$NET" -f "{{.Name}}" 2>/dev/null || echo classmate_default)"
+echo "NET=$NET"
+NET="$(docker network ls -q | grep -Fx "$NET" >/dev/null 2>&1 && echo "$(docker network ls -q | head -n1)" || echo "classmate_default")"
 echo "NET=$NET"
 if [ -z "$NET" ]; then
   echo "❌ could not determine compose network for api container" >&2
