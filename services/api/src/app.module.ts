@@ -21,15 +21,17 @@ import { E2ESeedController } from './e2e/seed.controller';
 const env = loadEnv();
 
 // Disable static serving in e2e (NODE_ENV=test)
+// Static uploads are OFF by default (enable explicitly with SERVE_UPLOADS=true)
 const serveStatic =
-  env.NODE_ENV === 'test'
-    ? []
-    : [
+  env.SERVE_UPLOADS === 'true'
+    ? [
         ServeStaticModule.forRoot({
           rootPath: join(process.cwd(), 'uploads'),
           serveRoot: '/uploads',
         }),
-      ];
+      ]
+    : [];
+
 
 // Extra safety: never even register the controller in production
 const controllers = [
