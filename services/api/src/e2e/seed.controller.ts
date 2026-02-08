@@ -223,6 +223,19 @@ export class E2ESeedController {
       create: { parentId: parent.id, childId: student.id, status: 'APPROVED' },
     });
 
+
+    // Ensure StudentProfile exists (Enrollment.studentId -> StudentProfile.userId)
+    await this.prisma.studentProfile.upsert({
+      where: { userId: student.id },
+      update: { cohortId: cohort.id },
+      create: {
+        userId: student.id,
+        cohortId: cohort.id,
+        englishLevel: 3,
+        mathLevel: 3,
+      },
+    });
+
     await this.prisma.enrollment.create({
       data: {
         courseId: course.id,
