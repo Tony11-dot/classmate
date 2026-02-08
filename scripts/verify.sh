@@ -2,6 +2,11 @@
 set -euo pipefail
 
 
+
+# --- verify default parent identity (keep in sync with green.sh seed/ensure) ---
+export VERIFY_PARENT_EMAIL="${VERIFY_PARENT_EMAIL:-admin@classmate.local}"
+export VERIFY_PARENT_PASSWORD="${VERIFY_PARENT_PASSWORD:-dev}"
+
 # --- robust login (route may differ between admin/parent) ---
 try_login() {
   local base="$1"
