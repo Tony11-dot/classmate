@@ -12,7 +12,9 @@ import { ParentNotificationsService } from './parent-notifications.service';
 @Module({
   imports: [PrismaModule, ScheduleModule],
   controllers: [ParentController, ParentNotificationsController],
-  providers: [ParentService, ParentNotificationsService],
+  providers: [ParentService, ParentNotificationsService,
+    ParentNotificationsEvents
+  ],
   exports: [ParentService, ParentNotificationsService],
 })
 export class ParentModule {}
