@@ -11,7 +11,7 @@ import {
 import {
  MarkNotificationsSeenDto } from './dto/mark-notifications-seen.dto';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(SseJwtGuard)
 @Controller('parent/notifications')
 export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,
