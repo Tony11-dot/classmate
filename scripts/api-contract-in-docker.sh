@@ -21,11 +21,19 @@ fi
 
 # Wait until API is reachable from inside the compose network
 echo "== in-docker health =="
-if ! docker run --rm --network "$NET" curlimages/curl:8.10.1 -fsS \
+tmp_err="/tmp/api-health.$$\.err"
+rm -f "$tmp_err"
+
+if docker run --rm --network "$NET" curlimages/curl:8.10.1 -fsS \
   --retry 30 --retry-all-errors --retry-connrefused --retry-delay 1 --max-time 10 \
-  http://api:3000/api/health >/dev/null
+  http://api:3000/api/health >/dev/null 2>"$tmp_err"
 then
+  rm -f "$tmp_err"
+else
   echo "❌ api not reachable from inside docker network ($NET)" >&2
+  echo "== curl stderr ==" >&2
+  sed -n '1,200p' "$tmp_err" >&2 || true
+  rm -f "$tmp_err"
   echo "== docker compose ps ==" >&2
   docker compose ps >&2 || true
   echo "== api logs (tail) ==" >&2
