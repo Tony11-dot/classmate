@@ -17,3 +17,11 @@ node_modules/
 
 # Playwright auth state (generated)
 **/.playwright/.auth/
+# local env
+.env
+
+# local backups / scratch
+docker-compose.yml.bak.*
+docker-compose.yml.tmp
+scripts/tmp/
+routes.txt

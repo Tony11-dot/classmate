@@ -8,8 +8,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
+import { hasAnyRole } from '../auth/permissions';
 
 @UseGuards(JwtAuthGuard)
 @Roles('ADMIN')
@@ -19,7 +21,7 @@ export class AdminScheduleController {
 
   private assertAdmin(req: any) {
     const roles: string[] = req.user?.roles ?? [];
-    if (!roles.includes('ADMIN')) throw new ForbiddenException('Admin only');
+    if (!hasAnyRole({ roles }, ['ADMIN'])) throw new ForbiddenException('Admin only');
   }
 
   @Put('template')

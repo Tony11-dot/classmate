@@ -1,10 +1,22 @@
 import { Roles } from '../auth/roles.decorator';
-import { Controller, Get, Post, Body, Query, Req, UseGuards, DefaultValuePipe, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Req,
+  UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
+  BadRequestException,
+  Header,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('PARENT','ADMIN')
+@Roles('PARENT', 'ADMIN')
 @Controller('parent')
 export class ParentController {
   constructor(private readonly parent: ParentService) {}
@@ -82,8 +94,9 @@ export class ParentController {
   dashboard(@Req() req: any) {
     return this.parent.dashboard(req.user);
   }
-
-  @Get('notifications')
+  @Header("Deprecation","true")
+  @Header("Sunset","2026-03-01")
+  @Get('notifications-legacy')
   notifications(
     @Req() req: any,
     @Query('studentId') studentId: string | undefined,
@@ -103,8 +116,9 @@ export class ParentController {
       take,
     });
   }
-
-  @Get('notifications/unread-count')
+  @Header("Deprecation","true")
+  @Header("Sunset","2026-03-01")
+  @Get('notifications-legacy/unread-count')
   unreadCount(
     @Req() req: any,
     @Query('studentId') studentId: string | undefined,
@@ -123,8 +137,9 @@ export class ParentController {
       since,
     });
   }
-
-  @Post('notifications/mark-seen')
+  @Header("Deprecation","true")
+  @Header("Sunset","2026-03-01")
+  @Post('notifications-legacy/mark-seen')
   markSeen(@Req() req: any, @Body() body: any) {
     return this.parent.markSeen(req.user, body?.ids);
   }
@@ -133,6 +148,4 @@ export class ParentController {
   lookup(@Req() req: any) {
     return this.parent.lookup(req.user);
   }
-
-
 }

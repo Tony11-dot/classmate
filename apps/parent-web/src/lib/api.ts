@@ -73,20 +73,21 @@ export function parentRecentNotifications(take = 5) {
   return parentNotifications({ take });
 }
 
-export function parentNotifications(opts?: { studentId?: string; take?: number }) {
+export function parentNotifications(opts?: { studentId?: string; take?: number; cursor?: string }) {
   const qs = new URLSearchParams();
   if (opts?.studentId) qs.set('studentId', opts.studentId);
   if (typeof opts?.take === 'number') qs.set('take', String(opts.take));
+  if (opts?.cursor) qs.set('cursor', opts.cursor);
   const q = qs.toString();
-  return api<{ ok: true; notifications: any[] }>(
+  return api<{ ok: true; notifications: any[]; nextCursor?: string | null }>(
     `/parent/notifications${q ? `?${q}` : ''}`,
   );
 }
 
 export function parentMarkSeen(body?: { ids?: string[] }) {
-  return api<{ ok: true; lastSeenAt: string }>(
+  return api<{ updated: number }>(
     '/parent/notifications/mark-seen',
-    { method: 'POST', body: body ?? {} },
+    { method: 'PATCH', body: body ?? {} },
   );
 }
 
@@ -114,3 +115,13 @@ export function parentAlertsSettings(studentId: string) {
 export function parentSaveAlertsSettings(body: any) {
   return api('/parent/alerts/settings', { method: 'POST', body });
 }
+
+// ---- Alerts settings wrappers (compat for alerts page) ----
+export async function getAlertSettings(studentId: string) {
+  return parentAlertsSettings(studentId);
+}
+
+export async function updateAlertSettings(payload: { studentId: string; minGrade: number; maxAbsences: number; maxLates: number }) {
+  return parentSaveAlertsSettings(payload);
+}
+

@@ -12,11 +12,12 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TeacherService } from './teacher.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('TEACHER','ADMIN')
+@Roles('TEACHER', 'ADMIN')
 @Controller('teacher')
 export class TeacherController {
   constructor(private readonly teacher: TeacherService) {}

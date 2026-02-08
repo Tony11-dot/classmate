@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { ParentNotificationDtoSchema } from './dto/parent-notification.dto';
+import { hasAnyRole } from '../auth/permissions';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -47,10 +48,9 @@ type StudentProfileLite = { userId: string; cohortId: string };
 
 @Injectable()
 export class ParentService {
-
   private isAdmin(user: any) {
     const roles: string[] = user?.roles ?? [];
-    return roles.includes('ADMIN');
+    return hasAnyRole({ roles }, ['ADMIN']);
   }
 
   private async ensureParentStudentScope(user: any, studentId?: string) {
@@ -89,7 +89,6 @@ export class ParentService {
     };
   }
 
-
   private ensureParent(user: any) {
     if (!user?.roles?.includes('PARENT'))
       throw new ForbiddenException('Parent only');
@@ -105,7 +104,12 @@ export class ParentService {
   }
 
   async link(user: any, body: { code: string }) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     if (!body?.code) throw new BadRequestException('code is required');
@@ -134,17 +138,30 @@ export class ParentService {
       create: { parentId, childId, status: 'APPROVED' },
     });
 
+    // ensure parent role exists (so next login token includes PARENT)
+    await this.prisma.userRole.upsert({
+      where: { userId_role: { userId: parentId, role: 'PARENT' } },
+      update: {},
+      create: { userId: parentId, role: 'PARENT' },
+    });
+
     return { ok: true, childId };
   }
 
   async children(user: any) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
       where: {
         parentId,
- status: 'APPROVED' },
+        status: 'APPROVED',
+      },
       include: {
         child: {
           include: {
@@ -170,7 +187,12 @@ export class ParentService {
   }
 
   async grades(user: any, limit?: number) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
 
     const take = Math.max(1, Math.min(100, Number(limit ?? 20)));
     const parentId = user.sub ?? user.id;
@@ -211,7 +233,12 @@ export class ParentService {
   }
 
   async childGrades(user: any, studentId: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     if (!studentId) throw new BadRequestException('studentId is required');
@@ -253,7 +280,12 @@ export class ParentService {
   }
 
   async scheduleToday(user: any, studentId: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     if (!studentId) throw new BadRequestException('studentId is required');
@@ -268,7 +300,12 @@ export class ParentService {
   }
 
   async scheduleWeek(user: any, studentId: string, weekOf?: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     await this.assertLinked(user.sub ?? user.id, studentId);
 
     const sp = await this.prisma.studentProfile.findUnique({
@@ -281,7 +318,12 @@ export class ParentService {
   }
 
   async attendanceToday(user: any, studentId: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     if (!studentId) throw new BadRequestException('studentId is required');
@@ -310,7 +352,12 @@ export class ParentService {
   }
 
   async attendanceWeek(user: any, studentId: string, weekOf?: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     if (!studentId) throw new BadRequestException('studentId is required');
@@ -348,7 +395,12 @@ export class ParentService {
   }
 
   async overview(user: any, studentId: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
 
     const parentId = user.sub ?? user.id;
     if (!studentId) throw new BadRequestException('studentId is required');
@@ -390,7 +442,12 @@ export class ParentService {
   }
 
   async overviewWeek(user: any, studentId: string) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
 
     const parentId = user.sub ?? user.id;
 
@@ -419,7 +476,12 @@ export class ParentService {
   }
 
   async dashboard(user: any) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
@@ -474,7 +536,12 @@ export class ParentService {
   }
 
   async notifications(user: any, opts?: { studentId?: string; take?: number }) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
     const take = Math.max(1, Math.min(100, Number(opts?.take ?? 20)));
 
@@ -505,24 +572,24 @@ export class ParentService {
     });
 
     const notifications = rows
-  .map((n: any) => this.notifDto(n))
-  .map((n) => ({
-    id: n.id,
-    type: n.type,
-    createdAt: n.createdAt,
-    studentId: n.studentId,
-    title: n.title,
-    message: n.message,
-    data: n.data,
-    seenAt: n.seenAt,
-  }));
+      .map((n: any) => this.notifDto(n))
+      .map((n) => ({
+        id: n.id,
+        type: n.type,
+        createdAt: n.createdAt,
+        studentId: n.studentId,
+        title: n.title,
+        message: n.message,
+        data: n.data,
+        seenAt: n.seenAt,
+      }));
 
-// dev/test contract guard (prevents legacy keys like "at" from creeping back)
-if (process.env.NODE_ENV !== 'production') {
-  for (const x of notifications) ParentNotificationDtoSchema.parse(x);
-}
+    // dev/test contract guard (prevents legacy keys like "at" from creeping back)
+    if (process.env.NODE_ENV !== 'production') {
+      for (const x of notifications) ParentNotificationDtoSchema.parse(x);
+    }
 
-return { ok: true, notifications };
+    return { ok: true, notifications };
   }
 
   private async getLastSeenAt(parentId: string) {
@@ -535,11 +602,13 @@ return { ok: true, notifications };
     return row.lastSeenAt;
   }
 
-  async unreadCount(
-    user: any,
-    opts?: { studentId?: string; since?: string },
-  ) {
-    this.ensureParent(user);
+  async unreadCount(user: any, opts?: { studentId?: string; since?: string }) {
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     const state = await this.prisma.parentNotificationState.findUnique({
@@ -547,8 +616,9 @@ return { ok: true, notifications };
       select: { lastSeenAt: true },
     });
 
-    const cutoff =
-      opts?.since ? new Date(opts.since) : (state?.lastSeenAt ?? null);
+    const cutoff = opts?.since
+      ? new Date(opts.since)
+      : (state?.lastSeenAt ?? null);
 
     const where: any = {
       parentId,
@@ -577,9 +647,13 @@ return { ok: true, notifications };
     };
   }
 
-  
   async lookup(user: any) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
@@ -633,7 +707,12 @@ return { ok: true, notifications };
   }
 
   async markSeen(user: any, ids?: string[]) {
-    this.ensureParent(user);
+    if (
+      !user?.roles?.includes('STUDENT') &&
+      !user?.roles?.includes('PARENT') &&
+      !user?.roles?.includes('ADMIN')
+    )
+      throw new ForbiddenException('Auth required');
     const parentId = user.sub ?? user.id;
 
     const now = new Date();

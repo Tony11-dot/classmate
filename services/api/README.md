@@ -96,3 +96,9 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Prisma upgrade (TODO)
+Repo is currently pinned to Prisma 6.19.2. Upgrade to Prisma 7.x when convenient:
+- pnpm -C services/api add -D prisma@latest
+- pnpm -C services/api add @prisma/client@latest
+- follow Prisma major upgrade guide

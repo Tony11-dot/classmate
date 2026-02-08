@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 function parseDateish(input?: string): Date | null {
   if (!input) return null;
@@ -21,7 +22,7 @@ export class AnnouncementsService {
 
   private ensureCanPost(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
   }
@@ -107,7 +108,7 @@ export class AnnouncementsService {
     const grades: number[] = [];
 
     // Student: use their own cohort
-    if (roles.includes('STUDENT') && user?.studentProfile?.cohortId) {
+    if (hasAnyRole({ roles }, ['STUDENT']) && user?.studentProfile?.cohortId) {
       cohortIds.push(user.studentProfile.cohortId);
 
       const cohort = await this.prisma.cohort.findUnique({
@@ -118,7 +119,7 @@ export class AnnouncementsService {
     }
 
     // Parent: include all approved children cohorts/grades
-    if (roles.includes('PARENT')) {
+    if (hasAnyRole({ roles }, ['PARENT'])) {
       const links = await this.prisma.parentChild.findMany({
         where: { parentId: user.id, status: 'APPROVED' },
         select: {
@@ -200,7 +201,7 @@ export class AnnouncementsService {
     const cohortIds: string[] = [];
     const grades: number[] = [];
 
-    if (roles.includes('STUDENT') && user?.studentProfile?.cohortId) {
+    if (hasAnyRole({ roles }, ['STUDENT']) && user?.studentProfile?.cohortId) {
       cohortIds.push(user.studentProfile.cohortId);
       const cohort = await this.prisma.cohort.findUnique({
         where: { id: user.studentProfile.cohortId },
@@ -209,7 +210,7 @@ export class AnnouncementsService {
       if (cohort?.grade !== undefined) grades.push(cohort.grade);
     }
 
-    if (roles.includes('PARENT')) {
+    if (hasAnyRole({ roles }, ['PARENT'])) {
       const links = await this.prisma.parentChild.findMany({
         where: { parentId: user.id, status: 'APPROVED' },
         select: {

@@ -4,10 +4,12 @@ import { loadEnv, parseCorsOrigins } from './env';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const env = loadEnv();
-
+  
+const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
+  const isProd = env.NODE_ENV === 'production';
+  const prodAllow = parseCorsOrigins(env.CORS_ORIGINS);
 
   app.enableCors({
     origin: (origin, cb) => {
@@ -15,7 +17,7 @@ async function bootstrap() {
       if (!origin) return cb(null, true);
 
       // Dev/test: allow local + LAN
-      if (env.NODE_ENV !== 'production') {
+      if (!isProd) {
         const ok =
           /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
           /^http:\/\/(192\.168\.\d+\.\d+)(:\d+)?$/.test(origin);
@@ -24,8 +26,7 @@ async function bootstrap() {
       }
 
       // Prod: strict allowlist
-      const allow = parseCorsOrigins(env.CORS_ORIGINS);
-      return cb(null, allow.includes(origin));
+      return cb(null, prodAllow.includes(origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -35,7 +36,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  await app.listen(env.PORT);
+  // IMPORTANT for Docker: listen on all interfaces
+  await app.listen(env.PORT, '0.0.0.0');
 }
 
 bootstrap();

@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasAnyRole } from '../auth/permissions';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -56,7 +57,7 @@ export class TeacherService {
   constructor(private readonly prisma: PrismaService) {}
 
   private ensureTeacher(user: any) {
-    if (!user?.roles?.includes('TEACHER') && !user?.roles?.includes('ADMIN'))
+    if (!hasAnyRole(user, ['TEACHER','ADMIN']))
       throw new ForbiddenException('Teacher only');
   }
 
@@ -349,15 +350,15 @@ export class TeacherService {
           // dedupe: one notification per parent+student+session+type
           const existingNotifs = await this.prisma.parentNotification.findMany({
             where: {
-              parentId: { in: parents.map(p => p.parentId) },
+              parentId: { in: parents.map((p) => p.parentId) },
               studentId: record.studentId,
               type: 'ATTENDANCE_RECORDED' as any,
               data: { path: ['sessionId'], equals: record.sessionId },
             },
             select: { parentId: true },
           });
-          const already = new Set(existingNotifs.map(x => x.parentId));
-          const targets = parents.filter(p => !already.has(p.parentId));
+          const already = new Set(existingNotifs.map((x) => x.parentId));
+          const targets = parents.filter((p) => !already.has(p.parentId));
 
           if (!targets.length) return;
 
@@ -383,9 +384,6 @@ export class TeacherService {
     } catch (_e) {
       // don't break teacher flow on notification failures
     }
-
-
-    
 
     return { ok: true, sessionId: session.id, recordId: record.id };
   }
@@ -501,37 +499,39 @@ export class TeacherService {
                 : 'Late arrival recorded';
 
             // dedupe: one notification per parent+student+session+type
-            const existingNotifs = await this.prisma.parentNotification.findMany({
-              where: {
-                parentId: { in: parents.map(p => p.parentId) },
-                studentId: __upserted.studentId,
-                type: 'ATTENDANCE_RECORDED' as any,
-                data: { path: ['sessionId'], equals: __upserted.sessionId },
-              },
-              select: { parentId: true },
-            });
-            const already = new Set(existingNotifs.map(x => x.parentId));
-            const targets = parents.filter(p => !already.has(p.parentId));
-
-            if (!targets.length) { /* no-op */ } else
-
-            await this.prisma.parentNotification.createMany({
-              data: targets.map((p) => ({
-                parentId: p.parentId,
-                studentId: __upserted.studentId,
-                type: 'ATTENDANCE_RECORDED',
-                title,
-                message: null,
-                data: {
-                  status: __newStatus,
-                  sessionId: __upserted.sessionId,
-                  cohortId: session.cohortId,
-                  date: session.date.toISOString(),
-                  period: session.period,
-                  courseId: session.courseId ?? null,
+            const existingNotifs =
+              await this.prisma.parentNotification.findMany({
+                where: {
+                  parentId: { in: parents.map((p) => p.parentId) },
+                  studentId: __upserted.studentId,
+                  type: 'ATTENDANCE_RECORDED' as any,
+                  data: { path: ['sessionId'], equals: __upserted.sessionId },
                 },
-              })),
-            });
+                select: { parentId: true },
+              });
+            const already = new Set(existingNotifs.map((x) => x.parentId));
+            const targets = parents.filter((p) => !already.has(p.parentId));
+
+            if (!targets.length) {
+              /* no-op */
+            } else
+              await this.prisma.parentNotification.createMany({
+                data: targets.map((p) => ({
+                  parentId: p.parentId,
+                  studentId: __upserted.studentId,
+                  type: 'ATTENDANCE_RECORDED',
+                  title,
+                  message: null,
+                  data: {
+                    status: __newStatus,
+                    sessionId: __upserted.sessionId,
+                    cohortId: session.cohortId,
+                    date: session.date.toISOString(),
+                    period: session.period,
+                    courseId: session.courseId ?? null,
+                  },
+                })),
+              });
           }
         }
       } catch (_e) {
@@ -683,7 +683,6 @@ export class TeacherService {
 
       if (!Number.isFinite(grade)) continue;
 
-      
       const __existing = await this.prisma.gradeRecord.findUnique({
         where: {
           assessmentId_studentId: {
@@ -710,48 +709,55 @@ export class TeacherService {
       });
 
       // 🔔 Notify parents: grade posted (only on first create)
-      if (!__existing) try {
-        const __studentId = g.studentId;
-        const __assessmentId = assessment.id;
+      if (!__existing)
+        try {
+          const __studentId = g.studentId;
+          const __assessmentId = assessment.id;
 
-        const parents = await this.prisma.parentChild.findMany({
-          where: { childId: __studentId, status: 'APPROVED' },
-          select: { parentId: true },
-        });
-
-        if (parents.length) {
-          const a = await this.prisma.assessment.findUnique({
-            where: { id: __assessmentId },
-            include: { course: { select: { id: true, name: true, subject: true } } },
+          const parents = await this.prisma.parentChild.findMany({
+            where: { childId: __studentId, status: 'APPROVED' },
+            select: { parentId: true },
           });
 
-          const title = a?.course?.name
-            ? `New grade in ${a.course.name}`
-            : 'New grade posted';
-
-          await this.prisma.parentNotification.createMany({
-            data: parents.map((p) => ({
-              parentId: p.parentId,
-              studentId: __studentId,
-              type: 'GRADE_POSTED',
-              title,
-              message: null,
-              data: {
-                grade: __upserted.grade,
-                comment: __upserted.comment ?? null,
-                assessment: a
-                  ? { id: a.id, title: a.title, date: a.date.toISOString() }
-                  : { id: __assessmentId },
-                course: a?.course
-                  ? { id: a.course.id, name: a.course.name, subject: a.course.subject }
-                  : null,
+          if (parents.length) {
+            const a = await this.prisma.assessment.findUnique({
+              where: { id: __assessmentId },
+              include: {
+                course: { select: { id: true, name: true, subject: true } },
               },
-            })),
-          });
+            });
+
+            const title = a?.course?.name
+              ? `New grade in ${a.course.name}`
+              : 'New grade posted';
+
+            await this.prisma.parentNotification.createMany({
+              data: parents.map((p) => ({
+                parentId: p.parentId,
+                studentId: __studentId,
+                type: 'GRADE_POSTED',
+                title,
+                message: null,
+                data: {
+                  grade: __upserted.grade,
+                  comment: __upserted.comment ?? null,
+                  assessment: a
+                    ? { id: a.id, title: a.title, date: a.date.toISOString() }
+                    : { id: __assessmentId },
+                  course: a?.course
+                    ? {
+                        id: a.course.id,
+                        name: a.course.name,
+                        subject: a.course.subject,
+                      }
+                    : null,
+                },
+              })),
+            });
+          }
+        } catch (_e) {
+          // don't break teacher flow on notification failures
         }
-      } catch (_e) {
-        // don't break teacher flow on notification failures
-      }
 
       written++;
     }

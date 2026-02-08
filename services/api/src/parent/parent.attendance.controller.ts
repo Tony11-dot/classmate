@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('PARENT','ADMIN')
+@Roles('PARENT', 'ADMIN')
 @Controller('parent')
 export class ParentAttendanceController {
   constructor(private readonly parent: ParentService) {}

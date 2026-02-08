@@ -1,19 +1,20 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { ParentNotificationsEvents } from './parent-notifications.events';
+import { PrismaModule } from '../prisma/prisma.module';
 import { ScheduleModule } from '../schedule/schedule.module';
+
 import { ParentController } from './parent.controller';
-import { ParentAlertsController } from './parent-alerts.controller';
-import { ParentAlertsService } from './parent-alerts.service';
-import { ParentAttendanceController } from './parent.attendance.controller';
 import { ParentService } from './parent.service';
 
+import { ParentNotificationsController } from './parent-notifications.controller';
+import { ParentNotificationsService } from './parent-notifications.service';
+
 @Module({
-  imports: [ScheduleModule],
-  controllers: [
-    ParentAlertsController,
-    ParentController,
-    ParentAttendanceController,
+  imports: [PrismaModule, ScheduleModule],
+  controllers: [ParentController, ParentNotificationsController],
+  providers: [ParentService, ParentNotificationsService,
+    ParentNotificationsEvents
   ],
-  providers: [ParentAlertsService, ParentService, PrismaService],
+  exports: [ParentService, ParentNotificationsService],
 })
 export class ParentModule {}
