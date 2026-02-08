@@ -1,7 +1,8 @@
+import { JwtService } from '@nestjs/jwt';
 import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Observable, filter, map, merge, interval, of, startWith, switchMap } from 'rxjs';
 import {
- Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent } from '@nestjs/common';
+ Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent, UnauthorizedException } from '@nestjs/common';
 import {
  AuthGuard } from '@nestjs/passport';
 import {
@@ -15,7 +16,8 @@ import {
 @Controller('parent/notifications')
 export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,
-    private readonly events: ParentNotificationsEvents) {}
+    private readonly events: ParentNotificationsEvents,
+    private readonly jwt: JwtService) {}
 
   @Get()
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
@@ -41,7 +43,16 @@ export class ParentNotificationsController {
 
   @Sse('notifications/stream')
   stream(@Req() req: any, @Query('token') token?: string): Observable<MessageEvent> {
-    const parentId = req.user?.id;
+        let parentId = req.user?.id;
+    if (!parentId && token) {
+      try {
+        const payload: any = this.jwt.verify(token);
+        parentId = payload?.sub || payload?.id || payload?.userId;
+      } catch {
+        // ignore
+      }
+    }
+    if (!parentId) throw new UnauthorizedException();
     const heartbeat$ = interval(15000).pipe(map(() => ({ data: { type: 'ping' } })));
 
     const events$ = this.events.events$.pipe(
