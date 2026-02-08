@@ -44,6 +44,11 @@ describe('Teacher attendance mark/bulk (e2e)', () => {
 
     app = modRef.createNestApplication();
     await app.init();
+
+    await request(app.getHttpServer())
+      .post('/test/seed/admin-web')
+      .expect(201);
+
   });
 
   afterAll(async () => {

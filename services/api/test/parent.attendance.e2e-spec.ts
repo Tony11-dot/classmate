@@ -23,6 +23,11 @@ describe('Parent attendance (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+
+    await request(app.getHttpServer())
+      .post('/test/seed/admin-web')
+      .expect(201);
+
   });
 
   afterAll(async () => {
