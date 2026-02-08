@@ -36,8 +36,7 @@ const env = loadEnv();
   });
 
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
+  
   // IMPORTANT for Docker: listen on all interfaces
   await app.listen(env.PORT, '0.0.0.0');
 }
