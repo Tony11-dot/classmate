@@ -40,7 +40,7 @@ describe('Parent attendance (e2e)', () => {
     const childId = '6c56edbc-d612-4c91-9073-bfe9986df4d0';
 
     const res = await request(app.getHttpServer())
-      .get(`/parents/attendance?childId=${encodeURIComponent(childId)}`)
+      .get(`/parent/attendance?childId=${encodeURIComponent(childId)}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -55,7 +55,7 @@ describe('Parent attendance (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .get(
-        `/parents/attendance?childId=${encodeURIComponent(
+        `/parent/attendance?childId=${encodeURIComponent(
           childId,
         )}&from=2026-01-01&to=2026-01-09`,
       )
