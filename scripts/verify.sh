@@ -3,10 +3,10 @@ set -euo pipefail
 
 
 
-# --- verify default parent identity (keep in sync with green.sh seed/ensure) ---
-export VERIFY_PARENT_EMAIL="${VERIFY_PARENT_EMAIL:-admin@classmate.local}"
-export VERIFY_PARENT_PASSWORD="${VERIFY_PARENT_PASSWORD:-dev}"
 
+# --- verify default parent identity ---
+export VERIFY_PARENT_EMAIL="${VERIFY_PARENT_EMAIL:-parent1@classmate.app}"
+export VERIFY_PARENT_PASSWORD="${VERIFY_PARENT_PASSWORD:-dev}"
 # --- robust login (route may differ between admin/parent) ---
 try_login() {
   local base="$1"
@@ -93,6 +93,8 @@ done
 
 
 if [ "$api_ok" != "1" ]; then echo "❌ api: failed to become healthy" >&2; docker logs --tail 200 classmate-api-1 || true; exit 1; fi
+curl -fsS -X POST "$API_LOCAL/test/seed/parent-web" >/dev/null || true
+curl -fsS -X POST "$API_LOCAL/test/seed/admin-web"  >/dev/null || true
 LOGIN_JSON="$(try_login "$API_LOCAL" "${VERIFY_PARENT_EMAIL:-parent1@classmate.app}" "${VERIFY_PARENT_PASSWORD:-dev}")"
 TOKEN="$(printf "%s" "$LOGIN_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
 if [ -z "$TOKEN" ]; then echo "❌ login succeeded but token missing. body:" >&2; echo "$LOGIN_JSON" >&2; exit 1; fi
