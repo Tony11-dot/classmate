@@ -7,10 +7,14 @@ export class OnboardStudentDto {
   @IsString()
   joinCode!: string;
 
+  @IsDefined()
+
   @IsInt()
   @Min(1)
   @Max(5)
   englishLevel!: number;
+
+  @IsDefined()
 
   @IsInt()
   @Min(1)
