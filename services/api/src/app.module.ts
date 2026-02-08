@@ -3,7 +3,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SolutionsModule } from './solutions/solutions.module';
 
-const serveStatic = process.env.NODE_ENV === \'test\' ? [] : [
+const serveStatic = process.env.NODE_ENV === 'test' ? [] : [
   ServeStaticModule.forRoot({
       rootPath: join(process.cwd()
 ];
