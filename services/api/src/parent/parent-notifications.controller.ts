@@ -26,10 +26,20 @@ export class ParentNotificationsController {
     const unseenOnly = (q as any)?.unseenOnly === true;
     const cursor = (q as any)?.cursor ? String((q as any).cursor) : undefined;
 
+    
+    const raw: any = (req as any)?.query ?? {};
+    const studentId = (q as any)?.studentId ?? raw.studentId ?? undefined;
+
+    // normalize paging: accept both take & limit
+    const limit = Number((q as any)?.take ?? (q as any)?.limit ?? raw.take ?? raw.limit ?? 30);
+
     return this.svc.list(req.user.id, {
-      limit, cursor, unseenOnly,
-      studentId: (q as any).studentId || undefined,
+      limit,
+      cursor: (q as any)?.cursor ?? raw.cursor,
+      unseenOnly: (q as any)?.unseenOnly,
+      studentId,
     });
+
   }
 
   @Get('unread-count')
