@@ -25,3 +25,9 @@ docker-compose.yml.bak.*
 docker-compose.yml.tmp
 scripts/tmp/
 routes.txt
+
+# env files
+services/api/.env*
+!services/api/.env.example
+
+!services/api/.env.production.example
