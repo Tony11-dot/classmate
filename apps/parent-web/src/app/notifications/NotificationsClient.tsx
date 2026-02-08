@@ -117,7 +117,7 @@ export default function NotificationsPage() {
       }
     })();
   // realtime notifications (SSE)
-  React.useEffect(() => {
+  useEffect(() => {
     try {
       const base = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
       const url = base.replace(/\/api$/, '') + '/api/parent/notifications/stream';
