@@ -3,6 +3,12 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SolutionsModule } from './solutions/solutions.module';
 
+const serveStatic = process.env.NODE_ENV === \'test\' ? [] : [
+  ServeStaticModule.forRoot({
+      rootPath: join(process.cwd()
+];
+
+
 import { loadEnv } from './env';
 
 import { HealthModule } from './health/health.module';
@@ -28,8 +34,8 @@ const controllers = [
 @Module({
   controllers,
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'uploads'),
+    ...serveStatic,
+    'uploads'),
       serveRoot: '/uploads',
     }),
     HealthModule,
