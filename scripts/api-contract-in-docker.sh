@@ -16,7 +16,7 @@ NET="${PROJECT}_default"
 # Use a tiny curl image to hit the API container over compose network DNS ("api")
 docker run --rm --network "$NET" curlimages/curl:8.10.1 \
   -fsS --connect-timeout 2 --max-time 10 \
-  http://api:3000/api/health >/dev/null
+  http://classmate-api-1:3000/api/health >/dev/null
 
 TOKEN="$(docker run --rm --network "$NET" curlimages/curl:8.10.1 \
   -fsS --connect-timeout 2 --max-time 10 \
