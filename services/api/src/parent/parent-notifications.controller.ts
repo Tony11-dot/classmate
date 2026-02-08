@@ -2,21 +2,8 @@ import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Observable, filter, map, merge, interval, of, startWith, switchMap } from 'rxjs';
 import { Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent, UnauthorizedException } from '@nestjs/common';
 
-class SseJwtGuard extends AuthGuard('jwt') {
-  // allow EventSource to pass token via ?token= since it can't set Authorization header
-  getRequest(context: any) {
-    const req = context.switchToHttp().getRequest();
-    const q: any = (req.query || {});
-    if (!req.headers?.authorization && q.token) {
-      req.headers = req.headers || {};
-      req.headers.authorization = `Bearer ${q.token}`;
-    }
-    return req;
-  }
-}
 
-import {
- AuthGuard } from '@nestjs/passport';
+import { SseJwtGuard } from './sse-jwt.guard';
 import {
  ParentNotificationsService } from './parent-notifications.service';
 import {
@@ -51,6 +38,8 @@ export class ParentNotificationsController {
   async markSeen(@Req() req: any, @Body() dto: MarkNotificationsSeenDto) {
     return this.svc.markSeen(req.user.id, dto.ids ?? []);
   }
+
+  @UseGuards(SseJwtGuard)
 
   @UseGuards(SseJwtGuard)
   @Sse('notifications/stream')
