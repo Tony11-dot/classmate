@@ -12,7 +12,6 @@ NET="$(docker inspect "$API_CID" -f "{{range .NetworkSettings.Networks}}{{.Netwo
 NET="$(docker network inspect "$NET" -f "{{.Name}}" 2>/dev/null || echo classmate_default)"
 echo "NET=$NET"
 NET="$(docker network ls -q | grep -Fx "$NET" >/dev/null 2>&1 && echo "$(docker network ls -q | head -n1)" || echo "classmate_default")"
-echo "NET=$NET"
 if [ -z "$NET" ]; then
   echo "❌ could not determine compose network for api container" >&2
   docker compose ps >&2 || true
