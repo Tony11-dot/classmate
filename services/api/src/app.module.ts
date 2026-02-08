@@ -3,6 +3,12 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SolutionsModule } from './solutions/solutions.module';
 
+const serveStatic = process.env.NODE_ENV === 'test' ? [] : [
+  ServeStaticModule.forRoot({
+      rootPath: join(process.cwd()
+];
+
+
 import { loadEnv } from './env';
 
 import { HealthModule } from './health/health.module';
@@ -18,16 +24,6 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 
 import { E2ESeedController } from './e2e/seed.controller';
 
-const serveStatic = process.env.NODE_ENV === 'test'
-  ? []
-  : [
-      ServeStaticModule.forRoot({
-        rootPath: join(process.cwd(), 'uploads'),
-        serveRoot: '/uploads',
-      }),
-    ];
-
-
 const env = loadEnv();
 
 // Extra safety: never even register the controller in production
@@ -39,6 +35,9 @@ const controllers = [
   controllers,
   imports: [
     ...serveStatic,
+    'uploads'),
+      serveRoot: '/uploads',
+    }),
     HealthModule,
     PrismaModule,
     AuthModule,
