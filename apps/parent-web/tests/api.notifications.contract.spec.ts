@@ -18,7 +18,7 @@ test('notifications API returns createdAt + seenAt', async ({ page }) => {
 
 
   // Strict contract: no legacy keys like "at"
-  const EXPECTED_KEYS = ['createdAt','data','id','message','seenAt','studentId','title','type'];
+  const EXPECTED_KEYS = ['createdAt','data','id','message','parentId','seenAt','studentId','title','type'];
 
   expect(Array.isArray(json.notifications)).toBeTruthy();
   expect(json.notifications.length).toBeGreaterThan(0);
