@@ -10,14 +10,8 @@ try_login() {
   shift 3 || true
 
   local paths=(
-    "/auth/login"
-    "/auth/admin/login"
-    "/admin/auth/login"
-    "/auth/signin"
-    "/api/auth/login"
-    "/api/auth/admin/login"
-    "/api/admin/auth/login"
-  )
+  /auth/login
+)
 
   for path in "${paths[@]}"; do
     local url="${base}${path}"
@@ -94,7 +88,7 @@ done
 
 
 if [ "$api_ok" != "1" ]; then echo "❌ api: failed to become healthy" >&2; docker logs --tail 200 classmate-api-1 || true; exit 1; fi
-LOGIN_JSON="$(try_login "$API_LOCAL" "${VERIFY_ADMIN_EMAIL:-admin@classmate.dev}" "${VERIFY_ADMIN_PASSWORD:-Admin123!}")"
+LOGIN_JSON="$(try_login "$API_LOCAL" "${VERIFY_PARENT_EMAIL:-parent1@classmate.app}" "${VERIFY_PARENT_PASSWORD:-dev}")"
 TOKEN="$(printf "%s" "$LOGIN_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
 if [ -z "$TOKEN" ]; then echo "❌ login succeeded but token missing. body:" >&2; echo "$LOGIN_JSON" >&2; exit 1; fi
 
@@ -118,7 +112,7 @@ SMOKE_MARK_SEEN=0 bash ./scripts/green.sh
 
 # assert unread preserved (expect 1)
 API_LOCAL="http://localhost:3000/api"
-LOGIN_JSON="$(try_login "$API_LOCAL" "admin@classmate.dev" "Admin123!")"
+LOGIN_JSON="$(try_login "$API_LOCAL" "parent1@classmate.app" "dev")"
 TOKEN="$(printf "%s" "$LOGIN_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
 
 UNREAD="$(curl -fsS "$API_LOCAL/parent/notifications/unread-count"   -H "Authorization: Bearer $TOKEN" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("unread"))')"
