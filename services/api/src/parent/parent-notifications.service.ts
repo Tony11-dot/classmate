@@ -2,7 +2,8 @@ import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-type ListArgs = { limit: number; cursor?: string; unseenOnly: boolean };
+type ListArgs = { limit: number; cursor?: string; unseenOnly: boolean; studentId?: string };
+
 
 @Injectable()
 export class ParentNotificationsService {
@@ -23,10 +24,12 @@ export class ParentNotificationsService {
     const takeNum = Array.isArray(limitRaw) ? Number(limitRaw[0]) : Number(limitRaw);
     const take = Number.isFinite(takeNum) && takeNum > 0 ? Math.min(takeNum, 100) : 30;
 
-const where: any = {
+    const where: any = {
       parentId: parentUserId,
+      ...(args.studentId ? { studentId: args.studentId } : {}),
       ...(args.unseenOnly ? { seenAt: null } : {}),
     };
+
 
     const rows = await this.model.findMany({
       where,
