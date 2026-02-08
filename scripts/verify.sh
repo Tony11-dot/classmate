@@ -89,10 +89,10 @@ done
 
 
 if [ "$api_ok" != "1" ]; then echo "❌ api: failed to become healthy" >&2; docker logs --tail 200 classmate-api-1 || true; exit 1; fi
-TOKEN="$(curl -fsS -X POST "$API_LOCAL/auth/login" \
-  -H 'Content-Type: application/json' \
-  --data-binary '{"email":"admin@classmate.dev","password":"Admin123!"}' \
-  | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
+LOGIN_JSON="$(try_login "$API_LOCAL" "${VERIFY_ADMIN_EMAIL:-admin@classmate.dev}" "${VERIFY_ADMIN_PASSWORD:-Admin123!}")"
+TOKEN="$(printf "%s" "$LOGIN_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("token",""))')"
+if [ -z "$TOKEN" ]; then echo "❌ login succeeded but token missing. body:" >&2; echo "$LOGIN_JSON" >&2; exit 1; fi
+
 
 curl -fsS "$API_LOCAL/parent/notifications?take=2" \
   -H "Authorization: Bearer $TOKEN" >/dev/null
@@ -132,3 +132,21 @@ echo "unread=$UNREAD"
 if [ "$UNREAD" != "0" ]; then echo "❌ expected unread=0 after SMOKE_MARK_SEEN=1" >&2; exit 1; fi
 
 echo "✅ VERIFY OK"
+
+
+# --- seed (best-effort, required for login to work) ---
+echo "== seed (best-effort) =="
+if [ -f "services/api/prisma/seed.ts" ] || [ -f "services/api/prisma/seed.js" ] || rg -q --hidden --no-ignore-vcs -S '"seed"' services/api/package.json 2>/dev/null; then
+  # Run seed on host against the docker DB if the package exposes it
+  (
+    cd services/api
+    if rg -q '"seed"' package.json; then
+      pnpm -s run seed || pnpm -s prisma db seed || true
+    else
+      pnpm -s prisma db seed || true
+    fi
+  ) || true
+else
+  echo "seed: skipped (no seed script detected)"
+fi
+
