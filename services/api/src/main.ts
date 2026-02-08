@@ -4,8 +4,7 @@ import { loadEnv, parseCorsOrigins } from './env';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  
-const env = loadEnv();
+  const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
