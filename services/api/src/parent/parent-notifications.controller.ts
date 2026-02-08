@@ -26,7 +26,10 @@ export class ParentNotificationsController {
     const unseenOnly = (q as any)?.unseenOnly === true;
     const cursor = (q as any)?.cursor ? String((q as any).cursor) : undefined;
 
-    return this.svc.list(req.user.id, { limit, cursor, unseenOnly });
+    return this.svc.list(req.user.id, {
+      limit, cursor, unseenOnly,
+      studentId: (q as any).studentId || undefined,
+    });
   }
 
   @Get('unread-count')
