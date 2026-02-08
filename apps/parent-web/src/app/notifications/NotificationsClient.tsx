@@ -11,7 +11,6 @@ type Lookup = {
 };
 
 function fmtTime(iso?: string | null) {
-  const router = useRouter();
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
@@ -19,6 +18,7 @@ function fmtTime(iso?: string | null) {
 }
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = useParentAuth();
 
