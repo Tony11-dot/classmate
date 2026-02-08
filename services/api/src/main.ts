@@ -8,6 +8,8 @@ async function bootstrap() {
 const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
   const isProd = env.NODE_ENV === 'production';
   const prodAllow = parseCorsOrigins(env.CORS_ORIGINS);
 

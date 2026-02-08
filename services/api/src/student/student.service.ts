@@ -35,6 +35,10 @@ export class StudentService {
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!body?.joinCode) throw new BadRequestException('joinCode is required');
 
+    if (body?.englishLevel == null || body?.mathLevel == null) {
+      throw new BadRequestException('englishLevel and mathLevel are required');
+    }
+
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: body.cohortId },
     });
