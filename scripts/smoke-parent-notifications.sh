@@ -21,6 +21,13 @@ token() {
 
 TOKEN_DEV="$(token admin@classmate.dev Admin123!)"
 
+# --- baseline unread (before inserting NEW_ID) ---
+BASE_UNREAD="$(curl -fsS --connect-timeout 2 --max-time 10 \
+  "$BASE/api/parent/notifications/unread-count" \
+  -H "Authorization: Bearer $TOKEN_DEV" \
+  | jq -r '.unread // 0')"
+echo "baseline_unread=$BASE_UNREAD"
+
 ensure_local_parent() {
   # create admin@classmate.local with password Admin123! and PARENT role (idempotent)
   docker compose exec -T api node - <<'NODE'
@@ -122,8 +129,21 @@ if [ "$SMOKE_MARK_SEEN" = "1" ]; then
 fi
 
 echo "== unread-count (dev) =="
-curl -fsS --connect-timeout 2 --max-time 10 --retry 5 --retry-delay 1 --retry-all-errors "$BASE/api/parent/notifications/unread-count" \
+unread="$(curl -fsS --connect-timeout 2 --max-time 10 \
+  "$BASE/api/parent/notifications/unread-count" \
   -H "Authorization: Bearer $TOKEN_DEV" \
-  | jq .
+  | jq -r '.unread // 0')"
+
+# --- delta-based unread assertion ---
+EXPECTED_UNREAD="$BASE_UNREAD"
+if [ "${SMOKE_MARK_SEEN:-1}" = "0" ]; then
+  EXPECTED_UNREAD="$((BASE_UNREAD + 1))"
+fi
+
+echo "unread=$unread"
+if [ "$unread" != "$EXPECTED_UNREAD" ]; then
+  echo "❌ expected unread=$EXPECTED_UNREAD (baseline=$BASE_UNREAD) after SMOKE_MARK_SEEN=${SMOKE_MARK_SEEN:-1}" >&2
+  exit 1
+fi
 
 echo "OK"
