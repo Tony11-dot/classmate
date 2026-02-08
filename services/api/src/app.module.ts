@@ -3,12 +3,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SolutionsModule } from './solutions/solutions.module';
 
-const serveStatic = process.env.NODE_ENV === 'test' ? [] : [
-  ServeStaticModule.forRoot({
-      rootPath: join(process.cwd()
-];
-
-
 import { loadEnv } from './env';
 
 import { HealthModule } from './health/health.module';
@@ -26,6 +20,17 @@ import { E2ESeedController } from './e2e/seed.controller';
 
 const env = loadEnv();
 
+// Disable static serving in e2e (NODE_ENV=test)
+const serveStatic =
+  env.NODE_ENV === 'test'
+    ? []
+    : [
+        ServeStaticModule.forRoot({
+          rootPath: join(process.cwd(), 'uploads'),
+          serveRoot: '/uploads',
+        }),
+      ];
+
 // Extra safety: never even register the controller in production
 const controllers = [
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
@@ -35,9 +40,6 @@ const controllers = [
   controllers,
   imports: [
     ...serveStatic,
-    'uploads'),
-      serveRoot: '/uploads',
-    }),
     HealthModule,
     PrismaModule,
     AuthModule,
