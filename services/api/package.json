@@ -11,7 +11,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_ENV=test DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/jest --config ./test/jest-e2e.json",
+    "test:e2e": "NODE_ENV=test DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
     "db:seed": "ts-node -r dotenv/config prisma/seed.ts",
     "prestart:dev": "prisma generate --schema prisma/schema.prisma",
     "dev": "pnpm run start:dev",
