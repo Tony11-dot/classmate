@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { parentLookup, parentMarkSeen, parentNotifications, parentUnreadCount } from '@/lib/api';
 import { useParentAuth } from '@/lib/useParentAuth';
 
@@ -11,6 +11,7 @@ type Lookup = {
 };
 
 function fmtTime(iso?: string | null) {
+  const router = useRouter();
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
@@ -125,8 +126,7 @@ export default function NotificationsPage() {
       const es = new EventSource(t ? `${url}?token=${encodeURIComponent(t)}` : url);
 
       es.onmessage = () => {
-        // any event = refresh list + unread
-        // refresh hook not found; ignore event
+        router.refresh();
       };
 
       return () => es.close();
