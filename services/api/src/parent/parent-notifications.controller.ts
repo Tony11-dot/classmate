@@ -1,4 +1,3 @@
-import { JwtService } from '@nestjs/jwt';
 import { ParentNotificationsEvents } from './parent-notifications.events';
 import { Observable, filter, map, merge, interval, of, startWith, switchMap } from 'rxjs';
 import {
@@ -16,8 +15,7 @@ import {
 @Controller('parent/notifications')
 export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,
-    private readonly events: ParentNotificationsEvents,
-    private readonly jwt: JwtService) {}
+    private readonly events: ParentNotificationsEvents) {}
 
   @Get()
   async list(@Req() req: any, @Query() q: NotificationsQueryDto) {
