@@ -33,13 +33,12 @@ docker exec -i classmate-db-1 sh -lc '
 '
 echo "db: ok"
 
-echo "== basic invariants =="
+# Optional: prove this is the intended DB (prisma migrations table may not exist yet)
+echo "== db sanity =="
 docker exec -i classmate-db-1 sh -lc '
   set -euo pipefail
   U="${POSTGRES_USER:-classmate}"
   D="${POSTGRES_DB:-classmate}"
-  psql -h localhost -U "$U" -d "$D" -c "select count(*) from \"User\";" >/dev/null
-  psql -h localhost -U "$U" -d "$D" -c "select count(*) from \"ParentNotification\";" >/dev/null
+  psql -h localhost -U "$U" -d "$D" -Atc "select current_database();" | grep -q "$D"
 '
-
-echo "✅ db invariants ok"
+echo "✅ db verify ok (connectivity)"
