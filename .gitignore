@@ -38,3 +38,6 @@ services/api/.env*
 
 # macOS
 .DS_Store
+
+# trash backups
+apps/classmate_mobile/_trash/
