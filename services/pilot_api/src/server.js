@@ -10,6 +10,21 @@ const { z } = require("zod");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
+async function ensureSubject({ schoolId, grade, name }) {
+  // NOTE: adjust where clause if Subject schema differs (we’re using schoolId+grade+name if present)
+  const existing = await prisma.subject.findFirst({
+    where: { schoolId, grade, name },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+
+  const created = await prisma.subject.create({
+    data: { schoolId, grade, name },
+    select: { id: true },
+  });
+  return created.id;
+}
+
 
 async function getUserWithRoles(userId) {
   const user = await prisma.user.findUnique({
@@ -175,7 +190,7 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
     const subjects = new Map(); // name -> {id, source}
-    for (const p of packs) subjects.set(p.Subject.name, { id: p.SubjectId, source: p.kind });
+    for (const p of packs) subjects.set(p.Subject.name, { id: p.Subject.id, source: p.kind });
 
     // grade >= 10 majors decide extra subjects
     const majorNames = [];
@@ -192,11 +207,15 @@ app.post("/api/auth/register", async (req, res) => {
     // 2) Persist StudentSubject rows
     const ssRows = [];
     for (const v of subjects.values()) ssRows.push({ userId: user.id, subjectId: v.id, source: v.source });
-    if (ssRows.length) await prisma.studentSubject.createMany({ data: ssRows, skipDuplicates: true });
+  // Drop any rows missing a subjectId (prevents prisma error)
+  const ssRowsClean = ssRows.filter(r => r.subjectId);
+
+    if (ssRowsClean.length) await prisma.studentSubject.createMany({ data: ssRowsClean, skipDuplicates: true });
 
     // 3) Ensure classrooms exist for this (school, grade, subject)
     const classroomIds = [];
     for (const [name, v] of subjects.entries()) {
+      if (!v.id) continue;
       const existing = await prisma.classroom.findUnique({
         where: { schoolId_grade_subjectId: { schoolId, grade, subjectId: v.id } },
       }).catch(() => null);
