@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 import 'auth_controller.dart';
@@ -10,10 +11,10 @@ class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen>class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final fullName = TextEditingController();
   final username = TextEditingController();
   final email = TextEditingController();
