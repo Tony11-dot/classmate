@@ -45,8 +45,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> _init() async {
     final t = await Session.getToken();
     if (t != null && t.trim().isNotEmpty) {
-      ApiClient.instance.setBearer(t.trim());
-      state = AuthState(ready: true, loggedIn: true, token: t.trim());
+      final token = t.trim();
+      ApiClient.instance.setBearer(token);
+      state = AuthState(ready: true, loggedIn: true, token: token);
       return;
     }
     state = const AuthState(ready: true, loggedIn: false);
@@ -62,16 +63,5 @@ class AuthController extends Notifier<AuthState> {
     await Session.clearAll();
     ApiClient.instance.dio.options.headers.remove('Authorization');
     state = const AuthState(ready: true, loggedIn: false);
-  }
-}
-
-  Future<void> logout() async {
-    await Session.clearAll();
-
-    // Clear auth header safely
-    ApiClient.instance.dio.options.headers.remove('Authorization');
-
-    state = const AuthState(ready: true, loggedIn: false);
-    _init();
   }
 }

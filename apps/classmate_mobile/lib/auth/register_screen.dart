@@ -6,14 +6,14 @@ import "../api/api_client.dart";
 import "../api/auth_api.dart";
 import "../ui/liquid_dropdown.dart";
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final fullName = TextEditingController();
   final username = TextEditingController();
   final email = TextEditingController();
@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       if (res.isOk) {
-        await ref.read(authProvider.notifier).refresh();
+        await this.ref.read(authProvider.notifier).refresh();
         context.go("/app");
       } else {
         setState(() => err = res.error);

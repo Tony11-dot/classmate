@@ -5,14 +5,14 @@ import 'auth_controller.dart';
 import "../api/api_client.dart";
 import "../api/auth_api.dart";
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final email = TextEditingController();
   final pass = TextEditingController();
 
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (res.isOk) {
-        await ref.read(authProvider.notifier).refresh();
+        await this.ref.read(authProvider.notifier).refresh();
       context.go("/app");
     } else {
       setState(() => err = res.error);
