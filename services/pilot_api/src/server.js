@@ -102,12 +102,9 @@ function adminGuard(req, res, next) {
   next();
 }
 
-
-
 // Public lookups
 app.get("/api/schools", async (req, res) => {
   const rows = await prisma.school.findMany({ orderBy: { name: "asc" } });
-  console.log("DEBUG_GRADES rows.length", rows.length);
   console.log("DEBUG_GRADES rows.length", rows.length);
   res.json(rows);
 });
