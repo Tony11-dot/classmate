@@ -26,6 +26,11 @@ import '../auth/auth_controller.dart';
 
 class _RouterRefresh extends ChangeNotifier {
   _RouterRefresh(this.ref) {
+    // refresh router on auth changes (login/logout)
+    ref.listen(authProvider, (prev, next) {
+      notifyListeners();
+    });
+
     ref.listen<AuthState>(authProvider, (_, __) => notifyListeners());
   }
   final Ref ref;
@@ -54,7 +59,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     refreshListenable: refresh,
-    initialLocation: '/app',
+    initialLocation: '/splash',
 
     redirect: (context, state) {
       final a = ref.read(authProvider);
