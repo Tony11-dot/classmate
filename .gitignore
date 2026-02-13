@@ -41,3 +41,4 @@ services/api/.env*
 
 # trash backups
 apps/classmate_mobile/_trash/
+*.bak.*
