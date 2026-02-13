@@ -31,3 +31,7 @@ services/api/.env*
 !services/api/.env.example
 
 !services/api/.env.production.example
+
+# backups
+*.bak
+*.bak.*
