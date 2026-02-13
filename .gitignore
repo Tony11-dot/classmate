@@ -42,3 +42,19 @@ services/api/.env*
 # trash backups
 apps/classmate_mobile/_trash/
 *.bak.*
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# iOS / CocoaPods
+**/Pods/
+**/.symlinks/
+**/Flutter/ephemeral/
+
+# Xcode / macOS
+**/DerivedData/
+*.xcuserstate
