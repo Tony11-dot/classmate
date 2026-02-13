@@ -10,8 +10,7 @@ function buildGradesRouter({ auth, prisma }) {
   // GET /api/grades
   router.get("/", auth, async (req, res) => {
     // your auth middleware sometimes sets req.user, sometimes req.user — support both
-    const u = req.user;
-    const userId = u?.id || u?.sub;
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "unauthorized" });
 
     const rows = await prisma.grade.findMany({

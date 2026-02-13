@@ -9,8 +9,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   // GET /api/assignments?subjectId=sub_math&from=ISO&to=ISO
   router.get("/", auth, async (req, res) => {
-    const u = req.user;
-    if (!u) return res.status(401).json({ error: "unauthorized" });
+    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
 
     const q = req.query || {};
     const where = {};
@@ -42,8 +41,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
   // POST /api/assignments
   // body: { subjectId, title, dueAt, details? }
   router.post("/", auth, async (req, res) => {
-    const u = req.user;
-    if (!u) return res.status(401).json({ error: "unauthorized" });
+    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
 
     const { subjectId, title, dueAt, details } = req.body || {};
     if (!subjectId || typeof subjectId !== "string") return res.status(400).json({ error: "subjectId_required" });
@@ -70,8 +68,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
 // POST /api/assignments/:id/submissions
   // body: { text?, mediaUrl? }
   router.post("/:id/submissions", auth, async (req, res) => {
-    const u = req.user;
-    const userId = u?.id || u?.sub;
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "unauthorized" });
 
     const assignmentId = req.params.id;
@@ -103,8 +100,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   // GET /api/assignments/:id/submissions
   router.get("/:id/submissions", auth, async (req, res) => {
-    const u = req.user;
-    if (!u) return res.status(401).json({ error: "unauthorized" });
+    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
 
     const assignmentId = req.params.id;
     const exists = await prisma.assignment.findUnique({ where: { id: assignmentId } });

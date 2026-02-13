@@ -82,8 +82,7 @@ async function auth(req, res, next) {
 }
 function requireRole(roleName) {
   return (req, res, next) => {
-    const u = req.user;
-    const roles = u?.roles || [];
+    const roles = req.user?.roles || [];
     if (!roles.includes(roleName)) return res.status(403).json({ error: "forbidden" });
     next();
   };
@@ -279,8 +278,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Me
 app.get("/api/me", auth, async (req, res) => {
-  const u = req.user;
-  const userId = u?.id || u?.sub;
+  const userId = req.user.id;
   if (!userId) return res.status(401).json({ error: "invalid_token" });
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -293,7 +291,7 @@ app.get("/api/me", auth, async (req, res) => {
     username: user.username,  // <-- correct field
     grade: user.grade,
     schoolId: user.schoolId,
-    roles: u?.roles || [],
+    roles: req.user?.roles || [],
   });
 });
 
@@ -334,13 +332,13 @@ app.post("/api/me/change-password", auth, async (req, res) => {
   if (!body.success) return res.status(400).json({ error: "bad_request" });
 
   const u = await prisma.user.findUnique({ where: { id: req.user.id } });
-  if (!u) return res.status(404).json({ error: "not_found" });
+  if (!req.user?.id) return res.status(404).json({ error: "not_found" });
 
-  const ok = await bcrypt.compare(body.data.currentPassword, u.passwordHash);
+  const ok = await bcrypt.compare(body.data.currentPassword, req.user.passwordHash);
   if (!ok) return res.status(401).json({ error: "invalid_password" });
 
   const passwordHash = await bcrypt.hash(body.data.newPassword, 10);
-  await prisma.user.update({ where: { id: u.id }, data: { passwordHash } });
+  await prisma.user.update({ where: { id: req.user.id }, data: { passwordHash } });
   res.json({ ok: true });
 });
 
