@@ -332,9 +332,9 @@ app.post("/api/me/change-password", auth, async (req, res) => {
   if (!body.success) return res.status(400).json({ error: "bad_request" });
 
   const u = await prisma.user.findUnique({ where: { id: req.user.id } });
-  if (!req.user?.id) return res.status(404).json({ error: "not_found" });
+  if (!u) return res.status(404).json({ error: "not_found" });
 
-  const ok = await bcrypt.compare(body.data.currentPassword, req.user.passwordHash);
+  const ok = await bcrypt.compare(body.data.currentPassword, u.passwordHash);
   if (!ok) return res.status(401).json({ error: "invalid_password" });
 
   const passwordHash = await bcrypt.hash(body.data.newPassword, 10);
@@ -408,12 +408,16 @@ app.post("/api/classrooms/:id/messages", auth, requireMember, async (req, res) =
 
 // Solutions feed: default = my grade + my subjects
 app.get("/api/solutions", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
   const q = req.query;
 
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
   if (!user) return res.status(401).json({ error: "invalid_token" });
 
   const where = {};
+  // school isolation (always)
+  where.User = { schoolId };
 
   // explicit filters win
   if (q.SubjectId) where.SubjectId = String(q.SubjectId);
@@ -468,6 +472,15 @@ app.post("/api/solutions", auth, async (req, res) => {
 });
 
 app.post("/api/solutions/:id/like", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
   try {
     await prisma.solutionLike.create({ data: { solutionId: req.params.id, userId: req.user.id } });
   } catch {}
@@ -475,13 +488,31 @@ app.post("/api/solutions/:id/like", auth, async (req, res) => {
 });
 
 app.delete("/api/solutions/:id/like", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
   await prisma.solutionLike.deleteMany({ where: { solutionId: req.params.id, userId: req.user.id } });
   res.json({ ok: true });
 });
 
 app.get("/api/solutions/:id/comments", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
   const rows = await prisma.solutionComment.findMany({
-    where: { solutionId: req.params.id },
+    where: { solutionId: req.params.id, User: { schoolId } },
     include: { User: { select: { id: true, fullName: true, username: true } } },
     orderBy: { createdAt: "asc" },
   });
@@ -489,6 +520,15 @@ app.get("/api/solutions/:id/comments", auth, async (req, res) => {
 });
 
 app.post("/api/solutions/:id/comments", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
   const S = z.object({ text: z.string().min(1) });
   const body = S.safeParse(req.body);
   if (!body.success) return res.status(400).json({ error: "bad_request" });

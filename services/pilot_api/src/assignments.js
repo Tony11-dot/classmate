@@ -102,12 +102,15 @@ function buildAssignmentsRouter({ auth, prisma }) {
   router.get("/:id/submissions", auth, async (req, res) => {
     if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
 
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
     const assignmentId = req.params.id;
     const exists = await prisma.assignment.findUnique({ where: { id: assignmentId } });
     if (!exists) return res.status(404).json({ error: "assignment_not_found" });
 
     const rows = await prisma.assignmentSubmission.findMany({
-      where: { assignmentId },
+      where: { assignmentId, User: { schoolId } },
       include: { User: { select: { id: true, fullName: true, username: true } } },
       orderBy: { createdAt: "asc" },
       take: 200,
