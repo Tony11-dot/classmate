@@ -1,0 +1,17 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+src/server.js.bak.*
+*.bak.*
+
+# backups
+*.bak
+*.bak.*
+src/server.js.bak.*
+
+# backups
+*.bak
+*.bak.*
+src/server.js.bak.*
