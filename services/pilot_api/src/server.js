@@ -464,7 +464,7 @@ app.post("/api/solutions", auth, async (req, res) => {
   const body = S.safeParse(req.body);
   if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
 
-  const s = await prisma.solution.create({ data: { ...body.data, userId: req.user.id } });
+  const s = await prisma.solution.create({ data: { ...body.data, grade: req.user.grade, userId: req.user.id } });
   res.json(s);
 });
 
