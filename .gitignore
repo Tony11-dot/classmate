@@ -35,3 +35,6 @@ services/api/.env*
 # backups
 *.bak
 *.bak.*
+
+# macOS
+.DS_Store
