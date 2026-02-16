@@ -1,15 +1,135 @@
 require("dotenv").config();
 const express = require("express");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const { buildNotificationsRouter } = require("./notifications");
+const { buildTutorRouter } = require("./tutor");
+const { errorHandler } = require("./mw/errorHandler");
 const { buildGradesRouter } = require("./grades");
 const { buildAssignmentsRouter } = require("./assignments");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+
+// Sign JWT for a user (used by /api/auth/login)
+// Requires JWT_SECRET in env
+function signToken(user) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET is not defined");
+
+  // Put user id in sub; also include some useful claims
+  const payload = {
+    sub: String(user.id),
+    email: user.email,
+    schoolId: user.schoolId ?? null,
+    grade: user.grade ?? null,
+  };
+
+  return jwt.sign(payload, secret, { expiresIn: "7d" });
+}
+
+
 const bcrypt = require("bcrypt");
 const { z } = require("zod");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
+
+// Auth middleware: Bearer JWT -> attaches req.user
+const auth = async (req, res, next) => {
+  try {
+    const hdr = req.headers.authorization || "";
+    const m = hdr.match(/^Bearer\s+(.+)$/i);
+    if (!m) return res.status(401).json({ error: "invalid_token" });
+
+    const token = m[1];
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return res.status(500).json({ error: "server_misconfigured", missing: "JWT_SECRET" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret);
+    } catch (e) {
+      return res.status(401).json({ error: "invalid_token" });
+    }
+
+    
+const userIdRaw =
+  (decoded && (decoded.sub ?? decoded.userId ?? decoded.id ?? (decoded.user && decoded.user.id)));
+
+if (userIdRaw === undefined || userIdRaw === null)
+  return res.status(401).json({ error: "invalid_token" });
+
+// Prisma id might be Int in schema; coerce numeric strings to Number
+const userId =
+  (typeof userIdRaw === "string" && /^[0-9]+$/.test(userIdRaw)) ? Number(userIdRaw) : userIdRaw;
+
+const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, fullName: true, username: true, grade: true, schoolId: true },
+    });
+    if (!user) return res.status(401).json({ error: "invalid_token" });
+
+    req.user = user;
+    return next();
+  } catch (e) {
+    console.error("auth middleware failed", e);
+    return res.status(401).json({ error: "invalid_token" });
+  }
+};
+
+
+
+// Helper: figure out which grade an admin operation targets.
+// Used by requireAdminScoped({ prisma, gradeFromReq })
+const gradeFromReq = (req) => {
+  // common places: query.grade, body.grade, params.grade
+  const raw =
+    (req.query && (req.query.grade ?? req.query.gradeLevel)) ??
+    (req.body && (req.body.grade ?? req.body.gradeLevel)) ??
+    (req.params && (req.params.grade ?? req.params.gradeLevel));
+
+  const n = Number(raw);
+  if (Number.isFinite(n)) return n;
+
+  // fallback to authenticated user's grade (if present)
+  const ug = req.user && req.user.grade;
+  const un = Number(ug);
+  if (Number.isFinite(un)) return un;
+
+  // final fallback: null means "unknown"
+  return null;
+};
+
+// Alias for admin middleware used by routes
+
+// --------------------
+// Admin scope helpers
+// --------------------
+async function getAdminScopesForUser(prisma, userId, schoolId) {
+  return prisma.adminScope.findMany({
+    where: { userId, schoolId },
+    select: { gradeMin: true, gradeMax: true },
+  });
+}
+
+function scopeCovers(scope, gmin, gmax) {
+  const min = scope.gradeMin ?? -1000000000;
+  const max = scope.gradeMax ??  1000000000;
+  const a = gmin ?? -1000000000;
+  const b = gmax ??  1000000000;
+  return min <= a && b <= max;
+}
+
+async function canAdminManageRange(prisma, adminUserId, schoolId, gmin, gmax) {
+  const scopes = await getAdminScopesForUser(prisma, adminUserId, schoolId);
+  return scopes.some(sc => scopeCovers(sc, gmin, gmax));
+}
+
+async function canAdminManageGrade(prisma, adminUserId, schoolId, grade) {
+  return canAdminManageRange(prisma, adminUserId, schoolId, grade, grade);
+}
+
+
 async function ensureSubject({ schoolId, grade, name }) {
   // NOTE: adjust where clause if Subject schema differs (we’re using schoolId+grade+name if present)
   const existing = await prisma.subject.findFirst({
@@ -55,73 +175,93 @@ async function getUserWithRoles(userId) {
     roles,
   };
 }
-const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: "25mb" }));
-
-app.get("/api/health", (req, res) => res.json({ ok: true, env: "pilot_api" }));
-
-function signToken(user) {
-  return jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+function hasRole(req, roleName) {
+  const roles = req.user?.roles || [];
+  return roles.includes(roleName);
 }
 
-async function auth(req, res, next) {
-  try {
-    const header = req.headers.authorization || req.headers.Authorization || "";
-    const m = String(header).match(/^Bearer\s+(.+)$/i);
-    if (!m) return res.status(401).json({ error: "missing_token" });
+async function isAdminForGrade({ prisma, userId, schoolId, grade }) {
+  if (!userId || !schoolId) return false;
+  const scopes = await prisma.adminScope.findMany({ where: { userId, schoolId } });
+  if (!scopes.length) return false;
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) return res.status(500).json({ error: "server_misconfigured", missing: "JWT_SECRET" });
+  // if grade not provided, any scope in this school is enough
+  if (grade === undefined || grade === null) return true;
 
-    let decoded;
-    try {
-      decoded = jwt.verify(m[1], secret);
-    } catch (e) {
-      return res.status(401).json({ error: "invalid_token" });
-    }
+  const g = Number(grade);
+  if (!Number.isFinite(g)) return false;
 
-    const sub = decoded && decoded.sub;
-    if (!sub) return res.status(401).json({ error: "invalid_token" });
-
-    const dbUser = await getUserWithRoles(sub);
-    if (!dbUser) return res.status(401).json({ error: "invalid_token" });
-
-    req.user = dbUser;
-
-    return next();
-  } catch (e) {
-    return res.status(500).json({ error: "auth_failed" });
+  for (const sc of scopes) {
+    const min = sc.gradeMin ?? -1000000000;
+    const max = sc.gradeMax ??  1000000000;
+    if (g >= min && g <= max) return true;
   }
+  return false;
 }
-function requireRole(roleName) {
-  return (req, res, next) => {
-    const roles = req.user?.roles || [];
-    if (!roles.includes(roleName)) return res.status(403).json({ error: "forbidden" });
-    next();
+
+function requireAdminScoped({ prisma, gradeFromReq }) {
+  return async (req, res, next) => {
+    try {
+      const roles = Array.isArray(req.user?.roles) ? req.user.roles : [];
+      if (!roles.includes("admin")) {
+        return res.status(403).json({ error: "forbidden", missing: "admin_role" });
+      }
+
+      const schoolId = req.user.schoolId;
+      const scopes = await prisma.adminScope.findMany({
+        where: { userId: req.user.id, schoolId },
+        select: { gradeMin: true, gradeMax: true },
+      });
+
+      if (!scopes.length) {
+        return res.status(403).json({ error: "forbidden", missing: "admin_scope" });
+      }
+
+      // gradeFromReq can return:
+      // - null (no grade scoping needed for this endpoint)
+      // - a number (single grade)
+      // - [min,max] range
+      const g = gradeFromReq ? gradeFromReq(req) : null;
+
+      if (g === null || g === undefined) return next();
+
+      let ok = false
+
+      if (Array.isArray(g)) {
+        const gmin = g[0];
+        const gmax = g[1];
+        ok = await canAdminManageRange(prisma, req.user.id, schoolId, gmin, gmax);
+        if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+        return next();
+      } else {
+        const grade = Number(g);
+        ok = await canAdminManageGrade(prisma, req.user.id, schoolId, grade);
+        if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+        return next();
+      }
+    } catch (e) {
+      return res.status(500).json({ error: "internal_error", message: String(e?.message || e) });
+    }
   };
 }
 
-app.use("/api/grades", buildGradesRouter({ auth, prisma }));
+const app = express();
 
-app.use("/api/notifications", buildNotificationsRouter({ auth }));
+// security + basic abuse protection
+app.use(helmet());
+app.use(rateLimit({ windowMs: 60_000, max: 300 }));
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: "25mb" }));
 
-app.use("/api/assignments", buildAssignmentsRouter({ auth, prisma }));
-
-// Simple admin guard (pilot): header x-admin-secret must match
-function adminGuard(req, res, next) {
-  const secret = req.headers["x-admin-secret"];
-  const expected = process.env.ADMIN_SECRET || "pilot_admin_secret";
-  if (secret !== expected) return res.status(403).json({ error: "forbidden" });
-  next();
-}
-
-// Public lookups
-app.get("/api/schools", async (req, res) => {
-  const rows = await prisma.school.findMany({ orderBy: { name: "asc" } });
-  console.log("DEBUG_GRADES rows.length", rows.length);
-  res.json(rows);
+app.get("/api/health", async (req, res) => {
+  try {
+    // DB ping (fast, read-only)
+    await prisma.$queryRaw`SELECT 1`;
+    return res.json({ ok: true, env: "pilot_api", db: "ok" });
+  } catch (e) {
+    return res.status(503).json({ ok: false, env: "pilot_api", db: "down" });
+  }
 });
 
 app.get("/api/subjects", async (req, res) => {
@@ -137,7 +277,7 @@ app.post("/api/auth/register", async (req, res) => {
     fullName: z.string().min(2),
     username: z.string().min(3),
     nationalId: z.string().min(5).optional(),
-    grade: z.number().int().min(7).max(12),
+    grade: z.number().int().min(4).max(12),
     schoolId: z.string().min(1),
 
     // grade 10+ fields (optional; we’ll enforce in UI)
@@ -182,6 +322,15 @@ app.post("/api/auth/register", async (req, res) => {
         englishUnits: englishUnits || null,
       },
     });
+    // 0) Assign default student role in DB (source of truth)
+    const roleStudent = await prisma.role.findFirst({ where: { name: "student" } });
+    if (roleStudent) {
+      await prisma.userRole.create({ data: { userId: user.id, roleId: roleStudent.id } }).catch(() => {});
+    }
+
+    // 0b) Roles payload for response
+    const dbUser = await getUserWithRoles(user.id);
+    const roles = dbUser?.roles || ["student"];
 
     // 1) Determine subjects for the student
     const packs = await prisma.gradeSubjectPack.findMany({
@@ -243,7 +392,7 @@ app.post("/api/auth/register", async (req, res) => {
       token,
       email: user.email,
       name: user.fullName,
-      roles: ["student"],
+      roles,
       user: { id: user.id, email: user.email, fullName: user.fullName, username: user.username, grade: user.grade, schoolId: user.schoolId },
     });
   } catch (e) {
@@ -290,24 +439,47 @@ app.post("/api/auth/login", async (req, res) => {
       schoolId: u.schoolId,
     },
   });
+
 });
 
 // Me
+// --------------------
+// Me endpoint (frontend bootstrap)
+// --------------------
 app.get("/api/me", auth, async (req, res) => {
   const userId = req.user.id;
-  if (!userId) return res.status(401).json({ error: "invalid_token" });
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return res.status(404).json({ error: "not_found" });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      username: true,
+      grade: true,
+      schoolId: true,
+      roles: { select: { Role: { select: { name: true } } } },
+      adminScopes: {
+        select: { id: true, schoolId: true, gradeMin: true, gradeMax: true, createdAt: true, updatedAt: true }
+      },
+    },
+  });
 
+  if (!user) return res.status(401).json({ error: "invalid_token" });
+
+  const roles = (user.roles ?? []).map(r => r.Role.name);
   res.json({
-    id: user.id,
-    email: user.email,
-    fullName: user.fullName,
-    username: user.username,  // <-- correct field
-    grade: user.grade,
-    schoolId: user.schoolId,
-    roles: req.user?.roles || [],
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      username: user.username,
+      grade: user.grade,
+      schoolId: user.schoolId,
+      roles,
+    },
+    roles,
+    adminScopes: user.adminScopes ?? [],
   });
 });
 
@@ -358,19 +530,734 @@ app.post("/api/me/change-password", auth, async (req, res) => {
   res.json({ ok: true });
 });
 
-/** Pilot endpoints **/
-app.get("/api/schedule", auth, async (req, res) => {
-  const day = req.query.day; // YYYY-MM-DD
-  const from = day ? new Date(`${day}T00:00:00.000Z`) : new Date(Date.now() - 24 * 3600 * 1000);
-  const to = day ? new Date(`${day}T23:59:59.999Z`) : new Date(Date.now() + 7 * 24 * 3600 * 1000);
-  const rows = await prisma.scheduleEntry.findMany({
-    where: { userId: req.user.id, startAt: { gte: from, lte: to } },
-    include: { Subject: true },
-    orderBy: { startAt: "asc" },
+
+// --------------------
+// Me endpoint (frontend bootstrap)
+// --------------------
+app.get("/api/me", auth, async (req, res) => {
+  const userId = req.user.id;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      username: true,
+      grade: true,
+      schoolId: true,
+      roles: { select: { Role: { select: { name: true } } } },
+      AdminScope: { select: { id: true, schoolId: true, gradeMin: true, gradeMax: true, createdAt: true, updatedAt: true } },
+    },
+  });
+
+  const roles = (user?.roles ?? []).map(r => r.Role.name);
+  res.json({ user: { ...user, roles }, roles, adminScopes: user?.AdminScope ?? [] });
+});
+
+// --------------------
+// Admin scope management (UI)
+// --------------------
+
+// list admin scopes in my school
+app.get("/api/admin/scopes", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const rows = await prisma.adminScope.findMany({
+    where: { schoolId },
+    orderBy: [{ gradeMin: "asc" }, { gradeMax: "asc" }],
+    select: {
+      id: true,
+      userId: true,
+      schoolId: true,
+      gradeMin: true,
+      gradeMax: true,
+      createdAt: true,
+      updatedAt: true,
+      User: { select: { id: true, email: true, fullName: true, username: true, grade: true } },
+    },
   });
   res.json(rows);
 });
 
+// grant scope to a user (by userId) within my school
+app.post("/api/admin/scopes", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const userId = String(req.body?.userId || "");
+  const gradeMin = req.body?.gradeMin === undefined ? null : Number(req.body.gradeMin);
+  const gradeMax = req.body?.gradeMax === undefined ? null : Number(req.body.gradeMax);
+
+  if (!userId) return res.status(400).json({ error: "bad_request", missing: "userId" });
+  if (gradeMin !== null && !Number.isInteger(gradeMin)) return res.status(400).json({ error: "bad_request", invalid: "gradeMin" });
+  if (gradeMax !== null && !Number.isInteger(gradeMax)) return res.status(400).json({ error: "bad_request", invalid: "gradeMax" });
+  if (gradeMin !== null && gradeMax !== null && gradeMin > gradeMax) return res.status(400).json({ error: "bad_request", invalid: "range" });
+
+  const target = await prisma.user.findFirst({ where: { id: userId, schoolId }, select: { id: true } });
+  if (!target) return res.status(404).json({ error: "not_found" });
+
+  const row = await prisma.adminScope.create({
+    data: { userId, schoolId, gradeMin, gradeMax },
+  });
+
+  res.json(row);
+});
+
+// revoke scope (must belong to my school)
+app.delete("/api/admin/scopes/:id", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const id = req.params.id;
+
+  const row = await prisma.adminScope.findFirst({ where: { id, schoolId }, select: { id: true } });
+  if (!row) return res.status(404).json({ error: "not_found" });
+
+  await prisma.adminScope.delete({ where: { id } });
+  res.json({ ok: true });
+});
+
+
+// --------------------
+// Admin: create users (UI)
+// --------------------
+app.post("/api/admin/users", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  const password = String(req.body?.password || "");
+  const fullName = String(req.body?.fullName || "").trim();
+  const username = String(req.body?.username || "").trim();
+  const grade = Number(req.body?.grade);
+  const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(String) : ["student"];
+  const scopes = Array.isArray(req.body?.scopes) ? req.body.scopes : [];
+
+  if (!email || !password || !fullName || !username) {
+    return res.status(400).json({ error: "bad_request", missing: "email/password/fullName/username" });
+  }
+  if (!Number.isInteger(grade) || grade < 4 || grade > 12) {
+    return res.status(400).json({ error: "bad_request", invalid: "grade" });
+  }
+
+  const allowedRoles = new Set(["student", "teacher", "admin"]);
+  for (const r of roles) {
+    if (!allowedRoles.has(r)) return res.status(400).json({ error: "bad_request", invalidRole: r });
+  }
+
+  const creatingStudentOnly = roles.length === 1 && roles[0] === "student";
+  if (creatingStudentOnly) {
+    const ok = await canAdminManageGrade(prisma, req.user.id, schoolId, grade);
+    if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+  }
+
+  for (const sc of scopes) {
+    const gmin = sc?.gradeMin === undefined ? null : Number(sc.gradeMin);
+    const gmax = sc?.gradeMax === undefined ? null : Number(sc.gradeMax);
+
+    if (gmin !== null && !Number.isInteger(gmin)) return res.status(400).json({ error: "bad_request", invalid: "scope.gradeMin" });
+    if (gmax !== null && !Number.isInteger(gmax)) return res.status(400).json({ error: "bad_request", invalid: "scope.gradeMax" });
+    if (gmin !== null && gmax !== null && gmin > gmax) return res.status(400).json({ error: "bad_request", invalid: "scope.range" });
+
+    const ok = await canAdminManageRange(prisma, req.user.id, schoolId, gmin, gmax);
+    if (!ok) return res.status(403).json({ error: "forbidden", reason: "scope_out_of_range", scope: { gradeMin: gmin, gradeMax: gmax } });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = await prisma.user.create({
+    data: { email, passwordHash, fullName, username, grade, schoolId },
+    select: { id: true, email: true, fullName: true, username: true, grade: true, schoolId: true },
+  });
+
+  const roleRowsDb = await prisma.role.findMany({ where: { name: { in: ["student", "teacher", "admin"] } } });
+  const byName = new Map(roleRowsDb.map(r => [r.name, r.id]));
+
+  const roleRows = roles.map(name => ({ userId: user.id, roleId: byName.get(name) })).filter(r => r.roleId);
+  if (roleRows.length) await prisma.userRole.createMany({ data: roleRows, skipDuplicates: true });
+
+  if (scopes.length) {
+    await prisma.adminScope.createMany({
+      data: scopes.map(sc => ({
+        userId: user.id,
+        schoolId,
+        gradeMin: sc?.gradeMin === undefined ? null : Number(sc.gradeMin),
+        gradeMax: sc?.gradeMax === undefined ? null : Number(sc.gradeMax),
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  res.json({ ok: true, user, roles, scopesCount: scopes.length });
+});
+
+// --------------------
+// Admin: replace scopes for a user (UI)
+// --------------------
+app.put("/api/admin/users/:id/scopes", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const targetUserId = req.params.id;
+
+  const scopes = Array.isArray(req.body?.scopes) ? req.body.scopes : null;
+  if (!scopes) return res.status(400).json({ error: "bad_request", missing: "scopes" });
+
+  const target = await prisma.user.findFirst({ where: { id: targetUserId, schoolId }, select: { id: true } });
+  if (!target) return res.status(404).json({ error: "not_found" });
+
+  const normalized = [];
+  for (const sc of scopes) {
+    const gmin = sc?.gradeMin === undefined ? null : Number(sc.gradeMin);
+    const gmax = sc?.gradeMax === undefined ? null : Number(sc.gradeMax);
+
+    if (gmin !== null && !Number.isInteger(gmin)) return res.status(400).json({ error: "bad_request", invalid: "scope.gradeMin" });
+    if (gmax !== null && !Number.isInteger(gmax)) return res.status(400).json({ error: "bad_request", invalid: "scope.gradeMax" });
+    if (gmin !== null && gmax !== null && gmin > gmax) return res.status(400).json({ error: "bad_request", invalid: "scope.range" });
+
+    const ok = await canAdminManageRange(prisma, req.user.id, schoolId, gmin, gmax);
+    if (!ok) return res.status(403).json({ error: "forbidden", reason: "scope_out_of_range", scope: { gradeMin: gmin, gradeMax: gmax } });
+
+    normalized.push({ userId: targetUserId, schoolId, gradeMin: gmin, gradeMax: gmax });
+  }
+
+  await prisma.adminScope.deleteMany({ where: { userId: targetUserId, schoolId } });
+  if (normalized.length) await prisma.adminScope.createMany({ data: normalized, skipDuplicates: true });
+
+  res.json({ ok: true, scopes: normalized.map(s => ({ gradeMin: s.gradeMin, gradeMax: s.gradeMax })) });
+});
+
+// --------------------
+// Admin: GradeSubjectPack management (UI)
+// --------------------
+app.get("/api/admin/grade-packs", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => (req.query?.grade !== undefined ? Number(req.query.grade) : null),
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const grade = Number(req.query.grade);
+  const kind = (req.query.kind === undefined) ? null : String(req.query.kind);
+
+  if (!Number.isInteger(grade) || grade < 4 || grade > 12) return res.status(400).json({ error: "bad_request", invalid: "grade" });
+
+  const rows = await prisma.gradeSubjectPack.findMany({
+    where: (kind ? { schoolId, grade, kind } : { schoolId, grade }),
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      grade: true,
+      kind: true,
+      subjectId: true,
+      Subject: { select: { id: true, name: true } },
+    },
+  });
+
+  res.json(rows);
+});
+
+app.put("/api/admin/grade-packs", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => (req.body?.grade !== undefined ? Number(req.body.grade) : null),
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const grade = Number(req.body?.grade);
+  const kind = String(req.body?.kind || "core");
+  const subjectIds = Array.isArray(req.body?.subjectIds) ? req.body.subjectIds.map(String) : null;
+
+  if (!Number.isInteger(grade) || grade < 4 || grade > 12) return res.status(400).json({ error: "bad_request", invalid: "grade" });
+  if (!subjectIds) return res.status(400).json({ error: "bad_request", missing: "subjectIds" });
+
+  // validate subjects belong to the school
+  const subjects = await prisma.subject.findMany({
+    where: { schoolId, id: { in: subjectIds } },
+    select: { id: true },
+  });
+  const okSet = new Set(subjects.map(s => s.id));
+  for (const id of subjectIds) if (!okSet.has(id)) return res.status(400).json({ error: "bad_request", invalidSubjectId: id });
+
+  await prisma.gradeSubjectPack.deleteMany({ where: { schoolId, grade, kind } });
+
+  if (subjectIds.length) {
+    await prisma.gradeSubjectPack.createMany({
+      data: subjectIds.map(subjectId => ({ schoolId, grade, kind, subjectId })),
+      skipDuplicates: true,
+    });
+  }
+
+  res.json({ ok: true, grade, kind, count: subjectIds.length });
+});
+
+app.post("/api/admin/grade-packs/from-major", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => {
+    const g = req.body?.grade;
+    if (g === null || g === undefined) return null;
+    return Number(g);
+  },
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+
+  const grade = Number(req.body?.grade);
+  const majorId = String(req.body?.majorId || "").trim();
+  const kindOverride = req.body?.kind ? String(req.body.kind).trim() : null;
+
+  if (!Number.isFinite(grade)) return res.status(400).json({ error: "bad_request", missing: "grade" });
+  if (!majorId) return res.status(400).json({ error: "bad_request", missing: "majorId" });
+
+  // Load major (must be in same school)
+  const major = await prisma.major.findFirst({
+    where: { id: majorId, schoolId },
+    select: { id: true, name: true, type: true },
+  });
+  if (!major) return res.status(404).json({ error: "not_found", what: "major" });
+
+  const kind = kindOverride || major.type; // scientific | technological (by convention)
+  if (!kind) return res.status(400).json({ error: "bad_request", message: "major_missing_type" });
+
+  // Read subjects from MajorSubject join
+  const links = await prisma.majorSubject.findMany({
+    where: { schoolId, majorId },
+    select: { subjectId: true },
+    orderBy: { id: "asc" },
+  });
+
+  const subjectIds = [...new Set(links.map(x => x.subjectId).filter(Boolean))];
+
+  if (!subjectIds.length) {
+    return res.status(400).json({ error: "bad_request", message: "major_has_no_subjects", majorId });
+  }
+
+  // Validate subjects exist in this school (defensive)
+  const subjects = await prisma.subject.findMany({
+    where: { schoolId, id: { in: subjectIds } },
+    select: { id: true },
+  });
+  const okSet = new Set(subjects.map(x => x.id));
+  for (const sid of subjectIds) {
+    if (!okSet.has(sid)) return res.status(400).json({ error: "bad_request", invalidSubjectId: sid });
+  }
+
+  // Upsert grade pack rows: delete existing grade+kind then recreate
+  await prisma.gradeSubjectPack.deleteMany({
+    where: { schoolId, grade, kind },
+  });
+
+  await prisma.gradeSubjectPack.createMany({
+    data: subjectIds.map(subjectId => ({ schoolId, grade, kind, subjectId })),
+    skipDuplicates: true,
+  });
+
+  return res.json({
+    ok: true,
+    grade,
+    kind,
+    major: { id: major.id, name: major.name, type: major.type },
+    count: subjectIds.length,
+  });
+});
+
+
+// --------------------
+// Admin: Subjects (school-wide)
+// --------------------
+app.get("/api/admin/subjects", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+
+  const rows = await prisma.subject.findMany({
+    where: { schoolId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, schoolId: true },
+  });
+
+  res.json(rows);
+});
+
+app.post("/api/admin/subjects", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const name = String(req.body?.name || "").trim();
+
+  if (!name) return res.status(400).json({ error: "bad_request", missing: "name" });
+
+  try {
+    const row = await prisma.subject.create({
+      data: { schoolId, name },
+      select: { id: true, name: true, schoolId: true },
+    });
+    res.json({ ok: true, subject: row });
+  } catch (e) {
+    // likely unique constraint: (schoolId,name)
+    res.status(409).json({ error: "conflict", message: "subject_exists", name });
+  }
+});
+
+app.delete("/api/admin/subjects/:id", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const id = req.params.id;
+
+  const row = await prisma.subject.findFirst({ where: { id, schoolId }, select: { id: true } });
+  if (!row) return res.status(404).json({ error: "not_found" });
+
+  // This may fail if referenced. We'll return a clean 409.
+  try {
+    await prisma.subject.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(409).json({ error: "conflict", message: "subject_in_use" });
+  }
+});
+
+// --------------------
+// Admin: Majors + MajorSubjects
+// --------------------
+app.get("/api/admin/majors", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+
+  const rows = await prisma.major.findMany({
+    where: { schoolId },
+    orderBy: [{ type: "asc" }, { name: "asc" }],
+    select: { id: true, schoolId: true, name: true, type: true },
+  });
+
+  res.json(rows);
+});
+
+app.post("/api/admin/majors", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const name = String(req.body?.name || "").trim();
+  const type = String(req.body?.type || "").trim(); // scientific | technological
+
+  if (!name) return res.status(400).json({ error: "bad_request", missing: "name" });
+  if (!["scientific", "technological"].includes(type)) {
+    return res.status(400).json({ error: "bad_request", invalid: "type", allowed: ["scientific","technological"] });
+  }
+
+  try {
+    const row = await prisma.major.create({
+      data: { schoolId, name, type },
+      select: { id: true, schoolId: true, name: true, type: true },
+    });
+    res.json({ ok: true, major: row });
+  } catch (e) {
+    res.status(409).json({ error: "conflict", message: "major_exists", name, type });
+  }
+});
+
+app.delete("/api/admin/majors/:id", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const id = req.params.id;
+
+  const row = await prisma.major.findFirst({ where: { id, schoolId }, select: { id: true } });
+  if (!row) return res.status(404).json({ error: "not_found" });
+
+  // cascade should remove MajorSubject rows; if anything blocks, return 409
+  try {
+    await prisma.major.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(409).json({ error: "conflict", message: "major_in_use" });
+  }
+});
+
+app.get("/api/admin/majors/:id/subjects", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const majorId = req.params.id;
+
+  const major = await prisma.major.findFirst({ where: { id: majorId, schoolId }, select: { id: true, name: true, type: true } });
+  if (!major) return res.status(404).json({ error: "not_found" });
+
+  const rows = await prisma.majorSubject.findMany({
+  where: { schoolId, majorId },
+    orderBy: { id: "asc" },
+    select: {
+      id: true,
+      majorId: true,
+      subjectId: true,
+      Subject: { select: { id: true, name: true } },
+    },
+  });
+
+  res.json({ major, subjects: rows.map(r => r.Subject) });
+});
+
+// Replace the subject list for a major
+app.put("/api/admin/majors/:id/subjects", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // school-wide
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const majorId = req.params.id;
+  const subjectIds = Array.isArray(req.body?.subjectIds) ? req.body.subjectIds.map(String) : null;
+
+  if (!subjectIds) return res.status(400).json({ error: "bad_request", missing: "subjectIds" });
+
+  const major = await prisma.major.findFirst({ where: { id: majorId, schoolId }, select: { id: true } });
+  if (!major) return res.status(404).json({ error: "not_found" });
+
+  // validate subjects belong to school
+  const subjects = await prisma.subject.findMany({
+    where: { schoolId, id: { in: subjectIds } },
+    select: { id: true },
+  });
+  const okSet = new Set(subjects.map(s => s.id));
+  for (const id of subjectIds) if (!okSet.has(id)) return res.status(400).json({ error: "bad_request", invalidSubjectId: id });
+
+  await prisma.majorSubject.deleteMany({ where: { schoolId, majorId } });
+
+  if (subjectIds.length) {
+    await prisma.majorSubject.createMany({
+      data: subjectIds.map(subjectId => ({ schoolId, majorId, subjectId })),
+      skipDuplicates: true,
+    });
+  }
+
+  res.json({ ok: true, majorId, count: subjectIds.length });
+});
+
+// --------------------
+// Admin: Classrooms (generate + manage teachers)
+// --------------------
+
+// List classrooms (optionally by grade)
+app.get("/api/admin/classrooms", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => (req.query?.grade !== undefined ? Number(req.query.grade) : null),
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const grade = req.query?.grade !== undefined ? Number(req.query.grade) : null;
+
+  if (grade !== null) {
+    if (!Number.isInteger(grade) || grade < 4 || grade > 12) return res.status(400).json({ error: "bad_request", invalid: "grade" });
+    const ok = await canAdminManageGrade(prisma, req.user.id, schoolId, grade);
+    if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+  }
+
+  const rows = await prisma.classroom.findMany({
+    where: { schoolId, ...(grade !== null ? { grade } : {}) },
+    orderBy: [{ grade: "asc" }, { createdAt: "asc" }],
+    select: {
+      id: true,
+      schoolId: true,
+      grade: true,
+      subjectId: true,
+      title: true,
+      Subject: { select: { id: true, name: true } },
+    },
+  });
+
+  res.json(rows);
+});
+
+// Generate missing classrooms from GradeSubjectPack for a grade
+app.post("/api/admin/classrooms/generate", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => (req.body?.grade !== undefined ? Number(req.body.grade) : null),
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const grade = Number(req.body?.grade);
+  const kinds = Array.isArray(req.body?.kinds) ? req.body.kinds.map(String) : ["core"];
+  const titleMode = String(req.body?.titleMode || "subject_grade"); // subject | subject_grade
+
+  if (!Number.isInteger(grade) || grade < 4 || grade > 12) return res.status(400).json({ error: "bad_request", invalid: "grade" });
+  for (const k of kinds) if (!["core","grade","major","scientific"].includes(k)) return res.status(400).json({ error: "bad_request", invalidKind: k });
+
+  const ok = await canAdminManageGrade(prisma, req.user.id, schoolId, grade);
+  if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+
+  const packs = await prisma.gradeSubjectPack.findMany({
+    where: { schoolId, grade, kind: { in: kinds } },
+    select: { subjectId: true, kind: true, Subject: { select: { id: true, name: true } } },
+  });
+
+  const seen = new Set();
+  const subjects = [];
+  for (const p of packs) {
+    if (!seen.has(p.subjectId)) {
+      seen.add(p.subjectId);
+      subjects.push(p.Subject);
+    }
+  }
+
+  let created = 0;
+  let existed = 0;
+
+  for (const subj of subjects) {
+    const title =
+      titleMode === "subject"
+        ? `${subj.name}`
+        : `${subj.name} - Grade ${grade}`;
+
+    // upsert using @@unique([schoolId, grade, subjectId])
+    const before = await prisma.classroom.findFirst({
+      where: { schoolId, grade, subjectId: subj.id },
+      select: { id: true },
+    });
+
+    if (before) {
+      existed += 1;
+      continue;
+    }
+
+    await prisma.classroom.create({
+      data: { schoolId, grade, subjectId: subj.id, title },
+      select: { id: true },
+    });
+
+    created += 1;
+  }
+
+  res.json({
+    ok: true,
+    grade,
+    kinds,
+    subjects: subjects.length,
+    created,
+    existed,
+  });
+});
+
+// Set teachers for a classroom (replace list)
+// Teachers are stored as ClassroomMember rows with role="teacher"
+app.put("/api/admin/classrooms/:id/teachers", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null, // we check grade via classroom lookup below
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const classroomId = req.params.id;
+  const teacherIds = Array.isArray(req.body?.teacherIds) ? req.body.teacherIds.map(String) : null;
+
+  if (!teacherIds) return res.status(400).json({ error: "bad_request", missing: "teacherIds" });
+
+  const classroom = await prisma.classroom.findFirst({
+    where: { id: classroomId, schoolId },
+    select: { id: true, grade: true },
+  });
+  if (!classroom) return res.status(404).json({ error: "not_found" });
+
+  const ok = await canAdminManageGrade(prisma, req.user.id, schoolId, classroom.grade);
+  if (!ok) return res.status(403).json({ error: "forbidden", reason: "out_of_scope_grade" });
+
+  // validate teachers are in same school
+  if (teacherIds.length) {
+    const users = await prisma.user.findMany({
+      where: { schoolId, id: { in: teacherIds } },
+      select: { id: true },
+    });
+    const okSet = new Set(users.map(u => u.id));
+    for (const id of teacherIds) if (!okSet.has(id)) return res.status(400).json({ error: "bad_request", invalidTeacherId: id });
+  }
+
+  // remove existing teacher memberships for this classroom
+  await prisma.classroomMember.deleteMany({
+    where: { classroomId, role: "teacher" },
+  });
+
+  // add new teacher memberships
+  if (teacherIds.length) {
+    await prisma.classroomMember.createMany({
+      data: teacherIds.map(userId => ({ classroomId, userId, role: "teacher" })),
+      skipDuplicates: true,
+    });
+  }
+
+  res.json({ ok: true, classroomId, teachersCount: teacherIds.length });
+});
+
+/** Pilot endpoints **/
+function isValidDate(d) {
+  return d instanceof Date && !Number.isNaN(d.getTime());
+}
+
+function getWindow(req) {
+  // Optional windowing: ?from=ISO&to=ISO
+  const fromQ = req.query.from ? new Date(String(req.query.from)) : null;
+  const toQ = req.query.to ? new Date(String(req.query.to)) : null;
+
+  const now = new Date();
+  const defaultFrom = new Date(now);
+  defaultFrom.setHours(0, 0, 0, 0);
+
+  const defaultTo = new Date(now);
+  defaultTo.setDate(defaultTo.getDate() + 7);
+
+  const from = fromQ && isValidDate(fromQ) ? fromQ : defaultFrom;
+  const to = toQ && isValidDate(toQ) ? toQ : defaultTo;
+
+  return { from, to };
+}
+
+// Legacy: returns Prisma shape with `Subject` key
+app.get("/api/schedule", auth, async (req, res) => {
+  const userId = req.user.id;
+  const { from, to } = getWindow(req);
+
+  const rows = await prisma.scheduleEntry.findMany({
+    where: { userId, startAt: { gte: from, lt: to } },
+    include: { Subject: true },
+    orderBy: { startAt: "asc" },
+  });
+
+  res.json(rows);
+});
+
+// v2: normalized schedule payload for mobile (lowercase keys)
+app.get("/api/schedule/v2", auth, async (req, res) => {
+  const userId = req.user.id;
+  const { from, to } = getWindow(req);
+
+  const rows = await prisma.scheduleEntry.findMany({
+    where: { userId, startAt: { gte: from, lt: to } },
+    include: {
+      Subject: true,
+      Classroom: { select: { id: true, title: true, grade: true, schoolId: true, subjectId: true } },
+    },
+    orderBy: { startAt: "asc" },
+  });
+
+  const out = rows.map((r) => ({
+    id: r.id,
+    schoolId: r.schoolId,
+    classroomId: r.classroomId,
+    userId: r.userId,
+    subjectId: r.subjectId,
+    startAt: r.startAt,
+    endAt: r.endAt,
+    room: r.room,
+    teacher: r.teacher,
+    createdAt: r.createdAt,
+    subject: r.Subject ? { id: r.Subject.id, name: r.Subject.name, schoolId: r.Subject.schoolId } : null,
+    classroom: r.Classroom || null,
+  }));
+
+  res.json(out);
+});
 // My classrooms only (membership-based)
 app.get("/api/classrooms", auth, async (req, res) => {
   const rows = await prisma.classroomMember.findMany({
@@ -424,84 +1311,222 @@ app.post("/api/classrooms/:id/messages", auth, requireMember, async (req, res) =
 
 // Solutions feed: default = my grade + my subjects
 app.get("/api/solutions", auth, async (req, res) => {
-  const schoolId = req.user.schoolId;
-  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
-  const q = req.query;
+  try {
+    const userId = req.user?.id;
+    const schoolId = req.user?.schoolId;
+    if (!userId || !schoolId) return res.status(401).json({ error: "invalid_token" });
 
-  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-  if (!user) return res.status(401).json({ error: "invalid_token" });
+    const takeRaw = Number(req.query.limit ?? 10);
+    const take = Math.max(1, Math.min(50, Number.isFinite(takeRaw) ? takeRaw : 10));
+    const cursor = req.query.cursor ? String(req.query.cursor) : null;
 
-  const where = {};
-  // school isolation (always)
-  where.User = { schoolId };
+    const classroomId = req.query.classroomId ? String(req.query.classroomId) : null;
+    const subjectId = req.query.subjectId ? String(req.query.subjectId) : null;
+    const grade = req.query.grade ? Number(req.query.grade) : null;
 
-  // explicit filters win
-  if (q.SubjectId) where.SubjectId = String(q.SubjectId);
-  if (q.grade) where.grade = Number(q.grade);
-  if (q.book) where.book = String(q.book);
-  if (q.page) where.page = Number(q.page);
+    // --- STRICT LOCK: only classrooms where viewer is a member ---
+    const myMemberships = await prisma.classroomMember.findMany({
+      where: { userId },
+      select: { classroomId: true },
+    });
+    const myClassroomIds = myMemberships.map((m) => m.classroomId);
 
-  // default filtering if no explicit grade/subjectId
-  const hasExplicit = !!q.SubjectId || !!q.grade;
-  if (!hasExplicit) {
-    where.grade = user.grade;
-    const mySubs = await prisma.studentSubject.findMany({ where: { userId: user.id } });
-    const subjectIds = mySubs.map((x) => x.SubjectId).filter(Boolean);
-    if (subjectIds.length) where.SubjectId = { in: subjectIds };
+    // If classroomId filter provided, enforce membership (403) instead of "empty"
+    if (classroomId && !myClassroomIds.includes(classroomId)) {
+      return res.status(403).json({ error: "forbidden" });
+    }
+
+    // Base where: same school AND membership scope
+    const where = {
+      schoolId,
+      classroomId: classroomId ? classroomId : { in: myClassroomIds },
+    };
+
+    if (subjectId) where.subjectId = subjectId;
+    if (Number.isFinite(grade)) where.grade = grade;
+
+    const rows = await prisma.solution.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: take + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      select: {
+        id: true,
+        classroomId: true,
+        subjectId: true,
+        grade: true,
+        book: true,
+        page: true,
+        question: true,
+        caption: true,
+        mediaUrl: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+        SolutionLike: { select: { userId: true } },
+        _count: { select: { SolutionComment: true } },
+      },
+    });
+
+    const hasNextPage = rows.length > take;
+    const sliced = hasNextPage ? rows.slice(0, take) : rows;
+
+    const data = sliced.map((r) => {
+      const likedByMe = r.SolutionLike.some((like) => like.userId === userId);
+      return {
+        id: r.id,
+        classroomId: r.classroomId,
+        subjectId: r.subjectId,
+        grade: r.grade,
+        book: r.book,
+        page: r.page,
+        question: r.question,
+        caption: r.caption ?? null,
+        mediaUrl: r.mediaUrl,
+        createdAt: r.createdAt,
+        user: r.User,
+        likesCount: r.SolutionLike.length,
+        likedByMe,
+        commentsCount: r._count.SolutionComment,
+      };
+    });
+
+    res.json({ data, nextCursor: hasNextPage ? sliced[sliced.length - 1].id : null });
+  } catch (e) {
+    console.error("GET /api/solutions failed", e);
+    res.status(500).json({ error: "server_error" });
   }
-
-  const rows = await prisma.solution.findMany({
-    where,
-    include: {
-      Subject: true,
-      User: { select: { id: true, fullName: true, username: true } },
-      _count: { select: { SolutionLike: true, SolutionComment: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
-  res.json(rows.map(r => ({
-    ...r,
-    _count: r._count ? {
-      likes: r._count.SolutionLike ?? 0,
-      comments: r._count.SolutionComment ?? 0,
-    } : undefined,
-  })));
-
 });
 
 app.post("/api/solutions", auth, async (req, res) => {
-  const S = z.object({
-    subjectId: z.string().min(1),
-    grade: z.number().int().min(7).max(12),
-    book: z.string().min(1),
-    page: z.number().int().min(1),
-    question: z.string().min(1),
-    caption: z.string().optional(),
-    mediaUrl: z.string().min(1),
-  });
-  const body = S.safeParse(req.body);
-  if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
+  try {
+    const userId = req.user.id;
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
 
-  const s = await prisma.solution.create({ data: { ...body.data, grade: req.user.grade, userId: req.user.id } });
-  res.json(s);
+    const {
+      classroomId,
+      grade,
+      book,
+      page,
+      question,
+      caption,
+      mediaUrl,
+    } = req.body || {};
+
+    if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
+    if (!mediaUrl) return res.status(400).json({ error: "mediaUrl_required" });
+    if (grade === undefined || grade === null) return res.status(400).json({ error: "grade_required" });
+    if (!book) return res.status(400).json({ error: "book_required" });
+    if (page === undefined || page === null) return res.status(400).json({ error: "page_required" });
+    if (!question) return res.status(400).json({ error: "question_required" });
+
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, schoolId: true, subjectId: true },
+    });
+    if (!classroom || classroom.schoolId !== schoolId) {
+      return res.status(404).json({ error: "classroom_not_found" });
+    }
+
+    const member = await prisma.classroomMember.findUnique({
+      where: { classroomId_userId: { classroomId, userId } },
+      select: { role: true },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    const g = parseInt(grade);
+    const p = parseInt(page);
+    if (!Number.isFinite(g) || g < 1 || g > 12) return res.status(400).json({ error: "grade_invalid" });
+    if (!Number.isFinite(p) || p < 1 || p > 2000) return res.status(400).json({ error: "page_invalid" });
+
+    const created = await prisma.solution.create({
+      data: {
+        schoolId,
+        classroomId,
+        subjectId: classroom.subjectId,
+        userId,
+        grade: g,
+        book: String(book),
+        page: p,
+        question: String(question),
+        caption: caption ? String(caption) : null,
+        mediaUrl: String(mediaUrl),
+      },
+      select: {
+        id: true,
+        classroomId: true,
+        subjectId: true,
+        grade: true,
+        book: true,
+        page: true,
+        question: true,
+        caption: true,
+        mediaUrl: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+      },
+    });
+
+    res.json({
+      id: created.id,
+      classroomId: created.classroomId,
+      subjectId: created.subjectId,
+      grade: created.grade,
+      book: created.book,
+      page: created.page,
+      question: created.question,
+      caption: created.caption ?? null,
+      mediaUrl: created.mediaUrl,
+      createdAt: created.createdAt,
+      user: created.User,
+    });
+  } catch (e) {
+    console.error("POST /api/solutions failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
 });
+
+
 
 app.post("/api/solutions/:id/like", auth, async (req, res) => {
-  const schoolId = req.user.schoolId;
-  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
-
-  const sol = await prisma.solution.findFirst({
-    where: { id: req.params.id, User: { schoolId } },
-    select: { id: true },
-  });
-  if (!sol) return res.status(404).json({ error: "not_found" });
-
   try {
-    await prisma.solutionLike.create({ data: { solutionId: req.params.id, userId: req.user.id } });
-  } catch {}
-  res.json({ ok: true });
+    const userId = req.user.id;
+    const solutionId = req.params.id;
+
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, classroomId: true },
+    });
+    if (!solution) return res.status(404).json({ error: "not_found" });
+
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId: solution.classroomId, userId },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    const existing = await prisma.solutionLike.findUnique({
+      where: { solutionId_userId: { solutionId, userId } },
+    });
+
+    if (existing) {
+      await prisma.solutionLike.delete({
+        where: { solutionId_userId: { solutionId, userId } },
+      });
+      return res.json({ liked: false });
+    }
+
+    await prisma.solutionLike.create({
+      data: { solutionId, userId },
+    });
+
+    return res.json({ liked: true });
+  } catch (e) {
+    console.error("LIKE failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
 });
+
+
 
 app.delete("/api/solutions/:id/like", auth, async (req, res) => {
   const schoolId = req.user.schoolId;
@@ -535,25 +1560,41 @@ app.get("/api/solutions/:id/comments", auth, async (req, res) => {
   res.json(rows);
 });
 
+
 app.post("/api/solutions/:id/comments", auth, async (req, res) => {
-  const schoolId = req.user.schoolId;
-  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+  try {
+    const userId = req.user.id;
+    const solutionId = req.params.id;
+    const { text } = req.body;
+    if (!text || !text.trim()) return res.status(400).json({ error: "bad_request" });
 
-  const sol = await prisma.solution.findFirst({
-    where: { id: req.params.id, User: { schoolId } },
-    select: { id: true },
-  });
-  if (!sol) return res.status(404).json({ error: "not_found" });
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, classroomId: true },
+    });
+    if (!solution) return res.status(404).json({ error: "not_found" });
 
-  const S = z.object({ text: z.string().min(1) });
-  const body = S.safeParse(req.body);
-  if (!body.success) return res.status(400).json({ error: "bad_request" });
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId: solution.classroomId, userId },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
 
-  const c = await prisma.solutionComment.create({
-    data: { solutionId: req.params.id, userId: req.user.id, text: body.data.text },
-  });
-  res.json(c);
+    const comment = await prisma.solutionComment.create({
+      data: {
+        solutionId,
+        userId,
+        text: text.trim(),
+      },
+    });
+
+    res.json(comment);
+  } catch (e) {
+    console.error("COMMENT failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
 });
+
+
 
 app.get("/api/grades_legacy", auth, async (req, res) => {
   console.log("DEBUG_GRADES user", { reqUser: req.user?.id, reqUserCap: req.user?.id });
@@ -601,47 +1642,124 @@ app.get("/api/announcements", auth, async (req, res) => {
 });
 
 // Admin endpoints: grade packs
-app.get("/api/admin/grade-packs", auth, adminGuard, async (req, res) => {
-  const rows = await prisma.gradeSubjectPack.findMany({
-    include: { Subject: true },
-    orderBy: [{ grade: "asc" }, { kind: "asc" }],
+
+// ============================
+// Admin (scoped) endpoints
+// ============================
+
+// List users in my school (optional grade filter). Requires admin + scope for that grade (if provided).
+app.get("/api/admin/users", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: (req) => (req.query.grade ? Number(req.query.grade) : null),
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const grade = req.query.grade ? Number(req.query.grade) : null;
+
+  const where = { schoolId };
+  if (Number.isFinite(grade)) where.grade = grade;
+
+  const users = await prisma.user.findMany({
+    where,
+    orderBy: [{ grade: "asc" }, { fullName: "asc" }],
+    select: { id: true, email: true, fullName: true, username: true, grade: true, schoolId: true },
   });
-  res.json(rows);
+
+  res.json(users);
 });
 
-app.put("/api/admin/grade-packs", auth, adminGuard, async (req, res) => {
-  const S = z.object({
-    grade: z.number().int().min(7).max(12),
-    core: z.array(z.string()).default([]),
-    gradeSubjects: z.array(z.string()).default([]),
+// Get a user's scopes (must be admin in same school; no grade needed)
+app.get("/api/admin/users/:id/scopes", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const userId = req.params.id;
+
+  const scopes = await prisma.adminScope.findMany({
+    where: { schoolId, userId },
+    orderBy: [{ gradeMin: "asc" }, { gradeMax: "asc" }],
   });
-  const body = S.safeParse(req.body);
-  if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
 
-  const subs = await prisma.subject.findMany();
-  const byName = new Map(subs.map((s) => [s.name, s.id]));
-
-  const grade = body.data.grade;
-
-  await prisma.gradeSubjectPack.deleteMany({ where: { grade } });
-
-  const rows = [];
-  for (const n of body.data.core) {
-    const id = byName.get(n);
-    if (id) rows.push({ grade, subjectId: id, kind: "core" });
-  }
-  for (const n of body.data.gradeSubjects) {
-    const id = byName.get(n);
-    if (id) rows.push({ grade, subjectId: id, kind: "grade" });
-  }
-
-  if (rows.length) await prisma.gradeSubjectPack.createMany({ data: rows, skipDuplicates: true });
-  res.json({ ok: true });
+  res.json(scopes);
 });
+
+// Replace a user's scopes
+app.put("/api/admin/users/:id/scopes", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const userId = req.params.id;
+
+  const scopes = Array.isArray(req.body?.scopes) ? req.body.scopes : null;
+  if (!scopes) return res.status(400).json({ error: "bad_request", missing: "scopes" });
+
+  const clean = [];
+  for (const sc of scopes) {
+    const gradeMin = sc.gradeMin === null || sc.gradeMin === undefined ? null : Number(sc.gradeMin);
+    const gradeMax = sc.gradeMax === null || sc.gradeMax === undefined ? null : Number(sc.gradeMax);
+
+    if (gradeMin !== null && (!Number.isFinite(gradeMin) || gradeMin < 4 || gradeMin > 12)) {
+      return res.status(400).json({ error: "bad_request", field: "gradeMin" });
+    }
+    if (gradeMax !== null && (!Number.isFinite(gradeMax) || gradeMax < 4 || gradeMax > 12)) {
+      return res.status(400).json({ error: "bad_request", field: "gradeMax" });
+    }
+    if (gradeMin !== null && gradeMax !== null && gradeMin > gradeMax) {
+      return res.status(400).json({ error: "bad_request", field: "gradeRange" });
+    }
+
+    clean.push({ userId, schoolId, gradeMin, gradeMax });
+  }
+
+  await prisma.adminScope.deleteMany({ where: { userId, schoolId } });
+  if (clean.length) await prisma.adminScope.createMany({ data: clean, skipDuplicates: true });
+
+  res.json({ ok: true, scopes: clean });
+});
+
+// Set roles for a user (admin/teacher/student). Keeps it simple: replace to exactly these roles.
+app.put("/api/admin/users/:id/roles", auth, requireAdminScoped({
+  prisma,
+  gradeFromReq: () => null,
+}), async (req, res) => {
+  const schoolId = req.user.schoolId;
+  const targetUserId = req.params.id;
+
+  const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(String) : null;
+  if (!roles) return res.status(400).json({ error: "bad_request", missing: "roles" });
+
+  // ensure target user is in same school
+  const target = await prisma.user.findFirst({ where: { id: targetUserId, schoolId }, select: { id: true } });
+  if (!target) return res.status(404).json({ error: "not_found" });
+
+  // allowed roles
+  const allowed = new Set(["student", "teacher", "admin"]);
+  for (const r of roles) if (!allowed.has(r)) return res.status(400).json({ error: "bad_request", invalidRole: r });
+
+  // ensure Role rows exist
+  const dbRoles = await prisma.role.findMany({ where: { name: { in: [...roles] } } });
+  const byName = new Map(dbRoles.map(r => [r.name, r.id]));
+
+  // remove existing roles for those 3
+  const allRoleRows = await prisma.role.findMany({ where: { name: { in: ["student","teacher","admin"] } } });
+  const allRoleIds = allRoleRows.map(r => r.id);
+  await prisma.userRole.deleteMany({ where: { userId: targetUserId, roleId: { in: allRoleIds } } });
+
+  // add selected
+  const rows = roles.map(name => ({ userId: targetUserId, roleId: byName.get(name) })).filter(r => r.roleId);
+  if (rows.length) await prisma.userRole.createMany({ data: rows, skipDuplicates: true });
+
+  res.json({ ok: true, roles });
+});
+
 
 const port = Number(process.env.PORT || 3000);
-app.get("/api/admin/ping", auth, requireRole("admin"), (req, res) => {
+app.get("/api/admin/ping", auth, requireAdminScoped({ prisma, gradeFromReq: () => null }), (req, res) => {
   res.json({ ok: true, role: "admin", user: req.user });
 });
+
+// last: unified error handler
+app.use(errorHandler);
 
 app.listen(port, () => console.log(`pilot_api listening on ${port}`));
