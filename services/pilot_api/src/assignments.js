@@ -1,4 +1,5 @@
 const express = require("express");
+const { z } = require("zod");
 
 // server.js style: buildAssignmentsRouter({ auth, prisma })
 function buildAssignmentsRouter({ auth, prisma }) {
@@ -7,118 +8,221 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   const router = express.Router();
 
-  // GET /api/assignments?subjectId=sub_math&from=ISO&to=ISO
+  async function requireTeacherOrAdmin(req, res, classroomId) {
+    if (Array.isArray(req.user?.roles) && req.user.roles.includes("admin")) return true;
+    const m = await prisma.classroomMember.findFirst({
+      where: { classroomId, userId: req.user.id, role: "teacher" },
+      select: { id: true },
+    });
+    if (!m) {
+      res.status(403).json({ error: "forbidden" });
+      return false;
+    }
+    return true;
+  }
+
+  // GET /api/assignments?classroomId=...&from=ISO&to=ISO
   router.get("/", auth, async (req, res) => {
-    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
-
-    const q = req.query || {};
-    const where = {};
-
-    if (q.subjectId) where.subjectId = String(q.subjectId);
-
-    // optional date filters (ISO strings)
-    const dueAt = {};
-    if (q.from) {
-      const d = new Date(String(q.from));
-      if (!isNaN(d.getTime())) dueAt.gte = d;
-    }
-    if (q.to) {
-      const d = new Date(String(q.to));
-      if (!isNaN(d.getTime())) dueAt.lte = d;
-    }
-    if (Object.keys(dueAt).length) where.dueAt = dueAt;
-
-    const rows = await prisma.assignment.findMany({
-      where,
-      include: { Subject: true },
-      orderBy: { dueAt: "asc" },
-      take: 200,
-    });
-
-    res.json(rows);
-  });
-
-  // POST /api/assignments
-  // body: { subjectId, title, dueAt, details? }
-  router.post("/", auth, async (req, res) => {
-    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
-
-    const { subjectId, title, dueAt, details } = req.body || {};
-    if (!subjectId || typeof subjectId !== "string") return res.status(400).json({ error: "subjectId_required" });
-    if (!title || typeof title !== "string") return res.status(400).json({ error: "title_required" });
-    if (!dueAt || typeof dueAt !== "string") return res.status(400).json({ error: "dueAt_required" });
-
-    const d = new Date(dueAt);
-    if (isNaN(d.getTime())) return res.status(400).json({ error: "dueAt_invalid" });
-
-    const row = await prisma.assignment.create({
-      data: {
-        id: (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(16).slice(2) + Date.now().toString(16)),
-        subjectId: subjectId.trim(),
-        title: title.trim(),
-        dueAt: d,
-        details: typeof details === "string" ? details.trim() : null,
-      },
-      include: { Subject: true },
-    });
-
-    res.json(row);
-  });
-
-// POST /api/assignments/:id/submissions
-  // body: { text?, mediaUrl? }
-  router.post("/:id/submissions", auth, async (req, res) => {
-    const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "unauthorized" });
-
-    const assignmentId = req.params.id;
-    const exists = await prisma.assignment.findUnique({ where: { id: assignmentId } });
-    if (!exists) return res.status(404).json({ error: "assignment_not_found" });
-
-    const { text, mediaUrl } = req.body || {};
-    if (text != null && typeof text !== "string") return res.status(400).json({ error: "text_invalid" });
-    if (mediaUrl != null && typeof mediaUrl !== "string") return res.status(400).json({ error: "mediaUrl_invalid" });
-
-    // upsert = allow re-submit (overwrite)
-    const row = await prisma.assignmentSubmission.upsert({
-      where: { assignmentId_userId: { assignmentId, userId } },
-      update: {
-        text: typeof text === "string" ? text.trim() : null,
-        mediaUrl: typeof mediaUrl === "string" ? mediaUrl.trim() : null,
-      },
-      create: {
-        id: (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(16).slice(2) + Date.now().toString(16)),
-        assignmentId,
-        userId,
-        text: typeof text === "string" ? text.trim() : null,
-        mediaUrl: typeof mediaUrl === "string" ? mediaUrl.trim() : null,
-      },
-    });
-
-    res.json(row);
-  });
-
-  // GET /api/assignments/:id/submissions
-  router.get("/:id/submissions", auth, async (req, res) => {
-    if (!req.user?.id) return res.status(401).json({ error: "unauthorized" });
-
     const schoolId = req.user.schoolId;
     if (!schoolId) return res.status(401).json({ error: "invalid_token" });
 
-    const assignmentId = req.params.id;
-    const exists = await prisma.assignment.findUnique({ where: { id: assignmentId } });
-    if (!exists) return res.status(404).json({ error: "assignment_not_found" });
+    const classroomId = req.query.classroomId;
+    if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
 
-    const rows = await prisma.assignmentSubmission.findMany({
-      where: { assignmentId, User: { schoolId } },
-      include: { User: { select: { id: true, fullName: true, username: true } } },
-      orderBy: { createdAt: "asc" },
-      take: 200,
+    // must be a member of that classroom (student ok for listing)
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId, userId: req.user.id },
+      select: { id: true },
+    });
+    if (!member && !(Array.isArray(req.user?.roles) && req.user.roles.includes("admin"))) return res.status(403).json({ error: "forbidden" });
+
+    const from = typeof req.query.from === "string" ? new Date(req.query.from) : null;
+    const to = typeof req.query.to === "string" ? new Date(req.query.to) : null;
+    if (from && isNaN(from.getTime())) return res.status(400).json({ error: "bad_request", message: "Invalid from" });
+    if (to && isNaN(to.getTime())) return res.status(400).json({ error: "bad_request", message: "Invalid to" });
+
+    const rows = await prisma.assignment.findMany({
+      where: {
+        schoolId,
+        classroomId,
+        ...(from || to
+          ? {
+              createdAt: {
+                ...(from ? { gte: from } : {}),
+                ...(to ? { lte: to } : {}),
+              },
+            }
+          : {}),
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        classroomId: true,
+        title: true,
+        details: true,
+        dueAt: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+      },
     });
 
-    res.json(rows);
+    res.json(
+      rows.map((r) => ({
+        id: r.id,
+        classroomId: r.classroomId,
+        title: r.title,
+        details: r.details ?? null,
+        dueAt: r.dueAt ?? null,
+        createdAt: r.createdAt,
+        createdBy: r.User,
+      }))
+    );
   });
 
+  // POST /api/assignments (teacher/admin only)
+  router.post("/", auth, async (req, res) => {
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+    const S = z.object({
+      classroomId: z.string().min(1),
+      title: z.string().min(1),
+      details: z.string().nullable().optional(),
+      dueAt: z.string().nullable().optional(), // ISO or null
+    });
+    const body = S.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
+
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: body.data.classroomId },
+      select: { id: true, schoolId: true, subjectId: true, title: true, grade: true },
+    });
+    if (!classroom || classroom.schoolId !== schoolId) return res.status(404).json({ error: "classroom_not_found" });
+
+    const ok = await requireTeacherOrAdmin(req, res, classroom.id);
+    if (!ok) return;
+
+    let dueAt = null;
+    if (typeof body.data.dueAt === "string") {
+      const d = new Date(body.data.dueAt);
+      if (isNaN(d.getTime())) return res.status(400).json({ error: "bad_request", message: "Invalid dueAt" });
+      dueAt = d;
+    }
+
+    const row = await prisma.assignment.create({
+      data: {
+        schoolId,
+        classroomId: classroom.id,
+        subjectId: classroom.subjectId,
+        createdById: req.user.id,
+        title: body.data.title,
+        details: body.data.details ?? null,
+        dueAt,
+      },
+      select: {
+        id: true,
+        classroomId: true,
+        title: true,
+        details: true,
+        dueAt: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+      },
+    });
+
+    res.json({
+      id: row.id,
+      classroomId: row.classroomId,
+      title: row.title,
+      details: row.details ?? null,
+      dueAt: row.dueAt ?? null,
+      createdAt: row.createdAt,
+      createdBy: row.User,
+    });
+  });
+
+  // POST /api/assignments/:id/submissions (student member)
+  router.post("/:id/submissions", auth, async (req, res) => {
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+    const id = req.params.id;
+
+    const assignment = await prisma.assignment.findUnique({
+      where: { id },
+      select: { id: true, schoolId: true, classroomId: true },
+    });
+    if (!assignment || assignment.schoolId !== schoolId) return res.status(404).json({ error: "assignment_not_found" });
+
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId: assignment.classroomId, userId: req.user.id },
+      select: { id: true },
+    });
+    if (!member && !(Array.isArray(req.user?.roles) && req.user.roles.includes("admin"))) return res.status(403).json({ error: "forbidden" });
+
+    const S = z.object({
+      text: z.string().nullable().optional(),
+      mediaUrl: z.string().url().nullable().optional(),
+    });
+    const body = S.safeParse(req.body);
+    if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
+
+    const submission = await prisma.assignmentSubmission.upsert({
+      where: { assignmentId_userId: { assignmentId: id, userId: req.user.id } },
+      update: {
+        text: body.data.text ?? null,
+        mediaUrl: body.data.mediaUrl ?? null,
+      },
+      create: {
+        assignmentId: id,
+        userId: req.user.id,
+        text: body.data.text ?? null,
+        mediaUrl: body.data.mediaUrl ?? null,
+      },
+      select: { id: true, assignmentId: true, userId: true, text: true, mediaUrl: true, createdAt: true },
+    });
+
+    res.json(submission);
+  });
+
+  // GET /api/assignments/:id/submissions (teacher/admin only)
+  router.get("/:id/submissions", auth, async (req, res) => {
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+    const id = req.params.id;
+
+    const assignment = await prisma.assignment.findUnique({
+      where: { id },
+      select: { id: true, schoolId: true, classroomId: true },
+    });
+    if (!assignment || assignment.schoolId !== schoolId) return res.status(404).json({ error: "assignment_not_found" });
+
+    const ok = await requireTeacherOrAdmin(req, res, assignment.classroomId);
+    if (!ok) return;
+
+    const rows = await prisma.assignmentSubmission.findMany({
+      where: { assignmentId: id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        text: true,
+        mediaUrl: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+      },
+    });
+
+    res.json(
+      rows.map((r) => ({
+        id: r.id,
+        text: r.text ?? null,
+        mediaUrl: r.mediaUrl ?? null,
+        createdAt: r.createdAt,
+        user: r.User,
+      }))
+    );
+  });
 
   return router;
 }

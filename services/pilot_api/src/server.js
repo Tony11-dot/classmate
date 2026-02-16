@@ -63,10 +63,9 @@ if (userIdRaw === undefined || userIdRaw === null)
 const userId =
   (typeof userIdRaw === "string" && /^[0-9]+$/.test(userIdRaw)) ? Number(userIdRaw) : userIdRaw;
 
-const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, fullName: true, username: true, grade: true, schoolId: true },
-    });
+
+const user = await getUserWithRoles(userId);
+
     if (!user) return res.status(401).json({ error: "invalid_token" });
 
     req.user = user;
@@ -78,6 +77,12 @@ const user = await prisma.user.findUnique({
 };
 
 
+
+
+// Debug: who am I (useful for auth debugging)
+app.get("/api/auth/whoami", auth, (req, res) => {
+  return res.json({ user: req.user });
+});
 
 // Helper: figure out which grade an admin operation targets.
 // Used by requireAdminScoped({ prisma, gradeFromReq })
