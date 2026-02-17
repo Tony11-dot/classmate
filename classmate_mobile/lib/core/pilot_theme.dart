@@ -80,7 +80,7 @@ class ThemeController extends Notifier<ThemeState> {
                 ? const Color(0xFF0B0F14)
                 : const Color(0xFFF6F7FB))
           : base.scaffoldBackgroundColor,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: highContrast ? 2 : 1,
         color: soft
             ? (b == Brightness.dark ? const Color(0xFF121A24) : Colors.white)
