@@ -1,4 +1,6 @@
 const express = require("express");
+const { z } = require("zod");
+
 // server.js style: buildAssignmentsRouter({ auth, prisma })
 function buildAssignmentsRouter({ auth, prisma }) {
   if (!auth) throw new Error("buildAssignmentsRouter: missing auth");
@@ -6,39 +8,73 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   const router = express.Router();
 
-  async function requireTeacherOrAdmin(req, res, classroomId) {
-    if (Array.isArray(req.user?.roles) && req.user.roles.includes("admin")) return true;
-    const m = await prisma.classroomMember.findFirst({
-      where: { classroomId, userId: req.user.id, role: "teacher" },
+  const isAdmin = (req) => Array.isArray(req.user?.roles) && req.user.roles.includes("admin");
+
+  async function adminHasScopeForGrade({ userId, schoolId, grade }) {
+    const scope = await prisma.adminScope.findFirst({
+      where: {
+        userId,
+        schoolId,
+        gradeMin: { lte: grade },
+        gradeMax: { gte: grade },
+      },
       select: { id: true },
     });
-    if (!m) {
-      res.status(403).json({ error: "forbidden" });
-      return false;
+    return !!scope;
+  }
+
+  async function requireClassroomAccess({ req, res, classroomId, needsTeacher }) {
+    const schoolId = req.user?.schoolId;
+    const userId = req.user?.id;
+    if (!schoolId || !userId) {
+      res.status(401).json({ error: "invalid_token" });
+      return null;
     }
-    return true;
+
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, schoolId: true, grade: true, subjectId: true },
+    });
+
+    if (!classroom) {
+      res.status(400).json({ error: "invalid_classroomId" });
+      return null;
+    }
+
+    if (classroom.schoolId !== schoolId) {
+      res.status(403).json({ error: "forbidden" });
+      return null;
+    }
+
+    // membership check
+    const member = await prisma.classroomMember.findFirst({
+      where: {
+        classroomId: classroom.id,
+        userId,
+        ...(needsTeacher ? { role: "teacher" } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (member) return classroom;
+
+    // admin: allow by scope (even without membership)
+    if (isAdmin(req)) {
+      const ok = await adminHasScopeForGrade({ userId, schoolId, grade: classroom.grade });
+      if (ok) return classroom;
+    }
+
+    res.status(403).json({ error: "forbidden" });
+    return null;
   }
 
   // GET /api/assignments?classroomId=...&from=ISO&to=ISO
   router.get("/", auth, async (req, res) => {
-    const schoolId = req.user.schoolId;
-    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
-
-    const classroomId = req.query.classroomId;
+    const classroomId = String(req.query.classroomId || "").trim();
     if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
 
-    const classroom = await prisma.classroom.findFirst({
-      where: { id: classroomId, schoolId },
-      select: { id: true },
-    });
-    if (!classroom) return res.status(404).json({ error: "classroom_not_found" });
-
-    // must be a member of that classroom (student ok for listing)
-    const member = await prisma.classroomMember.findFirst({
-      where: { classroomId, userId: req.user.id },
-      select: { id: true },
-    });
-    if (!member && !(Array.isArray(req.user?.roles) && req.user.roles.includes("admin"))) return res.status(403).json({ error: "forbidden" });
+    const classroom = await requireClassroomAccess({ req, res, classroomId, needsTeacher: false });
+    if (!classroom) return;
 
     const from = typeof req.query.from === "string" ? new Date(req.query.from) : null;
     const to = typeof req.query.to === "string" ? new Date(req.query.to) : null;
@@ -47,8 +83,8 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
     const rows = await prisma.assignment.findMany({
       where: {
-        schoolId,
-        classroomId,
+        schoolId: classroom.schoolId,
+        classroomId: classroom.id,
         ...(from || to
           ? {
               createdAt: {
@@ -85,9 +121,6 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   // POST /api/assignments (teacher/admin only)
   router.post("/", auth, async (req, res) => {
-    const schoolId = req.user.schoolId;
-    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
-
     const S = z.object({
       classroomId: z.string().min(1),
       title: z.string().min(1),
@@ -97,14 +130,9 @@ function buildAssignmentsRouter({ auth, prisma }) {
     const body = S.safeParse(req.body);
     if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
 
-    const classroom = await prisma.classroom.findUnique({
-      where: { id: body.data.classroomId },
-      select: { id: true, schoolId: true, subjectId: true, title: true, grade: true },
-    });
-    if (!classroom || classroom.schoolId !== schoolId) return res.status(404).json({ error: "classroom_not_found" });
-
-    const ok = await requireTeacherOrAdmin(req, res, classroom.id);
-    if (!ok) return;
+    const classroomId = body.data.classroomId;
+    const classroom = await requireClassroomAccess({ req, res, classroomId, needsTeacher: true });
+    if (!classroom) return;
 
     let dueAt = null;
     if (typeof body.data.dueAt === "string") {
@@ -115,7 +143,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
     const row = await prisma.assignment.create({
       data: {
-        schoolId,
+        schoolId: classroom.schoolId,
         classroomId: classroom.id,
         subjectId: classroom.subjectId,
         createdById: req.user.id,
@@ -145,24 +173,38 @@ function buildAssignmentsRouter({ auth, prisma }) {
     });
   });
 
-  // POST /api/assignments/:id/submissions (student member)
+  // POST /api/assignments/:id/submissions (student member or scoped admin)
   router.post("/:id/submissions", auth, async (req, res) => {
-    const schoolId = req.user.schoolId;
+    const schoolId = req.user?.schoolId;
     if (!schoolId) return res.status(401).json({ error: "invalid_token" });
 
     const id = req.params.id;
 
     const assignment = await prisma.assignment.findUnique({
       where: { id },
-      select: { id: true, schoolId: true, classroomId: true },
+      select: {
+        id: true,
+        schoolId: true,
+        classroomId: true,
+        Classroom: { select: { id: true, schoolId: true, grade: true } },
+      },
     });
     if (!assignment || assignment.schoolId !== schoolId) return res.status(404).json({ error: "assignment_not_found" });
 
+    const classroom = assignment.Classroom;
+    if (!classroom || classroom.schoolId !== schoolId) return res.status(403).json({ error: "forbidden" });
+
+    // member OR (admin + scope)
     const member = await prisma.classroomMember.findFirst({
-      where: { classroomId: assignment.classroomId, userId: req.user.id },
+      where: { classroomId: classroom.id, userId: req.user.id },
       select: { id: true },
     });
-    if (!member && !(Array.isArray(req.user?.roles) && req.user.roles.includes("admin"))) return res.status(403).json({ error: "forbidden" });
+
+    if (!member) {
+      if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
+      const ok = await adminHasScopeForGrade({ userId: req.user.id, schoolId, grade: classroom.grade });
+      if (!ok) return res.status(403).json({ error: "forbidden" });
+    }
 
     const S = z.object({
       text: z.string().nullable().optional(),
@@ -189,21 +231,37 @@ function buildAssignmentsRouter({ auth, prisma }) {
     res.json(submission);
   });
 
-  // GET /api/assignments/:id/submissions (teacher/admin only)
+  // GET /api/assignments/:id/submissions (teacher member OR scoped admin)
   router.get("/:id/submissions", auth, async (req, res) => {
-    const schoolId = req.user.schoolId;
+    const schoolId = req.user?.schoolId;
     if (!schoolId) return res.status(401).json({ error: "invalid_token" });
 
     const id = req.params.id;
 
     const assignment = await prisma.assignment.findUnique({
       where: { id },
-      select: { id: true, schoolId: true, classroomId: true },
+      select: {
+        id: true,
+        schoolId: true,
+        classroomId: true,
+        Classroom: { select: { id: true, schoolId: true, grade: true } },
+      },
     });
     if (!assignment || assignment.schoolId !== schoolId) return res.status(404).json({ error: "assignment_not_found" });
 
-    const ok = await requireTeacherOrAdmin(req, res, assignment.classroomId);
-    if (!ok) return;
+    const classroom = assignment.Classroom;
+    if (!classroom || classroom.schoolId !== schoolId) return res.status(403).json({ error: "forbidden" });
+
+    const teacher = await prisma.classroomMember.findFirst({
+      where: { classroomId: classroom.id, userId: req.user.id, role: "teacher" },
+      select: { id: true },
+    });
+
+    if (!teacher) {
+      if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
+      const ok = await adminHasScopeForGrade({ userId: req.user.id, schoolId, grade: classroom.grade });
+      if (!ok) return res.status(403).json({ error: "forbidden" });
+    }
 
     const rows = await prisma.assignmentSubmission.findMany({
       where: { assignmentId: id },
