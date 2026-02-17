@@ -1,6 +1,4 @@
 const express = require("express");
-const { z } = require("zod");
-
 // server.js style: buildAssignmentsRouter({ auth, prisma })
 function buildAssignmentsRouter({ auth, prisma }) {
   if (!auth) throw new Error("buildAssignmentsRouter: missing auth");
@@ -28,6 +26,12 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
     const classroomId = req.query.classroomId;
     if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
+
+    const classroom = await prisma.classroom.findFirst({
+      where: { id: classroomId, schoolId },
+      select: { id: true },
+    });
+    if (!classroom) return res.status(404).json({ error: "classroom_not_found" });
 
     // must be a member of that classroom (student ok for listing)
     const member = await prisma.classroomMember.findFirst({
