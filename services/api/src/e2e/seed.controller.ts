@@ -207,7 +207,7 @@ export class E2ESeedController {
         name: 'Parent One',
         roles: { create: [{ role: 'PARENT' }] },
       },
-      select: { id: true },
+      select: { id: true, email: true },
     });
 
     await this.prisma.userRole.upsert({
@@ -355,6 +355,39 @@ export class E2ESeedController {
     return { ok: true, deletedCount: deleted.count, cohortId };
   }
 
+  @Post('parent-web-reset')
+  async resetParentWeb() {
+    // Delete only parent-web demo data (pw-*)
+    const students = await this.prisma.user.findMany({
+      where: { email: { startsWith: 'student+pw-' } },
+      select: { id: true },
+    });
+
+    const studentIds = students.map((u) => u.id);
+
+    await this.prisma.parentNotification.deleteMany({
+      where: { studentId: { in: studentIds } },
+    } as any);
+
+    await this.prisma.parentChild.deleteMany({
+      where: { childId: { in: studentIds } },
+    } as any);
+
+    await this.prisma.course.deleteMany({
+      where: { name: { startsWith: 'pw-course-' } },
+    } as any);
+
+    await this.prisma.user.deleteMany({
+      where: { id: { in: studentIds } },
+    } as any);
+
+    const deletedCohorts = await this.prisma.cohort.deleteMany({
+      where: { name: { startsWith: 'pw-cohort-' } },
+    } as any);
+
+    return { ok: true, deletedStudents: studentIds.length, deletedCohorts: deletedCohorts.count };
+  }
+
   @Post('parent-web')
   async seedParentWeb(@Body() body: { runId?: string }) {
     const now = Date.now();
@@ -365,14 +398,26 @@ export class E2ESeedController {
     const passwordHash = await bcrypt.hash('dev', 10);
 
     // create a fresh cohort/course/student/parent per run (isolated)
-    const cohort = await this.prisma.cohort.create({
-      data: { name: `pw-cohort-${runId}`, grade: 10 as any },
+    const cohortName = `pw-cohort-${runId}`;
+    const existingCohort = await this.prisma.cohort.findFirst({
+      where: { name: cohortName },
       select: { id: true },
     });
 
-    const student = await this.prisma.user.create({
-      data: {
-        email: `student+pw-${runId}@classmate.app`,
+    const cohort = existingCohort ?? (await this.prisma.cohort.create({
+      data: { name: cohortName, grade: 10 as any },
+      select: { id: true },
+    }));
+const studentEmail = `student+pw-${runId}@classmate.app`;
+
+    const student = await this.prisma.user.upsert({
+      where: { email: studentEmail },
+      update: {
+        password: passwordHash,
+        name: `Student ${runId.slice(0, 6)}`,
+      },
+      create: {
+        email: studentEmail,
         password: passwordHash,
         name: `Student ${runId.slice(0, 6)}`,
         roles: { create: [{ role: 'STUDENT' }] },
@@ -397,7 +442,7 @@ export class E2ESeedController {
         name: 'Parent One',
         roles: { create: [{ role: 'PARENT' }] },
       },
-      select: { id: true },
+      select: { id: true, email: true },
     });
 
     await this.prisma.parentChild.upsert({
@@ -407,16 +452,21 @@ export class E2ESeedController {
     });
 
     // minimal course so parent-web can enrich (courseId present)
-    const course = await this.prisma.course.create({
+    const courseName = `pw-course-${runId}`;
+    const existingCourse = await this.prisma.course.findFirst({
+      where: { name: courseName },
+      select: { id: true, name: true },
+    });
+
+    const course = existingCourse ?? (await this.prisma.course.create({
       data: {
-        name: `pw-course-${runId}`,
+        name: courseName,
         subject: 'MATH',
         cohort: { connect: { id: cohort.id } },
       } as any,
       select: { id: true, name: true },
-    });
-
-    const nowDt = new Date();
+    }));
+const nowDt = new Date();
     const mk = (minsAgo: number) =>
       new Date(nowDt.getTime() - minsAgo * 60_000);
 
@@ -445,6 +495,6 @@ export class E2ESeedController {
       ] as any,
     });
 
-    return { ok: true, runId, email: parent.id, password: 'dev' };
+    return { ok: true, runId, email: parent.email, password: 'dev' };
   }
 }
