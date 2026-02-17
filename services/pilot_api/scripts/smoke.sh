@@ -33,8 +33,18 @@ curl -sS "$BASE/api/me" -H "Authorization: Bearer $TOKEN" | jq .
 echo "== admin ping =="
 curl -sS "$BASE/api/admin/ping" -H "Authorization: Bearer $TOKEN" | jq .
 
+echo "== classrooms =="
+CLS="$(curl -sS "$BASE/api/classrooms" -H "Authorization: Bearer $TOKEN")"
+echo "$CLS" | jq .
+CLASSROOM_ID="$(echo "$CLS" | jq -r '.[0].id // empty')"
+if [ -z "$CLASSROOM_ID" ]; then
+  echo "❌ no classrooms returned; seed a demo classroom first"
+  exit 1
+fi
+echo "CLASSROOM_ID=$CLASSROOM_ID"
+
 echo "== assignments =="
-curl -sS "$BASE/api/assignments" -H "Authorization: Bearer $TOKEN" | jq .
+curl -sS "$BASE/api/assignments?classroomId=$CLASSROOM_ID" -H "Authorization: Bearer $TOKEN" | jq .
 
 echo "== grades =="
 curl -sS "$BASE/api/grades" -H "Authorization: Bearer $TOKEN" | jq .
