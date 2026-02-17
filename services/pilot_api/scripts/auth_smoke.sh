@@ -3,6 +3,33 @@ set -euo pipefail
 
 echo "== Auth smoke =="
 
+# ensure admin@demo.com has admin+teacher before we mint token (self-healing)
+docker compose -f docker-compose.pilot.yml exec -T pilot_api node - <<'NODE'
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+(async () => {
+  const email = "admin@demo.com";
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true }});
+  if (!user) throw new Error(`${email} not found`);
+  const desired = ["admin","teacher"];
+
+  const roleRows = await prisma.role.findMany({ where: { name: { in: ["student","teacher","admin"] } } });
+  const byName = new Map(roleRows.map(r => [r.name, r.id]));
+  const allRoleIds = roleRows.map(r => r.id);
+
+  await prisma.userRole.deleteMany({ where: { userId: user.id, roleId: { in: allRoleIds } } });
+  const rows = desired.map(name => ({ userId: user.id, roleId: byName.get(name) })).filter(r => r.roleId);
+  if (rows.length) await prisma.userRole.createMany({ data: rows, skipDuplicates: true });
+
+  console.log("✅ ensure admin@demo.com has admin+teacher");
+  await prisma.$disconnect();
+})();
+NODE
+
+# refresh token after ensure-roles
+ADMIN_TOKEN="$(services/pilot_api/scripts/get_admin_token.sh)"
+
+
 BASE="http://localhost:3000"
 ADMIN_TOKEN="$(services/pilot_api/scripts/get_admin_token.sh)"
 
