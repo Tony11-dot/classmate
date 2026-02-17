@@ -1,9 +1,13 @@
-const path = require('path');
-
 /** @type {import('next').NextConfig} */
-module.exports = {
-  turbopack: {
-    // monorepo root (classmate/)
-    root: path.join(__dirname, '../..'),
+const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://127.0.0.1:3000/api/:path*',
+      },
+    ];
   },
 };
+
+module.exports = nextConfig;

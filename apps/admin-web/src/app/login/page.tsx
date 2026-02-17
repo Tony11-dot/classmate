@@ -6,7 +6,7 @@ import { login } from '../../lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@classmate.app');
+  const [email, setEmail] = useState('teacher1@classmate.app');
   const [password, setPassword] = useState('dev');
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

@@ -6,6 +6,7 @@ import '../auth/auth_state.dart';
 import '../auth/login_screen.dart';
 import '../auth/register_screen.dart';
 import '../features/dashboard/home_shell.dart';
+import '../features/notifications/notifications_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authControllerProvider);
@@ -22,6 +23,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationsScreen(),
+    ),
+
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
