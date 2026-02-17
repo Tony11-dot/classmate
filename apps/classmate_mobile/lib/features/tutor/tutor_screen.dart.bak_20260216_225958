@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import '../ai_tutor/ai_tutor_api.dart';
+import '../../api/api_client.dart';
+
+class TutorScreen extends StatefulWidget {
+  const TutorScreen({super.key});
+
+  @override
+  State<TutorScreen> createState() => _TutorScreenState();
+}
+
+class _TutorScreenState extends State<TutorScreen> {
+  final controller = TextEditingController();
+  final List<Map<String, String>> messages = [];
+
+  Future<void> send() async {
+    final text = controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() async {
+      messages.add({"role": "user", "text": text});
+    final api = AiTutorApi(ApiClient.instance);
+    try {
+      // Expecting your local messages as: {"role": "...", "text": "..."}
+      final payload = messages
+          .map((m) => {"role": m["role"] ?? "user", "content": m["text"] ?? ""})
+          .toList();
+
+      final reply = await api.chat(payload);
+      if (!mounted) return;
+
+      setState(() {
+        messages.add({"role": "assistant", "text": reply});
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        messages.add({"role": "assistant", "text": "⚠️ " + e.toString()});
+      });
+    }
+
+      messages.add({
+        "role": "bot",
+        "text": "Tutor response coming soon… 🚀"
+      });
+    });
+
+    controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Text(
+              "AI Tutor",
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+                color: cs.primary,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: messages.length,
+                itemBuilder: (context, i) {
+                  final m = messages[i];
+                  final isUser = m["role"] == "user";
+
+                  return Align(
+                    alignment:
+                        isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isUser
+                            ? cs.primaryContainer
+                            : cs.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Text(
+                        m["text"]!,
+                        style: TextStyle(
+                          color: isUser
+                              ? cs.onPrimaryContainer
+                              : cs.onSurface,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        hintText: "Ask something...",
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: send,
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

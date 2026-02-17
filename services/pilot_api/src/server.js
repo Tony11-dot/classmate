@@ -79,10 +79,6 @@ const user = await getUserWithRoles(userId);
 
 
 
-// Debug: who am I (useful for auth debugging)
-app.get("/api/auth/whoami", auth, (req, res) => {
-  return res.json({ user: req.user });
-});
 
 // Helper: figure out which grade an admin operation targets.
 // Used by requireAdminScoped({ prisma, gradeFromReq })
@@ -253,11 +249,21 @@ function requireAdminScoped({ prisma, gradeFromReq }) {
 
 const app = express();
 
+
+// Debug: who am I (useful for auth debugging)
+app.get("/api/auth/whoami", auth, (req, res) => {
+  return res.json({ user: req.user });
+});
+
+
 // security + basic abuse protection
 app.use(helmet());
 app.use(rateLimit({ windowMs: 60_000, max: 300 }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "25mb" }));
+
+
+app.use("/api/assignments", buildAssignmentsRouter({ auth, prisma }));
 
 app.get("/api/health", async (req, res) => {
   try {

@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      - OLLAMA_MODEL=phi3:latest
+      POSTGRES_USER: classmate
+      POSTGRES_PASSWORD: classmate_pw
+      POSTGRES_DB: classmate
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pilot_api:
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: phi3:latest
+    env_file:
+      - ./services/pilot_api/.env
+    build:
+      context: ./services/pilot_api
+    depends_on:
+      - db
+    ports:
+      - "3010:3000"
+    restart: unless-stopped
+
+volumes:
+  dbdata:

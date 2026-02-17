@@ -62,6 +62,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/splash',
 
     redirect: (context, state) {
+
       final a = ref.read(authProvider);
       final loc = state.matchedLocation;
 

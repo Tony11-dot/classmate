@@ -115,6 +115,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             : nationalId.text.trim(),
         grade: grade,
         schoolId: schoolId,
+        scientificMajor: (grade >= 10) ? scientificMajor : null,
+        technologicalMajor: (grade >= 10) ? technologicalMajor : null,
+        mathUnits: (grade >= 10) ? mathUnits : null,
+        englishUnits: (grade >= 10) ? englishUnits : null,
         // NEXT: send majors/units once backend accepts them
       );
 
@@ -122,6 +126,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       if (res.isOk) {
         await this.ref.read(authProvider.notifier).refresh();
+        if (!mounted) return;
         context.go("/app");
       } else {
         setState(() => err = res.error);

@@ -1,0 +1,200 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../solutions/me_subjects_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'schedule_provider.dart';
+
+class ScheduleScreen extends ConsumerStatefulWidget {
+  const ScheduleScreen({super.key});
+
+  @override
+  ConsumerState<ScheduleScreen> createState() => _ScheduleScreenState();
+}
+
+class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
+  DateTime _day = DateTime.now();
+
+  DateTime _onlyDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  @override
+  void initState() {
+    super.initState();
+    _day = _onlyDate(DateTime.now());
+  }
+
+  void _jump(int delta) {
+    setState(() {
+      _day = _day.add(Duration(days: delta));
+    });
+  }
+
+  Future<void> _pick() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _day,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _day = picked;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => _jump(-1),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _pick,
+                      child: Text(
+                        "${_day.day}/${_day.month}/${_day.year}",
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _jump(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragEnd: (d) {
+                  final v = d.primaryVelocity ?? 0;
+                  if (v.abs() < 120) return;
+                  // Swipe right => previous day, swipe left => next day
+                  _jump(v > 0 ? -1 : 1);
+                },
+                child: _DaySchedule(day: _day),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DaySchedule extends ConsumerWidget {
+  final DateTime day;
+  const _DaySchedule({required this.day});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final async = ref.watch(scheduleProvider(day));
+
+    return async.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text("Error: $e")),
+      data: (list) {
+        if (list.isEmpty) {
+          return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.event_busy, size: 38, color: cs.onSurfaceVariant),
+              const SizedBox(height: 10),
+              Text("No lessons", style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface)),
+              const SizedBox(height: 6),
+              Text(
+                "Swipe left/right for another day.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: cs.onSurfaceVariant),
+              ),
+            ],
+          ),
+        );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(scheduleProvider(day));
+          },
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, i) {
+              final l = list[i];
+
+              return Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${t(l.startAt)} - ${t(l.endAt)}",
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 6),
+                    Builder(
+                      builder: (_) {
+                        final nowFlag = isNow(l.startAt, l.endAt);
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                subjectName(l.subjectId),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.w900),
+                              ),
+                            ),
+                            if (nowFlag) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: cs.primaryContainer,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  "NOW",
+                                  style: TextStyle(
+                                    color: cs.onPrimaryContainer,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                    if (l.room != null) Text("Room: ${l.room}"),
+                    if (l.teacher != null) Text("Teacher: ${l.teacher}"),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+

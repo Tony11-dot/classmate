@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BASE="http://localhost:3010"
+EMAIL="${1:-tony+ship4@demo.com}"
+PASS="${2:-Passw0rd!}"
+
+echo "== Health =="
+curl -sS "$BASE/api/health" | jq .
+
+echo "== Login ($EMAIL) =="
+TOKEN="$(curl -sS -X POST "$BASE/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\"}" | jq -r .token)"
+
+if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
+  echo "❌ login failed"
+  exit 1
+fi
+
+echo "== Me =="
+ME="$(curl -sS "$BASE/api/me" -H "Authorization: Bearer $TOKEN")"
+echo "$ME" | jq .
+USER_ID="$(echo "$ME" | jq -r .id)"
+SCHOOL_ID="$(echo "$ME" | jq -r .schoolId)"
+
+echo "== Classrooms =="
+NCLASS="$(curl -sS "$BASE/api/classrooms" -H "Authorization: Bearer $TOKEN" | jq 'length')"
+echo "classrooms=$NCLASS"
+CID="$(curl -sS "$BASE/api/classrooms" -H "Authorization: Bearer $TOKEN" | jq -r '.[0].id')"
+
+echo "== Schedule(v2) =="
+NSCHED="$(curl -sS "$BASE/api/schedule/v2" -H "Authorization: Bearer $TOKEN" | jq 'length')"
+echo "schedule=$NSCHED"
+
+echo "== Assignments(first classroom) =="
+NASSIGN="$(curl -sS "$BASE/api/assignments?classroomId=$CID&from=2026-02-01T00:00:00.000Z&to=2026-03-01T00:00:00.000Z" \
+  -H "Authorization: Bearer $TOKEN" | jq 'length')"
+echo "assignments=$NASSIGN"
+
+echo "== Notifications =="
+NNOTIF="$(curl -sS "$BASE/api/notifications" -H "Authorization: Bearer $TOKEN" | jq 'length')"
+echo "notifications=$NNOTIF"
+
+echo
+echo "✅ SMOKE OK:"
+echo "  classrooms=$NCLASS schedule=$NSCHED assignments=$NASSIGN notifications=$NNOTIF"

@@ -1,0 +1,90 @@
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+async function upsertSubject(name) {
+  const sid =
+    "sub_" +
+    String(name)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+  return prisma.subject.upsert({
+    where: { name },
+    update: {},
+    create: { id: sid, name },
+  });
+}
+
+async function main() {
+  // 1) Demo school
+    const school = await prisma.school.upsert({
+    where: { id: "demo-school" },
+    update: { name: "demo-school" },
+    create: {
+      id: "demo-school",
+      name: "demo-school",
+    },
+  });
+
+  // Clean old packs (seed should be idempotent + not keep leftovers)
+  await prisma.gradeSubjectPack.deleteMany({});
+
+// 2) Subject name map (you can expand later)
+  const core = ["Arabic", "Hebrew", "PE", "Religion", "Chapel"];
+  const g78 = ["Math", "Chemistry", "Biology", "Electronics"];
+  const g9 = ["Math", "Chemistry", "Biology", "Electronics", "Physics", "Computer Science"];
+  const g10p = ["English", "Math", "Physics", "Computer Science"];
+
+  // Ensure subjects exist
+  const all = [...new Set([...core, ...g78, ...g9, ...g10p])];
+  const byName = new Map();
+  for (const name of all) {
+    const s = await upsertSubject(name);
+    byName.set(name, s);
+  }
+
+  // 3) GradeSubjectPack seed
+  // kind: "core" => always, "grade" => grade-based
+  async function pack(grade, kind, subjectName) {
+    const subject = byName.get(subjectName);
+    if (!subject) throw new Error("Missing subject: " + subjectName);
+    await prisma.gradeSubjectPack.upsert({
+      where: { grade_kind_subjectId: { grade, kind, subjectId: subject.id } },
+      update: {},
+      create: {
+        id: `gsp_${grade}_${kind}_${subject.id}`,
+        grade,
+        kind,
+        subjectId: subject.id,
+      },
+    });
+  }
+
+  for (const g of [7, 8, 9, 10, 11, 12]) {
+    for (const name of core) await pack(g, "core", name);
+  }
+  for (const g of [7, 8]) {
+    for (const name of g78) await pack(g, "grade", name);
+  }
+  for (const name of g9) await pack(9, "grade", name);
+  for (const g of [10, 11, 12]) {
+    for (const name of g10p) await pack(g, "grade", name);
+  }
+
+  console.log("✅ Seed complete:", {
+    school: school.name,
+    subjects: all.length,
+  });
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    // IMPORTANT: keep as string access so shells never eat $disconnect
+    await prisma["$disconnect"]();
+  });

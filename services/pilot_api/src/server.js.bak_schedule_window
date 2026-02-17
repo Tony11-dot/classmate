@@ -1,0 +1,821 @@
+require("dotenv").config();
+const express = require("express");
+const { buildNotificationsRouter } = require("./notifications");
+const { buildGradesRouter } = require("./grades");
+const { buildAssignmentsRouter } = require("./assignments");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { z } = require("zod");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
+async function ensureSubject({ schoolId, grade, name }) {
+  // NOTE: adjust where clause if Subject schema differs (we’re using schoolId+grade+name if present)
+  const existing = await prisma.subject.findFirst({
+    where: { schoolId, grade, name },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+
+  const created = await prisma.subject.create({
+    data: { schoolId, grade, name },
+    select: { id: true },
+  });
+  return created.id;
+}
+
+
+async function getUserWithRoles(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      username: true,
+      grade: true,
+      schoolId: true,
+      roles: { select: { Role: { select: { name: true } } } },
+    },
+  });
+
+  if (!user) return null;
+
+  const roles = (user.roles || []).map((r) => r.Role?.name).filter(Boolean);
+
+  // flatten roles into top-level, and remove join rows from response object
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    username: user.username,
+    grade: user.grade,
+    schoolId: user.schoolId,
+    roles,
+  };
+}
+const app = express();
+
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: "25mb" }));
+
+app.get("/api/health", (req, res) => res.json({ ok: true, env: "pilot_api" }));
+
+function signToken(user) {
+  return jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+}
+
+async function auth(req, res, next) {
+  try {
+    const headerRaw = (req.headers.authorization || req.headers.Authorization || "").trim();
+
+    // Accept BOTH:
+    //   "Bearer <token>" (any casing, any extra spaces)
+    //   "<token>"
+    let token = headerRaw;
+    const m = headerRaw.match(/^Bearer\s+(.+)$/i);
+    if (m && m[1]) token = m[1].trim();
+
+    if (!token) return res.status(401).json({ error: "missing_token" });
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return res.status(500).json({ error: "server_misconfigured", missing: "JWT_SECRET" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret);
+    } catch {
+      return res.status(401).json({ error: "invalid_token" });
+    }
+
+    const sub = decoded && decoded.sub;
+    if (!sub) return res.status(401).json({ error: "invalid_token" });
+
+    const dbUser = await getUserWithRoles(sub);
+    if (!dbUser) return res.status(401).json({ error: "invalid_token" });
+
+    req.user = dbUser;
+    return next();
+  } catch (e) {
+    console.error("auth_failed", e);
+    return res.status(500).json({ error: "auth_failed" });
+  }
+}
+
+function requireRole(roleName) {
+  return (req, res, next) => {
+    const roles = req.user?.roles || [];
+    if (!roles.includes(roleName)) return res.status(403).json({ error: "forbidden" });
+    next();
+  };
+}
+
+app.use("/api/grades", buildGradesRouter({ auth, prisma }));
+
+app.use("/api/notifications", buildNotificationsRouter({ auth }));
+
+app.use("/api/assignments", buildAssignmentsRouter({ auth, prisma }));
+
+// Simple admin guard (pilot): header x-admin-secret must match
+function adminGuard(req, res, next) {
+  const secret = req.headers["x-admin-secret"];
+  const expected = process.env.ADMIN_SECRET || "pilot_admin_secret";
+  if (secret !== expected) return res.status(403).json({ error: "forbidden" });
+  next();
+}
+
+// Public lookups
+app.get("/api/schools", async (req, res) => {
+  const rows = await prisma.school.findMany({ orderBy: { name: "asc" } });
+  console.log("DEBUG_GRADES rows.length", rows.length);
+  res.json(rows);
+});
+
+app.get("/api/subjects", async (req, res) => {
+  const rows = await prisma.subject.findMany({ orderBy: { name: "asc" } });
+  res.json(rows);
+});
+
+// Auth
+app.post("/api/auth/register", async (req, res) => {
+  const S = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    fullName: z.string().min(2),
+    username: z.string().min(3),
+    nationalId: z.string().min(5).optional(),
+    grade: z.number().int().min(7).max(12),
+    schoolId: z.string().min(1),
+
+    // grade 10+ fields (optional; we’ll enforce in UI)
+    scientificMajor: z.string().optional(),
+    technologicalMajor: z.string().optional(),
+    mathUnits: z.string().optional(),
+    englishUnits: z.string().optional(),
+  });
+
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
+
+  const {
+    email,
+    password,
+    fullName,
+    username,
+    nationalId,
+    grade,
+    schoolId,
+    scientificMajor,
+    technologicalMajor,
+    mathUnits,
+    englishUnits,
+  } = body.data;
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        fullName,
+        username,
+        nationalId,
+        grade,
+        schoolId,
+        scientificMajor: scientificMajor || null,
+        technologicalMajor: technologicalMajor || null,
+        mathUnits: mathUnits || null,
+        englishUnits: englishUnits || null,
+      },
+    });
+
+    // 0) Assign default student role in DB (source of truth)
+    const roleStudent = await prisma.role.findFirst({ where: { name: "student" } });
+    if (roleStudent) {
+      await prisma.userRole
+        .create({ data: { userId: user.id, roleId: roleStudent.id } })
+        .catch(() => {});
+
+    const dbUser = await getUserWithRoles(user.id);
+    const roles = dbUser?.roles || [];
+    }
+
+
+    // 1) Determine subjects for the student
+    const packs = await prisma.gradeSubjectPack.findMany({
+      where: { grade },
+      include: { Subject: true },
+    });
+
+    const subjects = new Map(); // name -> {id, source}
+    for (const p of packs) subjects.set(p.Subject.name, { id: p.Subject.id, source: p.kind });
+
+    // grade >= 10 majors decide extra subjects
+    const majorNames = [];
+    if (grade >= 10) {
+      if (scientificMajor && scientificMajor.trim()) majorNames.push(scientificMajor.trim());
+      if (technologicalMajor && technologicalMajor.trim()) majorNames.push(technologicalMajor.trim());
+    }
+
+    if (majorNames.length) {
+      const subs = await prisma.subject.findMany({ where: { name: { in: majorNames } } });
+      for (const s of subs) subjects.set(s.name, { id: s.id, source: "major" });
+    }
+
+    // 2) Persist StudentSubject rows
+    const ssRows = [];
+    for (const v of subjects.values()) ssRows.push({ userId: user.id, subjectId: v.id, source: v.source });
+  // Drop any rows missing a subjectId (prevents prisma error)
+  const ssRowsClean = ssRows.filter(r => r.subjectId);
+
+    if (ssRowsClean.length) await prisma.studentSubject.createMany({ data: ssRowsClean, skipDuplicates: true });
+
+    // 3) Ensure classrooms exist for this (school, grade, subject)
+    const classroomIds = [];
+    for (const [name, v] of subjects.entries()) {
+      if (!v.id) continue;
+      const existing = await prisma.classroom.findUnique({
+        where: { schoolId_grade_subjectId: { schoolId, grade, subjectId: v.id } },
+      }).catch(() => null);
+
+      let c = existing;
+      if (!c) {
+        c = await prisma.classroom.create({
+          data: {
+            schoolId,
+            grade,
+            subjectId: v.id,
+            title: `${name} - Grade ${grade}`,
+          },
+        });
+      }
+      classroomIds.push(c.id);
+    }
+
+    // 4) Join user to those classrooms
+    const cmRows = classroomIds.map((cid) => ({ classroomId: cid, userId: user.id, role: "student" }));
+    if (cmRows.length) await prisma.classroomMember.createMany({ data: cmRows, skipDuplicates: true });
+
+    const token = signToken(user);
+    res.json({
+      token,
+      email: user.email,
+      name: user.fullName,
+      roles,
+      user: { id: user.id, email: user.email, fullName: user.fullName, username: user.username, grade: user.grade, schoolId: user.schoolId },
+    });
+  } catch (e) {
+    console.error("❌ /api/auth/register failed:", e);
+
+    // Prisma errors often have `code` and `meta`
+    return res.status(500).json({
+      error: "register_failed",
+      code: e && e.code,
+      message: e && e.message,
+      meta: e && e.meta,
+    });
+  }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  const S = z.object({ email: z.string().email(), password: z.string().min(1) });
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request" });
+
+  const u = await prisma.user.findUnique({ where: { email: body.data.email } });
+  if (!u) return res.status(401).json({ error: "invalid_credentials" });
+
+  const ok = await bcrypt.compare(body.data.password, u.passwordHash);
+  if (!ok) return res.status(401).json({ error: "invalid_credentials" });
+
+  const token = signToken(u);
+
+  // DB roles (source of truth)
+  const dbUser = await getUserWithRoles(u.id);
+  const roles = dbUser?.roles || [];
+
+  return res.json({
+    roles,
+    token,
+    email: u.email,
+    name: u.fullName,
+    user: {
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      username: u.username,
+      grade: u.grade,
+      schoolId: u.schoolId,
+    },
+  });
+});
+
+// Me
+app.get("/api/me", auth, async (req, res) => {
+  const userId = req.user.id;
+  if (!userId) return res.status(401).json({ error: "invalid_token" });
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return res.status(404).json({ error: "not_found" });
+
+  res.json({
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    username: user.username,  // <-- correct field
+    grade: user.grade,
+    schoolId: user.schoolId,
+    roles: req.user?.roles || [],
+  });
+});
+
+// Alias (mobile-friendly)
+app.get("/api/auth/me", auth, async (req, res) => {
+  res.json(req.user);
+});
+
+app.get("/api/me/subjects", auth, async (req, res) => {
+  const rows = await prisma.studentSubject.findMany({
+    where: { userId: req.user.id },
+    include: { Subject: true },
+    orderBy: { createdAt: "asc" },
+  });
+  res.json(rows.map((r) => ({ id: r.Subject.id, name: r.Subject.name, source: r.source })));
+});
+
+app.patch("/api/me", auth, async (req, res) => {
+  const S = z.object({
+    fullName: z.string().min(2).optional(),
+    username: z.string().min(3).optional(),
+    email: z.string().email().optional(),
+  });
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request" });
+
+  const updated = await prisma.user.update({
+    where: { id: req.user.id },
+    data: body.data,
+    select: { id: true, email: true, fullName: true, username: true, grade: true, schoolId: true },
+  });
+  res.json(updated);
+});
+
+app.post("/api/me/change-password", auth, async (req, res) => {
+  const S = z.object({ currentPassword: z.string().min(1), newPassword: z.string().min(6) });
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request" });
+
+  const u = await prisma.user.findUnique({ where: { id: req.user.id } });
+  if (!u) return res.status(404).json({ error: "not_found" });
+
+  const ok = await bcrypt.compare(body.data.currentPassword, u.passwordHash);
+  if (!ok) return res.status(401).json({ error: "invalid_password" });
+
+  const passwordHash = await bcrypt.hash(body.data.newPassword, 10);
+  await prisma.user.update({ where: { id: req.user.id }, data: { passwordHash } });
+  res.json({ ok: true });
+});
+
+/** Pilot endpoints **/
+app.get("/api/schedule", auth, async (req, res) => {
+  const day = req.query.day; // YYYY-MM-DD
+  const from = day ? new Date(`${day}T00:00:00.000Z`) : new Date(Date.now() - 24 * 3600 * 1000);
+  const to = day ? new Date(`${day}T23:59:59.999Z`) : new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  const rows = await prisma.scheduleEntry.findMany({
+    where: { userId: req.user.id, startAt: { gte: from, lte: to } },
+    include: { Subject: true },
+    orderBy: { startAt: "asc" },
+  });
+  res.json(rows);
+});
+
+// My classrooms only (membership-based)
+app.get("/api/classrooms", auth, async (req, res) => {
+  const rows = await prisma.classroomMember.findMany({
+    where: { userId: req.user.id },
+    include: { Classroom: { include: { Subject: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json(
+    rows.map((r) => {
+      if (!r.Classroom) throw new Error('Invariant failed: missing Classroom relation');
+      return {
+      id: r.Classroom.id,
+      title: r.Classroom.title,
+      grade: r.Classroom.grade,
+      schoolId: r.Classroom.schoolId,
+      subject: r.Classroom.Subject,
+      role: r.role,
+      createdAt: r.Classroom.createdAt,
+      };
+    })
+  );
+});
+
+async function requireMember(req, res, next) {
+  const classroomId = req.params.id;
+  const m = await prisma.classroomMember.findFirst({ where: { classroomId, userId: req.user.id } });
+  if (!m) return res.status(403).json({ error: "forbidden" });
+  next();
+}
+
+app.get("/api/classrooms/:id/messages", auth, requireMember, async (req, res) => {
+  const rows = await prisma.message.findMany({
+    where: { classroomId: req.params.id },
+    include: { User: { select: { id: true, fullName: true, username: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  res.json(rows);
+});
+
+app.post("/api/classrooms/:id/messages", auth, requireMember, async (req, res) => {
+  const S = z.object({ kind: z.string().default("text"), text: z.string().optional(), mediaUrl: z.string().url().optional() });
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request" });
+
+  const msg = await prisma.message.create({
+    data: { classroomId: req.params.id, userId: req.user.id, kind: body.data.kind, text: body.data.text, mediaUrl: body.data.mediaUrl },
+  });
+  res.json(msg);
+});
+
+// Solutions feed: default = my grade + my subjects
+app.get("/api/solutions", auth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const schoolId = req.user?.schoolId;
+    if (!userId || !schoolId) return res.status(401).json({ error: "invalid_token" });
+
+    const takeRaw = Number(req.query.limit ?? 10);
+    const take = Math.max(1, Math.min(50, Number.isFinite(takeRaw) ? takeRaw : 10));
+    const cursor = req.query.cursor ? String(req.query.cursor) : null;
+
+    const classroomId = req.query.classroomId ? String(req.query.classroomId) : null;
+    const subjectId = req.query.subjectId ? String(req.query.subjectId) : null;
+    const grade = req.query.grade ? Number(req.query.grade) : null;
+
+    // --- STRICT LOCK: only classrooms where viewer is a member ---
+    const myMemberships = await prisma.classroomMember.findMany({
+      where: { userId },
+      select: { classroomId: true },
+    });
+    const myClassroomIds = myMemberships.map((m) => m.classroomId);
+
+    // If classroomId filter provided, enforce membership (403) instead of "empty"
+    if (classroomId && !myClassroomIds.includes(classroomId)) {
+      return res.status(403).json({ error: "forbidden" });
+    }
+
+    // Base where: same school AND membership scope
+    const where = {
+      schoolId,
+      classroomId: classroomId ? classroomId : { in: myClassroomIds },
+    };
+
+    if (subjectId) where.subjectId = subjectId;
+    if (Number.isFinite(grade)) where.grade = grade;
+
+    const rows = await prisma.solution.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: take + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      select: {
+        id: true,
+        classroomId: true,
+        subjectId: true,
+        grade: true,
+        book: true,
+        page: true,
+        question: true,
+        caption: true,
+        mediaUrl: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+        SolutionLike: { select: { userId: true } },
+        _count: { select: { SolutionComment: true } },
+      },
+    });
+
+    const hasNextPage = rows.length > take;
+    const sliced = hasNextPage ? rows.slice(0, take) : rows;
+
+    const data = sliced.map((r) => {
+      const likedByMe = r.SolutionLike.some((like) => like.userId === userId);
+      return {
+        id: r.id,
+        classroomId: r.classroomId,
+        subjectId: r.subjectId,
+        grade: r.grade,
+        book: r.book,
+        page: r.page,
+        question: r.question,
+        caption: r.caption ?? null,
+        mediaUrl: r.mediaUrl,
+        createdAt: r.createdAt,
+        user: r.User,
+        likesCount: r.SolutionLike.length,
+        likedByMe,
+        commentsCount: r._count.SolutionComment,
+      };
+    });
+
+    res.json({ data, nextCursor: hasNextPage ? sliced[sliced.length - 1].id : null });
+  } catch (e) {
+    console.error("GET /api/solutions failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+app.post("/api/solutions", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const schoolId = req.user.schoolId;
+    if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+    const {
+      classroomId,
+      grade,
+      book,
+      page,
+      question,
+      caption,
+      mediaUrl,
+    } = req.body || {};
+
+    if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
+    if (!mediaUrl) return res.status(400).json({ error: "mediaUrl_required" });
+    if (grade === undefined || grade === null) return res.status(400).json({ error: "grade_required" });
+    if (!book) return res.status(400).json({ error: "book_required" });
+    if (page === undefined || page === null) return res.status(400).json({ error: "page_required" });
+    if (!question) return res.status(400).json({ error: "question_required" });
+
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, schoolId: true, subjectId: true },
+    });
+    if (!classroom || classroom.schoolId !== schoolId) {
+      return res.status(404).json({ error: "classroom_not_found" });
+    }
+
+    const member = await prisma.classroomMember.findUnique({
+      where: { classroomId_userId: { classroomId, userId } },
+      select: { role: true },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    const g = parseInt(grade);
+    const p = parseInt(page);
+    if (!Number.isFinite(g) || g < 1 || g > 12) return res.status(400).json({ error: "grade_invalid" });
+    if (!Number.isFinite(p) || p < 1 || p > 2000) return res.status(400).json({ error: "page_invalid" });
+
+    const created = await prisma.solution.create({
+      data: {
+        schoolId,
+        classroomId,
+        subjectId: classroom.subjectId,
+        userId,
+        grade: g,
+        book: String(book),
+        page: p,
+        question: String(question),
+        caption: caption ? String(caption) : null,
+        mediaUrl: String(mediaUrl),
+      },
+      select: {
+        id: true,
+        classroomId: true,
+        subjectId: true,
+        grade: true,
+        book: true,
+        page: true,
+        question: true,
+        caption: true,
+        mediaUrl: true,
+        createdAt: true,
+        User: { select: { id: true, fullName: true, username: true } },
+      },
+    });
+
+    res.json({
+      id: created.id,
+      classroomId: created.classroomId,
+      subjectId: created.subjectId,
+      grade: created.grade,
+      book: created.book,
+      page: created.page,
+      question: created.question,
+      caption: created.caption ?? null,
+      mediaUrl: created.mediaUrl,
+      createdAt: created.createdAt,
+      user: created.User,
+    });
+  } catch (e) {
+    console.error("POST /api/solutions failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+
+
+app.post("/api/solutions/:id/like", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const solutionId = req.params.id;
+
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, classroomId: true },
+    });
+    if (!solution) return res.status(404).json({ error: "not_found" });
+
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId: solution.classroomId, userId },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    const existing = await prisma.solutionLike.findUnique({
+      where: { solutionId_userId: { solutionId, userId } },
+    });
+
+    if (existing) {
+      await prisma.solutionLike.delete({
+        where: { solutionId_userId: { solutionId, userId } },
+      });
+      return res.json({ liked: false });
+    }
+
+    await prisma.solutionLike.create({
+      data: { solutionId, userId },
+    });
+
+    return res.json({ liked: true });
+  } catch (e) {
+    console.error("LIKE failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+
+
+app.delete("/api/solutions/:id/like", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
+  await prisma.solutionLike.deleteMany({ where: { solutionId: req.params.id, userId: req.user.id } });
+  res.json({ ok: true });
+});
+
+app.get("/api/solutions/:id/comments", auth, async (req, res) => {
+  const schoolId = req.user.schoolId;
+  if (!schoolId) return res.status(401).json({ error: "invalid_token" });
+
+  const sol = await prisma.solution.findFirst({
+    where: { id: req.params.id, User: { schoolId } },
+    select: { id: true },
+  });
+  if (!sol) return res.status(404).json({ error: "not_found" });
+
+  const rows = await prisma.solutionComment.findMany({
+    where: { solutionId: req.params.id, User: { schoolId } },
+    include: { User: { select: { id: true, fullName: true, username: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  res.json(rows);
+});
+
+
+app.post("/api/solutions/:id/comments", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const solutionId = req.params.id;
+    const { text } = req.body;
+    if (!text || !text.trim()) return res.status(400).json({ error: "bad_request" });
+
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, classroomId: true },
+    });
+    if (!solution) return res.status(404).json({ error: "not_found" });
+
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId: solution.classroomId, userId },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    const comment = await prisma.solutionComment.create({
+      data: {
+        solutionId,
+        userId,
+        text: text.trim(),
+      },
+    });
+
+    res.json(comment);
+  } catch (e) {
+    console.error("COMMENT failed", e);
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+
+
+app.get("/api/grades_legacy", auth, async (req, res) => {
+  console.log("DEBUG_GRADES user", { reqUser: req.user?.id, reqUserCap: req.user?.id });
+  const rows = await prisma.grade.findMany({
+    where: { userId: req.user.id },
+    include: { Subject: true },
+    orderBy: { date: "desc" },
+  });
+  res.json(rows);
+});
+
+app.get("/api/attendance", auth, async (req, res) => {
+  const q = req.query;
+  const where = { userId: req.user.id };
+  if (q.day) {
+    const from = new Date(`${q.day}T00:00:00.000Z`);
+    const to = new Date(`${q.day}T23:59:59.999Z`);
+    where.date = { gte: from, lte: to };
+  }
+  if (q.SubjectId) where.SubjectId = String(q.SubjectId);
+  if (q.teacher) where.teacher = String(q.teacher);
+
+  const rows = await prisma.attendanceRecord.findMany({
+    where,
+    include: { Subject: true },
+    orderBy: { date: "desc" },
+  });
+  res.json(rows);
+});
+
+app.get("/api/alerts", auth, async (req, res) => {
+  const rows = await prisma.notification.findMany({
+    where: { userId: req.user.id, kind: "alert" },
+    orderBy: { createdAt: "desc" },
+  });
+  res.json(rows);
+});
+
+app.get("/api/announcements", auth, async (req, res) => {
+  const rows = await prisma.notification.findMany({
+    where: { userId: req.user.id, kind: "announcement" },
+    orderBy: { createdAt: "desc" },
+  });
+  res.json(rows);
+});
+
+// Admin endpoints: grade packs
+app.get("/api/admin/grade-packs", auth, adminGuard, async (req, res) => {
+  const rows = await prisma.gradeSubjectPack.findMany({
+    include: { Subject: true },
+    orderBy: [{ grade: "asc" }, { kind: "asc" }],
+  });
+  res.json(rows);
+});
+
+app.put("/api/admin/grade-packs", auth, adminGuard, async (req, res) => {
+  const S = z.object({
+    grade: z.number().int().min(7).max(12),
+    core: z.array(z.string()).default([]),
+    gradeSubjects: z.array(z.string()).default([]),
+  });
+  const body = S.safeParse(req.body);
+  if (!body.success) return res.status(400).json({ error: "bad_request", details: body.error.flatten() });
+
+  const subs = await prisma.subject.findMany();
+  const byName = new Map(subs.map((s) => [s.name, s.id]));
+
+  const grade = body.data.grade;
+
+  await prisma.gradeSubjectPack.deleteMany({ where: { grade } });
+
+  const rows = [];
+  for (const n of body.data.core) {
+    const id = byName.get(n);
+    if (id) rows.push({ grade, subjectId: id, kind: "core" });
+  }
+  for (const n of body.data.gradeSubjects) {
+    const id = byName.get(n);
+    if (id) rows.push({ grade, subjectId: id, kind: "grade" });
+  }
+
+  if (rows.length) await prisma.gradeSubjectPack.createMany({ data: rows, skipDuplicates: true });
+  res.json({ ok: true });
+});
+
+const port = Number(process.env.PORT || 3000);
+app.get("/api/admin/ping", auth, requireRole("admin"), (req, res) => {
+  res.json({ ok: true, role: "admin", user: req.user });
+});
+
+app.listen(port, () => console.log(`pilot_api listening on ${port}`));

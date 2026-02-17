@@ -1,62 +1,51 @@
 const express = require("express");
 
-function uid() {
-  return Math.random().toString(16).slice(2) + Date.now().toString(16);
-}
-function now() {
-  return new Date().toISOString();
-}
-
-// In-memory store (MVP)
-const notifications = [];
-
-function buildNotificationsRouter({ auth }) {
+function buildNotificationsRouter({ auth, prisma }) {
   const router = express.Router();
 
-  // GET /api/notifications?unread=1&limit=50
-  router.get("/", auth, (req, res) => {
-    const userId = req.user?.sub ?? req.user?.id ?? null;
+  // GET /api/notifications
+  router.get("/", auth, async (req, res) => {
+    const userId = req.user?.sub ?? req.user?.id;
     if (!userId) return res.status(401).json({ error: "unauthorized" });
 
-    const unread = (req.query.unread ?? "").toString() === "1";
-    const limit = Math.min(parseInt((req.query.limit ?? "50").toString(), 10) || 50, 200);
+    const unread = req.query.unread === "1";
 
-    let rows = notifications.filter((n) => n.userId === userId);
-    if (unread) rows = rows.filter((n) => !n.readAt);
+    const rows = await prisma.notification.findMany({
+      where: {
+        userId,
+        ...(unread ? { seenAt: null } : {}),
+      },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
 
-    // newest first
-    rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
-    res.json(rows.slice(0, limit));
+    res.json(rows);
   });
 
   // POST /api/notifications/:id/read
-  router.post("/:id/read", auth, (req, res) => {
-    const userId = req.user?.sub ?? req.user?.id ?? null;
+  router.post("/:id/read", auth, async (req, res) => {
+    const userId = req.user?.sub ?? req.user?.id;
     if (!userId) return res.status(401).json({ error: "unauthorized" });
 
     const id = req.params.id;
-    const n = notifications.find((x) => x.id === id && x.userId === userId);
-    if (!n) return res.status(404).json({ error: "notification_not_found" });
 
-    n.readAt = now();
-    res.json(n);
+    const row = await prisma.notification.findFirst({
+      where: { id, userId },
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "notification_not_found" });
+    }
+
+    const updated = await prisma.notification.update({
+      where: { id },
+      data: { seenAt: new Date() },
+    });
+
+    res.json(updated);
   });
 
   return router;
 }
 
-function addNotification({ userId, title, body, data }) {
-  const n = {
-    id: uid(),
-    userId,
-    title: title ?? "Notification",
-    body: body ?? "",
-    data: data ?? {},
-    createdAt: now(),
-    readAt: null,
-  };
-  notifications.unshift(n);
-  return n;
-}
-
-module.exports = { buildNotificationsRouter, addNotification };
+module.exports = { buildNotificationsRouter };

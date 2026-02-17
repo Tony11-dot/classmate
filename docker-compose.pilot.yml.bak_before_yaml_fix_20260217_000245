@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      POSTGRES_USER: classmate
+      POSTGRES_PASSWORD: classmate_pw
+      POSTGRES_DB: classmate
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pilot_api:
+    env_file:
+      - ./services/pilot_api/.env
+    build:
+      context: ./services/pilot_api
+    environment:
+      TZ: UTC
+      DATABASE_URL: postgresql://classmate:classmate_pw@db:5432/classmate?schema=public
+      PORT: 3000
+      CORS_ORIGIN: "*"
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: phi3:latest
+    depends_on:
+      - db
+    ports:
+      - "3010:3000"
+    restart: unless-stopped
+
+volumes:
+  dbdata:

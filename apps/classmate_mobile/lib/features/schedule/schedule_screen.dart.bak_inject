@@ -1,0 +1,137 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'schedule_provider.dart';
+
+class ScheduleScreen extends StatefulWidget {
+  const ScheduleScreen({super.key});
+
+  @override
+  State<ScheduleScreen> createState() => _ScheduleScreenState();
+}
+
+class _ScheduleScreenState extends State<ScheduleScreen> {
+  DateTime _day = DateTime.now();
+
+  DateTime _onlyDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  @override
+  void initState() {
+    super.initState();
+    _day = _onlyDate(DateTime.now());
+  }
+
+  void _jump(int delta) {
+    setState(() {
+      _day = _day.add(Duration(days: delta));
+    });
+  }
+
+  Future<void> _pick() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _day,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _day = picked;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => _jump(-1),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _pick,
+                      child: Text(
+                        "${_day.day}/${_day.month}/${_day.year}",
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _jump(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(child: _DaySchedule(day: _day)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DaySchedule extends ConsumerWidget {
+  final DateTime day;
+  const _DaySchedule({required this.day});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final async = ref.watch(scheduleProvider(day));
+
+    return async.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text("Error: $e")),
+      data: (list) {
+        if (list.isEmpty) {
+          return const Center(child: Text("No lessons"));
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(scheduleProvider(day));
+          },
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, i) {
+              final l = list[i];
+
+              return Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${l.startAt.hour.toString().padLeft(2,'0')}:${l.startAt.minute.toString().padLeft(2,'0')} - "
+                      "${l.endAt.hour.toString().padLeft(2,'0')}:${l.endAt.minute.toString().padLeft(2,'0')}",
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(l.subjectId, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    if (l.room != null) Text("Room: ${l.room}"),
+                    if (l.teacher != null) Text("Teacher: ${l.teacher}"),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}

@@ -1,174 +1,218 @@
 import 'package:flutter/material.dart';
+import '../auth/auth_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../auth/auth_controller.dart';
+import '../features/notifications/unread_count_provider.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
   final Widget child;
 
-  int _indexFor(String loc) {
-    if (loc.startsWith('/classrooms')) return 1;
-    if (loc.startsWith('/solutions')) return 2;
-    if (loc.startsWith('/insights')) return 3;
-    if (loc.startsWith('/tutor')) return 4;
-    return 0; // schedule
+  static const _mainTabs = <_NavItem>[
+    _NavItem('Schedule', Icons.calendar_month, '/app'),
+    _NavItem('Classrooms', Icons.class_, '/classrooms'),
+    _NavItem('Solutions', Icons.auto_awesome_mosaic, '/solutions'),
+    _NavItem('Insights', Icons.insights, '/insights'),
+    _NavItem('Tutor', Icons.smart_toy, '/tutor'),
+  ];
+
+  static const _schoolTabs = <_NavItem>[
+    _NavItem('Attendance', Icons.check_circle, '/attendance'),
+    _NavItem('Grades', Icons.grade, '/grades'),
+    _NavItem('Assignments', Icons.assignment, '/assignments'),
+    _NavItem('Announcements', Icons.campaign, '/announcements'),
+    _NavItem('Notifications', Icons.notifications, '/notifications'),
+    _NavItem('Alerts', Icons.notifications, '/alerts'),
+  ];
+
+  static const _accountTabs = <_NavItem>[
+    _NavItem('Profile', Icons.person, '/profile'),
+    _NavItem('Settings', Icons.settings, '/settings'),
+  ];
+
+  String _titleFor(String loc) {
+    for (final x in [..._mainTabs, ..._schoolTabs, ..._accountTabs]) {
+      if (loc == x.loc) return x.label;
+    }
+    if (loc.startsWith('/classrooms/')) return 'Classroom';
+    return 'ClassMate';
   }
 
-  String _locFor(int index) {
-    return switch (index) {
-      0 => '/app',
-      1 => '/classrooms',
-      2 => '/solutions',
-      3 => '/insights',
-      4 => '/tutor',
-      _ => '/app',
-    };
+  int _mainIndexFor(String loc) {
+    for (var i = 0; i < _mainTabs.length; i++) {
+      if (loc == _mainTabs[i].loc) return i;
+    }
+    if (loc.startsWith('/classrooms/')) return 1;
+    return 0;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = GoRouterState.of(context).uri.toString();
-    final idx = _indexFor(loc);
-
-    final auth = ref.watch(authProvider);
-    final errorBanner = auth.error;
+    final title = _titleFor(loc);
+    final idx = _mainIndexFor(loc);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ClassMate')),
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(8),
-            children: [
-              const ListTile(
-                title: Text(
-                  'ClassMate',
-                  style: TextStyle(fontWeight: FontWeight.w800),
-                ),
-                subtitle: Text('Pilot build'),
-              ),
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.event_note),
-                title: const Text('Schedule'),
-                onTap: () => context.go('/app'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.groups),
-                title: const Text('Classrooms'),
-                onTap: () => context.go('/classrooms'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.smart_display),
-                title: const Text('Solutions'),
-                onTap: () => context.go('/solutions'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.insights),
-                title: const Text('Insights'),
-                onTap: () => context.go('/insights'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.psychology),
-                title: const Text('AI Tutor'),
-                onTap: () => context.go('/tutor'),
-              ),
-
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.how_to_reg),
-                title: const Text('Attendance'),
-                onTap: () => context.go('/attendance'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.grade),
-                title: const Text('Grades'),
-                onTap: () => context.go('/grades'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.assignment),
-                title: const Text('Assignments'),
-                onTap: () => context.go('/assignments'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.campaign),
-                title: const Text('Announcements'),
-                onTap: () => context.go('/announcements'),
-              ),
-
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Profile'),
-                onTap: () => context.go('/profile'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.tune),
-                title: const Text('Settings'),
-                onTap: () => context.go('/settings'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Reset pilot user'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) context.go('/app');
-                },
-              ),
-            ],
-          ),
-        ),
+      // ✅ Fix drawer not opening (and enable swipe)
+      drawerEnableOpenDragGesture: true,
+      drawer: _Drawer(
+        onGo: (path) {
+          Navigator.pop(context);
+          context.go(path);
+        },
       ),
-      body: Column(
-        children: [
-          if (errorBanner != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
+
+      appBar: AppBar(
+        // left: hamburger. title centered. right: "ClassMate" logo text.
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            );
+          },
+        ),
+        centerTitle: true,
+        title: Text(title),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: Center(
               child: Text(
-                'API auth failed (demo still works): $errorBanner',
-                style: const TextStyle(fontSize: 12),
+                'ClassMate',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.2,
+                ),
               ),
             ),
-          Expanded(child: child),
+          ),
         ],
       ),
+
+      body: child,
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: idx,
-        onDestinationSelected: (i) => context.go(_locFor(i)),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.event_note_outlined),
-            selectedIcon: Icon(Icons.event_note),
-            label: 'Schedule',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.groups_outlined),
-            selectedIcon: Icon(Icons.groups),
-            label: 'Classrooms',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.smart_display_outlined),
-            selectedIcon: Icon(Icons.smart_display),
-            label: 'Solutions',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.insights_outlined),
-            selectedIcon: Icon(Icons.insights),
-            label: 'Insights',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'Tutor',
-          ),
+        onDestinationSelected: (i) => context.go(_mainTabs[i].loc),
+        destinations: [
+          for (final t in _mainTabs)
+            NavigationDestination(icon: Icon(t.icon), label: t.label),
         ],
       ),
     );
   }
+}
+
+class _Drawer extends ConsumerWidget {
+  const _Drawer({required this.onGo});
+  final void Function(String) onGo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Widget section(String label, List<_NavItem> items) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          ...items.map(
+            (x) => ListTile(
+              leading: Icon(x.icon),
+              title: x.loc == '/notifications'
+                  ? _NotifTitle(
+                      label: x.label,
+                      countAsync: ref.watch(notificationsUnreadCountProvider),
+                    )
+                  : Text(x.label),
+              onTap: () => onGo(x.loc),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Text(
+                'ClassMate',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              ),
+            ),
+            const Divider(),
+            section('Main', AppShell._mainTabs),
+            const Divider(),
+            section('School', AppShell._schoolTabs),
+            const Divider(),
+            section('Account', AppShell._accountTabs),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (!context.mounted) return;
+                context.go('/login');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotifTitle extends StatelessWidget {
+  final String label;
+  final AsyncValue<int> countAsync;
+  const _NotifTitle({required this.label, required this.countAsync});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Text(label)),
+        countAsync.when(
+          data: (c) {
+            if (c <= 0) return const SizedBox.shrink();
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '$c',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                ),
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (e, stack) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+}
+
+class _NavItem {
+  const _NavItem(this.label, this.icon, this.loc);
+  final String label;
+  final IconData icon;
+  final String loc;
 }

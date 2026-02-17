@@ -24,12 +24,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       loading = true;
       err = null;
+
     });
 
     final api = AuthApi(ApiClient.instance);
     final res = await api.login(email: email.text.trim(), password: pass.text);
 
+    
     if (!mounted) return;
+if (!mounted) return;
 
     if (res.isOk) {
         await this.ref.read(authProvider.notifier).refresh();

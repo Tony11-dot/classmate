@@ -1,0 +1,306 @@
+import 'package:flutter/material.dart';
+import '../solutions/me_subjects_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'schedule_provider.dart';
+
+class ScheduleScreen extends ConsumerStatefulWidget {
+  const ScheduleScreen({super.key});
+
+  @override
+  ConsumerState<ScheduleScreen> createState() => _ScheduleScreenState();
+}
+
+class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
+  DateTime _day = DateTime.now();
+
+  DateTime _onlyDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  @override
+  void initState() {
+    super.initState();
+    _day = _onlyDate(DateTime.now());
+  }
+
+  void _jump(int delta) {
+    setState(() {
+      _day = _day.add(Duration(days: delta));
+    });
+  }
+
+  Future<void> _pick() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _day,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _day = picked;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => _jump(-1),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _pick,
+                      child: Text(
+                        "${_day.day}/${_day.month}/${_day.year}",
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _jump(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(child: _DaySchedule(day: _day)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DaySchedule extends ConsumerWidget {
+  final DateTime day;
+  const _DaySchedule({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final async = ref.watch(scheduleProvider(day));
+
+    return async.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text("Error: $e")),
+      data: (list) {
+        if (list.isEmpty) {
+          return const Center(child: Text("No lessons"));
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(scheduleProvider(day));
+          },
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, i) {
+              final l = list[i];
+
+              return Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${l.startAt.hour.toString().padLeft(2,'0')}:${l.startAt.minute.toString().padLeft(2,'0')} - "
+                      "${l.endAt.hour.toString().padLeft(2,'0')}:${l.endAt.minute.toString().padLeft(2,'0')}",
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(l.subjectId, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    if (l.room != null) Text("Room: ${l.room}"),
+                    if (l.teacher != null) Text("Teacher: ${l.teacher}"),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+class _DayCard extends ConsumerWidget {
+  const _DayCard({required this.day});
+  final DateTime day;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+
+    final async = ref.watch(scheduleProvider(day));
+    final subjectsAsync = ref.watch(meSubjectsProvider);
+
+    String subjectName(String id) {
+      return subjectsAsync.maybeWhen(
+        data: (rows) {
+          final hit = rows.where((x) => x.id == id).toList();
+          return hit.isEmpty ? id : hit.first.name;
+        },
+        orElse: () => id,
+      );
+    }
+
+    Widget pill(String text) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
+        ),
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: cs.onPrimaryContainer,
+            fontWeight: FontWeight.w800,
+            fontSize: 12,
+          ),
+        ),
+      );
+    }
+
+    bool isNow(DateTime s, DateTime e) {
+      final now = DateTime.now();
+      return now.isAfter(s) && now.isBefore(e);
+    }
+
+    String t(DateTime d) => '${d.hour.toString().padLeft(2,'0')}:${d.minute.toString().padLeft(2,'0')}';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text("Error: $e")),
+        data: (list) {
+          if (list.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.event_busy, size: 38, color: cs.onSurfaceVariant),
+                  const SizedBox(height: 10),
+                  Text("No lessons", style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface)),
+                  const SizedBox(height: 6),
+                  Text(
+                    "You’re clear for today.
+Swipe left/right for another day.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // smart "daily summary"
+          final now = DateTime.now();
+          final upcoming = [for (final x in list) if (x.startAt.isAfter(now)) x]
+            ..sort((a,b) => a.startAt.compareTo(b.startAt));
+          
+
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(scheduleProvider(day)),
+            child: ListView.separated(
+              padding: const EdgeInsets.all(6),
+              itemCount: list.length + 1,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, i) {
+                if (i == 0) {
+                  
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.75),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: cs.outline.withValues(alpha: 0.14)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Daily summary", style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface)),
+                        const SizedBox(height: 6),
+                        Text("Lessons: ${list.length}", style: TextStyle(color: cs.onSurfaceVariant)),
+                        if (upcoming.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            "Next: ${subjectName(upcoming.first.subjectId)} • ${t(upcoming.first.startAt)}",
+                            style: TextStyle(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }
+
+                final l = list[i - 1];
+                final nowFlag = isNow(l.startAt, l.endAt);
+
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: nowFlag
+                        ? cs.primaryContainer.withValues(alpha: 0.55)
+                        : cs.surface.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: nowFlag ? cs.primary : cs.outline.withValues(alpha: 0.12),
+                      width: nowFlag ? 1.4 : 1.0,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "${t(l.startAt)} - ${t(l.endAt)}",
+                            style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(child: pill(subjectName(l.subjectId))),
+                          if (nowFlag) ...[
+                            const SizedBox(width: 8),
+                            pill("NOW"),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (l.room != null) Text("Room: ${l.room}", style: TextStyle(color: cs.onSurfaceVariant)),
+                      if (l.teacher != null) Text("Teacher: ${l.teacher}", style: TextStyle(color: cs.onSurfaceVariant)),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
