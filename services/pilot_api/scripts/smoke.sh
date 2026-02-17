@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE="${BASE:-http://localhost:3010}"
-EMAIL="${EMAIL:-t1770927059@example.com}"
-PASSWORD="${PASSWORD:-123456}"
+BASE="${BASE:-http://localhost:3000}"
+EMAIL="${EMAIL:-admin@demo.com}"
+PASSWORD="${PASSWORD:-Password123!}"
 
 echo "== health =="
 for i in {1..30}; do
