@@ -67,3 +67,8 @@ build/
 backup.sql
 .env.bak_*
 docker-compose*.bak*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
