@@ -128,6 +128,29 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
     },
   });
 
+  // after school + adminUser exists
+const classroom = await prisma.classroom.upsert({
+  where: { id: "demo-12a" },
+  update: {
+    name: "Grade 12A",
+    grade: 12,
+    schoolId: school.id,
+  },
+  create: {
+    id: "demo-12a",
+    name: "Grade 12A",
+    grade: 12,
+    schoolId: school.id,
+  },
+});
+
+  // Ensure admin is a member of the demo classroom (so /api/classrooms returns it)
+  await prisma.classroomMember.upsert({
+    where: { classroomId_userId: { classroomId: classroom.id, userId: adminUser.id } },
+    update: { role: "teacher" },
+    create: { classroomId: classroom.id, userId: adminUser.id, role: "teacher" },
+  });
+
   // attach roles
   await prisma.userRole.createMany({
     data: [
