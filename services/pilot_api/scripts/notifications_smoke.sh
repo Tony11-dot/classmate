@@ -31,7 +31,7 @@ echo "✅ seeded $NOTIF_ID"
 
 # mark read should be JSON 200
 curl -sS -X POST "http://localhost:3000/api/notifications/$NOTIF_ID/read" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" | jq -e '.ok==true' >/dev/null
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq -e '(.id != null) and (.seenAt != null)' >/dev/null
 echo "✅ mark read ok"
 
 # fake id should be JSON 404 (not HTML)
