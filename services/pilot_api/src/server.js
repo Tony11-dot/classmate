@@ -1274,6 +1274,39 @@ app.get("/api/schedule/v2", auth, async (req, res) => {
 });
 // My classrooms only (membership-based)
 // /api/classrooms handled by classrooms router (membership-only)
+
+// ------------------------------
+// Membership gate (Rule-3): only classroom members can access
+// Used for classroom message endpoints
+// ------------------------------
+const requireMember = async (req, res, next) => {
+  try {
+    const schoolId = req.user?.schoolId;
+    const userId = req.user?.id;
+    const classroomId = String(req.params.id || "").trim();
+
+    if (!schoolId || !userId) return res.status(401).json({ error: "invalid_token" });
+    if (!classroomId) return res.status(400).json({ error: "classroomId_required" });
+
+    const classroom = await prisma.classroom.findFirst({
+      where: { id: classroomId, schoolId },
+      select: { id: true },
+    });
+    if (!classroom) return res.status(404).json({ error: "classroom_not_found" });
+
+    const member = await prisma.classroomMember.findFirst({
+      where: { classroomId, userId },
+      select: { id: true },
+    });
+    if (!member) return res.status(403).json({ error: "forbidden" });
+
+    return next();
+  } catch (e) {
+    console.error("requireMember failed", e);
+    return res.status(500).json({ error: "server_error" });
+  }
+};
+
 app.get("/api/classrooms/:id/messages", auth, requireMember, async (req, res) => {
   const rows = await prisma.message.findMany({
     where: { classroomId: req.params.id },
