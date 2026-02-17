@@ -10,19 +10,6 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
   const isAdmin = (req) => Array.isArray(req.user?.roles) && req.user.roles.includes("admin");
 
-  async function adminHasScopeForGrade({ userId, schoolId, grade }) {
-    const scope = await prisma.adminScope.findFirst({
-      where: {
-        userId,
-        schoolId,
-        gradeMin: { lte: grade },
-        gradeMax: { gte: grade },
-      },
-      select: { id: true },
-    });
-    return !!scope;
-  }
-
   async function requireClassroomAccess({ req, res, classroomId, needsTeacher }) {
     const schoolId = req.user?.schoolId;
     const userId = req.user?.id;
@@ -169,7 +156,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
     });
   });
 
-  // POST /api/assignments/:id/submissions (student member or scoped admin)
+  // POST /api/assignments/:id/submissions (student member only; rule-3)
   router.post("/:id/submissions", auth, async (req, res) => {
     const schoolId = req.user?.schoolId;
     if (!schoolId) return res.status(401).json({ error: "invalid_token" });
@@ -221,7 +208,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
     res.json(submission);
   });
 
-  // GET /api/assignments/:id/submissions (teacher member OR scoped admin)
+  // GET /api/assignments/:id/submissions (teacher member only; rule-3)
   router.get("/:id/submissions", auth, async (req, res) => {
     const schoolId = req.user?.schoolId;
     if (!schoolId) return res.status(401).json({ error: "invalid_token" });
