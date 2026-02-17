@@ -1781,4 +1781,16 @@ app.get("/api/admin/ping", auth, requireAdminScoped({ prisma, gradeFromReq: () =
 // last: unified error handler
 app.use(errorHandler);
 
+// --- global error handler (json only) ---
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: "internal_error" });
+});
+
+// --- json-only 404 ---
+app.use((req, res) => res.status(404).json({ error: "not_found" }));
+
+
+
 app.listen(port, () => console.log(`pilot_api listening on ${port}`));
