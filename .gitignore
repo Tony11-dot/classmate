@@ -72,3 +72,8 @@ docker-compose*.bak*
 .DS_Store
 **/.DS_Store
 
+
+# local archive folder (keep committed ones, ignore future)
+_archive/**
+!_archive/**/.keep
+
