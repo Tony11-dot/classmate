@@ -1,201 +1,166 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../api/api_client.dart';
-import '../../core/session.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
+
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  bool loading = true;
-  String? error;
-  dynamic payload;
+  DateTime day = DateTime.now();
+  bool apiOk = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _ping();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      loading = true;
-      error = null;
-      payload = null;
-    });
-
+  Future<void> _ping() async {
     try {
-      final token = await Session.token();
-      final role = (await Session.role())?.toUpperCase();
-
-      if (token == null || token.isEmpty) {
-        setState(() {
-          loading = false;
-          error = 'Not logged in (missing token).';
-        });
-        return;
-      }
-
-      final api = ApiClient.instance;
-      api.setBearer(token);
-
-      final path = switch (role) {
-        'TEACHER' => '/api/teacher/schedule/today',
-        'PARENT' => '/api/parent/schedule/today',
-        _ => '/api/student/schedule/today',
-      };
-
-      final res = await api.get(path);
-      setState(() {
-        loading = false;
-        payload = res.data;
-      });
-    } catch (e) {
-      setState(() {
-        loading = false;
-        error = e.toString();
-      });
+      final r = await ApiClient.instance.get('/health');
+      setState(() => apiOk = (r.data is Map) && (r.data['ok'] == true));
+    } catch (_) {
+      setState(() => apiOk = false);
     }
   }
 
-  List<Map<String, dynamic>> _extractItems(dynamic data) {
-    // We don’t know exact shape yet, so try common patterns.
-    if (data is List) {
-      return data
-          .whereType<Map>()
-          .map((m) => Map<String, dynamic>.from(m))
-          .toList();
-    }
-    if (data is Map) {
-      final m = Map<String, dynamic>.from(data as Map);
-      for (final key in ['items', 'data', 'slots', 'schedule', 'events']) {
-        final v = m[key];
-        if (v is List) {
-          return v
-              .whereType<Map>()
-              .map((x) => Map<String, dynamic>.from(x))
-              .toList();
-        }
-      }
-      // If it's a single object, show as one card
-      return [m];
-    }
-    return [];
-  }
-
-  String _titleFor(Map<String, dynamic> item) {
-    return (item['title'] ??
-            item['courseName'] ??
-            item['course'] ??
-            item['subject'] ??
-            item['name'] ??
-            'Schedule item')
-        .toString();
-  }
-
-  String _subtitleFor(Map<String, dynamic> item) {
-    final parts = <String>[];
-    for (final k in [
-      'room',
-      'location',
-      'teacherName',
-      'period',
-      'start',
-      'end',
-      'startsAt',
-      'endsAt',
-    ]) {
-      if (item[k] != null) parts.add('${k}: ${item[k]}');
-    }
-    return parts.isEmpty ? 'Tap to view raw details' : parts.join(' • ');
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2024, 1, 1),
+      lastDate: DateTime(2032, 12, 31),
+      initialDate: day,
+    );
+    if (picked != null) setState(() => day = picked);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return Scaffold(
-        appBar: AppBar(title: Text('Schedule')),
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    final df = DateFormat('EEEE - d/M/yyyy');
+    final title = df.format(day);
 
-    if (error != null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Schedule')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Couldn’t load schedule:\n$error',
-                  textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: () =>
+                    setState(() => day = day.subtract(const Duration(days: 1))),
+                icon: const Icon(Icons.chevron_left_rounded),
+              ),
+              Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _pickDate,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                FilledButton(onPressed: _load, child: const Text('Retry')),
+              ),
+              IconButton(
+                onPressed: () =>
+                    setState(() => day = day.add(const Duration(days: 1))),
+                icon: const Icon(Icons.chevron_right_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          _Card(
+            child: Row(
+              children: [
+                Icon(apiOk ? Icons.check_circle : Icons.error_outline),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(apiOk ? 'API connected' : 'API not reachable'),
+                ),
+                TextButton(onPressed: _ping, child: const Text('Retry')),
               ],
             ),
           ),
-        ),
-      );
-    }
+          const SizedBox(height: 12),
 
-    final items = _extractItems(payload);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Schedule'),
-        actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
-        ],
-      ),
-      body: items.isEmpty
-          ? ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const Text(
-                  'No schedule items found. Showing raw payload below:',
+          Expanded(
+            child: ListView(
+              children: const [
+                _ScheduleTile(
+                  time: '08:00',
+                  title: 'Math',
+                  subtitle: 'Room 203 • Homework check',
                 ),
-                const SizedBox(height: 12),
-                SelectableText(
-                  const JsonEncoder.withIndent('  ').convert(payload),
+                _ScheduleTile(
+                  time: '09:50',
+                  title: 'English',
+                  subtitle: 'Room 114 • Reading',
+                ),
+                _ScheduleTile(
+                  time: '11:20',
+                  title: 'Physics',
+                  subtitle: 'Lab • Experiment',
+                ),
+                _ScheduleTile(
+                  time: '13:10',
+                  title: 'CS',
+                  subtitle: 'Room 305 • Project work',
                 ),
               ],
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(12),
-              itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final it = items[i];
-                return Card(
-                  child: ListTile(
-                    title: Text(_titleFor(it)),
-                    subtitle: Text(_subtitleFor(it)),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        builder: (_) => Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SingleChildScrollView(
-                            child: SelectableText(
-                              const JsonEncoder.withIndent('  ').convert(it),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(padding: const EdgeInsets.all(14), child: child),
+    );
+  }
+}
+
+class _ScheduleTile extends StatelessWidget {
+  const _ScheduleTile({
+    required this.time,
+    required this.title,
+    required this.subtitle,
+  });
+  final String time;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Text(
+          time,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right_rounded),
+      ),
     );
   }
 }

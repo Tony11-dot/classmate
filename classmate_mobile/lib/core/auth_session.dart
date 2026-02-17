@@ -1,44 +1,41 @@
 class AuthSession {
   final String accessToken;
-  final String? role;
+  final List<String> roles;
   final String? email;
   final String? name;
 
   const AuthSession({
     required this.accessToken,
-    this.role,
+    required this.roles,
     this.email,
     this.name,
   });
 
-  /// Backward-compat alias
   String get token => accessToken;
 
   static AuthSession fromJson(dynamic json) {
     if (json is! Map) {
-      throw ArgumentError(
-        'AuthSession.fromJson expected Map, got: ${json.runtimeType}',
-      );
+      throw ArgumentError('AuthSession.fromJson expected Map');
     }
 
     final token = (json['accessToken'] ?? json['token'] ?? json['jwt'])
         ?.toString();
-    if (token == null || token.isEmpty) {
-      throw ArgumentError('AuthSession missing accessToken/token');
-    }
+    if (token == null || token.isEmpty) throw ArgumentError('Missing token');
 
-    // Many APIs return { user: {...} }
     final user = (json['user'] is Map) ? (json['user'] as Map) : null;
-
-    String? pick(dynamic v) => (v == null) ? null : v.toString();
+    final rolesDynamic = (user?['roles'] ?? json['roles']);
+    final roles = <String>[];
+    if (rolesDynamic is List) {
+      for (final r in rolesDynamic) {
+        if (r != null) roles.add(r.toString());
+      }
+    }
 
     return AuthSession(
       accessToken: token,
-      role: pick(json['role'] ?? user?['role']),
-      email: pick(json['email'] ?? user?['email']),
-      name: pick(
-        json['name'] ?? user?['name'] ?? json['fullName'] ?? user?['fullName'],
-      ),
+      roles: roles,
+      email: (user?['email'] ?? json['email'])?.toString(),
+      name: (user?['name'] ?? json['name'])?.toString(),
     );
   }
 }
