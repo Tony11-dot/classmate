@@ -267,6 +267,7 @@ app.use(express.json({ limit: "25mb" }));
 app.use("/api/classrooms", buildClassroomsRouter({ auth, prisma }));
 app.use("/api/assignments", buildAssignmentsRouter({ auth, prisma }));
 app.use("/api/grades", buildGradesRouter({ auth, prisma }));
+app.use("/api/notifications", buildNotificationsRouter({ auth, prisma }));
 
 app.get("/api/health", async (req, res) => {
   try {
