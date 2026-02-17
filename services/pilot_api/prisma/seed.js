@@ -128,29 +128,28 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
     },
   });
 
-  // after school + adminUser exists
-const classroom = await prisma.classroom.upsert({
-  where: { id: "demo-12a" },
-  update: {
-    name: "Grade 12A",
-    grade: 12,
-    schoolId: school.id,
-    title: "Grade 12A",
-  },
-  create: {
-    id: "demo-12a",
-    name: "Grade 12A",
-    grade: 12,
-    schoolId: school.id,
-  },
-});
-
-  // Ensure admin is a member of the demo classroom (so /api/classrooms returns it)
-  await prisma.classroomMember.upsert({
-    where: { classroomId_userId: { classroomId: classroom.id, userId: adminUser.id } },
-    update: { role: "teacher" },
-    create: { classroomId: classroom.id, userId: adminUser.id, role: "teacher" },
+  // Attach seeded admin to existing Grade 12 subject-classrooms
+  const grade12Classes = await prisma.classroom.findMany({
+    where: { schoolId: school.id, grade: 12 },
+    select: { id: true },
   });
+
+  if (!grade12Classes.length) {
+    console.log("⚠️ No grade-12 classrooms found to attach membership to.");
+  } else {
+    await prisma.classroomMember.createMany({
+      data: grade12Classes.map((c) => ({
+        classroomId: c.id,
+        userId: adminUser.id,
+        role: "teacher",
+      })),
+      skipDuplicates: true,
+    });
+    console.log("✅ Seeded classroom memberships for grade 12:", grade12Classes.length);
+  }
+
+
+  // after school + adminUser exists
 
   // attach roles
   await prisma.userRole.createMany({
