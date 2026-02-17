@@ -199,13 +199,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
       where: { classroomId: classroom.id, userId: req.user.id },
       select: { id: true },
     });
-
-    if (!member) {
-      if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
-      const ok = await adminHasScopeForGrade({ userId: req.user.id, schoolId, grade: classroom.grade });
-      if (!ok) return res.status(403).json({ error: "forbidden" });
-    }
-
+    if (!member) return res.status(403).json({ error: "forbidden" });
     const S = z.object({
       text: z.string().nullable().optional(),
       mediaUrl: z.string().url().nullable().optional(),
@@ -256,13 +250,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
       where: { classroomId: classroom.id, userId: req.user.id, role: "teacher" },
       select: { id: true },
     });
-
-    if (!teacher) {
-      if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
-      const ok = await adminHasScopeForGrade({ userId: req.user.id, schoolId, grade: classroom.grade });
-      if (!ok) return res.status(403).json({ error: "forbidden" });
-    }
-
+    if (!teacher) return res.status(403).json({ error: "forbidden" });
     const rows = await prisma.assignmentSubmission.findMany({
       where: { assignmentId: id },
       orderBy: { createdAt: "desc" },
