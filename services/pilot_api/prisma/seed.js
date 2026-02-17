@@ -116,6 +116,7 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
       username: adminUsername,
       grade: 12,
       schoolId: school.id,
+    title: "Grade 12A",
       passwordHash: adminPasswordHash,
     },
     create: {
@@ -125,6 +126,7 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
       username: adminUsername,
       grade: 12,
       schoolId: school.id,
+    title: "Grade 12A",
     },
   });
 
@@ -135,6 +137,7 @@ const classroom = await prisma.classroom.upsert({
     name: "Grade 12A",
     grade: 12,
     schoolId: school.id,
+    title: "Grade 12A",
   },
   create: {
     id: "demo-12a",
