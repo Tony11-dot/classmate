@@ -93,6 +93,7 @@ class _MainDrawer extends StatelessWidget {
           _item(context, 'Attendance', '/attendance'),
           _item(context, 'Grades', '/grades'),
           _item(context, 'Announcements', '/announcements'),
+          _item(context, 'Notifications', '/notifications'),
           _item(context, 'Assignments', '/assignments'),
           const Divider(),
           _item(context, 'Settings', '/settings'),
@@ -100,11 +101,10 @@ class _MainDrawer extends StatelessWidget {
       ),
     );
   }
-
   Widget _item(BuildContext c, String t, String r) {
     return ListTile(
-      title: Text(t, 
-      trailing: label == 'Notifications'
+      title: Text(t, style: const TextStyle(fontWeight: FontWeight.w800)),
+      trailing: t == 'Notifications'
           ? Consumer(builder: (context, ref, _) {
               final u = ref.watch(unreadCountProvider);
               return u.when(
@@ -123,7 +123,6 @@ class _MainDrawer extends StatelessWidget {
               );
             })
           : null,
-style: const TextStyle(fontWeight: FontWeight.w800)),
       onTap: () {
         Navigator.pop(c);
         c.go(r);
