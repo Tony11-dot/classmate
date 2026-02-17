@@ -58,3 +58,12 @@ build/
 # Xcode / macOS
 **/DerivedData/
 *.xcuserstate
+
+# --- Local backups / scratch ---
+*.bak
+*.bak_*
+*.bak-*
+*_bk_*
+backup.sql
+.env.bak_*
+docker-compose*.bak*
