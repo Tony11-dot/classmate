@@ -58,11 +58,7 @@ function buildAssignmentsRouter({ auth, prisma }) {
 
     if (member) return classroom;
 
-    // admin: allow by scope (even without membership)
-    if (isAdmin(req)) {
-      const ok = await adminHasScopeForGrade({ userId, schoolId, grade: classroom.grade });
-      if (ok) return classroom;
-    }
+    // rule-3: membership only (no admin/scope bypass)
 
     res.status(403).json({ error: "forbidden" });
     return null;
