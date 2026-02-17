@@ -7,6 +7,7 @@ const { buildTutorRouter } = require("./tutor");
 const { errorHandler } = require("./mw/errorHandler");
 const { buildGradesRouter } = require("./grades");
 const { buildAssignmentsRouter } = require("./assignments");
+const { buildClassroomsRouter } = require("./classrooms");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
@@ -263,6 +264,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "25mb" }));
 
 
+app.use("/api/classrooms", buildClassroomsRouter({ auth, prisma }));
 app.use("/api/assignments", buildAssignmentsRouter({ auth, prisma }));
 app.use("/api/grades", buildGradesRouter({ auth, prisma }));
 
@@ -1271,36 +1273,7 @@ app.get("/api/schedule/v2", auth, async (req, res) => {
   res.json(out);
 });
 // My classrooms only (membership-based)
-app.get("/api/classrooms", auth, async (req, res) => {
-  const rows = await prisma.classroomMember.findMany({
-    where: { userId: req.user.id },
-    include: { Classroom: { include: { Subject: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-
-  res.json(
-    rows.map((r) => {
-      if (!r.Classroom) throw new Error('Invariant failed: missing Classroom relation');
-      return {
-      id: r.Classroom.id,
-      title: r.Classroom.title,
-      grade: r.Classroom.grade,
-      schoolId: r.Classroom.schoolId,
-      subject: r.Classroom.Subject,
-      role: r.role,
-      createdAt: r.Classroom.createdAt,
-      };
-    })
-  );
-});
-
-async function requireMember(req, res, next) {
-  const classroomId = req.params.id;
-  const m = await prisma.classroomMember.findFirst({ where: { classroomId, userId: req.user.id } });
-  if (!m) return res.status(403).json({ error: "forbidden" });
-  next();
-}
-
+// /api/classrooms handled by classrooms router (membership-only)
 app.get("/api/classrooms/:id/messages", auth, requireMember, async (req, res) => {
   const rows = await prisma.message.findMany({
     where: { classroomId: req.params.id },
