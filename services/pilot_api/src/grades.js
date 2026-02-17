@@ -41,17 +41,14 @@ function buildGradesRouter({ auth, prisma }) {
       if (!classroom) return res.status(400).json({ error: "invalid_classroomId" });
       if (classroom.schoolId !== schoolId) return res.status(403).json({ error: "forbidden" });
 
-      if (isAdmin(req)) {
-        const ok = await adminHasScopeForGrade({ userId, schoolId, grade: classroom.grade });
-        if (!ok) return res.status(403).json({ error: "forbidden" });
-      } else {
-        // non-admin must be a member of classroom
-        const member = await prisma.classroomMember.findFirst({
-          where: { classroomId: classroom.id, userId },
-          select: { id: true },
-        });
-        if (!member) return res.status(403).json({ error: "forbidden" });
-      }
+      
+      // rule-3: classroomId filter requires membership (even for admin)
+      const member = await prisma.classroomMember.findFirst({
+        where: { classroomId: classroom.id, userId },
+        select: { id: true },
+      });
+      if (!member) return res.status(403).json({ error: "forbidden" });
+
 
       subjectId = classroom.subjectId;
     }
