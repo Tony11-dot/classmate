@@ -8,19 +8,6 @@ function buildGradesRouter({ auth, prisma }) {
 
   const isAdmin = (req) => Array.isArray(req.user?.roles) && req.user.roles.includes("admin");
 
-  async function adminHasScopeForGrade({ userId, schoolId, grade }) {
-    const scope = await prisma.adminScope.findFirst({
-      where: {
-        userId,
-        schoolId,
-        gradeMin: { lte: grade },
-        gradeMax: { gte: grade },
-      },
-      select: { id: true },
-    });
-    return !!scope;
-  }
-
   // GET /api/grades?classroomId=...
   router.get("/", auth, async (req, res) => {
     const userId = req.user?.id;
