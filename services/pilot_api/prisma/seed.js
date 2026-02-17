@@ -116,7 +116,6 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
       username: adminUsername,
       grade: 12,
       schoolId: school.id,
-    title: "Grade 12A",
       passwordHash: adminPasswordHash,
     },
     create: {
@@ -126,7 +125,6 @@ async function upsertGradePack({ prisma, schoolId, grade, kind, subjectIds }) {
       username: adminUsername,
       grade: 12,
       schoolId: school.id,
-    title: "Grade 12A",
     },
   });
 
