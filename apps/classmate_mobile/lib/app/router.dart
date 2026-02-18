@@ -26,49 +26,40 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, child) => AppShell(child: child),
         routes: [
           // Core
-          GoRoute(
-            path: '/schedule',
-            builder: (_, __) => const ScheduleScreen(),
-          ),
+          GoRoute(path: '/schedule', builder: (_, _) => const ScheduleScreen()),
           GoRoute(
             path: '/classrooms',
-            builder: (_, __) => const ClassroomsScreen(),
+            builder: (_, _) => const ClassroomsScreen(),
           ),
           GoRoute(
             path: '/solutions',
-            builder: (_, __) => const SolutionsScreen(),
+            builder: (_, _) => const SolutionsScreen(),
           ),
-          GoRoute(
-            path: '/insights',
-            builder: (_, __) => const InsightsScreen(),
-          ),
-          GoRoute(path: '/tutor', builder: (_, __) => const TutorScreen()),
+          GoRoute(path: '/insights', builder: (_, _) => const InsightsScreen()),
+          GoRoute(path: '/tutor', builder: (_, _) => const TutorScreen()),
 
           // School (was LifeDoc)
           GoRoute(
             path: '/attendance',
-            builder: (_, __) => const AttendanceScreen(),
+            builder: (_, _) => const AttendanceScreen(),
           ),
-          GoRoute(path: '/grades', builder: (_, __) => const GradesScreen()),
+          GoRoute(path: '/grades', builder: (_, _) => const GradesScreen()),
           GoRoute(
             path: '/assignments',
-            builder: (_, __) => const AssignmentsScreen(),
+            builder: (_, _) => const AssignmentsScreen(),
           ),
           GoRoute(
             path: '/announcements',
-            builder: (_, __) => const AnnouncementsScreen(),
+            builder: (_, _) => const AnnouncementsScreen(),
           ),
           GoRoute(
             path: '/notifications',
-            builder: (_, __) => const NotificationsScreen(),
+            builder: (_, _) => const NotificationsScreen(),
           ),
 
           // Account
-          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
-          GoRoute(
-            path: '/settings',
-            builder: (_, __) => const SettingsScreen(),
-          ),
+          GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
+          GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
         ],
       ),
     ],
