@@ -1,0 +1,31 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — ENTRYPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+--- void main( ---
+lib/main.dart:4:void main() {
+
+--- runApp( ---
+lib/main.dart:5:  runApp(const App());
+
+--- MaterialApp( ---
+
+--- MaterialApp.router( ---
+
+--- GoRouter( ---
+
+--- ShellRoute( ---
+
+--- ProviderScope ---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — CURRENT main.dart
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+import 'package:flutter/material.dart';
+import 'main.dart';
+
+void main() {
+  runApp(const App());
+}
+
