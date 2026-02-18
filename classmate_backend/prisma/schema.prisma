@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  PARENT
+  ADMIN
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  users     User[]
+  classes   ClassRoom[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  schoolId     String
+  email        String
+  phone        String?
+  passwordHash String
+  role         Role
+  fullName     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  school       School   @relation(fields: [schoolId], references: [id])
+  student      Student?
+  teacher      Teacher?
+  parent       Parent?
+
+  @@unique([schoolId, email])
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  grade     Int
+  track     String?
+  mathUnits Int?
+  engUnits  Int?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  parents   ParentStudent[]
+  enroll    Enrollment[]
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  teaches   TeachingAssignment[]
+}
+
+model Parent {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  children  ParentStudent[]
+}
+
+model ParentStudent {
+  parentId  String
+  studentId String
+  createdAt DateTime @default(now())
+
+  parent    Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, studentId])
+}
+
+model ClassRoom {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  grade     Int
+  createdAt DateTime @default(now())
+
+  school    School   @relation(fields: [schoolId], references: [id])
+  enroll    Enrollment[]
+  teachers  TeachingAssignment[]
+}
+
+model Enrollment {
+  classId   String
+  studentId String
+  createdAt DateTime @default(now())
+
+  class     ClassRoom @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([classId, studentId])
+}
+
+model TeachingAssignment {
+  classId   String
+  teacherId String
+  createdAt DateTime @default(now())
+
+  class     ClassRoom @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@id([classId, teacherId])
+}
