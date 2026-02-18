@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,8 +56,8 @@ class ThemeController extends Notifier<ThemeState> {
     return const ThemeState(
       mode: ThemeMode.system,
       accent: Color(0xFF4F46E5),
-      radius: 18,
-      density: 0,
+      radius: 18.0,
+      density: 0.0,
       textScale: 1.0,
       reduceMotion: false,
     );
@@ -78,9 +76,16 @@ class ThemeController extends Notifier<ThemeState> {
     final accent = Color(
       prefs.getInt(_kAccent) ?? const Color(0xFF4F46E5).value,
     );
-    final radius = (prefs.getDouble(_kRadius) ?? 18).clamp(8, 28);
-    final density = (prefs.getDouble(_kDensity) ?? 0).clamp(-1, 1);
-    final textScale = (prefs.getDouble(_kTextScale) ?? 1.0).clamp(0.9, 1.3);
+
+    final radius = (prefs.getDouble(_kRadius) ?? 18.0)
+        .clamp(8.0, 28.0)
+        .toDouble();
+    final density = (prefs.getDouble(_kDensity) ?? 0.0)
+        .clamp(-1.0, 1.0)
+        .toDouble();
+    final textScale = (prefs.getDouble(_kTextScale) ?? 1.0)
+        .clamp(0.9, 1.3)
+        .toDouble();
     final reduceMotion = prefs.getBool(_kReduceMotion) ?? false;
 
     state = state.copyWith(
@@ -110,14 +115,14 @@ class ThemeController extends Notifier<ThemeState> {
   }
 
   Future<void> setRadius(double r) async {
-    final v = r.clamp(8, 28).toDouble();
+    final v = r.clamp(8.0, 28.0).toDouble();
     state = state.copyWith(radius: v);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_kRadius, v);
   }
 
   Future<void> setDensity(double d) async {
-    final v = d.clamp(-1, 1).toDouble();
+    final v = d.clamp(-1.0, 1.0).toDouble();
     state = state.copyWith(density: v);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_kDensity, v);
@@ -157,7 +162,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
       foregroundColor: scheme.onSurface,
       surfaceTintColor: scheme.surfaceTint,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(s.radius),
