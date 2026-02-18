@@ -175,7 +175,7 @@ class _ToggleRow extends StatelessWidget {
   const _ToggleRow({
     required this.title,
     required this.subtitle,
-    required this.value,
+    required this.toARGB32(),
     required this.onChanged,
   });
 
@@ -199,7 +199,7 @@ class _SliderRow extends StatelessWidget {
   const _SliderRow({
     required this.title,
     required this.subtitle,
-    required this.value,
+    required this.toARGB32(),
     required this.min,
     required this.max,
     required this.onChanged,
@@ -229,7 +229,7 @@ class _ColorRow extends StatelessWidget {
   const _ColorRow({
     required this.title,
     required this.subtitle,
-    required this.value,
+    required this.toARGB32(),
     required this.onPick,
   });
 
@@ -268,7 +268,7 @@ class _ColorRow extends StatelessWidget {
                       color: c,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        width: c.value == value.value ? 3 : 1,
+                        width: c.toARGB32() == value.toARGB32() ? 3 : 1,
                         color: Theme.of(context).colorScheme.outline,
                       ),
                     ),

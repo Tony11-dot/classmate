@@ -111,7 +111,7 @@ class ThemeController extends Notifier<ThemeState> {
   Future<void> setAccent(Color c) async {
     state = state.copyWith(accent: c);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_kAccent, c.value);
+    await prefs.setInt(_kAccent, c.toARGB32());
   }
 
   Future<void> setRadius(double r) async {
