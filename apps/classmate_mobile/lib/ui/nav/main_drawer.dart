@@ -25,9 +25,9 @@ class MainDrawer extends StatelessWidget {
               route: '/classrooms',
             ),
             _NavTile(
-              icon: Icons.psychology,
-              title: 'AI Tutor',
-              route: '/solutions,
+              icon: Icons.smart_display,
+              title: 'Solutions',
+              route: '/solutions',
             ),
             _NavTile(
               icon: Icons.insights,
@@ -35,9 +35,9 @@ class MainDrawer extends StatelessWidget {
               route: '/insights',
             ),
             _NavTile(
-              icon: Icons.smart_display,
-              title: 'Solutions',
-              route: '/tutor,
+              icon: Icons.psychology,
+              title: 'AI Tutor',
+              route: '/tutor',
             ),
             Divider(),
             _SectionTitle('School'),
@@ -69,11 +69,6 @@ class MainDrawer extends StatelessWidget {
               icon: Icons.settings,
               title: 'Settings',
               route: '/settings',
-            ),
-            _NavTile(
-              icon: Icons.palette,
-              title: 'Customization',
-              route: '/customization',
             ),
           ],
         ),

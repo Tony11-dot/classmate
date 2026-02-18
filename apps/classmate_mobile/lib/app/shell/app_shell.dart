@@ -10,34 +10,36 @@ class AppShell extends ConsumerWidget {
 
   int _indexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
-    if (loc.startsWith('/solutions)) return 2;
+    if (loc.startsWith('/solutions')) return 2; // swapped
     if (loc.startsWith('/insights')) return 3;
-    if (loc.startsWith('/tutor)) return 4;
+    if (loc.startsWith('/tutor')) return 4; // swapped
     return 0;
   }
 
   String _locFor(int index) => switch (index) {
     0 => '/schedule',
     1 => '/classrooms',
-    2 => '/solutions,
+    2 => '/solutions', // swapped
     3 => '/insights',
-    4 => '/tutor,
+    4 => '/tutor', // swapped
     _ => '/schedule',
   };
 
   String _pageTitle(String loc) {
     if (loc.startsWith('/classrooms')) return 'Classrooms';
-    if (loc.startsWith('/solutions)) return 'AI Tutor';
+    if (loc.startsWith('/solutions')) return 'Solutions';
     if (loc.startsWith('/insights')) return 'Insights';
-    if (loc.startsWith('/tutor)) return 'Solutions';
+    if (loc.startsWith('/tutor')) return 'AI Tutor';
+
     if (loc.startsWith('/attendance')) return 'Attendance';
     if (loc.startsWith('/grades')) return 'Grades';
     if (loc.startsWith('/assignments')) return 'Assignments';
     if (loc.startsWith('/announcements')) return 'Announcements';
     if (loc.startsWith('/notifications')) return 'Notifications';
+
     if (loc.startsWith('/profile')) return 'Profile';
     if (loc.startsWith('/settings')) return 'Settings';
-    if (loc.startsWith('/customization')) return 'Customization';
+
     return 'Schedule';
   }
 
@@ -65,9 +67,9 @@ class AppShell extends ConsumerWidget {
             label: 'Classrooms',
           ),
           NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'Tutor',
+            icon: Icon(Icons.smart_display_outlined),
+            selectedIcon: Icon(Icons.smart_display),
+            label: 'Solutions',
           ),
           NavigationDestination(
             icon: Icon(Icons.insights_outlined),
@@ -75,9 +77,9 @@ class AppShell extends ConsumerWidget {
             label: 'Insights',
           ),
           NavigationDestination(
-            icon: Icon(Icons.smart_display_outlined),
-            selectedIcon: Icon(Icons.smart_display),
-            label: 'Solutions',
+            icon: Icon(Icons.psychology_outlined),
+            selectedIcon: Icon(Icons.psychology),
+            label: 'Tutor',
           ),
         ],
       ),

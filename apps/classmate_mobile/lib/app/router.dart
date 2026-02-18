@@ -15,7 +15,6 @@ import '../features/lifedoc/notifications_screen.dart';
 
 import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
-import '../features/account/customization_screen.dart';
 
 import 'shell/app_shell.dart';
 
@@ -26,6 +25,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
+          // Core
           GoRoute(
             path: '/schedule',
             builder: (_, __) => const ScheduleScreen(),
@@ -34,17 +34,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/classrooms',
             builder: (_, __) => const ClassroomsScreen(),
           ),
-          GoRoute(path: '/solutions, builder: (_, __) => const TutorScreen()),
+          GoRoute(
+            path: '/solutions',
+            builder: (_, __) => const SolutionsScreen(),
+          ),
           GoRoute(
             path: '/insights',
             builder: (_, __) => const InsightsScreen(),
           ),
-          GoRoute(
-            path: '/tutor,
-            builder: (_, __) => const SolutionsScreen(),
-          ),
+          GoRoute(path: '/tutor', builder: (_, __) => const TutorScreen()),
 
-          // LifeDoc
+          // School (was LifeDoc)
           GoRoute(
             path: '/attendance',
             builder: (_, __) => const AttendanceScreen(),
@@ -68,10 +68,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/settings',
             builder: (_, __) => const SettingsScreen(),
-          ),
-          GoRoute(
-            path: '/customization',
-            builder: (_, __) => const CustomizationScreen(),
           ),
         ],
       ),
