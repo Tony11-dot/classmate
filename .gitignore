@@ -39,3 +39,6 @@ _archive/
 **/*.bak.*
 docker-compose*.bak.*
 pubspec.yaml.bak.*
+
+# keep dead code out of analyzer/build
+classmate_mobile/._graveyard/
