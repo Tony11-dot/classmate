@@ -36,92 +36,8 @@ class AppShell extends ConsumerWidget {
     final errorBanner = auth.error;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ClassMate')),
+      appBar: _TopBar(title: _titleFor(loc)),
       drawer: const MainDrawer(),
-            children: [
-              const ListTile(
-                title: Text(
-                  'ClassMate',
-                  style: TextStyle(fontWeight: FontWeight.w800),
-                ),
-                subtitle: Text('Pilot build'),
-              ),
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.event_note),
-                title: const Text('Schedule'),
-                onTap: () => context.go('/app'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.groups),
-                title: const Text('Classrooms'),
-                onTap: () => context.go('/classrooms'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.smart_display),
-                title: const Text('Solutions'),
-                onTap: () => context.go('/solutions'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.insights),
-                title: const Text('Insights'),
-                onTap: () => context.go('/insights'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.psychology),
-                title: const Text('AI Tutor'),
-                onTap: () => context.go('/tutor'),
-              ),
-
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.how_to_reg),
-                title: const Text('Attendance'),
-                onTap: () => context.go('/attendance'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.grade),
-                title: const Text('Grades'),
-                onTap: () => context.go('/grades'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.assignment),
-                title: const Text('Assignments'),
-                onTap: () => context.go('/assignments'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.campaign),
-                title: const Text('Announcements'),
-                onTap: () => context.go('/announcements'),
-              ),
-
-              const Divider(),
-
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Profile'),
-                onTap: () => context.go('/profile'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.tune),
-                title: const Text('Settings'),
-                onTap: () => context.go('/settings'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Reset pilot user'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) context.go('/app');
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
       body: Column(
         children: [
           if (errorBanner != null)
@@ -129,7 +45,7 @@ class AppShell extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               child: Text(
-                'API auth failed (demo still works): $errorBanner',
+                'API auth failed (demo still works): ',
                 style: const TextStyle(fontSize: 12),
               ),
             ),
@@ -167,6 +83,54 @@ class AppShell extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+String _titleFor(String loc) {
+  if (loc.startsWith('/classrooms')) return 'Classrooms';
+  if (loc.startsWith('/solutions')) return 'Solutions';
+  if (loc.startsWith('/insights')) return 'Insights';
+  if (loc.startsWith('/tutor')) return 'AI Tutor';
+  if (loc.startsWith('/attendance')) return 'Attendance';
+  if (loc.startsWith('/grades')) return 'Grades';
+  if (loc.startsWith('/assignments')) return 'Assignments';
+  if (loc.startsWith('/announcements')) return 'Announcements';
+  if (loc.startsWith('/profile')) return 'Profile';
+  if (loc.startsWith('/settings')) return 'Settings';
+  return 'Schedule';
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Center(
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+          ),
+        ),
+      ],
     );
   }
 }
