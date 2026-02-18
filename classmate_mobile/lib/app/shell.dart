@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/nav/main_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,10 +37,7 @@ class AppShell extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('ClassMate')),
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(8),
+      drawer: const MainDrawer(),
             children: [
               const ListTile(
                 title: Text(
