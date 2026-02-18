@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';import "package:flutter_riverpod/flutter_riverpod.dart";
+import 'package:classmate_mobile/ui/nav/main_drawer.dart';
+import 'package:flutter/material.dart';
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import 'package:go_router/go_router.dart';
 
@@ -20,7 +22,7 @@ class AppShell extends StatelessWidget {
     final loc = GoRouterState.of(context).uri.toString();
 
     return Scaffold(
-      drawer: const _MainDrawer(),
+      drawer: const MainDrawer(),
       appBar: AppBar(
         centerTitle: true,
         title: _showTitle(loc)
@@ -101,27 +103,36 @@ class _MainDrawer extends StatelessWidget {
       ),
     );
   }
+
   Widget _item(BuildContext c, String t, String r) {
     return ListTile(
       title: Text(t, style: const TextStyle(fontWeight: FontWeight.w800)),
       trailing: t == 'Notifications'
-          ? Consumer(builder: (context, ref, _) {
-              final u = ref.watch(unreadCountProvider);
-              return u.when(
-                data: (n) => n > 0
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: const Color(0x22000000)),
-                        ),
-                        child: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
-                      )
-                    : const SizedBox.shrink(),
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              );
-            })
+          ? Consumer(
+              builder: (context, ref, _) {
+                final u = ref.watch(unreadCountProvider);
+                return u.when(
+                  data: (n) => n > 0
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: const Color(0x22000000)),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                );
+              },
+            )
           : null,
       onTap: () {
         Navigator.pop(c);
