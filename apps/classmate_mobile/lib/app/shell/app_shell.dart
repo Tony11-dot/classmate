@@ -10,26 +10,26 @@ class AppShell extends ConsumerWidget {
 
   int _indexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
-    if (loc.startsWith('/tutor')) return 2;
+    if (loc.startsWith('/solutions)) return 2;
     if (loc.startsWith('/insights')) return 3;
-    if (loc.startsWith('/solutions')) return 4;
+    if (loc.startsWith('/tutor)) return 4;
     return 0;
   }
 
   String _locFor(int index) => switch (index) {
     0 => '/schedule',
     1 => '/classrooms',
-    2 => '/tutor',
+    2 => '/solutions,
     3 => '/insights',
-    4 => '/solutions',
+    4 => '/tutor,
     _ => '/schedule',
   };
 
   String _pageTitle(String loc) {
     if (loc.startsWith('/classrooms')) return 'Classrooms';
-    if (loc.startsWith('/tutor')) return 'AI Tutor';
+    if (loc.startsWith('/solutions)) return 'AI Tutor';
     if (loc.startsWith('/insights')) return 'Insights';
-    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/tutor)) return 'Solutions';
     if (loc.startsWith('/attendance')) return 'Attendance';
     if (loc.startsWith('/grades')) return 'Grades';
     if (loc.startsWith('/assignments')) return 'Assignments';
