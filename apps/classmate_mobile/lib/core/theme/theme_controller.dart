@@ -74,7 +74,7 @@ class ThemeController extends Notifier<ThemeState> {
     };
 
     final accent = Color(
-      prefs.getInt(_kAccent) ?? const Color(0xFF4F46E5).value,
+      prefs.getInt(_kAccent) ?? const Color(0xFF4F46E5).toARGB32(),
     );
 
     final radius = (prefs.getDouble(_kRadius) ?? 18.0)
