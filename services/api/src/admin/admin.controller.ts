@@ -1,5 +1,6 @@
 import { Roles } from '../auth/roles.decorator';
 import {
+  Header,
   Body,
   Controller,
   Delete,
@@ -27,6 +28,9 @@ export class AdminController {
   }
 
   @Roles('ADMIN', 'TEACHER')
+  @Header('Deprecation', 'true')
+  @Header('Sunset', '2026-03-31')
+  @Header('Link', '</api/teacher/cohorts/join-code>; rel="successor-version"')
   @Post('cohorts/join-code')
   joinCode(
     @Req() req: any,
