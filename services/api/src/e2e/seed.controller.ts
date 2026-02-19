@@ -14,7 +14,8 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
 
     const hash = await bcrypt.hash(password, 10);
 const prisma: any = this.prisma;
-    try {
+  try {
+
       let cohortId: any = undefined;
       // Best-effort School (some schemas may require it)
       try {
