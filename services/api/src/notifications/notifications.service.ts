@@ -5,11 +5,10 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
+  
   constructor(private readonly prisma: PrismaService) {}
 
-constructor(private prisma: PrismaService) {}
-
-  async list(userId: string, q: ListNotificationsDto) {
+async list(userId: string, q: ListNotificationsDto) {
     const limit = q.limit ?? 30;
 
     const where: any = { userId };
