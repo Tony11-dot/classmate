@@ -15,7 +15,7 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({ email: seed.body.adminEmail, password: seed.body.password });
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
-    expect\(adminToken\)\.toBeTruthy\(\);
+    expect(adminToken).toBeTruthy();
 
     // isolate this test: create a fresh cohort so other join-code tests can't deactivate our code
     const cohort = await http
