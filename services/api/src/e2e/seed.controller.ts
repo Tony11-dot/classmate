@@ -15,6 +15,7 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
     const hash = await bcrypt.hash(password, 10);
 const prisma: any = this.prisma;
     try {
+      let cohortId: any = undefined;
       // Best-effort School (some schemas may require it)
       try {
         await prisma.school?.upsert?.({
@@ -99,6 +100,6 @@ await prisma.user.upsert({
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
     }
 
-    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId: (res as any).locals?.cohortId });
+    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId });
   }
 }
