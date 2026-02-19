@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import {
   BadRequestException,
   ForbiddenException,
@@ -5,6 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
+
+function randomDigits(len = 6) {
+  const digits = '0123456789';
+  let out = '';
+  for (let i = 0; i < len; i++) out += digits[Math.floor(Math.random() * digits.length)];
+  return out;
+}
+
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -54,6 +63,56 @@ type AttendanceRowLite = {
 
 @Injectable()
 export class TeacherService {
+
+  async generateJoinCode(
+    user: any,
+    body: { cohortId: string; expiresInHours?: number; length?: number },
+  ) {
+    if (!hasAnyRole(user, ['ADMIN', 'TEACHER']))
+      throw new ForbiddenException('Admin or Teacher only');
+    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+
+    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const teacherId = (user as any)?.sub ?? (user as any)?.id;
+
+    if (roles.includes('TEACHER') && !roles.includes('ADMIN')) {
+      const owns = await this.prisma.course.findFirst({
+        where: { teacherId, cohortId: body.cohortId },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Teacher not authorized for this cohort');
+    }
+
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: body.cohortId },
+    });
+    if (!cohort) throw new BadRequestException('Invalid cohortId');
+
+    const len = body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
+    const code = randomDigits(len);
+    const codeHash = await bcrypt.hash(code, 10);
+
+    const expiresAt =
+      body.expiresInHours && body.expiresInHours > 0
+        ? new Date(Date.now() + body.expiresInHours * 60 * 60 * 1000)
+        : null;
+
+    await this.prisma.cohortJoinCode.updateMany({
+      where: { cohortId: body.cohortId, active: true },
+      data: { active: false },
+    });
+
+    await this.prisma.cohortJoinCode.create({
+      data: {
+        cohortId: body.cohortId,
+        codeHash,
+        expiresAt: expiresAt ?? undefined,
+      },
+    });
+
+    return { cohortId: body.cohortId, code, expiresAt };
+  }
+
   constructor(private readonly prisma: PrismaService) {}
 
   private ensureTeacher(user: any) {
