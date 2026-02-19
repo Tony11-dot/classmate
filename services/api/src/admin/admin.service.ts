@@ -1,5 +1,4 @@
-import { BadRequestException
-  ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
+import { BadRequestException   ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
