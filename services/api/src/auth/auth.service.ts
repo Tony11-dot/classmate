@@ -12,35 +12,15 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    try {
-      const user: any = await this.prisma.user.findUnique({ where: { email } as any });
-      if (!user) return null as any;
-
-      const stored: any = user.passwordHash ?? user.password;
-      if (!stored) return null as any;
-
-      const ok =
-        String(stored) === password ||
-        (await bcrypt.compare(password, String(stored)).catch(() => false));
-
-      if (!ok) return null as any;
-
-      return this.signToken(user);
-    } catch (e: any) {
-      if (process.env.NODE_ENV === "test") {
-        // eslint-disable-next-line no-console
-        console.error("[auth.login] error:", e?.message ?? e);
-      }
-      return null as any;
-    }
-  });
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { roles: true },
+    });
 
     if (!user) return null;
 
-    const stored: any = (user as any).passwordHash ?? (user as any).password;
-    if (!stored) return null as any;
-    const ok = (String(stored) === password) || (await bcrypt.compare(password, String(stored)).catch(() => false));
-if (!ok) return null;
+    const ok = ((await bcrypt.compare(password, user.password)) || (user.password === password));
+    if (!ok) return null;
 
     const token = this.jwt.sign({
       sub: user.id,
