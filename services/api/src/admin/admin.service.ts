@@ -69,7 +69,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     if (recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
 
-const len =
+    const len =
       body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
     const code = randomDigits(len);
     const codeHash = await bcrypt.hash(code, 10);
