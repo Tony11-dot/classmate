@@ -20,7 +20,7 @@ describe('validation pipe (e2e)', () => {
   it('unknown fields are rejected', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/register')
-      .send({ email: 'x@y.z', password: 'Passw0rd!', unknownField: true })
+      .send({email: 'x@y.z', password: 'Passw0rd!', unknownField: true })
       .expect(400);
   });
 });

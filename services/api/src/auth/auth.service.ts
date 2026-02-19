@@ -1,5 +1,5 @@
 import { RegisterDto } from './dto/register.dto';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -31,7 +31,13 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    const email = dto.email.trim().toLowerCase();
+    
+    // defensive: validation pipe may strip unknown fields; ensure required fields exist
+    const anyDto: any = arguments[0] as any;
+    if (!anyDto || (!anyDto.username && !anyDto.email) || !anyDto.password) {
+      throw new BadRequestException('Invalid register payload');
+    }
+const email = String(dto.email ?? '').trim().toLowerCase();
     const name = dto.name.trim();
 
     const existing = await this.prisma.user.findUnique({ where: { email } });
