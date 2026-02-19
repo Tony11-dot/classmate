@@ -28,19 +28,25 @@ describe('cohort join-code is single-use (e2e)', () => {
     expect(typeof joinCodeRaw).toBe('string');
     const joinCode = (joinCodeRaw as string).trim();
     expect(joinCode).toBeTruthy();
+    // register+login as STUDENT1 (fresh) to onboard
+    const student1Email = `student1+${Date.now()}@classmate.app`;
+    const reg1 = await http.post('/api/auth/register').send({
+      email: student1Email,
+      password: seed.body.password,
+    });
+    expect([201, 409]).toContain(reg1.status);
 
-    // login as STUDENT (seeded) to onboard
-    const studentLogin = await http
+    const login1 = await http
       .post('/api/auth/login')
-      .send({ email: seed.body.studentEmail, password: seed.body.password });
+      .send({ email: student1Email, password: seed.body.password });
 
-    expect(studentLogin.status).toBe(201);
-    const studentToken = studentLogin.body?.token;
-    expect(studentToken).toBeTruthy();
+    expect(login1.status).toBe(201);
+    const student1Token = login1.body?.token;
+    expect(student1Token).toBeTruthy();
 
     const first = await http
       .post('/api/student/onboard')
-      .set('Authorization', `Bearer ${studentToken}`)
+      .set('Authorization', `Bearer ${student1Token}`)
       .send({
         cohortId: seed.body.cohortId,
         joinCode,
@@ -54,16 +60,31 @@ describe('cohort join-code is single-use (e2e)', () => {
     }
     expect(first.status).toBe(201);
 
-    // attempt to reuse same code for a DIFFERENT student
-    const secondEmail = `student2+${Date.now()}@classmate.app`;
-    const second = await http.post('/api/student/onboard').send({
-      email: secondEmail,
+    // attempt to reuse same code for a DIFFERENT student (student2)
+    const student2Email = `student2+${Date.now()}@classmate.app`;
+    const reg2 = await http.post('/api/auth/register').send({
+      email: student2Email,
       password: seed.body.password,
-      cohortId: seed.body.cohortId,
-      joinCode,
-      englishLevel: 3,
-      mathLevel: 3,
     });
+    expect([201, 409]).toContain(reg2.status);
+
+    const login2 = await http
+      .post('/api/auth/login')
+      .send({ email: student2Email, password: seed.body.password });
+
+    expect(login2.status).toBe(201);
+    const student2Token = login2.body?.token;
+    expect(student2Token).toBeTruthy();
+
+    const second = await http
+      .post('/api/student/onboard')
+      .set('Authorization', `Bearer ${student2Token}`)
+      .send({
+        cohortId: seed.body.cohortId,
+        joinCode,
+        englishLevel: 3,
+        mathLevel: 3,
+      });
 
     expect([400, 401, 403]).toContain(second.status);
   });
