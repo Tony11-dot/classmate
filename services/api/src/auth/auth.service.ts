@@ -31,11 +31,11 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    const email = String((dto as any)?.email ?? '').trim();
-    const name = String((dto as any)?.name ?? '').trim();
-    const password = String((dto as any)?.password ?? '').trim();
-    if (!email || !name || !password) throw new BadRequestException('Invalid register payload');
-const email = String(dto.email ?? '').trim().toLowerCase();
+    const nEmail = String((dto as any)?.email ?? '').trim();
+    const nName = String((dto as any)?.name ?? '').trim();
+    const nPassword = String((dto as any)?.password ?? '').trim();
+    if (!nEmail || !nName || !nPassword) throw new BadRequestException('Invalid register payload');
+const email = nEmail.toLowerCase();
     const name = name;
 
     const existing = await this.prisma.user.findUnique({ where: { email } });
