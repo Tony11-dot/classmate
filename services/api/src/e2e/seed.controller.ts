@@ -67,7 +67,14 @@ const prisma: any = this.prisma;
       }
 
 
-      // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
+      
+
+      // seed: ensure teacher owns a course in cohort (so TEACHER can generate join-code)
+      try {
+        // ensure teacher user exists first (created below via upsert) - so create course after users are upserted
+      } catch {}
+
+// Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
 await prisma.user.upsert({
         where: { email: teacherEmail } as any,
@@ -85,6 +92,29 @@ await prisma.user.upsert({
       });
 
       
+
+
+      // seed: ensure teacher owns a course in cohort (so TEACHER can generate join-code)
+      try {
+        await prisma.course.upsert({
+          where: { id: 'test-course-teacher-cohort' } as any,
+          update: {
+            name: 'Test Course',
+            subject: 'TEST',
+            teacherId: (await prisma.user.findUnique({ where: { email: teacherEmail } as any }))?.id,
+            cohortId,
+          } as any,
+          create: {
+            id: 'test-course-teacher-cohort',
+            name: 'Test Course',
+            subject: 'TEST',
+            teacherId: (await prisma.user.findUnique({ where: { email: teacherEmail } as any }))?.id,
+            cohortId,
+          } as any,
+        } as any);
+      } catch (e: any) {
+        cohortDebug.push({ ok: false, modelName: 'course.upsert', err: String(e?.message ?? e) });
+      }
 await prisma.user.upsert({
         where: { email: parentEmail } as any,
         update: {
