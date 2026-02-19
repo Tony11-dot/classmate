@@ -24,7 +24,7 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
 
     expect(jc.status).toBe(201);
-    const joinCode = jc.body?.code;
+    const joinCode = String(jc.body?.code);
     expect(joinCode).toBeTruthy();
 
     // login as STUDENT (seeded) to onboard

@@ -120,7 +120,7 @@ export class TeacherService {
       },
     });
 
-    return { cohortId: body.cohortId, code, expiresAt };
+    return { cohortId: body.cohortId, code: String(code), expiresAt };
   }
 
   constructor(private readonly prisma: PrismaService) {}
