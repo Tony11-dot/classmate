@@ -75,8 +75,6 @@ export class StudentService {
       where: { userId: studentId },
       update: {
         cohortId: body.cohortId,
-        active: true,
-        expiresAt: { gt: new Date() },
         englishLevel: Math.round(Number(body.englishLevel)),
         mathLevel: Math.round(Number(body.mathLevel)),
       },
