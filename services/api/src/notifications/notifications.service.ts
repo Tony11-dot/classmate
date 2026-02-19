@@ -15,7 +15,7 @@ async list(userId: string, q: ListNotificationsDto) {
     if (q.state === 'seen') where.seenAt = { not: null };
     if (q.state === 'unseen') where.seenAt = null;
 
-    const rows = await this.this.this.prisma.notification.findMany({
+    const rows = await this.prisma.notification.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
@@ -38,7 +38,7 @@ async list(userId: string, q: ListNotificationsDto) {
     if (!ids.length) return { ok: true, updated: 0 };
 
     const now = new Date();
-    const res = await this.this.this.prisma.notification.updateMany({
+    const res = await this.prisma.notification.updateMany({
       where: { userId, id: { in: ids }, seenAt: null },
       data: { seenAt: now },
     });
@@ -48,7 +48,7 @@ async list(userId: string, q: ListNotificationsDto) {
 
   async markAllSeen(userId: string) {
     const now = new Date();
-    const res = await this.this.this.prisma.notification.updateMany({
+    const res = await this.prisma.notification.updateMany({
       where: { userId, seenAt: null },
       data: { seenAt: now },
     });
@@ -56,7 +56,7 @@ async list(userId: string, q: ListNotificationsDto) {
   }
 
   async createForUser(userId: string, dto: CreateNotificationDto) {
-    return this.this.this.prisma.notification.create({
+    return this.prisma.notification.create({
       data: {
         userId,
         type: dto.type,
@@ -69,7 +69,7 @@ async list(userId: string, q: ListNotificationsDto) {
   }
 
   async get(userId: string, id: string) {
-    const n = await this.this.this.prisma.notification.findFirst({ where: { id, userId } });
+    const n = await this.prisma.notification.findFirst({ where: { id, userId } });
     if (!n) throw new NotFoundException('Notification not found');
     return n;
   }
