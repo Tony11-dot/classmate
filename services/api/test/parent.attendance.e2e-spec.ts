@@ -95,7 +95,6 @@ async function login(app: INestApplication, email: string, password: string) {
 }
 
 describe('Parent attendance (e2e)', () => {
-  console.log('DB URL:', process.env.DATABASE_URL_TEST || process.env.DATABASE_URL);
   afterAll(async () => { await prisma.$disconnect(); });
 
   let app: INestApplication;
