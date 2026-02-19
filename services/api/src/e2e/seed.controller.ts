@@ -99,6 +99,6 @@ await prisma.user.upsert({
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
     }
 
-    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password });
+    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId: (res as any).locals?.cohortId });
   }
 }
