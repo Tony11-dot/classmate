@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { SolutionsModule } from './solutions/solutions.module';
 
 import { loadEnv } from './env';
 
@@ -15,6 +14,7 @@ import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
+import { SolutionsModule } from './solutions/solutions.module';
 
 import { E2ESeedController } from './e2e/seed.controller';
 
@@ -32,15 +32,14 @@ const serveStatic =
       ]
     : [];
 
-
-// Extra safety: never even register the controller in production
+// Always register the seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
+  ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
 ];
-import { TestSeedController } from "./test-seed/test-seed.controller";
 
-
-({
+@Module({
+  controllers,
   imports: [
     ...serveStatic,
     HealthModule,
