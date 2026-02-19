@@ -15,6 +15,7 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
     const hash = await bcrypt.hash(password, 10);
 const prisma: any = this.prisma;
     let cohortId: any = undefined;
+      const cohortDebug: any[] = [];
   try {
 
       // Best-effort School (some schemas may require it)
@@ -28,16 +29,35 @@ const prisma: any = this.prisma;
 
       // Best-effort Cohort/Classroom for parent-link tests
       try {
-        const created = await prisma.cohort.create({ data: { name: 'Test Cohort', schoolId: 'test-school' } as any } as any);
-        cohortId = (created as any).id;
-      } catch (e1) {
-        try {
-          const created2 = await prisma.classroom.create({ data: { name: 'Test Cohort', schoolId: 'test-school' } as any } as any);
-          cohortId = (created2 as any).id;
-        } catch (e2) {
-          // leave undefined
-        }
+        const models = Object.keys((prisma as any) ?? {});
+        cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 50) });
+      } catch (e) {
+        cohortDebug.push({ modelsErr: String((e as any)?.message ?? e) });
       }
+
+      const tryCreate = async (modelName: string, data: any) => {
+        try {
+          const created = await (prisma as any)[modelName]?.create?.({ data } as any);
+          const id = (created as any)?.id ?? (created as any)?.cohortId ?? (created as any)?.classroomId;
+          cohortDebug.push({ ok: true, modelName, dataKeys: Object.keys(data || {}), id });
+          return id;
+        } catch (e: any) {
+          cohortDebug.push({ ok: false, modelName, data, err: String(e?.message ?? e) });
+          return undefined;
+        }
+      };
+
+      // Try common models + common required fields
+      cohortId =
+        (await tryCreate('cohort', { name: 'Test Cohort', schoolId: 'test-school' })) ??
+        (await tryCreate('cohort', { title: 'Test Cohort', schoolId: 'test-school' })) ??
+        (await tryCreate('cohort', { name: 'Test Cohort' })) ??
+        (await tryCreate('classroom', { name: 'Test Cohort', schoolId: 'test-school' })) ??
+        (await tryCreate('classroom', { title: 'Test Cohort', schoolId: 'test-school' })) ??
+        (await tryCreate('classroom', { name: 'Test Cohort' })) ??
+        (await tryCreate('class', { name: 'Test Cohort', schoolId: 'test-school' })) ??
+        (await tryCreate('group', { name: 'Test Cohort', schoolId: 'test-school' })) ??
+        undefined;
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
@@ -114,6 +134,6 @@ await prisma.user.upsert({
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
     }
 
-    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId });
+    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId, cohortDebug });
   }
 }
