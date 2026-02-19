@@ -28,20 +28,20 @@ export class E2ESeedController {
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       await prisma.user.upsert({
         where: { email: teacherEmail } as any,
-        update: { role: 'TEACHER' as any, password, passwordHash: password, passwordHash: password } as any,
-        create: { email: teacherEmail, fullName: 'Teacher 1', role: 'TEACHER' as any, password, passwordHash: password, passwordHash: password } as any,
+        update: { role: 'TEACHER' as any, password, passwordHash: password } as any,
+        create: { email: teacherEmail, fullName: 'Teacher 1', role: 'TEACHER' as any, password, passwordHash: password } as any,
       });
 
       await prisma.user.upsert({
         where: { email: parentEmail } as any,
-        update: { role: 'PARENT' as any, password, passwordHash: password, passwordHash: password } as any,
-        create: { email: parentEmail, fullName: 'Parent 1', role: 'PARENT' as any, password, passwordHash: password, passwordHash: password } as any,
+        update: { role: 'PARENT' as any, password, passwordHash: password } as any,
+        create: { email: parentEmail, fullName: 'Parent 1', role: 'PARENT' as any, password, passwordHash: password } as any,
       });
 
       await prisma.user.upsert({
         where: { email: studentEmail } as any,
-        update: { role: 'STUDENT' as any, password, passwordHash: password, passwordHash: password } as any,
-        create: { email: studentEmail, fullName: 'Student 1', role: 'STUDENT' as any, password, passwordHash: password, passwordHash: password } as any,
+        update: { role: 'STUDENT' as any, password, passwordHash: password } as any,
+        create: { email: studentEmail, fullName: 'Student 1', role: 'STUDENT' as any, password, passwordHash: password } as any,
       });
 
       // Best-effort teacher/student rows (if your schema expects them)
