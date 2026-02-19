@@ -37,6 +37,13 @@ async function seedApprovedParentChild(token: string, childId: string) {
 }
 
 
+async function getAnyStudentId() {
+  const row = await prisma.student.findFirst({ select: { id: true } });
+  if (!row?.id) throw new Error('No student found in test DB (seed missing?)');
+  return row.id as string;
+}
+
+
 async function login(app: INestApplication, email: string, password: string) {
   const res = await request(app.getHttpServer())
     .post('/auth/login')
@@ -74,11 +81,11 @@ describe('Parent attendance (e2e)', () => {
   it('parent can fetch child attendance (approved link)', async () => {
     const token = await login(app, 'parent1@classmate.app', 'dev');
 
-    const childId = '6c56edbc-d612-4c91-9073-bfe9986df4d0';
+    const childId = await getAnyStudentId();
 
-    
     await seedApprovedParentChild(token, childId);
-const res = await request(app.getHttpServer())
+
+    const res = await request(app.getHttpServer())
       .get(`/parent/attendance?childId=${encodeURIComponent(childId)}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
@@ -90,11 +97,11 @@ const res = await request(app.getHttpServer())
   it('parent can fetch child attendance with from/to filters', async () => {
     const token = await login(app, 'parent1@classmate.app', 'dev');
 
-    const childId = '6c56edbc-d612-4c91-9073-bfe9986df4d0';
+    const childId = await getAnyStudentId();
 
-    
     await seedApprovedParentChild(token, childId);
-const res = await request(app.getHttpServer())
+
+    const res = await request(app.getHttpServer())
       .get(
         `/parent/attendance?childId=${encodeURIComponent(
           childId,
