@@ -20,8 +20,7 @@ import { E2ESeedController } from './e2e/seed.controller';
 
 const env = loadEnv();
 
-// Disable static serving in e2e (NODE_ENV=test)
-// Static uploads are OFF by default (enable explicitly with SERVE_UPLOADS=true)
+// Static uploads OFF by default; enable explicitly with SERVE_UPLOADS=true
 const serveStatic =
   env.SERVE_UPLOADS === 'true'
     ? [
@@ -32,14 +31,13 @@ const serveStatic =
       ]
     : [];
 
-// Always register the seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
+// Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
 ];
 
-({
-  controllers: [E2ESeedController],
+@Module({
   controllers,
   imports: [
     ...serveStatic,
