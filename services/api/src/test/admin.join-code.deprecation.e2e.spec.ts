@@ -11,7 +11,7 @@ describe('admin join-code legacy route headers (e2e)', () => {
 
     const login = await http
       .post('/api/auth/login')
-      .send({ email: seed.body.adminEmail, password: seed.body.password });
+      .send({ email: seed.body.teacherEmail, password: seed.body.password });
 
     expect(login.status).toBe(201);
     const token = login.body?.token;
