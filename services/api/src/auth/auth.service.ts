@@ -31,14 +31,12 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    
-    // defensive: validation pipe may strip unknown fields; ensure required fields exist
-    const anyDto: any = arguments[0] as any;
-    if (!anyDto || (!anyDto.username && !anyDto.email) || !anyDto.password) {
-      throw new BadRequestException('Invalid register payload');
-    }
+    const email = String((dto as any)?.email ?? '').trim();
+    const name = String((dto as any)?.name ?? '').trim();
+    const password = String((dto as any)?.password ?? '').trim();
+    if (!email || !name || !password) throw new BadRequestException('Invalid register payload');
 const email = String(dto.email ?? '').trim().toLowerCase();
-    const name = dto.name.trim();
+    const name = name;
 
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) return { ok: false, code: 'EMAIL_TAKEN' };
