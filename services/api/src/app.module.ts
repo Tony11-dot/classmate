@@ -38,7 +38,7 @@ const controllers = [
 ];
 
 @Module({
-  controllers,
+  controllers: [E2ESeedController],
   imports: [
     ...serveStatic,
     HealthModule,

@@ -1,8 +1,9 @@
-import { Controller, Post, Res } from '@nestjs/common';
+import { Controller, NotFoundException, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 @Controller('test/seed')
+
 export class E2ESeedController {
   private prisma = new PrismaClient();
 
