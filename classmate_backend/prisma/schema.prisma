@@ -8,51 +8,80 @@ datasource db {
 }
 
 enum Role {
-  STUDENT
-  TEACHER
-  PARENT
   ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+enum AssessmentType {
+  HOMEWORK
+  QUIZ
+  EXAM
+  PROJECT
+  PARTICIPATION
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  LATE
+  MISSING
+  EXCUSED
 }
 
 model School {
   id        String   @id @default(cuid())
   name      String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   users     User[]
+  years     AcademicYear[]
   classes   ClassRoom[]
+  courses   Course[]
+}
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school School @relation(fields: [schoolId], references: [id])
+  terms  Term[]
+}
+
+model Term {
+  id             String   @id @default(cuid())
+  academicYearId String
+  name           String
+  weight         Float    @default(1)
+  createdAt      DateTime @default(now())
+
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  assessments  Assessment[]
 }
 
 model User {
   id           String   @id @default(cuid())
   schoolId     String
   email        String
-  phone        String?
   passwordHash String
   role         Role
   fullName     String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  school       School   @relation(fields: [schoolId], references: [id])
-  student      Student?
-  teacher      Teacher?
-  parent       Parent?
+  school   School  @relation(fields: [schoolId], references: [id])
+  teacher  Teacher?
+  student  Student?
+  parent   Parent?
 
   @@unique([schoolId, email])
-}
-
-model Student {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  grade     Int
-  track     String?
-  mathUnits Int?
-  engUnits  Int?
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
-  parents   ParentStudent[]
-  enroll    Enrollment[]
 }
 
 model Teacher {
@@ -60,8 +89,21 @@ model Teacher {
   userId    String   @unique
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
-  teaches   TeachingAssignment[]
+  user                User                @relation(fields: [userId], references: [id])
+  teachingAssignments TeachingAssignment[]
+  gradedGrades        Grade[]
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  grade     Int?
+  createdAt DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  enrollments Enrollment[]
+  submissions Submission[]
+  parentLinks ParentStudent[]
 }
 
 model Parent {
@@ -69,19 +111,20 @@ model Parent {
   userId    String   @unique
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
-  children  ParentStudent[]
+  user     User            @relation(fields: [userId], references: [id])
+  children ParentStudent[]
 }
 
 model ParentStudent {
+  id        String   @id @default(cuid())
   parentId  String
   studentId String
   createdAt DateTime @default(now())
 
-  parent    Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  parent  Parent  @relation(fields: [parentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 
-  @@id([parentId, studentId])
+  @@unique([parentId, studentId])
 }
 
 model ClassRoom {
@@ -90,30 +133,112 @@ model ClassRoom {
   name      String
   grade     Int
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  school    School   @relation(fields: [schoolId], references: [id])
-  enroll    Enrollment[]
-  teachers  TeachingAssignment[]
+  school               School              @relation(fields: [schoolId], references: [id])
+  enrollments          Enrollment[]
+  teachingAssignments  TeachingAssignment[]
+  assessments          Assessment[]
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school              School              @relation(fields: [schoolId], references: [id])
+  teachingAssignments TeachingAssignment[]
+  assessments         Assessment[]
+}
+
+model TeachingAssignment {
+  id        String   @id @default(cuid())
+  teacherId String
+  classId   String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  teacher Teacher  @relation(fields: [teacherId], references: [id])
+  class   ClassRoom @relation(fields: [classId], references: [id])
+  course  Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([teacherId, classId, courseId])
 }
 
 model Enrollment {
+  id        String   @id @default(cuid())
   classId   String
   studentId String
   createdAt DateTime @default(now())
 
-  class     ClassRoom @relation(fields: [classId], references: [id], onDelete: Cascade)
-  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class   ClassRoom @relation(fields: [classId], references: [id])
+  student Student   @relation(fields: [studentId], references: [id])
 
-  @@id([classId, studentId])
+  @@unique([classId, studentId])
 }
 
-model TeachingAssignment {
-  classId   String
-  teacherId String
-  createdAt DateTime @default(now())
+model Assessment {
+  id          String   @id @default(cuid())
+  classId     String
+  courseId    String
+  termId      String
+  type        AssessmentType
+  title       String
+  description String?
+  dueDate     DateTime
+  maxScore    Float
+  weight      Float    @default(1)
+  isPublished Boolean  @default(false)
+  allowLate   Boolean  @default(false)
+  latePenalty Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  class     ClassRoom @relation(fields: [classId], references: [id], onDelete: Cascade)
-  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class   ClassRoom @relation(fields: [classId], references: [id])
+  course  Course    @relation(fields: [courseId], references: [id])
+  term    Term      @relation(fields: [termId], references: [id])
 
-  @@id([classId, teacherId])
+  submissions Submission[]
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  assessmentId String
+  studentId    String
+  submittedAt  DateTime?
+  content      String?
+  fileUrl      String?
+  status       SubmissionStatus @default(MISSING)
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  student    Student    @relation(fields: [studentId], references: [id])
+
+  grades Grade[]
+
+  @@unique([assessmentId, studentId])
+}
+
+
+
+
+model Grade {
+  id            String   @id @default(cuid())
+  submissionId  String
+  graderId      String
+  rawScore      Float
+  adjustedScore Float?
+  feedback      String?
+  gradedAt      DateTime @default(now())
+  isFinal       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id])
+  grader     Teacher    @relation(fields: [graderId], references: [id])
+
+  @@unique([submissionId, isFinal])
 }
