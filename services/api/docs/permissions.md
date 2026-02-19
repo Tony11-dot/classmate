@@ -22,7 +22,8 @@
 
 ### Admin / Cohorts
 - POST /api/admin/cohorts: ADMIN
-- POST /api/admin/cohorts/join-code: ADMIN or TEACHER (TEACHER must pass cohort scope)
+- POST /api/admin/cohorts/join-code: ADMIN or TEACHER (TEACHER must pass cohort scope) [legacy]
+- POST /api/teacher/cohorts/join-code: TEACHER (cohort scope) or ADMIN [preferred]
 
 ### Student
 - POST /api/student/onboard: STUDENT

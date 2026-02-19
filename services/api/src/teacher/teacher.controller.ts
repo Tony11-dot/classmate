@@ -20,6 +20,16 @@ import { TeacherService } from './teacher.service';
 @Roles('TEACHER', 'ADMIN')
 @Controller('teacher')
 export class TeacherController {
+  
+  @Roles('TEACHER', 'ADMIN')
+  @Post('cohorts/join-code')
+  joinCode(
+    @Req() req: any,
+    @Body() body: { cohortId: string; expiresInHours?: number; length?: number },
+  ) {
+    return this.teacher.generateJoinCode(req.user, body);
+  }
+
   constructor(private readonly teacher: TeacherService) {}
 
   @Get('schedule/today')
