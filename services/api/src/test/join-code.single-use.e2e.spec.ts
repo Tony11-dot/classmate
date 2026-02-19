@@ -15,17 +15,19 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({ email: seed.body.adminEmail, password: seed.body.password });
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
-    expect(adminToken).toBeTruthy();
+    expect\(adminToken\)\.toBeTruthy\(\);
+
+    // isolate this test: create a fresh cohort so other join-code tests can't deactivate our code
+    const cohort = await http
+      .post('/api/admin/cohorts')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: `E2E Cohort ${Date.now()}`, grade: 10 });
+
+    expect(cohort.status).toBe(201);
+    const cohortId = cohort.body?.id;
+    expect(cohortId).toBeTruthy();
 
     // create join-code for the cohort
-    const jc = await http
-      .post('/api/admin/cohorts/join-code')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
-
-    expect(jc.status).toBe(201);
-    const joinCode = String(jc.body?.code ?? '');
-    expect(joinCode).toBeTruthy();
 
     // FIRST redemption must be the SEEDED STUDENT (has STUDENT role already)
     const studentLogin = await http
@@ -39,7 +41,7 @@ describe('cohort join-code is single-use (e2e)', () => {
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
       .send({
-        cohortId: seed.body.cohortId,
+        cohortId,
         joinCode,
         englishLevel: 3,
         mathLevel: 3,
@@ -81,7 +83,7 @@ describe('cohort join-code is single-use (e2e)', () => {
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
       .send({
-        cohortId: seed.body.cohortId,
+        cohortId,
         joinCode,
         englishLevel: 3,
         mathLevel: 3,

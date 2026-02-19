@@ -60,7 +60,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
     const onboard = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId: seed.body.cohortId, joinCode: String(jc.body?.code ?? jc.body?.joinCode ?? jc.body?.value ?? jc.body?.token ?? ''), englishLevel: 3, mathLevel: 3 });
 
     if (onboard.status !== 201) {
       // eslint-disable-next-line no-console
