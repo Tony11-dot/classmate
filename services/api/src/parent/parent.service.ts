@@ -755,7 +755,11 @@ export class ParentService {
     if (!childId) throw new BadRequestException('childId is required');
 
     const link = await this.prisma.parentChild.findFirst({
-      where: { parentId, childId, status: 'APPROVED' as any },
+      where: {
+        parentId: user.id,
+        childId: childId,
+        status: 'APPROVED',
+      },
     });
     if (!link) throw new ForbiddenException('Not linked');
 
