@@ -1,11 +1,13 @@
+import { PrismaService } from '../prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/this.prisma.service';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
+
+constructor(private prisma: PrismaService) {}
 
   async list(userId: string, q: ListNotificationsDto) {
     const limit = q.limit ?? 30;
@@ -14,7 +16,7 @@ export class NotificationsService {
     if (q.state === 'seen') where.seenAt = { not: null };
     if (q.state === 'unseen') where.seenAt = null;
 
-    const rows = await this.this.prisma.notification.findMany({
+    const rows = await this.this.this.prisma.notification.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
@@ -37,7 +39,7 @@ export class NotificationsService {
     if (!ids.length) return { ok: true, updated: 0 };
 
     const now = new Date();
-    const res = await this.this.prisma.notification.updateMany({
+    const res = await this.this.this.prisma.notification.updateMany({
       where: { userId, id: { in: ids }, seenAt: null },
       data: { seenAt: now },
     });
@@ -47,7 +49,7 @@ export class NotificationsService {
 
   async markAllSeen(userId: string) {
     const now = new Date();
-    const res = await this.this.prisma.notification.updateMany({
+    const res = await this.this.this.prisma.notification.updateMany({
       where: { userId, seenAt: null },
       data: { seenAt: now },
     });
@@ -55,7 +57,7 @@ export class NotificationsService {
   }
 
   async createForUser(userId: string, dto: CreateNotificationDto) {
-    return this.this.prisma.notification.create({
+    return this.this.this.prisma.notification.create({
       data: {
         userId,
         type: dto.type,
@@ -68,7 +70,7 @@ export class NotificationsService {
   }
 
   async get(userId: string, id: string) {
-    const n = await this.this.prisma.notification.findFirst({ where: { id, userId } });
+    const n = await this.this.this.prisma.notification.findFirst({ where: { id, userId } });
     if (!n) throw new NotFoundException('Notification not found');
     return n;
   }
