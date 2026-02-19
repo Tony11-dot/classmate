@@ -34,6 +34,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (requestId) res.setHeader('x-request-id', requestId);
 
+    if (process.env.NODE_ENV === 'test') {
+      // eslint-disable-next-line no-console
+      console.log('EXC', exception?.name, exception?.message);
+    }
+
     res.status(status).json({
       statusCode: status,
       path: req.originalUrl,
