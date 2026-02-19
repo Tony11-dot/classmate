@@ -1,13 +1,10 @@
 import { Controller, NotFoundException, Post, Res } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-
 @Controller('test/seed')
 
-export class E2ESeedController {
-  private prisma = new PrismaClient();
-
-  @Post('admin-web')
+export class E2ESeedController {  constructor(private readonly prisma: PrismaService) {}
+@Post('admin-web')
   async adminWeb(@Res() res: Response) {
     const teacherEmail = 'teacher1@classmate.app';
     const parentEmail = 'parent1@classmate.app';
@@ -15,7 +12,6 @@ export class E2ESeedController {
     const password = 'dev';
 
     const prisma: any = this.prisma;
-
     try {
       // Best-effort School (some schemas may require it)
       try {
