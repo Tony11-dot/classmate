@@ -27,8 +27,6 @@ export class AdminController {
   }
 
   @Roles('ADMIN', 'TEACHER')
-
-
   @Post('cohorts/join-code')
   joinCode(
     @Req() req: any,
