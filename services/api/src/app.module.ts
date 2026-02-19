@@ -37,8 +37,11 @@ const serveStatic =
 const controllers = [
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
 ];
+import { TestSeedController } from "./test-seed/test-seed.controller";
 
-@Module({
+
+({
+  controllers: [TestSeedController],
   controllers,
   imports: [
     ...serveStatic,

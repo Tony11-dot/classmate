@@ -2,7 +2,7 @@ import { Controller, Post, Res } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import type { Response } from 'express';
 
-@Controller('api/test/seed')
+@Controller('test/seed')
 export class TestSeedController {
   private prisma = new PrismaClient();
 
@@ -51,7 +51,7 @@ export class TestSeedController {
     try {
       await upsertUser(this.prisma, teacherEmail, 'Teacher 1', 'TEACHER');
       await upsertUser(this.prisma, parentEmail, 'Parent 1', 'PARENT');
-      await upsertUser(this.prisma, studentEmail, 'Student 1', 'Student 1' ? 'STUDENT' : 'STUDENT');
+      await upsertUser(this.prisma, studentEmail, 'Student 1', 'STUDENT');
     } catch (e: any) {
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
     }
