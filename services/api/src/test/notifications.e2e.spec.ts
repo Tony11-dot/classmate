@@ -8,7 +8,7 @@ describe('notifications (e2e)', () => {
     const email = `n${Date.now()}@t.dev`;
     await http
       .post('/api/auth/register')
-      .send({ email, name: 'N', password: 'DevPass123!' })
+      .send({ email, name: 'NN', password: 'DevPass123!' })
       .expect(201);
 
     const login = await http

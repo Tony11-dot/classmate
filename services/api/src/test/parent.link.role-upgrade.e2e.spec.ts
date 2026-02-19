@@ -55,7 +55,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
 
     await http
       .post('/api/auth/register')
-      .send({ email: stuEmail, name: 'Student', password: 'dev' })
+      .send({ email: stuEmail, name: 'Student', password: 'DevPass123!' })
       .expect(201);
 
     const sLogin = await http
@@ -87,7 +87,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
 
     await http
       .post('/api/auth/register')
-      .send({ email: parentEmail, name: 'Parent', password: 'dev' })
+      .send({ email: parentEmail, name: 'Parent', password: 'DevPass123!' })
       .expect(201);
 
     const pLogin1 = await http
