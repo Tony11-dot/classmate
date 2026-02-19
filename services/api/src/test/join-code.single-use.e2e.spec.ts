@@ -18,10 +18,9 @@ describe('cohort join-code is single-use (e2e)', () => {
   it('second redemption with same code (different student) fails', async () => {
     const http = request(t.app.getHttpServer());
 
-    const seed = await http.post('/api/test/seed').send({});
+    const seed = await http.post('/api/test/seed/admin-web').send({});
     expect(seed.status).toBe(201);
-
-    // admin login
+        // admin login
     const adminLogin = await http
       .post('/api/auth/login')
       .send({ email: seed.body.adminEmail, password: seed.body.password });

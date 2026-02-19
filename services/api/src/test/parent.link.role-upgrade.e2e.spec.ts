@@ -19,10 +19,9 @@ describe('parent link upgrades role (e2e)', () => {
     const http = request(t.app.getHttpServer());
 
     // seed fixtures (adminEmail/password/cohortId)
-    const seed = await http.post('/api/test/seed').send({});
+    const seed = await http.post('/api/test/seed/admin-web').send({});
     expect(seed.status).toBe(201);
-
-    // admin login
+        // admin login
     const adminLogin = await http
       .post('/api/auth/login')
       .send({ email: seed.body.adminEmail, password: seed.body.password });
