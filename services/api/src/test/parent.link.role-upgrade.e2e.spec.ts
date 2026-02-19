@@ -69,10 +69,11 @@ it('link sets PARENT role so next login has PARENT', async () => {
     const onboard = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 })
-      ;
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
-    expect(onboard.status).toBe(201);const plc = await http
+    expect(onboard.status).toBe(201);
+
+    const plc = await http
       .post('/api/student/parent-link-code')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ expiresInHours: 24, length: 6 })
