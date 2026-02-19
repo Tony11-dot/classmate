@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  TooManyRequestsException,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
@@ -60,7 +61,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     if (!cohort) throw new BadRequestException('Invalid cohortId');
 
-    const len =
+    // rate-limit: join-code generation (per cohort)
+    // max 5 codes / 60s per cohort
+    const since = new Date(Date.now() - 60 * 1000);
+    const recent = await this.prisma.cohortJoinCode.count({
+      where: { cohortId: body.cohortId, createdAt: { gt: since } },
+    });
+    if (recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
+
+const len =
       body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
     const code = randomDigits(len);
     const codeHash = await bcrypt.hash(code, 10);
