@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 export class E2ESeedController {  constructor(private readonly prisma: PrismaService) {}
 @Post('admin-web')
   async adminWeb(@Res() res: Response) {
+    const adminEmail = 'admin1@classmate.app';
     const teacherEmail = 'teacher1@classmate.app';
     const parentEmail = 'parent1@classmate.app';
     const studentEmail = 'student1@classmate.app';
@@ -77,6 +78,21 @@ const prisma: any = this.prisma;
 // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
 await prisma.user.upsert({
+        where: { email: adminEmail } as any,
+        update: {
+          name: 'Admin 1',
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'ADMIN' }] },
+        } as any,
+        create: {
+          email: adminEmail,
+          name: 'Admin 1',
+          password: hash,
+          roles: { create: [{ role: 'ADMIN' }] },
+        } as any,
+      });
+
+      await prisma.user.upsert({
         where: { email: teacherEmail } as any,
         update: {
           name: 'Teacher 1',
@@ -172,6 +188,6 @@ await prisma.user.upsert({
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
     }
 
-    return res.status(201).json({ ok: true, teacherEmail, parentEmail, studentEmail, password, cohortId, cohortDebug });
+    return res.status(201).json({ ok: true, adminEmail, teacherEmail, parentEmail, studentEmail, password, cohortId, cohortDebug });
   }
 }
