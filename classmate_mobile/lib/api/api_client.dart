@@ -18,7 +18,6 @@ class ApiClient {
     ),
   );
 
-  /// Sets Authorization header for subsequent requests.
   void setBearer(String? token) {
     if (token == null || token.isEmpty) {
       dio.options.headers.remove('Authorization');
@@ -27,48 +26,15 @@ class ApiClient {
     }
   }
 
-  Future<Response<dynamic>> get(
-    String path, {
-    Map<String, dynamic>? query,
-    Options? options,
-  }) {
-    return dio.get(path, queryParameters: query, options: options);
+  Future<Response<dynamic>> get(String path, {Map<String, dynamic>? query}) {
+    return dio.get(path, queryParameters: query);
   }
 
-  Future<Response<dynamic>> post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? query,
-    Options? options,
-  }) {
-    return dio.post(path, data: data, queryParameters: query, options: options);
+  Future<Response<dynamic>> post(String path, {dynamic data}) {
+    return dio.post(path, data: data);
   }
 
-  Future<Response<dynamic>> patch(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? query,
-    Options? options,
-  }) {
-    return dio.patch(
-      path,
-      data: data,
-      queryParameters: query,
-      options: options,
-    );
-  }
-
-  Future<Response<dynamic>> delete(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? query,
-    Options? options,
-  }) {
-    return dio.delete(
-      path,
-      data: data,
-      queryParameters: query,
-      options: options,
-    );
+  Future<Response<dynamic>> patch(String path, {dynamic data}) {
+    return dio.patch(path, data: data);
   }
 }

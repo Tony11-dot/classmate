@@ -7,12 +7,12 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "bash -lc 'set -euo pipefail; if [ -f .env.prod ]; then set -a; source .env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/src/main.js'",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "NODE_ENV=test jest -c jest.config.cjs",
+    "test": "pnpm -s prisma generate && pnpm -s db:push:test && NODE_ENV=test jest -c jest.config.cjs",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_ENV=test DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
-    "db:seed": "ts-node -r dotenv/config prisma/seed.ts",
+    "db:seed": "dotenv -e .env -- prisma db seed",
     "prestart:dev": "prisma generate --schema prisma/schema.prisma",
     "dev": "pnpm run start:dev",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -36,7 +36,13 @@
     "start:prod:safe": "[ -n \"$JWT_SECRET\" ] || (echo \"\u274c JWT_SECRET required\" && exit 1); NODE_ENV=production node dist/src/main.js",
     "smoke:prod": "pnpm -s prod:stop; pnpm -s prod:up; curl -sS http://localhost:${API_PORT:-3000}/api/health | jq .; curl -sS -o /dev/null -w \"%{http_code}\\n\" http://localhost:${API_PORT:-3000}/api/test/seed/admin-web || true",
     "verify": "pnpm -s tests && pnpm -s smoke:prod",
-    "prebuild": "prisma generate --schema=prisma/schema.prisma"
+    "prebuild": "prisma generate --schema=prisma/schema.prisma",
+    "db:push": "dotenv -e .env -- prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "dotenv -e .env -- prisma migrate reset --force --skip-generate",
+    "db:reseed": "pnpm db:reset && pnpm db:seed",
+    "test:src": "NODE_ENV=test jest -c jest.config.cjs -- src --runInBand",
+    "db:push:test": "dotenv -e .env.test -- prisma db push --skip-generate"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
@@ -44,10 +50,12 @@
     "@swc/core": "^1.15.11",
     "@swc/jest": "^0.2.39",
     "@types/bcrypt": "^6.0.0",
+    "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.1.0",
     "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.2",
     "jest": "^30.2.0",
     "prisma": "^6.19.2",
@@ -67,12 +75,17 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "compression": "^1.8.1",
     "dotenv": "^17.2.3",
+    "helmet": "^8.1.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "^4.3.6"
   },
-  "name": "@classmate/api"
+  "name": "@classmate/api",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
 }

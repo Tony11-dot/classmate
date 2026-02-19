@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './common/http-exception.filter';
+import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { SolutionsModule } from './solutions/solutions.module';
 
 import { loadEnv } from './env';
 
@@ -15,13 +16,15 @@ import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
+import { SolutionsModule } from './solutions/solutions.module';
 
 import { E2ESeedController } from './e2e/seed.controller';
+import { VersionModule } from './version/version.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 const env = loadEnv();
 
-// Disable static serving in e2e (NODE_ENV=test)
-// Static uploads are OFF by default (enable explicitly with SERVE_UPLOADS=true)
+// Static uploads OFF by default; enable explicitly with SERVE_UPLOADS=true
 const serveStatic =
   env.SERVE_UPLOADS === 'true'
     ? [
@@ -32,14 +35,24 @@ const serveStatic =
       ]
     : [];
 
-
-// Extra safety: never even register the controller in production
+// Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
+  ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
 ];
 
 @Module({
-  controllers,
+  providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
+controllers: [E2ESeedController],
   imports: [
     ...serveStatic,
     HealthModule,
@@ -53,6 +66,8 @@ const controllers = [
     TeacherModule,
     ParentModule,
     AnnouncementsModule,
+    VersionModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

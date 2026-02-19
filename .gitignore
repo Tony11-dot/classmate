@@ -31,3 +31,14 @@ services/api/.env*
 !services/api/.env.example
 
 !services/api/.env.production.example
+
+# --- Local scratch / backups ---
+_archive/
+**/_trash/
+**/_bk_*/
+**/*.bak.*
+docker-compose*.bak.*
+pubspec.yaml.bak.*
+
+# keep dead code out of analyzer/build
+classmate_mobile/._graveyard/

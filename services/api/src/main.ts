@@ -1,42 +1,30 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { loadEnv, parseCorsOrigins } from './env';
+import helmet from 'helmet';
+import compression from 'compression';
+import { RequestIdMiddleware } from './common/request-id.middleware';
+import { HttpLoggingInterceptor } from './common/http-logging.interceptor';
 import { AppModule } from './app.module';
+import { loadEnv } from './env';
 
 async function bootstrap() {
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
+  app.use(new RequestIdMiddleware().use);
+  app.useGlobalInterceptors(new HttpLoggingInterceptor());
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  // security + perf (safe defaults)
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+  app.use(compression());
 
-  const isProd = env.NODE_ENV === 'production';
-  const prodAllow = parseCorsOrigins(env.CORS_ORIGINS);
-
-  app.enableCors({
-    origin: (origin, cb) => {
-      // allow curl/postman (no Origin)
-      if (!origin) return cb(null, true);
-
-      // Dev/test: allow local + LAN
-      if (!isProd) {
-        const ok =
-          /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-          /^http:\/\/(192\.168\.\d+\.\d+)(:\d+)?$/.test(origin);
-
-        return cb(null, ok);
-      }
-
-      // Prod: strict allowlist
-      return cb(null, prodAllow.includes(origin));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
-
+  // payload limits (avoid abuse)
+  app.use(require('express').json({ limit: '1mb' }));
+  app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
   app.setGlobalPrefix('api');
-  
-  // IMPORTANT for Docker: listen on all interfaces
   await app.listen(env.PORT, '0.0.0.0');
 }
 

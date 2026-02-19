@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
@@ -21,7 +17,7 @@ export class AdminService {
 
   private ensureAdmin(user: any) {
     if (!hasAnyRole(user, ['ADMIN']))
-      throw new ForbiddenException('Admin only');
+      throw new ForbiddenException('Admin or Teacher only');
   }
 
   async createCohort(user: any, body: { name: string; grade: number }) {
@@ -38,13 +34,35 @@ export class AdminService {
     user: any,
     body: { cohortId: string; expiresInHours?: number; length?: number },
   ) {
-    this.ensureAdmin(user);
-    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    // allow TEACHER for join-code (e2e expects this)
+
+    if (!hasAnyRole(user, ['ADMIN', 'TEACHER'])) throw new ForbiddenException('Admin or Teacher only');
+if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    // TEACHER cohort-scope: must own a course in this cohort
+    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const teacherId = (user as any)?.sub ?? (user as any)?.id;
+
+    if (roles.includes('TEACHER') && !roles.includes('ADMIN')) {
+      const owns = await this.prisma.course.findFirst({
+        where: { teacherId, cohortId: body.cohortId },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Teacher not authorized for this cohort');
+    }
+
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: body.cohortId },
     });
     if (!cohort) throw new BadRequestException('Invalid cohortId');
+
+    // rate-limit: join-code generation (per cohort)
+    // max 5 codes / 60s per cohort
+    const since = new Date(Date.now() - 60 * 1000);
+    const recent = await this.prisma.cohortJoinCode.count({
+      where: { cohortId: body.cohortId, createdAt: { gt: since } },
+    });
+    if (recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
 
     const len =
       body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
@@ -64,12 +82,13 @@ export class AdminService {
     await this.prisma.cohortJoinCode.create({
       data: {
         cohortId: body.cohortId,
+        active: true,
         codeHash,
         expiresAt: expiresAt ?? undefined,
       },
     });
 
-    return { cohortId: body.cohortId, code, expiresAt };
+    return { cohortId: body.cohortId, code: String(code), expiresAt };
   }
 
   async getCohortSchedule(user: any, cohortId: string) {
