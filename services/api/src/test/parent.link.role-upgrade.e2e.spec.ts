@@ -1,7 +1,6 @@
 import request from 'supertest';
 import { createTestApp } from './helpers/app';
 
-
 describe('parent link upgrades role (e2e)', () => {
   let app: any;
   let http: any;
@@ -62,7 +61,6 @@ it('link sets PARENT role so next login has PARENT', async () => {
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
-
 
     if (onboard.status !== 201) {
       // eslint-disable-next-line no-console

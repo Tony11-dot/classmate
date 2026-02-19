@@ -39,7 +39,6 @@ describe('cohort join-code is single-use (e2e)', () => {
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
       .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
-
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
       console.log('JOIN1', first.status, first.body, first.text);
