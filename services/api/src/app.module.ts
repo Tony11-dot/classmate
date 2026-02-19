@@ -17,6 +17,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { SolutionsModule } from './solutions/solutions.module';
 
 import { E2ESeedController } from './e2e/seed.controller';
+import { VersionModule } from './version/version.module';
 
 const env = loadEnv();
 
@@ -52,6 +53,7 @@ const controllers = [
     TeacherModule,
     ParentModule,
     AnnouncementsModule,
+    VersionModule,
   ],
 })
 export class AppModule {}
