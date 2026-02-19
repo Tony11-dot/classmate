@@ -38,9 +38,12 @@ async function seedApprovedParentChild(token: string, childId: string) {
 
 
 async function getAnyStudentId() {
-  const row = await prisma.student.findFirst({ select: { id: true } });
-  if (!row?.id) throw new Error('No student found in test DB (seed missing?)');
-  return row.id as string;
+  const row = await prisma.attendanceRecord.findFirst({
+    select: { studentId: true },
+  });
+  if (!row?.studentId)
+    throw new Error('No attendanceRecord found in test DB (seed missing?)');
+  return row.studentId as string;
 }
 
 
