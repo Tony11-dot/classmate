@@ -51,9 +51,11 @@ export class StudentService {
     const now = new Date();
     let matchedId: string | null = null;
 
+
+    const joinCode = String(body.joinCode ?? '').trim();
     for (const c of codes) {
       if (c.expiresAt && c.expiresAt < now) continue;
-      if (await bcrypt.compare(body.joinCode, c.codeHash)) {
+      if (await bcrypt.compare(joinCode, c.codeHash)) {
         matchedId = c.id;
         break;
       }
