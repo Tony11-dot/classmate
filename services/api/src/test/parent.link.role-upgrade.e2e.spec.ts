@@ -60,7 +60,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
 
     const sLogin = await http
       .post('/api/auth/login')
-      .send({ email: stuEmail, password: 'dev' })
+      .send({ email: stuEmail, password: 'DevPass123!' })
       .expect(201);
 
     const studentToken = sLogin.body?.token;
@@ -92,7 +92,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
 
     const pLogin1 = await http
       .post('/api/auth/login')
-      .send({ email: parentEmail, password: 'dev' })
+      .send({ email: parentEmail, password: 'DevPass123!' })
       .expect(201);
 
     const parentToken1 = pLogin1.body?.token;
@@ -108,7 +108,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
     // login again -> token should include PARENT
     const pLogin2 = await http
       .post('/api/auth/login')
-      .send({ email: parentEmail, password: 'dev' })
+      .send({ email: parentEmail, password: 'DevPass123!' })
       .expect(201);
 
     const payload = JSON.parse(
