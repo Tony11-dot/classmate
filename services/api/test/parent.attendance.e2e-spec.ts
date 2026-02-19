@@ -44,23 +44,14 @@ async function getAnyStudentId() {
   });
   if (ar?.studentId) return ar.studentId as string;
 
-  // 2) If there's a Student model
-  const st = await prisma.student?.findFirst?.({ select: { id: true } });
-  if (st?.id) return st.id as string;
-
-  // 3) Fallback: user table with STUDENT role
-  const u = await prisma.user?.findFirst?.({
-    where: { roles: { has: 'STUDENT' as any } },
-    select: { id: true },
+  // 2) If any parent-child link exists, use its childId (guaranteed FK-valid)
+  const pc = await prisma.parentChild?.findFirst?.({
+    select: { childId: true },
   });
-  if (u?.id) return u.id as string;
-
-  // 4) Last fallback: any user
-  const u2 = await prisma.user?.findFirst?.({ select: { id: true } });
-  if (u2?.id) return u2.id as string;
+  if (pc?.childId) return pc.childId as string;
 
   throw new Error(
-    'Could not find any studentId in test DB (no attendanceRecord, no student/user delegates).'
+    'Could not find a childId in test DB (no attendanceRecord, no parentChild). Seed likely missing parent/student fixtures.'
   );
 }
 
@@ -134,9 +125,9 @@ describe('Parent attendance (e2e)', () => {
 
     await seedApprovedParentChild(token, childId);
 
-    
     await ensureAttendanceForStudent(childId);
-const res = await request(app.getHttpServer())
+
+    const res = await request(app.getHttpServer())
       .get(`/parent/attendance?childId=${encodeURIComponent(childId)}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
@@ -152,9 +143,9 @@ const res = await request(app.getHttpServer())
 
     await seedApprovedParentChild(token, childId);
 
-    
     await ensureAttendanceForStudent(childId);
-const res = await request(app.getHttpServer())
+
+    const res = await request(app.getHttpServer())
       .get(
         `/parent/attendance?childId=${encodeURIComponent(
           childId,
