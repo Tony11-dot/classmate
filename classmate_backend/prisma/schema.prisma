@@ -221,6 +221,8 @@ model Submission {
   grades Grade[]
 
   @@unique([assessmentId, studentId])
+  @@index([studentId])
+  @@index([assessmentId])
 }
 
 
@@ -241,4 +243,6 @@ model Grade {
   grader     Teacher    @relation(fields: [graderId], references: [id])
 
   @@unique([submissionId, isFinal])
+  @@index([submissionId])
 }
+
