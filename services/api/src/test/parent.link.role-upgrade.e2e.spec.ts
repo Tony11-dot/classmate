@@ -47,7 +47,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
       .send({ cohortId, expiresInHours: 24, length: 6 })
       .expect(201);
 
-    const joinCode = jc.body?.code;
+    const joinCode = String(jc.body?.code);
     expect(joinCode).toBeTruthy();
 
     // student register + login + onboard + generate parent link code
