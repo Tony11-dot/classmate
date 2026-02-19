@@ -15,7 +15,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 @Controller('admin')
 export class AdminController {
@@ -25,6 +25,9 @@ export class AdminController {
   createCohort(@Req() req: any, @Body() body: { name: string; grade: number }) {
     return this.admin.createCohort(req.user, body);
   }
+
+  @Roles('ADMIN', 'TEACHER')
+
 
   @Post('cohorts/join-code')
   joinCode(
