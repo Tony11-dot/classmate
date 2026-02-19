@@ -20,6 +20,7 @@ import { SolutionsModule } from './solutions/solutions.module';
 
 import { E2ESeedController } from './e2e/seed.controller';
 import { VersionModule } from './version/version.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 const env = loadEnv();
 
@@ -66,6 +67,7 @@ controllers: [E2ESeedController],
     ParentModule,
     AnnouncementsModule,
     VersionModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

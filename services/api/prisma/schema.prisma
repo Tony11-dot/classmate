@@ -60,6 +60,7 @@ model User {
   announcementSeens   AnnouncementSeen[]
   parentNotifications ParentNotification[]
   solutions           Solution[]
+  notifications       Notification[]
 }
 
 model UserRole {
@@ -421,7 +422,6 @@ model AlertSettings {
   @@index([ownerId])
 }
 
-
 //
 // --- Day 1 foundation: materials + learning profile + AI brain + tutor memory + analytics ---
 //
@@ -453,21 +453,21 @@ model Material {
   updatedAt DateTime @updatedAt
 
   // scoping
-  cohortId  String?
-  courseId  String?
+  cohortId String?
+  courseId String?
 
   // content
-  title     String
-  subject   String?      // e.g. MATH/PHYSICS/CS
-  grade     Int?         // bagrut target grade (10/11/12)
-  language  String?      // 'he'/'ar'/'en'
-  source    MaterialSource @default(BAGrut)
+  title    String
+  subject  String? // e.g. MATH/PHYSICS/CS
+  grade    Int? // bagrut target grade (10/11/12)
+  language String? // 'he'/'ar'/'en'
+  source   MaterialSource @default(BAGrut)
 
   // "chunk" style storage (start simple: full text)
-  content   String
+  content String
 
   // loose tags for retrieval
-  tags      String[]     @default([])
+  tags String[] @default([])
 
   @@index([cohortId])
   @@index([courseId])
@@ -480,38 +480,38 @@ model LearningProfile {
   updatedAt DateTime @updatedAt
 
   // userId = student user id
-  userId    String   @unique
+  userId String @unique
 
   // "bagrut level" guardrails
-  targetCurriculum String?  // 'bagrut'
-  targetGrade      Int?     // 10/11/12
+  targetCurriculum  String? // 'bagrut'
+  targetGrade       Int? // 10/11/12
   preferredLanguage String? // 'he'/'ar'/'en'
 
   // style matching (how tutor behaves)
-  tone        String?  // e.g. "friendly", "strict", "funny"
-  verbosity   Int?     // 1-10
+  tone         String? // e.g. "friendly", "strict", "funny"
+  verbosity    Int? // 1-10
   explainStyle String? // e.g. "step-by-step", "short hints", "use examples"
-  emojiOk     Boolean  @default(true)
+  emojiOk      Boolean @default(true)
 
   // learning state
-  strengths   String[] @default([])
-  weaknesses  String[] @default([])
-  goals       String[] @default([])
+  strengths  String[] @default([])
+  weaknesses String[] @default([])
+  goals      String[] @default([])
 
   // guardrail: avoid advanced topics
-  maxDepth    Int?     // 1=very basic ... 5=advanced (we keep <=3 for bagrut by default)
+  maxDepth Int? // 1=very basic ... 5=advanced (we keep <=3 for bagrut by default)
 }
 
 model StudentBrainSnapshot {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  userId    String   // student user id
-  cohortId  String?
+  userId   String // student user id
+  cohortId String?
 
   // compact analytics summary the tutor can read
   // (keep JSON flexible, schema later)
-  metrics   Json
+  metrics Json
 
   // example metrics you might store inside JSON:
   // { "math": {"avg": 78,"trend":"up","weak":["quadratic"],"strong":["trig"]}, ... }
@@ -526,17 +526,17 @@ model TutorSession {
 
   characterId String?
   character   TutorCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
-  updatedAt DateTime @updatedAt
+  updatedAt   DateTime        @updatedAt
 
-  userId    String   // student user id
-  courseId  String?
-  cohortId  String?
+  userId   String // student user id
+  courseId String?
+  cohortId String?
 
   // optional title/topic
-  title     String?
-  topic     String?
+  title String?
+  topic String?
 
-  messages  TutorMessage[]
+  messages TutorMessage[]
 
   @@index([userId, updatedAt])
   @@index([cohortId])
@@ -552,9 +552,9 @@ model TutorMessage {
   content   String
 
   // what tutor used as sources (ids or short refs)
-  sources   String[] @default([])
+  sources String[] @default([])
 
-  session   TutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session TutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId, createdAt])
 }
@@ -567,21 +567,19 @@ model AnalyticsEvent {
   actorRole   AnalyticsActorRole?
 
   // scope
-  cohortId   String?
-  courseId   String?
-  studentId  String?
+  cohortId  String?
+  courseId  String?
+  studentId String?
 
   // event
-  name      String
-  payload   Json?
+  name    String
+  payload Json?
 
   @@index([name, createdAt])
   @@index([cohortId])
   @@index([courseId])
   @@index([studentId])
 }
-
-
 
 enum TutorCharacterSubject {
   GENERAL
@@ -593,31 +591,30 @@ enum TutorCharacterSubject {
   ARABIC
 }
 
-
 model TutorCharacter {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // scope (optional) – later we can make per cohort/school
-  cohortId  String?
+  cohortId String?
 
-  subject   TutorCharacterSubject @default(GENERAL)
-  name      String                // e.g. "Mr. Derivative", "Physics Coach"
+  subject      TutorCharacterSubject @default(GENERAL)
+  name         String // e.g. "Mr. Derivative", "Physics Coach"
   // how it speaks/behaves (high-level; real behavior comes later from AI brain + profile)
-  tone      String?               // friendly/strict/etc.
-  verbosity Int?                  // 1-10
-  explainStyle String?            // step-by-step / hints / examples
+  tone         String? // friendly/strict/etc.
+  verbosity    Int? // 1-10
+  explainStyle String? // step-by-step / hints / examples
 
   // guardrails
-  curriculum String?              // e.g. "bagrut"
-  maxGrade   Int?                 // 10/11/12
-  language   String?              // he/ar/en
+  curriculum String? // e.g. "bagrut"
+  maxGrade   Int? // 10/11/12
+  language   String? // he/ar/en
 
   // later: prompt template / system rules
-  systemNotes String?             // short instruction block
+  systemNotes String? // short instruction block
 
-  sessions  TutorSession[]
+  sessions TutorSession[]
 
   @@index([cohortId])
   @@index([subject])
@@ -629,33 +626,33 @@ model TutorReplyCache {
   characterId        String?
   normalizedQuestion String
   topic              String?
-  mode               String   // "deterministic" | "llm"
+  mode               String // "deterministic" | "llm"
   content            String
   refs               String?
   excerpt            String?
   createdAt          DateTime @default(now())
   expiresAt          DateTime
 
-  @@index([userId, characterId])
   @@unique([userId, characterId, normalizedQuestion, mode])
+  @@index([userId, characterId])
 }
 
 // ### CLASSMATE:MODELS:BEGIN
 model Solution {
   id             String   @id @default(uuid())
   authorId       String
-  subject        String   // "math" | "physics" | ...
-  sourceType     String   // "book" | "bagrut" | "other"
-  sourceName     String?  // book name OR bagrut year/season
+  subject        String // "math" | "physics" | ...
+  sourceType     String // "book" | "bagrut" | "other"
+  sourceName     String? // book name OR bagrut year/season
   page           Int?
-  questionNumber String?  // "12" or "12a"
+  questionNumber String? // "12" or "12a"
   title          String?
   notes          String?
   body           String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   images SolutionImage[]
 
   @@index([subject, sourceType])
@@ -664,23 +661,23 @@ model Solution {
 }
 
 model SolutionImage {
-  id         String   @id @default(uuid())
+  id         String @id @default(uuid())
   solutionId String
 
   // public URL (served from /uploads)
-  url        String
+  url String
 
   // storage + metadata (for PDFs/scans/search)
   storagePath  String
-  kind         String   // "image" | "pdf" | "other"
+  kind         String // "image" | "pdf" | "other"
   mime         String
   sizeBytes    Int
   originalName String?
   sha256       String?
 
-  width      Int?
-  height     Int?
-  createdAt  DateTime @default(now())
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
 
   solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
 
@@ -688,6 +685,23 @@ model SolutionImage {
   @@index([kind])
   @@index([mime])
   @@index([sha256])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  data      Json?
+  severity  String    @default("info") // info|success|warning|error
+  seenAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, seenAt])
 }
 
 // ### CLASSMATE:MODELS:END
