@@ -28,36 +28,32 @@ const prisma: any = this.prisma;
       } catch {}
 
       // Best-effort Cohort/Classroom for parent-link tests
+      // NOTE: parent-link tests expect a real Cohort id. Our schema requires Cohort.grade (Int).
       try {
         const models = Object.keys((prisma as any) ?? {});
-        cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 50) });
+        cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 80) });
       } catch (e) {
         cohortDebug.push({ modelsErr: String((e as any)?.message ?? e) });
       }
 
-      const tryCreate = async (modelName: string, data: any) => {
+      try {
+        const created = await prisma.cohort.create({
+          data: { name: 'Test Cohort', grade: 10, schoolId: 'test-school' } as any,
+        } as any);
+        cohortId = (created as any)?.id;
+        cohortDebug.push({ ok: true, modelName: 'cohort', grade: 10, cohortId });
+      } catch (e1: any) {
+        cohortDebug.push({ ok: false, modelName: 'cohort', grade: 10, err: String(e1?.message ?? e1) });
         try {
-          const created = await (prisma as any)[modelName]?.create?.({ data } as any);
-          const id = (created as any)?.id ?? (created as any)?.cohortId ?? (created as any)?.classroomId;
-          cohortDebug.push({ ok: true, modelName, dataKeys: Object.keys(data || {}), id });
-          return id;
-        } catch (e: any) {
-          cohortDebug.push({ ok: false, modelName, data, err: String(e?.message ?? e) });
-          return undefined;
+          const created = await prisma.cohort.create({
+            data: { name: 'Test Cohort', grade: 7, schoolId: 'test-school' } as any,
+          } as any);
+          cohortId = (created as any)?.id;
+          cohortDebug.push({ ok: true, modelName: 'cohort', grade: 7, cohortId });
+        } catch (e2: any) {
+          cohortDebug.push({ ok: false, modelName: 'cohort', grade: 7, err: String(e2?.message ?? e2) });
         }
-      };
-
-      // Try common models + common required fields
-      cohortId =
-        (await tryCreate('cohort', { name: 'Test Cohort', schoolId: 'test-school' })) ??
-        (await tryCreate('cohort', { title: 'Test Cohort', schoolId: 'test-school' })) ??
-        (await tryCreate('cohort', { name: 'Test Cohort' })) ??
-        (await tryCreate('classroom', { name: 'Test Cohort', schoolId: 'test-school' })) ??
-        (await tryCreate('classroom', { title: 'Test Cohort', schoolId: 'test-school' })) ??
-        (await tryCreate('classroom', { name: 'Test Cohort' })) ??
-        (await tryCreate('class', { name: 'Test Cohort', schoolId: 'test-school' })) ??
-        (await tryCreate('group', { name: 'Test Cohort', schoolId: 'test-school' })) ??
-        undefined;
+      }
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
