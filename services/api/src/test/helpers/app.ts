@@ -10,6 +10,7 @@ export type TestApp = {
 export async function createTestApp(): Promise<TestApp> {
   const modRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = modRef.createNestApplication();
+  app.setGlobalPrefix('api');
   await app.init();
   const http = request(app.getHttpServer());
   return { app, http };
