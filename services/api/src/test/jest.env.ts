@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 const envPath = path.resolve(__dirname, '../../.env.test');
 if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
+  dotenv.config({ path: envPath, quiet: true });
 }
 
 // CI exports DATABASE_URL already; keep it.
