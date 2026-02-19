@@ -1,11 +1,24 @@
 import request from 'supertest';
+import { createTestApp } from './helpers/app';
 
-const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
 describe('parent link upgrades role (e2e)', () => {
-  it('link sets PARENT role so next login has PARENT', async () => {
+  let app: any;
+  let http: any;
+
+  beforeAll(async () => {
+    const t = await createTestApp();
+    app = t.app;
+    http = t.http;
+  });
+
+  afterAll(async () => {
+    await app?.close?.();
+  });
+
+it('link sets PARENT role so next login has PARENT', async () => {
     // seed admin-web (returns teacherEmail+password+cohortId etc)
-    const seed = await request(BASE)
+    const seed = await http
       .post('/api/test/seed/admin-web')
       .send({})
       .expect(201);
@@ -19,7 +32,7 @@ describe('parent link upgrades role (e2e)', () => {
     expect(cohortId).toBeTruthy();
 
     // teacher login
-    const tLogin = await request(BASE)
+    const tLogin = await http
       .post('/api/auth/login')
       .send({ email: teacherEmail, password })
       .expect(201);
@@ -28,7 +41,7 @@ describe('parent link upgrades role (e2e)', () => {
     expect(teacherToken).toBeTruthy();
 
     // create join code
-    const jc = await request(BASE)
+    const jc = await http
       .post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${teacherToken}`)
       .send({ cohortId, expiresInHours: 24, length: 6 })
@@ -40,12 +53,12 @@ describe('parent link upgrades role (e2e)', () => {
     // student register + login + onboard + generate parent link code
     const stuEmail = `student_${Date.now()}@classmate.app`;
 
-    await request(BASE)
+    await http
       .post('/api/auth/register')
       .send({ email: stuEmail, name: 'Student', password: 'dev' })
       .expect(201);
 
-    const sLogin = await request(BASE)
+    const sLogin = await http
       .post('/api/auth/login')
       .send({ email: stuEmail, password: 'dev' })
       .expect(201);
@@ -53,13 +66,13 @@ describe('parent link upgrades role (e2e)', () => {
     const studentToken = sLogin.body?.token;
     expect(studentToken).toBeTruthy();
 
-    await request(BASE)
+    await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 })
       .expect(201);
 
-    const plc = await request(BASE)
+    const plc = await http
       .post('/api/student/parent-link-code')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ expiresInHours: 24, length: 6 })
@@ -71,12 +84,12 @@ describe('parent link upgrades role (e2e)', () => {
     // parent register + login (starts as STUDENT)
     const parentEmail = `parent_${Date.now()}@classmate.app`;
 
-    await request(BASE)
+    await http
       .post('/api/auth/register')
       .send({ email: parentEmail, name: 'Parent', password: 'dev' })
       .expect(201);
 
-    const pLogin1 = await request(BASE)
+    const pLogin1 = await http
       .post('/api/auth/login')
       .send({ email: parentEmail, password: 'dev' })
       .expect(201);
@@ -85,14 +98,14 @@ describe('parent link upgrades role (e2e)', () => {
     expect(parentToken1).toBeTruthy();
 
     // link using ONLY code
-    await request(BASE)
+    await http
       .post('/api/parent/link')
       .set('Authorization', `Bearer ${parentToken1}`)
       .send({ code })
       .expect(201);
 
     // login again -> token should include PARENT
-    const pLogin2 = await request(BASE)
+    const pLogin2 = await http
       .post('/api/auth/login')
       .send({ email: parentEmail, password: 'dev' })
       .expect(201);
