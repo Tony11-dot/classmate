@@ -34,7 +34,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  if (process.env.NODE_ENV !== "test") { app.setGlobalPrefix("api"); }
+  app.setGlobalPrefix("api");
 }
 // IMPORTANT for Docker: listen on all interfaces
   await app.listen(env.PORT, '0.0.0.0');
