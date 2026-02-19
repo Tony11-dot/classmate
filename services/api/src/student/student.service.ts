@@ -43,9 +43,10 @@ export class StudentService {
       where: {
         cohortId: body.cohortId,
         active: true,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 10,
     });
 
     const now = new Date();
