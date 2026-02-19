@@ -1,226 +1,203 @@
+import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { prisma } from "../src/lib/prisma";
-import { Prisma } from "@prisma/client";
 
-const SCHOOL_ID = "demo";
+const prisma = new PrismaClient();
 
-const hasModel = (name: string) => Object.prototype.hasOwnProperty.call(prisma as any, name);
-
-const dmmfModel = (name: string) =>
-  Prisma.dmmf.datamodel.models.find((m) => m.name === name) ?? null;
-
-const modelFields = (name: string) => new Set((dmmfModel(name)?.fields ?? []).map((f) => f.name));
-
-const pick = (modelName: string, data: Record<string, any>) => {
-  const f = modelFields(modelName);
-  const out: Record<string, any> = {};
-  for (const [k, v] of Object.entries(data)) if (f.has(k) && v !== undefined) out[k] = v;
-  return out;
-};
-
-const ensureRequired = (modelName: string, data: Record<string, any>) => {
-  const m = dmmfModel(modelName);
-  if (!m) return data;
-  for (const f of m.fields) {
-    if (f.kind !== "scalar") continue;
-    if (!f.isRequired) continue;
-    if (f.hasDefaultValue) continue;
-    if (f.isId) continue;
-    if (data[f.name] !== undefined) continue;
-
-    // conservative defaults
-    if (f.type === "String") data[f.name] = "";
-    else if (f.type === "Int") data[f.name] = 0;
-    else if (f.type === "Boolean") data[f.name] = false;
-    else if (f.type === "DateTime") data[f.name] = new Date();
-  }
-  return data;
-};
-
-const mkUser = async (role: any, fullName: string, email: string, pw: string) => {
-  email = email.toLowerCase();
-  const passwordHash = await bcrypt.hash(pw, 10);
-
-  return (prisma as any).user.upsert({
-    where: { schoolId_email: { schoolId: SCHOOL_ID, email } },
-    update: { fullName, role, passwordHash },
-    create: { schoolId: SCHOOL_ID, fullName, email, role, passwordHash },
-    select: { id: true, email: true, role: true, fullName: true, schoolId: true },
+async function upsertSchool() {
+  return prisma.school.upsert({
+    where: { id: "demo" },
+    update: { name: "Demo School" },
+    create: { id: "demo", name: "Demo School" },
+    select: { id: true },
   });
-};
+}
 
-async function ensureSchool() {
-  if (!hasModel("school")) return;
+async function upsertUser(params: {
+  schoolId: string;
+  email: string;
+  password: string;
+  role: Role;
+  fullName: string;
+}) {
+  const email = params.email.toLowerCase();
+  const passwordHash = await bcrypt.hash(params.password, 10);
 
-  const data = ensureRequired(
-    "School",
-    pick("School", {
-      id: SCHOOL_ID,
-      schoolId: SCHOOL_ID,
-      name: "Demo School",
-      title: "Demo School",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }),
-  );
+  return prisma.user.upsert({
+    where: { schoolId_email: { schoolId: params.schoolId, email } },
+    update: {
+      role: params.role,
+      fullName: params.fullName,
+      // keep existing passwordHash unless you want to rotate:
+      // passwordHash,
+    },
+    create: {
+      schoolId: params.schoolId,
+      email,
+      passwordHash,
+      role: params.role,
+      fullName: params.fullName,
+    },
+    select: { id: true, schoolId: true, email: true, role: true },
+  });
+}
 
-  // prefer upsert by id if exists; otherwise just create-if-missing
-  const f = modelFields("School");
-  if (f.has("id")) {
-    await (prisma as any).school.upsert({
-      where: { id: SCHOOL_ID },
-      update: pick("School", { name: "Demo School", title: "Demo School" }),
-      create: data,
+async function ensureRoleRows(userId: string, role: Role) {
+  if (role === "TEACHER") {
+    await prisma.teacher.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+      select: { id: true },
     });
-  } else if (f.has("schoolId")) {
-    const ex = await (prisma as any).school.findFirst({ where: { schoolId: SCHOOL_ID } });
-    if (!ex) await (prisma as any).school.create({ data });
   }
-}
-
-async function ensureTeacherRow(userId: string) {
-  if (!hasModel("teacher")) return null;
-  const ex = await (prisma as any).teacher.findFirst({ where: pick("Teacher", { userId }) });
-  if (ex) return ex;
-
-  const data = ensureRequired(
-    "Teacher",
-    pick("Teacher", {
-      userId,
-      schoolId: SCHOOL_ID,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }),
-  );
-  return (prisma as any).teacher.create({ data });
-}
-
-async function ensureParentRow(userId: string) {
-  if (!hasModel("parent")) return null;
-  const ex = await (prisma as any).parent.findFirst({ where: pick("Parent", { userId }) });
-  if (ex) return ex;
-
-  const data = ensureRequired(
-    "Parent",
-    pick("Parent", {
-      userId,
-      schoolId: SCHOOL_ID,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }),
-  );
-  return (prisma as any).parent.create({ data });
-}
-
-async function ensureStudentRow(userId: string) {
-  if (!hasModel("student")) return null;
-  const ex = await (prisma as any).student.findFirst({ where: pick("Student", { userId }) });
-  if (ex) return ex;
-
-  const data = ensureRequired(
-    "Student",
-    pick("Student", {
-      userId,
-      schoolId: SCHOOL_ID,
-      grade: 9,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }),
-  );
-  return (prisma as any).student.create({ data });
+  if (role === "STUDENT") {
+    await prisma.student.upsert({
+      where: { userId },
+      update: { grade: 9 },
+      create: { userId, grade: 9 },
+      select: { id: true },
+    });
+  }
+  if (role === "PARENT") {
+    await prisma.parent.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+      select: { id: true },
+    });
+  }
 }
 
 async function main() {
-  if (!hasModel("user")) throw new Error("Prisma Client missing model: user");
+  const school = await upsertSchool();
 
-  await ensureSchool();
-
-  const admin   = await mkUser("ADMIN",   "Admin Demo",   "admin@demo.com",   "admin123");
-  const teacher = await mkUser("TEACHER", "Teacher Demo", "teacher@demo.com", "teacher123");
-  const parent  = await mkUser("PARENT",  "Parent Demo",  "parent@demo.com",  "parent123");
-  const student = await mkUser("STUDENT", "Student Demo", "student@demo.com", "student123");
-
-  const teacherRow = await ensureTeacherRow(teacher.id);
-  const parentRow  = await ensureParentRow(parent.id);
-  const studentRow = await ensureStudentRow(student.id);
-
-  // ClassRoom path
-  let classRoomId: string | null = null;
-  if (hasModel("classRoom")) {
-    const ex = await (prisma as any).classRoom.findFirst({ where: pick("ClassRoom", { schoolId: SCHOOL_ID }) });
-    const cr =
-      ex ??
-      (await (prisma as any).classRoom.create({
-        data: ensureRequired(
-          "ClassRoom",
-          pick("ClassRoom", { schoolId: SCHOOL_ID, name: "9A", grade: 9, createdAt: new Date(), updatedAt: new Date() }),
-        ),
-      }));
-    classRoomId = cr.id;
-
-    if (hasModel("teachingAssignment") && teacherRow) {
-      const where = pick("TeachingAssignment", { classId: cr.id, teacherId: teacherRow.id });
-      const create = ensureRequired("TeachingAssignment", pick("TeachingAssignment", { classId: cr.id, teacherId: teacherRow.id, createdAt: new Date() }));
-      const unique = { classId_teacherId: { classId: cr.id, teacherId: teacherRow.id } };
-      try {
-        await (prisma as any).teachingAssignment.upsert({ where: unique, update: {}, create });
-      } catch {
-        // ignore if unique shape differs; fall back to create-if-missing
-        const exists = await (prisma as any).teachingAssignment.findFirst({ where });
-        if (!exists) await (prisma as any).teachingAssignment.create({ data: create });
-      }
-    }
-
-    if (hasModel("enrollment") && studentRow) {
-      const where = pick("Enrollment", { classId: cr.id, studentId: studentRow.id });
-      const create = ensureRequired("Enrollment", pick("Enrollment", { classId: cr.id, studentId: studentRow.id, createdAt: new Date() }));
-      const unique = { classId_studentId: { classId: cr.id, studentId: studentRow.id } };
-      try {
-        await (prisma as any).enrollment.upsert({ where: unique, update: {}, create });
-      } catch {
-        const exists = await (prisma as any).enrollment.findFirst({ where });
-        if (!exists) await (prisma as any).enrollment.create({ data: create });
-      }
-    }
-  }
-
-  // Parent-child link
-  if (hasModel("parentChild")) {
-    // likely parentId/childId are USER ids (based on your API route usage earlier)
-    const where = pick("ParentChild", { parentId: parent.id, childId: student.id });
-    const create = ensureRequired("ParentChild", pick("ParentChild", { parentId: parent.id, childId: student.id, status: "APPROVED", createdAt: new Date(), updatedAt: new Date() }));
-    const unique = { parentId_childId: { parentId: parent.id, childId: student.id } };
-    try {
-      await (prisma as any).parentChild.upsert({ where: unique, update: {}, create });
-    } catch {
-      const exists = await (prisma as any).parentChild.findFirst({ where });
-      if (!exists) await (prisma as any).parentChild.create({ data: create });
-    }
-  } else if (hasModel("parentStudent") && parentRow && studentRow) {
-    // join table between Parent.id and Student.id
-    const where = pick("ParentStudent", { parentId: parentRow.id, studentId: studentRow.id });
-    const create = ensureRequired("ParentStudent", pick("ParentStudent", { parentId: parentRow.id, studentId: studentRow.id, createdAt: new Date() }));
-    const unique = { parentId_studentId: { parentId: parentRow.id, studentId: studentRow.id } };
-    try {
-      await (prisma as any).parentStudent.upsert({ where: unique, update: {}, create });
-    } catch {
-      const exists = await (prisma as any).parentStudent.findFirst({ where });
-      if (!exists) await (prisma as any).parentStudent.create({ data: create });
-    }
-  }
-
-  console.log({
-    schoolId: SCHOOL_ID,
-    admin,
-    teacher,
-    parent,
-    student,
-    teacherRowId: teacherRow?.id ?? null,
-    parentRowId: parentRow?.id ?? null,
-    studentRowId: studentRow?.id ?? null,
-    classRoomId,
-    models: Object.keys(prisma as any).filter((k) => (prisma as any)[k]?.findFirst || (prisma as any)[k]?.findMany).sort(),
+  const admin = await upsertUser({
+    schoolId: school.id,
+    email: "admin@demo.com",
+    password: "admin123",
+    role: "ADMIN",
+    fullName: "Admin Demo",
   });
+  await ensureRoleRows(admin.id, "ADMIN");
+
+  const teacherUser = await upsertUser({
+    schoolId: school.id,
+    email: "teacher@demo.com",
+    password: "teacher123",
+    role: "TEACHER",
+    fullName: "Teacher Demo",
+  });
+  const teacher = await prisma.teacher.upsert({
+    where: { userId: teacherUser.id },
+    update: {},
+    create: { userId: teacherUser.id },
+    select: { id: true },
+  });
+
+  const parentUser = await upsertUser({
+    schoolId: school.id,
+    email: "parent@demo.com",
+    password: "parent123",
+    role: "PARENT",
+    fullName: "Parent Demo",
+  });
+  const parent = await prisma.parent.upsert({
+    where: { userId: parentUser.id },
+    update: {},
+    create: { userId: parentUser.id },
+    select: { id: true },
+  });
+
+  const studentUser = await upsertUser({
+    schoolId: school.id,
+    email: "student@demo.com",
+    password: "student123",
+    role: "STUDENT",
+    fullName: "Student Demo",
+  });
+  const student = await prisma.student.upsert({
+    where: { userId: studentUser.id },
+    update: { grade: 9 },
+    create: { userId: studentUser.id, grade: 9 },
+    select: { id: true, userId: true },
+  });
+
+  // class
+  const classRoom = await prisma.classRoom.upsert({
+    where: { id: "demo-9a" },
+    update: { name: "9A", grade: 9, schoolId: school.id },
+    create: { id: "demo-9a", name: "9A", grade: 9, schoolId: school.id },
+    select: { id: true },
+  });
+
+  // course
+  const course = await prisma.course.upsert({
+    where: { id: "demo-math" },
+    update: { name: "Math", schoolId: school.id },
+    create: { id: "demo-math", name: "Math", schoolId: school.id },
+    select: { id: true },
+  });
+
+  // academic year + term (unique by id)
+  const year = await prisma.academicYear.upsert({
+    where: { id: "demo-2025-2026" },
+    update: {
+      schoolId: school.id,
+      name: "2025–2026",
+      startDate: new Date("2025-09-01T00:00:00.000Z"),
+      endDate: new Date("2026-06-30T00:00:00.000Z"),
+      isActive: true,
+    },
+    create: {
+      id: "demo-2025-2026",
+      schoolId: school.id,
+      name: "2025–2026",
+      startDate: new Date("2025-09-01T00:00:00.000Z"),
+      endDate: new Date("2026-06-30T00:00:00.000Z"),
+      isActive: true,
+    },
+    select: { id: true },
+  });
+
+  const term = await prisma.term.upsert({
+    where: { id: "demo-term-1" },
+    update: { academicYearId: year.id, name: "Term 1", weight: 1 },
+    create: { id: "demo-term-1", academicYearId: year.id, name: "Term 1", weight: 1 },
+    select: { id: true },
+  });
+
+  // enrollment (unique: [classId, studentId])
+  await prisma.enrollment.upsert({
+    where: { classId_studentId: { classId: classRoom.id, studentId: student.id } },
+    update: {},
+    create: { classId: classRoom.id, studentId: student.id },
+    select: { id: true },
+  });
+
+  // parent link (unique: [parentId, studentId])
+  await prisma.parentStudent.upsert({
+    where: { parentId_studentId: { parentId: parent.id, studentId: student.id } },
+    update: {},
+    create: { parentId: parent.id, studentId: student.id },
+    select: { id: true },
+  });
+
+  // teaching assignment (unique: [teacherId, classId, courseId])
+  await prisma.teachingAssignment.upsert({
+    where: {
+      teacherId_classId_courseId: {
+        teacherId: teacher.id,
+        classId: classRoom.id,
+        courseId: course.id,
+      },
+    },
+    update: {},
+    create: { teacherId: teacher.id, classId: classRoom.id, courseId: course.id },
+    select: { id: true },
+  });
+
+  console.log("ADMIN_TOKEN=211 TEACHER_TOKEN=213 PARENT_TOKEN=212");
+  console.log("seed_ok", { schoolId: school.id, classId: classRoom.id, courseId: course.id, termId: term.id });
 }
 
 main()

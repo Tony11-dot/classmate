@@ -49,8 +49,15 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     const raw = Math.min(body.rawScore, assessment.maxScore);
     const adj = body.adjustedScore == null ? null : Math.min(body.adjustedScore, assessment.maxScore);
 
-    const grade = await tx.grade.create({
-      data: {
+    const grade = await tx.grade.upsert({
+      where: { submissionId_isFinal: { submissionId: submission.id, isFinal: true } },
+      update: {
+        rawScore: raw,
+        adjustedScore: adj,
+        feedback: body.feedback ?? null,
+        gradedAt: new Date(),
+      },
+      create: {
         submissionId: submission.id,
         graderId: teacher.id,
         rawScore: raw,
