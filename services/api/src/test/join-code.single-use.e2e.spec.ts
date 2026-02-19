@@ -16,19 +16,16 @@ describe('cohort join-code is single-use (e2e)', () => {
 
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
-    expect(adminToken).toBeTruthy();
-    // Prefer the seeded student join-code (seed endpoint owns the canonical onboarding fixtures)
-    const seededJoinCode = String(
-      (seed.body &&
-        (seed.body.joinCode ??
-          seed.body.studentJoinCode ??
-          seed.body.cohortJoinCode ??
-          seed.body.code ??
-          seed.body.studentCode)) ??
-        '',
-    );
-    const joinCode = seededJoinCode;
+    expect(adminToken).toBeTruthy();    const jc = await http
+      .post('/api/admin/cohorts/join-code')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
+
+    expect(jc.status).toBe(201);
+
+    const joinCode = String((jc.body && (jc.body.code ?? jc.body.joinCode ?? jc.body.value ?? jc.body.token)) ?? '');
     expect(joinCode).toBeTruthy();
+
     // First redemption: use SEEDED student token (seed owns canonical onboarding fixtures)
     const studentLogin = await http
       .post('/api/auth/login')
@@ -41,12 +38,7 @@ describe('cohort join-code is single-use (e2e)', () => {
     const first = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
-      .send({
-        cohortId: seed.body.cohortId,
-        joinCode,
-        englishLevel: 3,
-        mathLevel: 3,
-      });
+      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
@@ -83,12 +75,7 @@ describe('cohort join-code is single-use (e2e)', () => {
     const second = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
-      .send({
-        cohortId: seed.body.cohortId,
-        joinCode,
-englishLevel: 3,
-        mathLevel: 3,
-      });
+      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
     expect([400, 401, 403]).toContain(second.status);
   });
