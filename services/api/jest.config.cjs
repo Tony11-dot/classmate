@@ -3,7 +3,8 @@ module.exports = {
   rootDir: '.',
   testEnvironment: 'node',
   testMatch: ['<rootDir>/src/**/*.spec.ts'],
-  moduleFileExtensions: ['js', 'json', 'ts'],
-  transform: { '^.+\\.(t|j)s$': ['@swc/jest'] },
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  transform: { '^.+\\.(t|j)sx?$': ['@swc/jest'] },
   setupFiles: ['<rootDir>/src/test/jest.env.ts'],
+  clearMocks: true,
 };
