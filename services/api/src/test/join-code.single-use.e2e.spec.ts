@@ -24,7 +24,9 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
 
     expect(jc.status).toBe(201);
-    const joinCode = String(jc.body?.code);
+    const joinCodeRaw = jc.body?.code;
+    expect(typeof joinCodeRaw).toBe('string');
+    const joinCode = (joinCodeRaw as string).trim();
     expect(joinCode).toBeTruthy();
 
     // login as STUDENT (seeded) to onboard
@@ -54,14 +56,29 @@ describe('cohort join-code is single-use (e2e)', () => {
 
     // attempt to reuse same code for a DIFFERENT student
     const secondEmail = `student2+${Date.now()}@classmate.app`;
-    const second = await http.post('/api/student/onboard').send({
+
+    const reg2 = await http.post('/api/auth/register').send({
       email: secondEmail,
       password: seed.body.password,
-      cohortId: seed.body.cohortId,
-      joinCode,
-      englishLevel: 3,
-      mathLevel: 3,
     });
+    expect(reg2.status).toBe(201);
+
+    const login2 = await http
+      .post('/api/auth/login')
+      .send({ email: secondEmail, password: seed.body.password });
+    expect(login2.status).toBe(201);
+    const secondToken = login2.body?.token;
+    expect(secondToken).toBeTruthy();
+
+    const second = await http
+      .post('/api/student/onboard')
+      .set('Authorization', `Bearer ${secondToken}`)
+      .send({
+        cohortId: seed.body.cohortId,
+        joinCode,
+        englishLevel: 3,
+        mathLevel: 3,
+      });
 
     expect([400, 401, 403]).toContain(second.status);
   });
