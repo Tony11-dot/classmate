@@ -14,9 +14,9 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
 
     const hash = await bcrypt.hash(password, 10);
 const prisma: any = this.prisma;
+    let cohortId: any = undefined;
   try {
 
-      let cohortId: any = undefined;
       // Best-effort School (some schemas may require it)
       try {
         await prisma.school?.upsert?.({
@@ -25,6 +25,19 @@ const prisma: any = this.prisma;
           create: { id: 'test-school', name: 'Test School' } as any,
         });
       } catch {}
+
+      // Best-effort Cohort/Classroom for parent-link tests
+      try {
+        const created = await prisma.cohort.create({ data: { name: 'Test Cohort', schoolId: 'test-school' } as any } as any);
+        cohortId = (created as any).id;
+      } catch (e1) {
+        try {
+          const created2 = await prisma.classroom.create({ data: { name: 'Test Cohort', schoolId: 'test-school' } as any } as any);
+          cohortId = (created2 as any).id;
+        } catch (e2) {
+          // leave undefined
+        }
+      }
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
