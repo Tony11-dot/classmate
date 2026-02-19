@@ -33,7 +33,7 @@ export class TestSeedController {
       // if your schema differs, adjust here.
       await prisma.$executeRawUnsafe(
         `INSERT INTO "User" ("id","email","fullName","role","schoolId","passwordHash","createdAt","updatedAt")
-         VALUES (gen_random_uuid()::text,$1,$2,$3,$4,$5,now(),now())
+         VALUES (('ci_' || md5(random()::text || clock_timestamp()::text)),$1,$2,$3,$4,$5,now(),now())
          ON CONFLICT ("email") DO UPDATE
            SET "fullName"=EXCLUDED."fullName",
                "role"=EXCLUDED."role",
@@ -65,3 +65,14 @@ export class TestSeedController {
     });
   }
 }
+
+("api/test/seed")
+export class ApiTestSeedController {
+  private inner = new TestSeedController();
+
+  ("admin-web")
+  async adminWeb(() res: Response) {
+    return this.inner.adminWeb(res as any);
+  }
+}
+

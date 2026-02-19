@@ -41,7 +41,6 @@ import { TestSeedController } from "./test-seed/test-seed.controller";
 
 
 ({
-  controllers,
   imports: [
     ...serveStatic,
     HealthModule,
