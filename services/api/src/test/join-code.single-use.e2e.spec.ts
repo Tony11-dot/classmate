@@ -13,24 +13,24 @@ describe('cohort join-code is single-use (e2e)', () => {
     const adminLogin = await http
       .post('/api/auth/login')
       .send({ email: seed.body.adminEmail, password: seed.body.password });
-
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
-    expect(adminToken).toBeTruthy();    const jc = await http
+    expect(adminToken).toBeTruthy();
+
+    // create join-code for the cohort
+    const jc = await http
       .post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
 
     expect(jc.status).toBe(201);
-
-    const joinCode = String((jc.body && (jc.body.code ?? jc.body.joinCode ?? jc.body.value ?? jc.body.token)) ?? '');
+    const joinCode = String(jc.body?.code ?? '');
     expect(joinCode).toBeTruthy();
 
-    // First redemption: use SEEDED student token (seed owns canonical onboarding fixtures)
+    // FIRST redemption must be the SEEDED STUDENT (has STUDENT role already)
     const studentLogin = await http
       .post('/api/auth/login')
       .send({ email: seed.body.studentEmail, password: seed.body.password });
-
     expect(studentLogin.status).toBe(201);
     const token1 = studentLogin.body?.token;
     expect(token1).toBeTruthy();
@@ -38,21 +38,27 @@ describe('cohort join-code is single-use (e2e)', () => {
     const first = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
-      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+      .send({
+        cohortId: seed.body.cohortId,
+        joinCode,
+        englishLevel: 3,
+        mathLevel: 3,
+      });
+
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
       console.log('JOIN1', first.status, first.body, first.text);
     }
     expect(first.status).toBe(201);
 
-    // Second redemption: different student, same code should fail
+    // SECOND redemption: different student, same code should fail
     const secondEmail = `student2+${Date.now()}@classmate.app`;
 
     const reg2 = await http.post('/api/auth/register').send({
       name: 'Student Two',
       email: secondEmail,
       password: seed.body.password,
-      });
+    });
     if (![201, 409].includes(reg2.status)) {
       // eslint-disable-next-line no-console
       console.log('REG2', reg2.status, reg2.body, reg2.text);
@@ -74,7 +80,12 @@ describe('cohort join-code is single-use (e2e)', () => {
     const second = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
-      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+      .send({
+        cohortId: seed.body.cohortId,
+        joinCode,
+        englishLevel: 3,
+        mathLevel: 3,
+      });
 
     expect([400, 401, 403]).toContain(second.status);
   });
