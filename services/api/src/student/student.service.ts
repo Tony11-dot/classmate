@@ -40,21 +40,34 @@ export class StudentService {
     if (!cohort) throw new BadRequestException('Invalid cohortId');
 
     const codes = await this.prisma.cohortJoinCode.findMany({
-      where: { cohortId: body.cohortId },
+      where: {
+        cohortId: body.cohortId,
+        active: true,
+      },
       orderBy: { createdAt: 'desc' },
       take: 5,
     });
 
     const now = new Date();
-    let ok = false;
+    let matchedId: string | null = null;
+
     for (const c of codes) {
       if (c.expiresAt && c.expiresAt < now) continue;
       if (await bcrypt.compare(body.joinCode, c.codeHash)) {
-        ok = true;
+        matchedId = c.id;
         break;
       }
     }
-    if (!ok) throw new BadRequestException('Invalid join code');
+
+    if (!matchedId) throw new BadRequestException('Invalid join code');
+
+    // 🔐 single-use: deactivate matched code
+    const used = await this.prisma.cohortJoinCode.updateMany({
+      where: { id: matchedId, active: true },
+      data: { active: false },
+    });
+
+    if (used.count !== 1) throw new BadRequestException('Invalid join code');
 
     const studentId = user.sub ?? user.id;
 
@@ -62,6 +75,8 @@ export class StudentService {
       where: { userId: studentId },
       update: {
         cohortId: body.cohortId,
+        active: true,
+        expiresAt: { gt: new Date() },
         englishLevel: Math.round(Number(body.englishLevel)),
         mathLevel: Math.round(Number(body.mathLevel)),
       },
