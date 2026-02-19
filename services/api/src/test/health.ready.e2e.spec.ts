@@ -1,15 +1,30 @@
-import { createTestApp } from './test.util';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { AppModule } from '../app.module';
 
 describe('health/ready endpoints (e2e)', () => {
-  it('GET /api/health returns ok', async () => {
-    const { http, close } = await createTestApp();
-    await http.get('/api/health').expect(200);
-    await close();
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const modRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = modRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    await app.init();
   });
 
-  it('GET /api/ready returns ok (db reachable)', async () => {
-    const { http, close } = await createTestApp();
-    await http.get('/api/ready').expect(200);
-    await close();
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('GET /api/health returns ok', async () => {
+    await request(app.getHttpServer()).get('/api/health').expect(200);
+  });
+
+  it('GET /api/ready returns ok', async () => {
+    await request(app.getHttpServer()).get('/api/ready').expect(200);
   });
 });
