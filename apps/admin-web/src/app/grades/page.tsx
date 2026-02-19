@@ -118,8 +118,9 @@ setLoading(false);
       }
       const res = await fetchCohortStudents(cohortId);
       // prefill any existing grades for this assessment
-      const g = await fetchAssessmentGrades(a.id);
-      const gradeMap = new Map(g.grades.map((r) => [r.studentId, r.grade]));      
+      const g: any = await fetchAssessmentGrades(a.id);
+      const rows: any[] = Array.isArray(g) ? g : (g?.grades ?? []);
+      const gradeMap = new Map(rows.map((r) => [r.studentId, r.grade]));      
       setGradesDraft(() => {
         const d: Record<string, number | ''> = {};
         for (const st of res.students) d[st.studentId] = gradeMap.get(st.studentId) ?? '';

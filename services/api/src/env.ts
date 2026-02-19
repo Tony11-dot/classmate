@@ -31,7 +31,7 @@ export function loadEnv(): Env {
     console.error('❌ Invalid environment variables:', parsed.error.flatten().fieldErrors);
 
     // In Jest we must not hard-exit the worker; throw so we see the real failure.
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' || process.env.ENABLE_E2E_SEED === '1') {
       throw new Error('Invalid environment variables (test)');
     }
 

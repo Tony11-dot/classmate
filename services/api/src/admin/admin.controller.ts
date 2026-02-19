@@ -1,5 +1,6 @@
 import { Roles } from '../auth/roles.decorator';
 import {
+  Header,
   Body,
   Controller,
   Delete,
@@ -15,17 +16,21 @@ import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 
-@UseGuards(JwtAuthGuard)
-@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly admin: AdminService) {}
 
+  @Roles('ADMIN')
   @Post('cohorts')
   createCohort(@Req() req: any, @Body() body: { name: string; grade: number }) {
     return this.admin.createCohort(req.user, body);
   }
 
+  @Roles('ADMIN', 'TEACHER')
+  @Header('Deprecation', 'true')
+  @Header('Sunset', '2026-03-31')
+  @Header('Link', '</api/teacher/cohorts/join-code>; rel="successor-version"')
   @Post('cohorts/join-code')
   joinCode(
     @Req() req: any,
@@ -35,11 +40,13 @@ export class AdminController {
     return this.admin.generateJoinCode(req.user, body);
   }
 
+  @Roles('ADMIN')
   @Get('schedule/cohort/:cohortId')
   cohortSchedule(@Req() req: any, @Param('cohortId') cohortId: string) {
     return this.admin.getCohortSchedule(req.user, cohortId);
   }
 
+  @Roles('ADMIN')
   @Post('schedule/slot')
   setSlot(
     @Req() req: any,
@@ -54,6 +61,7 @@ export class AdminController {
     return this.admin.setScheduleSlot(req.user, body);
   }
 
+  @Roles('ADMIN')
   @Post('schedule/bulk')
   setBulk(
     @Req() req: any,
@@ -66,6 +74,7 @@ export class AdminController {
     return this.admin.setScheduleBulk(req.user, body);
   }
 
+  @Roles('ADMIN')
   @Post('schedule/override')
   setOverride(
     @Req() req: any,
@@ -82,11 +91,13 @@ export class AdminController {
 
   // ---- Courses ----
 
+  @Roles('ADMIN')
   @Get('courses')
   listCourses(@Req() req: any, @Query('cohortId') cohortId?: string) {
     return this.admin.listCourses(req.user, { cohortId });
   }
 
+  @Roles('ADMIN')
   @Post('courses')
   createCourse(
     @Req() req: any,
@@ -102,6 +113,7 @@ export class AdminController {
     return this.admin.createCourse(req.user, body);
   }
 
+  @Roles('ADMIN')
   @Patch('courses/:id')
   updateCourse(
     @Req() req: any,
@@ -118,6 +130,7 @@ export class AdminController {
     return this.admin.updateCourse(req.user, id, body);
   }
 
+  @Roles('ADMIN')
   @Delete('courses/:id')
   deleteCourse(@Req() req: any, @Param('id') id: string) {
     return this.admin.deleteCourse(req.user, id);
@@ -125,11 +138,13 @@ export class AdminController {
 
   // ---- Schedule template helpers ----
 
+  @Roles('ADMIN')
   @Delete('schedule/template')
   clearTemplate(@Req() req: any, @Query('cohortId') cohortId: string) {
     return this.admin.clearScheduleTemplate(req.user, cohortId);
   }
 
+  @Roles('ADMIN')
   @Post('schedule/template/clear-period')
   clearPeriod(
     @Req() req: any,
@@ -140,6 +155,7 @@ export class AdminController {
 
   // ---- Schedule overrides helpers ----
 
+  @Roles('ADMIN')
   @Get('schedule/overrides')
   listOverrides(
     @Req() req: any,
@@ -150,6 +166,7 @@ export class AdminController {
     return this.admin.listScheduleOverrides(req.user, { cohortId, from, to });
   }
 
+  @Roles('ADMIN')
   @Post('schedule/override/delete')
   deleteOverride(
     @Req() req: any,

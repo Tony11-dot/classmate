@@ -4,22 +4,22 @@ class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Attendance',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-      ),
-      body: const Padding(
-        padding: EdgeInsets.all(14),
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(14),
-            child: Text('Attendance dashboard (demo).'),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: const [
+        Card(
+          child: ListTile(
+            title: Text('Today'),
+            subtitle: Text('Present • 4/4 classes'),
           ),
         ),
-      ),
+        Card(
+          child: ListTile(
+            title: Text('This week'),
+            subtitle: Text('Attendance: 96%'),
+          ),
+        ),
+      ],
     );
   }
 }

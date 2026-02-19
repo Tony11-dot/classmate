@@ -1,12 +1,25 @@
 import request from 'supertest';
+import { createTestApp } from './helpers/app';
 import { loginAsTeacher } from './helpers/auth';
 import { seedTeacherWithCourse } from './helpers/seed';
 
-const BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
 
 describe('grades: maxGrade enforcement', () => {
-  it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
-    const token = await loginAsTeacher();
+  let app: any;
+  let http: any;
+
+  beforeAll(async () => {
+    const t = await createTestApp();
+    app = t.app;
+    http = t.http;
+  });
+
+  afterAll(async () => {
+    await app?.close?.();
+  });
+
+it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
+    const token = await loginAsTeacher(http);
 
     const seeded = await seedTeacherWithCourse('teacher1@classmate.app');
 
@@ -14,7 +27,7 @@ describe('grades: maxGrade enforcement', () => {
     const cohortId = seeded.cohortId;
 
     // create assessment with maxGrade 120
-    const created = await request(BASE)
+    const created = await http
       .post('/api/teacher/grades/assessment')
       .set('Authorization', `Bearer ${token}`)
       .send({
@@ -29,7 +42,7 @@ describe('grades: maxGrade enforcement', () => {
     expect(assessmentId).toBeTruthy();
 
     // load cohort students
-    const studentsRes = await request(BASE)
+    const studentsRes = await http
       .get(`/api/teacher/cohort/${cohortId}/students`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
@@ -42,14 +55,14 @@ describe('grades: maxGrade enforcement', () => {
     expect(studentId).toBeTruthy();
 
     // PASS: 120
-    await request(BASE)
+    await http
       .post('/api/teacher/grades/bulk')
       .set('Authorization', `Bearer ${token}`)
       .send({ assessmentId, grades: [{ studentId, grade: 120 }] })
       .expect(201);
 
     // FAIL: 121
-    const bad = await request(BASE)
+    const bad = await http
       .post('/api/teacher/grades/bulk')
       .set('Authorization', `Bearer ${token}`)
       .send({ assessmentId, grades: [{ studentId, grade: 121 }] })

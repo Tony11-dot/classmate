@@ -1,18 +1,10 @@
 /** @type {import('jest').Config} */
 module.exports = {
+  rootDir: '.',
   testEnvironment: 'node',
-
-  // Transform TS -> JS for Jest
-  transform: {
-    '^.+\\.(t|j)sx?$': ['@swc/jest'],
-  },
-
+  testMatch: ['<rootDir>/src/**/*.spec.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
-
-  // Your tests live under src/** including src/test/*.e2e.spec.ts
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/*.spec.ts'],
-
-  // Keep it simple; you can refine later
+  transform: { '^.+\\.(t|j)sx?$': ['@swc/jest'] },
+  setupFiles: ['<rootDir>/src/test/jest.env.ts'],
   clearMocks: true,
 };

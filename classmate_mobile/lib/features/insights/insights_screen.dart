@@ -1,77 +1,75 @@
-import "package:flutter/material.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
-import "../../ui/adaptive.dart";
 import 'package:flutter/material.dart';
-import '../../demo/demo_store.dart';
 
-class InsightsScreen extends StatelessWidget {
+class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final insights = DemoStore.generateInsights();
-    final u = DemoStore.user;
-    final done = DemoStore.assignments.where((a) => a.submitted).length;
+  State<InsightsScreen> createState() => _InsightsScreenState();
+}
 
+class _InsightsScreenState extends State<InsightsScreen> {
+  bool notify = true;
+  String freq = 'Daily';
+
+  @override
+  Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'AI Insights',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+        Card(
+          child: ListTile(
+            title: const Text(
+              'Performance overview',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+            subtitle: const Text('Attendance • assignments • grades • streaks'),
+            trailing: FilledButton(
+              onPressed: () {},
+              child: const Text('Generate insight'),
+            ),
+          ),
         ),
         const SizedBox(height: 10),
-        AdaptiveCard(
+        Card(
+          child: SwitchListTile(
+            value: notify,
+            onChanged: (v) => setState(() => notify = v),
+            title: const Text('AI insights notifications'),
+            subtitle: const Text('Let AI push helpful feedback automatically'),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Card(
           child: ListTile(
-            leading: const Icon(Icons.person_outline_rounded),
+            title: const Text('Insight frequency'),
+            subtitle: Text(freq),
+            trailing: DropdownButton<String>(
+              value: freq,
+              items: const [
+                DropdownMenuItem(value: 'Daily', child: Text('Daily')),
+                DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
+                DropdownMenuItem(
+                  value: 'Only on request',
+                  child: Text('Only on request'),
+                ),
+              ],
+              onChanged: (v) => setState(() => freq = v ?? 'Daily'),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Card(
+          child: ListTile(
             title: Text(
-              '${u.name} • Grade ${u.grade}',
-              style: const TextStyle(fontWeight: FontWeight.w900),
+              'Next step',
+              style: TextStyle(fontWeight: FontWeight.w800),
             ),
             subtitle: Text(
-              'Points: ${u.points} • Tasks done: $done/${DemoStore.assignments.length}',
+              'Wire real analytics + AI brain outputs from backend.',
             ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        for (final i in insights)
-          AdaptiveCard(
-            child: ListTile(
-              leading: Icon(_icon(i.level)),
-              title: Text(
-                i.title,
-                style: const TextStyle(fontWeight: FontWeight.w900),
-              ),
-              subtitle: Text(i.body),
-            ),
-          ),
-        const SizedBox(height: 10),
-        AdaptiveCard(
-          child: ListTile(
-            leading: const Icon(Icons.checklist_rounded),
-            title: const Text(
-              'Recommended next step',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-            subtitle: const Text(
-              'Tap “Solutions” to see guided tasks with rewards.',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => Navigator.of(context).pushNamed('/solutions'),
           ),
         ),
       ],
     );
-  }
-
-  IconData _icon(String level) {
-    switch (level) {
-      case 'risk':
-        return Icons.error_outline_rounded;
-      case 'warn':
-        return Icons.warning_amber_rounded;
-      default:
-        return Icons.verified_outlined;
-    }
   }
 }

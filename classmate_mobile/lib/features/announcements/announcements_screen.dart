@@ -4,36 +4,22 @@ class AnnouncementsScreen extends StatelessWidget {
   const AnnouncementsScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Announcements',
-          style: TextStyle(fontWeight: FontWeight.w900),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: const [
+        Card(
+          child: ListTile(
+            title: Text('School'),
+            subtitle: Text('Welcome to the pilot!'),
+          ),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        children: const [
-          Card(
-            child: ListTile(
-              title: Text(
-                'School event (demo)',
-                style: TextStyle(fontWeight: FontWeight.w900),
-              ),
-              subtitle: Text('Tomorrow 10:00 in the hall.'),
-            ),
+        Card(
+          child: ListTile(
+            title: Text('Math Department'),
+            subtitle: Text('Quiz Thursday'),
           ),
-          Card(
-            child: ListTile(
-              title: Text(
-                'Reminder (demo)',
-                style: TextStyle(fontWeight: FontWeight.w900),
-              ),
-              subtitle: Text('Bring lab notebook to Physics.'),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

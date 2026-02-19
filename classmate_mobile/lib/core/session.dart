@@ -3,18 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class Session {
   static const FlutterSecureStorage _s = FlutterSecureStorage();
 
-  // canonical keys
   static const String _kToken = 'classmate_token';
   static const String _kRole = 'classmate_role';
   static const String _kEmail = 'classmate_email';
   static const String _kName = 'classmate_name';
 
-  // generic key-value compat
-  static Future<void> set(String key, String value) =>
-      _s.write(key: key, value: value);
-  static Future<String?> get(String key) => _s.read(key: key);
-
-  // auth bundle
   static Future<void> saveAuth({
     required String token,
     String? role,
@@ -22,12 +15,15 @@ class Session {
     String? name,
   }) async {
     await _s.write(key: _kToken, value: token);
-    if (role != null && role.isNotEmpty)
+    if (role != null && role.isNotEmpty) {
       await _s.write(key: _kRole, value: role);
-    if (email != null && email.isNotEmpty)
+    }
+    if (email != null && email.isNotEmpty) {
       await _s.write(key: _kEmail, value: email);
-    if (name != null && name.isNotEmpty)
+    }
+    if (name != null && name.isNotEmpty) {
       await _s.write(key: _kName, value: name);
+    }
   }
 
   static Future<String?> getToken() => _s.read(key: _kToken);
@@ -37,7 +33,7 @@ class Session {
 
   static Future<void> clearAll() => _s.deleteAll();
 
-  // ---- backward-compatible aliases (older UI calls these) ----
+  // backward-compatible aliases
   static Future<void> clear() => clearAll();
   static Future<String?> token() => getToken();
   static Future<String?> role() => getRole();
