@@ -93,7 +93,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       },
     });
 
-    return { cohortId: body.cohortId, code, expiresAt };
+    return { cohortId: body.cohortId, code: String(code), expiresAt };
   }
 
   async getCohortSchedule(user: any, cohortId: string) {
