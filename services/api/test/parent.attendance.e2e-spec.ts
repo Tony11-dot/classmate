@@ -3,8 +3,8 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
-
+import 'dotenv/config';
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL_TEST || process.env.DATABASE_URL });
 function decodeJwtPayload(token: string): any {
   const part = token.split('.')[1] || '';
   const json = Buffer.from(part, 'base64url').toString('utf8');
@@ -48,6 +48,7 @@ async function login(app: INestApplication, email: string, password: string) {
 }
 
 describe('Parent attendance (e2e)', () => {
+  console.log('DB URL:', process.env.DATABASE_URL_TEST || process.env.DATABASE_URL);
   afterAll(async () => { await prisma.$disconnect(); });
 
   let app: INestApplication;
@@ -75,7 +76,9 @@ describe('Parent attendance (e2e)', () => {
 
     const childId = '6c56edbc-d612-4c91-9073-bfe9986df4d0';
 
-    const res = await request(app.getHttpServer())
+    
+    await seedApprovedParentChild(token, childId);
+const res = await request(app.getHttpServer())
       .get(`/parent/attendance?childId=${encodeURIComponent(childId)}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
@@ -89,7 +92,9 @@ describe('Parent attendance (e2e)', () => {
 
     const childId = '6c56edbc-d612-4c91-9073-bfe9986df4d0';
 
-    const res = await request(app.getHttpServer())
+    
+    await seedApprovedParentChild(token, childId);
+const res = await request(app.getHttpServer())
       .get(
         `/parent/attendance?childId=${encodeURIComponent(
           childId,
