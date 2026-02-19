@@ -1,4 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './common/http-exception.filter';
+import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -39,7 +41,17 @@ const controllers = [
 ];
 
 @Module({
-  controllers: [E2ESeedController],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
+controllers: [E2ESeedController],
   imports: [
     ...serveStatic,
     HealthModule,
