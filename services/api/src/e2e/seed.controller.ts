@@ -1,6 +1,7 @@
 import { Controller, NotFoundException, Post, Res } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Response } from 'express';
+import * as bcrypt from 'bcrypt';
 @Controller('test/seed')
 
 export class E2ESeedController {  constructor(private readonly prisma: PrismaService) {}
@@ -11,7 +12,8 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
     const studentEmail = 'student1@classmate.app';
     const password = 'dev';
 
-    const prisma: any = this.prisma;
+    const hash = await bcrypt.hash(password, 10);
+const prisma: any = this.prisma;
     try {
       // Best-effort School (some schemas may require it)
       try {
@@ -23,22 +25,52 @@ export class E2ESeedController {  constructor(private readonly prisma: PrismaSer
       } catch {}
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
-      await prisma.user.upsert({
+      
+await prisma.user.upsert({
         where: { email: teacherEmail } as any,
-        update: { role: 'TEACHER' as any, password, passwordHash: password } as any,
-        create: { email: teacherEmail, fullName: 'Teacher 1', role: 'TEACHER' as any, password, passwordHash: password } as any,
+        update: {
+          name: 'Teacher 1',
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'TEACHER' }] },
+        } as any,
+        create: {
+          email: teacherEmail,
+          name: 'Teacher 1',
+          password: hash,
+          roles: { create: [{ role: 'TEACHER' }] },
+        } as any,
       });
 
-      await prisma.user.upsert({
+      
+await prisma.user.upsert({
         where: { email: parentEmail } as any,
-        update: { role: 'PARENT' as any, password, passwordHash: password } as any,
-        create: { email: parentEmail, fullName: 'Parent 1', role: 'PARENT' as any, password, passwordHash: password } as any,
+        update: {
+          name: 'Parent 1',
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'PARENT' }] },
+        } as any,
+        create: {
+          email: parentEmail,
+          name: 'Parent 1',
+          password: hash,
+          roles: { create: [{ role: 'PARENT' }] },
+        } as any,
       });
 
-      await prisma.user.upsert({
+      
+await prisma.user.upsert({
         where: { email: studentEmail } as any,
-        update: { role: 'STUDENT' as any, password, passwordHash: password } as any,
-        create: { email: studentEmail, fullName: 'Student 1', role: 'STUDENT' as any, password, passwordHash: password } as any,
+        update: {
+          name: 'Student 1',
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'STUDENT' }] },
+        } as any,
+        create: {
+          email: studentEmail,
+          name: 'Student 1',
+          password: hash,
+          roles: { create: [{ role: 'STUDENT' }] },
+        } as any,
       });
 
       // Best-effort teacher/student rows (if your schema expects them)
