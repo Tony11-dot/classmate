@@ -19,8 +19,10 @@ export class AuthService {
 
     if (!user) return null;
 
-    const ok = ((await bcrypt.compare(password, user.password)) || (user.password === password));
-    if (!ok) return null;
+    const stored: any = (user as any).passwordHash ?? (user as any).password;
+    if (!stored) return null as any;
+    const ok = (String(stored) === password) || (await bcrypt.compare(password, String(stored)).catch(() => false));
+if (!ok) return null;
 
     const token = this.jwt.sign({
       sub: user.id,

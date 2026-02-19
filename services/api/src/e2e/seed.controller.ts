@@ -2,7 +2,7 @@ import { Controller, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-@Controller('api/test/seed')
+@Controller(['test/seed', 'api/test/seed'])
 export class E2ESeedController {
   private prisma = new PrismaClient();
 
