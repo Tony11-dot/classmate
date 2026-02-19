@@ -87,7 +87,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     await this.prisma.cohortJoinCode.create({
       data: {
         cohortId: body.cohortId,
-        codeHash,
+              active: true,
+codeHash,
         expiresAt: expiresAt ?? undefined,
       },
     });
