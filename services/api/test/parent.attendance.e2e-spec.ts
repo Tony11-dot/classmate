@@ -2,6 +2,40 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+function decodeJwtPayload(token: string): any {
+  const part = token.split('.')[1] || '';
+  const json = Buffer.from(part, 'base64url').toString('utf8');
+  return JSON.parse(json);
+}
+
+async function seedApprovedParentChild(token: string, childId: string) {
+  const payload = decodeJwtPayload(token);
+  const parentId = payload?.sub || payload?.id;
+  if (!parentId) throw new Error('Could not derive parentId from token payload');
+  if (!childId) throw new Error('childId is required');
+
+  // Ensure the row exists with APPROVED status
+  // If schema has different unique constraints, findFirst+create is safest.
+  const existing = await prisma.parentChild.findFirst({
+    where: { parentId, childId },
+    select: { id: true },
+  });
+
+  if (existing?.id) {
+    await prisma.parentChild.update({
+      where: { id: existing.id },
+      data: { status: 'APPROVED' as any },
+    });
+  } else {
+    await prisma.parentChild.create({
+      data: { parentId, childId, status: 'APPROVED' as any },
+    });
+  }
+}
+
 
 async function login(app: INestApplication, email: string, password: string) {
   const res = await request(app.getHttpServer())
@@ -14,6 +48,8 @@ async function login(app: INestApplication, email: string, password: string) {
 }
 
 describe('Parent attendance (e2e)', () => {
+  afterAll(async () => { await prisma.$disconnect(); });
+
   let app: INestApplication;
 
   beforeAll(async () => {
