@@ -1,11 +1,7 @@
 import { TutorReplyMode } from './tutor.reply.provider';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { hasAnyRole } from '../auth/permissions';
 

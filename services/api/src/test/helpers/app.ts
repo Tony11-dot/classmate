@@ -5,6 +5,7 @@ import { AppModule } from '../../app.module';
 export type TestApp = {
   app: any;
   http: SuperTest<STTest>;
+  close: () => Promise<void>;
 };
 
 export async function createTestApp(): Promise<TestApp> {
@@ -13,5 +14,8 @@ export async function createTestApp(): Promise<TestApp> {
   app.setGlobalPrefix('api');
   await app.init();
   const http = request(app.getHttpServer());
-  return { app, http };
+  const close = async () => {
+    await app.close();
+  };
+  return { app, http, close };
 }

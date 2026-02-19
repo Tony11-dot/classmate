@@ -20,8 +20,14 @@ describe('notifications (e2e)', () => {
 
     const res = await http
       .get('/api/notifications?limit=5')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
+      .set('Authorization', `Bearer ${token}`);
+
+    if (res.status !== 200) {
+      // eslint-disable-next-line no-console
+      console.log('NOTIFS', res.status, res.body, res.text);
+    }
+
+    expect(res.status).toBe(200);
 
     expect(res.body).toHaveProperty('items');
     expect(Array.isArray(res.body.items)).toBe(true);

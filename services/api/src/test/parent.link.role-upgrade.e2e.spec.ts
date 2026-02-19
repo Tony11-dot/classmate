@@ -71,6 +71,12 @@ it('link sets PARENT role so next login has PARENT', async () => {
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
+
+    if (onboard.status !== 201) {
+      // eslint-disable-next-line no-console
+      console.log('ONBOARD', onboard.status, onboard.body, onboard.text);
+    }
+
     expect(onboard.status).toBe(201);
 
     const plc = await http
