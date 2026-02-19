@@ -1,15 +1,27 @@
 import request from 'supertest';
-import { createTestApp } from './helpers/app';
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../app.module';
 
 describe('cohort join-code is single-use (e2e)', () => {
+  let t: any;
+
+  beforeAll(async () => {
+    t = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    t.app = t.createNestApplication();
+    await t.app.init();
+  });
+
+  afterAll(async () => {
+    await t.app.close();
+  });
+
   it('second redemption with same code (different student) fails', async () => {
-    const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-    const seed = await http.post('/api/test/seed/admin-web').send({});
+    const seed = await http.post('/api/test/seed').send({});
     expect(seed.status).toBe(201);
 
-    // login as ADMIN to create join-code
+    // admin login
     const adminLogin = await http
       .post('/api/auth/login')
       .send({ email: seed.body.adminEmail, password: seed.body.password });
@@ -17,31 +29,37 @@ describe('cohort join-code is single-use (e2e)', () => {
     const adminToken = adminLogin.body?.token;
     expect(adminToken).toBeTruthy();
 
-    // isolate this test: create a fresh cohort so other join-code tests can't deactivate our code
-    const cohort = await http
-      .post('/api/admin/cohorts')
+    // create join code
+    const jc = await http
+      .post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ name: `E2E Cohort ${Date.now()}`, grade: 10 });
+      .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
+    expect(jc.status).toBe(201);
+    const joinCode = String(jc.body?.code ?? jc.body?.joinCode ?? jc.body?.value ?? jc.body?.token ?? '');
+    expect(joinCode).toBeTruthy();
 
-    expect(cohort.status).toBe(201);
-    const cohortId = cohort.body?.id;
-    expect(cohortId).toBeTruthy();
+    // Student1 register + login
+    const firstEmail = `student1+${Date.now()}@classmate.app`;
+    const reg1 = await http.post('/api/auth/register').send({
+      name: 'Student One',
+      email: firstEmail,
+      password: seed.body.password,
+    });
+    expect([201, 409]).toContain(reg1.status);
 
-    // create join-code for the cohort
-
-    // FIRST redemption must be the SEEDED STUDENT (has STUDENT role already)
-    const studentLogin = await http
+    const login1 = await http
       .post('/api/auth/login')
-      .send({ email: seed.body.studentEmail, password: seed.body.password });
-    expect(studentLogin.status).toBe(201);
-    const token1 = studentLogin.body?.token;
+      .send({ email: firstEmail, password: seed.body.password });
+    expect(login1.status).toBe(201);
+    const token1 = login1.body?.token;
     expect(token1).toBeTruthy();
 
+    // First redemption should succeed
     const first = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
       .send({
-        cohortId,
+        cohortId: seed.body.cohortId,
         joinCode,
         englishLevel: 3,
         mathLevel: 3,
@@ -53,37 +71,28 @@ describe('cohort join-code is single-use (e2e)', () => {
     }
     expect(first.status).toBe(201);
 
-    // SECOND redemption: different student, same code should fail
+    // Student2 register + login
     const secondEmail = `student2+${Date.now()}@classmate.app`;
-
     const reg2 = await http.post('/api/auth/register').send({
       name: 'Student Two',
       email: secondEmail,
       password: seed.body.password,
     });
-    if (![201, 409].includes(reg2.status)) {
-      // eslint-disable-next-line no-console
-      console.log('REG2', reg2.status, reg2.body, reg2.text);
-    }
     expect([201, 409]).toContain(reg2.status);
 
     const login2 = await http
       .post('/api/auth/login')
       .send({ email: secondEmail, password: seed.body.password });
-
-    if (login2.status !== 201) {
-      // eslint-disable-next-line no-console
-      console.log('LOGIN2', login2.status, login2.body, login2.text);
-    }
     expect(login2.status).toBe(201);
     const token2 = login2.body?.token;
     expect(token2).toBeTruthy();
 
+    // Second redemption should fail (code is single-use)
     const second = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
       .send({
-        cohortId,
+        cohortId: seed.body.cohortId,
         joinCode,
         englishLevel: 3,
         mathLevel: 3,
