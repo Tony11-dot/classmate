@@ -35,13 +35,12 @@ export class AuthService {
     const nName = String((dto as any)?.name ?? '').trim();
     const nPassword = String((dto as any)?.password ?? '').trim();
     if (!nEmail || !nName || !nPassword) throw new BadRequestException('Invalid register payload');
-const email = nEmail.toLowerCase();
-    const name = name;
-
+    const email = nEmail.toLowerCase();
+    const name = nName;
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) return { ok: false, code: 'EMAIL_TAKEN' };
 
-    const hash = await bcrypt.hash(dto.password, 10);
+    const hash = await bcrypt.hash(nPassword, 10);
 
     const user = await this.prisma.user.create({
       data: {
