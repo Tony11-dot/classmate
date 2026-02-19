@@ -114,8 +114,8 @@ export class TeacherService {
     await this.prisma.cohortJoinCode.create({
       data: {
         cohortId: body.cohortId,
-              active: true,
-codeHash,
+        active: true,
+        codeHash,
         expiresAt: expiresAt ?? undefined,
       },
     });
