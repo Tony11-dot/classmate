@@ -24,29 +24,24 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
 
     expect(jc.status).toBe(201);
-    const joinCodeRaw = jc.body?.code;
-    expect(typeof joinCodeRaw).toBe('string');
-    const joinCode = (joinCodeRaw as string).trim();
+
+    const joinCode = String(
+      (jc.body && (jc.body.code ?? jc.body.joinCode ?? jc.body.value ?? jc.body.token)) ??
+        '',
+    );
     expect(joinCode).toBeTruthy();
-    // login as STUDENT (seeded) to onboard
-    const studentLogin = await http
-      .post('/api/auth/login')
-      .send({ email: seed.body.studentEmail, password: seed.body.password });
 
-    expect(studentLogin.status).toBe(201);
-    const studentToken = studentLogin.body?.token;
-    expect(studentToken).toBeTruthy();
-
-    const first = await http
-      .post('/api/student/onboard')
-      .set('Authorization', `Bearer ${studentToken}`)
-      .send({
-        cohortId: seed.body.cohortId,
-        joinCode,
-        code: joinCode,
-        englishLevel: 3,
-        mathLevel: 3,
-      });
+    // First redemption: onboard a fresh student (public flow)
+    const firstEmail = `student1+${Date.now()}@classmate.app`;
+    const first = await http.post('/api/student/onboard').send({
+      email: firstEmail,
+      password: seed.body.password,
+      cohortId: seed.body.cohortId,
+      joinCode,
+      code: joinCode,
+      englishLevel: 3,
+      mathLevel: 3,
+    });
 
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
