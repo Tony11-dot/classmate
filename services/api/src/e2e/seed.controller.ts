@@ -28,31 +28,32 @@ const prisma: any = this.prisma;
       } catch {}
 
       // Best-effort Cohort/Classroom for parent-link tests
-      // NOTE: parent-link tests expect a real Cohort id. Our schema requires Cohort.grade (Int).
+      // parent-link tests REQUIRE a Cohort id.
+      // Cohort model requires: name (String) + grade (Int). schoolId is NOT a field.
       try {
         const models = Object.keys((prisma as any) ?? {});
-        cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 80) });
+        cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 120) });
       } catch (e) {
         cohortDebug.push({ modelsErr: String((e as any)?.message ?? e) });
       }
 
       try {
-        const created = await prisma.cohort.create({
-          data: { name: 'Test Cohort', grade: 10, schoolId: 'test-school' } as any,
-        } as any);
+        const created = await prisma.cohort.create({ data: { name: 'Test Cohort', grade: 10 } as any } as any);
         cohortId = (created as any)?.id;
         cohortDebug.push({ ok: true, modelName: 'cohort', grade: 10, cohortId });
       } catch (e1: any) {
         cohortDebug.push({ ok: false, modelName: 'cohort', grade: 10, err: String(e1?.message ?? e1) });
         try {
-          const created = await prisma.cohort.create({
-            data: { name: 'Test Cohort', grade: 7, schoolId: 'test-school' } as any,
-          } as any);
+          const created = await prisma.cohort.create({ data: { name: 'Test Cohort', grade: 7 } as any } as any);
           cohortId = (created as any)?.id;
           cohortDebug.push({ ok: true, modelName: 'cohort', grade: 7, cohortId });
         } catch (e2: any) {
           cohortDebug.push({ ok: false, modelName: 'cohort', grade: 7, err: String(e2?.message ?? e2) });
         }
+      }
+
+      if (!cohortId) {
+        return res.status(500).json({ ok: false, error: 'FAILED_TO_CREATE_COHORT', cohortDebug });
       }
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
