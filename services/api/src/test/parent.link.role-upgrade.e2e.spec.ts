@@ -41,14 +41,6 @@ it('link sets PARENT role so next login has PARENT', async () => {
     expect(teacherToken).toBeTruthy();
 
     // create join code
-    const jc = await http
-      .post('/api/admin/cohorts/join-code')
-      .set('Authorization', `Bearer ${teacherToken}`)
-      .send({ cohortId, expiresInHours: 24, length: 6 })
-      .expect(201);
-
-    const joinCode = String((jc.body && (jc.body.code ?? jc.body.joinCode ?? jc.body.value ?? jc.body.token)) ?? '');
-    expect(joinCode).toBeTruthy();
 
     // student register + login + onboard + generate parent link code
     const stuEmail = `student_${Date.now()}@classmate.app`;
@@ -69,7 +61,7 @@ it('link sets PARENT role so next login has PARENT', async () => {
     const onboard = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId: seed.body.cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
 
     if (onboard.status !== 201) {

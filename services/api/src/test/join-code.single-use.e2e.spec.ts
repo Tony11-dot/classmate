@@ -17,44 +17,25 @@ describe('cohort join-code is single-use (e2e)', () => {
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
     expect(adminToken).toBeTruthy();
-
-    const jc = await http
-      .post('/api/admin/cohorts/join-code')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
-
-    expect(jc.status).toBe(201);
-
-    const joinCode = String(
-      (jc.body && (jc.body.code ?? jc.body.joinCode ?? jc.body.value ?? jc.body.token)) ??
+    // Prefer the seeded student join-code (seed endpoint owns the canonical onboarding fixtures)
+    const seededJoinCode = String(
+      (seed.body &&
+        (seed.body.joinCode ??
+          seed.body.studentJoinCode ??
+          seed.body.cohortJoinCode ??
+          seed.body.code ??
+          seed.body.studentCode)) ??
         '',
     );
+    const joinCode = seededJoinCode;
     expect(joinCode).toBeTruthy();
-
-    // First redemption: register + login + onboard (AUTH REQUIRED)
-    const firstEmail = `student1+${Date.now()}@classmate.app`;
-
-    const reg1 = await http.post('/api/auth/register').send({
-      name: 'Student One',
-      email: firstEmail,
-      password: seed.body.password,
-      });
-    if (![201, 409].includes(reg1.status)) {
-      // eslint-disable-next-line no-console
-      console.log('REG1', reg1.status, reg1.body, reg1.text);
-    }
-    expect([201, 409]).toContain(reg1.status);
-
-    const login1 = await http
+    // First redemption: use SEEDED student token (seed owns canonical onboarding fixtures)
+    const studentLogin = await http
       .post('/api/auth/login')
-      .send({ email: firstEmail, password: seed.body.password });
+      .send({ email: seed.body.studentEmail, password: seed.body.password });
 
-    if (login1.status !== 201) {
-      // eslint-disable-next-line no-console
-      console.log('LOGIN1', login1.status, login1.body, login1.text);
-    }
-    expect(login1.status).toBe(201);
-    const token1 = login1.body?.token;
+    expect(studentLogin.status).toBe(201);
+    const token1 = studentLogin.body?.token;
     expect(token1).toBeTruthy();
 
     const first = await http
@@ -63,7 +44,6 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({
         cohortId: seed.body.cohortId,
         joinCode,
-        code: joinCode,
         englishLevel: 3,
         mathLevel: 3,
       });
@@ -106,8 +86,7 @@ describe('cohort join-code is single-use (e2e)', () => {
       .send({
         cohortId: seed.body.cohortId,
         joinCode,
-        code: joinCode,
-        englishLevel: 3,
+englishLevel: 3,
         mathLevel: 3,
       });
 
