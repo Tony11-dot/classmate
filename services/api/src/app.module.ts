@@ -38,7 +38,8 @@ const controllers = [
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
 ];
 
-@Module({
+({
+  controllers: [E2ESeedController],
   controllers,
   imports: [
     ...serveStatic,
