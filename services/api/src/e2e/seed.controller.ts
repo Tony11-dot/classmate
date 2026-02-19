@@ -29,7 +29,7 @@ const prisma: any = this.prisma;
 
       // Best-effort Cohort/Classroom for parent-link tests
       // parent-link tests REQUIRE a Cohort id.
-      // Cohort model requires: name (String) + grade (Int). schoolId is NOT a field.
+      // Cohort model requires: name (String) + grade (Int). name is UNIQUE.
       try {
         const models = Object.keys((prisma as any) ?? {});
         cohortDebug.push({ models: models.filter((k) => !k.startsWith('$')).slice(0, 120) });
@@ -37,24 +37,35 @@ const prisma: any = this.prisma;
         cohortDebug.push({ modelsErr: String((e as any)?.message ?? e) });
       }
 
+      const COHORT_NAME = `Test Cohort`; // stable unique key for upsert
+
       try {
-        const created = await prisma.cohort.create({ data: { name: 'Test Cohort', grade: 10 } as any } as any);
+        const created = await prisma.cohort.upsert({
+          where: { name: COHORT_NAME } as any,
+          update: { grade: 10 } as any,
+          create: { name: COHORT_NAME, grade: 10 } as any,
+        } as any);
         cohortId = (created as any)?.id;
-        cohortDebug.push({ ok: true, modelName: 'cohort', grade: 10, cohortId });
+        cohortDebug.push({ ok: true, modelName: 'cohort.upsert', cohortId });
       } catch (e1: any) {
-        cohortDebug.push({ ok: false, modelName: 'cohort', grade: 10, err: String(e1?.message ?? e1) });
+        cohortDebug.push({ ok: false, modelName: 'cohort.upsert', err: String(e1?.message ?? e1) });
+        // fallback: unique name per run (in case name isn't the unique in some env)
+        const fallbackName = `Test Cohort ${Date.now()}`;
         try {
-          const created = await prisma.cohort.create({ data: { name: 'Test Cohort', grade: 7 } as any } as any);
-          cohortId = (created as any)?.id;
-          cohortDebug.push({ ok: true, modelName: 'cohort', grade: 7, cohortId });
+          const created2 = await prisma.cohort.create({
+            data: { name: fallbackName, grade: 10 } as any,
+          } as any);
+          cohortId = (created2 as any)?.id;
+          cohortDebug.push({ ok: true, modelName: 'cohort.create.fallback', cohortId, name: fallbackName });
         } catch (e2: any) {
-          cohortDebug.push({ ok: false, modelName: 'cohort', grade: 7, err: String(e2?.message ?? e2) });
+          cohortDebug.push({ ok: false, modelName: 'cohort.create.fallback', err: String(e2?.message ?? e2) });
         }
       }
 
       if (!cohortId) {
         return res.status(500).json({ ok: false, error: 'FAILED_TO_CREATE_COHORT', cohortDebug });
       }
+
 
       // Users with plaintext password for e2e (auth service currently tolerates plaintext compare)
       
