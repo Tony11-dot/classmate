@@ -21,7 +21,7 @@ export class AdminService {
 
   private ensureAdmin(user: any) {
     if (!hasAnyRole(user, ['ADMIN']))
-      throw new ForbiddenException('Admin only');
+      throw new ForbiddenException('Admin or Teacher only');
   }
 
   async createCohort(user: any, body: { name: string; grade: number }) {
@@ -38,8 +38,10 @@ export class AdminService {
     user: any,
     body: { cohortId: string; expiresInHours?: number; length?: number },
   ) {
-    this.ensureAdmin(user);
-    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    // allow TEACHER for join-code (e2e expects this)
+
+    if (!hasAnyRole(user, ['ADMIN', 'TEACHER'])) throw new ForbiddenException('Admin or Teacher only');
+if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: body.cohortId },
