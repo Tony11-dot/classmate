@@ -42,6 +42,18 @@ export class AdminService {
 
     if (!hasAnyRole(user, ['ADMIN', 'TEACHER'])) throw new ForbiddenException('Admin or Teacher only');
 if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    // TEACHER cohort-scope: must own a course in this cohort
+    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const teacherId = (user as any)?.sub ?? (user as any)?.id;
+
+    if (roles.includes('TEACHER') && !roles.includes('ADMIN')) {
+      const owns = await this.prisma.course.findFirst({
+        where: { teacherId, cohortId: body.cohortId },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Teacher not authorized for this cohort');
+    }
+
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: body.cohortId },
