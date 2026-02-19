@@ -1,14 +1,18 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
 import { RequestIdMiddleware } from './common/request-id.middleware';
 import { HttpLoggingInterceptor } from './common/http-logging.interceptor';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 import { AppModule } from './app.module';
 import { loadEnv } from './env';
 
 async function bootstrap() {
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.use(new RequestIdMiddleware().use);
   app.useGlobalInterceptors(new HttpLoggingInterceptor());
 
