@@ -62,7 +62,7 @@ const jc2 = await http
 
     expect([200, 201]).toContain(jc2.status);
 
-    const joinCode = String(jc2.body?.code ?? '').trim();
+    const joinCode2 = String(jc2.body?.code ?? '').trim();
     expect(joinCode).toBeTruthy();
 // Register + login student
     const email1 = `student1+${Date.now()}@classmate.app`;
