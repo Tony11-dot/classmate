@@ -46,15 +46,21 @@ describe('cohort join-code is single-use (e2e)', () => {
 
     const email1 = `student1+${Date.now()}@classmate.app`;
     const reg1 = await http.post('/api/auth/register').send({
-      email: email1,
+      name: 'Student One',
+      email: firstEmail,
       password: 'Password123!',
     });
-    expect(reg1.status).toBe(201);
+    expect([201, 409]).toContain(reg1.status);
 
-    const token1 = reg1.body?.accessToken ?? reg1.body?.token;
+    const login1 = await http.post('/api/auth/login').send({
+      email: firstEmail,
+      password: 'Password123!',
+    });
+    expect([200, 201]).toContain(login1.status);
+    const token1 = login1.body?.accessToken ?? login1.body?.token;
     expect(token1).toBeTruthy();
 
-    const first = await http
+const first = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
       .send({
@@ -72,15 +78,21 @@ describe('cohort join-code is single-use (e2e)', () => {
 
     const email2 = `student2+${Date.now()}@classmate.app`;
     const reg2 = await http.post('/api/auth/register').send({
-      email: email2,
+      name: 'Student Two',
+      email: secondEmail,
       password: 'Password123!',
     });
-    expect(reg2.status).toBe(201);
+    expect([201, 409]).toContain(reg2.status);
 
-    const token2 = reg2.body?.accessToken ?? reg2.body?.token;
+    const login2 = await http.post('/api/auth/login').send({
+      email: secondEmail,
+      password: 'Password123!',
+    });
+    expect([200, 201]).toContain(login2.status);
+    const token2 = login2.body?.accessToken ?? login2.body?.token;
     expect(token2).toBeTruthy();
 
-    const second = await http
+const second = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
       .send({

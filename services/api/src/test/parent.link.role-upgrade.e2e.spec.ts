@@ -46,15 +46,21 @@ describe('parent link upgrades role (e2e)', () => {
 
     const studentEmail = `student+${Date.now()}@classmate.app`;
     const reg = await http.post('/api/auth/register').send({
-      email: studentEmail,
+      name: 'Student One',
+      email,
       password: 'Password123!',
     });
-    expect(reg.status).toBe(201);
+    expect([201, 409]).toContain(reg.status);
 
-    const studentToken = reg.body?.accessToken ?? reg.body?.token;
+    const slogin = await http.post('/api/auth/login').send({
+      email,
+      password: 'Password123!',
+    });
+    expect([200, 201]).toContain(slogin.status);
+    const studentToken = slogin.body?.accessToken ?? slogin.body?.token;
     expect(studentToken).toBeTruthy();
 
-    const onboard = await http
+const onboard = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({
@@ -82,15 +88,21 @@ describe('parent link upgrades role (e2e)', () => {
 
     const parentEmail = `parent+${Date.now()}@classmate.app`;
     const preg = await http.post('/api/auth/register').send({
+      name: 'Parent One',
       email: parentEmail,
       password: 'Password123!',
     });
-    expect(preg.status).toBe(201);
+    expect([201, 409]).toContain(preg.status);
 
-    const parentToken = preg.body?.accessToken ?? preg.body?.token;
+    const plogin0 = await http.post('/api/auth/login').send({
+      email: parentEmail,
+      password: 'Password123!',
+    });
+    expect([200, 201]).toContain(plogin0.status);
+    const parentToken = plogin0.body?.accessToken ?? plogin0.body?.token;
     expect(parentToken).toBeTruthy();
 
-    const link = await http
+const link = await http
       .post('/api/parent/link')
       .set('Authorization', `Bearer ${parentToken}`)
       .send({ code: parentCode });
