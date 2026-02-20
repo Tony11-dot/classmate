@@ -45,6 +45,8 @@ describe('parent link upgrades role (e2e)', () => {
     expect(joinCode).toBeTruthy();
 
     const studentEmail = `student+${Date.now()}@classmate.app`;
+    const email = `student+${Date.now()}@classmate.app`;
+
     const reg = await http.post('/api/auth/register').send({
       name: 'Student One',
       email,

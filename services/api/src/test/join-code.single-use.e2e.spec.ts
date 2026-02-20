@@ -43,10 +43,7 @@ describe('cohort join-code is single-use (e2e)', () => {
 
     const joinCode = String(jc.body?.code ?? '').trim();
     expect(joinCode).toBeTruthy();
-
-    
-
-    const firstEmail = `student1+${Date.now()}@classmate.app`;
+const firstEmail = `student1+${Date.now()}@classmate.app`;
     const secondEmail = `student2+${Date.now()}@classmate.app`;
 const email1 = `student1+${Date.now()}@classmate.app`;
     const reg1 = await http.post('/api/auth/register').send({
