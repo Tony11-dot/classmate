@@ -79,7 +79,7 @@ describe('parent link upgrades role (e2e)', () => {
     
         expect([200, 201]).toContain(jc.status);
 const joinCode = String(jc.body?.code ?? '').trim();
-        expect(joinCode2).toBeTruthy();
+        expect(joinCode).toBeTruthy();
 const jc2 = await http.post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId, expiresInHours: 24, length: 6 });
