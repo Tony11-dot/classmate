@@ -3,8 +3,7 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+  HttpStatus, TooManyRequestsException} from '@nestjs/common';
 import type { Request, Response } from 'express';
 
 @Catch()

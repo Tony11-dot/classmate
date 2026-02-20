@@ -24,17 +24,10 @@ describe('parent link upgrades role (e2e)', () => {
 
     expect(jc.status).toBe(201);
 
-    const joinCode = String(
-      jc.body?.code ??
-      jc.body?.joinCode ??
-      jc.body?.value ??
-      jc.body?.token ??
-      ''
-    );
-
+    const rawJoinCode = jc.body?.code ?? jc.body?.joinCode ?? jc.body?.value ?? jc.body?.token ?? '';
+    const joinCode = String(rawJoinCode).padStart(6, '0');
     expect(joinCode).toBeTruthy();
-
-    // small delay to avoid rate-limit between tests
+// small delay to avoid rate-limit between tests
     await new Promise(r => setTimeout(r, 50));
 
 const email = `student+${Date.now()}@classmate.app`;

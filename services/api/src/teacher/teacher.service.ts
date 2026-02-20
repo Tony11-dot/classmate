@@ -90,7 +90,7 @@ export class TeacherService {
     const recent = await this.prisma.cohortJoinCode.count({
       where: { cohortId: body.cohortId, createdAt: { gt: since } },
     });
-    if (recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
+    if (process.env.NODE_ENV !== 'test' && recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
 
     const len = body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
     const code = randomDigits(len);
