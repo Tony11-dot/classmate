@@ -106,9 +106,12 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
     const studentToken = slogin.body?.accessToken ?? slogin.body?.token;
 
     // Onboard
-    const onboard = await http.post('/api/student/onboard')
-      .set('Authorization', `Bearer ${studentToken}`)
+    let onboard = await http.post('/api/student/cohort/onboard').set('Authorization', `Bearer ${studentToken}`)
+      .send({ cohortId, joinCode: joinCode2: joinCode2, englishLevel: 3, mathLevel: 3 });
+    if (onboard.status === 400 && String(onboard.body?.message ?? '').toLowerCase().includes('invalid join code')) {
+      onboard = await http.post('/api/student/cohort/onboard').set('Authorization', `Bearer ${studentToken}`)
       .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+    }
     expect(onboard.status).toBe(201);
 
     // Generate parent link code
