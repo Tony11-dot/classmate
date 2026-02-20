@@ -9,10 +9,32 @@ describe('cohort join-code is single-use (e2e)', () => {
     const seed = await http.post('/api/test/seed/admin-web').send({});
     expect(seed.status).toBe(201);
 
-    const adminToken = seed.body?.adminToken ?? seed.body?.token ?? seed.body?.accessToken;
-    expect(adminToken).toBeTruthy();
+    const adminEmail =
+      seed.body?.adminEmail ??
+      seed.body?.email ??
+      seed.body?.admin?.email ??
+      seed.body?.user?.email ??
+      seed.body?.adminUser?.email ??
+      '';
 
-    const jc = await http
+    const adminPassword =
+      seed.body?.adminPassword ??
+      seed.body?.password ??
+      seed.body?.admin?.password ??
+      seed.body?.adminUser?.password ??
+      'Password123!';
+
+    expect(adminEmail).toBeTruthy();
+    expect(adminPassword).toBeTruthy();
+
+    const alogin = await http.post('/api/auth/login').send({
+      email: adminEmail,
+      password: adminPassword,
+    });
+    expect([200, 201]).toContain(alogin.status);
+
+    const adminToken = alogin.body?.accessToken ?? alogin.body?.token;
+    expect(adminToken).toBeTruthy();const jc = await http
       .post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
