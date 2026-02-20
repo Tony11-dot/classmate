@@ -22,12 +22,11 @@ describe('parent link upgrades role (e2e)', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
     expect(jc.status).toBe(201);
-    const joinCode = String(
-      jc.body?.code ?? jc.body?.joinCode ?? jc.body?.value ?? jc.body?.token ?? '',
-    );
+    const rawJoinCode = jc.body?.code ?? jc.body?.joinCode ?? jc.body?.value ?? jc.body?.token ?? '',
+    ;
+    const joinCode = String(rawJoinCode ?? '').padStart(6, '0');
     expect(joinCode).toBeTruthy();
-
-    const email = `student+${Date.now()}@classmate.app`;
+const email = `student+${Date.now()}@classmate.app`;
     const reg = await http.post('/api/auth/register').send({
       name: 'Student One',
       email,
