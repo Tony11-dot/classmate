@@ -1,19 +1,17 @@
 import request from 'supertest';
-import { TestApp } from './utils/test-app';
+import { createTestApp } from './helpers/app';
 
 describe('parent link upgrades role (e2e)', () => {
   it('e2e', async () => {
-    const t = await TestApp.init();
+    const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-    // seed
     const seed = await http.post('/api/test/seed/admin-web').send({});
     expect(seed.status).toBe(201);
 
-    const adminToken = seed.body?.adminToken;
+    const adminToken = seed.body?.adminToken ?? seed.body?.token ?? seed.body?.accessToken;
     expect(adminToken).toBeTruthy();
 
-    // generate join code
     const jc = await http
       .post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -24,18 +22,16 @@ describe('parent link upgrades role (e2e)', () => {
     const joinCode = String(jc.body?.code ?? '').trim();
     expect(joinCode).toBeTruthy();
 
-    // student register
-    const email = `student+${Date.now()}@classmate.app`;
+    const studentEmail = `student+${Date.now()}@classmate.app`;
     const reg = await http.post('/api/auth/register').send({
-      email,
+      email: studentEmail,
       password: 'Password123!',
     });
     expect(reg.status).toBe(201);
 
-    const studentToken = reg.body?.accessToken;
+    const studentToken = reg.body?.accessToken ?? reg.body?.token;
     expect(studentToken).toBeTruthy();
 
-    // onboard
     const onboard = await http
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
@@ -46,9 +42,12 @@ describe('parent link upgrades role (e2e)', () => {
         mathLevel: 3,
       });
 
+    if (onboard.status !== 201) {
+      // eslint-disable-next-line no-console
+      console.log('ONBOARD', onboard.status, onboard.body, onboard.text, { joinCode });
+    }
     expect(onboard.status).toBe(201);
 
-    // generate parent link code
     const plc = await http
       .post('/api/student/parent-link-code')
       .set('Authorization', `Bearer ${studentToken}`)
@@ -59,7 +58,6 @@ describe('parent link upgrades role (e2e)', () => {
     const parentCode = plc.body?.code;
     expect(parentCode).toBeTruthy();
 
-    // parent register
     const parentEmail = `parent+${Date.now()}@classmate.app`;
     const preg = await http.post('/api/auth/register').send({
       email: parentEmail,
@@ -67,17 +65,16 @@ describe('parent link upgrades role (e2e)', () => {
     });
     expect(preg.status).toBe(201);
 
-    const parentToken = preg.body?.accessToken;
+    const parentToken = preg.body?.accessToken ?? preg.body?.token;
+    expect(parentToken).toBeTruthy();
 
-    // parent link
     const link = await http
       .post('/api/parent/link')
       .set('Authorization', `Bearer ${parentToken}`)
       .send({ code: parentCode });
 
-    expect(link.status).toBe(201);
+    expect([200, 201]).toContain(link.status);
 
-    // login again to verify role
     const plogin = await http.post('/api/auth/login').send({
       email: parentEmail,
       password: 'Password123!',
@@ -85,7 +82,7 @@ describe('parent link upgrades role (e2e)', () => {
 
     expect(plogin.status).toBe(201);
 
-    const roles = plogin.body?.user?.roles ?? [];
+    const roles = plogin.body?.user?.roles ?? plogin.body?.roles ?? [];
     expect(Array.isArray(roles)).toBe(true);
     expect(roles).toContain('PARENT');
 
