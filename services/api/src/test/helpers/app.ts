@@ -4,7 +4,7 @@ import { AppModule } from '../../app.module';
 
 export type TestApp = {
   app: any;
-  http: SuperTest<STTest>;
+  http: TestAgent<STTest>;
   close: () => Promise<void>;
 };
 

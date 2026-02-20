@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
@@ -62,7 +62,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const recent = await this.prisma.cohortJoinCode.count({
       where: { cohortId: body.cohortId, createdAt: { gt: since } },
     });
-    if (process.env.NODE_ENV !== 'test' && recent >= 5) throw new TooManyRequestsException('Too many join-codes created; try again soon');
+    if (process.env.NODE_ENV !== 'test' && recent >= 5) throw new HttpException('Too many join-codes created; try again soon', HttpStatus.TOO_MANY_REQUESTS);
 
     const len =
       body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;

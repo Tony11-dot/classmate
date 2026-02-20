@@ -1,7 +1,7 @@
 import { TutorReplyMode } from './tutor.reply.provider';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
-import { BadRequestException, ForbiddenException, Injectable, TooManyRequestsException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { hasAnyRole } from '../auth/permissions';
 
@@ -593,7 +593,7 @@ export class TutorService {
       store: this.replyRateStore,
     });
     if (!r.ok) {
-      throw new (require('@nestjs/common').TooManyRequestsException)(
+      throw new (require('@nestjs/common').HttpException)(
         'Too many tutor replies. Please wait a bit.',
       );
     }
