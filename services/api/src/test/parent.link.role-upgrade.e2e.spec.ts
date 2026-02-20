@@ -39,8 +39,34 @@ describe('parent link upgrades role (e2e)', () => {
 
     expect([200, 201]).toContain(tlogin.status);
 
-    const tkn = tlogin.body?.accessToken ?? tlogin.body?.token;
+        const tkn = tlogin.body?.accessToken ?? tlogin.body?.token;
     expect(tkn).toBeTruthy();
+
+    const adminEmail =
+      seed.body?.adminEmail ??
+      seed.body?.admin?.email ??
+      seed.body?.adminUser?.email ??
+      seed.body?.admin_account?.email ??
+      seed.body?.emailAdmin ??
+      seed.body?.email ??
+      teacherEmail;
+
+    const adminPassword =
+      seed.body?.adminPassword ??
+      seed.body?.admin?.password ??
+      seed.body?.adminUser?.password ??
+      seed.body?.admin_account?.password ??
+      seed.body?.passwordAdmin ??
+      seed.body?.password ??
+      teacherPassword;
+
+    let adminToken = tkn;
+    if (adminEmail && adminPassword) {
+      const alogin = await http.post('/api/auth/login').send({ email: adminEmail, password: adminPassword });
+      expect([200, 201]).toContain(alogin.status);
+      adminToken = alogin.body?.accessToken ?? alogin.body?.token ?? adminToken;
+    }
+    expect(adminToken).toBeTruthy();
   
 
 
@@ -64,7 +90,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
     // Register student
     const studentEmail = `student+${Date.now()}@classmate.app`;
 
-    const studentEmail = `student+${Date.now()}@classmate.app`;
+    const studentEmail2 = `student+${Date.now()}@classmate.app`;
 
     await http.post('/api/auth/register').send({
       name: 'Student',
@@ -73,7 +99,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
     });
 
     const slogin = await http.post('/api/auth/login').send({
-      email: studentEmail,
+      email: studentEmail2,
       password: 'Password123!',
     });
 
@@ -82,7 +108,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
     // Onboard
     const onboard = await http.post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
     expect(onboard.status).toBe(201);
 
     // Generate parent link code
