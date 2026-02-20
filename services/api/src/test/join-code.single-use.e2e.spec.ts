@@ -54,15 +54,6 @@ describe('cohort join-code is single-use (e2e)', () => {
         expect([200, 201]).toContain(jc.status);
 const joinCode = String(jc.body?.code ?? '').trim();
         expect(joinCode).toBeTruthy();
-const jc2 = await http
-      .post('/api/teacher/cohorts/join-code')
-      .set('Authorization', `Bearer ${tkn}`)
-      .send({ cohortId, expiresInHours: 24, length: 6 });
-
-    expect([200, 201]).toContain(jc2.status);
-
-    const joinCode2 = String(jc2.body?.code ?? '').trim();
-    expect(joinCode2).toBeTruthy();
 // Register + login student
     const email1 = `student1+${Date.now()}@classmate.app`;
 

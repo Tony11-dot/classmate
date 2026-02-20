@@ -145,9 +145,15 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
       password: 'Password123!',
     });
 
-    const roles = (relog.body?.user?.roles ?? relog.body?.roles ?? []) as any[];
+    const relogToken = relog.body?.accessToken ?? relog.body?.token ?? null;
+    expect(relogToken).toBeTruthy();
+
+    const me = await http.get('/api/auth/me').set('Authorization', `Bearer ${relogToken}`);
+    expect([200, 201]).toContain(me.status);
+
+    const roles = (me.body?.user?.roles ?? me.body?.roles ?? relog.body?.user?.roles ?? relog.body?.roles ?? []) as any[];
     const role =
-      (relog.body?.user?.role ?? relog.body?.role ?? relog.body?.user?.type ?? relog.body?.type ?? null) as any;
+      (me.body?.user?.role ?? me.body?.role ?? relog.body?.user?.role ?? relog.body?.role ?? me.body?.user?.type ?? me.body?.type ?? null) as any;
 
     const norm = (x: any) => String(x ?? '').toUpperCase().trim();
     const roleSet = new Set<string>([...roles.map(norm), norm(role)].filter(Boolean));
