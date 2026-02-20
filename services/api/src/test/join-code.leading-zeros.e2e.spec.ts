@@ -38,8 +38,6 @@ describe('join-code preserves leading zeros (e2e)', () => {
 
         joinCode = String(jc.body?.code ?? '').trim();
         expect(joinCode).toBeTruthy();
-
-        if (joinCode.startsWith('0')) break;
       }
       const studentEmail = `student+${Date.now()}@classmate.app`;
 
