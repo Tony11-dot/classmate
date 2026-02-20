@@ -15,17 +15,27 @@ describe('cohort join-code is single-use (e2e)', () => {
     expect(adminLogin.status).toBe(201);
     const adminToken = adminLogin.body?.token;
     expect(adminToken).toBeTruthy();
-    // use seeded join-code (avoids join-code rate-limit)
+    
+    // create join code via ADMIN (no padStart)
+    const jc = await http
+      .post('/api/admin/cohorts/join-code')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ cohortId: seed.body.cohortId, expiresInHours: 24, length: 6 });
+
+    expect(jc.status).toBe(201);
+
     const joinCode = String(
-      seed.body?.joinCode ??
-        seed.body?.studentJoinCode ??
-        seed.body?.studentJoincode ??
-        seed.body?.code ??
-        seed.body?.value ??
-        seed.body?.token ??
-        ''
+      jc.body?.code ??
+      jc.body?.joinCode ??
+      jc.body?.value ??
+      jc.body?.token ??
+      ''
     );
+
     expect(joinCode).toBeTruthy();
+
+    // small delay to avoid rate-limit between tests
+    await new Promise(r => setTimeout(r, 50));
 
 const firstEmail = `student1+${Date.now()}@classmate.app`;
     const reg1 = await http.post('/api/auth/register').send({
