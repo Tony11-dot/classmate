@@ -54,15 +54,6 @@ describe('cohort join-code is single-use (e2e)', () => {
         expect([200, 201]).toContain(jc.status);
 const joinCode = String(jc.body?.code ?? '').trim();
         expect(joinCode).toBeTruthy();
-
-    const jc2 = await http
-      .post('/api/teacher/cohorts/join-code')
-      .set('Authorization', `Bearer ${tkn}`)
-      .send({ cohortId, expiresInHours: 24, length: 6 });
-    expect([200, 201]).toContain(jc2.status);
-
-    const joinCode2 = String(jc2.body?.code ?? jc2.body?.joinCode ?? '').trim();
-    expect(joinCode2).toBeTruthy();
 // Register + login student
     const email1 = `student1+${Date.now()}@classmate.app`;
 
@@ -82,7 +73,7 @@ const joinCode = String(jc.body?.code ?? '').trim();
     // Onboard FIRST time
     const first = await http.post('/api/student/onboard')
       .set('Authorization', `Bearer ${token1}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
     expect(first.status).toBe(201);
 
     // Second student attempt
@@ -103,7 +94,7 @@ const joinCode = String(jc.body?.code ?? '').trim();
 
     const second = await http.post('/api/student/onboard')
       .set('Authorization', `Bearer ${token2}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
 
     expect([400,401,403]).toContain(second.status);
 
