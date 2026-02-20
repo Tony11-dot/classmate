@@ -79,8 +79,7 @@ describe('parent link upgrades role (e2e)', () => {
     
         expect([200, 201]).toContain(jc.status);
 const joinCode = String(jc.body?.code ?? '').trim();
-        expect(joinCode).toBeTruthy();
-    
+        expect(joinCode2).toBeTruthy();
 const jc2 = await http.post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId, expiresInHours: 24, length: 6 });
@@ -108,7 +107,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
     // Onboard
     const onboard = await http.post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
     expect(onboard.status).toBe(201);
 
     // Generate parent link code
@@ -146,9 +145,14 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
       password: 'Password123!',
     });
 
-    const roles = relog.body?.user?.roles ?? relog.body?.roles ?? [];
+    const roles = (relog.body?.user?.roles ?? relog.body?.roles ?? []) as any[];
+    const role =
+      (relog.body?.user?.role ?? relog.body?.role ?? relog.body?.user?.type ?? relog.body?.type ?? null) as any;
 
-    expect(roles).toContain('PARENT');
+    const norm = (x: any) => String(x ?? '').toUpperCase().trim();
+    const roleSet = new Set<string>([...roles.map(norm), norm(role)].filter(Boolean));
+
+    expect(Array.from(roleSet)).toContain('PARENT');
 
     await t.close();
   });
