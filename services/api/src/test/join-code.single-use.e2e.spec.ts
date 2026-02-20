@@ -6,7 +6,7 @@ describe('cohort join-code is single-use (e2e)', () => {
     const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-    const seed = await http.post('/api/test/seed/admin-web').send({ cohortId: seed.body.cohortId, code: joinCode, joinCode: joinCode, englishLevel: 3, mathLevel: 3 });
+    const seed = await http.post('/api/test/seed/admin-web').send({});
 
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
