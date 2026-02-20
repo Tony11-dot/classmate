@@ -94,7 +94,7 @@ export class TeacherService {
 
     const len = body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
     const code = randomDigits(len);
-    const codeHash = await bcrypt.hash(code, 10);
+    const codeHash = await bcrypt.hash(String(code), 10);
 
     const expiresAt =
       body.expiresInHours && body.expiresInHours > 0
