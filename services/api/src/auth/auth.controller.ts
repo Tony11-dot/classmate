@@ -9,12 +9,14 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
+
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(private readonly auth: AuthService, private readonly prisma: PrismaService) {}
 
   @Post('login')
   async login(@Body() dto: LoginDto) {
@@ -30,7 +32,17 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  me(@Req() req: any) {
-    return req.user;
+  async me(@Req() req: any) {
+    const u = req.user;
+    const uid = u?.sub ?? u?.id;
+    if (!uid) return { ok: true, user: u };
+
+    const db = await this.prisma.user.findUnique({
+      where: { id: uid },
+      include: { roles: true },
+    });
+
+    const roles = (db?.roles ?? []).map((r: any) => r.role);
+    return { ok: true, user: { ...(u ?? {}), id: uid, roles } };
   }
 }

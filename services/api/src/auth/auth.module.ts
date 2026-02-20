@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -12,9 +13,8 @@ import { RolesGuard } from './roles.guard';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'dev_secret_change_me',
-      signOptions: { expiresIn: '7d' },
-    }),
-  ],
+      signOptions: { expiresIn: '7d' } }),
+    PrismaModule],
   controllers: [AuthController],
   providers: [
     AuthService,
