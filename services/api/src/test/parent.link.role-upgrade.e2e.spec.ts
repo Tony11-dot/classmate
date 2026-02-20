@@ -59,7 +59,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId, expiresInHours: 24, length: 6 });
 
-    const joinCode = String(jc2.body.code).trim();
+    const joinCode2 = String(jc2.body.code).trim();
 
     // Register student
     const studentEmail = `student+${Date.now()}@classmate.app`;
