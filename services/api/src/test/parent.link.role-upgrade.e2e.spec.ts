@@ -6,7 +6,7 @@ describe('parent link upgrades role (e2e)', () => {
     const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-    const seed = await http.post('/api/test/seed/admin-web').send({ cohortId: seed.body.cohortId, joinCode, code: joinCode, englishLevel: 3, mathLevel: 3 });
+    const seed = await http.post('/api/test/seed/admin-web').send({ cohortId: seed.body.cohortId, code: joinCode, joinCode: joinCode, englishLevel: 3, mathLevel: 3 });
 
     if (onboard.status !== 201) {
       // eslint-disable-next-line no-console

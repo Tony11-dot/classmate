@@ -6,7 +6,7 @@ describe('cohort join-code is single-use (e2e)', () => {
     const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-    const seed = await http.post('/api/test/seed/admin-web').send({ cohortId: seed.body.cohortId, joinCode, code: joinCode, englishLevel: 3, mathLevel: 3 });
+    const seed = await http.post('/api/test/seed/admin-web').send({ cohortId: seed.body.cohortId, code: joinCode, joinCode: joinCode, englishLevel: 3, mathLevel: 3 });
 
     if (first.status !== 201) {
       // eslint-disable-next-line no-console
@@ -15,7 +15,7 @@ describe('cohort join-code is single-use (e2e)', () => {
     expect(first.status).toBe(201);
 
     const secondEmail = `student2+${Date.now()}@classmate.app`;
-    const reg2 = await http.post('/api/auth/register').send({ cohortId: seed.body.cohortId, joinCode, code: joinCode, englishLevel: 3, mathLevel: 3 });
+    const reg2 = await http.post('/api/auth/register').send({ cohortId: seed.body.cohortId, code: joinCode, joinCode: joinCode, englishLevel: 3, mathLevel: 3 });
 
     expect([400, 401, 403]).toContain(second.status);
 
