@@ -107,7 +107,7 @@ const jc2 = await http.post('/api/admin/cohorts/join-code')
 
     // Onboard
     const onboard = await http.post('/api/student/onboard').set('Authorization', `Bearer ${studentToken}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
     expect(onboard.status).toBe(201);
 
     // Generate parent link code
