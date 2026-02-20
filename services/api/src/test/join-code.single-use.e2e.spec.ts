@@ -1,6 +1,32 @@
 import request from 'supertest';
 import { createTestApp } from './helpers/app';
 
+
+  async function doOnboard(args: {
+    cohortId: string;
+    token: string;
+    joinCode: string;
+    joinCode2: string;
+    englishLevel: number;
+    mathLevel: number;
+  }) {
+    const { cohortId, token, joinCode, joinCode2, englishLevel, mathLevel } = args;
+
+    // try joinCode2 first (admin-flavor); if API rejects, retry with joinCode (teacher-flavor)
+    let res = await http
+      .post('/api/student/cohort/onboard')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cohortId, joinCode: joinCode2, englishLevel, mathLevel });
+
+    if (res.status === 400 && String(res.body?.message ?? '').toLowerCase().includes('invalid join code')) {
+      res = await http
+        .post('/api/student/cohort/onboard')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ cohortId, joinCode, englishLevel, mathLevel });
+    }
+
+    return res;
+  }
 describe('cohort join-code is single-use (e2e)', () => {
   it('second redemption fails', async () => {
     const t = await createTestApp();
