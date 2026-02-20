@@ -7,11 +7,6 @@ describe('parent link upgrades role (e2e)', () => {
     const http = request(t.app.getHttpServer());
 
     const seed = await http.post('/api/test/seed/admin-web').send({});
-
-    if (onboard.status !== 201) {
-      // eslint-disable-next-line no-console
-      console.log('ONBOARD', onboard.status, onboard.body, onboard.text);
-    }
     expect(onboard.status).toBe(201);
 
     const plc = await http

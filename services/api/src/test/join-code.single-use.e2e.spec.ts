@@ -7,11 +7,6 @@ describe('cohort join-code is single-use (e2e)', () => {
     const http = request(t.app.getHttpServer());
 
     const seed = await http.post('/api/test/seed/admin-web').send({});
-
-    if (first.status !== 201) {
-      // eslint-disable-next-line no-console
-      console.log('JOIN1', first.status, first.body, first.text);
-    }
     expect(first.status).toBe(201);
 
     const secondEmail = `student2+${Date.now()}@classmate.app`;
