@@ -106,9 +106,14 @@ const joinCode = String(jc.body?.code ?? '').trim();
     const token1 = login1.body?.accessToken ?? login1.body?.token;
 
     // Onboard FIRST time
-    const first = await http.post('/api/student/onboard')
-      .set('Authorization', `Bearer ${token1}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
+    const first = await doOnboard({
+      cohortId,
+      token: token1,
+      joinCode,
+      joinCode2,
+      englishLevel: 3,
+      mathLevel: 3,
+    });
     expect(first.status).toBe(201);
 
     // Second student attempt
@@ -127,10 +132,14 @@ const joinCode = String(jc.body?.code ?? '').trim();
 
     const token2 = login2.body?.accessToken ?? login2.body?.token;
 
-    const second = await http.post('/api/student/onboard')
-      .set('Authorization', `Bearer ${token2}`)
-      .send({ cohortId, joinCode: joinCode2, englishLevel: 3, mathLevel: 3 });
-
+    const second = await doOnboard({
+      cohortId,
+      token: token2,
+      joinCode,
+      joinCode2,
+      englishLevel: 3,
+      mathLevel: 3,
+    });
     expect([400,401,403]).toContain(second.status);
 
     await t.close();
