@@ -10,8 +10,9 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "globalSetup": "<rootDir>/test/jest-e2e.global-setup.cjs",
+  "globalSetup": "<rootDir>/jest-e2e.global-setup.cjs",
   "setupFilesAfterEnv": [
+    "<rootDir>/jest-e2e.setup.cjs",
     "<rootDir>/test/jest-e2e.setup.cjs"
   ]
 }
