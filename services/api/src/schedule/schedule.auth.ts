@@ -16,21 +16,22 @@ export async function resolveCohortIdForSchedule(params: {
   user?: any;
   cohortId?: string;
   childId?: string;
-}): Promise<string | null> {
+}): Promise<string> {
+  const { prisma, req, request } = params as any;
+
+  // Try to read user from common Nest request shapes
   const __reqAny: any =
-    (typeof (params as any)?.req !== 'undefined'
-      ? (params as any).req
-      : typeof (params as any)?.request !== 'undefined'
-        ? (params as any).request
-        : undefined);
+    (typeof req !== 'undefined' ? (req as any) : undefined) ??
+    (typeof request !== 'undefined' ? (request as any) : undefined) ??
+    (params as any)?.req ??
+    (params as any)?.request;
 
   const __user: any =
     (params as any)?.user ??
     __reqAny?.user ??
     __reqAny?.auth?.user ??
     __reqAny?.context?.user ??
-    __reqAny?.payload ??
-    undefined;
+    __reqAny?.payload;
 
   const __uid =
     __user?.id ??
@@ -58,56 +59,32 @@ export async function resolveCohortIdForSchedule(params: {
     __roles.includes('PARENTS');
 
   const __isStaff =
-    __roles.includes('TEACHER') ||
-    __roles.includes('ROLE_TEACHER') ||
     __roles.includes('ADMIN') ||
-    __roles.includes('ROLE_ADMIN') ||
+    __roles.includes('TEACHER') ||
     __roles.includes('SECRETARY') ||
+    __roles.includes('ROLE_ADMIN') ||
+    __roles.includes('ROLE_TEACHER') ||
     __roles.includes('ROLE_SECRETARY');
 
   const __p: any =
     (params as any)?.prisma ??
     (typeof prisma !== 'undefined' ? (prisma as any) : undefined);
 
-  if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-    try {
-      // eslint-disable-next-line no-console
-      console.log(
-        '[resolveCohortIdForSchedule] uid=',
-        __uid,
-        'roles=',
-        __roles,
-        'isStudent=',
-        __isStudent,
-        'isParent=',
-        __isParent,
-        'isStaff=',
-        __isStaff,
-        'incoming cohortId=',
-        (params as any).cohortId,
-        'childId=',
-        (params as any).childId,
-      );
-    } catch {}
-  }
-
-  // STUDENT: forbid query cohortId; derive from DB by userId
+  // STUDENT: forbid specifying cohortId via query; derive cohortId from DB by userId
   if (__isStudent) {
     const __requestedCohortId = __reqAny?.query?.cohortId;
-    if (__requestedCohortId) {
+    if (__requestedCohortId !== undefined) {
       throw new ForbiddenException('Students cannot specify cohortId');
     }
 
-    if ((params as any).cohortId) return String((params as any).cohortId);
-
-    const __fromUser =
+    const cidFromToken =
       __user?.studentProfile?.cohortId ??
       __user?.profile?.cohortId ??
       __user?.cohortId ??
       __user?.studentProfile?.cohort?.id ??
       null;
 
-    if (__fromUser) return String(__fromUser);
+    if (cidFromToken) return String(cidFromToken);
 
     if (__uid && __p?.studentProfile?.findFirst) {
       const __sp =
@@ -125,13 +102,6 @@ export async function resolveCohortIdForSchedule(params: {
             select: { cohortId: true },
           })
           .catch(() => null));
-
-      if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('[resolveCohortIdForSchedule] studentProfile lookup ->', __sp);
-        } catch {}
-      }
 
       if (__sp?.cohortId) return String(__sp.cohortId);
     }
@@ -156,7 +126,7 @@ export async function resolveCohortIdForSchedule(params: {
     return String(cid);
   }
 
-  // TEACHER/ADMIN/SECRETARY: require cohortId
+  // STAFF: require cohortId
   const cohortId = (params as any).cohortId ?? null;
   if (!cohortId) throw new BadRequestException('cohortId is required');
   return String(cohortId);

@@ -30,7 +30,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (process.env.NODE_ENV === 'test') {
       // eslint-disable-next-line no-console
-      console.log('EXC', exception?.name ?? exception?.constructor?.name ?? 'Error', exception?.message ?? String(exception));
+      if (process.env.LOG_EXCEPTIONS === '1') {
+        // eslint-disable-next-line no-console
+        console.log(
+          'EXC',
+          exception?.name ?? exception?.constructor?.name ?? 'Error',
+          exception?.message ?? String(exception),
+        );
+      }
     }
 
     res.status(status).json({
