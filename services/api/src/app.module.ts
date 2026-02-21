@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/http-exception.filter';
-import { APP_PIPE, APP_FILTER } from '@nestjs/core';
+import { APP_PIPE, APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -51,10 +52,26 @@ const controllers = [
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
-controllers: [E2ESeedController],
+controllers,
   imports: [
     ...serveStatic,
+    ThrottlerModule.forRoot([
+      {
+        name: 'global',
+        ttl: 60_000,
+        limit: 120,
+      },
+      {
+        name: 'auth',
+        ttl: 60_000,
+        limit: 30,
+      },
+    ]),
     HealthModule,
     PrismaModule,
     AuthModule,
