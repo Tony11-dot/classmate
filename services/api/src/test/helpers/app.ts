@@ -1,10 +1,11 @@
 import { Test } from '@nestjs/testing';
-import request, { SuperTest, Test as STTest } from 'supertest';
+import request, { Test as STTest } from 'supertest';
+type Http = ReturnType<typeof request>;
 import { AppModule } from '../../app.module';
 
 export type TestApp = {
   app: any;
-  http: SuperTest<STTest>;
+  http: Http;
   close: () => Promise<void>;
 };
 
