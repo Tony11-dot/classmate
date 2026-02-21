@@ -52,7 +52,7 @@ export class TeacherController {
   }
 
   @Post('attendance/mark')
-  mark(@Req() req: any, @Body() body: any) {
+  async mark(@Req() req: any, @Body() body: any) {
     // ATTENDANCE_MARK_RETURNS_OK_FALLBACK
     const r = await this.teacher.markAttendance(req.user, body);
     return (r ?? { ok: true }) as any;
