@@ -19,7 +19,7 @@ import { Throttle } from '@nestjs/throttler';
 export class AuthController {
   constructor(private readonly auth: AuthService, private readonly prisma: PrismaService) {}
 
-  @Throttle('auth')
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @Post('login')
   async login(@Body() dto: LoginDto) {
     const result = await this.auth.login(dto.email, dto.password);
@@ -27,7 +27,7 @@ export class AuthController {
     return result;
   }
 
-  @Throttle('auth')
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @Post('register')
   register(@Body() body: RegisterDto) {
     return this.auth.register(body);

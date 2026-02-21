@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, HttpException } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
 @Catch()
@@ -34,8 +34,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         // eslint-disable-next-line no-console
         console.log(
           'EXC',
-          exception?.name ?? exception?.constructor?.name ?? 'Error',
-          exception?.message ?? String(exception),
+          (exception as any)?.name ?? (exception as any)?.constructor?.name ?? 'Error',
+          (exception as any)?.message ?? String(exception),
         );
       }
     }
