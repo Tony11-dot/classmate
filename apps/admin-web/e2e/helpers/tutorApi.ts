@@ -1,6 +1,6 @@
 import { request, expect, APIRequestContext } from '@playwright/test';
 
-export const API = process.env.E2E_API ?? 'http://127.0.0.1:3000/api';
+export const API = `${(process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3001').replace(/\/$/,'')}/api`;
 
 async function seedAdminWithRetry(retries = 6): Promise<any> {
   const ctx = await request.newContext();

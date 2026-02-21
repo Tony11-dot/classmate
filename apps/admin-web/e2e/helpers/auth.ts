@@ -1,6 +1,6 @@
 import { APIRequestContext, Page } from '@playwright/test';
 
-const API_BASE = process.env.E2E_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE = process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3001';
 
 export async function apiLogin(
   request: APIRequestContext,

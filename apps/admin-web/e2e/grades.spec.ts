@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAsTeacher } from './helpers/auth';
 
 const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:3001';
-const API = 'http://127.0.0.1:3000';
+const API = 'http://127.0.0.1:3001';
 const TOKEN_KEY = 'classmate_token';
 
 function todayYmd() {
