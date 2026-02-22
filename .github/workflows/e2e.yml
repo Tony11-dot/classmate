@@ -30,6 +30,7 @@ jobs:
 
     env:
       NODE_ENV: test
+      ENABLE_E2E_SEED: '1'
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
       # Playwright e2e reads this (defaults to 3001/3002 otherwise)
       E2E_API_BASE_URL: http://127.0.0.1:3000
