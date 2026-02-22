@@ -30,6 +30,7 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
+      API: http://127.0.0.1:3000/api
 
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +50,13 @@ jobs:
       - run: pnpm -C services/api exec prisma db seed
 
       - run: pnpm -C services/api start &
-      - run: sleep 8
+      - run: |
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:3000/api/health && exit 0 || true
+            sleep 1
+          done
+          echo "API did not become healthy" >&2
+          exit 1
 
       - run: pnpm -C apps/admin-web exec playwright install --with-deps
       - run: pnpm -C apps/admin-web exec playwright test
