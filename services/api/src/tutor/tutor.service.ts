@@ -291,40 +291,48 @@ export class TutorService {
     }
 
     // Deterministic fallback: ensure a cohort-scoped default character exists
-    if (!characterId && cohortId) {
-      const existing = await this.prisma.tutorCharacter.findFirst({
-        where: { cohortId, subject: subjectNorm as any },
+  // Deterministic fallback: always ensure a default character exists.
+  // IMPORTANT: cohortId can be null in tests (no studentProfile), so we must still create a global fallback.
+  if (!characterId) {
+    const targetCohortId = cohortId ?? null;
+
+    const existing = await this.prisma.tutorCharacter.findFirst({
+      where: { cohortId: targetCohortId, subject: subjectNorm as any },
+      select: { id: true },
+    });
+
+    if (existing?.id) {
+      characterId = existing.id;
+    } else {
+      const created = await this.prisma.tutorCharacter.create({
+        data: {
+          cohortId: targetCohortId,
+          subject: subjectNorm as any,
+          name:
+            subjectNorm === 'MATH'
+              ? 'Math Tutor'
+              : subjectNorm === 'PHYSICS'
+                ? 'Physics Tutor'
+                : subjectNorm === 'CS'
+                  ? 'CS Tutor'
+                  : 'General Tutor',
+          curriculum: 'bagrut',
+          maxGrade: 12,
+          language: 'en',
+          tone: subjectNorm === 'PHYSICS' ? 'coach' : 'friendly',
+          verbosity: 5,
+          explainStyle: subjectNorm === 'PHYSICS' ? 'examples' : 'step-by-step',
+        } as any,
         select: { id: true },
-      });
-      if (existing?.id) {
-        characterId = existing.id;
-      } else {
-        const created = await this.prisma.tutorCharacter.create({
-          data: {
-            cohortId,
-            subject: subjectNorm as any,
-            name:
-              subjectNorm === 'MATH'
-                ? 'Math Tutor'
-                : subjectNorm === 'PHYSICS'
-                  ? 'Physics Tutor'
-                  : subjectNorm === 'CS'
-                    ? 'CS Tutor'
-                    : 'General Tutor',
-            curriculum: 'bagrut',
-            maxGrade: 12,
-            language: 'en',
-            tone: subjectNorm === 'PHYSICS' ? 'coach' : 'friendly',
-            verbosity: 5,
-            explainStyle:
-              subjectNorm === 'PHYSICS' ? 'examples' : 'step-by-step',
-            systemNotes:
-              'Bagrut level only. Adapt to learning profile and AI brain. Ask mini-quiz.',
-          } as any,
-          select: { id: true },
-        });
-        characterId = created.id;
-      }
+      } as any);
+
+      characterId = created?.id ?? null;
+    }
+  }
+
+  if (!characterId) {
+    throw new Error('TUTOR_CHARACTER_ID_NOT_RESOLVED');
+  }
     }
 
     const row = await this.prisma.tutorSession.create({
