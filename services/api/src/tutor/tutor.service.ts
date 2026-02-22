@@ -1,7 +1,13 @@
 import { TutorReplyMode } from './tutor.reply.provider';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
-import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { hasAnyRole } from '../auth/permissions';
 
@@ -41,7 +47,7 @@ export class TutorService {
             ]
           : [
               'Mini-quiz: Differentiate f(x)=3x^3−2x. Show steps.',
-              "Mini-quiz: If f\'(a)=0, what can that mean about the graph at x=a?",
+              "Mini-quiz: If f'(a)=0, what can that mean about the graph at x=a?",
             ];
       }
       return easy
@@ -96,7 +102,7 @@ export class TutorService {
             'Mini-quiz: What does an if-statement do?',
           ]
         : [
-            "Mini-quiz: What\'s the difference between a function parameter and an argument?",
+            "Mini-quiz: What's the difference between a function parameter and an argument?",
             'Mini-quiz: Explain (in simple words) what an array is and when you use it.',
           ];
     }
@@ -116,7 +122,7 @@ export class TutorService {
 
   private requireStudent(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['STUDENT','ADMIN'])) {
+    if (!hasAnyRole({ roles }, ['STUDENT', 'ADMIN'])) {
       throw new ForbiddenException('Student only');
     }
     return user?.sub ?? user?.id;
@@ -210,7 +216,7 @@ export class TutorService {
   async createMaterial(user: any, dto: any) {
     // Admin/Secretary only (or tighten later)
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
+    if (!hasAnyRole({ roles }, ['ADMIN', 'SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
     if (!dto?.subject || !dto?.title)
@@ -291,48 +297,48 @@ export class TutorService {
     }
 
     // Deterministic fallback: ensure a cohort-scoped default character exists
-  // Deterministic fallback: always ensure a default character exists.
-  // IMPORTANT: cohortId can be null in tests (no studentProfile), so we must still create a global fallback.
-  if (!characterId) {
-    const targetCohortId = cohortId ?? null;
+    // Deterministic fallback: always ensure a default character exists.
+    // IMPORTANT: cohortId can be null in tests (no studentProfile), so we must still create a global fallback.
+    if (!characterId) {
+      const targetCohortId = cohortId ?? null;
 
-    const existing = await this.prisma.tutorCharacter.findFirst({
-      where: { cohortId: targetCohortId, subject: subjectNorm as any },
-      select: { id: true },
-    });
-
-    if (existing?.id) {
-      characterId = existing.id;
-    } else {
-      const created = await this.prisma.tutorCharacter.create({
-        data: {
-          cohortId: targetCohortId,
-          subject: subjectNorm as any,
-          name:
-            subjectNorm === 'MATH'
-              ? 'Math Tutor'
-              : subjectNorm === 'PHYSICS'
-                ? 'Physics Tutor'
-                : subjectNorm === 'CS'
-                  ? 'CS Tutor'
-                  : 'General Tutor',
-          curriculum: 'bagrut',
-          maxGrade: 12,
-          language: 'en',
-          tone: subjectNorm === 'PHYSICS' ? 'coach' : 'friendly',
-          verbosity: 5,
-          explainStyle: subjectNorm === 'PHYSICS' ? 'examples' : 'step-by-step',
-        } as any,
+      const existing = await this.prisma.tutorCharacter.findFirst({
+        where: { cohortId: targetCohortId, subject: subjectNorm as any },
         select: { id: true },
-      } as any);
+      });
 
-      characterId = created?.id ?? null;
+      if (existing?.id) {
+        characterId = existing.id;
+      } else {
+        const created = await this.prisma.tutorCharacter.create({
+          data: {
+            cohortId: targetCohortId,
+            subject: subjectNorm as any,
+            name:
+              subjectNorm === 'MATH'
+                ? 'Math Tutor'
+                : subjectNorm === 'PHYSICS'
+                  ? 'Physics Tutor'
+                  : subjectNorm === 'CS'
+                    ? 'CS Tutor'
+                    : 'General Tutor',
+            curriculum: 'bagrut',
+            maxGrade: 12,
+            language: 'en',
+            tone: subjectNorm === 'PHYSICS' ? 'coach' : 'friendly',
+            verbosity: 5,
+            explainStyle:
+              subjectNorm === 'PHYSICS' ? 'examples' : 'step-by-step',
+          } as any,
+          select: { id: true },
+        } as any);
+
+        characterId = created?.id ?? null;
+      }
     }
-  }
 
-  if (!characterId) {
-    throw new Error('TUTOR_CHARACTER_ID_NOT_RESOLVED');
-  }
+    if (!characterId) {
+      throw new Error('TUTOR_CHARACTER_ID_NOT_RESOLVED');
     }
 
     const row = await this.prisma.tutorSession.create({
@@ -592,8 +598,8 @@ export class TutorService {
   }
   async replyToSession(user: any, sessionId: string, dto: any) {
     const studentId = this.requireStudent(user);
-    if (process.env.E2E !== "1" && process.env.CI !== "1") {
-      const rl = require("./tutor.reply.safety");
+    if (process.env.E2E !== '1' && process.env.CI !== '1') {
+      const rl = require('./tutor.reply.safety');
       const r = rl.rateLimitTutor({
         key: String(studentId),
         now: Date.now(),
@@ -602,7 +608,10 @@ export class TutorService {
         store: this.replyRateStore,
       });
       if (!r.ok) {
-        throw new HttpException("Too many tutor replies. Please wait a bit.", HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException(
+          'Too many tutor replies. Please wait a bit.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
     }
 
@@ -787,7 +796,7 @@ export class TutorService {
 
   async ensureDefaultCharactersAdmin(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
+    if (!hasAnyRole({ roles }, ['ADMIN', 'SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
     await this.ensureGlobalDefaultCharacters();
@@ -891,7 +900,7 @@ export class TutorService {
             ]
           : [
               'Mini-quiz: Differentiate f(x)=3x^3−2x. Show steps.',
-              "Mini-quiz: If f\'(a)=0, what can that mean about the graph at x=a?",
+              "Mini-quiz: If f'(a)=0, what can that mean about the graph at x=a?",
             ];
       }
       return easy
@@ -1038,7 +1047,7 @@ export class TutorService {
     for (const q of quiz) lines.push('- ' + q);
 
     lines.push('');
-    lines.push(emoji('✅') + "Reply with your answers and I\'ll correct them.");
+    lines.push(emoji('✅') + "Reply with your answers and I'll correct them.");
 
     return lines.join('\n');
   }
@@ -1054,7 +1063,7 @@ export class TutorService {
   }
   private quickExample(topic: string) {
     if (topic === 'derivatives')
-      return "If f(x)=x^2, then f\'(x)=2x, so at x=3 the slope is 6.";
+      return "If f(x)=x^2, then f'(x)=2x, so at x=3 the slope is 6.";
     if (topic === 'kinematics')
       return 'If v0=0 and a=2, after 3s: v=v0+at=6 m/s.';
     return 'Example: pick simple numbers, apply the rule, and check units/logic.';
@@ -1251,7 +1260,7 @@ export class TutorService {
 
   async ensureDefaultCharacters(user: any, dto?: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
+    if (!hasAnyRole({ roles }, ['ADMIN', 'SECRETARY'])) {
       throw new ForbiddenException('Admin/Secretary only');
     }
 
