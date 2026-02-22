@@ -20,18 +20,22 @@ export class NotificationsController {
 
   @Patch('seen')
   async markSeen(@Req() req: any, @Body() body: { ids: string[] }) {
-    const userId = this.userId(req);
-    const ids = Array.isArray(body?.ids) ? body.ids : [];
-    return this.svc.markSeen(userId, ids);
+    // NOTIFICATIONS_WRITE_RETURNS_OK
+  const userId = this.userId(req);
+  const ids = Array.isArray(body?.ids) ? body.ids : [];
+  return this.svc.markSeen(userId, ids);
+    await this.svc.markSeen(userId, ids);
+    return { ok: true } as any;
   }
-
-  @Patch('seen-all')
+@Patch('seen-all')
   async markAllSeen(@Req() req: any) {
-    const userId = this.userId(req);
-    return this.svc.markAllSeen(userId);
+    // NOTIFICATIONS_WRITE_RETURNS_OK
+  const userId = this.userId(req);
+  return this.svc.markAllSeen(userId);
+    await this.svc.markAllSeen(userId);
+    return { ok: true } as any;
   }
-
-  // Internal endpoint for now (admin/system); keep for wiring later
+// Internal endpoint for now (admin/system); keep for wiring later
   @Post()
   async create(@Req() req: any, @Body() dto: CreateNotificationDto) {
     const userId = this.userId(req);

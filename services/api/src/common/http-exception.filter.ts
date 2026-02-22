@@ -1,9 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus, TooManyRequestsException} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
 @Catch()
@@ -35,7 +30,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (process.env.NODE_ENV === 'test') {
       // eslint-disable-next-line no-console
-      console.log('EXC', exception?.name, exception?.message);
+      if (process.env.LOG_EXCEPTIONS === '1') {
+        // eslint-disable-next-line no-console
+        console.log(
+          'EXC',
+          (exception as any)?.name ?? (exception as any)?.constructor?.name ?? 'Error',
+          (exception as any)?.message ?? String(exception),
+        );
+      }
     }
 
     res.status(status).json({

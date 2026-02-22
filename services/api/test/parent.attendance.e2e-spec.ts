@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 import { PrismaClient } from '@prisma/client';
 import 'dotenv/config';
 const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL_TEST || process.env.DATABASE_URL });
+const prismaAny: any = prisma;
 function decodeJwtPayload(token: string): any {
   const part = token.split('.')[1] || '';
   const json = Buffer.from(part, 'base64url').toString('utf8');
@@ -65,7 +66,7 @@ async function ensureAttendanceForStudent(studentId: string) {
   if (existing?.id) return;
 
   // Find an existing session to attach attendance to
-  const sess = await prisma.session?.findFirst?.({
+  const sess = await prismaAny.attendanceSession?.findFirst?.({
     select: { id: true },
   });
 

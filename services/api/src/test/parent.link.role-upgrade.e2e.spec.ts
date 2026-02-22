@@ -6,41 +6,67 @@ describe('parent link upgrades role (e2e)', () => {
     const t = await createTestApp();
     const http = request(t.app.getHttpServer());
 
-        const seed = await http\.post\('/api/test/seed/admin-web'\)\.send\(\{\}\);
-    expect\(\[200,201\]\)\.toContain\(seed\.status\);
+        const seed = await http.post('/api/test/seed/admin-web').send({});
+    expect([200,201]).toContain(seed.status);
 
-    const cohortId = seed\.body\.cohortId;
-    expect\(cohortId\)\.toBeTruthy\(\);
+    const cohortId = seed.body.cohortId;
+    expect(cohortId).toBeTruthy();
 
     const teacherEmail =
-      seed\.body\?\.teacherEmail ??
-      seed\.body\?\.teacher\?\.email ??
-      seed\.body\?\.teacherUser\?\.email ??
-      seed\.body\?\.teacher_account\?\.email ??
-      seed\.body\?\.emailTeacher ??
+      seed.body?.teacherEmail ??
+      seed.body?.teacher?.email ??
+      seed.body?.teacherUser?.email ??
+      seed.body?.teacher_account?.email ??
+      seed.body?.emailTeacher ??
       '';
 
     const teacherPassword =
-      seed\.body\?\.teacherPassword ??
-      seed\.body\?\.teacher\?\.password ??
-      seed\.body\?\.teacherUser\?\.password ??
-      seed\.body\?\.teacher_account\?\.password ??
-      seed\.body\?\.passwordTeacher ??
-      seed\.body\?\.password ??
+      seed.body?.teacherPassword ??
+      seed.body?.teacher?.password ??
+      seed.body?.teacherUser?.password ??
+      seed.body?.teacher_account?.password ??
+      seed.body?.passwordTeacher ??
+      seed.body?.password ??
       'Password123!';
 
-    expect\(teacherEmail\)\.toBeTruthy\(\);
-    expect\(teacherPassword\)\.toBeTruthy\(\);
+    expect(teacherEmail).toBeTruthy();
+    expect(teacherPassword).toBeTruthy();
 
-    const tlogin = await http\.post\('/api/auth/login'\)\.send\(\{
+    const tlogin = await http.post('/api/auth/login').send({
       email: teacherEmail,
       password: teacherPassword,
-    \}\);
+    });
 
-    expect\(\[200, 201\]\)\.toContain\(tlogin\.status\);
+    expect([200, 201]).toContain(tlogin.status);
 
-    const tkn = tlogin\.body\?\.accessToken \?\? tlogin\.body\?\.token;
-    expect\(tkn\)\.toBeTruthy\(\);
+        const tkn = tlogin.body?.accessToken ?? tlogin.body?.token;
+    expect(tkn).toBeTruthy();
+
+    const adminEmail =
+      seed.body?.adminEmail ??
+      seed.body?.admin?.email ??
+      seed.body?.adminUser?.email ??
+      seed.body?.admin_account?.email ??
+      seed.body?.emailAdmin ??
+      seed.body?.email ??
+      teacherEmail;
+
+    const adminPassword =
+      seed.body?.adminPassword ??
+      seed.body?.admin?.password ??
+      seed.body?.adminUser?.password ??
+      seed.body?.admin_account?.password ??
+      seed.body?.passwordAdmin ??
+      seed.body?.password ??
+      teacherPassword;
+
+    let adminToken = tkn;
+    if (adminEmail && adminPassword) {
+      const alogin = await http.post('/api/auth/login').send({ email: adminEmail, password: adminPassword });
+      expect([200, 201]).toContain(alogin.status);
+      adminToken = alogin.body?.accessToken ?? alogin.body?.token ?? adminToken;
+    }
+    expect(adminToken).toBeTruthy();
   
 
 
@@ -54,17 +80,17 @@ describe('parent link upgrades role (e2e)', () => {
         expect([200, 201]).toContain(jc.status);
 const joinCode = String(jc.body?.code ?? '').trim();
         expect(joinCode).toBeTruthy();
-    
-const jc = await http.post('/api/admin/cohorts/join-code')
+const jc2 = await http.post('/api/admin/cohorts/join-code')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ cohortId, expiresInHours: 24, length: 6 });
 
-    const joinCode = String(jc.body.code).trim();
+    const joinCode2 = String(jc2.body.code).trim();
 
+    expect(joinCode2).toBeTruthy();
     // Register student
     const studentEmail = `student+${Date.now()}@classmate.app`;
 
-    const studentEmail = `student+${Date.now()}@classmate.app`;
+    const studentEmail2 = `student+${Date.now()}@classmate.app`;
 
     await http.post('/api/auth/register').send({
       name: 'Student',
@@ -73,15 +99,14 @@ const jc = await http.post('/api/admin/cohorts/join-code')
     });
 
     const slogin = await http.post('/api/auth/login').send({
-      email: studentEmail,
+      email: studentEmail2,
       password: 'Password123!',
     });
 
     const studentToken = slogin.body?.accessToken ?? slogin.body?.token;
 
     // Onboard
-    const onboard = await http.post('/api/student/onboard')
-      .set('Authorization', `Bearer ${studentToken}`)
+    const onboard = await http.post('/api/student/onboard').set('Authorization', `Bearer ${studentToken}`)
       .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
     expect(onboard.status).toBe(201);
 
@@ -120,9 +145,20 @@ const jc = await http.post('/api/admin/cohorts/join-code')
       password: 'Password123!',
     });
 
-    const roles = relog.body?.user?.roles ?? relog.body?.roles ?? [];
+    const relogToken = relog.body?.accessToken ?? relog.body?.token ?? null;
+    expect(relogToken).toBeTruthy();
 
-    expect(roles).toContain('PARENT');
+    const me = await http.get('/api/auth/me').set('Authorization', `Bearer ${relogToken}`);
+    expect([200, 201]).toContain(me.status);
+
+    const roles = (me.body?.user?.roles ?? me.body?.roles ?? relog.body?.user?.roles ?? relog.body?.roles ?? []) as any[];
+    const role =
+      (me.body?.user?.role ?? me.body?.role ?? relog.body?.user?.role ?? relog.body?.role ?? me.body?.user?.type ?? me.body?.type ?? null) as any;
+
+    const norm = (x: any) => String(x ?? '').toUpperCase().trim();
+    const roleSet = new Set<string>([...roles.map(norm), norm(role)].filter(Boolean));
+
+    expect(Array.from(roleSet)).toContain('PARENT');
 
     await t.close();
   });

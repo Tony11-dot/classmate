@@ -1,14 +1,22 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
+
+const WEB = process.env.WEB_BASE || 'http://127.0.0.1:3001';
 
 export default defineConfig({
   testDir: './e2e',
+  reporter: [['html', { open: 'never' }], ['list']],
+  retries: 0,
+  timeout: 60_000,
+
   use: {
-    baseURL: process.env.WEB_BASE || 'http://localhost:3001',
+    baseURL: WEB,
+    trace: 'on',
+    screenshot: 'only-on-failure',
+    video: 'on',
   },
-  webServer: {
-    command: 'pnpm dev',
-    url: process.env.WEB_BASE || 'http://localhost:3001',
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+
+  // ❌ NO webServer block at all
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
 });

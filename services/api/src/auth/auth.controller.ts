@@ -13,11 +13,13 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService, private readonly prisma: PrismaService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @Post('login')
   async login(@Body() dto: LoginDto) {
     const result = await this.auth.login(dto.email, dto.password);
@@ -25,6 +27,7 @@ export class AuthController {
     return result;
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @Post('register')
   register(@Body() body: RegisterDto) {
     return this.auth.register(body);

@@ -1,16 +1,8 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getToken } from '../lib/api';
-
-export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = getToken();
-    router.replace(token ? '/attendance' : '/login');
-  }, [router]);
-
-  return null;
+export default function Home() {
+  return (
+    <main style={{ padding: 24, fontFamily: 'system-ui' }}>
+      <h1>admin-web</h1>
+      <p>OK</p>
+    </main>
+  );
 }
