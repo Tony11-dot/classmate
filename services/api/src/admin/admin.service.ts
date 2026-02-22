@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
@@ -36,10 +42,13 @@ export class AdminService {
   ) {
     // allow TEACHER for join-code (e2e expects this)
 
-    if (!hasAnyRole(user, ['ADMIN', 'TEACHER'])) throw new ForbiddenException('Admin or Teacher only');
-if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    if (!hasAnyRole(user, ['ADMIN', 'TEACHER']))
+      throw new ForbiddenException('Admin or Teacher only');
+    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     // TEACHER cohort-scope: must own a course in this cohort
-    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const roles: string[] = Array.isArray((user as any)?.roles)
+      ? (user as any).roles
+      : [];
     const teacherId = (user as any)?.sub ?? (user as any)?.id;
 
     if (roles.includes('TEACHER') && !roles.includes('ADMIN')) {
@@ -47,9 +56,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         where: { teacherId, cohortId: body.cohortId },
         select: { id: true },
       });
-      if (!owns) throw new ForbiddenException('Teacher not authorized for this cohort');
+      if (!owns)
+        throw new ForbiddenException('Teacher not authorized for this cohort');
     }
-
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: body.cohortId },
@@ -62,7 +71,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const recent = await this.prisma.cohortJoinCode.count({
       where: { cohortId: body.cohortId, createdAt: { gt: since } },
     });
-    if (process.env.NODE_ENV !== 'test' && recent >= 5) throw new HttpException('Too many join-codes created; try again soon', HttpStatus.TOO_MANY_REQUESTS);
+    if (process.env.NODE_ENV !== 'test' && recent >= 5)
+      throw new HttpException(
+        'Too many join-codes created; try again soon',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
 
     const len =
       body.length && body.length >= 4 && body.length <= 10 ? body.length : 6;
