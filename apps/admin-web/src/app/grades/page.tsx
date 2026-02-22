@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+
+const getStudentId = (st: any) => String(st?.studentId ?? st?.id ?? st?.userId ?? "");
 import { apiFetch, fetchAssessmentGrades, fetchCohortStudents, type CohortStudent } from '@/lib/api';
 import { RequireAuth } from '@/components/RequireAuth';
 import { AdminShell } from '@/components/AdminShell';
@@ -123,10 +125,10 @@ setLoading(false);
       const gradeMap = new Map(rows.map((r) => [r.studentId, r.grade]));      
       setGradesDraft(() => {
         const d: Record<string, number | ''> = {};
-        for (const st of res.students) d[st.studentId] = gradeMap.get(st.studentId) ?? '';
+        for (const st of res) d[getStudentId(st)] = gradeMap.get(getStudentId(st)) ?? '';
         return d;
       });
-      setStudents(res.students);
+      setStudents(res);
     } catch (e: unknown) {
       setErr(errMsg(e, 'Failed to load cohort students'));
     }
@@ -138,7 +140,7 @@ setLoading(false);
     setSaving(true);
     try {
       const grades = students
-        .map((st) => ({ studentId: st.studentId, grade: gradesDraft[st.studentId] }))
+        .map((st) => ({ studentId: getStudentId(st), grade: gradesDraft[getStudentId(st)] }))
         .filter((g) => g.grade !== '' && g.grade !== undefined)
         .map((g) => ({ studentId: g.studentId, grade: Number(g.grade) }));
       if (grades.length === 0) {
@@ -315,43 +317,43 @@ setLoading(false);
                     </thead>
                     <tbody>
                       {students.map((st) => (
-                        <tr key={st.studentId} className="border-t">
+                        <tr key={getStudentId(st)} className="border-t">
                           <td className="px-3 py-2">{st.name}</td>
                           <td className="px-3 py-2">
                             <input
                               className="w-28 rounded border px-2 py-1"
                               type="number" min={0} max={selectedMax ?? undefined}
-                              data-testid={`grade-${st.studentId}`}
+                              data-testid={`grade-${getStudentId(st)}`}
                              
                              
-                              value={gradesDraft[st.studentId] ?? ''}
+                              value={gradesDraft[getStudentId(st)] ?? ''}
                               onChange={(e) => {
       setSaveError('');
       const raw = e.target.value;
       const n = raw === '' ? null : Number(raw);
 
-      setGradesDraft((prev) => ({ ...prev, [st.studentId]: n === null ? '' : n }));
+      setGradesDraft((prev) => ({ ...prev, [getStudentId(st)]: n === null ? '' : n }));
 
       setGradeErrors((prev) => {
         const next = { ...prev };
 
         if (raw === '') {
-          delete next[st.studentId];
+          delete next[getStudentId(st)];
           return next;
         }
         if (!Number.isFinite(n) || n == null) {
-          next[st.studentId] = 'Invalid number';
+          next[getStudentId(st)] = 'Invalid number';
           return next;
         }
         if (n < 0) {
-          next[st.studentId] = 'Cannot be negative';
+          next[getStudentId(st)] = 'Cannot be negative';
           return next;
         }
         if (selectedMax != null && n > selectedMax) {
-          next[st.studentId] = `Max is ${selectedMax}`;
+          next[getStudentId(st)] = `Max is ${selectedMax}`;
           return next;
         }
-        delete next[st.studentId];
+        delete next[getStudentId(st)];
         return next;
       });
     }}
@@ -377,7 +379,9 @@ setLoading(false);
               const list = byCourse.get(c.id) ?? [];
               return (
                 <div key={c.id} className="rounded border">
-                  <div className="flex items-center justify-between border-b bg-gray-50 px-4 py-3">
+                  
+      <h1>Grades</h1>
+<div className="flex items-center justify-between border-b bg-gray-50 px-4 py-3">
                     <div className="text-sm font-medium">{c.name}</div>
                     <div className="text-xs text-gray-600">{c.subject}</div>
                   </div>
