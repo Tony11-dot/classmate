@@ -558,7 +558,7 @@ export class AdminService {
       .toLowerCase()
       .trim();
     const password = String(body?.password ?? 'dev');
-    const name = body?.name != null ? String(body.name) : null;
+    const name = body?.name != null ? String(body.name).trim() : "";
 
     if (!email) throw new Error('email required');
 
