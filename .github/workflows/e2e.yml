@@ -30,6 +30,8 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
+      E2E_API_BASE_URL: http://127.0.0.1:3000
+      PORT: 3000
       API: http://127.0.0.1:3000/api
 
     steps:
@@ -40,22 +42,11 @@ jobs:
           node-version: 20
 
       - run: |
-          corepack enable
-          corepack prepare pnpm@10.26.2 --activate
-
-      - run: pnpm -r install --frozen-lockfile
-
-      - run: pnpm -C services/api exec prisma generate
-      - run: pnpm -C services/api exec prisma db push
-      - run: pnpm -C services/api exec prisma db seed
-
-      - run: pnpm -C services/api start &
-      - run: |
-          for i in {1..30}; do
-            curl -fsS http://127.0.0.1:3000/api/health && exit 0 || true
+          for i in {1..90}; do
+            curl -fsS http://127.0.0.1:3000/api/test/seed/admin-web -X POST -H 'content-type: application/json' -d '{}' >/dev/null && exit 0 || true
             sleep 1
           done
-          echo "API did not become healthy" >&2
+          echo "API did not become reachable on :3000" >&2
           exit 1
 
       - run: pnpm -C apps/admin-web exec playwright install --with-deps
