@@ -62,7 +62,11 @@ export class TeacherController {
   bulk(@Req() req: any, @Body() body: any) {
     return this.teacher.bulkAttendance(req.user, body);
   }
-
+  @Get('cohorts/:cohortId/students')
+  @Get('cohort/:cohortId/students')
+  @Get('cohorts/:cohortId/students')
+  @Get('cohort/:cohortId/students')
+  @Get('cohorts/:cohortId/students')
   @Get('cohort/:cohortId/students')
   cohortStudents(@Req() req: any, @Param('cohortId') cohortId: string) {
     return this.teacher.cohortStudents(req.user, cohortId);
@@ -84,7 +88,7 @@ export class TeacherController {
   listAssessments(@Req() req: any, @Query('courseId') courseId?: string) {
     return this.teacher.listAssessments(req.user, { courseId });
   }
-
+  @Get('assessments/:id/grades')
   @Get('grades/assessment/:id/grades')
   assessmentGrades(@Req() req: any, @Param('id') id: string) {
     return this.teacher.assessmentGrades(req.user, id);
