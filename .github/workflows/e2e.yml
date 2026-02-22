@@ -36,6 +36,7 @@ jobs:
       # Ensure Nest binds where we expect
       PORT: 3000
 
+      JWT_SECRET: test_jwt_secret_for_ci_only
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +72,7 @@ jobs:
           echo "--- api.log (last 300 lines) ---" >&2
           tail -n 300 api.log || true
           echo "--- node processes ---" >&2
-          ps aux | rg -n "node|nest|services/api" -S || true
+          ps aux | grep -E "node|nest|services/api" || true
           exit 1
       - run: pnpm -C apps/admin-web exec playwright install --with-deps
       - run: pnpm -C apps/admin-web exec playwright test
