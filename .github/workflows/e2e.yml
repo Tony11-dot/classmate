@@ -33,6 +33,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
       # Playwright e2e reads this (defaults to 3001/3002 otherwise)
       E2E_API_BASE_URL: http://127.0.0.1:3000
+      WEB_BASE: http://127.0.0.1:3001
       # Ensure Nest binds where we expect
       PORT: 3000
 
@@ -74,5 +75,26 @@ jobs:
           echo "--- node processes ---" >&2
           ps aux | grep -E "node|nest|services/api" || true
           exit 1
+      - run: |
+          export PORT=3001
+          # Start admin-web and capture logs
+          (pnpm -C apps/admin-web dev -- --host 127.0.0.1 --port 3001 2>&1 | tee admin-web.log) &
+          echo $! > admin-web.pid
+
+      - run: |
+          set -euo pipefail
+          for i in {1..120}; do
+            curl -fsS http://127.0.0.1:3001/ >/dev/null && exit 0 || true
+            sleep 1
+          done
+          echo "admin-web did not become reachable on :3001" >&2
+          echo "--- ss -ltnp (ports) ---" >&2
+          ss -ltnp || true
+          echo "--- admin-web.log (last 300 lines) ---" >&2
+          tail -n 300 admin-web.log || true
+          echo "--- node processes ---" >&2
+          ps aux | grep -E "node|next|vite|admin-web" || true
+          exit 1
+
       - run: pnpm -C apps/admin-web exec playwright install --with-deps
       - run: pnpm -C apps/admin-web exec playwright test
