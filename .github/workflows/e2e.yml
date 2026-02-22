@@ -1,5 +1,8 @@
 name: E2E (admin-web)
 
+concurrency:
+  group: e2e-admin-web-${{ github.ref }}
+  cancel-in-progress: true
 on:
   workflow_dispatch:
   schedule:
