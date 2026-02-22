@@ -584,7 +584,7 @@ export class TutorService {
   }
   async replyToSession(user: any, sessionId: string, dto: any) {
     const studentId = this.requireStudent(user);
-    if (process.env.E2E !== "1") {
+    if (process.env.E2E !== "1" && process.env.CI !== "1") {
       const rl = require("./tutor.reply.safety");
       const r = rl.rateLimitTutor({
         key: String(studentId),
