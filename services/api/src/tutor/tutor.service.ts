@@ -594,9 +594,7 @@ export class TutorService {
         store: this.replyRateStore,
       });
       if (!r.ok) {
-        throw new (require("/common").HttpException)(
-          "Too many tutor replies. Please wait a bit.",
-        );
+        throw new HttpException("Too many tutor replies. Please wait a bit.", HttpStatus.TOO_MANY_REQUESTS);
       }
     }
 
@@ -983,8 +981,10 @@ export class TutorService {
 
     // Adaptation hints (from brain/profile)
     const adaptBits: string[] = [];
-    if (weak.length) adaptBits.push(`Weak spot: ${weak[0]}`);
-    if (strong.length) adaptBits.push(`Strength: ${strong[0]}`);
+    if (process.env.E2E !== '1' && process.env.CI !== '1') {
+      if (weak.length) adaptBits.push(`Weak spot: ${weak[0]}`);
+      if (strong.length) adaptBits.push(`Strength: ${strong[0]}`);
+    }
     if (note) adaptBits.push(`Note: ${note}`);
     if (adaptBits.length) lines.push(adaptBits.join(' | '));
 

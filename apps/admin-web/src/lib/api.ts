@@ -85,7 +85,7 @@ export type AssessmentGrade = {
 };
 
 export async function fetchCohortStudents(cohortId: string) {
-  return apiFetch<CohortStudent[]>(`/teacher/cohorts/${cohortId}/students`);
+  return apiFetch<CohortStudent[] | { ok?: boolean; students: CohortStudent[] }>(`/teacher/cohorts/${cohortId}/students`);
 }
 
 export async function fetchAssessmentGrades(assessmentId: string) {

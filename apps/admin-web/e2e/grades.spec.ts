@@ -45,7 +45,7 @@ test('grades e2e: create assessment -> enter grade -> prefill on reopen', async 
 
   await page.goto(`${WEB_BASE}/grades`, { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/grades/i, { timeout: 20_000 });
-  await expect(page.getByRole('heading', { name: /grades/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /grades/i }).first().first()).toBeVisible({ timeout: 30_000 });
 
   const courseSelect = page.locator('select').first();
   await expect(courseSelect).toBeVisible({ timeout: 30_000 });

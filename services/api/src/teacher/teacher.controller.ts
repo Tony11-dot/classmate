@@ -64,10 +64,6 @@ export class TeacherController {
   }
   @Get('cohorts/:cohortId/students')
   @Get('cohort/:cohortId/students')
-  @Get('cohorts/:cohortId/students')
-  @Get('cohort/:cohortId/students')
-  @Get('cohorts/:cohortId/students')
-  @Get('cohort/:cohortId/students')
   cohortStudents(@Req() req: any, @Param('cohortId') cohortId: string) {
     return this.teacher.cohortStudents(req.user, cohortId);
   }

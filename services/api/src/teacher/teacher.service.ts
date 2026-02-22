@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
 
@@ -612,14 +612,20 @@ export class TeacherService {
       skipped: body.records.length - written,
     };
   }
-
   async cohortStudents(user: any, cohortId: string) {
     this.ensureTeacher(user);
     const teacherId = user.sub ?? user.id;
 
     if (!cohortId) throw new BadRequestException('cohortId is required');
 
-    // ensure teacher owns at least one course in this cohort (authorization)
+    // 1) 404 if cohort doesn't exist (true not-found)
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: cohortId },
+      select: { id: true },
+    });
+    if (!cohort) throw new NotFoundException('Cohort not found');
+
+    // 2) 403 if cohort exists but not owned by teacher (authorization)
     const owns = await this.prisma.course.findFirst({
       where: { teacherId, cohortId },
       select: { id: true },
@@ -656,6 +662,7 @@ export class TeacherService {
       })),
     };
   }
+
 
   async createAssessment(
     user: any,

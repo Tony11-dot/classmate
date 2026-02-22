@@ -43,7 +43,7 @@ test('teacher cannot access other teacher cohort/students and course actions', a
   expect(okRes.ok()).toBeTruthy();
 
   // 1) Cohort students for cohort2 should be forbidden (belongs to teacher2)
-  const cohortRes = await ctx.get(`${API}/teacher/cohort/${encodeURIComponent(seed.cohort2Id)}/students`, {
+  const cohortRes = await ctx.get(`${API}/teacher/cohorts/${encodeURIComponent(seed.cohort2Id)}/students`, {
     headers: { Authorization: `Bearer ${t1}` },
   });
   expect(cohortRes.status()).toBe(403);

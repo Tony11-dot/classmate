@@ -125,10 +125,11 @@ setLoading(false);
       const gradeMap = new Map(rows.map((r) => [r.studentId, r.grade]));      
       setGradesDraft(() => {
         const d: Record<string, number | ''> = {};
-        for (const st of res) d[getStudentId(st)] = gradeMap.get(getStudentId(st)) ?? '';
+        const arr: any[] = Array.isArray(res) ? res : (res?.students ?? []);
+        for (const st of arr) d[getStudentId(st)] = gradeMap.get(getStudentId(st)) ?? '';
         return d;
       });
-      setStudents(res);
+      setStudents(Array.isArray(res) ? res : (res?.students ?? []));
     } catch (e: unknown) {
       setErr(errMsg(e, 'Failed to load cohort students'));
     }
