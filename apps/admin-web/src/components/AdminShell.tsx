@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { logout } from '../lib/auth';
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { logout } from "../lib/auth";
 
 function NavItem({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -11,10 +11,8 @@ function NavItem({ href, label }: { href: string; label: string }) {
     <Link
       href={href}
       className={
-        'block rounded px-3 py-2 text-sm ' +
-        (active
-          ? 'bg-gray-900 text-white'
-          : 'text-gray-700 hover:bg-gray-100')
+        "block rounded px-3 py-2 text-sm " +
+        (active ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-100")
       }
     >
       {label}
@@ -44,7 +42,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="rounded border px-3 py-2 text-sm hover:bg-gray-50"
               onClick={() => {
                 logout();
-                router.replace('/login');
+                router.replace("/login");
               }}
             >
               Logout
