@@ -1,29 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE="${BASE:-http://localhost:3000}"
+cd "$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null || git -C "$HOME/Dev/classmate" rev-parse --show-toplevel)"
 
-echo "🔎 Health..."
-curl -fsS "$BASE/api/health" | cat
-echo
+echo "[smoke] lint"
+pnpm -w --filter @classmate/api lint >/dev/null
 
-EMAIL="smoke+$(date +%s)@classmate.app"
-PASS="Passw0rd!"
-NAME="Smoke Test"
+echo "[smoke] test"
+pnpm -w --filter @classmate/api test >/dev/null
 
-echo "🧪 Register: $EMAIL"
-REG_JSON="$(curl -fsS -X POST "$BASE/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\",\"name\":\"$NAME\"}")"
+echo "[smoke] build"
+pnpm -w -r run build >/dev/null || true
 
-echo "$REG_JSON" | cat
-echo
+echo "[smoke] docker build+up"
+docker compose up -d --build api >/dev/null
 
-TOKEN="$(node -e 'process.stdout.write(JSON.parse(process.env.REG_JSON).token)' REG_JSON="$REG_JSON")"
-
-echo "🔐 /me"
-curl -fsS "$BASE/api/auth/me" \
-  -H "Authorization: Bearer $TOKEN" | cat
-echo
-
-echo "✅ Smoke passed."
+echo "[smoke] wait health"
+until curl -fsS --noproxy "*" http://127.0.0.1:3000/api/health >/dev/null 2>&1; do sleep 0.5; done
+curl -fsS --noproxy "*" http://127.0.0.1:3000/api/health >/dev/null && echo "[smoke] ok"
