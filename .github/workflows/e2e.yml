@@ -78,7 +78,7 @@ jobs:
       - run: |
           export PORT=3001
           # Start admin-web and capture logs
-          (pnpm -C apps/admin-web dev -- --host 127.0.0.1 --port 3001 2>&1 | tee admin-web.log) &
+          (pnpm -C apps/admin-web dev -- -p 3001 2>&1 | tee admin-web.log) &
           echo $! > admin-web.pid
 
       - run: |
