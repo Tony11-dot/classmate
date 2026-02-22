@@ -533,7 +533,6 @@ export class AdminService {
 
     return { ok: true };
   }
-}
 
   async listCohorts() {
     return this.prisma.cohort.findMany({
@@ -554,22 +553,33 @@ export class AdminService {
   }
 
   async createUser(body: any) {
-    const bcrypt = await import('bcryptjs');
-    const email = String(body?.email ?? '').toLowerCase().trim();
+    const bcrypt = await import('bcrypt');
+    const email = String(body?.email ?? '')
+      .toLowerCase()
+      .trim();
     const password = String(body?.password ?? 'dev');
+    const name = body?.name != null ? String(body.name) : null;
 
     if (!email) throw new Error('email required');
+
+    const rolesIn = Array.isArray(body?.roles) ? body.roles : [];
+    const roles = rolesIn.map((r: any) => String(r)).filter(Boolean);
 
     return this.prisma.user.create({
       data: {
         email,
         password: await bcrypt.hash(password, 10),
-        name: body?.name ?? null,
+        name,
+        ...(roles.length
+          ? { roles: { create: roles.map((role: string) => ({ role })) } }
+          : {}),
       },
       select: {
         id: true,
         email: true,
         name: true,
+        roles: { select: { role: true } },
       },
     });
   }
+}
