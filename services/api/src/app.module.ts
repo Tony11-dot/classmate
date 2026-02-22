@@ -39,14 +39,20 @@ const serveStatic =
 // Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
-  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
+  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED
+    ? [E2ESeedController]
+    : []),
 ];
 
 @Module({
   providers: [
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
     },
     {
       provide: APP_FILTER,
@@ -57,7 +63,7 @@ const controllers = [
       useClass: ThrottlerGuard,
     },
   ],
-controllers,
+  controllers,
   imports: [
     ...serveStatic,
     ThrottlerModule.forRoot([
