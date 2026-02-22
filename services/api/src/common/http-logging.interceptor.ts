@@ -13,6 +13,20 @@ import { tap } from 'rxjs/operators';
 export class HttpLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
+  private getTcpPeer(req: any): string {
+    const ra =
+      (req?.socket?.remoteAddress as string | undefined) ||
+      (req?.connection?.remoteAddress as string | undefined) ||
+      '';
+    return (ra || '').replace(/^::ffff:/, '') || 'unknown';
+  }
+
+  private getForwardedIp(req: any): string {
+    const xff = (req?.headers?.['x-forwarded-for'] as string | undefined) || '';
+    const xri = (req?.headers?.['x-real-ip'] as string | undefined) || '';
+    return (xff || xri || '').toString();
+  }
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const http = context.switchToHttp();
     const req = http.getRequest<Request>();
@@ -24,10 +38,12 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
     const method = req.method;
     const url = (req as any).originalUrl || req.url;
-    const ip =
-      (req.headers['x-forwarded-for'] as string) ||
-      (req.socket && req.socket.remoteAddress) ||
-      '';
+    const tcpPeer = this.getTcpPeer(req);
+    const effectiveIp = tcpPeer;
+    const xff = (req?.headers?.['x-forwarded-for'] as string | undefined) || '';
+    const xri = (req?.headers?.['x-real-ip'] as string | undefined) || '';
+    const forwardedIp = (xff || xri || '').toString();
+    const ip = effectiveIp;
 
     return next.handle().pipe(
       tap({
@@ -40,7 +56,12 @@ export class HttpLoggingInterceptor implements NestInterceptor {
               url,
               status: res.statusCode,
               ms,
+              effectiveIp,
+              forwardedIp,
+              xff,
+              xri,
               ip,
+              tcpPeer,
             }),
           );
         },
@@ -53,7 +74,13 @@ export class HttpLoggingInterceptor implements NestInterceptor {
               url,
               status: res.statusCode,
               ms,
+              effectiveIp,
+              forwardedIp,
+              xff,
+              xri,
               ip,
+              tcpPeer,
+
               error: {
                 name: err?.name,
                 message: err?.message,
