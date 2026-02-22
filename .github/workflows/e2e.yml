@@ -55,14 +55,23 @@ jobs:
 
       - run: |
           export PORT=3000
-          pnpm -C services/api start &
+          # Start API and capture logs so we can debug crashes/binding issues
+          (pnpm -C services/api start 2>&1 | tee api.log) &
+          echo $! > api.pid
       - run: |
+          set -euo pipefail
           for i in {1..120}; do
             curl -fsS http://127.0.0.1:3000/api/test/seed/admin-web \
               -X POST -H 'content-type: application/json' -d '{}' >/dev/null && exit 0 || true
             sleep 1
           done
           echo "API did not become reachable on :3000" >&2
+          echo "--- ss -ltnp (ports) ---" >&2
+          ss -ltnp || true
+          echo "--- api.log (last 300 lines) ---" >&2
+          tail -n 300 api.log || true
+          echo "--- node processes ---" >&2
+          ps aux | rg -n "node|nest|services/api" -S || true
           exit 1
 
       - run: pnpm -C apps/admin-web exec playwright install --with-deps
