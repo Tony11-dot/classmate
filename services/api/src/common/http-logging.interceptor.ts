@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Observable } from 'rxjs';
-import { finalize, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
@@ -33,41 +33,51 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const url = (req as any)?.originalUrl || req.url;
 
     let errForLog: any = null;
+    let logged = false;
+
+    const logOnce = () => {
+      if (logged) return;
+      logged = true;
+
+      const ms = Date.now() - start;
+      const status = res.statusCode;
+
+      const payload: any = {
+        requestId,
+        method: req.method,
+        url,
+        status,
+        ms,
+        effectiveIp,
+        forwardedIp,
+        xff,
+        xri,
+        ip,
+        tcpPeer: String((req.socket as any)?.remoteAddress ?? ''),
+      };
+
+      if (errForLog) {
+        payload.error = {
+          name: String(errForLog?.name ?? 'Error'),
+          message: String(errForLog?.message ?? ''),
+        };
+        this.logger.error(JSON.stringify(payload));
+        return;
+      }
+
+      this.logger.log(JSON.stringify(payload));
+    };
+
+    // 'finish' fires after Nest exception filters set the final status code
+    res.once('finish', logOnce);
+    // fallback (client abort)
+    res.once('close', logOnce);
 
     return next.handle().pipe(
       tap({
         error: (err) => {
           errForLog = err;
         },
-      }),
-      finalize(() => {
-        const ms = Date.now() - start;
-        const status = res.statusCode;
-
-        const payload: any = {
-          requestId,
-          method: req.method,
-          url,
-          status,
-          ms,
-          effectiveIp,
-          forwardedIp,
-          xff,
-          xri,
-          ip,
-          tcpPeer: String((req.socket as any)?.remoteAddress ?? ''),
-        };
-
-        if (errForLog) {
-          payload.error = {
-            name: String(errForLog?.name ?? 'Error'),
-            message: String(errForLog?.message ?? ''),
-          };
-          this.logger.error(JSON.stringify(payload));
-          return;
-        }
-
-        this.logger.log(JSON.stringify(payload));
       }),
     );
   }
