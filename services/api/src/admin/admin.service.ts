@@ -546,13 +546,12 @@ export class AdminService {
     });
   }
 
-  async createUser(body: any) {
+    async createUser(body: any) {
     const bcrypt = await import('bcrypt');
-    const email = String(body?.email ?? '')
-      .toLowerCase()
-      .trim();
+
+    const email = String(body?.email ?? '').toLowerCase().trim();
     const password = String(body?.password ?? 'dev');
-    const name = body?.name != null ? String(body.name).trim() : "";
+    const name = body?.name != null ? String(body.name).trim() : '';
 
     if (!email) throw new Error('email required');
 
@@ -560,22 +559,22 @@ export class AdminService {
     const roles = rolesIn.map((r: any) => String(r)).filter(Boolean);
 
     try {
-      return this.prisma.user.create({
-      data: {
-        email,
-        password: await bcrypt.hash(password, 10),
-        name,
-        ...(roles.length
-          ? { roles: { create: roles.map((role: string) => ({ role })) } }
-          : {}),
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        roles: { select: { role: true } },
-      },
-    });
+      return await this.prisma.user.create({
+        data: {
+          email,
+          password: await bcrypt.hash(password, 10),
+          name,
+          ...(roles.length
+            ? { roles: { create: roles.map((role: string) => ({ role })) } }
+            : {}),
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          roles: { select: { role: true } },
+        },
+      });
     } catch (e: any) {
       const msg = String(e?.message ?? '');
       const targetArr = Array.isArray(e?.meta?.target) ? e.meta.target : [];
@@ -590,21 +589,16 @@ export class AdminService {
       const looksLikeEmail =
         target.includes('email') ||
         msg.includes('(`email`)') ||
-        msg.includes('(\`email\`)') ||
+        msg.includes('(`email`)') ||
         msg.toLowerCase().includes('email');
 
-      if (isUnique && looksLikeEmail) throw new ConflictException('email already exists');
+      if (isUnique && looksLikeEmail) {
+        throw new ConflictException('email already exists');
+      }
 
       throw e;
     }
+  }
 
-      // prisma v6 sometimes doesn't expose e.code/meta; fall back to message detection
-      const msg = String(e?.message ?? '');
-      const isUniqueEmail =
-        msg.includes('Unique constraint failed') &&
-        (msg.includes('(\`email\`)') || msg.includes('(`email`)') || msg.includes('email'));
-      if (isUniqueEmail) throw new ConflictException('email already exists');
-      throw e;
-    }
-}
-}
+
+  }
