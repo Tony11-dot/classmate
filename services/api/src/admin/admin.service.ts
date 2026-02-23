@@ -581,6 +581,13 @@ export class AdminService {
         const t = Array.isArray(e?.meta?.target) ? e.meta.target.join(',') : String(e?.meta?.target ?? '');
         if (t.includes('email')) throw new ConflictException('email already exists');
       }
+
+      // prisma v6 sometimes doesn't expose e.code/meta; fall back to message detection
+      const msg = String(e?.message ?? '');
+      const isUniqueEmail =
+        msg.includes('Unique constraint failed') &&
+        (msg.includes('(\`email\`)') || msg.includes('(`email`)') || msg.includes('email'));
+      if (isUniqueEmail) throw new ConflictException('email already exists');
       throw e;
     }
 }
