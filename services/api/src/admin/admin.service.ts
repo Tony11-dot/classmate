@@ -577,10 +577,26 @@ export class AdminService {
       },
     });
     } catch (e: any) {
-      if (e?.code === 'P2002') {
-        const t = Array.isArray(e?.meta?.target) ? e.meta.target.join(',') : String(e?.meta?.target ?? '');
-        if (t.includes('email')) throw new ConflictException('email already exists');
-      }
+      const msg = String(e?.message ?? '');
+      const targetArr = Array.isArray(e?.meta?.target) ? e.meta.target : [];
+      const target = targetArr.map((x: any) => String(x)).join(',');
+
+      const isUnique =
+        e?.code === 'P2002' ||
+        (e?.name === 'PrismaClientKnownRequestError' &&
+          (msg.includes('Unique constraint failed') || msg.includes('P2002'))) ||
+        msg.includes('Unique constraint failed');
+
+      const looksLikeEmail =
+        target.includes('email') ||
+        msg.includes('(`email`)') ||
+        msg.includes('(\`email\`)') ||
+        msg.toLowerCase().includes('email');
+
+      if (isUnique && looksLikeEmail) throw new ConflictException('email already exists');
+
+      throw e;
+    }
 
       // prisma v6 sometimes doesn't expose e.code/meta; fall back to message detection
       const msg = String(e?.message ?? '');
