@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
@@ -565,7 +559,8 @@ export class AdminService {
     const rolesIn = Array.isArray(body?.roles) ? body.roles : [];
     const roles = rolesIn.map((r: any) => String(r)).filter(Boolean);
 
-    return this.prisma.user.create({
+    try {
+      return this.prisma.user.create({
       data: {
         email,
         password: await bcrypt.hash(password, 10),
@@ -581,5 +576,12 @@ export class AdminService {
         roles: { select: { role: true } },
       },
     });
-  }
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        const t = Array.isArray(e?.meta?.target) ? e.meta.target.join(',') : String(e?.meta?.target ?? '');
+        if (t.includes('email')) throw new ConflictException('email already exists');
+      }
+      throw e;
+    }
+}
 }
