@@ -9,6 +9,7 @@ final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
 class ThemeState {
   const ThemeState({
     required this.mode,
+    required this.preset,
     required this.accent,
     required this.radius,
     required this.density,
@@ -17,6 +18,7 @@ class ThemeState {
   });
 
   final ThemeMode mode;
+  final String preset;
   final Color accent;
   final double radius;
   final double density;
@@ -25,6 +27,7 @@ class ThemeState {
 
   ThemeState copyWith({
     ThemeMode? mode,
+    String? preset,
     Color? accent,
     double? radius,
     double? density,
@@ -33,6 +36,7 @@ class ThemeState {
   }) {
     return ThemeState(
       mode: mode ?? this.mode,
+      preset: preset ?? this.preset,
       accent: accent ?? this.accent,
       radius: radius ?? this.radius,
       density: density ?? this.density,
@@ -44,6 +48,7 @@ class ThemeState {
 
 class ThemeController extends Notifier<ThemeState> {
   static const _kMode = 'ui_mode';
+  static const _kPreset = 'ui_preset';
   static const _kAccent = 'ui_accent';
   static const _kRadius = 'ui_radius';
   static const _kDensity = 'ui_density';
@@ -55,6 +60,7 @@ class ThemeController extends Notifier<ThemeState> {
     _load();
     return const ThemeState(
       mode: ThemeMode.system,
+      preset: 'glass',
       accent: Color(0xFF4F46E5),
       radius: 18.0,
       density: 0.0,
@@ -65,6 +71,8 @@ class ThemeController extends Notifier<ThemeState> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+
+    final preset = prefs.getString(_kPreset) ?? 'glass';
 
     final modeRaw = prefs.getString(_kMode) ?? 'system';
     final mode = switch (modeRaw) {
@@ -90,6 +98,7 @@ class ThemeController extends Notifier<ThemeState> {
 
     state = state.copyWith(
       mode: mode,
+      preset: preset,
       accent: accent,
       radius: radius,
       density: density,
@@ -140,6 +149,12 @@ class ThemeController extends Notifier<ThemeState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kReduceMotion, v);
   }
+  Future<void> setPreset(String v) async {
+    final preset = (v == "soft" || v == "sharp" || v == "glass") ? v : "glass";
+    state = state.copyWith(preset: preset);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kPreset, preset);
+  }
 }
 
 ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
@@ -147,12 +162,19 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     seedColor: s.accent,
     brightness: brightness,
   );
+  final preset = s.preset;
   final base = ThemeData(
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
   );
+
+  final isSoft = preset == 'soft';
+  final isSharp = preset == 'sharp';
+
+  final cardRadius = isSharp ? (s.radius * 0.75) : (isSoft ? (s.radius * 1.1) : s.radius);
+  final listRadius = cardRadius;
 
   return base.copyWith(
     appBarTheme: AppBarTheme(
@@ -165,19 +187,19 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(s.radius),
+        borderRadius: BorderRadius.circular(cardRadius),
       ),
     ),
     listTileTheme: ListTileThemeData(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(s.radius),
+        borderRadius: BorderRadius.circular(cardRadius),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(s.radius),
+          borderRadius: BorderRadius.circular(cardRadius),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -185,7 +207,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(s.radius),
+          borderRadius: BorderRadius.circular(cardRadius),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),

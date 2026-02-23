@@ -7,6 +7,516 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                      String                   @id @default(uuid())
+  email                   String                   @unique
+  password                String
+  name                    String
+  createdAt               DateTime                 @default(now())
+  displayName             String?
+  legalName               String?
+  phone                   String?
+  status                  AccountStatus            @default(AUTH_ONLY)
+  tzfonetEmail            String?
+  tzfonetVerifiedAt       DateTime?
+  announcements           Announcement[]
+  announcementSeens       AnnouncementSeen[]
+  assessments             Assessment[]
+  taughtCourses           Course[]                 @relation("TeacherCourses")
+  childLinks              ParentChild[]            @relation("ChildLinks")
+  parentLinks             ParentChild[]            @relation("ParentLinks")
+  parentLinkCodes         ParentLinkCode[]
+  parentNotifications     ParentNotification[]
+  parentNotificationState ParentNotificationState?
+  solutions               Solution[]
+  studentProfile          StudentProfile?
+  roles                   UserRole[]
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+}
+
+model Cohort {
+  id                 String              @id @default(uuid())
+  name               String              @unique
+  grade              Int
+  attendanceSessions AttendanceSession[]
+  joinCodes          CohortJoinCode[]
+  courses            Course[]
+  scheduleOverrides  ScheduleOverride[]
+  scheduleSlots      ScheduleSlot[]
+  students           StudentProfile[]
+}
+
+model CohortJoinCode {
+  id        String    @id @default(uuid())
+  cohortId  String
+  codeHash  String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  cohort    Cohort    @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+
+  @@index([cohortId])
+}
+
+model StudentProfile {
+  userId            String             @id
+  cohortId          String
+  englishLevel      Int
+  mathLevel         Int
+  attendanceRecords AttendanceRecord[]
+  enrollments       Enrollment[]
+  gradeRecords      GradeRecord[]
+  studentMajors     StudentMajor[]
+  cohort            Cohort             @relation(fields: [cohortId], references: [id])
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([cohortId])
+}
+
+model ParentChild {
+  id       String            @id @default(uuid())
+  parentId String
+  childId  String
+  status   ParentChildStatus @default(APPROVED)
+  child    User              @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
+  parent   User              @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([parentId])
+  @@index([childId])
+}
+
+model Major {
+  id       String         @id @default(uuid())
+  name     String         @unique
+  students StudentMajor[]
+}
+
+model StudentMajor {
+  id        String         @id @default(uuid())
+  studentId String
+  majorId   String
+  major     Major          @relation(fields: [majorId], references: [id], onDelete: Cascade)
+  student   StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([studentId, majorId])
+  @@index([majorId])
+}
+
+model Course {
+  id                 String              @id @default(uuid())
+  name               String
+  subject            String
+  teacherId          String?
+  cohortId           String?
+  groupTag           String?
+  assessments        Assessment[]
+  attendanceSessions AttendanceSession[]
+  cohort             Cohort?             @relation(fields: [cohortId], references: [id])
+  teacher            User?               @relation("TeacherCourses", fields: [teacherId], references: [id])
+  rules              CourseRule[]
+  enrollments        Enrollment[]
+  scheduleOverrides  ScheduleOverride[]
+  slots              ScheduleSlot[]
+
+  @@index([teacherId])
+  @@index([cohortId])
+}
+
+model CourseRule {
+  id       String         @id @default(uuid())
+  courseId String
+  type     CourseRuleType
+  value    String
+  course   Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  courseId  String
+  studentId String
+  source    EnrollmentSource @default(AUTO)
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student   StudentProfile   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+}
+
+model ScheduleSlot {
+  id        String  @id @default(uuid())
+  cohortId  String
+  dayOfWeek Int
+  period    Int
+  courseId  String?
+  cohort    Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course    Course? @relation(fields: [courseId], references: [id])
+
+  @@unique([cohortId, dayOfWeek, period])
+  @@index([courseId])
+}
+
+model ScheduleOverride {
+  id       String   @id @default(uuid())
+  cohortId String
+  date     DateTime
+  period   Int
+  courseId String?
+  cohort   Cohort   @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course   Course?  @relation(fields: [courseId], references: [id])
+
+  @@unique([cohortId, date, period])
+  @@index([courseId])
+  @@index([cohortId, date])
+}
+
+model AttendanceSession {
+  id       String             @id @default(uuid())
+  cohortId String
+  date     DateTime
+  period   Int
+  courseId String?
+  records  AttendanceRecord[]
+  cohort   Cohort             @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  course   Course?            @relation(fields: [courseId], references: [id])
+
+  @@unique([cohortId, date, period])
+  @@index([courseId])
+  @@index([cohortId, date])
+}
+
+model AttendanceRecord {
+  id        String            @id @default(uuid())
+  sessionId String
+  studentId String
+  status    AttendanceStatus  @default(PRESENT)
+  note      String?
+  markedAt  DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  session   AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student   StudentProfile    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+  @@index([sessionId])
+  @@index([markedAt])
+}
+
+model Assessment {
+  id        String        @id @default(uuid())
+  courseId  String
+  title     String
+  date      DateTime
+  maxGrade  Int           @default(100)
+  createdBy String
+  course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher   User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  grades    GradeRecord[]
+
+  @@index([courseId])
+  @@index([createdBy])
+}
+
+model GradeRecord {
+  id           String         @id @default(uuid())
+  assessmentId String
+  studentId    String
+  grade        Int
+  comment      String?
+  assessment   Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([assessmentId, studentId])
+  @@index([studentId])
+}
+
+model ParentLinkCode {
+  id        String   @id @default(uuid())
+  childId   String
+  codeHash  String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  child     User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([expiresAt])
+}
+
+model ParentNotification {
+  id        String    @id @default(uuid())
+  parentId  String
+  studentId String?
+  type      String
+  title     String
+  message   String?
+  data      Json?
+  createdAt DateTime  @default(now())
+  seenAt    DateTime?
+  parent    User      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@index([parentId, createdAt])
+  @@index([parentId, seenAt])
+  @@index([studentId, createdAt])
+}
+
+model ParentNotificationState {
+  id         String   @id @default(uuid())
+  parentId   String   @unique
+  lastSeenAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  parent     User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id                String               @id @default(uuid())
+  title             String
+  body              String
+  createdBy         String
+  createdAt         DateTime             @default(now())
+  publishAt         DateTime             @default(now())
+  expiresAt         DateTime?
+  pinned            Boolean              @default(false)
+  creator           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  announcementSeens AnnouncementSeen[]
+  targets           AnnouncementTarget[]
+
+  @@index([publishAt])
+  @@index([expiresAt])
+  @@index([pinned])
+  @@index([createdBy])
+}
+
+model AnnouncementTarget {
+  id             String       @id @default(uuid())
+  announcementId String
+  userId         String?
+  role           Role?
+  grade          Int?
+  cohortId       String?
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@index([announcementId])
+  @@index([userId])
+  @@index([role])
+  @@index([grade])
+  @@index([cohortId])
+}
+
+model AnnouncementSeen {
+  id             String       @id @default(uuid())
+  userId         String
+  announcementId String
+  seenAt         DateTime     @default(now())
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, announcementId])
+  @@index([userId])
+  @@index([announcementId])
+}
+
+model AlertSettings {
+  id          String   @id @default(uuid())
+  ownerId     String
+  studentId   String
+  minGrade    Int      @default(70)
+  maxAbsences Int      @default(1)
+  maxLates    Int      @default(3)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([ownerId, studentId])
+  @@index([studentId])
+  @@index([ownerId])
+}
+
+model Material {
+  id        String         @id @default(cuid())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  cohortId  String?
+  courseId  String?
+  title     String
+  subject   String?
+  grade     Int?
+  language  String?
+  source    MaterialSource @default(BAGrut)
+  content   String
+  tags      String[]       @default([])
+
+  @@index([cohortId])
+  @@index([courseId])
+  @@index([subject])
+}
+
+model LearningProfile {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String   @unique
+  targetCurriculum  String?
+  targetGrade       Int?
+  preferredLanguage String?
+  tone              String?
+  verbosity         Int?
+  explainStyle      String?
+  emojiOk           Boolean  @default(true)
+  strengths         String[] @default([])
+  weaknesses        String[] @default([])
+  goals             String[] @default([])
+  maxDepth          Int?
+}
+
+model StudentBrainSnapshot {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  cohortId  String?
+  metrics   Json
+
+  @@index([userId, createdAt])
+  @@index([cohortId])
+}
+
+model TutorSession {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  userId      String
+  courseId    String?
+  cohortId    String?
+  title       String?
+  topic       String?
+  characterId String?
+  messages    TutorMessage[]
+  character   TutorCharacter? @relation(fields: [characterId], references: [id])
+
+  @@index([userId, updatedAt])
+  @@index([cohortId])
+  @@index([courseId])
+}
+
+model TutorMessage {
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  sessionId String
+  role      TutorMessageRole
+  content   String
+  sources   String[]         @default([])
+  session   TutorSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model AnalyticsEvent {
+  id          String              @id @default(cuid())
+  createdAt   DateTime            @default(now())
+  actorUserId String?
+  actorRole   AnalyticsActorRole?
+  cohortId    String?
+  courseId    String?
+  studentId   String?
+  name        String
+  payload     Json?
+
+  @@index([name, createdAt])
+  @@index([cohortId])
+  @@index([courseId])
+  @@index([studentId])
+}
+
+model TutorCharacter {
+  id           String                @id @default(cuid())
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  cohortId     String?
+  subject      TutorCharacterSubject @default(GENERAL)
+  name         String
+  tone         String?
+  verbosity    Int?
+  explainStyle String?
+  curriculum   String?
+  maxGrade     Int?
+  language     String?
+  systemNotes  String?
+  sessions     TutorSession[]
+
+  @@index([cohortId])
+  @@index([subject])
+}
+
+model TutorReplyCache {
+  id                 String   @id @default(cuid())
+  userId             String
+  characterId        String?
+  normalizedQuestion String
+  topic              String?
+  mode               String
+  content            String
+  refs               String?
+  excerpt            String?
+  createdAt          DateTime @default(now())
+  expiresAt          DateTime
+
+  @@unique([userId, characterId, normalizedQuestion, mode])
+  @@index([userId, characterId])
+}
+
+model Solution {
+  id             String          @id @default(uuid())
+  authorId       String
+  subject        String
+  sourceType     String
+  sourceName     String?
+  page           Int?
+  questionNumber String?
+  title          String?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  body           String?
+  author         User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  images         SolutionImage[]
+
+  @@index([subject, sourceType])
+  @@index([subject, sourceName, page])
+  @@index([subject, sourceName, page, questionNumber])
+  @@index([authorId, createdAt(sort: Desc)], map: "solution_author_createdat_idx")
+  @@index([sourceName, page, questionNumber, createdAt(sort: Desc)], map: "solution_sourcename_page_question_createdat_idx")
+  @@index([subject, sourceName, createdAt(sort: Desc)], map: "solution_subject_sourcename_createdat_idx")
+}
+
+model SolutionImage {
+  id           String   @id @default(uuid())
+  solutionId   String
+  url          String
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now())
+  storagePath  String
+  kind         String
+  mime         String
+  sizeBytes    Int
+  originalName String?
+  sha256       String?
+  solution     Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@index([solutionId])
+  @@index([kind])
+  @@index([mime])
+  @@index([sha256])
+}
+
 enum Role {
   STUDENT
   TEACHER
@@ -26,108 +536,6 @@ enum ParentChildStatus {
   APPROVED
 }
 
-model User {
-  id                      String                   @id @default(uuid())
-  email                   String                   @unique
-  password                String
-  name                    String
-  parentNotificationState ParentNotificationState?
-
-  // NEW: identity/profile
-  displayName String?
-  legalName   String?
-  phone       String?
-  status      AccountStatus @default(AUTH_ONLY)
-
-  // optional future tzfonet fields
-  tzfonetEmail      String?
-  tzfonetVerifiedAt DateTime?
-
-  roles          UserRole[]
-  studentProfile StudentProfile?
-
-  // parent-child links
-  parentLinks ParentChild[] @relation("ParentLinks")
-  childLinks  ParentChild[] @relation("ChildLinks")
-
-  // back-relation for teacher-owned courses
-  taughtCourses Course[] @relation("TeacherCourses")
-
-  createdAt           DateTime             @default(now())
-  assessments         Assessment[]
-  parentLinkCodes     ParentLinkCode[]
-  announcements       Announcement[]
-  announcementSeens   AnnouncementSeen[]
-  parentNotifications ParentNotification[]
-  solutions           Solution[]
-  notifications       Notification[]
-}
-
-model UserRole {
-  id     String @id @default(uuid())
-  userId String
-  role   Role
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, role])
-}
-
-model Cohort {
-  id    String @id @default(uuid())
-  name  String @unique // e.g. "10th-2"
-  grade Int // 7..12
-
-  students           StudentProfile[]
-  courses            Course[]
-  scheduleSlots      ScheduleSlot[]
-  joinCodes          CohortJoinCode[]
-  scheduleOverrides  ScheduleOverride[]
-  attendanceSessions AttendanceSession[]
-}
-
-model CohortJoinCode {
-  id        String    @id @default(uuid())
-  cohortId  String
-  codeHash  String
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  expiresAt DateTime?
-
-  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-
-  @@index([cohortId])
-}
-
-model StudentProfile {
-  userId       String @id
-  cohortId     String
-  englishLevel Int
-  mathLevel    Int
-
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cohort            Cohort             @relation(fields: [cohortId], references: [id])
-  studentMajors     StudentMajor[]
-  enrollments       Enrollment[]
-  attendanceRecords AttendanceRecord[]
-  gradeRecords      GradeRecord[]
-
-  @@index([cohortId])
-}
-
-model ParentChild {
-  id       String            @id @default(uuid())
-  parentId String
-  childId  String
-  status   ParentChildStatus @default(APPROVED)
-
-  parent User @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
-  child  User @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
-
-  @@unique([parentId, childId])
-  @@index([parentId])
-  @@index([childId])
-}
-
 enum CourseRuleType {
   COHORT
   ENGLISH_LEVEL
@@ -141,290 +549,12 @@ enum EnrollmentSource {
   MANUAL
 }
 
-model Major {
-  id   String @id @default(uuid())
-  name String @unique
-
-  students StudentMajor[]
-}
-
-model StudentMajor {
-  id        String @id @default(uuid())
-  studentId String
-  majorId   String
-
-  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  major   Major          @relation(fields: [majorId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, majorId])
-  @@index([majorId])
-}
-
-model Course {
-  id        String  @id @default(uuid())
-  name      String
-  subject   String
-  teacherId String?
-
-  cohortId String?
-  groupTag String?
-
-  teacher User?   @relation("TeacherCourses", fields: [teacherId], references: [id])
-  cohort  Cohort? @relation(fields: [cohortId], references: [id])
-
-  rules              CourseRule[]
-  slots              ScheduleSlot[]
-  enrollments        Enrollment[]
-  scheduleOverrides  ScheduleOverride[]
-  attendanceSessions AttendanceSession[]
-  assessments        Assessment[]
-
-  @@index([teacherId])
-  @@index([cohortId])
-}
-
-model CourseRule {
-  id       String         @id @default(uuid())
-  courseId String
-  type     CourseRuleType
-  value    String
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([courseId])
-}
-
-model Enrollment {
-  id        String           @id @default(uuid())
-  courseId  String
-  studentId String
-  source    EnrollmentSource @default(AUTO)
-
-  course  Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  @@unique([courseId, studentId])
-  @@index([studentId])
-}
-
-model ScheduleSlot {
-  id        String  @id @default(uuid())
-  cohortId  String
-  dayOfWeek Int
-  period    Int
-  courseId  String?
-
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
-
-  @@unique([cohortId, dayOfWeek, period])
-  @@index([courseId])
-}
-
-model ScheduleOverride {
-  id       String   @id @default(uuid())
-  cohortId String
-  date     DateTime // midnight UTC is fine; we'll treat as date in Asia/Jerusalem
-  period   Int
-  courseId String?
-
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
-
-  @@unique([cohortId, date, period])
-  @@index([courseId])
-  @@index([cohortId, date])
-}
-
 enum AttendanceStatus {
   PRESENT
   ABSENT
   LATE
   EXCUSED
 }
-
-model AttendanceSession {
-  id       String   @id @default(uuid())
-  cohortId String
-  date     DateTime
-  period   Int
-  courseId String?
-
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
-
-  records AttendanceRecord[]
-
-  @@unique([cohortId, date, period])
-  @@index([courseId])
-  @@index([cohortId, date])
-}
-
-model AttendanceRecord {
-  id        String           @id @default(uuid())
-  sessionId String
-  studentId String
-  status    AttendanceStatus @default(PRESENT)
-  note      String?
-
-  // ✅ NEW: event time + change time (for unread + ordering)
-  markedAt  DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  student StudentProfile    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  @@unique([sessionId, studentId])
-  @@index([studentId])
-  @@index([sessionId])
-  @@index([markedAt])
-}
-
-model Assessment {
-  id        String   @id @default(uuid())
-  courseId  String
-  title     String
-  date      DateTime
-  maxGrade  Int      @default(100)
-  createdBy String // teacher user id
-
-  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  grades GradeRecord[]
-
-  @@index([courseId])
-  @@index([createdBy])
-}
-
-model GradeRecord {
-  id           String  @id @default(uuid())
-  assessmentId String
-  studentId    String
-  grade        Int
-  comment      String?
-
-  assessment Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  student    StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  @@unique([assessmentId, studentId])
-  @@index([studentId])
-}
-
-model ParentLinkCode {
-  id        String   @id @default(uuid())
-  childId   String
-  codeHash  String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  child User @relation(fields: [childId], references: [id], onDelete: Cascade)
-
-  @@index([childId])
-  @@index([expiresAt])
-}
-
-model ParentNotification {
-  id        String    @id @default(uuid())
-  parentId  String
-  studentId String?
-  type      String
-  title     String
-  message   String?
-  data      Json?
-  createdAt DateTime  @default(now())
-  seenAt    DateTime?
-
-  parent User @relation(fields: [parentId], references: [id], onDelete: Cascade)
-
-  @@index([parentId, createdAt])
-  @@index([parentId, seenAt])
-  @@index([studentId, createdAt])
-}
-
-model ParentNotificationState {
-  id         String   @id @default(uuid())
-  parentId   String   @unique
-  lastSeenAt DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  parent User @relation(fields: [parentId], references: [id], onDelete: Cascade)
-}
-
-model Announcement {
-  id        String   @id @default(uuid())
-  title     String
-  body      String
-  createdBy String
-  createdAt DateTime @default(now())
-
-  publishAt DateTime  @default(now())
-  expiresAt DateTime?
-  pinned    Boolean   @default(false)
-
-  creator           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  targets           AnnouncementTarget[]
-  announcementSeens AnnouncementSeen[]
-
-  @@index([publishAt])
-  @@index([expiresAt])
-  @@index([pinned])
-  @@index([createdBy])
-}
-
-model AnnouncementTarget {
-  id             String @id @default(uuid())
-  announcementId String
-
-  // Target selectors (any of these can be used)
-  userId   String?
-  role     Role?
-  grade    Int?
-  cohortId String?
-
-  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-
-  @@index([announcementId])
-  @@index([userId])
-  @@index([role])
-  @@index([grade])
-  @@index([cohortId])
-}
-
-model AnnouncementSeen {
-  id             String   @id @default(uuid())
-  userId         String
-  announcementId String
-  seenAt         DateTime @default(now())
-
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, announcementId])
-  @@index([userId])
-  @@index([announcementId])
-}
-
-model AlertSettings {
-  id        String @id @default(uuid())
-  ownerId   String
-  studentId String
-
-  minGrade    Int @default(70)
-  maxAbsences Int @default(1)
-  maxLates    Int @default(3)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([ownerId, studentId])
-  @@index([studentId])
-  @@index([ownerId])
-}
-
-//
-// --- Day 1 foundation: materials + learning profile + AI brain + tutor memory + analytics ---
-//
 
 enum MaterialSource {
   BAGrut
@@ -447,140 +577,6 @@ enum AnalyticsActorRole {
   ADMIN
 }
 
-model Material {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // scoping
-  cohortId String?
-  courseId String?
-
-  // content
-  title    String
-  subject  String? // e.g. MATH/PHYSICS/CS
-  grade    Int? // bagrut target grade (10/11/12)
-  language String? // 'he'/'ar'/'en'
-  source   MaterialSource @default(BAGrut)
-
-  // "chunk" style storage (start simple: full text)
-  content String
-
-  // loose tags for retrieval
-  tags String[] @default([])
-
-  @@index([cohortId])
-  @@index([courseId])
-  @@index([subject])
-}
-
-model LearningProfile {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // userId = student user id
-  userId String @unique
-
-  // "bagrut level" guardrails
-  targetCurriculum  String? // 'bagrut'
-  targetGrade       Int? // 10/11/12
-  preferredLanguage String? // 'he'/'ar'/'en'
-
-  // style matching (how tutor behaves)
-  tone         String? // e.g. "friendly", "strict", "funny"
-  verbosity    Int? // 1-10
-  explainStyle String? // e.g. "step-by-step", "short hints", "use examples"
-  emojiOk      Boolean @default(true)
-
-  // learning state
-  strengths  String[] @default([])
-  weaknesses String[] @default([])
-  goals      String[] @default([])
-
-  // guardrail: avoid advanced topics
-  maxDepth Int? // 1=very basic ... 5=advanced (we keep <=3 for bagrut by default)
-}
-
-model StudentBrainSnapshot {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  userId   String // student user id
-  cohortId String?
-
-  // compact analytics summary the tutor can read
-  // (keep JSON flexible, schema later)
-  metrics Json
-
-  // example metrics you might store inside JSON:
-  // { "math": {"avg": 78,"trend":"up","weak":["quadratic"],"strong":["trig"]}, ... }
-
-  @@index([userId, createdAt])
-  @@index([cohortId])
-}
-
-model TutorSession {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  characterId String?
-  character   TutorCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
-  updatedAt   DateTime        @updatedAt
-
-  userId   String // student user id
-  courseId String?
-  cohortId String?
-
-  // optional title/topic
-  title String?
-  topic String?
-
-  messages TutorMessage[]
-
-  @@index([userId, updatedAt])
-  @@index([cohortId])
-  @@index([courseId])
-}
-
-model TutorMessage {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  sessionId String
-  role      TutorMessageRole
-  content   String
-
-  // what tutor used as sources (ids or short refs)
-  sources String[] @default([])
-
-  session TutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId, createdAt])
-}
-
-model AnalyticsEvent {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  actorUserId String?
-  actorRole   AnalyticsActorRole?
-
-  // scope
-  cohortId  String?
-  courseId  String?
-  studentId String?
-
-  // event
-  name    String
-  payload Json?
-
-  @@index([name, createdAt])
-  @@index([cohortId])
-  @@index([courseId])
-  @@index([studentId])
-}
-
 enum TutorCharacterSubject {
   GENERAL
   MATH
@@ -590,118 +586,3 @@ enum TutorCharacterSubject {
   HEBREW
   ARABIC
 }
-
-model TutorCharacter {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // scope (optional) – later we can make per cohort/school
-  cohortId String?
-
-  subject      TutorCharacterSubject @default(GENERAL)
-  name         String // e.g. "Mr. Derivative", "Physics Coach"
-  // how it speaks/behaves (high-level; real behavior comes later from AI brain + profile)
-  tone         String? // friendly/strict/etc.
-  verbosity    Int? // 1-10
-  explainStyle String? // step-by-step / hints / examples
-
-  // guardrails
-  curriculum String? // e.g. "bagrut"
-  maxGrade   Int? // 10/11/12
-  language   String? // he/ar/en
-
-  // later: prompt template / system rules
-  systemNotes String? // short instruction block
-
-  sessions TutorSession[]
-
-  @@index([cohortId])
-  @@index([subject])
-}
-
-model TutorReplyCache {
-  id                 String   @id @default(cuid())
-  userId             String
-  characterId        String?
-  normalizedQuestion String
-  topic              String?
-  mode               String // "deterministic" | "llm"
-  content            String
-  refs               String?
-  excerpt            String?
-  createdAt          DateTime @default(now())
-  expiresAt          DateTime
-
-  @@unique([userId, characterId, normalizedQuestion, mode])
-  @@index([userId, characterId])
-}
-
-// ### CLASSMATE:MODELS:BEGIN
-model Solution {
-  id             String   @id @default(uuid())
-  authorId       String
-  subject        String // "math" | "physics" | ...
-  sourceType     String // "book" | "bagrut" | "other"
-  sourceName     String? // book name OR bagrut year/season
-  page           Int?
-  questionNumber String? // "12" or "12a"
-  title          String?
-  notes          String?
-  body           String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  images SolutionImage[]
-
-  @@index([subject, sourceType])
-  @@index([subject, sourceName, page])
-  @@index([subject, sourceName, page, questionNumber])
-}
-
-model SolutionImage {
-  id         String @id @default(uuid())
-  solutionId String
-
-  // public URL (served from /uploads)
-  url String
-
-  // storage + metadata (for PDFs/scans/search)
-  storagePath  String
-  kind         String // "image" | "pdf" | "other"
-  mime         String
-  sizeBytes    Int
-  originalName String?
-  sha256       String?
-
-  width     Int?
-  height    Int?
-  createdAt DateTime @default(now())
-
-  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-
-  @@index([solutionId])
-  @@index([kind])
-  @@index([mime])
-  @@index([sha256])
-}
-
-model Notification {
-  id        String    @id @default(cuid())
-  userId    String
-  type      String
-  title     String
-  body      String?
-  data      Json?
-  severity  String    @default("info") // info|success|warning|error
-  seenAt    DateTime?
-  createdAt DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt(sort: Desc)])
-  @@index([userId, seenAt])
-}
-
-// ### CLASSMATE:MODELS:END

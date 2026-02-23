@@ -5,17 +5,16 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
-  
   constructor(private readonly prisma: PrismaService) {}
 
-async list(userId: string, q: ListNotificationsDto) {
+  async list(parentId: string, q: ListNotificationsDto) {
     const limit = q.limit ?? 30;
 
-    const where: any = { userId };
+    const where: any = { parentId };
     if (q.state === 'seen') where.seenAt = { not: null };
     if (q.state === 'unseen') where.seenAt = null;
 
-    const rows = await this.prisma.notification.findMany({
+    const rows = await this.prisma.parentNotification.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
@@ -34,42 +33,42 @@ async list(userId: string, q: ListNotificationsDto) {
     return { items, nextCursor };
   }
 
-  async markSeen(userId: string, ids: string[]) {
+  async markSeen(parentId: string, ids: string[]) {
     if (!ids.length) return { ok: true, updated: 0 };
 
     const now = new Date();
-    const res = await this.prisma.notification.updateMany({
-      where: { userId, id: { in: ids }, seenAt: null },
+    const res = await this.prisma.parentNotification.updateMany({
+      where: { parentId, id: { in: ids }, seenAt: null },
       data: { seenAt: now },
     });
 
     return { ok: true, updated: res.count };
   }
 
-  async markAllSeen(userId: string) {
+  async markAllSeen(parentId: string) {
     const now = new Date();
-    const res = await this.prisma.notification.updateMany({
-      where: { userId, seenAt: null },
+    const res = await this.prisma.parentNotification.updateMany({
+      where: { parentId, seenAt: null },
       data: { seenAt: now },
     });
     return { ok: true, updated: res.count };
   }
 
-  async createForUser(userId: string, dto: CreateNotificationDto) {
-    return this.prisma.notification.create({
+  async createForUser(parentId: string, dto: CreateNotificationDto) {
+    return this.prisma.parentNotification.create({
       data: {
-        userId,
+        parentId,
+        studentId: (dto as any)?.studentId ?? null,
         type: dto.type,
         title: dto.title,
-        body: dto.body,
-        data: dto.data as any,
-        severity: dto.severity ?? 'info',
+        message: (dto as any)?.body ?? (dto as any)?.message ?? null,
+        data: (dto as any)?.data ?? null,
       },
     });
   }
 
-  async get(userId: string, id: string) {
-    const n = await this.prisma.notification.findFirst({ where: { id, userId } });
+  async get(parentId: string, id: string) {
+    const n = await this.prisma.parentNotification.findFirst({ where: { id, parentId } });
     if (!n) throw new NotFoundException('Notification not found');
     return n;
   }
