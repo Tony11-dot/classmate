@@ -29,7 +29,7 @@ export class AdminController {
 
   @Roles('ADMIN')
   @Post('users')
-  createUser(@Body() body: any) {
+  createUser(@Body() body: CreateAdminUserDto) {
     return this.admin.createUser(body);
   }
 }

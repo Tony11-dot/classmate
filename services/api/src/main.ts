@@ -9,6 +9,7 @@ import { loadEnv } from './env';
 async function bootstrap() {
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   // ✅ CORS for admin-web dev + e2e
   // allow:
