@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { corsOrigins, env } from './config/env';
 import helmet from 'helmet';
 import compression from 'compression';
 import { RequestIdMiddleware } from './common/request-id.middleware';

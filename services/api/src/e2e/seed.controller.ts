@@ -1,4 +1,4 @@
-import { Controller, Post, Res } from '@nestjs/common';
+import { Controller, Post, Res, Get, Param } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Response } from 'express';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,51 @@ import * as bcrypt from 'bcrypt';
 @Controller('test/seed')
 export class E2ESeedController {
   constructor(private readonly prisma: PrismaService) {}
+
+  @Get('db-check/:email')
+  async dbCheck(@Res() res: Response, @Param('email') email: string) {
+    const prisma: any = this.prisma;
+    try {
+      const u = await prisma.user.findUnique({
+        where: { email } as any,
+        select: { id: true, email: true, roles: { select: { role: true } } },
+      });
+      const sp = u?.id
+        ? await prisma.studentProfile?.findFirst?.({
+            where: { userId: u.id } as any,
+            select: { userId: true, cohortId: true, englishLevel: true, mathLevel: true },
+          })
+        : null;
+      const enroll = u?.id
+        ? await prisma.enrollment?.findMany?.({
+            where: { studentId: u.id } as any,
+            select: { courseId: true, studentId: true },
+          })
+        : [];
+      
+      const courseIds = (enroll || []).map((e: any) => e.courseId).filter(Boolean);
+      const coursesForStudent = courseIds.length
+        ? await prisma.course?.findMany?.({
+            where: { id: { in: courseIds } } as any,
+            select: { id: true, name: true, subject: true, teacherId: true, cohortId: true } as any,
+          })
+        : [];
+return res.status(200).json({
+        ok: true,
+        file: 'services/api/src/e2e/seed.controller.ts',
+        dbUrl: process.env.DATABASE_URL || null,
+        user: u || null,
+        studentProfile: sp || null,
+        enrollments: enroll || [],
+        coursesForStudent: coursesForStudent || [],
+      });
+    } catch (e: any) {
+      return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
+    }
+  }
+
+
+
 
   @Post('clear-tutor-characters')
   async clearTutorCharacters(@Res() res: Response) {
@@ -181,6 +226,38 @@ export class E2ESeedController {
       const st = await prisma.user.findUnique({
         where: { email: studentEmail } as any,
       });
+// CM_SEED_PROFILE_LINKS_START
+      const parent = await prisma.user.findUnique({
+        where: { email: parentEmail } as any,
+      });
+
+      // ✅ StudentProfile must exist (ClassroomsService requires it by userId)
+      if (st?.id) {
+        await prisma.studentProfile.upsert({
+          where: { userId: st.id } as any,
+          update: {
+            cohortId,
+            englishLevel: 3,
+            mathLevel: 3,
+          } as any,
+          create: {
+            userId: st.id,
+            cohortId,
+            englishLevel: 3,
+            mathLevel: 3,
+          } as any,
+        } as any);
+      }
+
+      // ✅ Parent must be linked to student for /parent/classrooms
+      if (parent?.id && st?.id) {
+        await prisma.parentChild.upsert({
+          where: { parentId_childId: { parentId: parent.id, childId: st.id } } as any,
+          update: { status: 'APPROVED' } as any,
+          create: { parentId: parent.id, childId: st.id, status: 'APPROVED' } as any,
+        } as any);
+      }
+      // CM_SEED_PROFILE_LINKS_END
 
       if (t1?.id)
         await prisma.teacher
@@ -224,6 +301,26 @@ export class E2ESeedController {
         } as any,
       } as any);
       courseId = c1?.id;
+
+      // ✅ Ensure enrollment for student -> course1
+      if (st?.id && c1?.id) {
+        await prisma.enrollment.upsert({
+          where: { courseId_studentId: { courseId: c1.id, studentId: st.id } } as any,
+          update: {} as any,
+          create: { courseId: c1.id, studentId: st.id, source: 'AUTO' } as any,
+        } as any);
+      }
+
+
+      // ✅ Ensure enrollment exists so /student/classrooms can list memberships
+      if (st?.id && c1?.id) {
+        await prisma.enrollment.upsert({
+          where: { courseId_studentId: { courseId: c1.id, studentId: st.id } } as any,
+          update: {} as any,
+          create: { courseId: c1.id, studentId: st.id, source: 'AUTO' } as any,
+        } as any);
+      }
+
 
 
 
@@ -352,6 +449,16 @@ export class E2ESeedController {
         } as any,
       } as any);
       course2Id = c2?.id;
+
+      // ✅ Ensure enrollment for student -> course2
+      if (st?.id && c2?.id) {
+        await prisma.enrollment.upsert({
+          where: { courseId_studentId: { courseId: c2.id, studentId: st.id } } as any,
+          update: {} as any,
+          create: { courseId: c2.id, studentId: st.id, source: 'AUTO' } as any,
+        } as any);
+      }
+
 
       try {
         const math = await prisma.tutorCharacter?.upsert?.({
