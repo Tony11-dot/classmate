@@ -1,3 +1,5 @@
+import { RolesGuard } from './auth/guards/roles.guard';
+import { DevAuthGuard } from './auth/guards/dev-auth.guard';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { APP_PIPE, APP_FILTER, APP_GUARD } from '@nestjs/core';
