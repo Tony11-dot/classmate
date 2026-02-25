@@ -26,47 +26,25 @@ export class SolutionsService {
   }
 
   async list(q: any) {
+    const limitRaw = q?.limit ?? q?.take ?? 20
+    const take = Math.max(1, Math.min(50, parseInt(String(limitRaw), 10) || 20))
+
+    // simple cursor pagination (optional): /solutions?cursor=<id>&limit=20
+    const cursorId = q?.cursor ? String(q.cursor) : undefined
+
+    // whitelist filters only
+    const where: any = {}
+    if (q?.subject) where.subject = String(q.subject)
+    if (q?.sourceType) where.sourceType = String(q.sourceType)
+    if (q?.sourceName) where.sourceName = String(q.sourceName)
+    if (q?.questionNumber) where.questionNumber = String(q.questionNumber)
+    if (q?.authorId) where.authorId = String(q.authorId)
+
     return this.prisma.solution.findMany({
-      where: q,
+      where,
       orderBy: { createdAt: 'desc' },
       include: { images: true },
-    });
+      take,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+    })
   }
-
-  async get(id: string) {
-    const s = await this.prisma.solution.findUnique({
-      where: { id },
-      include: { images: true },
-    });
-    if (!s) throw new NotFoundException();
-    return s;
-  }
-
-  async update(user: any, id: string, dto: any) {
-    this.ensureStaff(user);
-    return this.prisma.solution.update({
-      where: { id },
-      data: dto,
-      include: { images: true },
-    });
-  }
-
-  async remove(user: any, id: string) {
-    this.ensureStaff(user);
-    await this.prisma.solution.delete({ where: { id } });
-    return { ok: true };
-  }
-
-  async addImage(user: any, id: string, dto: AddSolutionImageDto) {
-    this.ensureStaff(user);
-    return this.prisma.solutionImage.create({
-      data: { solutionId: id, ...dto },
-    });
-  }
-
-  async deleteImage(user: any, imageId: string) {
-    this.ensureStaff(user);
-    await this.prisma.solutionImage.delete({ where: { id: imageId } });
-    return { ok: true };
-  }
-}
