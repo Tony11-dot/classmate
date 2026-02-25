@@ -53,4 +53,23 @@ export class HttpClient {
 
     return schema.parse(json);
   }
+
+  async patch<TReq, TRes>(path: string, body: TReq, schema: z.ZodType<TRes>): Promise<TRes> {
+    const res = await fetch(this.opts.baseUrl + path, {
+      method: 'PATCH',
+      headers: this.headers(),
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    const json = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      const msg = typeof json?.message === 'string' ? json.message : `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+
+    return schema.parse(json);
+  }
+
 }
