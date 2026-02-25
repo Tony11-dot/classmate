@@ -2,10 +2,23 @@ import { Controller, Post, Res, Get, Param } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Response } from 'express';
 import * as bcrypt from 'bcrypt';
+function ensureTestEnv() {
+  if (process.env.NODE_ENV !== 'test') {
+    const err: any = new Error('Not Found');
+    err.status = 404;
+    throw err;
+  }
+}
+
+
 
 @Controller('test/seed')
 export class E2ESeedController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+    
+    ensureTestEnv();
+ensureTestEnv();
+}
 
   @Get('db-check/:email')
   async dbCheck(@Res() res: Response, @Param('email') email: string) {
@@ -137,7 +150,8 @@ return res.status(200).json({
       }
 
       if (!cohortId || !cohort2Id) {
-        return res
+    ensureTestEnv();
+return res
           .status(500)
           .json({ ok: false, error: 'FAILED_TO_CREATE_COHORTS', cohortDebug });
       }
@@ -233,7 +247,8 @@ return res.status(200).json({
 
       // ✅ StudentProfile must exist (ClassroomsService requires it by userId)
       if (st?.id) {
-        await prisma.studentProfile.upsert({
+    ensureTestEnv();
+await prisma.studentProfile.upsert({
           where: { userId: st.id } as any,
           update: {
             cohortId,
@@ -251,7 +266,8 @@ return res.status(200).json({
 
       // ✅ Parent must be linked to student for /parent/classrooms
       if (parent?.id && st?.id) {
-        await prisma.parentChild.upsert({
+    ensureTestEnv();
+await prisma.parentChild.upsert({
           where: { parentId_childId: { parentId: parent.id, childId: st.id } } as any,
           update: { status: 'APPROVED' } as any,
           create: { parentId: parent.id, childId: st.id, status: 'APPROVED' } as any,
@@ -304,7 +320,8 @@ return res.status(200).json({
 
       // ✅ Ensure enrollment for student -> course1
       if (st?.id && c1?.id) {
-        await prisma.enrollment.upsert({
+    ensureTestEnv();
+await prisma.enrollment.upsert({
           where: { courseId_studentId: { courseId: c1.id, studentId: st.id } } as any,
           update: {} as any,
           create: { courseId: c1.id, studentId: st.id, source: 'AUTO' } as any,
@@ -314,7 +331,8 @@ return res.status(200).json({
 
       // ✅ Ensure enrollment exists so /student/classrooms can list memberships
       if (st?.id && c1?.id) {
-        await prisma.enrollment.upsert({
+    ensureTestEnv();
+await prisma.enrollment.upsert({
           where: { courseId_studentId: { courseId: c1.id, studentId: st.id } } as any,
           update: {} as any,
           create: { courseId: c1.id, studentId: st.id, source: 'AUTO' } as any,
@@ -349,7 +367,8 @@ return res.status(200).json({
 
         // 1) scheduleSlot (weekly template)
         if (prisma.scheduleSlot?.upsert) {
-          await prisma.scheduleSlot.upsert({
+    ensureTestEnv();
+await prisma.scheduleSlot.upsert({
             where: { cohortId_dayOfWeek_period: { cohortId, dayOfWeek, period } },
             update: { courseId },
             create: { cohortId, dayOfWeek, period, courseId },
@@ -361,7 +380,8 @@ return res.status(200).json({
 
         // 2) scheduleOverride (today)
         if (prisma.scheduleOverride?.upsert) {
-          await prisma.scheduleOverride.upsert({
+    ensureTestEnv();
+await prisma.scheduleOverride.upsert({
             where: { cohortId_date_period: { cohortId, date, period } },
             update: { courseId },
             create: { cohortId, date, period, courseId },
@@ -376,7 +396,8 @@ return res.status(200).json({
         let studentRow: any = null;
         try {
           if (prisma.student?.findUnique) {
-            studentRow = await prisma.student.findUnique({ where: { userId: st?.id } });
+    ensureTestEnv();
+studentRow = await prisma.student.findUnique({ where: { userId: st?.id } });
           }
         } catch {}
 
@@ -386,7 +407,8 @@ return res.status(200).json({
         // - studentProfile unique on studentId
         // - studentProfile unique on userId
         if (prisma.studentProfile?.upsert) {
-          if (studentId) {
+    ensureTestEnv();
+if (studentId) {
             try {
               await prisma.studentProfile.upsert({
                 where: { studentId },
@@ -411,7 +433,8 @@ return res.status(200).json({
         } else if (prisma.studentProfile?.create) {
           // last-resort create (best-effort idempotent)
           if (studentId) {
-            await prisma.studentProfile.deleteMany?.({ where: { studentId } }).catch(() => {});
+    ensureTestEnv();
+await prisma.studentProfile.deleteMany?.({ where: { studentId } }).catch(() => {});
             try {
               await prisma.studentProfile.create({
                 data: { studentId, cohortId, name: 'Student 1' },
@@ -452,7 +475,8 @@ return res.status(200).json({
 
       // ✅ Ensure enrollment for student -> course2
       if (st?.id && c2?.id) {
-        await prisma.enrollment.upsert({
+    ensureTestEnv();
+await prisma.enrollment.upsert({
           where: { courseId_studentId: { courseId: c2.id, studentId: st.id } } as any,
           update: {} as any,
           create: { courseId: c2.id, studentId: st.id, source: 'AUTO' } as any,

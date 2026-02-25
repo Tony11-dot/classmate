@@ -40,6 +40,7 @@ const serveStatic =
     : [];
 
 // Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
+// Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
   ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
