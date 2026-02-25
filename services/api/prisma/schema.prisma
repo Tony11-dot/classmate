@@ -658,6 +658,10 @@ model Solution {
   @@index([subject, sourceType])
   @@index([subject, sourceName, page])
   @@index([subject, sourceName, page, questionNumber])
+  @@unique([createdAt, id])
+
+  @@index([createdAt, id])
+
 }
 
 model SolutionImage {
