@@ -1,3 +1,5 @@
+import { RolesGuard } from './auth/guards/roles.guard';
+import { DevAuthGuard } from './auth/guards/dev-auth.guard';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { APP_PIPE, APP_FILTER, APP_GUARD } from '@nestjs/core';
@@ -22,6 +24,7 @@ import { SolutionsModule } from './solutions/solutions.module';
 import { E2ESeedController } from './e2e/seed.controller';
 import { VersionModule } from './version/version.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ClassroomsModule } from './classrooms/classrooms.module';
 
 const env = loadEnv();
 
@@ -36,6 +39,7 @@ const serveStatic =
       ]
     : [];
 
+// Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 // Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
@@ -59,6 +63,7 @@ const controllers = [
   ],
 controllers,
   imports: [
+    ClassroomsModule,
     ...serveStatic,
     ThrottlerModule.forRoot([
       {

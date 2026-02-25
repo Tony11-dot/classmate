@@ -35,7 +35,7 @@
     "prod:log": "tail -n 120 /tmp/api-prod.log",
     "prod:who": "bash scripts/port-who.sh 3000",
     "prod:stop": "bash -lc 'pids=$(lsof -tiTCP:${API_PORT:-3000} -sTCP:LISTEN || true); if [ -n \"$pids\" ]; then kill -9 $pids; echo stopped:$pids; else echo none; fi'",
-    "start:prod:safe": "[ -n \"$JWT_SECRET\" ] || (echo \"❌ JWT_SECRET required\" && exit 1); NODE_ENV=production node dist/src/main.js",
+    "start:prod:safe": "[ -n \"$JWT_SECRET\" ] || (echo \"\u274c JWT_SECRET required\" && exit 1); NODE_ENV=production node dist/src/main.js",
     "smoke:prod": "pnpm -s prod:stop; pnpm -s prod:up; curl -sS http://localhost:${API_PORT:-3000}/api/health | jq .; curl -sS -o /dev/null -w \"%{http_code}\\n\" http://localhost:${API_PORT:-3000}/api/test/seed/admin-web || true",
     "verify": "pnpm -s tests && pnpm -s smoke:prod",
     "verify:dev": "pnpm -s lint && pnpm -s typecheck && pnpm -s test && pnpm -s test:e2e",
@@ -45,7 +45,10 @@
     "db:reset": "dotenv -e .env -- prisma migrate reset --force --skip-generate",
     "db:reseed": "pnpm db:reset && pnpm db:seed",
     "test:src": "NODE_ENV=test jest -c jest.config.cjs -- src --runInBand",
-    "db:push:test": "dotenv -e .env.test -- prisma db push --skip-generate"
+    "db:push:test": "dotenv -e .env.test -- prisma db push --skip-generate",
+    "db:test:up": "bash -lc 'docker ps --format \"{{.Names}}\" | grep -qx classmate-test-db && echo already_up && exit 0; docker run -d --name classmate-test-db -e POSTGRES_PASSWORD=classmate -e POSTGRES_USER=classmate -e POSTGRES_DB=classmate -p 5434:5432 postgres:16 >/dev/null; for i in $(seq 1 60); do docker exec classmate-test-db pg_isready -U classmate -d classmate >/dev/null 2>&1 && echo DB_READY && exit 0; sleep 0.5; done; echo DB_NOT_READY && exit 1'",
+    "db:test:down": "bash -lc 'docker rm -f classmate-test-db >/dev/null 2>&1 || true; echo DB_STOPPED'",
+    "test:e2e:cursor": "bash -lc 'pnpm -s db:test:up && pnpm -s test:e2e -- solutions.cursor.e2e-spec.ts'"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",

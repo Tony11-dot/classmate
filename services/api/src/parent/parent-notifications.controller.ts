@@ -68,8 +68,8 @@ export class ParentNotificationsController {
   @UseGuards(SseJwtGuard)
 
   @UseGuards(SseJwtGuard)
-  @Sse('notifications/stream')
-  stream(@Req() req: any): Observable<MessageEvent> {    const parentId = req.user?.id;
+  @Sse('stream')
+  stream(@Req() req: any): Observable<MessageEvent> {    const parentId = (req as any).user?.id;
     if (!parentId) throw new UnauthorizedException();
     const heartbeat$ = interval(15000).pipe(map(() => ({ data: { type: 'ping' } })));
 

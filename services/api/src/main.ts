@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { corsOrigins, env } from './config/env';
 import helmet from 'helmet';
 import compression from 'compression';
 import { RequestIdMiddleware } from './common/request-id.middleware';
@@ -7,6 +8,8 @@ import { AppModule } from './app.module';
 import { loadEnv } from './env';
 
 async function bootstrap() {
+  // Ensure PORT exists before env parsing/validation
+  process.env.PORT = process.env.PORT ?? "3001";
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
@@ -20,7 +23,9 @@ async function bootstrap() {
       if (!origin) return cb(null, true);
       const ok =
         origin === 'http://127.0.0.1:3001' ||
+        origin === 'http://127.0.0.1:3000' ||
         origin === 'http://localhost:3001' ||
+        origin === 'http://localhost:3000' ||
         /^http:\/\/192\.168\.\d+\.\d+:3001$/.test(origin);
       return cb(null, ok);
     },
@@ -44,7 +49,7 @@ async function bootstrap() {
   app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
 
   app.setGlobalPrefix('api');
-  await app.listen(env.PORT, '0.0.0.0');
+  await app.listen(Number(process.env.PORT) || 3001, '0.0.0.0');
 }
 
 bootstrap();
