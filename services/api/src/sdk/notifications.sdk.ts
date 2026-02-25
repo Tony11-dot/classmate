@@ -14,11 +14,11 @@ export class NotificationsSdk {
   }
 
   seen(input: z.infer<typeof NotificationsSeenReqDto>) {
-    return this.http.patch('/api/notifications/seen', input, NotificationsSeenResDto);
+    return this.http.post('/api/notifications/seen', input, NotificationsSeenResDto);
   }
 
   seenAll() {
-    return this.http.patch('/api/notifications/seen-all', {}, NotificationsSeenResDto);
+    return this.http.post('/api/notifications/seen-all', {}, NotificationsSeenResDto);
   }
 
   create(input: any) {
