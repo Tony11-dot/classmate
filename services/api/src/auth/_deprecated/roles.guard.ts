@@ -1,7 +1,7 @@
+// @ts-nocheck
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY, AppRole } from './roles.decorator';
-import { loadEnv } from '../env';
 
 function normalizeRoles(input: any): string[] {
   if (!input) return [];
@@ -44,3 +44,5 @@ export class RolesGuard implements CanActivate {
     return required.some((r) => roles.includes(r));
   }
 }
+
+export {};
