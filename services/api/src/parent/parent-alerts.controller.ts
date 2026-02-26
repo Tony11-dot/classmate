@@ -1,4 +1,5 @@
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import { Body, Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentAlertsService } from './parent-alerts.service';
@@ -7,7 +8,7 @@ import { UpdateAlertSettingsDto } from './dto/update-alert-settings.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
-@Roles('PARENT', 'ADMIN')
+@Roles(Role.PARENT, Role.ADMIN)
 @Controller('parent/alerts')
 export class ParentAlertsController {
   constructor(private svc: ParentAlertsService) {}

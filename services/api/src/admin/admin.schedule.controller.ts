@@ -1,4 +1,5 @@
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import {
   Body,
   Controller,
@@ -8,20 +9,20 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { RolesGuard } from '../auth/roles.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 import { hasAnyRole } from '../auth/permissions';
 
 @UseGuards(JwtAuthGuard)
-@Roles('ADMIN')
+@Roles(Role.ADMIN)
 @Controller('admin/schedule')
 export class AdminScheduleController {
   constructor(private readonly admin: AdminService) {}
 
   private assertAdmin(req: any) {
     const roles: string[] = req.user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['ADMIN'])) throw new ForbiddenException('Admin only');
+    if (!hasAnyRole({ roles }, [Role.ADMIN])) throw new ForbiddenException('Admin only');
   }
 
   @Put('template')

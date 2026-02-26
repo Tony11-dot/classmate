@@ -1,10 +1,11 @@
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ScheduleService } from '../schedule/schedule.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('STUDENT', 'ADMIN')
+@Roles(Role.STUDENT, Role.ADMIN)
 @Controller('student/schedule')
 export class StudentScheduleController {
   constructor(private readonly schedule: ScheduleService) {}

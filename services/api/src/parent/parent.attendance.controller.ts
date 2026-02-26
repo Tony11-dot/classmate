@@ -1,10 +1,11 @@
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('PARENT', 'ADMIN')
+@Roles(Role.PARENT, Role.ADMIN)
 @Controller('parent')
 export class ParentAttendanceController {
   constructor(private readonly parent: ParentService) {}

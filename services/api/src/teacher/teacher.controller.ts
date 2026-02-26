@@ -1,4 +1,5 @@
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import {
   Body,
   Controller,
@@ -12,16 +13,16 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { RolesGuard } from '../auth/roles.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TeacherService } from './teacher.service';
 
 @UseGuards(JwtAuthGuard)
-@Roles('TEACHER', 'ADMIN')
+@Roles(Role.TEACHER, Role.ADMIN)
 @Controller('teacher')
 export class TeacherController {
   
-  @Roles('TEACHER', 'ADMIN')
+  @Roles(Role.TEACHER, Role.ADMIN)
   @Post('cohorts/join-code')
   joinCode(
     @Req() req: any,

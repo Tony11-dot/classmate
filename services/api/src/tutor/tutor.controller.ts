@@ -10,28 +10,29 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TutorService } from './tutor.service';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 @UseGuards(JwtAuthGuard)
-@Roles('STUDENT', 'ADMIN', 'SECRETARY')
+@Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
 @Controller('tutor')
 export class TutorController {
   constructor(private svc: TutorService) {}
 
   // ---- Learning profile ----
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Get('me/profile')
   getMyProfile(@Req() req: any) {
     return this.svc.getMyLearningProfile(req.user);
   }
 
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Post('me/profile')
   upsertMyProfile(@Req() req: any, @Body() body: any) {
     return this.svc.upsertMyLearningProfile(req.user, body);
   }
 
   // ---- Brain snapshot (read) ----
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Get('me/brain')
   getMyBrain(@Req() req: any) {
     return this.svc.getMyBrainSnapshot(req.user);
@@ -43,7 +44,7 @@ export class TutorController {
   }
 
   // ---- Materials ----
-  @Roles('STUDENT', 'ADMIN', 'SECRETARY')
+  @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
   @Get('materials')
   listMaterials(
     @Query('subject') subject?: string,
@@ -61,37 +62,37 @@ export class TutorController {
     });
   }
 
-  @Roles('ADMIN', 'SECRETARY')
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Post('materials')
   createMaterial(@Req() req: any, @Body() body: any) {
     return this.svc.createMaterial(req.user, body);
   }
 
   // ---- Sessions ----
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Post('sessions')
   createSession(@Req() req: any, @Body() body: any) {
     return this.svc.createSession(req.user, body);
   }
 
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Get('sessions')
   listSessions(@Req() req: any, @Query('characterId') characterId?: string) {
     return this.svc.listSessions(req.user, { characterId });
   }
 
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Get('sessions/:id')
   getSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.getSession(req.user, id);
   }
 
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Post('sessions/:id/messages')
   addMessage(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.addMessage(req.user, id, body);
   }
-  @Roles('STUDENT', 'ADMIN')
+  @Roles(Role.STUDENT, Role.ADMIN)
   @Post('sessions/:id/reply')
   reply(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.replyToSession(req.user, id, body);
