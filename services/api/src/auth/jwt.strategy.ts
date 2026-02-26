@@ -24,20 +24,35 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<JwtUser> {
-    const uid = String(payload?.sub ?? payload?.id ?? payload?.userId ?? '');
-    if (!uid) throw new UnauthorizedException('Invalid token payload');
+    const raw =
+      String(payload?.sub ?? payload?.id ?? payload?.userId ?? '') ||
+      String(payload?.email ?? '');
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: uid },
-      select: { id: true, email: true, name: true },
-    });
+    if (!raw) throw new UnauthorizedException('Invalid token payload');
+
+    // 1) try by id
+    let user =
+      (await this.prisma.user.findUnique({
+        where: { id: raw },
+        select: { id: true, email: true, name: true },
+      })) ?? null;
+
+    // 2) fallback to email (sub/email-based tokens)
+    if (!user) {
+      user = await this.prisma.user.findUnique({
+        where: { email: raw },
+        select: { id: true, email: true, name: true },
+      });
+    }
+
     if (!user) throw new UnauthorizedException('User not found');
 
     const rolesRows = await this.prisma.userRole.findMany({
-      where: { userId: uid },
+      where: { userId: user.id },
       select: { role: true },
       orderBy: { role: 'asc' },
     });
+
     const roles = rolesRows.map((r) => String(r.role));
 
     return {
