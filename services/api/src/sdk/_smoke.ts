@@ -15,14 +15,14 @@ const auth = new AuthSdk(http);
 const classrooms = new ClassroomsSdk(http);
 
 (async () => {
-  const login = await auth.login({ email: 'student1@classmate.app', password: 'dev' });
+  const login: any = await auth.login({ email: 'student1@classmate.app', password: 'dev' });
   token = login.token;
 
-  const list = await classrooms.listStudent();
+  const list: any = await classrooms.listStudent();
   console.log('student classrooms:', list.length);
 
   if (list[0]?.id) {
-    const detail = await classrooms.getStudent(list[0].id);
+    const detail: any = await classrooms.getStudent(list[0].id);
     console.log('detail:', detail.id);
   }
 })().catch((e) => {
