@@ -3,19 +3,27 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service';
 
-export type JwtUser = {id: string; sub: string; userId: string; roles: string[]; email?: string };
+export type JwtUser = {
+  id: string;
+  sub: string;
+  userId: string;
+  roles: string[];
+  email?: string;
+  name?: string | null;
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'dev',
+      secretOrKey:
+        process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'dev',
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: any): Promise<JwtUser> {
     const uid = String(payload?.sub ?? payload?.id ?? payload?.userId ?? '');
     if (!uid) throw new UnauthorizedException('Invalid token payload');
 
@@ -35,9 +43,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: user.id,
       sub: user.id,
-      email: user.email,
-      name: user.name,
+      userId: user.id,
       roles,
+      email: user.email ?? undefined,
+      name: user.name ?? null,
     };
   }
 }
