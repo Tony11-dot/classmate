@@ -43,3 +43,5 @@ pubspec.yaml.bak.*
 # keep dead code out of analyzer/build
 classmate_mobile/._graveyard/
 services/api/.env
+!**/next-env.d.ts
+!apps/admin-web/next-env.d.ts

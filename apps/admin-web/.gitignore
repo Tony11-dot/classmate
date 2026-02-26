@@ -49,3 +49,4 @@ blob-report/
 # Next / Node
 .next/
 node_modules/
+!next-env.d.ts
