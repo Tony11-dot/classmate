@@ -31,18 +31,16 @@ async function login(app: INestApplication, email: string, password: string) {
 }
 
 function findFirstCourseSlot(weekBody: any) {
-  // expected: { ok: true, cohort: {id...}, days: [{date, slots:[{period, course?...}]}] }
-  const cohortId = weekBody?.cohort?.id || null;
-  const days: any[] = Array.isArray(weekBody?.days) ? weekBody.days : [];
-
-  for (const d of days) {
-    const date = d?.date;
-    const slots: any[] = Array.isArray(d?.slots) ? d.slots : [];
-    for (const s of slots) {
-      if (s?.course) {
-        const period = s?.period;
-        if (cohortId && date && period) return { cohortId, date, period };
-      }
+  // Current API returns an ARRAY of schedule items:
+  // [{ cohortId, date, period, courseId, ... }]
+  const items: any[] = Array.isArray(weekBody) ? weekBody : [];
+  for (const it of items) {
+    const cohortId = it?.cohortId;
+    const date = it?.date;
+    const period = it?.period;
+    const courseId = it?.courseId;
+    if (cohortId && date && period !== undefined && period !== null && courseId) {
+      return { cohortId, date, period };
     }
   }
   return null;
@@ -58,7 +56,8 @@ describe('Teacher attendance (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
-  });
+  
+});
 
   afterAll(async () => {
     await app.close();
@@ -75,11 +74,11 @@ describe('Teacher attendance (e2e)', () => {
     if (!studentToken) return; // auto-skip on env mismatch
 
     const week = await request(app.getHttpServer())
-      .get('/api/student/schedule/week')
+      .get('/student/schedule/week')
       .set('Authorization', `Bearer ${studentToken}`)
       .expect(200);
 
-    expect(week.body).toHaveProperty('ok', true);
+    expect(Array.isArray(week.body)).toBe(true);
 
     const slot = findFirstCourseSlot(week.body);
     if (!slot) return; // no courses scheduled => skip (weekend / empty data)
