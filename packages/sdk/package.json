@@ -12,7 +12,7 @@
     "@types/node": "^22.13.0"
   },
   "scripts": {
-    "typecheck": "pnpm exec pnpm --package=typescript@5.9.3 dlx tsc -p tsconfig.json --noEmit",
+    "typecheck": "pnpm exec pnpm --package=typescript@5.9.3 dlx pnpm --package=typescript@5.9.3 dlx tsc -p tsconfig.json --noEmit",
     "build": "pnpm exec tsc -p tsconfig.json"
   }
 }
