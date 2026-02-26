@@ -134,7 +134,15 @@ describe('Student schedule (seeded)', () => {
     studentToken = mustToken(studentRelogin.body, 'studentRelogin');
 
 
-    await request(app.getHttpServer())
+
+    
+    // sanity: token works on some authed route (pick one that exists in your app)
+    // try /api/student/schedule/today (should be 400 "not onboarded" BEFORE onboard)
+    const pre = await request(app.getHttpServer())
+      .get('/api/student/schedule/today')
+      .set('Authorization', `Bearer ${studentToken}`);
+
+    const onboardRes = await request(app.getHttpServer())
       .post('/api/student/onboard')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({
@@ -142,10 +150,10 @@ describe('Student schedule (seeded)', () => {
         joinCode: joinCodePlain,
         englishLevel: 3,
         mathLevel: 3,
-      })
-      .expect(201);
+      });
 
-    const today = await request(app.getHttpServer())
+    expect(onboardRes.status).toBe(201);
+const today = await request(app.getHttpServer())
       .get('/api/student/schedule/today')
       .set('Authorization', `Bearer ${studentToken}`)
       .expect(200);
