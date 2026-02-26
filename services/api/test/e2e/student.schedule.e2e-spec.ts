@@ -9,6 +9,7 @@ describe('Student schedule', () => {
   beforeAll(async () => {
     const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = mod.createNestApplication();
+    app.setGlobalPrefix('api');
     await app.init();
   });
 
