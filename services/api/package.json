@@ -48,7 +48,8 @@
     "db:push:test": "dotenv -e .env.test -- prisma db push --skip-generate",
     "db:test:up": "bash -lc 'docker ps --format \"{{.Names}}\" | grep -qx classmate-test-db && echo already_up && exit 0; docker run -d --name classmate-test-db -e POSTGRES_PASSWORD=classmate -e POSTGRES_USER=classmate -e POSTGRES_DB=classmate -p 5434:5432 postgres:16 >/dev/null; for i in $(seq 1 60); do docker exec classmate-test-db pg_isready -U classmate -d classmate >/dev/null 2>&1 && echo DB_READY && exit 0; sleep 0.5; done; echo DB_NOT_READY && exit 1'",
     "db:test:down": "bash -lc 'docker rm -f classmate-test-db >/dev/null 2>&1 || true; echo DB_STOPPED'",
-    "test:e2e:cursor": "bash -lc 'pnpm -s db:test:up && pnpm -s test:e2e -- solutions.cursor.e2e-spec.ts'"
+    "test:e2e:cursor": "bash -lc 'pnpm -s db:test:up && pnpm -s test:e2e -- solutions.cursor.e2e-spec.ts'",
+    "api:prod:smoke": "bash -lc 'set -euo pipefail; ENV_FILE=\"${ENV_FILE:-.env.production}\"; if [ -f \"$ENV_FILE\" ]; then   echo \"using $ENV_FILE\";   set -a; source \"$ENV_FILE\"; set +a; else   echo \"WARN: $ENV_FILE not found; using existing env\"; fi; export NODE_ENV=production; export PORT=\"${PORT:-3000}\"; node -e \"require(\\\"./dist/main\\\")\" >/tmp/classmate-api.prod.log 2>&1 & PID=$!; trap \"kill $PID >/dev/null 2>&1 || true\" EXIT; for i in $(seq 1 60); do   curl -fsS \"http://127.0.0.1:${PORT}/api/health\" >/dev/null && echo OK && exit 0;   sleep 0.25; done; echo \"FAILED: health not ready\"; tail -n 120 /tmp/classmate-api.prod.log || true; exit 1'"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
