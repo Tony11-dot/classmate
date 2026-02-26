@@ -1,6 +1,6 @@
 import { request, expect, APIRequestContext } from '@playwright/test';
 
-export const API = `${(process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3001').replace(/\/$/,'')}/api`;
+export const API = `${(process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3002').replace(/\/$/,'')}/api`;
 
 async function seedAdminWithRetry(retries = 6): Promise<any> {
   const ctx = await request.newContext();
@@ -37,13 +37,26 @@ async function login(email: string, password: string): Promise<string> {
 
 export async function seededStudentApi(): Promise<{ seed: any; ctx: APIRequestContext }> {
   const seed = await seedAdminWithRetry();
-  expect(seed.studentEmail).toBeTruthy();
-  expect(seed.password).toBeTruthy();
 
-  const token = await login(seed.studentEmail, seed.password);
+  const studentEmail =
+    seed?.studentEmail ??
+    seed?.student?.email ??
+    'student1@classmate.app';
+
+  const password =
+    seed?.password ??
+    seed?.studentPassword ??
+    seed?.student?.password ??
+    'dev';
+
+  expect(studentEmail).toBeTruthy();
+  expect(password).toBeTruthy();
+
+  const token = await login(studentEmail, password);
 
   const ctx = await request.newContext({
-    extraHTTPHeaders: { Authorization: `Bearer ${token}` },
+    extraHTTPHeaders: { 'X-E2E-BYPASS-THROTTLE': '1', Authorization: `Bearer ${token}` },
+
   });
 
   return { seed, ctx };

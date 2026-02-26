@@ -1,6 +1,6 @@
 import { APIRequestContext, Page } from '@playwright/test';
 
-const API_BASE = process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3001';
+const API_BASE = process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3002';
 
 export async function apiLogin(
   request: APIRequestContext,
@@ -30,7 +30,7 @@ export async function loginAsTeacher(page: Page, request: APIRequestContext) {
 }
 
 export async function loginAsAdmin(page: Page, request: APIRequestContext) {
-  const token = await apiLogin(request, 'admin@classmate.app', 'dev');
+  const token = await apiLogin(request, 'admin1@classmate.app', 'dev');
 
   await page.addInitScript(({ token }) => {
     localStorage.setItem('auth_token', token);
