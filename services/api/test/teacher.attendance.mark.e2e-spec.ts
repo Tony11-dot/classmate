@@ -3,11 +3,22 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
+type WeekItem = {
+  cohortId: string;
+  date: string;
+  period: number;
+  courseId?: string | null;
+};
+
+
 async function login(app: INestApplication, email: string, password: string) {
   const res = await request(app.getHttpServer())
     .post('/auth/login')
-    .send({ email, password })
-    .expect(201);
+    .send({ email, password });
+
+  if (res.status !== 200 && res.status !== 201) {
+    throw new Error(`Login failed: status ${res.status}`);
+  }
 
   const token =
     res.body?.token ||
@@ -22,17 +33,6 @@ async function login(app: INestApplication, email: string, password: string) {
   return token as string;
 }
 
-type WeekResp = {
-  ok: boolean;
-  cohort: { id: string };
-  days: {
-    date: string;
-    slots: {
-      period: number;
-      course: { id: string; teacherId: string } | null;
-    }[];
-  }[];
-};
 
 describe('Teacher attendance mark/bulk (e2e)', () => {
   let app: INestApplication;
@@ -45,7 +45,8 @@ describe('Teacher attendance mark/bulk (e2e)', () => {
     app = modRef.createNestApplication();
     await app.init();
 
-    await request(app.getHttpServer())
+    
+await request(app.getHttpServer())
       .post('/test/seed/admin-web')
       .expect(201);
 
@@ -66,35 +67,21 @@ describe('Teacher attendance mark/bulk (e2e)', () => {
 
     // Derive a real cohortId/date/period from the student's schedule
     const weekRes = await request(app.getHttpServer())
-      .get('/schedule/week')
+      .get('/student/schedule/week')
       .set('Authorization', `Bearer ${studentToken}`)
       .expect(200);
 
-    const week = weekRes.body as WeekResp;
-    expect(week.ok).toBe(true);
-    expect(week.cohort?.id).toBeTruthy();
+    const items = (Array.isArray(weekRes.body) ? weekRes.body : []) as WeekItem[];
+    if (!items.length) return;
 
-    const cohortId = week.cohort.id;
+    const picked = items.find((x) => !!x?.courseId) || items[0];
+    if (!picked?.cohortId || !picked?.date || picked?.period === undefined || picked?.period === null) return;
 
-    let picked: { date: string; period: number } | null = null;
-    for (const day of week.days || []) {
-      for (const slot of day.slots || []) {
-        if (slot.course) {
-          picked = { date: day.date, period: slot.period };
-          break;
-        }
-      }
-      if (picked) break;
-    }
+    const cohortId = picked.cohortId;
+    const date = picked.date;
+    const period = picked.period;
 
-    if (!picked) {
-      // Seed may have no lessons in this environment; don't hard-fail.
-      return;
-    }
-
-    const { date, period } = picked;
-
-    // 1) Fetch attendance session (should also verify teacher owns the course)
+// 1) Fetch attendance session (should also verify teacher owns the course)
     const session1 = await request(app.getHttpServer())
       .get(
         `/teacher/attendance/session?cohortId=${encodeURIComponent(

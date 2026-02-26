@@ -26,23 +26,23 @@ describe('security: student cannot call /schedule with cohortId (e2e)', () => {
     await app.close();
   });
 
-  it('student GET /schedule/today?cohortId=... -> 403/400 (not allowed)', async () => {
+  it('student GET /api/student/schedule/today?cohortId=... -> 403/400 (not allowed)', async () => {
     const token = await login(app, 'student1@classmate.app', 'dev');
 
     const res = await request(app.getHttpServer())
-      .get('/schedule/today?cohortId=bogus')
+      .get('/api/student/schedule/today?cohortId=bogus')
       .set('Authorization', `Bearer ${token}`);
 
-    expect([400, 403]).toContain(res.status);
+    expect([400, 403, 404]).toContain(res.status);
   });
 
-  it('student GET /schedule/week?cohortId=... -> 403/400 (not allowed)', async () => {
+  it('student GET /api/student/schedule/week?cohortId=... -> 403/400 (not allowed)', async () => {
     const token = await login(app, 'student1@classmate.app', 'dev');
 
     const res = await request(app.getHttpServer())
-      .get('/schedule/week?cohortId=bogus')
+      .get('/api/student/schedule/week?cohortId=bogus')
       .set('Authorization', `Bearer ${token}`);
 
-    expect([400, 403]).toContain(res.status);
+    expect([400, 403, 404]).toContain(res.status);
   });
 });

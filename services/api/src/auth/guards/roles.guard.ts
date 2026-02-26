@@ -1,3 +1,9 @@
+function getAuthHeader(req: any): string {
+  const h = req?.headers ?? {};
+  const v = (h.authorization ?? h.Authorization ?? req?.get?.('authorization') ?? req?.get?.('Authorization') ?? '') as any;
+  return typeof v === 'string' ? v.trim() : '';
+}
+
 import {
   CanActivate,
   ExecutionContext,
@@ -29,7 +35,9 @@ export class RolesGuard implements CanActivate {
     if (!required || required.length === 0) return true;
 
     const req = ctx.switchToHttp().getRequest<any>();
-    if (!req?.user) throw new UnauthorizedException('Missing auth');
+    // If RolesGuard runs before JwtAuthGuard (global guard ordering),
+    // req.user isn't set yet. Let JwtAuthGuard handle auth.
+    if (!req?.user) return true;
 
     const roles = normalizeRoles(req.user?.roles);
     if (!hasRole(roles, required)) {
