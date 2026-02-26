@@ -66,7 +66,7 @@ describe('Teacher attendance mark/bulk (e2e)', () => {
 
     // Derive a real cohortId/date/period from the student's schedule
     const weekRes = await request(app.getHttpServer())
-      .get('/schedule/week')
+      .get('/api/student/schedule/week')
       .set('Authorization', `Bearer ${studentToken}`)
       .expect(200);
 
