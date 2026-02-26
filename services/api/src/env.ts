@@ -37,5 +37,13 @@ export function loadEnv(): Env {
 
     process.exit(1);
   }
+  
+  if (parsed.data.NODE_ENV === 'production') {
+    if (!parsed.data.CORS_ORIGINS || parsed.data.CORS_ORIGINS.trim() === '') {
+      console.error('❌ CORS_ORIGINS must be set in production');
+      process.exit(1);
+    }
+  }
+
   return parsed.data;
 }
