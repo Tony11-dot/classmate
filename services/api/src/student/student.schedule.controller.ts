@@ -3,28 +3,31 @@ import { Role } from '../auth/roles';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ScheduleService } from '../schedule/schedule.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN)
 @Controller('student/schedule')
 export class StudentScheduleController {
-  constructor(private readonly schedule: ScheduleService) {}
+  constructor(private readonly schedule: ScheduleService, private readonly prisma: PrismaService) {}
 
-  private cohortIdFromUser(req: any): string {
-    const cohortId = req?.user?.studentProfile?.cohortId;
-    if (!cohortId) throw new Error('No studentProfile/cohortId on user');
-    return cohortId;
+    private async cohortIdFromUser(req: any): Promise<string> {
+    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
+    if (!uid) throw new Error('Missing user id');
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: uid }, select: { cohortId: true } });
+    if (!sp?.cohortId) throw new Error('Student not onboarded');
+    return String(sp.cohortId);
   }
 
   @Get('today')
-  today(@Req() req: any) {
-    const cohortId = this.cohortIdFromUser(req);
+  async today(@Req() req: any) {
+    const cohortId = await this.cohortIdFromUser(req);
     return this.schedule.getTodayForCohort(cohortId);
   }
 
   @Get('week')
-  week(@Req() req: any, @Query('weekOf') weekOf?: string) {
-    const cohortId = this.cohortIdFromUser(req);
+  async week(@Req() req: any, @Query('weekOf') weekOf?: string) {
+    const cohortId = await this.cohortIdFromUser(req);
     return this.schedule.getWeekForCohort(cohortId, weekOf);
   }
 }
