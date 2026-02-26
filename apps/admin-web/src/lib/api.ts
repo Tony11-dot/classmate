@@ -5,7 +5,7 @@ function baseUrl() {
   return (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     process.env.NEXT_PUBLIC_API_BASE ||
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3002'
   );
 }
 
@@ -32,13 +32,20 @@ export function getToken(): string | null {
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  
+
+  const b = baseUrl().replace(/\/$/, '');
+  const baseEndsWithApi = /\/api$/.test(b);
+
   let p = path;
   if (!p.startsWith('http')) {
     p = p.startsWith('/') ? p : '/' + p;
-    if (!p.startsWith('/api/')) p = '/api' + p;
+    // only prefix /api if baseUrl is NOT already .../api
+    if (!baseEndsWithApi && !p.startsWith('/api/')) p = '/api' + p;
+    // if baseUrl already ends with /api, avoid /api/api
+    if (baseEndsWithApi && p.startsWith('/api/')) p = p.replace(/^\/api/, '');
   }
-  const url = p.startsWith('http') ? p : `${baseUrl()}${p}`;
+
+  const url = p.startsWith('http') ? p : `${b}${p}`;
 
   // keep your debug log
   console.log(`apiFetch -> ${url}`, init?.method ?? 'GET');

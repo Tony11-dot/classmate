@@ -1,9 +1,11 @@
 import { Controller, Post, Res } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Controller('test/seed')
+@SkipThrottle()
 export class E2ESeedController {
   constructor(private readonly prisma: PrismaService) {}
 

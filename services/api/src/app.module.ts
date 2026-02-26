@@ -13,7 +13,6 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DevOverrideGuard } from './auth/dev-override.guard';
-import { RolesGuard } from './auth/roles.guard';
 import { TutorModule } from './tutor/tutor.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { StudentModule } from './student/student.module';
