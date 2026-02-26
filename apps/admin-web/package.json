@@ -8,8 +8,8 @@
     "start": "next start -p ${WEB_PORT:-3001}",
     "lint": "eslint",
     "test:e2e:attendance": "playwright test e2e/attendance.spec.ts --timeout=60000 --reporter=line",
-    "typecheck": "pnpm --package=typescript@5.9.3 dlx tsc -p tsconfig.json --noEmit",
-    "test:e2e": "playwright test --timeout=60000 --reporter=list"
+    "test:e2e": "playwright test --timeout=60000 --reporter=list",
+    "typecheck": "next build"
   },
   "dependencies": {
     "next": "16.1.1",
