@@ -3,6 +3,14 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
+type WeekItem = {
+  cohortId: string;
+  date: string;
+  period: number;
+  courseId?: string | null;
+};
+
+
 async function login(app: INestApplication, email: string, password: string) {
   const res = await request(app.getHttpServer())
     .post('/auth/login')
