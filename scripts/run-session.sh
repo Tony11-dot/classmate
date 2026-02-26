@@ -47,9 +47,24 @@ NODE
     exit 2
     ;;
   2)
-    echo "==> Session 2 placeholder"
-    exit 2
+    echo "==> Session 2: auth/role resolution + role shells + dev override"
+
+    echo "==> install"
+    pnpm -s -w i
+
+    echo "==> typecheck/lint (best effort)"
+    pnpm -s -w -r run typecheck || true
+    pnpm -s -w -r run lint || true
+
+    echo "==> api health"
+    curl -fsS "http://127.0.0.1:${API_PORT:-3002}/api/health" >/dev/null && echo "API /health 200"
+
+    echo "==> golden (e2e)"
+    ./scripts/golden.sh
+
+    echo "==> Session 2 done (manual: check docs/LAUNCH_PLAN.md boxes)"
     ;;
+
   3)
     echo "==> Session 3 placeholder"
     exit 2
