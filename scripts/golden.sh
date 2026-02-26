@@ -49,6 +49,7 @@ pnpm -s -w -r run typecheck || true
 pnpm -s -w -r run lint || true
 
 echo "==> admin-web e2e"
+export NODE_ENV=production
 if [[ -x scripts/e2e-with-web.sh ]]; then
   ./scripts/e2e-with-web.sh
 else
