@@ -1,3 +1,12 @@
 export class ClassroomsSdk {
-  // TODO(session3): implement once classrooms.contract.ts is real
+  constructor(private readonly http?: any) {}
+
+  // minimal stubs so smoke compiles
+  async listStudent(): Promise<any[]> {
+    return [];
+  }
+
+  async getStudent(id: string): Promise<any> {
+    return { id };
+  }
 }
