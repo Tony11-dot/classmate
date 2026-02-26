@@ -20,10 +20,10 @@ Rules:
 - [ ] CORS + cookies/token handling correct
 
 ## Session 2 — Auth / Role Resolution + Role Shells
-- [ ] auth flows (student/parent/teacher/admin)
-- [ ] role-based shells
-- [ ] parent-child context
-- [ ] dev override (local only)
+- [x] auth flows (student/parent/teacher/admin)
+- [x] role-based shells
+- [x] parent-child context
+- [x] dev override (local only)
 
 ## Session 3 — Typed Data Contracts + Client SDK / Repo Layer
 - [ ] DTOs stable
