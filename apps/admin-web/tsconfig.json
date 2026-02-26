@@ -12,6 +12,12 @@
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "@classmate/contracts": [
+        "../../packages/contracts"
+      ],
+      "@classmate/sdk": [
+        "../../packages/sdk/src"
       ]
     }
   },
