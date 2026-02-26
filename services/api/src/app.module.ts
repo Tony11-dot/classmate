@@ -61,7 +61,7 @@ const controllers = [
       useClass: ThrottlerGuard,
     },
   ],
-controllers,
+  controllers,
   imports: [
     ClassroomsModule,
     ...serveStatic,
