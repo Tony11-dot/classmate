@@ -2,7 +2,7 @@
 
 ## API (services/api)
 - Start dev: `pnpm -C services/api dev`
-- Typecheck: `pnpm -C services/api -s exec pnpm dlx typescript.9.3 tsc -p tsconfig.json --noEmit`
+- Typecheck: `pnpm -C services/api -s exec pnpm dlx typescript@5.9.3 tsc -p tsconfig.json --noEmit`
 - Lint: `pnpm -C services/api -s lint`
 - Format: `pnpm -C services/api -s format`
 - Prisma generate: `pnpm -C services/api -s prisma generate`
