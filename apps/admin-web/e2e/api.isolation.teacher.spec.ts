@@ -1,6 +1,6 @@
 import { test, expect, request as pwRequest } from '@playwright/test';
 
-const API_BASE = (process.env.E2E_API_BASE_URL ?? process.env.E2E_API_BASE ?? 'http://127.0.0.1:3001').replace(/\/$/, '');
+const API_BASE = (process.env.E2E_API_BASE_URL ?? process.env.E2E_API_BASE ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
 const API = `${API_BASE}/api`;
 
 async function seedAdmin() {

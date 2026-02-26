@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO="${HOME}/Dev/classmate"
 API="${REPO}/services/api"
-BASE="http://127.0.0.1:3001"
+BASE="http://127.0.0.1:3000"
 LOG="/tmp/classmate-api.dev.log"
 
 token_from_login () {

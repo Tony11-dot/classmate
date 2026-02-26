@@ -2,7 +2,7 @@ import { HttpClient } from './http-client';
 import { AuthSdk } from './auth.sdk';
 import { ClassroomsSdk } from './classrooms.sdk';
 
-const BASE = process.env.SDK_BASE ?? 'http://127.0.0.1:3001';
+const BASE = process.env.SDK_BASE ?? 'http://127.0.0.1:3000';
 
 let token = '';
 
