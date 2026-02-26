@@ -15,7 +15,8 @@
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "@classmate/contracts": "workspace:*"
+    "@classmate/contracts": "workspace:*",
+    "@classmate/sdk": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
