@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role, normalizeRoles, hasRole } from '../roles';
@@ -28,10 +29,7 @@ export class RolesGuard implements CanActivate {
     if (!required || required.length === 0) return true;
 
     const req = ctx.switchToHttp().getRequest<any>();
-
-    // If RolesGuard runs before JwtAuthGuard (global guard ordering),
-    // req.user isn't set yet. Do NOT block here; JwtAuthGuard will enforce auth.
-    if (!req?.user) return true;
+    if (!req?.user) throw new UnauthorizedException('Missing auth');
 
     const roles = normalizeRoles(req.user?.roles);
     if (!hasRole(roles, required)) {
