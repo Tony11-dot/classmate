@@ -13,12 +13,12 @@ const announcements = new AnnouncementsSdk(http);
 const notifications = new NotificationsSdk(http);
 
 (async () => {
-  const login = await auth.login({ email: 'student1@classmate.app', password: 'dev' });
+  const login: any = await auth.login({ email: 'student1@classmate.app', password: 'dev' });
   token = login.token;
 
   const feed = await announcements.feed();
   const unread = await announcements.unreadCount();
-  const list = await notifications.list();
+  const list: any = await notifications.list();
 
   console.log('announcements.feed:', feed.length);
   console.log('announcements.unread:', unread.unread);

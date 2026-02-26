@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { DayOfWeek } from '../contracts/schedule.contract';
+type DayOfWeek = 'SUN'|'MON'|'TUE'|'WED'|'THU'|'FRI'|'SAT';
 
 export type ScheduleItem = {
   id: string;
