@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -f env/.env.dev ]; then
+  export $(grep -v '^#' env/.env.dev | xargs)
+fi
+
+
 export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-http://127.0.0.1:3002/api}"
 export NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:-http://127.0.0.1:3002/api}"
 export E2E_API_BASE_URL="${E2E_API_BASE_URL:-http://127.0.0.1:3002}"
