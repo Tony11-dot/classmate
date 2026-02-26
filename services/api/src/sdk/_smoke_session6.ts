@@ -3,7 +3,7 @@ import { AuthSdk } from './auth.sdk';
 import { AnnouncementsSdk } from './announcements.sdk';
 import { NotificationsSdk } from './notifications.sdk';
 
-const BASE = process.env.SDK_BASE ?? 'http://127.0.0.1:3001';
+const BASE = process.env.SDK_BASE ?? 'http://127.0.0.1:3000';
 
 let token = '';
 const http = new HttpClient({ baseUrl: BASE, getToken: () => token });

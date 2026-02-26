@@ -1,33 +1,22 @@
 import { NestFactory } from '@nestjs/core';
-import { corsOrigins, env } from './config/env';
 import helmet from 'helmet';
 import compression from 'compression';
 import { RequestIdMiddleware } from './common/request-id.middleware';
 import { HttpLoggingInterceptor } from './common/http-logging.interceptor';
 import { AppModule } from './app.module';
-import { loadEnv } from './env';
+import { loadEnv, parseCorsOrigins } from './env';
 
 async function bootstrap() {
-  // Ensure PORT exists before env parsing/validation
-  process.env.PORT = process.env.PORT ?? "3001";
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
-  // ✅ CORS for admin-web dev + e2e
-  // allow:
-  // - explicit localhost/127.0.0.1:3001
-  // - your LAN ip:3001 (any 192.168.x.x:3001)
-  // - tools/no-origin requests (curl/postman)
+  const corsList = parseCorsOrigins(env.CORS_ORIGINS);
+
   app.enableCors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      const ok =
-        origin === 'http://127.0.0.1:3001' ||
-        origin === 'http://127.0.0.1:3000' ||
-        origin === 'http://localhost:3001' ||
-        origin === 'http://localhost:3000' ||
-        /^http:\/\/192\.168\.\d+\.\d+:3001$/.test(origin);
-      return cb(null, ok);
+      if (!origin) return cb(null, true); // curl/postman
+      if (corsList.length === 0) return cb(null, true);
+      return cb(null, corsList.includes(origin));
     },
     credentials: true,
     methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
@@ -49,7 +38,10 @@ async function bootstrap() {
   app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
 
   app.setGlobalPrefix('api');
-  await app.listen(Number(process.env.PORT) || 3001, '0.0.0.0');
+
+  await app.listen(env.PORT, '0.0.0.0');
+  // eslint-disable-next-line no-console
+  console.log(`🚀 API running on http://0.0.0.0:${env.PORT}/api`);
 }
 
 bootstrap();
