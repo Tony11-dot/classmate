@@ -41,7 +41,7 @@ export class TeacherController {
   @Get('attendance/session')
   session(
     @Req() req: any,
-    @Query('cohortId') cohortId: string,
+    @Query('cohortId') cohortId: string | undefined | undefined,
     @Query('date') date: string | undefined,
     @Query('period', ParseIntPipe) period: number,
   ) {
