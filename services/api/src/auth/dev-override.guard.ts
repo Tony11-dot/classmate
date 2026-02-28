@@ -17,7 +17,7 @@ export class DevOverrideGuard implements CanActivate {
 
     if (role && isRole(role)) {
       req.user = req.user ?? {};
-      req.user.role = role as AppRole;
+      req.user.roles = [role as AppRole];
       if (userId) req.user.id = String(userId);
     }
 

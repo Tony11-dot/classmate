@@ -14,7 +14,7 @@ export class AttachActorInterceptor implements NestInterceptor {
     const userId = requestUserId(u) ?? '';
 
     // choose a single "primary" role for convenience (still keep array in req.user.roles)
-    const roles = normalizeRoles(u.roles ?? u.role ?? []);
+    const roles = normalizeRoles(u.roles ?? []);
     const primary = (roles[0] ?? Role.STUDENT) as any;
 
     const actor: ActorContext = {

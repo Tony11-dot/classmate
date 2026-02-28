@@ -11,5 +11,5 @@ export type Me = {
 };
 
 export async function getMe(): Promise<Me> {
-  return apiFetch<Me>('/auth/me', { method: 'GET' });
+  return apiFetch<Me>('/api/auth/me', { method: 'GET' });
 }
