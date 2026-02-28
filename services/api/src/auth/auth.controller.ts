@@ -1,4 +1,5 @@
-import { Controller, Get, Req, Post, Body } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { SkipThrottle } from '@nestjs/throttler';
 
 @SkipThrottle()
@@ -11,6 +12,7 @@ export class AuthController {
     return { token: 'dev-token-' + email };
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('me')
   me(@Req() req: any) {
     const u = req.user ?? null;
