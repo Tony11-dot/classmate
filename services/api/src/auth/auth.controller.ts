@@ -16,16 +16,16 @@ export class AuthController {
   @Get('me')
   me(@Req() req: any) {
     const u = req.user ?? null;
+    if (!u) return null;
+
+    // Return the user object (normalized/whitelisted) with roles + actingStudentId.
     return {
-      user: u
-        ? {
-            id: u.id ?? null,
-            email: u.email ?? null,
-            role: u.role ?? null,
-            cohortId: u.cohortId ?? null,
-            schoolId: u.schoolId ?? null,
-          }
-        : null,
+      id: u.id ?? null,
+      email: u.email ?? null,
+      roles: u.roles ?? [],
+      actingStudentId: u.actingStudentId ?? null,
+      schoolId: u.schoolId ?? null,
+      cohortId: u.cohortId ?? null,
     };
   }
 }
