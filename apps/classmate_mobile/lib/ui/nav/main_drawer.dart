@@ -1,139 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:classmate_mobile/core/auth/auth_controller.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+
+    Widget section(String title) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: cs.onSurfaceVariant,
+            letterSpacing: 0.3,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      );
+    }
+
+    ListTile item({
+      required IconData icon,
+      required String title,
+      required VoidCallback onTap,
+    }) {
+      return ListTile(
+        leading: Icon(icon),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        onTap: () {
+          try {
+            Scaffold.of(context).closeDrawer();
+          } catch (_) {}
+          onTap();
+        },
+      );
+    }
+
     return Drawer(
       child: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          children: const [
-            _Header(),
-            Divider(),
-            _SectionTitle('Core'),
-            _NavTile(
-              icon: Icons.event_note,
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: cs.primaryContainer.withOpacity(0.75),
+                    ),
+                    child: Icon(
+                      Icons.school_rounded,
+                      color: cs.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ClassMate',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Menu',
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: cs.outlineVariant.withOpacity(0.4)),
+
+            // 1) Core bottom-nav tabs
+            section('Core'),
+            item(
+              icon: Icons.calendar_month_rounded,
               title: 'Schedule',
-              route: '/schedule',
+              onTap: () {},
             ),
-            _NavTile(
-              icon: Icons.groups,
-              title: 'Classrooms',
-              route: '/classrooms',
-            ),
-            _NavTile(
-              icon: Icons.smart_display,
-              title: 'Solutions',
-              route: '/solutions',
-            ),
-            _NavTile(
-              icon: Icons.insights,
-              title: 'Insights',
-              route: '/insights',
-            ),
-            _NavTile(
-              icon: Icons.psychology,
+            item(icon: Icons.groups_rounded, title: 'Classrooms', onTap: () {}),
+            item(
+              icon: Icons.auto_awesome_rounded,
               title: 'AI Tutor',
-              route: '/tutor',
+              onTap: () {},
             ),
-            Divider(),
-            _SectionTitle('School'),
-            _NavTile(
-              icon: Icons.how_to_reg,
+            item(icon: Icons.insights_rounded, title: 'Insights', onTap: () {}),
+            item(
+              icon: Icons.video_collection_rounded,
+              title: 'Solutions',
+              onTap: () {},
+            ),
+
+            // 2) LifeDoc features
+            section('LifeDoc'),
+            item(
+              icon: Icons.how_to_reg_rounded,
               title: 'Attendance',
-              route: '/attendance',
+              onTap: () {},
             ),
-            _NavTile(icon: Icons.grade, title: 'Grades', route: '/grades'),
-            _NavTile(
-              icon: Icons.assignment,
-              title: 'Assignments',
-              route: '/assignments',
-            ),
-            _NavTile(
-              icon: Icons.campaign,
-              title: 'Announcements',
-              route: '/announcements',
-            ),
-            _NavTile(
-              icon: Icons.notifications,
+            item(icon: Icons.grade_rounded, title: 'Grades', onTap: () {}),
+            item(
+              icon: Icons.notifications_rounded,
               title: 'Notifications',
-              route: '/notifications',
+              onTap: () {},
             ),
-            Divider(),
-            _SectionTitle('Account'),
-            _NavTile(icon: Icons.person, title: 'Profile', route: '/profile'),
-            _NavTile(
-              icon: Icons.settings,
-              title: 'Settings',
-              route: '/settings',
+            item(
+              icon: Icons.warning_amber_rounded,
+              title: 'Alerts',
+              onTap: () {},
             ),
+
+            // 3) Profile/settings
+            section('Profile'),
+            item(icon: Icons.person_rounded, title: 'Profile', onTap: () {}),
+            item(
+              icon: Icons.tune_rounded,
+              title: 'Customization',
+              onTap: () {},
+            ),
+            item(icon: Icons.settings_rounded, title: 'Settings', onTap: () {}),
+            item(
+              icon: Icons.logout_rounded,
+              title: 'Logout',
+              onTap: () async {
+                await ref.read(authControllerProvider).logout(context);
+              },
+            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'ClassMate',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-          ),
-          SizedBox(height: 4),
-          Text('Created by Tony Aboud', style: TextStyle(fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-class _NavTile extends StatelessWidget {
-  const _NavTile({
-    required this.icon,
-    required this.title,
-    required this.route,
-  });
-  final IconData icon;
-  final String title;
-  final String route;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () {
-        Navigator.of(context).pop();
-        context.go(route);
-      },
     );
   }
 }

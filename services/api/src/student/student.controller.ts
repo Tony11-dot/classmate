@@ -35,4 +35,10 @@ export class StudentController {
   grades(@Req() req: any) {
     return this.student.myGrades(req.user);
   }
+
+  @Get('subjects')
+  subjects(@Req() req: any) {
+    return this.student.mySubjects(req.user);
+  }
+
 }

@@ -175,4 +175,45 @@ export class AdminController {
   ) {
     return this.admin.deleteScheduleOverride(req.user, body);
   }
+
+  // ---- Session 10: Subject defaults + per-student overrides ----
+
+  @Roles(Role.ADMIN)
+  @Post('subjects/defaults')
+  setSubjectDefaults(@Req() req: any, @Body() body: any) {
+    return this.admin.setSubjectDefaults(req.user, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('subjects/defaults')
+  getSubjectDefaults(
+    @Req() req: any,
+    @Query('schoolId') schoolId: string,
+    @Query('grade') grade: string,
+  ) {
+    return this.admin.getSubjectDefaults(req.user, {
+      schoolId,
+      grade: Number(grade),
+    });
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('subjects/overrides/:identifier')
+  upsertSubjectOverride(
+    @Req() req: any,
+    @Param('identifier') identifier: string,
+    @Body() body: any,
+  ) {
+    return this.admin.upsertSubjectOverride(req.user, identifier, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('subjects/overrides/:identifier')
+  getSubjectOverride(
+    @Req() req: any,
+    @Param('identifier') identifier: string,
+  ) {
+    return this.admin.getSubjectOverride(req.user, identifier);
+  }
+
 }

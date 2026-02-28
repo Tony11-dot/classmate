@@ -1,6 +1,5 @@
 import { request, expect, APIRequestContext } from '@playwright/test';
-
-export const API = `${(process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:3002').replace(/\/$/,'')}/api`;
+export const API = `${(process.env.E2E_API_BASE_URL && process.env.E2E_API_BASE_URL.trim() ? process.env.E2E_API_BASE_URL : 'http://127.0.0.1:3001').replace(/\/$/,'')}/api`;
 
 async function seedAdminWithRetry(retries = 6): Promise<any> {
   const ctx = await request.newContext();
@@ -55,8 +54,13 @@ export async function seededStudentApi(): Promise<{ seed: any; ctx: APIRequestCo
   const token = await login(studentEmail, password);
 
   const ctx = await request.newContext({
-    extraHTTPHeaders: { 'X-E2E-BYPASS-THROTTLE': '1', Authorization: `Bearer ${token}` },
-
+    baseURL: (process.env.E2E_API_BASE_URL && process.env.E2E_API_BASE_URL.trim()
+      ? process.env.E2E_API_BASE_URL.trim().replace(/\/$/, '')
+      : 'http://127.0.0.1:3001'),
+    extraHTTPHeaders: {
+      ...(process.env.E2E_BYPASS_THROTTLE === '0' ? {} : { 'X-E2E-BYPASS-THROTTLE': '1' }),
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   return { seed, ctx };

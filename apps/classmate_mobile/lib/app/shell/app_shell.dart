@@ -10,18 +10,18 @@ class AppShell extends ConsumerWidget {
 
   int _indexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
-    if (loc.startsWith('/solutions')) return 2; // swapped
+    if (loc.startsWith('/solutions')) return 2;
     if (loc.startsWith('/insights')) return 3;
-    if (loc.startsWith('/tutor')) return 4; // swapped
+    if (loc.startsWith('/tutor')) return 4;
     return 0;
   }
 
   String _locFor(int index) => switch (index) {
     0 => '/schedule',
     1 => '/classrooms',
-    2 => '/solutions', // swapped
+    2 => '/solutions',
     3 => '/insights',
-    4 => '/tutor', // swapped
+    4 => '/tutor',
     _ => '/schedule',
   };
 
@@ -49,8 +49,9 @@ class AppShell extends ConsumerWidget {
     final idx = _indexFor(loc);
 
     return Scaffold(
-      appBar: _TopBar(title: _pageTitle(loc)),
+      drawerEnableOpenDragGesture: true,
       drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: idx,
@@ -98,9 +99,9 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       leading: Builder(
-        builder: (context) => IconButton(
+        builder: (ctx) => IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: () => Scaffold.of(context).openDrawer(),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
         ),
       ),
       centerTitle: true,

@@ -147,6 +147,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     seedColor: s.accent,
     brightness: brightness,
   );
+
   final base = ThemeData(
     useMaterial3: true,
     brightness: brightness,
@@ -154,13 +155,30 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
   );
 
+  final on = (brightness == Brightness.dark) ? Colors.white : Colors.black;
+
+  final fixedTextTheme = base.textTheme.apply(
+    bodyColor: on,
+    displayColor: on,
+    decorationColor: on,
+  );
+
+  final fixedPrimaryTextTheme = base.primaryTextTheme.apply(
+    bodyColor: on,
+    displayColor: on,
+    decorationColor: on,
+  );
+
   return base.copyWith(
+    textTheme: fixedTextTheme,
+    primaryTextTheme: fixedPrimaryTextTheme,
+    scaffoldBackgroundColor: scheme.surface,
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: scheme.surface,
       foregroundColor: scheme.onSurface,
-      surfaceTintColor: scheme.surfaceTint,
+      surfaceTintColor: Colors.transparent,
     ),
     cardTheme: CardThemeData(
       elevation: 0,
@@ -173,6 +191,8 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
         borderRadius: BorderRadius.circular(s.radius),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      textColor: on,
+      iconColor: on,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/theme/theme_controller.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -19,29 +20,30 @@ class SettingsScreen extends ConsumerWidget {
           title: 'Appearance',
           child: Column(
             children: [
-              _Row(
-                title: 'Theme',
-                subtitle: 'System / Light / Dark',
-                trailing: DropdownButton<ThemeMode>(
-                  value: t.mode,
-                  onChanged: (v) => v == null ? null : tc.setMode(v),
-                  items: const [
-                    DropdownMenuItem(
-                      value: ThemeMode.system,
-                      child: Text('System'),
-                    ),
-                    DropdownMenuItem(
-                      value: ThemeMode.light,
-                      child: Text('Light'),
-                    ),
-                    DropdownMenuItem(
-                      value: ThemeMode.dark,
-                      child: Text('Dark'),
-                    ),
-                  ],
-                ),
+              LiquidGlassDropdown<ThemeMode>(
+                label: 'Theme',
+                value: t.mode,
+                items: const [
+                  LiquidGlassDropdownItem(
+                    value: ThemeMode.system,
+                    label: 'System',
+                    icon: Icons.settings_suggest_rounded,
+                  ),
+                  LiquidGlassDropdownItem(
+                    value: ThemeMode.light,
+                    label: 'Light',
+                    icon: Icons.light_mode_rounded,
+                  ),
+                  LiquidGlassDropdownItem(
+                    value: ThemeMode.dark,
+                    label: 'Dark',
+                    icon: Icons.dark_mode_rounded,
+                  ),
+                ],
+                onChanged: (v) => tc.setMode(v),
+                searchHint: 'System / Light / Dark',
               ),
-              _Divider(),
+              const _Divider(),
               _SliderRow(
                 title: 'Text size',
                 subtitle: 'Scale',
@@ -50,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
                 max: 1.3,
                 onChanged: (v) => tc.setTextScale(v),
               ),
-              _Divider(),
+              const _Divider(),
               _ToggleRow(
                 title: 'Reduce motion',
                 subtitle: 'Fewer animations',
@@ -71,7 +73,7 @@ class SettingsScreen extends ConsumerWidget {
                 value: t.accent,
                 onPick: (c) => tc.setAccent(c),
               ),
-              _Divider(),
+              const _Divider(),
               _SliderRow(
                 title: 'Corner radius',
                 subtitle: 'Cards & buttons',
@@ -80,7 +82,7 @@ class SettingsScreen extends ConsumerWidget {
                 max: 28,
                 onChanged: (v) => tc.setRadius(v),
               ),
-              _Divider(),
+              const _Divider(),
               _SliderRow(
                 title: 'Density',
                 subtitle: 'Compact ↔ Comfortable',
@@ -100,7 +102,7 @@ class SettingsScreen extends ConsumerWidget {
               _Row(
                 title: 'Log out',
                 subtitle: 'Sign out of this device',
-                trailing: const Icon(Icons.logout),
+                trailing: const Icon(Icons.logout_rounded),
                 onTap: () => ref.read(authControllerProvider).logout(context),
               ),
             ],
@@ -140,6 +142,7 @@ class _Section extends StatelessWidget {
 }
 
 class _Divider extends StatelessWidget {
+  const _Divider();
   @override
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.symmetric(vertical: 6),
@@ -238,46 +241,83 @@ class _ColorRow extends StatelessWidget {
   final Color value;
   final ValueChanged<Color> onPick;
 
-  static const _swatches = <Color>[
-    Color(0xFF4F46E5),
-    Color(0xFF0EA5E9),
-    Color(0xFF10B981),
-    Color(0xFFF59E0B),
-    Color(0xFFEF4444),
-    Color(0xFF8B5CF6),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: _swatches
-            .map(
-              (c) => Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: () => onPick(c),
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: c,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        width: c.toARGB32() == value.toARGB32() ? 3 : 1,
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
+      trailing: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: value,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+      ),
+      onTap: () async {
+        final picked = await showDialog<Color>(
+          context: context,
+          builder: (ctx) => _AccentPickerDialog(value: value),
+        );
+        if (picked != null) onPick(picked);
+      },
+    );
+  }
+}
+
+class _AccentPickerDialog extends StatelessWidget {
+  const _AccentPickerDialog({required this.value});
+  final Color value;
+
+  @override
+  Widget build(BuildContext context) {
+    final swatches = <Color>[
+      const Color(0xFF4F46E5),
+      const Color(0xFF0EA5E9),
+      const Color(0xFF10B981),
+      const Color(0xFFF59E0B),
+      const Color(0xFFEF4444),
+      const Color(0xFFEC4899),
+      const Color(0xFF8B5CF6),
+      const Color(0xFF111827),
+    ];
+
+    return AlertDialog(
+      title: const Text('Pick accent'),
+      content: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          for (final c in swatches)
+            InkWell(
+              onTap: () => Navigator.of(context).pop(c),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: c,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: c == value
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outlineVariant,
+                    width: c == value ? 2 : 1,
                   ),
                 ),
               ),
-            )
-            .toList(),
+            ),
+        ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ],
     );
   }
 }

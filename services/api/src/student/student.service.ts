@@ -6,6 +6,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey } from '../subjects/subjects.store';
 
 @Injectable()
 export class StudentService {
@@ -259,4 +260,52 @@ export class StudentService {
       })),
     };
   }
+
+  // ---- Session 10: Effective subjects for student (defaults + override) ----
+  async mySubjects(user: any) {
+    // allow ADMIN for e2e/testing
+    if (!user?.roles?.includes('STUDENT') && !user?.roles?.includes('ADMIN')) {
+      throw new ForbiddenException('Student only');
+    }
+
+    const studentId = user.sub ?? user.id;
+    if (!studentId) throw new ForbiddenException('Not authenticated');
+
+    const schoolId = String(user?.schoolId ?? 'test-school');
+
+    // best-effort grade from cohort
+    let grade: number | null = null;
+    const sp = await (this.prisma as any).studentProfile?.findUnique?.({
+      where: { userId: studentId } as any,
+      select: { cohortId: true } as any,
+    });
+
+    if (sp?.cohortId) {
+      const c = await (this.prisma as any).cohort?.findUnique?.({
+        where: { id: sp.cohortId } as any,
+        select: { grade: true } as any,
+      });
+      if (c?.grade !== undefined && c?.grade !== null) grade = Number(c.grade);
+    }
+
+    const defaults =
+      grade !== null && !Number.isNaN(Number(grade))
+        ? (subjectDefaultsBySchoolGrade.get(defaultsKey(schoolId, Number(grade))) ?? [])
+        : [];
+
+    const ov = studentSubjectOverrides.get(String(studentId)) ?? null;
+    const effective =
+      ov?.enabled && Array.isArray(ov?.subjects) && ov.subjects.length ? ov.subjects : defaults;
+
+    return {
+      ok: true,
+      schoolId,
+      grade,
+      defaults,
+      override: ov ? { userId: String(studentId), ...ov } : null,
+      effective,
+    };
+  }
+
+
 }

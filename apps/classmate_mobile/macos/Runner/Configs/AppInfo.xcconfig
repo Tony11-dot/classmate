@@ -5,6 +5,7 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
+#include? "../../Pods/Target Support Files/Pods-Runner/Pods-Runner.$(CONFIGURATION).xcconfig"
 PRODUCT_NAME = classmate_mobile
 
 // The application's bundle identifier

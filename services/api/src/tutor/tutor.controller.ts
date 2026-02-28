@@ -8,10 +8,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TutorService } from './tutor.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+@SkipThrottle()
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
 @Controller('tutor')

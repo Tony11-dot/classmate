@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects } from '../subjects/subjects.store';
 import { hasAnyRole } from '../auth/permissions';
 
 function randomDigits(len = 6) {
@@ -520,4 +521,83 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     return { ok: true };
   }
+
+  
+  // =========================================================
+  // Session 10: School subject defaults + per-student overrides
+  // =========================================================
+
+  private requireAdminOrSecretary(user: any) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
+      throw new ForbiddenException('Admin/Secretary only');
+    }
+  }
+
+  private async resolveUserId(identifier: string): Promise<string> {
+    const id = String(identifier ?? '').trim();
+    if (!id) throw new BadRequestException('user identifier required');
+
+    if (id.includes('@')) {
+      const u = await this.prisma.user.findUnique({ where: { email: id } });
+      if (!u) throw new BadRequestException('user not found');
+      return u.id;
+    }
+
+    return id;
+  }
+
+  async setSubjectDefaults(user: any, dto: any) {
+    this.requireAdminOrSecretary(user);
+
+    const schoolId = String(dto?.schoolId ?? user?.schoolId ?? 'test-school');
+    const grade = Number(dto?.grade);
+    const subjects = normalizeSubjects(dto?.subjects);
+
+    if (!schoolId) throw new BadRequestException('schoolId required');
+    if (Number.isNaN(grade)) throw new BadRequestException('grade required');
+    if (!subjects.length) throw new BadRequestException('subjects[] required');
+
+    subjectDefaultsBySchoolGrade.set(defaultsKey(schoolId, grade), subjects);
+
+    return { ok: true, defaults: { schoolId, grade, subjects } };
+  }
+
+  async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
+    this.requireAdminOrSecretary(user);
+
+    const schoolId = String(query?.schoolId ?? user?.schoolId ?? 'test-school');
+    const grade = query?.grade;
+
+    if (!schoolId) throw new BadRequestException('schoolId required');
+    if (grade === undefined || Number.isNaN(Number(grade))) {
+      throw new BadRequestException('grade required');
+    }
+
+    const subjects = subjectDefaultsBySchoolGrade.get(defaultsKey(schoolId, Number(grade))) ?? [];
+    return { ok: true, defaults: { schoolId, grade: Number(grade), subjects } };
+  }
+
+  async upsertSubjectOverride(user: any, identifier: string, dto: any) {
+    this.requireAdminOrSecretary(user);
+
+    const userId = await this.resolveUserId(identifier);
+    const enabled = Boolean(dto?.enabled);
+    const subjects = normalizeSubjects(dto?.subjects);
+
+    studentSubjectOverrides.set(userId, { enabled, subjects });
+
+    return { ok: true, override: { userId, enabled, subjects } };
+  }
+
+  async getSubjectOverride(user: any, identifier: string) {
+    this.requireAdminOrSecretary(user);
+
+    const userId = await this.resolveUserId(identifier);
+    const ov = studentSubjectOverrides.get(userId) ?? null;
+
+    return { ok: true, override: ov ? { userId, ...ov } : null };
+  }
+
+
 }
