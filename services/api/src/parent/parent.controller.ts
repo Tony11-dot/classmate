@@ -1,18 +1,6 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Req,
-  UseGuards,
-  DefaultValuePipe,
-  ParseIntPipe,
-  BadRequestException,
-  Header,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, DefaultValuePipe, Get, GoneException, Header, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { CurrentActor } from '../common/request/current-actor.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
@@ -104,19 +92,7 @@ export class ParentController {
     @Query('studentId') studentId: string | undefined,
     @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
   ) {
-    // If studentId is provided but only whitespace -> reject (prevents accidental "all children").
-    if (
-      typeof studentId === 'string' &&
-      studentId.length > 0 &&
-      !studentId.trim()
-    ) {
-      throw new BadRequestException('studentId is invalid');
-    }
-
-    return this.parent.notifications(req.user, {
-      studentId: studentId?.trim() || undefined,
-      take,
-    });
+    throw new GoneException('This endpoint is removed. Use /api/parent/notifications');
   }
   @Header("Deprecation","true")
   @Header("Sunset","2026-03-01")
@@ -126,24 +102,13 @@ export class ParentController {
     @Query('studentId') studentId: string | undefined,
     @Query('since') since: string | undefined,
   ) {
-    if (
-      typeof studentId === 'string' &&
-      studentId.length > 0 &&
-      !studentId.trim()
-    ) {
-      throw new BadRequestException('studentId is invalid');
-    }
-
-    return this.parent.unreadCount(req.user, {
-      studentId: studentId?.trim() || undefined,
-      since,
-    });
+    throw new GoneException('This endpoint is removed. Use /api/parent/notifications/unread-count');
   }
   @Header("Deprecation","true")
   @Header("Sunset","2026-03-01")
   @Post('notifications-legacy/mark-seen')
   markSeen(@Req() req: any, @Body() body: any) {
-    return this.parent.markSeen(req.user, body?.ids);
+    throw new GoneException('This endpoint is removed. Use /api/parent/notifications/mark-seen');
   }
 
   @Get('lookup')
