@@ -90,6 +90,24 @@ export class StudentService {
       },
     });
 
+    // Session 5: auto-enroll student into cohort courses (from schedule template)
+    const courseIds = await this.prisma.scheduleSlot.findMany({
+      where: { cohortId: body.cohortId, courseId: { not: null } },
+      select: { courseId: true },
+      distinct: ['courseId'],
+    });
+
+    const uniqueCourseIds = Array.from(
+      new Set(courseIds.map((r) => String(r.courseId)).filter(Boolean)),
+    );
+
+    if (uniqueCourseIds.length) {
+      await this.prisma.enrollment.createMany({
+        data: uniqueCourseIds.map((courseId) => ({ studentId, courseId })),
+        skipDuplicates: true,
+      });
+    }
+
     return { ok: true };
   }
 
