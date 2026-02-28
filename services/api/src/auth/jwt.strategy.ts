@@ -64,7 +64,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       };
     }
 
-    // Keep debug only if explicitly enabled (avoid noisy logs)
+    // Debug only if explicitly enabled (avoid noisy logs)
     if (process.env.JWT_VALIDATE_DEBUG === '1') {
       // eslint-disable-next-line no-console
       console.error('JWT_VALIDATE_DEBUG', {
