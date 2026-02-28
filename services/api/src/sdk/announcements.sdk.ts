@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
-  AnnouncementFeedDto,
-  AnnouncementUnreadCountDto,
+  AnnouncementFeedResDto,
+  AnnouncementUnreadCountResDto,
   AnnouncementMarkSeenReqDto,
   AnnouncementMarkSeenResDto,
 } from '../contracts/announcements.contract';
@@ -10,12 +10,13 @@ import { HttpClient } from './http-client';
 export class AnnouncementsSdk {
   constructor(private readonly http: HttpClient) {}
 
-  feed() {
-    return this.http.get('/api/announcements/feed', AnnouncementFeedDto);
+  async feed(): Promise<any[]> {
+    const res = await this.http.get('/api/announcements/feed', AnnouncementFeedResDto);
+    return res.announcements ?? [];
   }
 
   unreadCount() {
-    return this.http.get('/api/announcements/unread-count', AnnouncementUnreadCountDto);
+    return this.http.get('/api/announcements/unread-count', AnnouncementUnreadCountResDto);
   }
 
   markSeen(input: z.infer<typeof AnnouncementMarkSeenReqDto>) {
