@@ -22,7 +22,11 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   }
 
   async validate(req: Request): Promise<any> {
-    const auth = String(req?.headers?.authorization ?? '');
+    
+    const h: any = (req as any)?.headers ?? {};
+    const acting = h['x-acting-student-id'] ?? h['X-Acting-Student-Id'];
+    const school = h['x-school-id'] ?? h['X-School-Id'];
+const auth = String(req?.headers?.authorization ?? '');
     const token = auth.replace(/^Bearer\s+/i, '').trim();
 
     // E2E/dev shortcut: Bearer dev-token-<email>
@@ -47,7 +51,9 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
         .catch(() => []);
 
       return {
-        sub: u.id,
+      ...(acting ? { actingStudentId: String(Array.isArray(acting) ? acting[0] : acting) } : {}),
+      ...(school ? { schoolId: String(Array.isArray(school) ? school[0] : school) } : {}),
+sub: u.id,
         id: u.id,
         email: u.email,
         roles: roles.map((r: any) => r.role),

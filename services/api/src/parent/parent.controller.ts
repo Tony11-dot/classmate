@@ -13,6 +13,7 @@ import {
   BadRequestException,
   Header,
 } from '@nestjs/common';
+import { CurrentActor } from '../common/request/current-actor.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
 
