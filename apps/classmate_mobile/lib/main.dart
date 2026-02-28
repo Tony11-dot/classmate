@@ -7,5 +7,7 @@ import 'core/config/env.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
+  // ignore: avoid_print
+  print('CM apiBaseUrl=' + Env.apiBaseUrl);
   runApp(const ProviderScope(child: ClassMateApp()));
 }
