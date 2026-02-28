@@ -229,42 +229,19 @@ export class TeacherService {
 
     return { ok: true, date: dateYmd, dayOfWeek, slots: out };
   }
-  private async resolveTeacherSlotForDatePeriod(
-    teacherId: string,
-    args: { dayOfWeek: number; period: number; cohortId?: string },
-  ): Promise<{ cohortId: string; courseId: string | null }> {
-    const where: any = { teacherId, dayOfWeek: args.dayOfWeek, period: args.period };
-    if (args.cohortId) where.cohortId = args.cohortId;
-
-    const slot = await this.prisma.scheduleSlot.findFirst({
-      where,
-      select: { cohortId: true, courseId: true },
-      orderBy: { cohortId: 'asc' },
-    });
-
-    if (!slot?.cohortId) {
-      throw new BadRequestException(
-        args.cohortId
-          ? 'No teacher schedule slot found for that cohort/day/period'
-          : 'No teacher schedule slot found for that day/period (provide cohortId)',
-      );
-    }
-
-    return { cohortId: slot.cohortId, courseId: slot.courseId ?? null };
-  }
-
-
 
   async getAttendanceSession(
     user: any,
-    query: { cohortId?: string; date?: string; period: number },
+    query: { cohortId: string; date?: string; period: number },
   ) {
     this.ensureTeacher(user);
 
     const teacherId = user.sub ?? user.id;
+    const cohortId = query.cohortId;
     const period = Number(query.period);
-    const cohortIdRaw = query.cohortId ? String(query.cohortId) : '';
-if (!Number.isInteger(period))
+
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    if (!Number.isInteger(period))
       throw new BadRequestException('period is required');
 
     const dateYmd = query.date ?? ymdInJerusalem(new Date());
@@ -274,22 +251,7 @@ if (!Number.isInteger(period))
       new Date(`${dateYmd}T12:00:00.000Z`),
     );
 
-    
-
-    const resolved = cohortIdRaw
-      ? await this.resolveTeacherSlotForDatePeriod(String(teacherId), {
-          dayOfWeek,
-          period,
-          cohortId: cohortIdRaw,
-        })
-      : await this.resolveTeacherSlotForDatePeriod(String(teacherId), {
-          dayOfWeek,
-          period,
-        });
-
-    const cohortId = resolved.cohortId;
-
-const template = await this.prisma.scheduleSlot.findUnique({
+    const template = await this.prisma.scheduleSlot.findUnique({
       where: { cohortId_dayOfWeek_period: { cohortId, dayOfWeek, period } },
       include: { course: true, cohort: true },
     });
