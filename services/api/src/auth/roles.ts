@@ -1,26 +1,68 @@
+export const APP_ROLES = [
+  'ADMIN',
+  'TEACHER',
+  'STUDENT',
+  'PARENT',
+  'TUTOR',
+  'SECRETARY',
+] as const;
+
+export type AppRole = (typeof APP_ROLES)[number];
+
+/**
+ * Compatibility: existing code uses Role.ADMIN / Role.PARENT / ...
+ * Keep enum keys UPPERCASE.
+ */
 export enum Role {
+  ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
   STUDENT = 'STUDENT',
   PARENT = 'PARENT',
-  TEACHER = 'TEACHER',
-  ADMIN = 'ADMIN',
+  TUTOR = 'TUTOR',
   SECRETARY = 'SECRETARY',
 }
 
-export type AppRole = Role;
+/**
+ * Compatibility: some code imports UserRole
+ */
+export type UserRole = Role;
 
-export function isRole(value: any): value is Role {
-  return Object.values(Role).includes(value);
+export function isRole(v: unknown): v is AppRole {
+  return typeof v === 'string' && (APP_ROLES as readonly string[]).includes(v);
 }
 
-export function normalizeRoles(input: any): Role[] {
-  const arr = Array.isArray(input) ? input : (input ? [input] : []);
-  return arr
-    .map((r) => String(r).toUpperCase().trim())
-    .filter(isRole);
+export function normalizeRoles(input: unknown): AppRole[] {
+  const raw =
+    input && typeof input === 'object' && 'roles' in (input as any)
+      ? (input as any).roles
+      : input;
+
+  if (!raw) return [];
+
+  if (Array.isArray(raw)) {
+    return raw.filter(isRole);
+  }
+
+  if (typeof raw === 'string') {
+    return raw
+      .split(/[,\s]+/g)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter(isRole);
+  }
+
+  return [];
 }
 
-export function hasRole(userRoles: any, required: Role | Role[]): boolean {
-  const have = new Set(normalizeRoles(userRoles));
-  const need = normalizeRoles(required);
-  return need.length === 0 ? true : need.some((r) => have.has(r));
+export function hasRole(userRoles: unknown, required: AppRole | readonly AppRole[]): boolean {
+  const roles = normalizeRoles(userRoles);
+  if (Array.isArray(required)) return required.some((r) => roles.includes(r));
+  return roles.includes(required as AppRole);
+}
+
+/**
+ * Some places might call hasAnyRole(...)
+ */
+export function hasAnyRole(userRoles: unknown, required: readonly AppRole[]): boolean {
+  return hasRole(userRoles, required);
 }
