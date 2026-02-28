@@ -20,7 +20,16 @@ export class DevAuthGuard implements CanActivate {
         ? normalizeRoles(rolesRaw.split(',').map((s) => s.trim()))
         : [];
 
-    req.user = { id: userId, sub: userId, userId, roles };
+    
+req.user = { id: userId, sub: userId, userId, roles };
+    try {
+      const h = req.headers ?? {};
+      const acting = (h["x-acting-student-id"] ?? h["X-Acting-Student-Id"]) as any;
+      const school = (h["x-school-id"] ?? h["X-School-Id"]) as any;
+      if (acting) (req.user as any).actingStudentId = String(Array.isArray(acting) ? acting[0] : acting);
+      if (school) (req.user as any).schoolId = String(Array.isArray(school) ? school[0] : school);
+    } catch {}
+
     return true;
   }
 }
