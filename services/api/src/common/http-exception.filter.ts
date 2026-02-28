@@ -40,6 +40,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
 
+    res.locals.error = {
+      name: (exception as any)?.name ?? (exception as any)?.constructor?.name ?? "Error",
+      message: (exception as any)?.message ?? String(exception),
+    };
+
     res.status(status).json({
       statusCode: status,
       path: req.originalUrl,

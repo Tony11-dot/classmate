@@ -1,31 +1,16 @@
 import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
   CallHandler,
+  ExecutionContext,
+  Injectable,
   Logger,
+  NestInterceptor,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
-  private readonly logger = new Logger('HTTP');
-
-  private getTcpPeer(req: any): string {
-    const ra =
-      (req?.socket?.remoteAddress as string | undefined) ||
-      (req?.connection?.remoteAddress as string | undefined) ||
-      '';
-    return (ra || '').replace(/^::ffff:/, '') || 'unknown';
-  }
-
-  private getForwardedIp(req: any): string {
-    const xff = (req?.headers?.['x-forwarded-for'] as string | undefined) || '';
-    const xri = (req?.headers?.['x-real-ip'] as string | undefined) || '';
-    return (xff || xri || '').toString();
-  }
+  private readonly log = new Logger('HTTP');
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const http = context.switchToHttp();
@@ -33,62 +18,55 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const res = http.getResponse<Response>();
 
     const start = Date.now();
+
     const requestId =
-      (req as any).requestId || req.header('x-request-id') || 'unknown';
+      (req.headers['x-request-id'] as string | undefined) ||
+      (req as any).requestId ||
+      undefined;
 
-    const method = req.method;
-    const url = (req as any).originalUrl || req.url;
-    const tcpPeer = this.getTcpPeer(req);
-    const effectiveIp = tcpPeer;
-    const xff = (req?.headers?.['x-forwarded-for'] as string | undefined) || '';
-    const xri = (req?.headers?.['x-real-ip'] as string | undefined) || '';
-    const forwardedIp = (xff || xri || '').toString();
-    const ip = effectiveIp;
+    // capture final status code AFTER response is sent
+    if (!(res as any).__cm_http_logged) {
+      (res as any).__cm_http_logged = true;
 
-    return next.handle().pipe(
-      tap({
-        next: () => {
-          const ms = Date.now() - start;
-          this.logger.log(
-            JSON.stringify({
-              requestId,
-              method,
-              url,
-              status: res.statusCode,
-              ms,
-              effectiveIp,
-              forwardedIp,
-              xff,
-              xri,
-              ip,
-              tcpPeer,
-            }),
-          );
-        },
-        error: (err) => {
-          const ms = Date.now() - start;
-          this.logger.error(
-            JSON.stringify({
-              requestId,
-              method,
-              url,
-              status: res.statusCode,
-              ms,
-              effectiveIp,
-              forwardedIp,
-              xff,
-              xri,
-              ip,
-              tcpPeer,
+      res.once('finish', () => {
+        const ms = Date.now() - start;
 
-              error: {
-                name: err?.name,
-                message: err?.message,
-              },
-            }),
-          );
-        },
-      }),
-    );
+        const effectiveIp =
+          (req.headers['cf-connecting-ip'] as string | undefined) ||
+          (req.headers['x-real-ip'] as string | undefined) ||
+          (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ||
+          req.ip;
+
+        const forwardedIp = (req.headers['x-forwarded-for'] as string | undefined) || '';
+        const xff = (req.headers['x-forwarded-for'] as string | undefined) || '';
+        const xri = (req.headers['x-real-ip'] as string | undefined) || '';
+
+        const status = res.statusCode;
+
+        const payload: any = {
+          requestId,
+          method: req.method,
+          url: req.originalUrl,
+          status,
+          ms,
+          effectiveIp,
+          forwardedIp,
+          xff,
+          xri,
+          ip: req.ip,
+          tcpPeer: (req.socket as any)?.remoteAddress ?? '',
+        };
+
+        // if an exception filter attached a name/message onto res.locals, include it
+        const err = (res.locals as any)?.error;
+        if (err) payload.error = err;
+
+        if (status >= 500) this.log.error(payload);
+        else if (status >= 400) this.log.warn(payload);
+        else this.log.log(payload);
+      });
+    }
+
+    return next.handle();
   }
 }
