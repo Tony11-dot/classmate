@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy as CustomStrategy } from 'passport-custom';
 import type { Request } from 'express';
@@ -15,6 +14,12 @@ function rolesFromEmail(email: string): Role[] {
   return [Role.STUDENT];
 }
 
+function firstHeader(h: any, k1: string, k2: string): string | undefined {
+  const v = h?.[k1] ?? h?.[k2];
+  if (!v) return undefined;
+  return String(Array.isArray(v) ? v[0] : v).trim() || undefined;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   constructor(private readonly prisma: PrismaService) {
@@ -22,27 +27,26 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   }
 
   async validate(req: Request): Promise<any> {
-    
     const h: any = (req as any)?.headers ?? {};
-    const acting = h['x-acting-student-id'] ?? h['X-Acting-Student-Id'];
-    const school = h['x-school-id'] ?? h['X-School-Id'];
-const auth = String(req?.headers?.authorization ?? '');
+    const actingStudentId = firstHeader(h, 'x-acting-student-id', 'X-Acting-Student-Id');
+    const schoolId = firstHeader(h, 'x-school-id', 'X-School-Id');
+
+    const auth = String((req as any)?.headers?.authorization ?? '');
     const token = auth.replace(/^Bearer\s+/i, '').trim();
 
     // E2E/dev shortcut: Bearer dev-token-<email>
-    if ((process.env.NODE_ENV !== 'production') && token.startsWith('dev-token-')) {
+    if (process.env.NODE_ENV !== 'production' && token.startsWith('dev-token-')) {
       const email = token.replace('dev-token-', '').trim().toLowerCase();
-
       const u = await this.prisma.user.findUnique({ where: { email } });
 
       if (!u) {
-        // Fall back to "email identity" (still allows controllers to run),
-        // but will fail course ownership checks unless DB user exists.
         return {
           sub: email,
           id: email,
           email,
           roles: rolesFromEmail(email),
+          ...(actingStudentId ? { actingStudentId } : {}),
+          ...(schoolId ? { schoolId } : {}),
         };
       }
 
@@ -51,23 +55,28 @@ const auth = String(req?.headers?.authorization ?? '');
         .catch(() => []);
 
       return {
-      ...(acting ? { actingStudentId: String(Array.isArray(acting) ? acting[0] : acting) } : {}),
-      ...(school ? { schoolId: String(Array.isArray(school) ? school[0] : school) } : {}),
-sub: u.id,
+        sub: u.id,
         id: u.id,
         email: u.email,
         roles: roles.map((r: any) => r.role),
+        ...(actingStudentId ? { actingStudentId } : {}),
+        ...(schoolId ? { schoolId } : {}),
       };
     }
 
-    console.error('JWT_VALIDATE_DEBUG', {
-  authHeader: (req as any)?.headers?.authorization,
-  tokenLen: String(((req as any)?.headers?.authorization || '')).length,
-  user: (req as any)?.user,
-  nodeEnv: process.env.NODE_ENV,
-  e2e: process.env.E2E,
-  port: process.env.PORT,
-});
-throw new UnauthorizedException('Invalid token');
+    // Keep debug only if explicitly enabled (avoid noisy logs)
+    if (process.env.JWT_VALIDATE_DEBUG === '1') {
+      // eslint-disable-next-line no-console
+      console.error('JWT_VALIDATE_DEBUG', {
+        authHeader: (req as any)?.headers?.authorization,
+        tokenLen: String(((req as any)?.headers?.authorization || '')).length,
+        user: (req as any)?.user,
+        nodeEnv: process.env.NODE_ENV,
+        e2e: process.env.E2E,
+        port: process.env.PORT,
+      });
+    }
+
+    throw new UnauthorizedException('Invalid token');
   }
 }
