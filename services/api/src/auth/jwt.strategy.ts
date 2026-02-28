@@ -4,6 +4,7 @@ import { Strategy as CustomStrategy } from 'passport-custom';
 import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 function rolesFromEmail(email: string): Role[] {
   const e = String(email || '').toLowerCase();
@@ -37,18 +38,22 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     // E2E/dev shortcut: Bearer dev-token-<email>
     if (process.env.NODE_ENV !== 'production' && token.startsWith('dev-token-')) {
       const email = token.replace('dev-token-', '').trim().toLowerCase();
-      const u = await this.prisma.user.findUnique({ where: { email } });
 
-      if (!u) {
-        return {
-          sub: email,
-          id: email,
+      // Ensure DB user exists; StudentProfile.userId references User.id (UUID), NOT email.
+      // User.password is required by schema, so create a non-loginable random hash.
+      const random = `dev-token:${email}:${Date.now()}:${Math.random()}`;
+      const passwordHash = await bcrypt.hash(random, 10);
+
+      const u = await this.prisma.user.upsert({
+        where: { email },
+        update: {},
+        create: {
           email,
-          roles: rolesFromEmail(email),
-          ...(actingStudentId ? { actingStudentId } : {}),
-          ...(schoolId ? { schoolId } : {}),
-        };
-      }
+          name: email.split('@')[0],
+          password: passwordHash,
+        },
+        select: { id: true, email: true },
+      });
 
       const roles = await this.prisma.userRole
         .findMany({ where: { userId: u.id } })
@@ -58,7 +63,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
         sub: u.id,
         id: u.id,
         email: u.email,
-        roles: roles.map((r: any) => r.role),
+        roles: roles.length ? roles.map((r: any) => r.role) : rolesFromEmail(email),
         ...(actingStudentId ? { actingStudentId } : {}),
         ...(schoolId ? { schoolId } : {}),
       };
