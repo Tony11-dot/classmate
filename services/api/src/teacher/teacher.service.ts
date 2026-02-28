@@ -128,7 +128,7 @@ export class TeacherService {
   async todaySchedule(user: any) {
     this.ensureTeacher(user);
 
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
     const now = new Date();
     const dayOfWeek = dayOfWeekInJerusalem(now);
     const dateYmd = ymdInJerusalem(now);
@@ -232,15 +232,13 @@ export class TeacherService {
 
   async getAttendanceSession(
     user: any,
-    query: { cohortId: string; date?: string; period: number },
+    query: { cohortId?: string; date?: string; period: number },
   ) {
     this.ensureTeacher(user);
 
-    const teacherId = user.sub ?? user.id;
-    const cohortId = query.cohortId;
+    const teacherId = user.id ?? user.sub;
     const period = Number(query.period);
 
-    if (!cohortId) throw new BadRequestException('cohortId is required');
     if (!Number.isInteger(period))
       throw new BadRequestException('period is required');
 
@@ -250,6 +248,28 @@ export class TeacherService {
     const dayOfWeek = dayOfWeekInJerusalem(
       new Date(`${dateYmd}T12:00:00.000Z`),
     );
+
+    let cohortId = (query.cohortId ?? '').trim();
+
+    if (!cohortId) {
+      const slot = await this.prisma.scheduleSlot.findFirst({
+        where: {
+          dayOfWeek,
+          period,
+          course: { is: { teacherId } },
+        } as any,
+        select: { cohortId: true },
+        orderBy: [{ cohortId: 'asc' }],
+      });
+
+      if (!slot?.cohortId) {
+        throw new BadRequestException(
+          'No teacher schedule slot found for that day/period (provide cohortId)',
+        );
+      }
+
+      cohortId = slot.cohortId;
+    }
 
     const template = await this.prisma.scheduleSlot.findUnique({
       where: { cohortId_dayOfWeek_period: { cohortId, dayOfWeek, period } },
@@ -308,6 +328,8 @@ export class TeacherService {
     };
   }
 
+
+
   async markAttendance(
     user: any,
     body: {
@@ -322,7 +344,7 @@ export class TeacherService {
   ) {
     this.ensureTeacher(user);
 
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!Number.isInteger(body?.period))
@@ -468,7 +490,7 @@ export class TeacherService {
   ) {
     this.ensureTeacher(user);
 
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!Number.isInteger(body?.period))
@@ -614,7 +636,7 @@ export class TeacherService {
   }
   async cohortStudents(user: any, cohortId: string) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!cohortId) throw new BadRequestException('cohortId is required');
 
@@ -669,7 +691,7 @@ export class TeacherService {
     body: { courseId: string; title: string; date?: string; maxGrade?: number },
   ) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!body?.courseId) throw new BadRequestException('courseId is required');
     if (!body?.title) throw new BadRequestException('title is required');
@@ -705,7 +727,7 @@ export class TeacherService {
     },
   ) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!body?.assessmentId)
       throw new BadRequestException('assessmentId is required');
@@ -844,7 +866,7 @@ export class TeacherService {
 
   async listAssessments(user: any, query?: { courseId?: string }) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     const courseId = query?.courseId;
 
@@ -887,7 +909,7 @@ export class TeacherService {
 
   async assessmentGrades(user: any, assessmentId: string) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!assessmentId)
       throw new BadRequestException('assessmentId is required');
@@ -915,7 +937,7 @@ export class TeacherService {
     body: { title?: string; date?: string | null },
   ) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!id) throw new BadRequestException('id is required');
     if (!body || (body.title === undefined && body.date === undefined))
@@ -957,7 +979,7 @@ export class TeacherService {
 
   async deleteAssessment(user: any, id: string) {
     this.ensureTeacher(user);
-    const teacherId = user.sub ?? user.id;
+    const teacherId = user.id ?? user.sub;
 
     if (!id) throw new BadRequestException('id is required');
 
