@@ -51,3 +51,4 @@ services/api/.env
 
 # Flutter (local)
 apps/classmate_mobile/devtools_options.yaml
+.next
