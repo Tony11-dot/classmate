@@ -48,3 +48,6 @@ services/api/.env
 
 # Xcode / SwiftPM caches
 **/xcshareddata/swiftpm/
+
+# Flutter (local)
+apps/classmate_mobile/devtools_options.yaml
