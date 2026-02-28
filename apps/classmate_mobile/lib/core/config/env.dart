@@ -3,8 +3,8 @@ class Env {
 
   static void init() {
     apiBaseUrl = const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:3010',
+      'CM_API_BASE_URL',
+      defaultValue: 'http://127.0.0.1:3000',
     );
   }
 }

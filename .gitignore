@@ -45,3 +45,6 @@ classmate_mobile/._graveyard/
 services/api/.env
 !**/next-env.d.ts
 !apps/admin-web/next-env.d.ts
+
+# Xcode / SwiftPM caches
+**/xcshareddata/swiftpm/
