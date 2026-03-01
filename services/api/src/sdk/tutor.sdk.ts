@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 import { HttpClient } from './http-client';
 import {
   AddMessageBodySchema,
@@ -8,7 +8,6 @@ import {
   CreateSessionBodySchema,
   CreateSessionResponseSchema,
   GetMyBrainSnapshotResponseSchema,
-  RebuildMyBrainSnapshotResponseSchema,
   GetMyLearningProfileResponseSchema,
   GetSessionResponseSchema,
   ListCharactersQuerySchema,
@@ -18,6 +17,7 @@ import {
   ListSessionsQuerySchema,
   ListSessionsResponseSchema,
   OkSchema,
+  RebuildMyBrainSnapshotResponseSchema,
   ReplyBodySchema,
   ReplyResponseSchema,
   UpsertMyLearningProfileBodySchema,
@@ -43,8 +43,8 @@ export class TutorSdk {
   }
 
   async upsertMyProfile(body: z.input<typeof UpsertMyLearningProfileBodySchema>) {
-    const parsedBody = UpsertMyLearningProfileBodySchema.parse(body);
-    return this.http.post('/tutor/me/profile', parsedBody, UpsertMyLearningProfileResponseSchema);
+    const b = UpsertMyLearningProfileBodySchema.parse(body);
+    return this.http.post('/tutor/me/profile', b, UpsertMyLearningProfileResponseSchema);
   }
 
   // ---- Brain ----
@@ -53,35 +53,6 @@ export class TutorSdk {
   }
 
   async rebuildMyBrain() {
-    return this.http.post('/tutor/me/brain/rebuild', {}, RebuildMyBrainSchema);
-  }
-}
-
-const RebuildMyBrainSchema = z.object({
-  ok: z.literal(true),
-  snapshot: z.any(),
-});
-
-export class TutorSdkV2 {
-  constructor(private readonly http: HttpClient) {}
-
-  // ---- Profile ----
-  async getMyProfile() {
-    return this.http.get('/tutor/me/profile', GetMyLearningProfileResponseSchema);
-  }
-
-  async upsertMyProfile(body: z.input<typeof UpsertMyLearningProfileBodySchema>) {
-    const parsedBody = UpsertMyLearningProfileBodySchema.parse(body);
-    return this.http.post('/tutor/me/profile', parsedBody, UpsertMyLearningProfileResponseSchema);
-  }
-
-  // ---- Brain ----
-  async getMyBrain() {
-    return this.http.get('/tutor/me/brain', GetMyBrainSnapshotResponseSchema);
-  }
-
-  async rebuildMyBrain() {
-    // server returns ok + snapshot
     return this.http.post('/tutor/me/brain/rebuild', {}, RebuildMyBrainSnapshotResponseSchema);
   }
 
@@ -129,6 +100,6 @@ export class TutorSdkV2 {
 
   // ---- misc ----
   async health() {
-    return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall(z.any()));
+    return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall((await import('zod')).z.any()));
   }
 }
