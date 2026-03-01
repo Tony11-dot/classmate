@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 
@@ -56,7 +54,7 @@ class MainDrawer extends ConsumerWidget {
                     height: 44,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: cs.primaryContainer.withOpacity(0.75),
+                      color: cs.primaryContainer.withValues(alpha: (0.75)),
                     ),
                     child: Icon(
                       Icons.school_rounded,
@@ -85,7 +83,7 @@ class MainDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            Divider(height: 1, color: cs.outlineVariant.withOpacity(0.4)),
+            Divider(height: 1, color: cs.outlineVariant.withValues(alpha: (0.4))),
 
             // 1) Core bottom-nav tabs
             section('Core'),

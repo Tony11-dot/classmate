@@ -8,6 +8,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
   // ignore: avoid_print
-  print('CM apiBaseUrl=' + Env.apiBaseUrl);
+  // ignore: avoid_print
+  print('CM apiBaseUrl=${Env.apiBaseUrl} schoolId=${Env.schoolId} devToken=${Env.devToken}');
   runApp(const ProviderScope(child: ClassMateApp()));
 }
