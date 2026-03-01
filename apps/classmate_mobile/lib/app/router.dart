@@ -35,12 +35,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
          initialLocation: '/schedule',
-    routes: [      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+    routes: [
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
 
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          GoRoute(path: '/schedule', builder: (_, _) => const ScheduleScreen()),
+      GoRoute(path: '/schedule', builder: (_, _) => const ScheduleScreen()),
           GoRoute(
             path: '/classrooms',
             builder: (_, _) => const ClassroomsScreen(),
