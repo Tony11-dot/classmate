@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { HttpClient } from './http-client';
 import {
   AddMessageBodySchema,
@@ -7,6 +8,7 @@ import {
   CreateSessionBodySchema,
   CreateSessionResponseSchema,
   GetMyBrainSnapshotResponseSchema,
+  RebuildMyBrainSnapshotResponseSchema,
   GetMyLearningProfileResponseSchema,
   GetSessionResponseSchema,
   ListCharactersQuerySchema,
@@ -15,112 +17,118 @@ import {
   ListMaterialsResponseSchema,
   ListSessionsQuerySchema,
   ListSessionsResponseSchema,
+  OkSchema,
   ReplyBodySchema,
   ReplyResponseSchema,
   UpsertMyLearningProfileBodySchema,
   UpsertMyLearningProfileResponseSchema,
-  RebuildMyBrainSnapshotResponseSchema,
 } from '../contracts/tutor.contract';
 
-export class TutorSdk {
-  constructor(private http: HttpClient) {}
+function qs(input?: Record<string, any>) {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(input ?? {})) {
+    if (v === undefined || v === null) continue;
+    p.set(k, String(v));
+  }
+  const s = p.toString();
+  return s ? `?${s}` : '';
+}
 
-  // ---- profile ----
-  getMyProfile() {
+export class TutorSdk {
+  constructor(private readonly http: HttpClient) {}
+
+  // ---- Profile ----
+  async getMyProfile() {
     return this.http.get('/tutor/me/profile', GetMyLearningProfileResponseSchema);
   }
 
-  upsertMyProfile(body: unknown) {
+  async upsertMyProfile(body: z.input<typeof UpsertMyLearningProfileBodySchema>) {
     const parsedBody = UpsertMyLearningProfileBodySchema.parse(body);
-    return this.http.post(
-      '/tutor/me/profile',
-      parsedBody,
-      UpsertMyLearningProfileResponseSchema,
-    );
+    return this.http.post('/tutor/me/profile', parsedBody, UpsertMyLearningProfileResponseSchema);
   }
 
-  // ---- brain ----
-  getMyBrain() {
+  // ---- Brain ----
+  async getMyBrain() {
     return this.http.get('/tutor/me/brain', GetMyBrainSnapshotResponseSchema);
   }
 
-  rebuildMyBrain() {
-    return this.http.post(
-      '/tutor/me/brain/rebuild',
-      {},
-      RebuildMyBrainSnapshotResponseSchema,
-    );
+  async rebuildMyBrain() {
+    return this.http.post('/tutor/me/brain/rebuild', {}, RebuildMyBrainSchema);
+  }
+}
+
+const RebuildMyBrainSchema = z.object({
+  ok: z.literal(true),
+  snapshot: z.any(),
+});
+
+export class TutorSdkV2 {
+  constructor(private readonly http: HttpClient) {}
+
+  // ---- Profile ----
+  async getMyProfile() {
+    return this.http.get('/tutor/me/profile', GetMyLearningProfileResponseSchema);
   }
 
-  // ---- materials ----
-  listMaterials(query: unknown) {
+  async upsertMyProfile(body: z.input<typeof UpsertMyLearningProfileBodySchema>) {
+    const parsedBody = UpsertMyLearningProfileBodySchema.parse(body);
+    return this.http.post('/tutor/me/profile', parsedBody, UpsertMyLearningProfileResponseSchema);
+  }
+
+  // ---- Brain ----
+  async getMyBrain() {
+    return this.http.get('/tutor/me/brain', GetMyBrainSnapshotResponseSchema);
+  }
+
+  async rebuildMyBrain() {
+    // server returns ok + snapshot
+    return this.http.post('/tutor/me/brain/rebuild', {}, RebuildMyBrainSnapshotResponseSchema);
+  }
+
+  // ---- Materials ----
+  async listMaterials(query: z.input<typeof ListMaterialsQuerySchema> = {}) {
     const q = ListMaterialsQuerySchema.parse(query);
-    // HttpClient.get takes (path, schema) only. Encode query into URL.
-    const qs = new URLSearchParams(
-      Object.entries(q).flatMap(([k, v]) =>
-        v === undefined || v === null ? [] : [[k, String(v)]],
-      ),
-    ).toString();
-    const path = qs ? `/tutor/materials?${qs}` : '/tutor/materials';
-    return this.http.get(path, ListMaterialsResponseSchema);
+    return this.http.get(`/tutor/materials${qs(q)}`, ListMaterialsResponseSchema);
   }
 
-  createMaterial(body: unknown) {
+  async createMaterial(body: z.input<typeof CreateMaterialBodySchema>) {
     const b = CreateMaterialBodySchema.parse(body);
     return this.http.post('/tutor/materials', b, CreateMaterialResponseSchema);
   }
 
-  // ---- characters ----
-  listCharacters(query: unknown) {
+  // ---- Characters ----
+  async listCharacters(query: z.input<typeof ListCharactersQuerySchema> = {}) {
     const q = ListCharactersQuerySchema.parse(query);
-    const qs = new URLSearchParams(
-      Object.entries(q).flatMap(([k, v]) =>
-        v === undefined || v === null ? [] : [[k, String(v)]],
-      ),
-    ).toString();
-    const path = qs ? `/tutor/characters?${qs}` : '/tutor/characters';
-    return this.http.get(path, ListCharactersResponseSchema);
+    return this.http.get(`/tutor/characters${qs(q)}`, ListCharactersResponseSchema);
   }
 
-  // ---- sessions ----
-  createSession(body: unknown) {
+  // ---- Sessions ----
+  async createSession(body: z.input<typeof CreateSessionBodySchema>) {
     const b = CreateSessionBodySchema.parse(body);
     return this.http.post('/tutor/sessions', b, CreateSessionResponseSchema);
   }
 
-  listSessions(query: unknown) {
+  async listSessions(query: z.input<typeof ListSessionsQuerySchema> = {}) {
     const q = ListSessionsQuerySchema.parse(query);
-    const qs = new URLSearchParams(
-      Object.entries(q).flatMap(([k, v]) =>
-        v === undefined || v === null ? [] : [[k, String(v)]],
-      ),
-    ).toString();
-    const path = qs ? `/tutor/sessions?${qs}` : '/tutor/sessions';
-    return this.http.get(path, ListSessionsResponseSchema);
+    return this.http.get(`/tutor/sessions${qs(q)}`, ListSessionsResponseSchema);
   }
 
-  getSession(id: string) {
-    return this.http.get(
-      `/tutor/sessions/${encodeURIComponent(id)}`,
-      GetSessionResponseSchema,
-    );
+  async getSession(id: string) {
+    return this.http.get(`/tutor/sessions/${encodeURIComponent(id)}`, GetSessionResponseSchema);
   }
 
-  addMessage(sessionId: string, body: unknown) {
+  async addMessage(id: string, body: z.input<typeof AddMessageBodySchema>) {
     const b = AddMessageBodySchema.parse(body);
-    return this.http.post(
-      `/tutor/sessions/${encodeURIComponent(sessionId)}/messages`,
-      b,
-      AddMessageResponseSchema,
-    );
+    return this.http.post(`/tutor/sessions/${encodeURIComponent(id)}/messages`, b, AddMessageResponseSchema);
   }
 
-  reply(sessionId: string, body: unknown) {
+  async reply(id: string, body: z.input<typeof ReplyBodySchema>) {
     const b = ReplyBodySchema.parse(body);
-    return this.http.post(
-      `/tutor/sessions/${encodeURIComponent(sessionId)}/reply`,
-      b,
-      ReplyResponseSchema,
-    );
+    return this.http.post(`/tutor/sessions/${encodeURIComponent(id)}/reply`, b, ReplyResponseSchema);
+  }
+
+  // ---- misc ----
+  async health() {
+    return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall(z.any()));
   }
 }
