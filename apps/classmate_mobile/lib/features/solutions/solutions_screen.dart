@@ -24,98 +24,11 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.7,
+          initialChildSize: 0.78,
           minChildSize: 0.35,
           maxChildSize: 0.95,
           builder: (context, sc) {
-            return StatefulBuilder(
-              builder: (context, setState) {
-                final ctrl = TextEditingController();
-                final comments = <String>[];
-
-                void addComment() {
-                  final t = ctrl.text.trim();
-                  if (t.isEmpty) return;
-                  setState(() {
-                    comments.insert(0, t);
-                    ctrl.clear();
-                  });
-                }
-
-                return ListView(
-                  controller: sc,
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 8,
-                    bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  children: [
-                    Text(
-                      'Comments',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    if (comments.isEmpty)
-                      Text(
-                        'No comments yet. Be the first 👇',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-
-                    if (comments.isNotEmpty) ...[
-                      for (final c in comments)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Text(
-                              c,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                    ],
-
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: ctrl,
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => addComment(),
-                            decoration: const InputDecoration(
-                              hintText: 'Write a comment…',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        FilledButton.icon(
-                          onPressed: addComment,
-                          icon: const Icon(Icons.send_rounded),
-                          label: const Text('Send'),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 10),
-                  ],
-                );
-              },
-            );
+            return _CommentsSheet(solution: item, scrollController: sc);
           },
         );
       },
@@ -648,6 +561,150 @@ class _ChipField extends StatelessWidget {
           isDense: true,
         ),
       ),
+    );
+  }
+}
+
+class _CommentsSheet extends ConsumerStatefulWidget {
+  const _CommentsSheet({
+    required this.solution,
+    required this.scrollController,
+  });
+
+  final Solution solution;
+  final ScrollController scrollController;
+
+  @override
+  ConsumerState<_CommentsSheet> createState() => _CommentsSheetState();
+}
+
+class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
+  final TextEditingController _ctrl = TextEditingController();
+  bool _booted = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = ref.watch(solutionsControllerProvider.notifier);
+    final st = c.commentsStateFor(widget.solution.id);
+
+    if (!_booted) {
+      _booted = true;
+      Future.microtask(() => c.loadComments(widget.solution));
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            controller: widget.scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            children: [
+              if (st.loading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (st.error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(st.error!, textAlign: TextAlign.center),
+                )
+              else if (st.items.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text('No comments yet.', textAlign: TextAlign.center),
+                )
+              else
+                ...st.items.map(
+                  (x) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          child: Text(
+                            (x.author.name.isNotEmpty ? x.author.name[0] : '?')
+                                .toUpperCase(),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                x.author.name.isEmpty ? 'User' : x.author.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(x.body),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (!st.loading &&
+                  st.nextCursor != null &&
+                  st.nextCursor!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: st.loadingMore
+                          ? null
+                          : () => c.loadMoreComments(widget.solution),
+                      child: Text(st.loadingMore ? 'Loading…' : 'Load more'),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _ctrl,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) async {
+                    final msg = _ctrl.text;
+                    _ctrl.clear();
+                    await c.addComment(widget.solution, msg);
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Write a comment…',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              FilledButton.icon(
+                onPressed: st.posting
+                    ? null
+                    : () async {
+                        final msg = _ctrl.text;
+                        _ctrl.clear();
+                        await c.addComment(widget.solution, msg);
+                      },
+                icon: const Icon(Icons.send_rounded),
+                label: Text(st.posting ? 'Sending' : 'Send'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

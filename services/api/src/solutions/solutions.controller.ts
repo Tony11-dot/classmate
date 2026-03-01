@@ -27,8 +27,8 @@ export class SolutionsController {
   }
 
   @Get()
-  list(@Query() q: any) {
-    return this.solutions.list(q);
+  list(@CurrentUser() user: any, @Query() q: any) {
+    return this.solutions.list(user, q);
   }
 
   @Get(':id')
@@ -63,4 +63,25 @@ export class SolutionsController {
   deleteImage(@CurrentUser() user: any, @Param('imageId') imageId: string) {
     return this.solutions.deleteImage(user, imageId);
   }
+
+  @Post(':id/like')
+  like(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.solutions.like(user, id);
+  }
+
+  @Delete(':id/like')
+  unlike(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.solutions.unlike(user, id);
+  }
+
+  @Get(':id/comments')
+  listComments(@Param('id') id: string, @Query() q: any) {
+    return this.solutions.listComments(id, q);
+  }
+
+  @Post(':id/comments')
+  addComment(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: any) {
+    return this.solutions.addComment(user, id, dto);
+  }
 }
+

@@ -1,0 +1,1330 @@
+diff --git a/apps/classmate_mobile/lib/core/http/cm_api.dart b/apps/classmate_mobile/lib/core/http/cm_api.dart
+index 97c4e03..3aa6f33 100644
+--- a/apps/classmate_mobile/lib/core/http/cm_api.dart
++++ b/apps/classmate_mobile/lib/core/http/cm_api.dart
+@@ -1,57 +1,98 @@
+ import 'dart:convert';
++
++import 'package:flutter/foundation.dart';
+ import 'package:http/http.dart' as http;
+ 
+ import '../config/env.dart';
+ 
+ class CMApi {
+-  CMApi({required this.token});
++  CMApi({this.token}) : _client = http.Client();
+ 
+   final String? token;
++  final http.Client _client;
+ 
+-  Uri _u(String path, [Map<String, String>? q]) {
+-    final base = Uri.parse(Env.apiBaseUrl);
++  Uri _buildUri(String path, {Map<String, String>? query}) {
++    final base = Env.apiBaseUrl; // e.g. http://192.168.x.x:3001
++    final baseUri = Uri.parse(base);
+     final p = path.startsWith('/') ? path : '/$path';
+-    return base.replace(
+-      path: (base.path.endsWith('/') ? base.path.substring(0, base.path.length - 1) : base.path) + p,
+-      queryParameters: (q == null || q.isEmpty) ? null : q,
++    return Uri(
++      scheme: baseUri.scheme,
++      host: baseUri.host,
++      port: baseUri.hasPort ? baseUri.port : null,
++      path:
++          (baseUri.path.endsWith('/')
++              ? baseUri.path.substring(0, baseUri.path.length - 1)
++              : baseUri.path) +
++          p,
++      queryParameters: (query == null || query.isEmpty) ? null : query,
+     );
+   }
+ 
+-  Map<String, String> _headers({bool json = true}) {
++  Map<String, String> _headers({required bool contentTypeJson}) {
+     final h = <String, String>{
+       'x-school-id': Env.schoolId,
++      if (contentTypeJson) 'content-type': 'application/json',
++      'accept': 'application/json',
+     };
+-    if (token != null && token!.trim().isNotEmpty) {
+-      h['authorization'] = 'Bearer ${token!.trim()}';
+-      // ignore: avoid_print
+-      // ignore: avoid_print
+-      print('CMApi authHeader=${h['authorization']}');
++    final t = token;
++    if (t != null && t.trim().isNotEmpty) {
++      h['authorization'] = 'Bearer ${t.trim()}';
+     }
+-    if (json) h['content-type'] = 'application/json';
+-    // ignore: avoid_print
+-    // ignore: avoid_print
+-    print('CMApi headers=$h');
+-    // ignore: avoid_print
+-    // ignore: avoid_print
+-    print('CMApi headers=$h');
+     return h;
+   }
+ 
+-  Future<Map<String, dynamic>> getJson(String path, {Map<String, String>? query}) async {
+-    final r = await http.get(_u(path, query), headers: _headers(json: false));
+-    final body = r.body.isEmpty ? '{}' : r.body;
+-    if (r.statusCode < 200 || r.statusCode >= 300) {
+-      throw Exception('GET $path failed ${r.statusCode}: $body');
++  dynamic _decode(http.Response res) {
++    if (res.statusCode >= 200 && res.statusCode < 300) {
++      if (res.body.isEmpty) {
++        return <String, dynamic>{};
++      }
++      final v = jsonDecode(res.body);
++      return v;
+     }
+-    return jsonDecode(body) as Map<String, dynamic>;
+-  }
+ 
+-  Future<Map<String, dynamic>> postJson(String path, Object payload) async {
+-    final r = await http.post(_u(path), headers: _headers(), body: jsonEncode(payload));
+-    final body = r.body.isEmpty ? '{}' : r.body;
+-    if (r.statusCode < 200 || r.statusCode >= 300) {
+-      throw Exception('POST $path failed ${r.statusCode}: $body');
++    // try to surface JSON error payloads nicely
++    try {
++      final v = jsonDecode(res.body);
++      throw Exception('HTTP ${res.statusCode}: ${jsonEncode(v)}');
++    } catch (_) {
++      throw Exception('HTTP ${res.statusCode}: ${res.body}');
+     }
+-    return jsonDecode(body) as Map<String, dynamic>;
++  }
++
++  Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
++    final uri = _buildUri(path, query: query);
++    final res = await _client.get(
++      uri,
++      headers: _headers(contentTypeJson: false),
++    );
++    return _decode(res);
++  }
++
++  Future<dynamic> postJson(
++    String path, {
++    Map<String, dynamic>? body,
++    Map<String, String>? query,
++  }) async {
++    final uri = _buildUri(path, query: query);
++    final res = await _client.post(
++      uri,
++      headers: _headers(contentTypeJson: true),
++      body: jsonEncode(body ?? const <String, dynamic>{}),
++    );
++    return _decode(res);
++  }
++
++  Future<dynamic> deleteJson(String path, {Map<String, String>? query}) async {
++    final uri = _buildUri(path, query: query);
++    final res = await _client.delete(
++      uri,
++      headers: _headers(contentTypeJson: false),
++    );
++    return _decode(res);
++  }
++
++  @mustCallSuper
++  void dispose() {
++    _client.close();
+   }
+ }
+diff --git a/apps/classmate_mobile/lib/features/solutions/solution_model.dart b/apps/classmate_mobile/lib/features/solutions/solution_model.dart
+index 179f105..4ab1fbe 100644
+--- a/apps/classmate_mobile/lib/features/solutions/solution_model.dart
++++ b/apps/classmate_mobile/lib/features/solutions/solution_model.dart
+@@ -1,5 +1,8 @@
++import 'package:flutter/foundation.dart';
++
++@immutable
+ class Solution {
+-  Solution({
++  const Solution({
+     required this.id,
+     required this.subject,
+     required this.sourceType,
+@@ -10,8 +13,9 @@ class Solution {
+     required this.body,
+     required this.createdAt,
+     required this.images,
+-    this.likeCount = 0,
+-    this.commentCount = 0,
++    required this.likeCount,
++    required this.commentCount,
++    required this.likedByMe,
+   });
+ 
+   final String id;
+@@ -22,18 +26,52 @@ class Solution {
+   final String? questionNumber;
+   final String? title;
+   final String? body;
+-  final int likeCount;
+-  final int commentCount;
+   final String? createdAt;
+   final List<Map<String, dynamic>> images;
+ 
++  final int likeCount;
++  final int commentCount;
++  final bool likedByMe;
++
++  Solution copyWith({
++    String? id,
++    String? subject,
++    String? sourceType,
++    String? sourceName,
++    int? page,
++    String? questionNumber,
++    String? title,
++    String? body,
++    String? createdAt,
++    List<Map<String, dynamic>>? images,
++    int? likeCount,
++    int? commentCount,
++    bool? likedByMe,
++  }) {
++    return Solution(
++      id: id ?? this.id,
++      subject: subject ?? this.subject,
++      sourceType: sourceType ?? this.sourceType,
++      sourceName: sourceName ?? this.sourceName,
++      page: page ?? this.page,
++      questionNumber: questionNumber ?? this.questionNumber,
++      title: title ?? this.title,
++      body: body ?? this.body,
++      createdAt: createdAt ?? this.createdAt,
++      images: images ?? this.images,
++      likeCount: likeCount ?? this.likeCount,
++      commentCount: commentCount ?? this.commentCount,
++      likedByMe: likedByMe ?? this.likedByMe,
++    );
++  }
++
+   factory Solution.fromJson(Map<String, dynamic> j) => Solution(
+     id: (j['id'] ?? '').toString(),
+     subject: (j['subject'] ?? '').toString(),
+     sourceType: (j['sourceType'] ?? '').toString(),
+     sourceName: (j['sourceName'] ?? '').toString(),
+     page: (j['page'] is int)
+-        ? j['page'] as int
++        ? j['page']
+         : (j['page'] == null ? null : int.tryParse(j['page'].toString())),
+     questionNumber: j['questionNumber']?.toString(),
+     title: j['title']?.toString(),
+@@ -43,19 +81,23 @@ class Solution {
+         ? (j['images'] as List)
+               .whereType<Map>()
+               .map((e) => Map<String, dynamic>.from(e))
+-              .toList()
++              .toList(growable: false)
+         : const <Map<String, dynamic>>[],
+     likeCount: (j['likeCount'] is int)
+-        ? j['likeCount'] as int
++        ? j['likeCount']
+         : int.tryParse((j['likeCount'] ?? 0).toString()) ?? 0,
+     commentCount: (j['commentCount'] is int)
+-        ? j['commentCount'] as int
++        ? j['commentCount']
+         : int.tryParse((j['commentCount'] ?? 0).toString()) ?? 0,
++    likedByMe: (j['likedByMe'] is bool)
++        ? j['likedByMe'] as bool
++        : (j['likedByMe']?.toString() == 'true'),
+   );
+ }
+ 
++@immutable
+ class SolutionsPage {
+-  SolutionsPage({required this.items, required this.nextCursor});
++  const SolutionsPage({required this.items, required this.nextCursor});
+   final List<Solution> items;
+   final String? nextCursor;
+ 
+@@ -64,8 +106,68 @@ class SolutionsPage {
+         ? (j['items'] as List)
+               .whereType<Map>()
+               .map((e) => Solution.fromJson(Map<String, dynamic>.from(e)))
+-              .toList()
++              .toList(growable: false)
+         : const <Solution>[],
+     nextCursor: j['nextCursor']?.toString(),
+   );
+ }
++
++@immutable
++class SolutionAuthor {
++  const SolutionAuthor({required this.id, required this.name});
++  final String id;
++  final String name;
++
++  factory SolutionAuthor.fromJson(Map<String, dynamic> j) => SolutionAuthor(
++    id: (j['id'] ?? '').toString(),
++    name: (j['name'] ?? '').toString(),
++  );
++}
++
++@immutable
++class SolutionComment {
++  const SolutionComment({
++    required this.id,
++    required this.body,
++    required this.createdAt,
++    required this.authorId,
++    required this.author,
++  });
++
++  final String id;
++  final String body;
++  final String createdAt;
++  final String authorId;
++  final SolutionAuthor author;
++
++  factory SolutionComment.fromJson(Map<String, dynamic> j) => SolutionComment(
++    id: (j['id'] ?? '').toString(),
++    body: (j['body'] ?? '').toString(),
++    createdAt: (j['createdAt'] ?? '').toString(),
++    authorId: (j['authorId'] ?? '').toString(),
++    author: SolutionAuthor.fromJson(
++      Map<String, dynamic>.from((j['author'] as Map?) ?? const {}),
++    ),
++  );
++}
++
++@immutable
++class SolutionCommentsPage {
++  const SolutionCommentsPage({required this.items, required this.nextCursor});
++  final List<SolutionComment> items;
++  final String? nextCursor;
++
++  factory SolutionCommentsPage.fromJson(Map<String, dynamic> j) =>
++      SolutionCommentsPage(
++        items: (j['items'] is List)
++            ? (j['items'] as List)
++                  .whereType<Map>()
++                  .map(
++                    (e) =>
++                        SolutionComment.fromJson(Map<String, dynamic>.from(e)),
++                  )
++                  .toList(growable: false)
++            : const <SolutionComment>[],
++        nextCursor: j['nextCursor']?.toString(),
++      );
++}
+diff --git a/apps/classmate_mobile/lib/features/solutions/solutions_controller.dart b/apps/classmate_mobile/lib/features/solutions/solutions_controller.dart
+index db03053..61dc891 100644
+--- a/apps/classmate_mobile/lib/features/solutions/solutions_controller.dart
++++ b/apps/classmate_mobile/lib/features/solutions/solutions_controller.dart
+@@ -1,9 +1,57 @@
++import 'package:flutter/foundation.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ 
+ import 'solution_model.dart';
+ import 'solutions_filters.dart';
+ import 'solutions_repo.dart';
+ 
++@immutable
++class SolutionCommentsState {
++  const SolutionCommentsState({
++    required this.items,
++    required this.nextCursor,
++    required this.loading,
++    required this.loadingMore,
++    required this.posting,
++    required this.error,
++  });
++
++  final List<SolutionComment> items;
++  final String? nextCursor;
++  final bool loading;
++  final bool loadingMore;
++  final bool posting;
++  final String? error;
++
++  static const empty = SolutionCommentsState(
++    items: <SolutionComment>[],
++    nextCursor: null,
++    loading: false,
++    loadingMore: false,
++    posting: false,
++    error: null,
++  );
++
++  SolutionCommentsState copyWith({
++    List<SolutionComment>? items,
++    String? nextCursor,
++    bool? loading,
++    bool? loadingMore,
++    bool? posting,
++    String? error,
++  }) {
++    return SolutionCommentsState(
++      items: items ?? this.items,
++      nextCursor: nextCursor ?? this.nextCursor,
++      loading: loading ?? this.loading,
++      loadingMore: loadingMore ?? this.loadingMore,
++      posting: posting ?? this.posting,
++      error: error,
++    );
++  }
++}
++
++@immutable
+ class SolutionsState {
+   const SolutionsState({
+     required this.items,
+@@ -23,6 +71,16 @@ class SolutionsState {
+   final bool hasMore;
+   final SolutionsFilters filters;
+ 
++  static const initial = SolutionsState(
++    items: <Solution>[],
++    loading: true,
++    loadingMore: false,
++    error: null,
++    nextCursor: null,
++    hasMore: true,
++    filters: SolutionsFilters(),
++  );
++
+   SolutionsState copyWith({
+     List<Solution>? items,
+     bool? loading,
+@@ -42,55 +100,80 @@ class SolutionsState {
+       filters: filters ?? this.filters,
+     );
+   }
+-
+-  static const initial = SolutionsState(
+-    items: <Solution>[],
+-    loading: true,
+-    loadingMore: false,
+-    error: null,
+-    nextCursor: null,
+-    hasMore: true,
+-    filters: SolutionsFilters(),
+-  );
+ }
+ 
+ final solutionsControllerProvider =
+-    NotifierProvider<SolutionsController, SolutionsState>(SolutionsController.new);
++    NotifierProvider<SolutionsController, SolutionsState>(
++      SolutionsController.new,
++    );
+ 
+ class SolutionsController extends Notifier<SolutionsState> {
+   static const int _pageSize = 20;
+ 
++  final Map<String, SolutionCommentsState> _commentsBySolutionId =
++      <String, SolutionCommentsState>{};
++
++  SolutionCommentsState commentsStateFor(String solutionId) {
++    return _commentsBySolutionId[solutionId] ?? SolutionCommentsState.empty;
++  }
++
++  void _bump() {
++    state = state; // notify listeners
++  }
++
+   @override
+   SolutionsState build() {
+     state = SolutionsState.initial;
+-    _loadFirst();
++    _loadInitial();
+     return state;
+   }
+ 
+-  Future<void> refresh() => _loadFirst();
++  Future<void> _loadInitial() async {
++    state = state.copyWith(
++      loading: true,
++      loadingMore: false,
++      error: null,
++      items: const <Solution>[],
++      nextCursor: null,
++      hasMore: true,
++    );
+ 
+-  Future<void> setFilters(SolutionsFilters f) async {
+-    state = state.copyWith(filters: f);
+-    await _loadFirst();
++    final repo = ref.read(solutionsRepoProvider);
++    try {
++      final page = await repo.list(
++        filters: state.filters,
++        limit: _pageSize,
++        cursor: null,
++      );
++      state = state.copyWith(
++        items: page.items,
++        loading: false,
++        nextCursor: page.nextCursor,
++        hasMore: page.nextCursor != null,
++      );
++    } catch (e) {
++      state = state.copyWith(loading: false, error: e.toString());
++    }
+   }
+ 
++  Future<void> refresh() => _loadInitial();
++
+   Future<void> loadMore() async {
+-    if (state.loading || state.loadingMore || !state.hasMore) return;
++    if (state.loadingMore || !state.hasMore) return;
+     final cursor = state.nextCursor;
+     if (cursor == null || cursor.isEmpty) return;
+ 
+     state = state.copyWith(loadingMore: true, error: null);
++    final repo = ref.read(solutionsRepoProvider);
++
+     try {
+-      final repo = ref.read(solutionsRepoProvider);
+       final page = await repo.list(
+         filters: state.filters,
+         limit: _pageSize,
+         cursor: cursor,
+       );
+-
+-      final merged = <Solution>[...state.items, ...page.items];
+       state = state.copyWith(
+-        items: merged,
++        items: <Solution>[...state.items, ...page.items],
+         loadingMore: false,
+         nextCursor: page.nextCursor,
+         hasMore: page.nextCursor != null,
+@@ -100,31 +183,143 @@ class SolutionsController extends Notifier<SolutionsState> {
+     }
+   }
+ 
+-  Future<void> _loadFirst() async {
+-    state = state.copyWith(
+-      loading: true,
+-      loadingMore: false,
+-      error: null,
+-      items: const <Solution>[],
+-      nextCursor: null,
+-      hasMore: true,
++  Future<void> setFilters(SolutionsFilters f) async {
++    state = state.copyWith(filters: f);
++    await _loadInitial();
++  }
++
++  Future<void> toggleLike(Solution item) async {
++    final repo = ref.read(solutionsRepoProvider);
++
++    final idx = state.items.indexWhere((x) => x.id == item.id);
++    if (idx == -1) return;
++
++    final cur = state.items[idx];
++    final optimisticLiked = !cur.likedByMe;
++    final optimisticLikeCount = cur.likeCount + (optimisticLiked ? 1 : -1);
++
++    final updatedOptimistic = cur.copyWith(
++      likedByMe: optimisticLiked,
++      likeCount: optimisticLikeCount < 0 ? 0 : optimisticLikeCount,
+     );
+ 
++    final next = [...state.items];
++    next[idx] = updatedOptimistic;
++    state = state.copyWith(items: next);
++
+     try {
+-      final repo = ref.read(solutionsRepoProvider);
+-      final page = await repo.list(
+-        filters: state.filters,
+-        limit: _pageSize,
+-        cursor: null,
++      final m = optimisticLiked
++          ? await repo.like(cur.id)
++          : await repo.unlike(cur.id);
++      final likeCount = (m['likeCount'] is int)
++          ? m['likeCount'] as int
++          : updatedOptimistic.likeCount;
++      final commentCount = (m['commentCount'] is int)
++          ? m['commentCount'] as int
++          : updatedOptimistic.commentCount;
++      final likedByMe = (m['likedByMe'] is bool)
++          ? m['likedByMe'] as bool
++          : updatedOptimistic.likedByMe;
++
++      final fixed = updatedOptimistic.copyWith(
++        likeCount: likeCount,
++        commentCount: commentCount,
++        likedByMe: likedByMe,
+       );
+-      state = state.copyWith(
++      final next2 = [...state.items];
++      next2[idx] = fixed;
++      state = state.copyWith(items: next2);
++    } catch (_) {
++      final rollback = [...state.items];
++      rollback[idx] = cur;
++      state = state.copyWith(items: rollback);
++    }
++  }
++
++  Future<void> loadComments(Solution solution, {int limit = 20}) async {
++    final repo = ref.read(solutionsRepoProvider);
++    final id = solution.id;
++
++    final cur = commentsStateFor(id);
++    _commentsBySolutionId[id] = cur.copyWith(loading: true, error: null);
++    _bump();
++
++    try {
++      final page = await repo.getComments(id, limit: limit, cursor: null);
++      _commentsBySolutionId[id] = SolutionCommentsState(
+         items: page.items,
++        nextCursor: page.nextCursor,
++        loading: false,
++        loadingMore: false,
++        posting: false,
++        error: null,
++      );
++      _bump();
++    } catch (e) {
++      _commentsBySolutionId[id] = cur.copyWith(
+         loading: false,
++        error: e.toString(),
++      );
++      _bump();
++    }
++  }
++
++  Future<void> loadMoreComments(Solution solution, {int limit = 20}) async {
++    final repo = ref.read(solutionsRepoProvider);
++    final id = solution.id;
++
++    final cur = commentsStateFor(id);
++    final cursor = cur.nextCursor;
++    if (cur.loadingMore || cursor == null || cursor.isEmpty) return;
++
++    _commentsBySolutionId[id] = cur.copyWith(loadingMore: true, error: null);
++    _bump();
++
++    try {
++      final page = await repo.getComments(id, limit: limit, cursor: cursor);
++      final merged = <SolutionComment>[...cur.items, ...page.items];
++      _commentsBySolutionId[id] = cur.copyWith(
++        items: merged,
+         nextCursor: page.nextCursor,
+-        hasMore: page.nextCursor != null,
++        loadingMore: false,
++        error: null,
+       );
++      _bump();
+     } catch (e) {
+-      state = state.copyWith(loading: false, error: e.toString());
++      _commentsBySolutionId[id] = cur.copyWith(
++        loadingMore: false,
++        error: e.toString(),
++      );
++      _bump();
++    }
++  }
++
++  Future<void> addComment(Solution solution, String body) async {
++    final repo = ref.read(solutionsRepoProvider);
++    final id = solution.id;
++
++    final cur = commentsStateFor(id);
++    final text = body.trim();
++    if (cur.posting || text.isEmpty) return;
++
++    _commentsBySolutionId[id] = cur.copyWith(posting: true, error: null);
++    _bump();
++
++    try {
++      final created = await repo.addComment(id, text);
++      final updated = <SolutionComment>[created, ...cur.items];
++      _commentsBySolutionId[id] = cur.copyWith(
++        items: updated,
++        posting: false,
++        error: null,
++      );
++      _bump();
++    } catch (e) {
++      _commentsBySolutionId[id] = cur.copyWith(
++        posting: false,
++        error: e.toString(),
++      );
++      _bump();
+     }
+   }
+ }
+diff --git a/apps/classmate_mobile/lib/features/solutions/solutions_repo.dart b/apps/classmate_mobile/lib/features/solutions/solutions_repo.dart
+index 8327a10..cc1df19 100644
+--- a/apps/classmate_mobile/lib/features/solutions/solutions_repo.dart
++++ b/apps/classmate_mobile/lib/features/solutions/solutions_repo.dart
+@@ -14,19 +14,52 @@ class SolutionsRepo {
+   SolutionsRepo({required this.token});
+   final String? token;
+ 
++  CMApi _api() => CMApi(token: token);
++
+   Future<SolutionsPage> list({
+     required SolutionsFilters filters,
+     required int limit,
+     required String? cursor,
+   }) async {
+-    final api = CMApi(token: token);
++    final q = <String, String>{'limit': '$limit', ...filters.toQuery()};
++    if (cursor != null && cursor.trim().isNotEmpty) q['cursor'] = cursor.trim();
++    final j = await _api().getJson('/api/solutions', query: q);
++    return SolutionsPage.fromJson(Map<String, dynamic>.from(j as Map));
++  }
++
++  Future<Map<String, dynamic>> like(String solutionId) async {
++    final j = await _api().postJson('/api/solutions/$solutionId/like');
++    return Map<String, dynamic>.from(j as Map);
++  }
++
++  Future<Map<String, dynamic>> unlike(String solutionId) async {
++    final j = await _api().deleteJson('/api/solutions/$solutionId/like');
++    return Map<String, dynamic>.from(j as Map);
++  }
++
++  Future<SolutionCommentsPage> getComments(
++    String solutionId, {
++    int limit = 20,
++    String? cursor,
++  }) async {
+     final q = <String, String>{
+-      'limit': limit.toString(),
+-      ...filters.toQuery(),
++      'limit': '$limit',
++      if (cursor != null && cursor.trim().isNotEmpty) 'cursor': cursor.trim(),
+     };
+-    if (cursor != null && cursor.trim().isNotEmpty) q['cursor'] = cursor.trim();
++    final j = await _api().getJson(
++      '/api/solutions/$solutionId/comments',
++      query: q,
++    );
++    return SolutionCommentsPage.fromJson(Map<String, dynamic>.from(j as Map));
++  }
+ 
+-    final j = await api.getJson('/api/solutions', query: q);
+-    return SolutionsPage.fromJson(j);
++  Future<SolutionComment> addComment(String solutionId, String body) async {
++    final j = await _api().postJson(
++      '/api/solutions/$solutionId/comments',
++      body: <String, dynamic>{'body': body},
++    );
++    final m = Map<String, dynamic>.from(j as Map);
++    final c = Map<String, dynamic>.from((m['comment'] as Map?) ?? const {});
++    return SolutionComment.fromJson(c);
+   }
+ }
+diff --git a/apps/classmate_mobile/lib/features/solutions/solutions_screen.dart b/apps/classmate_mobile/lib/features/solutions/solutions_screen.dart
+index 08d8e00..6b9ec76 100644
+--- a/apps/classmate_mobile/lib/features/solutions/solutions_screen.dart
++++ b/apps/classmate_mobile/lib/features/solutions/solutions_screen.dart
+@@ -24,98 +24,11 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
+       builder: (context) {
+         return DraggableScrollableSheet(
+           expand: false,
+-          initialChildSize: 0.7,
++          initialChildSize: 0.78,
+           minChildSize: 0.35,
+           maxChildSize: 0.95,
+           builder: (context, sc) {
+-            return StatefulBuilder(
+-              builder: (context, setState) {
+-                final ctrl = TextEditingController();
+-                final comments = <String>[];
+-
+-                void addComment() {
+-                  final t = ctrl.text.trim();
+-                  if (t.isEmpty) return;
+-                  setState(() {
+-                    comments.insert(0, t);
+-                    ctrl.clear();
+-                  });
+-                }
+-
+-                return ListView(
+-                  controller: sc,
+-                  padding: EdgeInsets.only(
+-                    left: 16,
+-                    right: 16,
+-                    top: 8,
+-                    bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+-                  ),
+-                  children: [
+-                    Text(
+-                      'Comments',
+-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                        fontWeight: FontWeight.w800,
+-                      ),
+-                    ),
+-                    const SizedBox(height: 10),
+-
+-                    if (comments.isEmpty)
+-                      Text(
+-                        'No comments yet. Be the first 👇',
+-                        style: Theme.of(context).textTheme.bodyMedium,
+-                      ),
+-
+-                    if (comments.isNotEmpty) ...[
+-                      for (final c in comments)
+-                        Padding(
+-                          padding: const EdgeInsets.only(bottom: 8),
+-                          child: Container(
+-                            padding: const EdgeInsets.symmetric(
+-                              horizontal: 12,
+-                              vertical: 10,
+-                            ),
+-                            decoration: BoxDecoration(
+-                              color: Theme.of(
+-                                context,
+-                              ).colorScheme.secondaryContainer,
+-                              borderRadius: BorderRadius.circular(14),
+-                            ),
+-                            child: Text(
+-                              c,
+-                              style: Theme.of(context).textTheme.bodyMedium,
+-                            ),
+-                          ),
+-                        ),
+-                    ],
+-
+-                    const SizedBox(height: 12),
+-
+-                    Row(
+-                      children: [
+-                        Expanded(
+-                          child: TextField(
+-                            controller: ctrl,
+-                            textInputAction: TextInputAction.send,
+-                            onSubmitted: (_) => addComment(),
+-                            decoration: const InputDecoration(
+-                              hintText: 'Write a comment…',
+-                            ),
+-                          ),
+-                        ),
+-                        const SizedBox(width: 10),
+-                        FilledButton.icon(
+-                          onPressed: addComment,
+-                          icon: const Icon(Icons.send_rounded),
+-                          label: const Text('Send'),
+-                        ),
+-                      ],
+-                    ),
+-
+-                    const SizedBox(height: 10),
+-                  ],
+-                );
+-              },
+-            );
++            return _CommentsSheet(solution: item, scrollController: sc);
+           },
+         );
+       },
+@@ -651,3 +564,147 @@ class _ChipField extends StatelessWidget {
+     );
+   }
+ }
++
++class _CommentsSheet extends ConsumerStatefulWidget {
++  const _CommentsSheet({
++    required this.solution,
++    required this.scrollController,
++  });
++
++  final Solution solution;
++  final ScrollController scrollController;
++
++  @override
++  ConsumerState<_CommentsSheet> createState() => _CommentsSheetState();
++}
++
++class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
++  final TextEditingController _ctrl = TextEditingController();
++  bool _booted = false;
++
++  @override
++  void dispose() {
++    _ctrl.dispose();
++    super.dispose();
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final c = ref.watch(solutionsControllerProvider.notifier);
++    final st = c.commentsStateFor(widget.solution.id);
++
++    if (!_booted) {
++      _booted = true;
++      Future.microtask(() => c.loadComments(widget.solution));
++    }
++
++    return Column(
++      children: [
++        Expanded(
++          child: ListView(
++            controller: widget.scrollController,
++            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
++            children: [
++              if (st.loading)
++                const Padding(
++                  padding: EdgeInsets.symmetric(vertical: 24),
++                  child: Center(child: CircularProgressIndicator()),
++                )
++              else if (st.error != null)
++                Padding(
++                  padding: const EdgeInsets.symmetric(vertical: 16),
++                  child: Text(st.error!, textAlign: TextAlign.center),
++                )
++              else if (st.items.isEmpty)
++                const Padding(
++                  padding: EdgeInsets.symmetric(vertical: 16),
++                  child: Text('No comments yet.', textAlign: TextAlign.center),
++                )
++              else
++                ...st.items.map(
++                  (x) => Padding(
++                    padding: const EdgeInsets.only(bottom: 12),
++                    child: Row(
++                      crossAxisAlignment: CrossAxisAlignment.start,
++                      children: [
++                        CircleAvatar(
++                          radius: 16,
++                          child: Text(
++                            (x.author.name.isNotEmpty ? x.author.name[0] : '?')
++                                .toUpperCase(),
++                          ),
++                        ),
++                        const SizedBox(width: 10),
++                        Expanded(
++                          child: Column(
++                            crossAxisAlignment: CrossAxisAlignment.start,
++                            children: [
++                              Text(
++                                x.author.name.isEmpty ? 'User' : x.author.name,
++                                style: const TextStyle(
++                                  fontWeight: FontWeight.w600,
++                                ),
++                              ),
++                              const SizedBox(height: 4),
++                              Text(x.body),
++                            ],
++                          ),
++                        ),
++                      ],
++                    ),
++                  ),
++                ),
++              if (!st.loading &&
++                  st.nextCursor != null &&
++                  st.nextCursor!.isNotEmpty)
++                Padding(
++                  padding: const EdgeInsets.only(top: 6),
++                  child: Center(
++                    child: TextButton(
++                      onPressed: st.loadingMore
++                          ? null
++                          : () => c.loadMoreComments(widget.solution),
++                      child: Text(st.loadingMore ? 'Loading…' : 'Load more'),
++                    ),
++                  ),
++                ),
++            ],
++          ),
++        ),
++        Padding(
++          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
++          child: Row(
++            children: [
++              Expanded(
++                child: TextField(
++                  controller: _ctrl,
++                  textInputAction: TextInputAction.send,
++                  onSubmitted: (_) async {
++                    final msg = _ctrl.text;
++                    _ctrl.clear();
++                    await c.addComment(widget.solution, msg);
++                  },
++                  decoration: const InputDecoration(
++                    hintText: 'Write a comment…',
++                  ),
++                ),
++              ),
++              const SizedBox(width: 10),
++              FilledButton.icon(
++                onPressed: st.posting
++                    ? null
++                    : () async {
++                        final msg = _ctrl.text;
++                        _ctrl.clear();
++                        await c.addComment(widget.solution, msg);
++                      },
++                icon: const Icon(Icons.send_rounded),
++                label: Text(st.posting ? 'Sending' : 'Send'),
++              ),
++            ],
++          ),
++        ),
++      ],
++    );
++  }
++}
+diff --git a/services/api/prisma/schema.prisma b/services/api/prisma/schema.prisma
+index 6a731d1..c2887f8 100644
+--- a/services/api/prisma/schema.prisma
++++ b/services/api/prisma/schema.prisma
+@@ -61,6 +61,8 @@ model User {
+   parentNotifications ParentNotification[]
+   solutions           Solution[]
+   notifications       Notification[]
++  solutionLikes       SolutionLike[]
++  solutionComments    SolutionComment[]
+ }
+ 
+ model UserRole {
+@@ -655,13 +657,14 @@ model Solution {
+   author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+   images SolutionImage[]
+ 
++  likes    SolutionLike[]
++  comments SolutionComment[]
++
++  @@unique([createdAt, id])
+   @@index([subject, sourceType])
+   @@index([subject, sourceName, page])
+   @@index([subject, sourceName, page, questionNumber])
+-  @@unique([createdAt, id])
+-
+   @@index([createdAt, id])
+-
+ }
+ 
+ model SolutionImage {
+@@ -691,6 +694,36 @@ model SolutionImage {
+   @@index([sha256])
+ }
+ 
++model SolutionLike {
++  id        String   @id @default(cuid())
++  createdAt DateTime @default(now())
++
++  solutionId String
++  userId     String
++
++  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
++  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
++
++  @@unique([solutionId, userId])
++  @@index([solutionId])
++  @@index([userId])
++}
++
++model SolutionComment {
++  id        String   @id @default(cuid())
++  createdAt DateTime @default(now())
++  body      String
++
++  solutionId String
++  authorId   String
++
++  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
++  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
++
++  @@index([solutionId, createdAt])
++  @@index([authorId])
++}
++
+ model Notification {
+   id        String    @id @default(cuid())
+   userId    String
+@@ -710,7 +743,6 @@ model Notification {
+ 
+ // ### CLASSMATE:MODELS:END
+ 
+-
+ // ---- Session 10: School subject defaults + per-student overrides ----
+ model SchoolGradeSubjectDefault {
+   id        String   @id @default(cuid())
+diff --git a/services/api/src/auth/_deprecated/roles.guard.ts b/services/api/src/auth/_deprecated/roles.guard.ts
+deleted file mode 100644
+index 1be007e..0000000
+--- a/services/api/src/auth/_deprecated/roles.guard.ts
++++ /dev/null
+@@ -1,48 +0,0 @@
+-// @ts-nocheck
+-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+-import { Reflector } from '@nestjs/core';
+-import { ROLES_KEY, AppRole } from './roles.decorator';
+-
+-function normalizeRoles(input: any): string[] {
+-  if (!input) return [];
+-  if (Array.isArray(input)) {
+-    return input
+-      .map((r) =>
+-        typeof r === 'string' ? r : (r?.role ?? r?.name ?? r?.value),
+-      )
+-      .filter(Boolean)
+-      .map((x) => String(x));
+-  }
+-  if (typeof input === 'string') return [input];
+-  // sometimes: { roles: [...] } or { role: 'ADMIN' }
+-  const maybe = input.roles ?? input.role;
+-  return normalizeRoles(maybe);
+-}
+-
+-@Injectable()
+-export class RolesGuard implements CanActivate {
+-  constructor(private reflector: Reflector) {}
+-
+-  canActivate(ctx: ExecutionContext): boolean {
+-    const required = this.reflector.getAllAndOverride<AppRole[]>(ROLES_KEY, [
+-      ctx.getHandler(),
+-      ctx.getClass(),
+-    ]);
+-
+-    if (!required || required.length === 0) return true;
+-
+-    const req = ctx.switchToHttp().getRequest();
+-
+-    // If RolesGuard runs before JwtAuthGuard (global guard ordering),
+-    // req.user isn't set yet. Let JwtAuthGuard handle auth.
+-    if (!req.user) return true;
+-
+-    if (!required?.length) return true;
+-
+-    const roles = normalizeRoles(req.user?.roles ?? req.user?.role ?? []);
+-
+-    return required.some((r) => roles.includes(r));
+-  }
+-}
+-
+-export {};
+diff --git a/services/api/src/solutions/solutions.controller.ts b/services/api/src/solutions/solutions.controller.ts
+index 8bf7297..e13489a 100644
+--- a/services/api/src/solutions/solutions.controller.ts
++++ b/services/api/src/solutions/solutions.controller.ts
+@@ -27,8 +27,8 @@ export class SolutionsController {
+   }
+ 
+   @Get()
+-  list(@Query() q: any) {
+-    return this.solutions.list(q);
++  list(@CurrentUser() user: any, @Query() q: any) {
++    return this.solutions.list(user, q);
+   }
+ 
+   @Get(':id')
+@@ -63,4 +63,25 @@ export class SolutionsController {
+   deleteImage(@CurrentUser() user: any, @Param('imageId') imageId: string) {
+     return this.solutions.deleteImage(user, imageId);
+   }
++
++  @Post(':id/like')
++  like(@CurrentUser() user: any, @Param('id') id: string) {
++    return this.solutions.like(user, id);
++  }
++
++  @Delete(':id/like')
++  unlike(@CurrentUser() user: any, @Param('id') id: string) {
++    return this.solutions.unlike(user, id);
++  }
++
++  @Get(':id/comments')
++  listComments(@Param('id') id: string, @Query() q: any) {
++    return this.solutions.listComments(id, q);
++  }
++
++  @Post(':id/comments')
++  addComment(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: any) {
++    return this.solutions.addComment(user, id, dto);
++  }
+ }
++
+diff --git a/services/api/src/solutions/solutions.service.ts b/services/api/src/solutions/solutions.service.ts
+index 56afcb7..8ee00c0 100644
+--- a/services/api/src/solutions/solutions.service.ts
++++ b/services/api/src/solutions/solutions.service.ts
+@@ -16,11 +16,15 @@ export class SolutionsService {
+     this.ensureStaff(user);
+     return this.prisma.solution.create({
+       data: { ...dto, authorId: user.sub },
+-      include: { images: true },
++      include: {
++        images: true,
++        _count: { select: { likes: true, comments: true } },
++        likes: user?.sub ? { where: { userId: user.sub }, select: { id: true } } : false,
++      },
+     });
+   }
+ 
+-  async list(q: any) {
++  async list(user: any, q: any) {
+     // NOTE: students can list; staff-only is create/update/delete
+     const take = Math.max(1, Math.min(Number(q?.limit ?? 20) || 20, 50));
+ 
+@@ -49,7 +53,11 @@ export class SolutionsService {
+       where,
+       take,
+       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+-      include: { images: true },
++      include: {
++        images: true,
++        _count: { select: { likes: true, comments: true } },
++        likes: user?.sub ? { where: { userId: user.sub }, select: { id: true } } : false,
++      },
+     });
+ 
+     const nextCursor =
+@@ -57,13 +65,25 @@ export class SolutionsService {
+         ? `${rows[rows.length - 1].createdAt.toISOString()}|${rows[rows.length - 1].id}`
+         : null;
+ 
+-    return { items: rows, nextCursor };
++    const items = rows.map((r: any) => ({
++      ...r,
++      likeCount: r?._count?.likes ?? 0,
++      commentCount: r?._count?.comments ?? 0,
++      likedByMe: Array.isArray(r?.likes) && r.likes.length > 0,
++      _count: undefined,
++      likes: undefined,
++    }));
++
++    return { items, nextCursor };
+   }
+ 
+   async get(id: string) {
+     const s = await this.prisma.solution.findUnique({
+       where: { id },
+-      include: { images: true },
++      include: {
++        images: true,
++        _count: { select: { likes: true, comments: true } },
++      },
+     });
+     if (!s) throw new NotFoundException();
+     return s;
+@@ -74,7 +94,11 @@ export class SolutionsService {
+     return this.prisma.solution.update({
+       where: { id },
+       data: dto,
+-      include: { images: true },
++      include: {
++        images: true,
++        _count: { select: { likes: true, comments: true } },
++        likes: user?.sub ? { where: { userId: user.sub }, select: { id: true } } : false,
++      },
+     });
+   }
+ 
+@@ -96,4 +120,110 @@ export class SolutionsService {
+     await this.prisma.solutionImage.delete({ where: { id: imageId } });
+     return { ok: true };
+   }
++
++  async like(user: any, solutionId: string) {
++    const userId = user?.sub;
++    if (!userId) throw new BadRequestException('Missing user');
++    await this.prisma.solutionLike.upsert({
++      where: { solutionId_userId: { solutionId, userId } },
++      create: { solutionId, userId },
++      update: {},
++    });
++    const counts = await this.prisma.solution.findUnique({
++      where: { id: solutionId },
++      select: { _count: { select: { likes: true, comments: true } } },
++    });
++    return {
++      ok: true,
++      likeCount: counts?._count?.likes ?? 0,
++      commentCount: counts?._count?.comments ?? 0,
++      likedByMe: true,
++    };
++  }
++
++  async unlike(user: any, solutionId: string) {
++    const userId = user?.sub;
++    if (!userId) throw new BadRequestException('Missing user');
++    await this.prisma.solutionLike.deleteMany({ where: { solutionId, userId } });
++    const counts = await this.prisma.solution.findUnique({
++      where: { id: solutionId },
++      select: { _count: { select: { likes: true, comments: true } } },
++    });
++    return {
++      ok: true,
++      likeCount: counts?._count?.likes ?? 0,
++      commentCount: counts?._count?.comments ?? 0,
++      likedByMe: false,
++    };
++  }
++
++  async listComments(solutionId: string, q: any) {
++    const take = Math.max(1, Math.min(Number(q?.limit ?? 20) || 20, 50));
++    const cursorRaw = q?.cursor ? String(q.cursor) : '';
++
++    const where: any = { solutionId };
++
++    if (cursorRaw) {
++      const parts = cursorRaw.split('|');
++      if (parts.length !== 2) throw new BadRequestException('Invalid cursor');
++      const [createdAtStr, id] = parts;
++      const createdAt = new Date(createdAtStr);
++      if (!createdAtStr || !id || Number.isNaN(createdAt.getTime())) {
++        throw new BadRequestException('Invalid cursor');
++      }
++
++      where.OR = [{ createdAt: { lt: createdAt } }, { createdAt, id: { lt: id } }];
++    }
++
++    const rows = await this.prisma.solutionComment.findMany({
++      where,
++      take,
++      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
++      select: {
++        id: true,
++        body: true,
++        createdAt: true,
++        authorId: true,
++        author: { select: { id: true, name: true } },
++      },
++    });
++
++    const nextCursor =
++      rows.length === take
++        ? `${rows[rows.length - 1].createdAt.toISOString()}|${rows[rows.length - 1].id}`
++        : null;
++
++    return { items: rows, nextCursor };
++  }
++
++  async addComment(user: any, solutionId: string, dto: any) {
++    const userId = user?.sub;
++    if (!userId) throw new BadRequestException('Missing user');
++    const body = String(dto?.body ?? '').trim();
++    if (!body) throw new BadRequestException('body is required');
++
++    const row = await this.prisma.solutionComment.create({
++      data: { solutionId, authorId: userId, body },
++      select: {
++        id: true,
++        body: true,
++        createdAt: true,
++        authorId: true,
++        author: { select: { id: true, name: true } },
++      },
++    });
++
++    const counts = await this.prisma.solution.findUnique({
++      where: { id: solutionId },
++      select: { _count: { select: { likes: true, comments: true } } },
++    });
++
++    return {
++      ok: true,
++      comment: row,
++      likeCount: counts?._count?.likes ?? 0,
++      commentCount: counts?._count?.comments ?? 0,
++    };
++  }
++
+ }

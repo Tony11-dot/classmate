@@ -61,6 +61,8 @@ model User {
   parentNotifications ParentNotification[]
   solutions           Solution[]
   notifications       Notification[]
+  solutionLikes       SolutionLike[]
+  solutionComments    SolutionComment[]
 }
 
 model UserRole {
@@ -655,13 +657,14 @@ model Solution {
   author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   images SolutionImage[]
 
+  likes    SolutionLike[]
+  comments SolutionComment[]
+
+  @@unique([createdAt, id])
   @@index([subject, sourceType])
   @@index([subject, sourceName, page])
   @@index([subject, sourceName, page, questionNumber])
-  @@unique([createdAt, id])
-
   @@index([createdAt, id])
-
 }
 
 model SolutionImage {
@@ -691,6 +694,36 @@ model SolutionImage {
   @@index([sha256])
 }
 
+model SolutionLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  solutionId String
+  userId     String
+
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([solutionId, userId])
+  @@index([solutionId])
+  @@index([userId])
+}
+
+model SolutionComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  body      String
+
+  solutionId String
+  authorId   String
+
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([solutionId, createdAt])
+  @@index([authorId])
+}
+
 model Notification {
   id        String    @id @default(cuid())
   userId    String
@@ -709,7 +742,6 @@ model Notification {
 }
 
 // ### CLASSMATE:MODELS:END
-
 
 // ---- Session 10: School subject defaults + per-student overrides ----
 model SchoolGradeSubjectDefault {

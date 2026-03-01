@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class Solution {
-  Solution({
+  const Solution({
     required this.id,
     required this.subject,
     required this.sourceType,
@@ -10,8 +13,9 @@ class Solution {
     required this.body,
     required this.createdAt,
     required this.images,
-    this.likeCount = 0,
-    this.commentCount = 0,
+    required this.likeCount,
+    required this.commentCount,
+    required this.likedByMe,
   });
 
   final String id;
@@ -22,10 +26,44 @@ class Solution {
   final String? questionNumber;
   final String? title;
   final String? body;
-  final int likeCount;
-  final int commentCount;
   final String? createdAt;
   final List<Map<String, dynamic>> images;
+
+  final int likeCount;
+  final int commentCount;
+  final bool likedByMe;
+
+  Solution copyWith({
+    String? id,
+    String? subject,
+    String? sourceType,
+    String? sourceName,
+    int? page,
+    String? questionNumber,
+    String? title,
+    String? body,
+    String? createdAt,
+    List<Map<String, dynamic>>? images,
+    int? likeCount,
+    int? commentCount,
+    bool? likedByMe,
+  }) {
+    return Solution(
+      id: id ?? this.id,
+      subject: subject ?? this.subject,
+      sourceType: sourceType ?? this.sourceType,
+      sourceName: sourceName ?? this.sourceName,
+      page: page ?? this.page,
+      questionNumber: questionNumber ?? this.questionNumber,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      createdAt: createdAt ?? this.createdAt,
+      images: images ?? this.images,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      likedByMe: likedByMe ?? this.likedByMe,
+    );
+  }
 
   factory Solution.fromJson(Map<String, dynamic> j) => Solution(
     id: (j['id'] ?? '').toString(),
@@ -33,7 +71,7 @@ class Solution {
     sourceType: (j['sourceType'] ?? '').toString(),
     sourceName: (j['sourceName'] ?? '').toString(),
     page: (j['page'] is int)
-        ? j['page'] as int
+        ? j['page']
         : (j['page'] == null ? null : int.tryParse(j['page'].toString())),
     questionNumber: j['questionNumber']?.toString(),
     title: j['title']?.toString(),
@@ -43,19 +81,23 @@ class Solution {
         ? (j['images'] as List)
               .whereType<Map>()
               .map((e) => Map<String, dynamic>.from(e))
-              .toList()
+              .toList(growable: false)
         : const <Map<String, dynamic>>[],
     likeCount: (j['likeCount'] is int)
-        ? j['likeCount'] as int
+        ? j['likeCount']
         : int.tryParse((j['likeCount'] ?? 0).toString()) ?? 0,
     commentCount: (j['commentCount'] is int)
-        ? j['commentCount'] as int
+        ? j['commentCount']
         : int.tryParse((j['commentCount'] ?? 0).toString()) ?? 0,
+    likedByMe: (j['likedByMe'] is bool)
+        ? j['likedByMe'] as bool
+        : (j['likedByMe']?.toString() == 'true'),
   );
 }
 
+@immutable
 class SolutionsPage {
-  SolutionsPage({required this.items, required this.nextCursor});
+  const SolutionsPage({required this.items, required this.nextCursor});
   final List<Solution> items;
   final String? nextCursor;
 
@@ -64,8 +106,68 @@ class SolutionsPage {
         ? (j['items'] as List)
               .whereType<Map>()
               .map((e) => Solution.fromJson(Map<String, dynamic>.from(e)))
-              .toList()
+              .toList(growable: false)
         : const <Solution>[],
     nextCursor: j['nextCursor']?.toString(),
   );
+}
+
+@immutable
+class SolutionAuthor {
+  const SolutionAuthor({required this.id, required this.name});
+  final String id;
+  final String name;
+
+  factory SolutionAuthor.fromJson(Map<String, dynamic> j) => SolutionAuthor(
+    id: (j['id'] ?? '').toString(),
+    name: (j['name'] ?? '').toString(),
+  );
+}
+
+@immutable
+class SolutionComment {
+  const SolutionComment({
+    required this.id,
+    required this.body,
+    required this.createdAt,
+    required this.authorId,
+    required this.author,
+  });
+
+  final String id;
+  final String body;
+  final String createdAt;
+  final String authorId;
+  final SolutionAuthor author;
+
+  factory SolutionComment.fromJson(Map<String, dynamic> j) => SolutionComment(
+    id: (j['id'] ?? '').toString(),
+    body: (j['body'] ?? '').toString(),
+    createdAt: (j['createdAt'] ?? '').toString(),
+    authorId: (j['authorId'] ?? '').toString(),
+    author: SolutionAuthor.fromJson(
+      Map<String, dynamic>.from((j['author'] as Map?) ?? const {}),
+    ),
+  );
+}
+
+@immutable
+class SolutionCommentsPage {
+  const SolutionCommentsPage({required this.items, required this.nextCursor});
+  final List<SolutionComment> items;
+  final String? nextCursor;
+
+  factory SolutionCommentsPage.fromJson(Map<String, dynamic> j) =>
+      SolutionCommentsPage(
+        items: (j['items'] is List)
+            ? (j['items'] as List)
+                  .whereType<Map>()
+                  .map(
+                    (e) =>
+                        SolutionComment.fromJson(Map<String, dynamic>.from(e)),
+                  )
+                  .toList(growable: false)
+            : const <SolutionComment>[],
+        nextCursor: j['nextCursor']?.toString(),
+      );
 }
