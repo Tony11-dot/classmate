@@ -5,8 +5,6 @@ import '../features/classrooms/classrooms_screen.dart';
 import '../features/solutions/solutions_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/tutor/tutor_screen.dart';
-import '../features/tutor/ui/characters_smoke.dart';
-
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
@@ -37,13 +35,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
          initialLocation: '/schedule',
-    routes: [
-      GoRoute(
-        path: '/tutor-smoke',
-        builder: (context, state) => const CharactersSmoke(),
-      ),
-
-      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+    routes: [      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
 
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
