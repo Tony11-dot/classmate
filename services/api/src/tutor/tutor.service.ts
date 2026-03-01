@@ -8,11 +8,13 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import { hasAnyRole } from '../auth/permissions';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TutorService {
+  constructor(private readonly prisma: PrismaService) {}
+
   private replyRateStore = new Map<string, number[]>();
 
   private buildRefsAndExcerpt(materials: any[]) {
@@ -118,7 +120,6 @@ export class TutorService {
         ];
   }
 
-  private prisma = new PrismaClient();
 
   private requireStudent(user: any) {
     const roles: string[] = user?.roles ?? [];
@@ -222,15 +223,28 @@ export class TutorService {
     if (!dto?.subject || !dto?.title)
       throw new BadRequestException('subject + title required');
 
+    const pickSource = (raw: any) => {
+      const v = String(raw ?? '').trim().toUpperCase();
+      if (v === 'TEACHER') return 'TEACHER' as any;
+      if (v === 'BOOK') return 'BOOK' as any;
+      if (v === 'OTHER') return 'OTHER' as any;
+      return 'BAGRUT' as any;
+    };
+
     const row = await this.prisma.material.create({
       data: {
+        // schema-aligned fields
         subject: String(dto.subject),
-        topic: dto?.topic ? String(dto.topic) : null,
-        level: dto?.level ? String(dto.level) : 'BAGRUT',
         title: String(dto.title),
         content: dto?.content ? String(dto.content) : '',
-        sourceType: dto?.sourceType ? String(dto.sourceType) : null,
-        sourceRef: dto?.sourceRef ? String(dto.sourceRef) : null,
+        grade:
+          dto?.grade !== undefined && dto?.grade !== null
+            ? Number(dto.grade)
+            : dto?.targetGrade !== undefined && dto?.targetGrade !== null
+              ? Number(dto.targetGrade)
+              : null,
+        language: dto?.language ? String(dto.language) : null,
+        source: pickSource(dto?.source ?? dto?.sourceType),
         tags: Array.isArray(dto?.tags) ? dto.tags.map(String) : [],
       } as any,
     });
