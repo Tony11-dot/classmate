@@ -595,6 +595,8 @@ enum TutorCharacterSubject {
 
 model TutorCharacter {
   id        String   @id @default(cuid())
+  createdById String?
+  isPublic    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -620,7 +622,11 @@ model TutorCharacter {
 
   @@index([cohortId])
   @@index([subject])
+  @@unique([cohortId, subject, name])
+  @@index([cohortId, subject])
+  @@index([isPublic, subject])
 }
+
 
 model TutorReplyCache {
   id                 String   @id @default(cuid())

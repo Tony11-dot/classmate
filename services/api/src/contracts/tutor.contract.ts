@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const TutorLanguageSchema = z.enum(['en', 'he', 'ar']);
 export type TutorLanguage = z.infer<typeof TutorLanguageSchema>;
 
-export const TutorSubjectSchema = z.enum([
+export const TutorCharacterSubjectSchema = z.enum([
   'GENERAL',
   'MATH',
   'PHYSICS',
@@ -12,7 +12,7 @@ export const TutorSubjectSchema = z.enum([
   'HEBREW',
   'ARABIC',
 ]);
-export type TutorSubject = z.infer<typeof TutorSubjectSchema>;
+export type TutorCharacterSubject = z.infer<typeof TutorCharacterSubjectSchema>;
 
 export const MaterialSourceSchema = z.enum(['BAGRUT', 'TEACHER', 'BOOK', 'OTHER']);
 export type MaterialSource = z.infer<typeof MaterialSourceSchema>;
@@ -169,7 +169,7 @@ export const TutorCharacterSchema = z.object({
   updatedAt: z.string().datetime(),
 
   cohortId: z.string().nullable(),
-  subject: TutorSubjectSchema,
+  subject: TutorCharacterSubjectSchema,
   name: z.string(),
 
   tone: z.string().nullable(),
@@ -184,7 +184,7 @@ export const TutorCharacterSchema = z.object({
 });
 
 export const ListCharactersQuerySchema = z
-  .object({ subject: TutorSubjectSchema.optional() })
+  .object({ subject: TutorCharacterSubjectSchema.optional() })
   .strict();
 
 export const ListCharactersResponseSchema = OkSchema.extend({
@@ -220,7 +220,7 @@ export const TutorMessageSchema = z.object({
 
 export const CreateSessionBodySchema = z
   .object({
-    subject: TutorSubjectSchema.optional(),
+    subject: TutorCharacterSubjectSchema.optional(),
     characterId: z.string().optional(),
     title: z.string().optional(),
     topic: z.string().optional(),
