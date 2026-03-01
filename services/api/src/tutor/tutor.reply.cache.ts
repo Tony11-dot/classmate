@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaService } from '../prisma/prisma.service';
 
 export function normalizeQuestion(q: string) {
   return String(q ?? '')
@@ -28,7 +28,7 @@ const CACHE_NAMESPACE_USER = 'tutor-cache';
 const CACHE_NAMESPACE_CHARACTER = '__none__';
 const CACHE_MODE: 'deterministic' = 'deterministic';
 
-export async function getCachedReply(prisma: PrismaClient, key: string) {
+export async function getCachedReply(prisma: PrismaService, key: string) {
   const now = new Date();
   const row = await prisma.tutorReplyCache.findFirst({
     where: {
@@ -45,7 +45,7 @@ export async function getCachedReply(prisma: PrismaClient, key: string) {
 }
 
 export async function setCachedReply(
-  prisma: PrismaClient,
+  prisma: PrismaService,
   key: string,
   content: string,
 ) {
