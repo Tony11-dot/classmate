@@ -34,14 +34,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (loggedIn && isLogin) return '/schedule';
       return null;
     },
-         initialLocation: '/schedule',
+    initialLocation: '/schedule',
     routes: [
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
 
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-      GoRoute(path: '/schedule', builder: (_, _) => const ScheduleScreen()),
+          GoRoute(path: '/schedule', builder: (_, _) => const ScheduleScreen()),
           GoRoute(
             path: '/classrooms',
             builder: (_, _) => const ClassroomsScreen(),
