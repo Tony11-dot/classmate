@@ -5,6 +5,7 @@ import '../features/classrooms/classrooms_screen.dart';
 import '../features/solutions/solutions_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/tutor/tutor_screen.dart';
+import '../features/tutor/ui/characters_smoke.dart';
 
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
@@ -35,8 +36,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (loggedIn && isLogin) return '/schedule';
       return null;
     },
-    initialLocation: '/schedule',
+         initialLocation: '/schedule',
     routes: [
+      GoRoute(
+        path: '/tutor-smoke',
+        builder: (context, state) => const CharactersSmoke(),
+      ),
+
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
 
       ShellRoute(
