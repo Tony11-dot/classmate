@@ -314,6 +314,15 @@ class SolutionsController extends Notifier<SolutionsState> {
         error: null,
       );
       _bump();
+
+      // bump commentCount in feed list (list drives counts; /:id may not)
+      final idx = state.items.indexWhere((x) => x.id == id);
+      if (idx != -1) {
+        final curSol = state.items[idx];
+        final nextItems = [...state.items];
+        nextItems[idx] = curSol.copyWith(commentCount: curSol.commentCount + 1);
+        state = state.copyWith(items: nextItems);
+      }
     } catch (e) {
       _commentsBySolutionId[id] = cur.copyWith(
         posting: false,

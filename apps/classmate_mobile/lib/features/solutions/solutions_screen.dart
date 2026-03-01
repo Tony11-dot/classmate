@@ -125,7 +125,9 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                         }
                         return _FeedPage(
                           item: s.items[i],
-                          onLike: () {},
+                          onLike: () => ref
+                              .read(solutionsControllerProvider.notifier)
+                              .toggleLike(s.items[i]),
                           onComment: () => _openComments(context, s.items[i]),
                           onRepost: () {},
                           onSave: () {},
@@ -317,7 +319,11 @@ class _FeedPage extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.favorite_border),
+                              Icon(
+                                item.likedByMe
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                              ),
                               if (item.likeCount > 0) ...[
                                 const SizedBox(width: 6),
                                 Text(
@@ -672,7 +678,12 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            0,
+            16,
+            16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -681,8 +692,14 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) async {
                     final msg = _ctrl.text;
-                    _ctrl.clear();
+                    final before = st.items.length;
                     await c.addComment(widget.solution, msg);
+                    final after = ref
+                        .read(solutionsControllerProvider.notifier)
+                        .commentsStateFor(widget.solution.id)
+                        .items
+                        .length;
+                    if (after > before) _ctrl.clear();
                   },
                   decoration: const InputDecoration(
                     hintText: 'Write a comment…',
@@ -695,8 +712,14 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                     ? null
                     : () async {
                         final msg = _ctrl.text;
-                        _ctrl.clear();
+                        final before = st.items.length;
                         await c.addComment(widget.solution, msg);
+                        final after = ref
+                            .read(solutionsControllerProvider.notifier)
+                            .commentsStateFor(widget.solution.id)
+                            .items
+                            .length;
+                        if (after > before) _ctrl.clear();
                       },
                 icon: const Icon(Icons.send_rounded),
                 label: Text(st.posting ? 'Sending' : 'Send'),
