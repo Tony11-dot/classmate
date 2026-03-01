@@ -69,6 +69,11 @@ export class TutorController {
   createMaterial(@Req() req: any, @Body() body: any) {
     return this.svc.createMaterial(req.user, body);
   }
+// ---- Materials ----
+  @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
+  
+
+
 
   // ---- Sessions ----
   @Roles(Role.STUDENT, Role.ADMIN)
