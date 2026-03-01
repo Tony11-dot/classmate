@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import { HttpClient } from './http-client';
 import {
   AddMessageBodySchema,
@@ -100,6 +100,6 @@ export class TutorSdk {
 
   // ---- misc ----
   async health() {
-    return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall((await import('zod')).z.any()));
+    return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall(z.any()));
   }
 }
