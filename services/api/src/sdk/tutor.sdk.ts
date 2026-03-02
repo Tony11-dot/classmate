@@ -93,7 +93,7 @@ export class TutorSdk {
     return this.http.post(`/tutor/sessions/${encodeURIComponent(id)}/messages`, b, AddMessageResponseSchema);
   }
 
-  async reply(id: string, body: z.input<typeof ReplyBodySchema>) {
+  async reply(id: string, body: z.input<typeof ReplyBodySchema> = {}) {
     const b = ReplyBodySchema.parse(body);
     return this.http.post(`/tutor/sessions/${encodeURIComponent(id)}/reply`, b, ReplyResponseSchema);
   }

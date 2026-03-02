@@ -153,7 +153,7 @@ class TutorRepository {
 
     try {
       final res = await http
-          .post(uri, headers: headers, body: json.encode({'text': text}))
+          .post(uri, headers: headers, body: json.encode({'content': text}))
           .timeout(_timeout);
       if (!_isOk(res)) {
         _fail('postMessage', res);
@@ -164,7 +164,10 @@ class TutorRepository {
     }
   }
 
-  Future<Map<String, dynamic>> reply({required String sessionId}) async {
+  Future<Map<String, dynamic>> reply({
+    required String sessionId,
+    required String content,
+  }) async {
     final headers = await _headers();
     final uri = _uri('/tutor/sessions/$sessionId/reply');
 

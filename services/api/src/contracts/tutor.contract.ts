@@ -252,7 +252,7 @@ export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>;
 export const AddMessageBodySchema = z
   .object({
     role: TutorMessageRoleSchema.optional(), // default USER
-    content: z.string().min(1),
+    content: z.string().min(1).optional(),
     sources: z.array(z.string()).optional(),
   })
   .strict();
@@ -264,12 +264,12 @@ export type AddMessageResponse = z.infer<typeof AddMessageResponseSchema>;
 
 export const ReplyBodySchema = z
   .object({
-    content: z.string().min(1),
+    // reply trigger: empty body allowed; backend uses latest USER message
+    content: z.string().min(1).optional(),
   })
   .strict();
 
 export const ReplyResponseSchema = OkSchema.extend({
-  userMessage: TutorMessageSchema,
   assistantMessage: TutorMessageSchema,
 });
 export type ReplyResponse = z.infer<typeof ReplyResponseSchema>;

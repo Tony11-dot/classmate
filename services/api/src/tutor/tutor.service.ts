@@ -1,13 +1,7 @@
 import { TutorReplyMode } from './tutor.reply.provider';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
 import { hasAnyRole } from '../auth/permissions';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -610,154 +604,44 @@ export class TutorService {
 
     return { ok: true, snapshot: row };
   }
-  async replyToSession(user: any, sessionId: string, dto: any) {
-    const studentId = this.requireStudent(user);
-    if (process.env.E2E !== '1' && process.env.CI !== '1') {
-      const rl = require('./tutor.reply.safety');
-      const r = rl.rateLimitTutor({
-        key: String(studentId),
-        now: Date.now(),
-        windowMs: 60_000,
-        max: 12,
-        store: this.replyRateStore,
-      });
-      if (!r.ok) {
-        throw new HttpException(
-          'Too many tutor replies. Please wait a bit.',
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
-      }
-    }
 
-    const session = await this.prisma.tutorSession.findFirst({
-      where: { id: sessionId, userId: studentId },
-      include: { character: true },
+
+  async replyToSession(user: any, sessionId: string, _body?: any) {
+    const session = await this.prisma.tutorSession.findUnique({
+      where: { id: sessionId },
+      select: { id: true, userId: true, characterId: true, cohortId: true, courseId: true, topic: true },
     });
+
     if (!session) throw new ForbiddenException('Not found');
+    if (session.userId !== user.id) throw new ForbiddenException('Not found');
 
-    const question = dto?.content ? String(dto.content) : '';
-    if (!question.trim()) throw new BadRequestException('content required');
-
-    const profile = await this.prisma.learningProfile.findUnique({
-      where: { userId: studentId },
+    const lastUser = await this.prisma.tutorMessage.findFirst({
+      where: { sessionId: session.id, role: 'USER' },
+      orderBy: { createdAt: 'desc' },
     });
 
-    const brain = await this.prisma.studentBrainSnapshot.findFirst({
-      where: { userId: studentId },
-      orderBy: [{ createdAt: 'desc' }],
-    });
+    if (!lastUser?.content) throw new BadRequestException('no user message');
 
-    const subj =
-      session.character?.subject &&
-      String(session.character.subject) !== 'GENERAL'
-        ? String(session.character.subject)
-        : undefined;
-
-    const grade =
-      profile?.targetGrade ?? session.character?.maxGrade ?? undefined;
-    const language =
-      profile?.preferredLanguage ?? session.character?.language ?? undefined;
-
-    // Retrieve some materials (simple contains search)
-    const q = question.trim();
-    const materials = await this.prisma.material.findMany({
-      where: {
-        ...(subj ? { subject: subj } : {}),
-        ...(grade !== undefined ? { grade: Number(grade) } : {}),
-        ...(language ? { language: String(language) } : {}),
-        OR: [
-          { title: { contains: q, mode: 'insensitive' } },
-          { content: { contains: q, mode: 'insensitive' } },
-          { tags: { has: q } },
-        ],
-      } as any,
-      orderBy: [{ createdAt: 'desc' }],
-      take: 8,
-    });
-
-    // Store USER message
-    const userMsg = await this.prisma.tutorMessage.create({
-      data: {
-        sessionId,
-        role: 'USER' as any,
-        content: question,
-        sources: [],
-      } as any,
-    });
-
-    // Build deterministic assistant reply (Day 7: adaptive)
-    const ctx = this.buildTutorContext({
-      character: session.character,
-      profile,
-      brain,
-      session,
-      studentId,
-    });
-
-    const tone = ctx.effective.tone;
-    const explainStyle = ctx.effective.explainStyle;
-    const verbosity = ctx.effective.verbosity;
-    const emojiOk = ctx.effective.emojiOk;
-
-    const topic = this.guessTopic(question, materials, ctx.weak);
-
-    const t0 = Date.now();
     const gen = await this.generateAssistantReply({
-      question,
-      ctx,
-      materials,
-      topic,
-    });
-    const latencyMs = Date.now() - t0;
-
-    await this.prisma.analyticsEvent.create({
-      data: {
-        actorUserId: studentId,
-        actorRole: 'STUDENT' as any,
-        cohortId: session.cohortId ?? null,
-        studentId,
-        name: 'tutor.reply.generated',
-        payload: {
-          mode: this.getTutorReplyMode(),
-          subject: session.character?.subject ?? null,
-          topic,
-          latencyMs,
-          refsCount: Array.isArray(gen.refs)
-            ? gen.refs.length
-            : String(gen.refs ?? '')
-                .split('|')
-                .filter(Boolean).length,
-        },
-      } as any,
+      question: lastUser.content,
+      ctx: { user, session },
+      materials: [],
+      topic: (session as any).topic ?? 'general',
     });
 
-    const assistantMsg = await this.prisma.tutorMessage.create({
+    const assistantMessage = await this.prisma.tutorMessage.create({
       data: {
-        sessionId,
-        role: 'ASSISTANT' as any,
+        sessionId: session.id,
+        role: 'ASSISTANT',
         content: gen.content,
-        sources: materials.map((m) => m.id),
-      } as any,
+        sources: [],
+      },
     });
 
-    await this.prisma.analyticsEvent.create({
-      data: {
-        actorUserId: studentId,
-        actorRole: 'STUDENT' as any,
-        cohortId: session.cohortId ?? null,
-        courseId: session.courseId ?? null,
-        studentId,
-        name: 'tutor.reply.generated',
-        payload: {
-          sessionId,
-          characterId: session.characterId,
-          materialsUsed: materials.map((m) => m.id),
-        },
-      } as any,
-    });
-
-    return { ok: true, userMessage: userMsg, assistantMessage: assistantMsg };
+    return { ok: true, assistantMessage };
   }
+
+
 
   private async ensureGlobalDefaultCharacters() {
     const subjects = [
