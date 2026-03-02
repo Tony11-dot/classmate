@@ -18,6 +18,12 @@ class TutorRepository {
     return '$b/api';
   }
 
+  Uri _uri(String path, {Map<String, String>? q}) {
+    final base = _apiBase();
+    final u = Uri.parse('$base$path');
+    return (q == null || q.isEmpty) ? u : u.replace(queryParameters: q);
+  }
+
   Future<Map<String, String>> _headers() async {
     final token = await getToken();
     return {
@@ -26,6 +32,9 @@ class TutorRepository {
         'Authorization': 'Bearer $token',
     };
   }
+
+  bool _isOk(http.Response res) =>
+      res.statusCode == 200 || res.statusCode == 201;
 
   Never _fail(String label, http.Response res) {
     final body = res.body;
@@ -37,18 +46,14 @@ class TutorRepository {
 
   Future<List<dynamic>> fetchCharacters({String? subject}) async {
     final headers = await _headers();
-    final base = _apiBase();
-
-    final uri = Uri.parse(
-      subject == null
-          ? '$base/tutor/characters'
-          : '$base/tutor/characters?subject=$subject',
+    final uri = _uri(
+      '/tutor/characters',
+      q: subject == null ? null : {'subject': subject},
     );
 
     try {
       final res = await http.get(uri, headers: headers).timeout(_timeout);
-
-      if (res.statusCode != 200) {
+      if (!_isOk(res)) {
         _fail('fetchCharacters', res);
       }
 
@@ -59,13 +64,67 @@ class TutorRepository {
     }
   }
 
+  Future<List<dynamic>> fetchSessions() async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/sessions');
+
+    try {
+      final res = await http.get(uri, headers: headers).timeout(_timeout);
+      if (!_isOk(res)) {
+        _fail('fetchSessions', res);
+      }
+
+      final jsonBody = json.decode(res.body) as Map<String, dynamic>;
+      return (jsonBody['sessions'] as List<dynamic>?) ?? <dynamic>[];
+    } on SocketException catch (e) {
+      throw Exception('fetchSessions network error: $e (uri=$uri)');
+    }
+  }
+
+  Future<List<dynamic>> fetchStudentSubjects() async {
+    final headers = await _headers();
+    final uri = _uri('/student/subjects');
+
+    try {
+      final res = await http.get(uri, headers: headers).timeout(_timeout);
+      if (!_isOk(res)) {
+        _fail('fetchStudentSubjects', res);
+      }
+
+      final jsonBody = json.decode(res.body) as Map<String, dynamic>;
+
+      // preferred: { ok, ..., effective: [] }
+      final effective = jsonBody['effective'];
+      if (effective is List) {
+        return effective.cast<dynamic>();
+      }
+
+      // fallback shapes
+      final subjects = jsonBody['subjects'];
+      if (subjects is List) {
+        return subjects.cast<dynamic>();
+      }
+
+      final v = jsonBody['data'] ?? jsonBody['items'] ?? jsonBody['result'];
+      if (v is List) {
+        return v.cast<dynamic>();
+      }
+      if (v is Map && v['subjects'] is List) {
+        return (v['subjects'] as List).cast<dynamic>();
+      }
+
+      return <dynamic>[];
+    } on SocketException catch (e) {
+      throw Exception('fetchStudentSubjects network error: $e (uri=$uri)');
+    }
+  }
+
   Future<Map<String, dynamic>> createSession({
     String? characterId,
     String? subject,
   }) async {
     final headers = await _headers();
-    final base = _apiBase();
-    final uri = Uri.parse('$base/tutor/sessions');
+    final uri = _uri('/tutor/sessions');
 
     final payload = <String, dynamic>{
       ...?(characterId == null ? null : {'characterId': characterId}),
@@ -76,57 +135,49 @@ class TutorRepository {
       final res = await http
           .post(uri, headers: headers, body: json.encode(payload))
           .timeout(_timeout);
-
-      if (res.statusCode != 200) {
+      if (!_isOk(res)) {
         _fail('createSession', res);
       }
-
       return json.decode(res.body) as Map<String, dynamic>;
     } on SocketException catch (e) {
       throw Exception('createSession network error: $e (uri=$uri)');
     }
   }
 
-  Future<List<dynamic>> fetchSessions() async {
+  Future<Map<String, dynamic>> postMessage({
+    required String sessionId,
+    required String text,
+  }) async {
     final headers = await _headers();
-    final base = _apiBase();
-    final uri = Uri.parse('$base/tutor/sessions');
+    final uri = _uri('/tutor/sessions/$sessionId/messages');
 
     try {
-      final res = await http.get(uri, headers: headers).timeout(_timeout);
-      if (res.statusCode != 200) _fail('fetchSessions', res);
-      final jsonBody = json.decode(res.body) as Map<String, dynamic>;
-      return (jsonBody['sessions'] as List<dynamic>?) ?? <dynamic>[];
+      final res = await http
+          .post(uri, headers: headers, body: json.encode({'text': text}))
+          .timeout(_timeout);
+      if (!_isOk(res)) {
+        _fail('postMessage', res);
+      }
+      return json.decode(res.body) as Map<String, dynamic>;
     } on SocketException catch (e) {
-      throw Exception('fetchSessions network error: $e (uri=$uri)');
+      throw Exception('postMessage network error: $e (uri=$uri)');
     }
   }
 
-  Future<List<dynamic>> fetchStudentSubjects() async {
+  Future<Map<String, dynamic>> reply({required String sessionId}) async {
     final headers = await _headers();
-    final base = _apiBase();
-    final uri = Uri.parse('$base/student/subjects');
+    final uri = _uri('/tutor/sessions/$sessionId/reply');
 
     try {
-      final res = await http.get(uri, headers: headers).timeout(_timeout);
-      if (res.statusCode != 200) _fail('fetchStudentSubjects', res);
-      final jsonBody = json.decode(res.body) as Map<String, dynamic>;
-
-      // best-effort: accept several shapes
-      final v =
-          jsonBody['subjects'] ??
-          jsonBody['data'] ??
-          jsonBody['items'] ??
-          jsonBody['result'];
-      if (v is List) {
-        return v.cast<dynamic>();
+      final res = await http
+          .post(uri, headers: headers, body: json.encode({}))
+          .timeout(_timeout);
+      if (!_isOk(res)) {
+        _fail('reply', res);
       }
-      if (v is Map && v['subjects'] is List) {
-        return (v['subjects'] as List).cast<dynamic>();
-      }
-      return <dynamic>[];
+      return json.decode(res.body) as Map<String, dynamic>;
     } on SocketException catch (e) {
-      throw Exception('fetchStudentSubjects network error: $e (uri=$uri)');
+      throw Exception('reply network error: $e (uri=$uri)');
     }
   }
 }
