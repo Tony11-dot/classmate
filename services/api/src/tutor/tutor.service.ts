@@ -1,5 +1,7 @@
 import { TutorReplyMode } from './tutor.reply.provider';
 import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import type { MessageEvent } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
 import { hasAnyRole } from '../auth/permissions';
@@ -640,6 +642,64 @@ export class TutorService {
 
     return { ok: true, assistantMessage };
   }
+
+  replyToSessionStream(user: any, sessionId: string): import('rxjs').Observable<MessageEvent> {
+    return new Observable<MessageEvent>((subscriber) => {
+      (async () => {
+        try {
+          const session = await this.prisma.tutorSession.findUnique({
+            where: { id: sessionId },
+            select: { id: true, userId: true, characterId: true, cohortId: true, courseId: true, topic: true },
+          });
+
+          if (!session) throw new ForbiddenException('Not found');
+          if (session.userId !== user.id) throw new ForbiddenException('Not found');
+
+          const lastUser = await this.prisma.tutorMessage.findFirst({
+            where: { sessionId: session.id, role: 'USER' },
+            orderBy: { createdAt: 'desc' },
+          });
+
+          if (!lastUser?.content) throw new BadRequestException('no user message');
+
+          const gen = await this.generateAssistantReply({
+            question: lastUser.content,
+            ctx: { user, session },
+            materials: [],
+            topic: (session as any).topic ?? 'general',
+          });
+
+          const full = String(gen.content ?? '');
+          const chunkSize = 48;
+
+          for (let i = 0; i < full.length; i += chunkSize) {
+            const delta = full.slice(i, i + chunkSize);
+            subscriber.next({ data: { type: 'chunk', delta } });
+            await Promise.resolve();
+          }
+
+          const assistantMessage = await this.prisma.tutorMessage.create({
+            data: {
+              sessionId: session.id,
+              role: 'ASSISTANT',
+              content: full,
+              sources: [],
+            },
+          });
+
+          subscriber.next({ data: { type: 'done', assistantMessage } });
+          subscriber.complete();
+        } catch (e: any) {
+          subscriber.next({
+            data: { type: 'error', message: String(e?.message ?? 'error') },
+          });
+          subscriber.complete();
+        }
+      })();
+    });
+  }
+
+
 
 
 

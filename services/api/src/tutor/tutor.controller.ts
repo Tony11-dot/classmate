@@ -1,18 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Sse, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TutorService } from './tutor.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+import { Observable } from 'rxjs';
+import type { MessageEvent } from '@nestjs/common';
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
@@ -107,4 +100,12 @@ export class TutorController {
   reply(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.replyToSession(req.user, id, body);
   }
+
+  @Roles(Role.STUDENT, Role.ADMIN)
+  @Sse('sessions/:id/reply/stream')
+  replyStream(@Req() req: any, @Param('id') id: string): Observable<MessageEvent> {
+    return this.svc.replyToSessionStream(req.user, id);
+  }
+
+
 }

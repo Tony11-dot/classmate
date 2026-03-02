@@ -269,6 +269,14 @@ export const ReplyBodySchema = z
   })
   .strict();
 
+
+export const ReplyStreamEventSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('chunk'), delta: z.string() }).strict(),
+  z.object({ type: z.literal('done'), assistantMessage: TutorMessageSchema }).strict(),
+  z.object({ type: z.literal('error'), message: z.string() }).strict(),
+]);
+export type ReplyStreamEvent = z.infer<typeof ReplyStreamEventSchema>;
+
 export const ReplyResponseSchema = OkSchema.extend({
   assistantMessage: TutorMessageSchema,
 });

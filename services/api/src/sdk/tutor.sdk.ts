@@ -20,6 +20,7 @@ import {
   RebuildMyBrainSnapshotResponseSchema,
   ReplyBodySchema,
   ReplyResponseSchema,
+  ReplyStreamEventSchema,
   UpsertMyLearningProfileBodySchema,
   UpsertMyLearningProfileResponseSchema,
 } from '../contracts/tutor.contract';
@@ -95,10 +96,21 @@ export class TutorSdk {
 
   async reply(id: string, body: z.input<typeof ReplyBodySchema> = {}) {
     const b = ReplyBodySchema.parse(body);
-    return this.http.post(`/tutor/sessions/${encodeURIComponent(id)}/reply`, b, ReplyResponseSchema);
+    return this.http.post(
+      `/tutor/sessions/${encodeURIComponent(id)}/reply`,
+      b,
+      ReplyResponseSchema,
+    );
   }
 
-  // ---- misc ----
+  async *replyStream(
+    id: string,
+  ): AsyncGenerator<z.infer<typeof ReplyStreamEventSchema>> {
+    // Minimal compile-safe implementation (replace with real SSE parsing later).
+    yield { type: 'error', message: 'replyStream not implemented in tutor.sdk runtime' } as any;
+  }
+
+
   async health() {
     return this.http.get('/tutor/materials' + qs({ take: 1 }), OkSchema.catchall(z.any()));
   }
