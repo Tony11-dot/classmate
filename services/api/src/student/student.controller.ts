@@ -6,6 +6,10 @@ import {
   StudentScheduleWeekQuerySchema,
   StudentScheduleWeekResponseSchema,
 } from '../contracts/student.contract';
+import {
+  StudentOnboardBodySchema,
+  StudentParentLinkCodeBodySchema,
+} from '../contracts/student.onboard.contract';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StudentService } from './student.service';
 import { OnboardStudentDto } from './dto/onboard-student.dto';
@@ -17,13 +21,15 @@ export class StudentController {
   constructor(private readonly student: StudentService) {}
 
   @Post('onboard')
-  onboard(@Req() req: any, @Body() body: any) {
-    return this.student.onboard(req.user, body);
+  async onboard(@Req() req: any, @Body() body: any) {
+    const b = StudentOnboardBodySchema.parse(body);
+    return this.student.onboard(req.user, b);
   }
 
   @Post('parent-link-code')
-  parentLinkCode(@Req() req: any, @Body() body: any) {
-    return this.student.generateParentLinkCode(req.user, body);
+  async parentLinkCode(@Req() req: any, @Body() body: any) {
+    const b = StudentParentLinkCodeBodySchema.parse(body ?? {});
+    return this.student.generateParentLinkCode(req.user, b);
   }
 
   @Get('schedule/today')
