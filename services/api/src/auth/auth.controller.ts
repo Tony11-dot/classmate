@@ -19,13 +19,13 @@ export class AuthController {
     if (!u) return null;
 
     // Return the user object (normalized/whitelisted) with roles + actingStudentId.
-    return {
+    return require('../contracts/auth.contract').AuthMeResponseSchema.parse({
       id: u.id ?? null,
       email: u.email ?? null,
       roles: u.roles ?? [],
       actingStudentId: u.actingStudentId ?? null,
       schoolId: u.schoolId ?? null,
       cohortId: u.cohortId ?? null,
-    };
+    });
   }
 }

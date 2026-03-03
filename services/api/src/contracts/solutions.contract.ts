@@ -1,25 +1,38 @@
 import { z } from 'zod';
 
-export const CursorSchema = z.string().min(1);
-
 export const SolutionsListQuerySchema = z.object({
-  limit: z.coerce.number().int().positive().max(50).optional(),
-  cursor: CursorSchema.optional(),
+  q: z.string().optional(),
+  subject: z.string().optional(),
+  grade: z.coerce.number().int().optional(),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
 });
+
+export const SolutionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  subject: z.string().nullable().optional(),
+  grade: z.number().int().nullable().optional(),
+  createdAt: z.string(),
+  authorId: z.string().nullable().optional(),
+  likeCount: z.number().int().default(0),
+  commentCount: z.number().int().default(0),
+});
+
+export const SolutionsListResponseSchema = z.object({
+  items: z.array(SolutionSchema).default([]),
+  nextCursor: z.string().nullable().optional(),
+});
+
+export const SolutionsCreateBodySchema = z.object({
+  title: z.string().min(1),
+  body: z.string().min(1),
+  subject: z.string().optional(),
+  grade: z.coerce.number().int().optional(),
+});
+
 export type SolutionsListQuery = z.infer<typeof SolutionsListQuerySchema>;
-
-export const SolutionSchema = z
-  .object({
-    id: z.string().min(1),
-    createdAt: z.string().optional(),
-  })
-  .passthrough();
 export type Solution = z.infer<typeof SolutionSchema>;
-
-export const SolutionsListResponseSchema = z
-  .object({
-    items: z.array(SolutionSchema),
-    nextCursor: CursorSchema.nullable().optional(),
-  })
-  .passthrough();
 export type SolutionsListResponse = z.infer<typeof SolutionsListResponseSchema>;
+export type SolutionsCreateBody = z.infer<typeof SolutionsCreateBodySchema>;
