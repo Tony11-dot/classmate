@@ -21,14 +21,14 @@ class SolutionImage {
   final int? height;
 
   factory SolutionImage.fromJson(Map<String, dynamic> j) => SolutionImage(
-        id: (j['id'] ?? '').toString(),
-        storagePath: (j['storagePath'] ?? '').toString(),
-        url: (j['url'] ?? '').toString(),
-        mime: (j['mime'] ?? '').toString(),
-        kind: (j['kind'] ?? '').toString(),
-        width: j['width'] is num ? (j['width'] as num).toInt() : null,
-        height: j['height'] is num ? (j['height'] as num).toInt() : null,
-      );
+    id: (j['id'] ?? '').toString(),
+    storagePath: (j['storagePath'] ?? '').toString(),
+    url: (j['url'] ?? '').toString(),
+    mime: (j['mime'] ?? '').toString(),
+    kind: (j['kind'] ?? '').toString(),
+    width: j['width'] is num ? (j['width'] as num).toInt() : null,
+    height: j['height'] is num ? (j['height'] as num).toInt() : null,
+  );
 }
 
 @immutable
@@ -58,25 +58,28 @@ class Solution {
   final List<SolutionImage> images;
 
   factory Solution.fromJson(Map<String, dynamic> j) => Solution(
-        id: (j['id'] ?? '').toString(),
-        subject: (j['subject'] ?? '').toString(),
-        sourceType: (j['sourceType'] ?? '').toString(),
-        sourceName: (j['sourceName'] ?? '').toString(),
-        page: j['page'] is num ? (j['page'] as num).toInt() : null,
-        questionNumber: (j['questionNumber'] ?? '').toString(),
-        title: j['title'] == null ? null : (j['title']).toString(),
-        body: j['body'] == null ? null : (j['body']).toString(),
-        createdAt: j['createdAt'] == null
-            ? null
-            : DateTime.tryParse(j['createdAt'].toString()),
-        images: (j['images'] is List)
-            ? (j['images'] as List)
-                .whereType<Map>()
-                .map((e) => SolutionImage.fromJson(
-                    e.map((k, v) => MapEntry(k.toString(), v))))
-                .toList(growable: false)
-            : const <SolutionImage>[],
-      );
+    id: (j['id'] ?? '').toString(),
+    subject: (j['subject'] ?? '').toString(),
+    sourceType: (j['sourceType'] ?? '').toString(),
+    sourceName: (j['sourceName'] ?? '').toString(),
+    page: j['page'] is num ? (j['page'] as num).toInt() : null,
+    questionNumber: (j['questionNumber'] ?? '').toString(),
+    title: j['title'] == null ? null : (j['title']).toString(),
+    body: j['body'] == null ? null : (j['body']).toString(),
+    createdAt: j['createdAt'] == null
+        ? null
+        : DateTime.tryParse(j['createdAt'].toString()),
+    images: (j['images'] is List)
+        ? (j['images'] as List)
+              .whereType<Map>()
+              .map(
+                (e) => SolutionImage.fromJson(
+                  e.map((k, v) => MapEntry(k.toString(), v)),
+                ),
+              )
+              .toList(growable: false)
+        : const <SolutionImage>[],
+  );
 }
 
 @immutable

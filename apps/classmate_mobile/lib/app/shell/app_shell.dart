@@ -29,7 +29,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/classrooms')) return 'Classrooms';
     if (loc.startsWith('/solutions')) return 'Solutions';
     if (loc.startsWith('/insights')) return 'Insights';
-    if (loc.startsWith('/tutor')) return 'AI Tutor';
+    if (loc.startsWith('/tutor')) return 'NOVA';
 
     if (loc.startsWith('/attendance')) return 'Attendance';
     if (loc.startsWith('/grades')) return 'Grades';
@@ -80,7 +80,7 @@ class AppShell extends ConsumerWidget {
           NavigationDestination(
             icon: Icon(Icons.psychology_outlined),
             selectedIcon: Icon(Icons.psychology),
-            label: 'Tutor',
+            label: 'NOVA',
           ),
         ],
       ),

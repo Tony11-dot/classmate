@@ -41,7 +41,9 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: (0.55))),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: (0.55)),
+          ),
           color: cs.surface.withValues(alpha: (0.55)),
         ),
         child: Row(
@@ -148,7 +150,9 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
             decoration: BoxDecoration(
               borderRadius: radius,
               color: cs.surface.withValues(alpha: (0.72)),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: (0.6))),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: (0.6)),
+              ),
               boxShadow: [
                 BoxShadow(
                   blurRadius: 28,

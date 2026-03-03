@@ -15,6 +15,7 @@ class LoginScreen extends ConsumerWidget {
           child: const Text('Simulate Login'),
           onPressed: () async {
             await ref.read(authSessionProvider).simLogin();
+            await ref.read(authSessionProvider).setDisplayName('Tony');
             if (!context.mounted) return;
             context.go('/schedule');
           },

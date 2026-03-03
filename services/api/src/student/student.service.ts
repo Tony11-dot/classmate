@@ -280,24 +280,29 @@ export class StudentService {
   }
 
   // ---- Session 10: Effective subjects for student (defaults + override) ----
+  // ---- Session 10: Effective subjects for student (defaults + override) ----
   async mySubjects(user: any) {
-    // allow ADMIN for e2e/testing
     if (!user?.roles?.includes('STUDENT') && !user?.roles?.includes('ADMIN')) {
       throw new ForbiddenException('Student only');
     }
-
+  
     const studentId = user.sub ?? user.id;
     if (!studentId) throw new ForbiddenException('Not authenticated');
-
-    const schoolId = String(user?.schoolId ?? 'test-school');
-
+  
+    let schoolId = String(user?.schoolId ?? 'test-school');
+  
+    const __h = (user as any)?.__headers ?? null;
+    const __devSchoolRaw = __h?.['x-dev-school-id'] ?? __h?.['X-DEV-SCHOOL-ID'] ?? null;
+    if (__devSchoolRaw) schoolId = String(__devSchoolRaw);
+  
     // best-effort grade from cohort
     let grade: number | null = null;
+  
     const sp = await (this.prisma as any).studentProfile?.findUnique?.({
       where: { userId: studentId } as any,
       select: { cohortId: true } as any,
     });
-
+  
     if (sp?.cohortId) {
       const c = await (this.prisma as any).cohort?.findUnique?.({
         where: { id: sp.cohortId } as any,
@@ -305,25 +310,41 @@ export class StudentService {
       });
       if (c?.grade !== undefined && c?.grade !== null) grade = Number(c.grade);
     }
-
-    const defaults =
+  
+    // DEV HELPERS: allow overriding grade via headers when using dev auth headers
+    const __h2 = (user as any)?.__headers ?? null;
+    const __devGradeRaw = __h2?.['x-dev-grade'] ?? __h2?.['X-DEV-GRADE'] ?? null;
+    const __devGrade = __devGradeRaw !== null && __devGradeRaw !== undefined ? Number(__devGradeRaw) : null;
+    if ((grade === null || grade === undefined) && __devGrade !== null && !Number.isNaN(Number(__devGrade))) {
+      grade = Number(__devGrade);
+    }
+  
+    const defaultsRow =
       grade !== null && !Number.isNaN(Number(grade))
-        ? (subjectDefaultsBySchoolGrade.get(defaultsKey(schoolId, Number(grade))) ?? [])
-        : [];
-
-    const ov = studentSubjectOverrides.get(String(studentId)) ?? null;
+        ? await this.prisma.schoolGradeSubjectDefault.findUnique({
+            where: { schoolId_grade_unique: { schoolId, grade: Number(grade) } },
+          })
+        : null;
+  
+    const defaults = defaultsRow?.subjects ?? [];
+  
+    const ovRow = await this.prisma.studentSubjectOverride.findUnique({
+      where: { userId: String(studentId) },
+      select: { userId: true, enabled: true, subjects: true },
+    });
+  
+    const override = ovRow ? { userId: ovRow.userId, enabled: ovRow.enabled, subjects: ovRow.subjects } : null;
+  
     const effective =
-      ov?.enabled && Array.isArray(ov?.subjects) && ov.subjects.length ? ov.subjects : defaults;
-
+      override?.enabled && Array.isArray(override?.subjects) && override.subjects.length ? override.subjects : defaults;
+  
     return {
       ok: true,
       schoolId,
       grade,
       defaults,
-      override: ov ? { userId: String(studentId), ...ov } : null,
+      override,
       effective,
     };
   }
-
-
 }

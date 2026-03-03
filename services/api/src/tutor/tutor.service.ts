@@ -1,5 +1,22 @@
-import { TutorReplyMode } from './tutor.reply.provider';
+import { TutorReplyMode, generateAssistantReplyStream } from './tutor.reply.provider';
 import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
+function toTutorRole(raw: any) {
+  const v = String(raw ?? '').trim().toUpperCase();
+  if (v in ({ USER:1, ASSISTANT:1, SYSTEM:1 })) return v;
+  if (v in ({ U:1, HUMAN:1 })) return 'USER';
+  if (v in ({ A:1, BOT:1, AI:1 })) return 'ASSISTANT';
+  if (v in ({ S:1 })) return 'SYSTEM';
+
+  // common lowercase inputs
+  const lc = String(raw ?? '').trim().toLowerCase();
+  if (lc == 'user') return 'USER';
+  if (lc == 'assistant') return 'ASSISTANT';
+  if (lc == 'system') return 'SYSTEM';
+
+  return 'USER';
+}
+
 import type { MessageEvent } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { basicTutorSafetyCheck } from './tutor.reply.safety';
@@ -410,7 +427,7 @@ export class TutorService {
     const msg = await this.prisma.tutorMessage.create({
       data: {
         sessionId,
-        role: role as any,
+        role: 'USER',
         content,
         sources: Array.isArray(dto?.sources) ? dto.sources.map(String) : [],
       } as any,
@@ -643,61 +660,95 @@ export class TutorService {
     return { ok: true, assistantMessage };
   }
 
-  replyToSessionStream(user: any, sessionId: string): import('rxjs').Observable<MessageEvent> {
-    return new Observable<MessageEvent>((subscriber) => {
-      (async () => {
-        try {
-          const session = await this.prisma.tutorSession.findUnique({
-            where: { id: sessionId },
-            select: { id: true, userId: true, characterId: true, cohortId: true, courseId: true, topic: true },
-          });
+  replyToSessionStream(user: any, sessionId: string, opts?: { displayName?: string; novaSettings?: string }): Observable<MessageEvent> {
+  return new Observable((subscriber) => {
+    (async () => {
+      let eventId = 0;
+      let acc = '';
 
-          if (!session) throw new ForbiddenException('Not found');
-          if (session.userId !== user.id) throw new ForbiddenException('Not found');
+      try {
+        // 1) Load last USER message from DB (real prompt)
+        const msgs = await this.prisma.tutorMessage.findMany({
+          where: { sessionId },
+          orderBy: { createdAt: 'asc' },
+          take: 200,
+        });
 
-          const lastUser = await this.prisma.tutorMessage.findFirst({
-            where: { sessionId: session.id, role: 'USER' },
-            orderBy: { createdAt: 'desc' },
-          });
+        const lastUser = [...msgs].reverse().find((m) => m.role === 'USER');
+        const userText = (lastUser?.content ?? '').toString().trim();
 
-          if (!lastUser?.content) throw new BadRequestException('no user message');
-
-          const gen = await this.generateAssistantReply({
-            question: lastUser.content,
-            ctx: { user, session },
-            materials: [],
-            topic: (session as any).topic ?? 'general',
-          });
-
-          const full = String(gen.content ?? '');
-          const chunkSize = 48;
-
-          for (let i = 0; i < full.length; i += chunkSize) {
-            const delta = full.slice(i, i + chunkSize);
-            subscriber.next({ data: { type: 'chunk', delta } });
-            await Promise.resolve();
-          }
-
-          const assistantMessage = await this.prisma.tutorMessage.create({
-            data: {
-              sessionId: session.id,
-              role: 'ASSISTANT',
-              content: full,
-              sources: [],
-            },
-          });
-
-          subscriber.next({ data: { type: 'done', assistantMessage } });
+        if (!userText) {
+          subscriber.next(({ id: String(++eventId), data: { type: 'error', message: 'No user message found in this session.' } } as any));
           subscriber.complete();
-        } catch (e: any) {
-          subscriber.next({
-            data: { type: 'error', message: String(e?.message ?? 'error') },
-          });
-          subscriber.complete();
+          return;
         }
-      })();
-    });
-  }
+
+        // 2) Founder Tony system prompt (NOVA persona)
+        
+        // ---- QUIZ STABILITY GUARD ----
+        const lastAssistant = [...msgs].reverse().find((m) => m.role === 'ASSISTANT')?.content?.toString?.() ?? '';
+        const userLooksLikeAnswer = /(^|\n)\s*(a\s*=|f\s*=|answer|q\d+|because|therefore|\d+\s*(n|kg|m\/s))/i.test(userText);
+        const assistantLooksLikeQuiz = /(mini-quiz|quick quiz|\n\s*\d+\.\s+)/i.test(lastAssistant);
+
+const system =
+          `You are NOVA, the AI tutor inside ClassMate.\n\nCRITICAL founder wording rule:\n- Never say "you created me" or "you made me" to users in general.\n- Instead say: "I was created by Tony Aboud" (third-person).\n- Only if the user is Tony Aboud, you may say "Tony, you created me".\n- When referencing the founder, always say the full name: "Tony Aboud" (not "you").\n\n` +
+          `Tony Aboud is the Founder of ClassMate and the creator of this AI.
+` +
+          `When appropriate, briefly reference:\n` +
+          `- Tony is a CS student and full-stack builder\n` +
+          `- He loves AI/ML, physics, and clean Apple-style UI\n` +
+          `- He prefers Bagrut-level explanations with mini-quizzes\n\n` +
+          `Answer at Bagrut level only. Friendly, clear, step-by-step. If helpful, end with up to 2 mini-quiz questions.\n` +
+          (assistantLooksLikeQuiz && userLooksLikeAnswer
+            ? `\n\n=== MODE ===\nGRADE_ONLY: The user is answering an existing quiz. Grade and correct; do NOT create new quiz questions.`
+            : ``);
+
+
+        const user = userText;
+
+        // 3) Stream from OpenAI provider
+        // ---- CONTEXT: load recent messages for this session ----
+        const recent = await this.prisma.tutorMessage.findMany({
+          where: { sessionId },
+          orderBy: { createdAt: 'asc' },
+          take: 40,
+        });
+        const messages = recent.map((m: any) => ({ role: m.role, content: m.content }));
+
+        for await (const delta of generateAssistantReplyStream({ system, user, messages, displayName: opts?.displayName, novaSettings: opts?.novaSettings })) {
+          if (typeof delta === 'string' && delta.length) {
+            acc += delta;
+            subscriber.next(({ id: String(++eventId), data: { type: 'chunk', delta } } as any));
+          }
+        }
+
+        // 4) Persist assistant message to DB (optional but recommended)
+        const saved = await this.prisma.tutorMessage.create({
+          data: {
+            sessionId,
+            role: 'ASSISTANT',
+            content: acc,
+          },
+        });
+
+        const assistantMessage = {
+          id: saved.id,
+          createdAt: saved.createdAt?.toISOString?.() ?? new Date().toISOString(),
+          sessionId,
+          role: 'ASSISTANT',
+          content: acc,
+        };
+
+        subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources: [] } } as any));
+        subscriber.complete();
+      } catch (e: any) {
+        subscriber.next(({ id: String(++eventId), data: { type: 'error', message: String(e?.message ?? e) } } as any));
+        subscriber.complete();
+      }
+    })();
+  });
+}
+
 
 
 

@@ -1,0 +1,42 @@
+import { getOpenAIClient } from './providers/openai.provider';
+
+export type TutorReplyMode = 'deterministic' | 'llm';
+
+export type TutorReplyGen = {
+  content: string;
+  refs?: string;
+  excerpt?: string;
+};
+
+export type TutorReplyProviderArgs = {
+  question: string;
+  topic: string;
+  ctx: any;
+  materials: any[];
+};
+
+export interface TutorReplyProvider {
+  mode: TutorReplyMode;
+  generate(args: TutorReplyProviderArgs): Promise<TutorReplyGen>;
+}
+export async function* generateAssistantReplyStream(args: {
+  system: string;
+  user: string;
+}): AsyncGenerator<string> {
+  const client = getOpenAIClient();
+  const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+
+  const stream = await client.chat.completions.create({
+    model,
+    stream: true,
+    messages: [
+      { role: 'system', content: args.system },
+      { role: 'user', content: args.user },
+    ],
+  });
+
+  for await (const chunk of stream) {
+    const delta = chunk.choices?.[0]?.delta?.content;
+    if (typeof delta === 'string' && delta.length) yield delta;
+  }
+}

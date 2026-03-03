@@ -6,7 +6,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "bash -lc 'set -euo pipefail; if [ -f .env.prod ]; then set -a; source .env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/src/main.js'",
+    "start:prod": "bash -lc 'set -euo pipefail; if [ -f .env.prod ]; then set -a; source .env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/main.js'",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "pnpm -s prisma generate && pnpm -s db:push:test && NODE_ENV=test jest -c jest.config.cjs --testPathIgnorePatterns=e2e\\.spec\\.ts$",
     "test:watch": "jest --watch",
@@ -35,7 +35,7 @@
     "prod:log": "tail -n 120 /tmp/api-prod.log",
     "prod:who": "bash scripts/port-who.sh 3000",
     "prod:stop": "bash -lc 'pids=$(lsof -tiTCP:${API_PORT:-3000} -sTCP:LISTEN || true); if [ -n \"$pids\" ]; then kill -9 $pids; echo stopped:$pids; else echo none; fi'",
-    "start:prod:safe": "[ -n \"$JWT_SECRET\" ] || (echo \"❌ JWT_SECRET required\" && exit 1); NODE_ENV=production node dist/src/main.js",
+    "start:prod:safe": "[ -n \"$JWT_SECRET\" ] || (echo \"❌ JWT_SECRET required\" && exit 1); NODE_ENV=production node dist/main.js",
     "smoke:prod": "pnpm -s prod:stop; pnpm -s prod:up; curl -sS http://localhost:${API_PORT:-3000}/api/health | jq .; curl -sS -o /dev/null -w \"%{http_code}\\n\" http://localhost:${API_PORT:-3000}/api/test/seed/admin-web || true",
     "verify": "pnpm -s tests && pnpm -s smoke:prod",
     "verify:dev": "pnpm -s lint && pnpm -s typecheck && pnpm -s test && pnpm -s test:e2e",
@@ -85,12 +85,12 @@
     "class-validator": "^0.14.3",
     "compression": "^1.8.1",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "helmet": "^8.1.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "zod": "^4.3.6",
-    "@classmate/contracts": "workspace:*"
+    "zod": "^4.3.6"
   }
 }

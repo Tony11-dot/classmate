@@ -83,7 +83,10 @@ class MainDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            Divider(height: 1, color: cs.outlineVariant.withValues(alpha: (0.4))),
+            Divider(
+              height: 1,
+              color: cs.outlineVariant.withValues(alpha: (0.4)),
+            ),
 
             // 1) Core bottom-nav tabs
             section('Core'),
@@ -93,11 +96,7 @@ class MainDrawer extends ConsumerWidget {
               onTap: () {},
             ),
             item(icon: Icons.groups_rounded, title: 'Classrooms', onTap: () {}),
-            item(
-              icon: Icons.auto_awesome_rounded,
-              title: 'AI Tutor',
-              onTap: () {},
-            ),
+            item(icon: Icons.auto_awesome_rounded, title: 'NOVA', onTap: () {}),
             item(icon: Icons.insights_rounded, title: 'Insights', onTap: () {}),
             item(
               icon: Icons.video_collection_rounded,

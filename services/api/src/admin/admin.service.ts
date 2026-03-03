@@ -549,55 +549,68 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async setSubjectDefaults(user: any, dto: any) {
     this.requireAdminOrSecretary(user);
-
+  
     const schoolId = String(dto?.schoolId ?? user?.schoolId ?? 'test-school');
     const grade = Number(dto?.grade);
     const subjects = normalizeSubjects(dto?.subjects);
-
+  
     if (!schoolId) throw new BadRequestException('schoolId required');
     if (Number.isNaN(grade)) throw new BadRequestException('grade required');
     if (!subjects.length) throw new BadRequestException('subjects[] required');
-
-    subjectDefaultsBySchoolGrade.set(defaultsKey(schoolId, grade), subjects);
-
-    return { ok: true, defaults: { schoolId, grade, subjects } };
+  
+    const row = await this.prisma.schoolGradeSubjectDefault.upsert({
+      where: { schoolId_grade_unique: { schoolId, grade } },
+      update: { subjects },
+      create: { schoolId, grade, subjects },
+      select: { schoolId: true, grade: true, subjects: true },
+    });
+  
+    return { ok: true, defaults: row };
   }
-
   async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
     this.requireAdminOrSecretary(user);
-
+  
     const schoolId = String(query?.schoolId ?? user?.schoolId ?? 'test-school');
     const grade = query?.grade;
-
+  
     if (!schoolId) throw new BadRequestException('schoolId required');
     if (grade === undefined || Number.isNaN(Number(grade))) {
       throw new BadRequestException('grade required');
     }
-
-    const subjects = subjectDefaultsBySchoolGrade.get(defaultsKey(schoolId, Number(grade))) ?? [];
-    return { ok: true, defaults: { schoolId, grade: Number(grade), subjects } };
+  
+    const row = await this.prisma.schoolGradeSubjectDefault.findUnique({
+      where: { schoolId_grade_unique: { schoolId, grade: Number(grade) } },
+      select: { schoolId: true, grade: true, subjects: true },
+    });
+  
+    return { ok: true, defaults: row ?? { schoolId, grade: Number(grade), subjects: [] } };
   }
-
   async upsertSubjectOverride(user: any, identifier: string, dto: any) {
     this.requireAdminOrSecretary(user);
-
+  
     const userId = await this.resolveUserId(identifier);
     const enabled = Boolean(dto?.enabled);
     const subjects = normalizeSubjects(dto?.subjects);
-
-    studentSubjectOverrides.set(userId, { enabled, subjects });
-
-    return { ok: true, override: { userId, enabled, subjects } };
+  
+    const row = await this.prisma.studentSubjectOverride.upsert({
+      where: { userId },
+      update: { enabled, subjects },
+      create: { userId, enabled, subjects },
+      select: { userId: true, enabled: true, subjects: true },
+    });
+  
+    return { ok: true, override: row };
   }
-
   async getSubjectOverride(user: any, identifier: string) {
     this.requireAdminOrSecretary(user);
-
+  
     const userId = await this.resolveUserId(identifier);
-    const ov = studentSubjectOverrides.get(userId) ?? null;
-
-    return { ok: true, override: ov ? { userId, ...ov } : null };
+  
+    const row = await this.prisma.studentSubjectOverride.findUnique({
+      where: { userId },
+      select: { userId: true, enabled: true, subjects: true },
+    });
+  
+    return { ok: true, override: row ?? null };
   }
-
-
 }

@@ -8,8 +8,13 @@ final tutorRepositoryProvider = Provider<TutorRepository>((ref) {
   final session = ref.read(authSessionProvider);
 
   return TutorRepository(Env.apiBaseUrl, () async {
+    final st = (session.token ?? '').trim();
+    if (st == 'SIM_TOKEN') return '';
+    if (st.isNotEmpty) return st;
+
+    // Optional: allow Env.devToken ONLY if it looks JWT-ish (3 segments)
     final dt = Env.devToken.trim();
-    if (dt.isNotEmpty) return dt;
-    return session.token;
+    final dtIsJwtish = dt.split('.').length >= 3;
+    return dtIsJwtish ? dt : '';
   });
 });

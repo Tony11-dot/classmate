@@ -770,6 +770,6 @@ model StudentSubjectOverride {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId], name: "userId_unique")
+  @@unique([userId])
   @@index([userId])
 }

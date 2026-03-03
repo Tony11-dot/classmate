@@ -12,19 +12,26 @@ export class DevOverrideGuard implements CanActivate {
     const req = ctx.switchToHttp().getRequest<any>();
     const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
     const isDev =
-      String(appEnv).toLowerCase().includes('dev') || String(appEnv).toLowerCase().includes('test');
+      String(appEnv).toLowerCase().includes('dev') ||
+      String(appEnv).toLowerCase().includes('test');
 
     if (!isDev) return true;
 
     const h = req.headers || {};
 
-    // A) Keep legacy dev override headers (no DB touch)
+    // Always stash raw headers for downstream dev helpers (student subjects, etc.)
+    req.user = req.user ?? {};
+    req.user.__headers = h;
+
+    // A) Legacy dev override headers (no DB touch)
     const role = h['x-dev-role'] ?? h['X-DEV-ROLE'];
     const userId = h['x-dev-user-id'] ?? h['X-DEV-USER-ID'];
     if (role && isRole(role)) {
-      req.user = req.user ?? {};
-      req.user.roles = [role as AppRole];
-      if (userId) req.user.id = String(userId);
+      req.user.roles = [String(role) as AppRole];
+      if (userId) {
+        req.user.id = String(userId);
+        req.user.sub = String(userId);
+      }
       return true;
     }
 
@@ -36,9 +43,6 @@ export class DevOverrideGuard implements CanActivate {
     const email = String(m[2] ?? '').trim().toLowerCase();
     if (!email || !email.includes('@')) return true;
 
-    // Ensure DB user exists and attach canonical UUID id.
-    // StudentProfile.userId references User.id (UUID), NOT email.
-    // User.password is required by schema, so we create a non-loginable random hash.
     const random = `dev-token:${email}:${Date.now()}:${Math.random()}`;
     const passwordHash = await bcrypt.hash(random, 10);
 
@@ -53,12 +57,11 @@ export class DevOverrideGuard implements CanActivate {
       select: { id: true, email: true },
     });
 
-    req.user = req.user ?? {};
     req.user.id = dbUser.id;
     req.user.sub = dbUser.id;
     req.user.email = dbUser.email;
 
-    // Roles are resolved elsewhere; do not overwrite here.
+    // Roles resolved elsewhere; do not overwrite here.
     return true;
   }
 }

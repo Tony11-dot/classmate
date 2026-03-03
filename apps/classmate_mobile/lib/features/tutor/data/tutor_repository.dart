@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'sse_client.dart';
 import 'package:http/http.dart' as http;
 
 class TutorRepository {
+  final SseClient _sse = SseClient();
+
   TutorRepository(this.baseUrl, this.getToken);
 
   final String baseUrl;
@@ -25,11 +28,21 @@ class TutorRepository {
   }
 
   Future<Map<String, String>> _headers() async {
-    final token = await getToken();
-    return {
+    final t0 = ((await getToken()) ?? '').trim();
+    final t = (t0 == 'SIM_TOKEN') ? '' : t0;
+    final isJwtish = t.split('.').length >= 3;
+    final hasToken = t.isNotEmpty && isJwtish;
+    // ignore: avoid_print
+    print('[TUTOR_HEADERS] hasToken=$hasToken tokenLen=${t.length} t="$t"');
+    return <String, String>{
       'Content-Type': 'application/json',
-      if (token != null && token.trim().isNotEmpty)
-        'Authorization': 'Bearer $token',
+      if (hasToken) 'Authorization': 'Bearer $t',
+      if (!hasToken) ...<String, String>{
+        'x-dev-role': 'STUDENT',
+        'x-dev-user-id': 'dev-student',
+        'x-dev-grade': '10',
+        'x-dev-school-id': 'test-school',
+      },
     };
   }
 
@@ -46,6 +59,8 @@ class TutorRepository {
 
   Future<List<dynamic>> fetchCharacters({String? subject}) async {
     final headers = await _headers();
+    // ignore: avoid_print
+    print('[TUTOR_REPO] headers=$headers');
     final uri = _uri(
       '/tutor/characters',
       q: subject == null ? null : {'subject': subject},
@@ -153,7 +168,11 @@ class TutorRepository {
 
     try {
       final res = await http
-          .post(uri, headers: headers, body: json.encode({'content': text}))
+          .post(
+            uri,
+            headers: headers,
+            body: json.encode({'role': 'USER', 'content': text}),
+          )
           .timeout(_timeout);
       if (!_isOk(res)) {
         _fail('postMessage', res);
@@ -164,10 +183,7 @@ class TutorRepository {
     }
   }
 
-  Future<Map<String, dynamic>> reply({
-    required String sessionId,
-    required String content,
-  }) async {
+  Future<Map<String, dynamic>> reply({required String sessionId}) async {
     final headers = await _headers();
     final uri = _uri('/tutor/sessions/$sessionId/reply');
 
@@ -181,6 +197,19 @@ class TutorRepository {
       return json.decode(res.body) as Map<String, dynamic>;
     } on SocketException catch (e) {
       throw Exception('reply network error: $e (uri=$uri)');
+    }
+  }
+
+  Stream<Map<String, dynamic>> replyStream({required String sessionId}) async* {
+    final u = _uri('/tutor/sessions/$sessionId/reply/stream');
+
+    await for (final ev in _sse.connect(
+      u,
+      getToken: () async => (await getToken()) ?? '',
+    )) {
+      // ignore: avoid_print
+      print('[SSE] $ev');
+      yield ev;
     }
   }
 }

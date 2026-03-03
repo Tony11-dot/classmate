@@ -103,8 +103,13 @@ export class TutorController {
 
   @Roles(Role.STUDENT, Role.ADMIN)
   @Sse('sessions/:id/reply/stream')
-  replyStream(@Req() req: any, @Param('id') id: string): Observable<MessageEvent> {
-    return this.svc.replyToSessionStream(req.user, id);
+  replyStream(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Query('displayName') displayName?: string,
+    @Query('novaSettings') novaSettings?: string,
+  ): Observable<MessageEvent> {
+    return this.svc.replyToSessionStream(req.user, id, { displayName, novaSettings });
   }
 
 

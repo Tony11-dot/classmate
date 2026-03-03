@@ -67,15 +67,9 @@ class TutorHomeScreen extends ConsumerWidget {
                 onTap: () {
                   if (id.isEmpty) return;
                   // ignore: use_build_context_synchronously
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => NovaChatScreen(
-                        sessionId: id,
-                        characterName: characterName,
-                        subject: subject,
-                      ),
-                    ),
-                  );
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => NovaChatScreen()));
                 },
               );
             },
@@ -127,15 +121,10 @@ class TutorHomeScreen extends ConsumerWidget {
       // refresh list immediately
       ref.invalidate(tutorSessionsProvider);
       // ignore: use_build_context_synchronously
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => NovaChatScreen(
-            sessionId: sessionId,
-            characterName: pick.name,
-            subject: subject == 'ALL' ? 'GENERAL' : subject,
-          ),
-        ),
-      );
+      Navigator.of(
+        // ignore: use_build_context_synchronously
+        context,
+      ).push(MaterialPageRoute(builder: (_) => NovaChatScreen()));
     } catch (e) {
       ScaffoldMessenger.of(
         // ignore: use_build_context_synchronously

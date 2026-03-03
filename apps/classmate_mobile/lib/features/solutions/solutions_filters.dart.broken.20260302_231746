@@ -36,7 +36,7 @@ class SolutionsFilters {
     );
   }
 
-  Map<String, String> toQuery() {
+    Map<String, String> toQuery() {
     final q = <String, String>{};
 
     if (subject != null && subject!.trim().isNotEmpty) {
@@ -55,6 +55,20 @@ class SolutionsFilters {
       q['questionNumber'] = questionNumber!.trim();
     }
 
+    return q;
+  };
+    if (subject != null && subject!.trim().isNotEmpty)
+      q['subject'] = subject!.trim();
+    if (sourceType != null && sourceType!.trim().isNotEmpty)
+      q['sourceType'] = sourceType!.trim();
+    if (sourceName != null && sourceName!.trim().isNotEmpty)
+      q['sourceName'] = sourceName!.trim();
+    if (page != null) {
+    if (page != null)   q['page'] = page.toString();
+    if (page != null) }
+
+    if (questionNumber != null && questionNumber!.trim().isNotEmpty)
+      q['questionNumber'] = questionNumber!.trim();
     return q;
   }
 }

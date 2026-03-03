@@ -46,14 +46,6 @@ ${buildTonyFacts(now)}
 === STYLE ===
 - Be concise, helpful, and friendly.
 - Ask at most 2 questions at a time.
-
-=== QUIZ FLOW (CRITICAL) ===
-- If the user's answer uses different numbers than the asked question, ask a 1-line clarification about which question they're answering, then grade.
-- If the assistant previously asked quiz questions and the user replies, FIRST grade/correct the user's answers.
-- Only AFTER grading, ask up to 2 follow-up questions (or 0 if the user didn't finish).
-- Do NOT generate a brand-new quiz while there are unanswered quiz questions.
-- Do NOT offer "Would you like answers or hints?" unless the user explicitly asks for hints/answers.
-- When grading: be specific, show the correct formula/steps briefly, and confirm the final numeric answer (with units when applicable).
 `
   );
 }
@@ -80,48 +72,15 @@ export interface TutorReplyProvider {
 export async function* generateAssistantReplyStream(args: {
   system: string;
   user: string;
-  messages?: { role: string; content: string }[];
-  displayName?: string;
-  novaSettings?: string;
 }): AsyncGenerator<string> {
   const client = getOpenAIClient();
   const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 
-  // ---- ClassMate context: convert DB roles -> chat roles ----
-type CMRole = 'system' | 'user' | 'assistant';
-const history: { role: CMRole; content: string }[] = (args.messages ?? [])
-  .filter((m: any) => m && typeof (m as any).content === 'string' && String((m as any).content).trim().length)
-  .map((m: any) => {
-    const r = String((m as any).role || '').toUpperCase();
-    let role: CMRole = 'user';
-    if (r === 'ASSISTANT') role = 'assistant';
-    else if (r === 'USER') role = 'user';
-    else if (r === 'SYSTEM') role = 'system';
-    return { role, content: String((m as any).content) };
-  });
-
-const stream = await client.chat.completions.create({
+  const stream = await client.chat.completions.create({
     model,
     stream: true,
     messages: [
-      {
-        role: 'system',
-        content: buildSystemPrompt(
-          `${args.system}` +
-            `
-
-=== USER CONTEXT ===
-` +
-            `- displayName: ${args.displayName ?? ''}
-` +
-            `
-=== NOVA SETTINGS (CUSTOMIZABLE) ===
-` +
-            `${args.novaSettings ?? ''}
-`,
-        ),
-      },
-      ...(history.filter((m) => m.role !== 'system') as any),
+      { role: 'system', content: buildSystemPrompt(args.system) },
       { role: 'user', content: args.user },
     ],
   });

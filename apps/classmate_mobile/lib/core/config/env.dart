@@ -13,8 +13,6 @@ class Env {
     schoolId = rawSchool.trim().isEmpty ? 'demo-school' : rawSchool.trim();
 
     final rawToken = const String.fromEnvironment('CM_DEV_TOKEN');
-    devToken = rawToken.trim().isEmpty
-        ? 'dev-token-parent@example.com'
-        : rawToken.trim();
+    devToken = rawToken.trim();
   }
 }

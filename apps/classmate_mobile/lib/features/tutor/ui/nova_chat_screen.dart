@@ -1,429 +1,335 @@
-import 'dart:math';
+import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../data/sse_client.dart';
+import 'chatgpt_chat_components.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/env.dart';
 
-import '../providers/tutor_repository_provider.dart';
-import '../providers/tutor_providers.dart';
-
-class NovaChatScreen extends ConsumerStatefulWidget {
-  const NovaChatScreen({
-    super.key,
-    required this.sessionId,
-    required this.characterName,
-    required this.subject,
-  });
-
-  final String sessionId;
-  final String characterName;
-  final String subject;
+class NovaChatScreen extends StatefulWidget {
+  const NovaChatScreen({super.key});
 
   @override
-  ConsumerState<NovaChatScreen> createState() => _NovaChatScreenState();
+  State<NovaChatScreen> createState() => _NovaChatScreenState();
 }
 
-class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
+class _NovaChatScreenState extends State<NovaChatScreen> {
+  void _log(String msg) {}
+  static const String _devToken = String.fromEnvironment(
+    'CM_DEV_TOKEN',
+    defaultValue: '',
+  );
+
   final _controller = TextEditingController();
   final _scroll = ScrollController();
 
-  late String _sessionId;
-  late String _characterName;
-  late String _subject;
+  final SseClient _sse = SseClient();
+
+  final List<_Msg> _messages = <_Msg>[
+    _Msg(role: 'assistant', content: 'Hi! I’m NOVA inside ClassMate.'),
+  ];
 
   bool _sending = false;
+  String? _sessionId;
+  StreamSubscription<Map<String, dynamic>>? _sseSub;
 
-  final List<_Msg> _msgs = [];
+  Uri _u(String path) => Uri.parse('${Env.apiBaseUrl}$path');
+
+  Future<String> _getToken() async => _devToken.trim();
+
+  // TODO: wire to Settings screen (per-user) like GPT custom instructions.
+  String _novaSettings() {
+    return [
+      'tone: friendly',
+      'verbosity: concise',
+      'quizFrequency: low',
+      'humor: light',
+      'addressUserByName: firstNameOnly',
+      'neverCallUserTony: true',
+    ].join('\n');
+  }
 
   @override
   void initState() {
     super.initState();
-    _sessionId = widget.sessionId;
-    _characterName = widget.characterName;
-    _subject = widget.subject;
+    unawaited(_ensureSession());
+  }
 
-    // starter message (until Phase 2 wires real messages+reply)
-    _msgs.add(
-      _Msg.assistant(
-        "You're chatting with $_characterName.\n(Session: $_sessionId)",
-      ),
+  Future<void> _ensureSession() async {
+    if (_sessionId != null && _sessionId!.isNotEmpty) return;
+
+    try {
+      final token0 = (await _getToken()).trim();
+      final token = (token0 == 'SIM_TOKEN') ? '' : token0;
+      final req = await HttpClient().postUrl(_u('/api/tutor/sessions'));
+      req.headers.set('Accept', 'application/json');
+      req.headers.set('Content-Type', 'application/json');
+      if (token.isNotEmpty) {
+        /* removed empty bearer */
+      } else {
+        req.headers.set('x-dev-role', 'STUDENT');
+        req.headers.set('x-dev-user-id', 'dev-student');
+        req.headers.set('x-dev-grade', '10');
+        req.headers.set('x-dev-school-id', 'test-school');
+
+        // NOVA customization headers (optional)        // ignore: avoid_print
+        // ignore: avoid_print
+        // ignore: avoid_print
+      }
+
+      // backend accepts empty body
+      req.add(const <int>[]);
+
+      final res = await req.close();
+      _log('http response received');
+      final body = await res.transform(const Utf8Decoder()).join();
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw Exception('createSession HTTP ${res.statusCode}: $body');
+      }
+
+      final decoded = jsonDecode(body);
+      final sid = (decoded is Map<String, dynamic>)
+          ? ((decoded['session']?['id'] ?? decoded['id'] ?? '') as String)
+          : '';
+
+      if (sid.isEmpty) throw Exception('Missing session id');
+      if (!mounted) return;
+      setState(() => _sessionId = sid);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _messages.add(
+          _Msg(role: 'assistant', content: '⚠️ Failed to start session: $e'),
+        );
+      });
+    }
+  }
+
+  Future<void> _resetSession() async {
+    await _sseSub?.cancel();
+    _sseSub = null;
+    if (!mounted) return;
+    setState(() {
+      _sessionId = null;
+      _sending = false;
+      _messages.clear();
+      _messages.add(
+        _Msg(role: 'assistant', content: 'Hi! I’m NOVA inside ClassMate.'),
+      );
+    });
+    await _ensureSession();
+  }
+
+  void _scrollToBottom() {
+    if (!_scroll.hasClients) return;
+    _scroll.animateTo(
+      _scroll.position.maxScrollExtent + 250,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
     );
+  }
+
+  Future<void> _onSend() async {
+    final dn = ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(authSessionProvider).displayName;
+
+    final t = _controller.text.trim();
+    // ignore: prefer_interpolation_to_compose_strings
+    _log('send: $t');
+    if (t.isEmpty) return;
+
+    setState(() {
+      _messages.add(_Msg(role: 'user', content: t));
+      _controller.clear();
+      _sending = true;
+    });
+    _scrollToBottom();
+
+    await _ensureSession();
+    final sid = _sessionId;
+    if (sid == null || sid.isEmpty) {
+      if (!mounted) return;
+      setState(() => _sending = false);
+      return;
+    }
+
+    // Insert placeholder assistant message we will stream into.
+    final assistantIndex = _messages.length;
+    setState(() => _messages.add(_Msg(role: 'assistant', content: '')));
+    _scrollToBottom();
+
+    try {
+      // 1) POST user message
+      final token0 = (await _getToken()).trim();
+      final token = (token0 == 'SIM_TOKEN') ? '' : token0;
+      final req = await HttpClient().postUrl(
+        _u('/api/tutor/sessions/$sid/messages'),
+      );
+      req.headers.set('Accept', 'application/json');
+      req.headers.set('Content-Type', 'application/json');
+      if (token.isNotEmpty) {
+        /* removed empty bearer */
+      } else {
+        req.headers.set('x-dev-role', 'STUDENT');
+        req.headers.set('x-dev-user-id', 'dev-student');
+        req.headers.set('x-dev-grade', '10');
+        req.headers.set('x-dev-school-id', 'test-school');
+
+        // NOVA customization headers (optional)        // ignore: avoid_print
+        // ignore: avoid_print
+        // ignore: avoid_print
+      }
+      req.add(
+        utf8.encode(
+          jsonEncode(<String, dynamic>{
+            'role': 'USER',
+            'content': t,
+            'displayName': dn,
+            'novaSettings': _novaSettings(),
+          }),
+        ),
+      );
+
+      final res = await req.close();
+      final body = await res.transform(const Utf8Decoder()).join();
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw Exception('postMessage HTTP ${res.statusCode}: $body');
+      }
+
+      // 2) SSE reply stream
+
+      await _sseSub?.cancel();
+      _sseSub = null;
+
+      final stream = _sse.connect(
+        _u(
+          '/api/tutor/sessions/$sid/reply/stream?displayName=${Uri.encodeQueryComponent(dn)}&novaSettings=${Uri.encodeQueryComponent(_novaSettings())}',
+        ),
+        getToken: _getToken,
+      );
+
+      final buf = StringBuffer();
+
+      _sseSub = stream.listen(
+        (ev) {
+          final type = (ev['type'] ?? '').toString();
+
+          if (type == 'chunk') {
+            final delta = (ev['delta'] ?? '').toString();
+            if (delta.isNotEmpty) buf.write(delta);
+
+            if (!mounted) return;
+            setState(() {
+              if (assistantIndex < _messages.length) {
+                _messages[assistantIndex] = _Msg(
+                  role: 'assistant',
+                  content: buf.toString(),
+                );
+              }
+            });
+            _scrollToBottom();
+            return;
+          }
+
+          if (type == 'done') {
+            final am = ev['assistantMessage'];
+            final content = (am is Map<String, dynamic>)
+                ? (am['content'] ?? buf.toString()).toString()
+                : buf.toString();
+
+            if (!mounted) return;
+            setState(() {
+              if (assistantIndex < _messages.length) {
+                _messages[assistantIndex] = _Msg(
+                  role: 'assistant',
+                  content: content,
+                );
+              }
+              _sending = false;
+            });
+            _scrollToBottom();
+          }
+        },
+        onError: (e) {
+          if (!mounted) return;
+          setState(() {
+            if (assistantIndex < _messages.length) {
+              _messages[assistantIndex] = _Msg(
+                role: 'assistant',
+                content: '⚠️ Stream error: $e',
+              );
+            } else {
+              _messages.add(
+                _Msg(role: 'assistant', content: '⚠️ Stream error: $e'),
+              );
+            }
+            _sending = false;
+          });
+          _scrollToBottom();
+        },
+        onDone: () {
+          if (!mounted) return;
+          setState(() => _sending = false);
+        },
+        cancelOnError: true,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (assistantIndex < _messages.length) {
+          _messages[assistantIndex] = _Msg(role: 'assistant', content: '⚠️ $e');
+        } else {
+          _messages.add(_Msg(role: 'assistant', content: '⚠️ $e'));
+        }
+        _sending = false;
+      });
+      _scrollToBottom();
+    }
   }
 
   @override
   void dispose() {
+    _sseSub?.cancel();
     _controller.dispose();
     _scroll.dispose();
+    _sse.close();
     super.dispose();
   }
 
-  Future<void> _switchTutor() async {
-    final subject = await _pickSubject();
-    if (subject == null) return;
-
-    final pick = await _pickCharacter(subject);
-    if (pick == null) return;
-
-    final repo = ref.read(tutorRepositoryProvider);
-
-    setState(() => _sending = true);
-    try {
-      final res = await repo.createSession(
-        characterId: pick.id,
-        subject: subject == 'ALL' ? null : subject,
-      );
-      final newSessionId = (res['session']?['id'] ?? res['id'] ?? '') as String;
-      if (newSessionId.isEmpty) throw Exception('Missing session id');
-
-      // refresh chats list in background
-      ref.invalidate(tutorSessionsProvider);
-
-      setState(() {
-        _sessionId = newSessionId;
-        _characterName = pick.name;
-        _subject = subject == 'ALL' ? 'GENERAL' : subject;
-        _msgs.clear();
-        _msgs.add(
-          _Msg.assistant(
-            "Switched to $_characterName.\n(New session: $_sessionId)",
-          ),
-        );
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Switch failed: $e')));
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  Future<void> _send() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
-
-    setState(() {
-      _controller.clear();
-      _msgs.add(_Msg.user(text));
-      _sending = true;
-    });
-
-    // Phase 2 will call /api/tutor/sessions/:id/messages and /reply
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-
-    setState(() {
-      _msgs.add(_Msg.assistant("Phase 2 pending.\nYou said: \"$text\""));
-      _sending = false;
-    });
-
-    await Future<void>.delayed(const Duration(milliseconds: 1));
-    if (_scroll.hasClients) {
-      _scroll.animateTo(
-        _scroll.position.maxScrollExtent + 200,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_characterName),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: _Chip(text: _subject),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            tooltip: 'Switch tutor',
-            onPressed: _sending ? null : _switchTutor,
-            icon: const Icon(Icons.tune),
-          ),
-        ],
+    return ChatGptLayout(
+      title: 'NOVA',
+      trailing: IconButton(
+        icon: const Icon(Icons.refresh_rounded),
+        onPressed: _resetSession,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scroll,
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-              itemCount: _msgs.length,
-              itemBuilder: (context, i) {
-                final m = _msgs[i];
-                final isUser = m.role == _Role.user;
-                final bubble = isUser ? cs.primary : cs.surfaceContainerHighest;
-                final textColor = isUser ? cs.onPrimary : cs.onSurface;
-
-                return Align(
-                  alignment: isUser
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 560),
-                    decoration: BoxDecoration(
-                      color: bubble,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Text(
-                      m.text,
-                      style: TextStyle(color: textColor, height: 1.25),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 6,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _send(),
-                      decoration: InputDecoration(
-                        hintText: 'Message NOVA…',
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(22)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    height: 44,
-                    width: 44,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      onPressed: _sending ? null : _send,
-                      child: _sending
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.arrow_upward),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      body: ChatGptMessageList(
+        controller: _scroll,
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final m = _messages[index];
+          final isUser = m.role == 'user';
+          return ChatGptBubble(isUser: isUser, text: m.content);
+        },
       ),
-    );
-  }
-
-  Future<String?> _pickSubject() async {
-    final subjects = await ref
-        .read(tutorStudentSubjectsProvider.future)
-        .catchError((_) => <dynamic>[]);
-
-    final set = <String>{};
-    for (final x in subjects) {
-      if (x is String) {
-        set.add(x.toUpperCase());
-      } else if (x is Map) {
-        final v = (x['code'] ?? x['subject'] ?? x['name'] ?? x['id']);
-        if (v is String && v.trim().isNotEmpty) set.add(v.toUpperCase());
-      }
-    }
-
-    final items = <String>[
-      'ALL',
-      if (set.isEmpty) ...<String>[
-        'GENERAL',
-        'MATH',
-        'PHYSICS',
-        'CS',
-        'ENGLISH',
-      ] else
-        ...set.toList()..sort(),
-    ];
-
-    return showModalBottomSheet<String>(
-      // ignore: use_build_context_synchronously
-      context: context,
-      showDragHandle: true,
-      builder: (_) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  'Switch tutor',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Text('Pick a subject'),
-              ),
-              for (final s in items)
-                ListTile(
-                  title: Text(s),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).pop(s),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<_CharPick?> _pickCharacter(String subject) async {
-    List<dynamic> all = <dynamic>[];
-
-    if (subject == 'ALL') {
-      final subs = <String>['GENERAL', 'MATH', 'PHYSICS', 'CS', 'ENGLISH'];
-      for (final s in subs) {
-        final list = await ref
-            .read(tutorCharactersProvider(s).future)
-            .catchError((_) => <dynamic>[]);
-        all.addAll(list);
-      }
-    } else {
-      all = await ref
-          .read(tutorCharactersProvider(subject).future)
-          .catchError((_) => <dynamic>[]);
-      if (all.isEmpty && subject != 'GENERAL') {
-        final g = await ref
-            .read(tutorCharactersProvider('GENERAL').future)
-            .catchError((_) => <dynamic>[]);
-        all = g;
-      }
-    }
-
-    final seen = <String>{};
-    final chars = <_CharPick>[];
-    for (final x in all) {
-      if (x is! Map) continue;
-      final m = x.cast<String, dynamic>();
-      final id = (m['id'] ?? '') as String;
-      if (id.isEmpty || seen.contains(id)) continue;
-      seen.add(id);
-
-      final name = ((m['name'] ?? 'Tutor') as String);
-      final sub = ((m['subject'] ?? 'GENERAL') as String);
-      final tone = (m['tone'] as String?)?.trim();
-      final style = (m['explainStyle'] as String?)?.trim();
-
-      chars.add(
-        _CharPick(
-          id: id,
-          name: name,
-          subtitle: [
-            sub,
-            if (tone != null && tone.isNotEmpty) tone,
-            if (style != null && style.isNotEmpty) style,
-          ].join(' • '),
-        ),
-      );
-    }
-
-    if (chars.isEmpty) return null;
-
-    // small shuffle so it doesn't feel “topic UI” deterministic
-    chars.shuffle(Random());
-
-    return showModalBottomSheet<_CharPick>(
-      // ignore: use_build_context_synchronously
-      context: context,
-      showDragHandle: true,
-      builder: (_) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  'Pick a tutor',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
-              for (final c in chars)
-                ListTile(
-                  title: Text(c.name),
-                  subtitle: Text(c.subtitle),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).pop(c),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.text});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: cs.onSurface,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+      composer: ChatGptComposer(
+        controller: _controller,
+        onSend: () => unawaited(_onSend()),
+        isSending: _sending,
       ),
     );
   }
 }
-
-enum _Role { user, assistant }
 
 class _Msg {
-  const _Msg(this.role, this.text);
-  final _Role role;
-  final String text;
-
-  static _Msg user(String t) => _Msg(_Role.user, t);
-  static _Msg assistant(String t) => _Msg(_Role.assistant, t);
-}
-
-class _CharPick {
-  const _CharPick({
-    required this.id,
-    required this.name,
-    required this.subtitle,
-  });
-  final String id;
-  final String name;
-  final String subtitle;
+  _Msg({required this.role, required this.content});
+  final String role;
+  final String content;
 }
