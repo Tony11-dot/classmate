@@ -13,6 +13,7 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DevOverrideGuard } from './auth/dev-override.guard';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TutorModule } from './tutor/tutor.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { StudentModule } from './student/student.module';
@@ -50,9 +51,11 @@ const controllers = [
 @Module({
   providers: [
     
-      { provide: APP_GUARD, useClass: ThrottlerGuard },
+      
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
 { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: DevOverrideGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
