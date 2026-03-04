@@ -6,15 +6,20 @@ export const StudentScheduleItemSchema = z.object({
   id: z.string(),
   startsAt: z.string(),
   endsAt: z.string(),
-  title: z.string(),
+  
+  period: z.number().nullable().optional(),
+title: z.string(),
   location: z.string().nullable().optional(),
   courseId: z.string().nullable().optional(),
   subject: z.string().nullable().optional(),
 });
 
 export const StudentScheduleTodayResponseSchema = z.object({
-  date: IsoDateSchema,
-  items: z.array(StudentScheduleItemSchema).default([]),
+  ok: z.literal(true),
+  items: z.object({
+    date: IsoDateSchema,
+    items: z.array(StudentScheduleItemSchema).default([]),
+  }),
 });
 
 export const StudentScheduleWeekQuerySchema = z.object({
@@ -22,13 +27,16 @@ export const StudentScheduleWeekQuerySchema = z.object({
 });
 
 export const StudentScheduleWeekResponseSchema = z.object({
-  weekOf: IsoDateSchema,
-  days: z.array(
-    z.object({
-      date: IsoDateSchema,
-      items: z.array(StudentScheduleItemSchema).default([]),
-    }),
-  ),
+  ok: z.literal(true),
+  items: z.object({
+    weekOf: IsoDateSchema,
+    days: z.array(
+      z.object({
+        date: IsoDateSchema,
+        items: z.array(StudentScheduleItemSchema).default([]),
+      }),
+    ),
+  }),
 });
 
 export type StudentScheduleItem = z.infer<typeof StudentScheduleItemSchema>;

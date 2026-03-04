@@ -1,6 +1,7 @@
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';
 import { Module, ValidationPipe } from '@nestjs/common';
+import { BrainModule } from './brain/brain.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { APP_PIPE, APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -98,6 +99,7 @@ const controllers = [
     AnnouncementsModule,
     VersionModule,
     NotificationsModule,
-  ],
+    BrainModule,
+],
 })
 export class AppModule {}

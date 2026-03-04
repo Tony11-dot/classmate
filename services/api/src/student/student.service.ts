@@ -118,8 +118,7 @@ export class StudentService {
       where: { userId: studentId },
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
-    return this.schedule.getTodayForCohort(sp.cohortId);
-  }
+    return this.schedule.getTodayForStudent({ schoolId: String(user.schoolId), studentId: String(studentId), cohortId: String(sp.cohortId) });}
 
   async weekSchedule(user: any) {
     this.ensureStudent(user);
@@ -128,8 +127,7 @@ export class StudentService {
       where: { userId: studentId },
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
-    return this.schedule.getWeekForCohort(sp.cohortId);
-  }
+    return this.schedule.getWeekForStudent({ schoolId: String(user.schoolId), studentId: String(studentId), cohortId: String(sp.cohortId) });}
 
   async myGrades(user: any) {
     this.ensureStudent(user);

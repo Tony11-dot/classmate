@@ -8,8 +8,12 @@ export type ScheduleItem = {
   title: string; // course name or "Free"
   location: string | null;
   dayOfWeek: DayOfWeek;
-  startTime: string; // HH:mm
-  endTime: string; // HH:mm
+  startsAt: string; // HH:mm
+  endsAt: string; // HH:mm
+
+  // deprecated (back-compat)
+  startTime?: string; // HH:mm
+  endTime?: string; // HH:mm
   classroomId: string | null;
 
   // extra fields (safe for clients to ignore)
@@ -82,6 +86,80 @@ function ymdUTC(d: Date): string {
 
 @Injectable()
 export class ScheduleService {
+
+  private async resolveTemplateSlotsForStudent(params: {
+    schoolId: string;
+    studentId: string;
+    cohortId: string;
+  }): Promise<{ templateRows: any[] }> {
+    const { schoolId, studentId, cohortId } = params;
+
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: cohortId },
+      select: { grade: true },
+    });
+    if (!cohort) return { templateRows: [] };
+
+    const [studentBinds, cohortBinds, gradeTemplates] = await Promise.all([
+      this.prisma.studentScheduleTemplate.findMany({
+        where: { studentId, template: { schoolId, kind: 'STUDENT' } },
+        orderBy: [{ priority: 'asc' }, { id: 'asc' }],
+        include: { template: true },
+      }),
+      this.prisma.cohortScheduleTemplate.findMany({
+        where: { cohortId },
+        orderBy: [{ priority: 'asc' }, { id: 'asc' }],
+        include: { template: true },
+      }),
+      this.prisma.scheduleTemplate.findMany({ where: { schoolId, kind: 'GRADE', grade: cohort.grade }, orderBy: [{ id: 'asc' }] }),
+      Promise.resolve([]),
+    ]);
+
+    const orderedTemplateIds: string[] = [
+      ...studentBinds.map((b) => b.templateId),
+      ...cohortBinds.map((b) => b.templateId),
+      ...gradeTemplates.map((t) => t.id),
+      
+    ].filter(Boolean);
+
+    const tmplSlots = orderedTemplateIds.length
+      ? await this.prisma.scheduleTemplateSlot.findMany({
+          where: { templateId: { in: orderedTemplateIds } },
+          include: { course: true },
+        })
+      : [];
+
+    const legacy = await this.prisma.scheduleSlot.findMany({
+      where: { cohortId },
+      include: { course: true },
+    });
+
+    const byKey = new Map<string, any>();
+    const keyOf = (d: number, p: number) => `${d}:${p}`;
+
+    for (const tid of orderedTemplateIds) {
+      for (const r of tmplSlots) {
+        if (String(r.templateId) !== String(tid)) continue;
+        const k = keyOf(Number(r.dayOfWeek), Number(r.period));
+        if (!byKey.has(k)) byKey.set(k, r);
+      }
+    }
+
+    for (const r of legacy) {
+      const k = keyOf(Number(r.dayOfWeek), Number(r.period));
+      if (!byKey.has(k)) byKey.set(k, r);
+    }
+
+    const templateRows = Array.from(byKey.values()).sort((a, b) => {
+      const da = Number(a.dayOfWeek) - Number(b.dayOfWeek);
+      if (da) return da;
+      return Number(a.period) - Number(b.period);
+    });
+
+    return { templateRows };
+  }
+
+
   constructor(private readonly prisma: PrismaService) {}
 
   private timesForPeriod(period: number): { start: string; end: string } {
@@ -96,16 +174,19 @@ export class ScheduleService {
     dateYmd?: string;
     course?: any | null;
     courseId?: string | null;
-    isOverride?: boolean;
+        location?: string | null;
+isOverride?: boolean;
   }): ScheduleItem {
     const t = this.timesForPeriod(params.period);
     const title = params.course?.name ? String(params.course.name) : 'Free';
     return {
       id: params.slotId,
       title,
-      location: null,
+      location: params.location ?? null,
       dayOfWeek: DOW_STR[Math.max(0, Math.min(6, Number(params.dayOfWeek)))],
+      startsAt: t.start,
       startTime: t.start,
+      endsAt: t.end,
       endTime: t.end,
       classroomId: null,
       cohortId: params.cohortId,
@@ -142,7 +223,10 @@ export class ScheduleService {
     const dow = dayOfWeekInJerusalem(params.date); // 0..6
     const tmpl = params.templateRows.filter((r) => Number(r.dayOfWeek) === dow);
 
-    const byPeriod = new Map<number, { courseId: string | null; course: any | null; id: string; isOverride: boolean }>();
+    const byPeriod = new Map<number, {
+      courseId: string | null; course: any | null; id: string; isOverride: boolean;
+      location: string | null;
+    }>();
 
     for (const r of tmpl) {
       byPeriod.set(Number(r.period), {
@@ -150,7 +234,8 @@ export class ScheduleService {
         course: (r as any).course ?? null,
         id: String(r.id),
         isOverride: false,
-      });
+              location: (r as any).location ?? null,
+});
     }
 
     for (const o of params.overrideRows) {
@@ -159,7 +244,8 @@ export class ScheduleService {
         course: (o as any).course ?? null,
         id: String(o.id),
         isOverride: true,
-      });
+              location: (o as any).location ?? null,
+});
     }
 
     const periods = Array.from(byPeriod.keys()).sort((a, b) => a - b);
@@ -172,7 +258,8 @@ export class ScheduleService {
         slotId: byPeriod.get(p)!.id,
         dateYmd,
         courseId: byPeriod.get(p)!.courseId,
-        course: byPeriod.get(p)!.course,
+              location: byPeriod.get(p)!.location ?? null,
+course: byPeriod.get(p)!.course,
         isOverride: byPeriod.get(p)!.isOverride,
       }),
     );
@@ -182,7 +269,8 @@ export class ScheduleService {
   async listForStudent(studentId: string): Promise<ScheduleItem[]> {
     const sp = await this.prisma.studentProfile.findUnique({
       where: { userId: String(studentId) },
-      select: { cohortId: true },
+      select: { cohortId: true
+      },
     });
     if (!sp?.cohortId) return [];
     return this.getWeekForCohort(String(sp.cohortId));
@@ -190,23 +278,30 @@ export class ScheduleService {
 
   // REQUIRED by StudentService/ParentService
   async getTodayForCohort(cohortId: string): Promise<ScheduleItem[]> {
-    const cid = String(cohortId || '');
-    if (!cid) throw new BadRequestException('cohortId is required');
+    try {
+          const cid = String(cohortId || '');
+          if (!cid) throw new BadRequestException('cohortId is required');
+      
+          const today = new Date(ymdInJerusalem(new Date()) + 'T00:00:00.000Z');
+          const tomorrow = addDaysUTC(today, 1);
+      
+          const [templateRows, overrideRows] = await Promise.all([
+            this.templateForCohort(cid),
+            this.overridesForCohortRange(cid, today, tomorrow),
+          ]);
+      
+          return this.applyOverridesForDate({
+            cohortId: cid,
+            date: today,
+            templateRows,
+            overrideRows,
+          });
+    } catch (e: any) {
+      console.error('schedule getTodayForCohort error:', e?.code, e?.message, e?.meta);
+      console.error(e?.stack);
+      throw e;
+    }
 
-    const today = new Date(ymdInJerusalem(new Date()) + 'T00:00:00.000Z');
-    const tomorrow = addDaysUTC(today, 1);
-
-    const [templateRows, overrideRows] = await Promise.all([
-      this.templateForCohort(cid),
-      this.overridesForCohortRange(cid, today, tomorrow),
-    ]);
-
-    return this.applyOverridesForDate({
-      cohortId: cid,
-      date: today,
-      templateRows,
-      overrideRows,
-    });
   }
 
   // REQUIRED by StudentService/ParentService
@@ -257,4 +352,64 @@ export class ScheduleService {
 
     return out;
   }
+
+  async getTodayForStudent(params: { schoolId: string; studentId: string; cohortId: string }): Promise<ScheduleItem[]> {
+    const { templateRows } = await this.resolveTemplateSlotsForStudent(params);
+
+    const today = new Date(ymdInJerusalem(new Date()) + 'T00:00:00.000Z');
+    const tomorrow = addDaysUTC(today, 1);
+
+    const overrideRows = await this.overridesForCohortRange(String(params.cohortId), today, tomorrow);
+
+    return this.applyOverridesForDate({
+      cohortId: String(params.cohortId),
+      date: today,
+      templateRows,
+      overrideRows,
+    });
+  }
+
+  async getWeekForStudent(params: { schoolId: string; studentId: string; cohortId: string; weekOf?: string }): Promise<ScheduleItem[]> {
+    const { templateRows } = await this.resolveTemplateSlotsForStudent(params);
+
+    const weekOfDate = parseWeekOf(params.weekOf);
+    const start = startOfWeekSundayInJerusalem(weekOfDate);
+    const end = addDaysUTC(start, 7);
+
+    const overrideRows = await this.overridesForCohortRange(String(params.cohortId), start, end);
+
+    const byDate = new Map<string, any[]>();
+    for (const o of overrideRows) {
+      const k = ymdUTC(o.date);
+      const arr = byDate.get(k) ?? [];
+      arr.push(o);
+      byDate.set(k, arr);
+    }
+
+    const out: ScheduleItem[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addDaysUTC(start, i);
+      const k = ymdUTC(d);
+      out.push(
+        ...this.applyOverridesForDate({
+          cohortId: String(params.cohortId),
+          date: d,
+          templateRows,
+          overrideRows: byDate.get(k) ?? [],
+        }),
+      );
+    }
+
+    out.sort((a, b) => {
+      const da = String((a as any).date ?? '');
+      const db = String((b as any).date ?? '');
+      if (da < db) return -1;
+      if (da > db) return 1;
+      return Number((a as any).period ?? 0) - Number((b as any).period ?? 0);
+    });
+
+    return out;
+  }
+
+
 }

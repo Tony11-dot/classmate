@@ -1,10 +1,13 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Public } from './decorators/public.decorator';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @SkipThrottle()
 @Controller('auth')
 export class AuthController {
+  @Public()
+
   @Post('login')
   async login(@Body() body: any) {
     const { email } = body;

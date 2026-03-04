@@ -53,16 +53,19 @@ model User {
   // back-relation for teacher-owned courses
   taughtCourses Course[] @relation("TeacherCourses")
 
-  createdAt           DateTime             @default(now())
-  assessments         Assessment[]
-  parentLinkCodes     ParentLinkCode[]
-  announcements       Announcement[]
-  announcementSeens   AnnouncementSeen[]
-  parentNotifications ParentNotification[]
-  solutions           Solution[]
-  notifications       Notification[]
-  solutionLikes       SolutionLike[]
-  solutionComments    SolutionComment[]
+  createdAt             DateTime               @default(now())
+  assessments           Assessment[]
+  parentLinkCodes       ParentLinkCode[]
+  announcements         Announcement[]
+  announcementSeens     AnnouncementSeen[]
+  parentNotifications   ParentNotification[]
+  solutions             Solution[]
+  notifications         Notification[]
+  solutionLikes         SolutionLike[]
+  solutionComments      SolutionComment[]
+  teachingTemplateSlots ScheduleTemplateSlot[] @relation("TeacherSlots")
+
+  studentTemplateBinds StudentScheduleTemplate[]
 }
 
 model UserRole {
@@ -79,12 +82,13 @@ model Cohort {
   name  String @unique // e.g. "10th-2"
   grade Int // 7..12
 
-  students           StudentProfile[]
-  courses            Course[]
-  scheduleSlots      ScheduleSlot[]
-  joinCodes          CohortJoinCode[]
-  scheduleOverrides  ScheduleOverride[]
-  attendanceSessions AttendanceSession[]
+  students              StudentProfile[]
+  courses               Course[]
+  scheduleSlots         ScheduleSlot[]
+  joinCodes             CohortJoinCode[]
+  scheduleOverrides     ScheduleOverride[]
+  attendanceSessions    AttendanceSession[]
+  scheduleTemplateBinds CohortScheduleTemplate[]
 }
 
 model CohortJoinCode {
@@ -106,12 +110,17 @@ model StudentProfile {
   englishLevel Int
   mathLevel    Int
 
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cohort            Cohort             @relation(fields: [cohortId], references: [id])
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cohort            Cohort               @relation(fields: [cohortId], references: [id])
   studentMajors     StudentMajor[]
   enrollments       Enrollment[]
   attendanceRecords AttendanceRecord[]
   gradeRecords      GradeRecord[]
+  // ===== AI BRAIN (v1) =====
+  brainProfile      StudentBrainProfile?
+  brainSkills       StudentBrainSkill[]
+  brainEvents       StudentBrainEvent[]
+  brainSummary      StudentBrainSummary?
 
   @@index([cohortId])
 }
@@ -180,6 +189,7 @@ model Course {
   scheduleOverrides  ScheduleOverride[]
   attendanceSessions AttendanceSession[]
   assessments        Assessment[]
+  templateSlots      ScheduleTemplateSlot[]
 
   @@index([teacherId])
   @@index([cohortId])
@@ -522,6 +532,105 @@ model StudentBrainSnapshot {
   @@index([cohortId])
 }
 
+enum BrainEventType {
+  CHAT_MESSAGE
+  QUIZ_ATTEMPT
+  QUIZ_RESULT
+  MISTAKE
+  HINT_USED
+  CONCEPT_EXPLAINED
+  CONFUSION
+  PREFERENCE
+}
+
+enum BrainSkillStatus {
+  UNKNOWN
+  LEARNING
+  OK
+  STRONG
+}
+
+model StudentBrainProfile {
+  id                String  @id @default(uuid())
+  studentId         String  @unique
+  // lightweight learning prefs (used in prompt injection)
+  preferredLanguage String? // "en" | "ar" | "he"
+  verbosity         String? // "concise" | "normal" | "detailed"
+  quizFrequency     String? // "low" | "medium" | "high"
+  tone              String? // "friendly" | "strict" | "coach"
+  humor             String? // "none" | "light" | "more"
+  addressName       String? // "first" | "full" | "none"
+
+  // optional: stable baseline about the student (short)
+  baselineSummary String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model StudentBrainSkill {
+  id         String           @id @default(uuid())
+  studentId  String
+  subject    String
+  topic      String
+  status     BrainSkillStatus @default(UNKNOWN)
+  strength   Int              @default(0) // 0..100 (simple scalar for now)
+  lastSeenAt DateTime?
+
+  evidenceCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([studentId, subject, topic])
+  @@index([studentId, subject])
+}
+
+model StudentBrainEvent {
+  id             String         @id @default(uuid())
+  studentId      String
+  type           BrainEventType
+  subject        String?
+  topic          String?
+  // short JSON-ish payload stored as string (keeps v1 simple, avoids jsonb migrations)
+  payload        String?
+  // optional linkage to tutor session/message
+  tutorSessionId String?
+  tutorMessageId String?
+
+  createdAt DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  session TutorSession?  @relation(fields: [tutorSessionId], references: [id], onDelete: SetNull)
+  message TutorMessage?  @relation(fields: [tutorMessageId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, createdAt])
+  @@index([tutorSessionId])
+}
+
+model StudentBrainSummary {
+  id        String @id @default(uuid())
+  studentId String @unique
+
+  // rolling prompt context (short, cached)
+  summary String
+
+  // bookkeeping for refresh cadence
+  lastEventAt DateTime?
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
 model TutorSession {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -538,7 +647,8 @@ model TutorSession {
   title String?
   topic String?
 
-  messages TutorMessage[]
+  messages    TutorMessage[]
+  brainEvents StudentBrainEvent[]
 
   @@index([userId, updatedAt])
   @@index([cohortId])
@@ -556,7 +666,8 @@ model TutorMessage {
   // what tutor used as sources (ids or short refs)
   sources String[] @default([])
 
-  session TutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session     TutorSession        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  brainEvents StudentBrainEvent[]
 
   @@index([sessionId, createdAt])
 }
@@ -594,11 +705,11 @@ enum TutorCharacterSubject {
 }
 
 model TutorCharacter {
-  id        String   @id @default(cuid())
+  id          String   @id @default(cuid())
   createdById String?
   isPublic    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // scope (optional) – later we can make per cohort/school
   cohortId String?
@@ -620,13 +731,12 @@ model TutorCharacter {
 
   sessions TutorSession[]
 
+  @@unique([cohortId, subject, name])
   @@index([cohortId])
   @@index([subject])
-  @@unique([cohortId, subject, name])
   @@index([cohortId, subject])
   @@index([isPublic, subject])
 }
-
 
 model TutorReplyCache {
   id                 String   @id @default(cuid())
@@ -772,4 +882,79 @@ model StudentSubjectOverride {
 
   @@unique([userId])
   @@index([userId])
+}
+
+enum ScheduleTemplateKind {
+  GRADE
+  MAJOR
+  COHORT
+  STUDENT
+}
+
+model ScheduleTemplate {
+  id       String               @id @default(uuid())
+  schoolId String
+  kind     ScheduleTemplateKind
+  name     String
+
+  // optional targeting keys (only used depending on kind)
+  grade   Int?
+  section Int?
+  major   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slots        ScheduleTemplateSlot[]
+  cohortBinds  CohortScheduleTemplate[]
+  studentBinds StudentScheduleTemplate[]
+
+  @@index([schoolId, kind])
+  @@index([schoolId, grade, section])
+  @@index([schoolId, major])
+}
+
+model ScheduleTemplateSlot {
+  id         String  @id @default(uuid())
+  templateId String
+  dayOfWeek  Int // 0=Sun..6=Sat
+  period     Int // 1..10
+  courseId   String?
+  teacherId  String?
+  location   String?
+
+  template ScheduleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  course   Course?          @relation(fields: [courseId], references: [id])
+  teacher  User?            @relation("TeacherSlots", fields: [teacherId], references: [id])
+
+  @@unique([templateId, dayOfWeek, period])
+  @@index([templateId, dayOfWeek, period])
+}
+
+model CohortScheduleTemplate {
+  id         String @id @default(uuid())
+  cohortId   String
+  templateId String
+  priority   Int    @default(50) // lower = higher priority among same binding type
+
+  cohort   Cohort           @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  template ScheduleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([cohortId, templateId])
+  @@index([cohortId, priority])
+  @@index([templateId])
+}
+
+model StudentScheduleTemplate {
+  id         String @id @default(uuid())
+  studentId  String
+  templateId String
+  priority   Int    @default(10) // student bindings should beat cohort by default
+
+  student  User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  template ScheduleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, templateId])
+  @@index([studentId, priority])
+  @@index([templateId])
 }

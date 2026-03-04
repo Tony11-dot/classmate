@@ -26,10 +26,20 @@ export class AdminService {
     if (!body?.name || !body?.grade)
       throw new BadRequestException('name and grade are required');
 
-    return this.prisma.cohort.create({
-      data: { name: body.name, grade: body.grade },
-    });
-  }
+    try {
+      const out = await this.prisma.cohort.create({
+        data: { name: body.name, grade: body.grade },
+      });
+      return out;
+    } catch (e: any) {
+      // TEMP DEBUG (remove after): surface prisma error in server logs
+      console.error('createCohort prisma error:', e?.code, e?.message, e?.meta);
+      if (e?.code === 'P2002') {
+        throw new HttpException('Cohort name already exists', HttpStatus.CONFLICT);
+      }
+      throw e;
+    }
+}
 
   async generateJoinCode(
     user: any,
