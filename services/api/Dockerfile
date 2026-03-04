@@ -41,4 +41,4 @@ COPY --from=build /app/services/api/prisma /app/prisma
 COPY --from=build /app/node_modules /app/node_modules
 
 EXPOSE 3000
-CMD ["sh","-lc","pnpm -s prisma migrate deploy || true; node dist/src/main.js"]
+CMD ["sh","-lc","pnpm -s prisma migrate deploy || true; node dist/main.js"]
