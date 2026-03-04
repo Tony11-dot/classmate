@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 
 import '../config/env.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const String _kDevToken = String.fromEnvironment('CM_DEV_TOKEN');
 
 class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
@@ -17,10 +20,16 @@ class AuthSession extends ChangeNotifier {
   String? _token;
   String? _displayName;
 
-  String? get token => _token;
+  String? get token {
+    final dt = _kDevToken.trim();
+    if (kDebugMode && dt.isNotEmpty) return dt;
+    if (_token != null && _token!.isNotEmpty) return _token;
+    return null;
+  }
+
   String get displayName => (_displayName ?? '').trim();
 
-  bool get isLoggedIn => (_token != null && _token!.isNotEmpty);
+  bool get isLoggedIn => (token != null && token!.isNotEmpty);
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -59,7 +68,6 @@ class AuthSession extends ChangeNotifier {
 
     _ready = true;
     // ignore: avoid_print
-    print('AuthSession token=${_token ?? 'NULL'}');
     notifyListeners();
   }
 
@@ -97,3 +105,19 @@ class AuthSession extends ChangeNotifier {
 
   Future<void> devSetToken(String token) => setToken(token);
 }
+
+// DEV DEBUG
+int devTokenLen() => _kDevToken.trim().length;
+
+// Riverpod provider for app-wide auth session
+
+// Riverpod provider for app-wide auth session
+
+// Riverpod provider for app-wide auth session
+
+// Riverpod provider for app-wide auth session
+final authSessionProvider = Provider<AuthSession>((ref) {
+  final s = AuthSession();
+  ref.onDispose(s.dispose);
+  return s;
+});

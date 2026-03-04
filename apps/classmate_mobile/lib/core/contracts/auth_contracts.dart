@@ -16,7 +16,9 @@ class AuthMe {
   final String? cohortId;
 
   static AuthMe fromJson(Map<String, dynamic> j) {
-    final roles0 = (j['roles'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+    final roles0 =
+        (j['roles'] as List?)?.map((e) => e.toString()).toList() ??
+        const <String>[];
     return AuthMe(
       id: j['id']?.toString(),
       email: j['email']?.toString(),

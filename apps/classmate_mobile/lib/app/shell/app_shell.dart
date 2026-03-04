@@ -17,12 +17,12 @@ class AppShell extends ConsumerWidget {
   }
 
   String _locFor(int index) => switch (index) {
-    0 => '/schedule',
+    0 => '/student/schedule',
     1 => '/classrooms',
     2 => '/solutions',
     3 => '/insights',
     4 => '/tutor',
-    _ => '/schedule',
+    _ => '/student/schedule',
   };
 
   String _pageTitle(String loc) {

@@ -69,7 +69,7 @@ class _NovaChatScreenState extends State<NovaChatScreen> {
       req.headers.set('Accept', 'application/json');
       req.headers.set('Content-Type', 'application/json');
       if (token.isNotEmpty) {
-        /* removed empty bearer */
+        req.headers.set('Authorization', 'Bearer $token');
       } else {
         req.headers.set('x-dev-role', 'STUDENT');
         req.headers.set('x-dev-user-id', 'dev-student');
@@ -107,21 +107,6 @@ class _NovaChatScreenState extends State<NovaChatScreen> {
         );
       });
     }
-  }
-
-  Future<void> _resetSession() async {
-    await _sseSub?.cancel();
-    _sseSub = null;
-    if (!mounted) return;
-    setState(() {
-      _sessionId = null;
-      _sending = false;
-      _messages.clear();
-      _messages.add(
-        _Msg(role: 'assistant', content: 'Hi! I’m NOVA inside ClassMate.'),
-      );
-    });
-    await _ensureSession();
   }
 
   void _scrollToBottom() {
@@ -174,7 +159,7 @@ class _NovaChatScreenState extends State<NovaChatScreen> {
       req.headers.set('Accept', 'application/json');
       req.headers.set('Content-Type', 'application/json');
       if (token.isNotEmpty) {
-        /* removed empty bearer */
+        req.headers.set('Authorization', 'Bearer $token');
       } else {
         req.headers.set('x-dev-role', 'STUDENT');
         req.headers.set('x-dev-user-id', 'dev-student');
@@ -304,26 +289,25 @@ class _NovaChatScreenState extends State<NovaChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChatGptLayout(
-      title: 'NOVA',
-      trailing: IconButton(
-        icon: const Icon(Icons.refresh_rounded),
-        onPressed: _resetSession,
-      ),
-      body: ChatGptMessageList(
-        controller: _scroll,
-        itemCount: _messages.length,
-        itemBuilder: (context, index) {
-          final m = _messages[index];
-          final isUser = m.role == 'user';
-          return ChatGptBubble(isUser: isUser, text: m.content);
-        },
-      ),
-      composer: ChatGptComposer(
-        controller: _controller,
-        onSend: () => unawaited(_onSend()),
-        isSending: _sending,
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: ChatGptMessageList(
+            controller: _scroll,
+            itemCount: _messages.length,
+            itemBuilder: (context, index) {
+              final m = _messages[index];
+              final isUser = m.role == 'user';
+              return ChatGptBubble(isUser: isUser, text: m.content);
+            },
+          ),
+        ),
+        ChatGptComposer(
+          controller: _controller,
+          onSend: () => unawaited(_onSend()),
+          isSending: _sending,
+        ),
+      ],
     );
   }
 }

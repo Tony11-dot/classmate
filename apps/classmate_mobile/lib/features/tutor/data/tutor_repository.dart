@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'sse_client.dart';
 import 'package:http/http.dart' as http;
 
 class TutorRepository {
+  static int _cmLastTutorLogMs = 0;
+
   final SseClient _sse = SseClient();
 
   TutorRepository(this.baseUrl, this.getToken);
@@ -30,10 +33,19 @@ class TutorRepository {
   Future<Map<String, String>> _headers() async {
     final t0 = ((await getToken()) ?? '').trim();
     final t = (t0 == 'SIM_TOKEN') ? '' : t0;
-    final isJwtish = t.split('.').length >= 3;
-    final hasToken = t.isNotEmpty && isJwtish;
     // ignore: avoid_print
-    print('[TUTOR_HEADERS] hasToken=$hasToken tokenLen=${t.length} t="$t"');
+    print('TUTOR tokenLen=${t.toString().trim().length}');
+    final isJwtish = t.split('.').length >= 3;
+    final isDevTok = t.startsWith('dev-token-');
+    final hasToken = t.isNotEmpty && (isJwtish || isDevTok);
+    // ignore: avoid_print
+    if (kDebugMode) {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - _cmLastTutorLogMs > 1500) {
+        _cmLastTutorLogMs = now;
+        print('[TUTOR_HEADERS] hasToken=$hasToken tokenLen=${t.length}');
+      }
+    }
     return <String, String>{
       'Content-Type': 'application/json',
       if (hasToken) 'Authorization': 'Bearer $t',

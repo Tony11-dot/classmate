@@ -14,8 +14,9 @@ class SseClient {
   }) async* {
     final token0 = (await getToken()).trim();
     final token = (token0 == 'SIM_TOKEN') ? '' : token0;
-    final hasToken = token.isNotEmpty && token.split('.').length >= 3;
-
+    final isJwtish = token.split('.').length >= 3;
+    final isDevTok = token.startsWith('dev-token-');
+    final hasToken = token.isNotEmpty && (isJwtish || isDevTok);
     final req = http.Request('GET', uri);
     req.headers.addAll(<String, String>{
       'Accept': 'text/event-stream',

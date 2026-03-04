@@ -6,7 +6,10 @@ class Env {
   static void init() {
     final rawBase = const String.fromEnvironment('CM_API_BASE_URL');
     apiBaseUrl = rawBase.trim().isEmpty
-        ? 'http://127.0.0.1:3000'
+        ? const String.fromEnvironment(
+            'CM_API_BASE',
+            defaultValue: 'http://127.0.0.1:3000',
+          )
         : rawBase.trim();
 
     final rawSchool = const String.fromEnvironment('CM_SCHOOL_ID');

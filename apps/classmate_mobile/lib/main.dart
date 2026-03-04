@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/auth/auth_session.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
@@ -10,7 +11,7 @@ void main() {
   // ignore: avoid_print
   // ignore: avoid_print
   print(
-    'CM apiBaseUrl=${Env.apiBaseUrl} schoolId=${Env.schoolId} devToken=${Env.devToken}',
+    'DEV_TOKEN_LEN=${devTokenLen()} ENV_DEV_TOKEN_LEN=${Env.devToken.trim().length}',
   );
   runApp(const ProviderScope(child: ClassMateApp()));
 }
