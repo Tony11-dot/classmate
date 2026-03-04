@@ -9,7 +9,7 @@ import { loadEnv } from './env';
 
 async function bootstrap() {
   // Ensure PORT exists before env parsing/validation
-  process.env.PORT = process.env.PORT ?? "3001";
+  process.env.PORT = process.env.PORT ?? '3000';
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
@@ -30,8 +30,8 @@ async function bootstrap() {
       return cb(null, ok);
     },
     credentials: true,
-    methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
-    allowedHeaders: ['Content-Type','Authorization'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.use(new RequestIdMiddleware().use);
@@ -49,7 +49,7 @@ async function bootstrap() {
   app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
 
   app.setGlobalPrefix('api');
-  await app.listen(Number(process.env.PORT) || 3001, '0.0.0.0');
+  await app.listen(Number(process.env.PORT) || 3000, '0.0.0.0');
 }
 
 bootstrap();
