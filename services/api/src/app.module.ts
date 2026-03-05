@@ -50,8 +50,9 @@ const controllers = [
     ? [E2ESeedController]
     : []),
 ];
+const appControllers = [MetricsController, ...controllers];
 @Module({
-  controllers: [MetricsController, ...controllers],
+  controllers: appControllers,
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
