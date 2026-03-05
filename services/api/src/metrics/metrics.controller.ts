@@ -1,14 +1,22 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
+import { collectDefaultMetrics, register } from 'prom-client';
 import { Public } from '../auth/public.decorator';
-import type { Response } from 'express';
-import { register } from 'prom-client';
 
-@Controller()
+let defaultsCollected = false;
+
+@Controller('api')
 export class MetricsController {
+  constructor() {
+    if (!defaultsCollected) {
+      collectDefaultMetrics();
+      defaultsCollected = true;
+    }
+  }
+
   @Public()
   @Get('metrics')
-  async metrics(@Res() res: Response) {
-    res.setHeader('Content-Type', register.contentType);
-    res.send(await register.metrics());
+  @Header('Content-Type', register.contentType)
+  async metrics() {
+    return await register.metrics();
   }
 }
