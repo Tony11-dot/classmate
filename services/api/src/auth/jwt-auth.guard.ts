@@ -1,8 +1,7 @@
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
-import { Injectable } from '@nestjs/common';
+import { IS_PUBLIC_KEY } from './public.decorator';
+import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import type { ExecutionContext } from '@nestjs/common';
 import type { AppRole } from './roles';
 import { isRole } from './roles';
 
@@ -24,19 +23,28 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const req0 = context.switchToHttp?.().getRequest?.() ?? null;
     const pth = String(req0?.originalUrl ?? req0?.url ?? req0?.path ?? '');
     if (
-      pth === '/health' || pth.startsWith('/health?') ||
-      pth === '/ready'  || pth.startsWith('/ready?')  ||
-      pth === '/version'|| pth.startsWith('/version?')||
-      pth === '/api/health' || pth.startsWith('/api/health?') ||
-      pth === '/api/ready'  || pth.startsWith('/api/ready?')  ||
-      pth === '/api/version'|| pth.startsWith('/api/version?')
-    ) return true;
+      pth === '/health' ||
+      pth.startsWith('/health?') ||
+      pth === '/ready' ||
+      pth.startsWith('/ready?') ||
+      pth === '/version' ||
+      pth.startsWith('/version?') ||
+      pth === '/api/health' ||
+      pth.startsWith('/api/health?') ||
+      pth === '/api/ready' ||
+      pth.startsWith('/api/ready?') ||
+      pth === '/api/version' ||
+      pth.startsWith('/api/version?')
+    )
+      return true;
 
     const req = context.switchToHttp().getRequest<any>();
     const h = req?.headers || {};
 
     // DEV OVERRIDE (NON-PROD ONLY): allow x-dev-* identity without JWT
-    const appEnv = String(process.env.APP_ENV ?? process.env.NODE_ENV ?? 'development').toLowerCase();
+    const appEnv = String(
+      process.env.APP_ENV ?? process.env.NODE_ENV ?? 'development',
+    ).toLowerCase();
     const isProd = appEnv === 'production';
     const devRole = h['x-dev-role'] ?? h['X-DEV-ROLE'];
     const devUserId = h['x-dev-user-id'] ?? h['X-DEV-USER-ID'];
@@ -54,10 +62,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    
     // DEV TOKEN (NON-PROD ONLY): accept Bearer dev-token-<email>
     // This is a convenience for mobile/dev; replace with real JWT in prod.
-    const authz = String((h['authorization'] ?? h['Authorization'] ?? '') as any);
+    const authz = String(
+      (h['authorization'] ?? h['Authorization'] ?? '') as any,
+    );
     const mTok = authz.match(/^Bearer\s+(dev-token-[^\s]+)$/i);
     if (!isProd && mTok) {
       const tok = String(mTok[1]);
