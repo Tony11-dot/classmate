@@ -958,3 +958,80 @@ model StudentScheduleTemplate {
   @@index([studentId, priority])
   @@index([templateId])
 }
+// --- Classroom tabs (Course == Classroom) ---
+// Chat: WhatsApp-like messages (text + optional attachment URL metadata)
+model ClassroomMessage {
+  id          String   @id @default(cuid())
+  courseId    String
+  senderUserId String
+  kind        ClassroomMessageKind @default(TEXT)
+  text        String?
+  mediaUrl    String?
+  mediaMime   String?
+  durationSec Int?
+  createdAt   DateTime @default(now())
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, createdAt])
+  @@index([senderUserId, createdAt])
+}
+
+enum ClassroomMessageKind {
+  TEXT
+  VOICE
+  IMAGE
+  DOC
+}
+
+// Assignments: teacher posts assignments; students view
+model ClassroomAssignment {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  body        String?
+  dueAt       DateTime?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, createdAt])
+  @@index([courseId, dueAt])
+}
+
+// Materials: teacher posts materials (files/links)
+model ClassroomMaterial {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  url         String
+  mime        String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, createdAt])
+}
+
+// Meetings: scheduled meetings (title + time + link)
+model ClassroomMeeting {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  startsAt    DateTime
+  endsAt      DateTime?
+  link        String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, startsAt])
+  @@index([courseId, createdAt])
+}
