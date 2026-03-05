@@ -1,8 +1,5 @@
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-
 import '../config/env.dart';
 
 class CMApi {
@@ -12,9 +9,10 @@ class CMApi {
   final http.Client _client;
 
   Uri _buildUri(String path, {Map<String, String>? query}) {
-    final base = Env.apiBaseUrl; // e.g. http://192.168.x.x:3001
+    final base = Env.apiBaseUrl;
     final baseUri = Uri.parse(base);
     final p = path.startsWith('/') ? path : '/$path';
+
     return Uri(
       scheme: baseUri.scheme,
       host: baseUri.host,
@@ -28,71 +26,43 @@ class CMApi {
     );
   }
 
-  Map<String, String> _headers({required bool contentTypeJson}) {
-    final h = <String, String>{
-      'x-school-id': Env.schoolId,
-      if (contentTypeJson) 'content-type': 'application/json',
-      'accept': 'application/json',
+  Map<String, String> _headers({bool json = true}) {
+    final t = (token ?? '').trim();
+    return {
+      if (json) 'Content-Type': 'application/json',
+      if (t.isNotEmpty) 'Authorization': 'Bearer $t',
+      if (t.isEmpty) 'x-dev-role': 'STUDENT',
+      if (t.isEmpty) 'x-dev-user-id': 'dev-student',
+      if (t.isEmpty) 'x-dev-grade': '10',
+      if (t.isEmpty) 'x-dev-school-id': 'test-school',
     };
-    final t = token;
-    if (t != null && t.trim().isNotEmpty) {
-      h['authorization'] = 'Bearer ${t.trim()}';
-    }
-    return h;
-  }
-
-  dynamic _decode(http.Response res) {
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      if (res.body.isEmpty) {
-        return <String, dynamic>{};
-      }
-      final v = jsonDecode(res.body);
-      return v;
-    }
-
-    // try to surface JSON error payloads nicely
-    try {
-      final v = jsonDecode(res.body);
-      throw Exception('HTTP ${res.statusCode}: ${jsonEncode(v)}');
-    } catch (_) {
-      throw Exception('HTTP ${res.statusCode}: ${res.body}');
-    }
   }
 
   Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
-    final uri = _buildUri(path, query: query);
     final res = await _client.get(
-      uri,
-      headers: _headers(contentTypeJson: false),
+      _buildUri(path, query: query),
+      headers: _headers(),
     );
-    return _decode(res);
+
+    if (res.body.isEmpty) return null;
+    return jsonDecode(res.body);
   }
 
-  Future<dynamic> postJson(
-    String path, {
-    Map<String, dynamic>? body,
-    Map<String, String>? query,
-  }) async {
-    final uri = _buildUri(path, query: query);
+  Future<dynamic> postJson(String path, {Object? body}) async {
     final res = await _client.post(
-      uri,
-      headers: _headers(contentTypeJson: true),
-      body: jsonEncode(body ?? const <String, dynamic>{}),
+      _buildUri(path),
+      headers: _headers(),
+      body: jsonEncode(body ?? {}),
     );
-    return _decode(res);
+
+    if (res.body.isEmpty) return null;
+    return jsonDecode(res.body);
   }
 
-  Future<dynamic> deleteJson(String path, {Map<String, String>? query}) async {
-    final uri = _buildUri(path, query: query);
-    final res = await _client.delete(
-      uri,
-      headers: _headers(contentTypeJson: false),
-    );
-    return _decode(res);
-  }
+  Future<dynamic> deleteJson(String path) async {
+    final res = await _client.delete(_buildUri(path), headers: _headers());
 
-  @mustCallSuper
-  void dispose() {
-    _client.close();
+    if (res.body.isEmpty) return null;
+    return jsonDecode(res.body);
   }
 }

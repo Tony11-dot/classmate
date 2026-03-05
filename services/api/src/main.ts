@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { httpMetricsMiddleware } from './metrics/http-metrics.middleware';
 import { corsOrigins, env } from './config/env';
 import helmet from 'helmet';
@@ -13,6 +14,12 @@ async function bootstrap() {
   process.env.PORT = process.env.PORT ?? '3000';
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true
+  }));
 
   app.use(httpMetricsMiddleware);
   // ✅ CORS for admin-web dev + e2e

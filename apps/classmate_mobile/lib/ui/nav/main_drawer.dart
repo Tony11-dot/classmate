@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 
 class MainDrawer extends ConsumerWidget {
@@ -93,15 +94,27 @@ class MainDrawer extends ConsumerWidget {
             item(
               icon: Icons.calendar_month_rounded,
               title: 'Schedule',
-              onTap: () {},
+              onTap: () => context.go('/schedule'),
             ),
-            item(icon: Icons.groups_rounded, title: 'Classrooms', onTap: () {}),
-            item(icon: Icons.auto_awesome_rounded, title: 'NOVA', onTap: () {}),
-            item(icon: Icons.insights_rounded, title: 'Insights', onTap: () {}),
+            item(
+              icon: Icons.groups_rounded,
+              title: 'Classrooms',
+              onTap: () => context.go('/classrooms'),
+            ),
+            item(
+              icon: Icons.auto_awesome_rounded,
+              title: 'NOVA',
+              onTap: () => context.go('/tutor'),
+            ),
+            item(
+              icon: Icons.insights_rounded,
+              title: 'Insights',
+              onTap: () => context.go('/insights'),
+            ),
             item(
               icon: Icons.video_collection_rounded,
               title: 'Solutions',
-              onTap: () {},
+              onTap: () => context.go('/solutions'),
             ),
 
             // 2) LifeDoc features
@@ -109,13 +122,17 @@ class MainDrawer extends ConsumerWidget {
             item(
               icon: Icons.how_to_reg_rounded,
               title: 'Attendance',
-              onTap: () {},
+              onTap: () => context.go('/attendance'),
             ),
-            item(icon: Icons.grade_rounded, title: 'Grades', onTap: () {}),
+            item(
+              icon: Icons.grade_rounded,
+              title: 'Grades',
+              onTap: () => context.go('/grades'),
+            ),
             item(
               icon: Icons.notifications_rounded,
               title: 'Notifications',
-              onTap: () {},
+              onTap: () => context.go('/notifications'),
             ),
             item(
               icon: Icons.warning_amber_rounded,
@@ -125,13 +142,21 @@ class MainDrawer extends ConsumerWidget {
 
             // 3) Profile/settings
             section('Profile'),
-            item(icon: Icons.person_rounded, title: 'Profile', onTap: () {}),
+            item(
+              icon: Icons.person_rounded,
+              title: 'Profile',
+              onTap: () => context.go('/profile'),
+            ),
             item(
               icon: Icons.tune_rounded,
               title: 'Customization',
-              onTap: () {},
+              onTap: () => context.go('/settings'),
             ),
-            item(icon: Icons.settings_rounded, title: 'Settings', onTap: () {}),
+            item(
+              icon: Icons.settings_rounded,
+              title: 'Settings',
+              onTap: () => context.go('/settings'),
+            ),
             item(
               icon: Icons.logout_rounded,
               title: 'Logout',

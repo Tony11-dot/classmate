@@ -762,6 +762,8 @@ model TutorReplyCache {
 
 // ### CLASSMATE:MODELS:BEGIN
 model Solution {
+  @@index([createdAt])
+
   id             String   @id @default(uuid())
   authorId       String
   subject        String // "math" | "physics" | ...
@@ -828,7 +830,10 @@ model SolutionLike {
   @@unique([solutionId, userId])
   @@index([solutionId])
   @@index([userId])
+
+  
 }
+
 
 model SolutionComment {
   id        String   @id @default(cuid())

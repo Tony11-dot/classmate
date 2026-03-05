@@ -1,3 +1,4 @@
+import { HealthController } from "./system/health.controller";
 import { RolesGuard } from './auth/guards/roles.guard';
 import { MetricsController } from './metrics/metrics.controller';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';

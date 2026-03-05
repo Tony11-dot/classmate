@@ -17,7 +17,7 @@ class LoginScreen extends ConsumerWidget {
             await ref.read(authSessionProvider).simLogin();
             await ref.read(authSessionProvider).setDisplayName('Tony');
             if (!context.mounted) return;
-            context.go('/student/schedule');
+            context.go('/schedule');
           },
         ),
       ),
