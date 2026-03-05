@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { httpMetricsMiddleware } from './metrics/http-metrics.middleware';
 import { corsOrigins, env } from './config/env';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -13,6 +14,7 @@ async function bootstrap() {
   const env = loadEnv();
   const app = await NestFactory.create(AppModule);
 
+  app.use(httpMetricsMiddleware);
   // ✅ CORS for admin-web dev + e2e
   // allow:
   // - explicit localhost/127.0.0.1:3001
