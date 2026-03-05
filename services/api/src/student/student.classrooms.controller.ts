@@ -76,8 +76,6 @@ export class StudentClassroomsController {
         id: true,
         dayOfWeek: true,
         period: true,
-        startTime: true,
-        endTime: true,
       },
       orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }, { id: 'asc' }],
     });
@@ -309,8 +307,6 @@ export class StudentClassroomsController {
       select: {
         id: true,
         title: true,
-        startsAt: true,
-        endsAt: true,
         link: true,
         createdBy: true,
         createdAt: true,
