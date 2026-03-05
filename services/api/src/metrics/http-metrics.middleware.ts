@@ -15,9 +15,19 @@ const httpRequestDurationSeconds = new Histogram({
 });
 
 function routeLabel(req: Request): string {
-  // best-effort stable label (avoid high-cardinality full URLs)
-  const anyReq = req as any;
-  return anyReq?.route?.path || anyReq?.baseUrl || req.path || 'unknown';
+  // stable label (avoid high-cardinality full URLs)
+  const raw = (req.path || '').split('?')[0] || 'unknown';
+
+  // replace common id-like segments: uuid, cuid/cuid2-ish, long hex, numbers
+  const normalized = raw
+    .replace(
+      /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi,
+      ':id',
+    )
+    .replace(/\b[0-9a-f]{16,}\b/gi, ':id')
+    .replace(/\b\d+\b/g, ':id');
+
+  return normalized;
 }
 
 export function httpMetricsMiddleware(
