@@ -1,4 +1,5 @@
 import { RolesGuard } from './auth/guards/roles.guard';
+import { MetricsController } from './metrics/metrics.controller';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { BrainModule } from './brain/brain.module';
@@ -46,20 +47,26 @@ const serveStatic =
 // Always register seed controller in tests; optionally in non-prod when ENABLE_E2E_SEED=true
 const controllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
-  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
-];
-
+  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED
+    ? [E2ESeedController]
+    : []),
+  ,
+  MetricsController,
+].filter(Boolean) as unknown as any[];
 @Module({
+  controllers,
   providers: [
-    
-      
     { provide: APP_GUARD, useClass: ThrottlerGuard },
-{ provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: DevOverrideGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
     },
     {
       provide: APP_FILTER,
@@ -70,7 +77,7 @@ const controllers = [
       useClass: ThrottlerGuard,
     },
   ],
-  controllers,
+
   imports: [
     ClassroomsModule,
     ...serveStatic,
@@ -100,6 +107,6 @@ const controllers = [
     VersionModule,
     NotificationsModule,
     BrainModule,
-],
+  ],
 })
 export class AppModule {}

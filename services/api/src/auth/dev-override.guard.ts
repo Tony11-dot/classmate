@@ -1,4 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { IS_PUBLIC_KEY } from './public.decorator';
+import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AppRole } from './roles';
 import { isRole } from './roles';
@@ -6,7 +8,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class DevOverrideGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest<any>();
@@ -40,7 +45,9 @@ export class DevOverrideGuard implements CanActivate {
     const m = String(rawAuth).match(/^Bearer\s+(dev-token-(.+))$/i);
     if (!m) return true;
 
-    const email = String(m[2] ?? '').trim().toLowerCase();
+    const email = String(m[2] ?? '')
+      .trim()
+      .toLowerCase();
     if (!email || !email.includes('@')) return true;
 
     const random = `dev-token:${email}:${Date.now()}:${Math.random()}`;

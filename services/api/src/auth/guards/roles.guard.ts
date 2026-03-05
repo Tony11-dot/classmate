@@ -1,6 +1,10 @@
 function getAuthHeader(req: any): string {
   const h = req?.headers ?? {};
-  const v = (h.authorization ?? h.Authorization ?? req?.get?.('authorization') ?? req?.get?.('Authorization') ?? '') as any;
+  const v = (h.authorization ??
+    h.Authorization ??
+    req?.get?.('authorization') ??
+    req?.get?.('Authorization') ??
+    '') as any;
   return typeof v === 'string' ? v.trim() : '';
 }
 
@@ -11,6 +15,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { IS_PUBLIC_KEY } from '../public.decorator';
 import { Reflector } from '@nestjs/core';
 import { Role, normalizeRoles, hasRole } from '../roles';
 
