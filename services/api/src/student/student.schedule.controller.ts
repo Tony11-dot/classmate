@@ -9,12 +9,18 @@ import { PrismaService } from '../prisma/prisma.service';
 @Roles(Role.STUDENT, Role.ADMIN)
 @Controller('student/schedule')
 export class StudentScheduleController {
-  constructor(private readonly schedule: ScheduleService, private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly schedule: ScheduleService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-    private async cohortIdFromUser(req: any): Promise<string> {
+  private async cohortIdFromUser(req: any): Promise<string> {
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
     if (!uid) throw new Error('Missing user id');
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: uid }, select: { cohortId: true } });
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: uid },
+      select: { cohortId: true },
+    });
     if (!sp?.cohortId) throw new Error('Student not onboarded');
     return String(sp.cohortId);
   }
