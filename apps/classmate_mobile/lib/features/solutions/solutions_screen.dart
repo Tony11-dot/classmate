@@ -1,13 +1,46 @@
 import 'dart:async';
-import '../../core/auth/auth_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../core/auth/auth_controller.dart';
+import '../tutor/ui/tutor_screen.dart';
+import 'solution_model.dart';
 import 'solutions_controller.dart';
 import 'solutions_filters.dart';
-import 'solution_model.dart';
+
+String _cmNovaPromptForSolution(dynamic item) {
+  final title = (item.title ?? '').toString().trim();
+  final subject = (item.subject ?? '').toString().trim();
+  final body = (item.body ?? item.text ?? item.content ?? '').toString().trim();
+
+  final parts = <String>[
+    if (title.isNotEmpty) 'Question title: $title',
+    if (subject.isNotEmpty) 'Subject: $subject',
+    if (body.isNotEmpty) 'Student solution / post:\n$body',
+    'Explain this question step by step at Bagrut level.',
+  ];
+
+  return parts.join('\n\n');
+}
+
+String _cmNovaSubjectForSolution(dynamic item) {
+  return (item.subject ?? '').toString().trim();
+}
+
+void _cmOpenExplain(BuildContext context, dynamic item) {
+  final title = (item.title ?? '').toString().trim();
+
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => TutorScreen(
+        initialPrompt: _cmNovaPromptForSolution(item),
+        initialSubject: _cmNovaSubjectForSolution(item),
+        initialTitle: title.isEmpty ? 'Explain' : title,
+      ),
+    ),
+  );
+}
 
 class SolutionsScreen extends ConsumerStatefulWidget {
   const SolutionsScreen({super.key});
@@ -474,8 +507,6 @@ class _FullscreenSolutionPost extends ConsumerWidget {
     return v.isNotEmpty ? v : '—';
   }
 
-  String get _repostCount => '${item.repostCount}';
-
   String get _createdText {
     final raw = item.createdAt?.trim() ?? '';
     if (raw.isEmpty) return '';
@@ -650,26 +681,55 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                             const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.repeat_rounded,
-                              label: _repostCount,
+                              label: '',
                               color: Colors.white,
                               onTap: () async {
-                                final messenger = ScaffoldMessenger.of(context);
-                                try {
-                                  await controller.registerRepost(item);
-                                  if (context.mounted) {
-                                    messenger.showSnackBar(
-                                      const SnackBar(content: Text('Reposted')),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    messenger.showSnackBar(
-                                      SnackBar(
-                                        content: Text('Repost failed: $e'),
-                                      ),
-                                    );
-                                  }
+                                final state = context
+                                    .findAncestorStateOfType<
+                                      _SolutionsScreenState
+                                    >();
+                                if (state == null) {
+                                  return;
                                 }
+                                await state._openSolutionComposer(
+                                  context,
+                                  repostFrom: item,
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _SideAction(
+                              icon: Icons.auto_awesome_rounded,
+                              label: 'Explain',
+                              color: Colors.white,
+                              onTap: () {
+                                final state = context
+                                    .findAncestorStateOfType<
+                                      _SolutionsScreenState
+                                    >();
+                                if (state == null) {
+                                  return;
+                                }
+                                _cmOpenExplain(context, item);
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _SideAction(
+                              icon: Icons.upload_rounded,
+                              label: 'Upload your own',
+                              color: Colors.white,
+                              onTap: () async {
+                                final state = context
+                                    .findAncestorStateOfType<
+                                      _SolutionsScreenState
+                                    >();
+                                if (state == null) {
+                                  return;
+                                }
+                                await state._openSolutionComposer(
+                                  context,
+                                  repostFrom: null,
+                                );
                               },
                             ),
                           ],

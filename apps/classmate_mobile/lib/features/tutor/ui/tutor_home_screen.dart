@@ -1,304 +1,618 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
 
-class TutorHomeScreen extends ConsumerWidget {
-  const TutorHomeScreen({super.key});
+class TutorHomeScreen extends ConsumerStatefulWidget {
+  const TutorHomeScreen({
+    super.key,
+    this.initialPrompt,
+    this.initialSubject,
+    this.initialTitle,
+  });
 
-  static const brandTitle = 'NOVA';
+  final String? initialPrompt;
+  final String? initialSubject;
+  final String? initialTitle;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sessions = ref.watch(tutorSessionsProvider);
+  ConsumerState<TutorHomeScreen> createState() => _TutorHomeScreenState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(brandTitle),
-        actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(tutorSessionsProvider),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _newChatFlow(context, ref),
-        child: const Icon(Icons.add),
-      ),
-      body: sessions.when(
-        data: (list) {
-          if (list.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('No chats yet'),
-                  const SizedBox(height: 12),
-                  FilledButton(
-                    onPressed: () => _newChatFlow(context, ref),
-                    child: const Text('Start a chat'),
-                  ),
-                ],
-              ),
-            );
-          }
+class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
+  static const _renameKey = 'nova_local_session_titles_v1';
+  static const _hiddenKey = 'nova_hidden_sessions_v1';
 
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: list.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, i) {
-              final s = (list[i] as Map).cast<String, dynamic>();
-              final id = (s['id'] ?? '') as String;
-              final title = (s['title'] ?? s['topic'] ?? 'Chat') as String;
-              final subject = (s['subject'] ?? 'GENERAL') as String;
-              final characterName =
-                  (s['characterName'] ?? s['character']?['name'] ?? 'Tutor')
-                      as String;
+  final TextEditingController _searchController = TextEditingController();
 
-              return ListTile(
-                title: Text(title),
-                subtitle: Text('$characterName • $subject'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  if (id.isEmpty) return;
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => NovaChatScreen()));
-                },
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Error: $e', textAlign: TextAlign.center),
-                  const SizedBox(height: 12),
-                  FilledButton(
-                    onPressed: () => ref.invalidate(tutorSessionsProvider),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
+  Map<String, String> _localTitles = <String, String>{};
+  Set<String> _hiddenSessions = <String>{};
+  bool _prefsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
   }
 
-  Future<void> _newChatFlow(BuildContext context, WidgetRef ref) async {
-    final subject = await _pickSubject(context, ref);
-    if (subject == null) return;
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    // ignore: use_build_context_synchronously
-    final pick = await _pickCharacter(context, ref, subject);
-    if (pick == null) return;
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
 
+    final rawTitles = prefs.getString(_renameKey);
+    Map<String, String> titles = <String, String>{};
+    if (rawTitles != null && rawTitles.trim().isNotEmpty) {
+      final decoded = jsonDecode(rawTitles);
+      if (decoded is Map) {
+        titles = decoded.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+      }
+    }
+
+    final hidden = prefs.getStringList(_hiddenKey) ?? <String>[];
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _localTitles = titles;
+      _hiddenSessions = hidden.toSet();
+      _prefsLoaded = true;
+    });
+  }
+
+  Future<void> _persistPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_renameKey, jsonEncode(_localTitles));
+    await prefs.setStringList(_hiddenKey, _hiddenSessions.toList());
+  }
+
+  Future<void> _createFreshChat() async {
     final repo = ref.read(tutorRepositoryProvider);
 
     try {
-      final res = await repo.createSession(
-        characterId: pick.id,
-        subject: subject == 'ALL' ? null : subject,
-      );
-      final sessionId = (res['session']?['id'] ?? res['id'] ?? '') as String;
-      if (sessionId.isEmpty) {
-        throw Exception('Missing session id');
-      }
+      final created = await repo.createSession();
+      final session = (created['session'] is Map<String, dynamic>)
+          ? created['session'] as Map<String, dynamic>
+          : created;
+      final sessionId = (session['id'] ?? '').toString();
 
-      // refresh list immediately
       ref.invalidate(tutorSessionsProvider);
-      // ignore: use_build_context_synchronously
-      Navigator.of(
-        // ignore: use_build_context_synchronously
-        context,
-      ).push(MaterialPageRoute(builder: (_) => NovaChatScreen()));
+
+      if (!mounted || sessionId.isEmpty) {
+        return;
+      }
+
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              NovaChatScreen(sessionId: sessionId, initialTitle: 'New chat'),
+        ),
+      );
+
+      ref.invalidate(tutorSessionsProvider);
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to start chat: $e')));
+      ).showSnackBar(SnackBar(content: Text('Failed to create chat: $e')));
     }
   }
 
-  Future<String?> _pickSubject(BuildContext context, WidgetRef ref) async {
-    final subjects = await ref
-        .read(tutorStudentSubjectsProvider.future)
-        .catchError((_) => <dynamic>[]);
-
-    // Normalize into strings (best-effort)
-    final set = <String>{};
-    for (final x in subjects) {
-      if (x is String) {
-        set.add(x.toUpperCase());
-      } else if (x is Map) {
-        final v = (x['code'] ?? x['subject'] ?? x['name'] ?? x['id']);
-        if (v is String && v.trim().isNotEmpty) set.add(v.toUpperCase());
-      }
+  Future<void> _openSession(Map<String, dynamic> session) async {
+    final sessionId = (session['id'] ?? '').toString();
+    if (sessionId.isEmpty) {
+      return;
     }
 
-    final items = <String>[
-      'ALL',
-      if (set.isEmpty) ...<String>[
-        'GENERAL',
-        'MATH',
-        'PHYSICS',
-        'CS',
-        'ENGLISH',
-      ] else
-        ...set.toList()..sort(),
-    ];
+    final title = _displayTitle(session);
 
-    return showModalBottomSheet<String>(
-      // ignore: use_build_context_synchronously
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            NovaChatScreen(sessionId: sessionId, initialTitle: title),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    ref.invalidate(tutorSessionsProvider);
+  }
+
+  Future<void> _renameSession(Map<String, dynamic> session) async {
+    final id = (session['id'] ?? '').toString();
+    if (id.isEmpty) {
+      return;
+    }
+
+    final controller = TextEditingController(text: _displayTitle(session));
+
+    final next = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rename chat'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Chat name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(controller.text.trim()),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (next == null) {
+      return;
+    }
+
+    setState(() {
+      if (next.isEmpty) {
+        _localTitles.remove(id);
+      } else {
+        _localTitles[id] = next;
+      }
+    });
+
+    await _persistPrefs();
+  }
+
+  Future<void> _deleteSessionLocally(Map<String, dynamic> session) async {
+    final id = (session['id'] ?? '').toString();
+    if (id.isEmpty) {
+      return;
+    }
+
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Hide chat?'),
+              content: const Text(
+                'This hides the chat from the list on this device. The session stays on the backend.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Hide'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (!confirmed) {
+      return;
+    }
+
+    setState(() {
+      _hiddenSessions.add(id);
+    });
+
+    await _persistPrefs();
+  }
+
+  Future<void> _showSessionActions(Map<String, dynamic> session) async {
+    final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
-      builder: (_) {
+      builder: (context) {
         return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  'New chat',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
+              ListTile(
+                leading: const Icon(Icons.drive_file_rename_outline_rounded),
+                title: const Text('Rename chat'),
+                onTap: () => Navigator.of(context).pop('rename'),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Text('Pick a subject'),
+              ListTile(
+                leading: const Icon(Icons.visibility_off_rounded),
+                title: const Text('Hide chat'),
+                subtitle: const Text('Local-only for now'),
+                onTap: () => Navigator.of(context).pop('hide'),
               ),
-              for (final s in items)
-                ListTile(
-                  title: Text(s),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).pop(s),
-                ),
             ],
           ),
         );
       },
     );
+
+    if (action == 'rename') {
+      await _renameSession(session);
+    } else if (action == 'hide') {
+      await _deleteSessionLocally(session);
+    }
   }
 
-  Future<_CharPick?> _pickCharacter(
-    BuildContext context,
-    WidgetRef ref,
-    String subject,
-  ) async {
-    List<dynamic> all = <dynamic>[];
-
-    if (subject == 'ALL') {
-      // merge a few popular subjects + GENERAL (best-effort)
-      final subs = <String>['GENERAL', 'MATH', 'PHYSICS', 'CS', 'ENGLISH'];
-      for (final s in subs) {
-        final list = await ref
-            .read(tutorCharactersProvider(s).future)
-            .catchError((_) => <dynamic>[]);
-        all.addAll(list);
-      }
-    } else {
-      all = await ref
-          .read(tutorCharactersProvider(subject).future)
-          .catchError((_) => <dynamic>[]);
-      if (all.isEmpty && subject != 'GENERAL') {
-        final g = await ref
-            .read(tutorCharactersProvider('GENERAL').future)
-            .catchError((_) => <dynamic>[]);
-        all = g;
-      }
+  String _displayTitle(Map<String, dynamic> s) {
+    final id = (s['id'] ?? '').toString();
+    final local = _localTitles[id];
+    if (local != null && local.trim().isNotEmpty) {
+      return local.trim();
     }
 
-    // de-dupe by id
-    final seen = <String>{};
-    final chars = <_CharPick>[];
-    for (final x in all) {
-      if (x is! Map) continue;
-      final m = x.cast<String, dynamic>();
-      final id = (m['id'] ?? '') as String;
-      if (id.isEmpty || seen.contains(id)) continue;
-      seen.add(id);
+    final title = (s['title'] ?? '').toString().trim();
+    final topic = (s['topic'] ?? '').toString().trim();
+    final subject = (s['subject'] ?? '').toString().trim();
 
-      final name = ((m['name'] ?? 'Tutor') as String);
-      final sub = ((m['subject'] ?? 'GENERAL') as String);
-      final tone = (m['tone'] as String?)?.trim();
-      final style = (m['explainStyle'] as String?)?.trim();
+    if (title.isNotEmpty) {
+      return title;
+    }
+    if (topic.isNotEmpty) {
+      return topic;
+    }
+    if (subject.isNotEmpty) {
+      return subject;
+    }
+    return 'Untitled chat';
+  }
 
-      chars.add(
-        _CharPick(
-          id: id,
-          name: name,
-          subtitle: [
-            sub,
-            if (tone != null && tone.isNotEmpty) tone,
-            if (style != null && style.isNotEmpty) style,
-          ].join(' • '),
-        ),
-      );
+  String _subtitleFor(Map<String, dynamic> s) {
+    final parts = <String>[];
+    final subject = (s['subject'] ?? '').toString().trim();
+    final updatedAt = (s['updatedAt'] ?? s['createdAt'] ?? '')
+        .toString()
+        .trim();
+
+    if (subject.isNotEmpty) {
+      parts.add(subject);
+    }
+    if (updatedAt.isNotEmpty) {
+      parts.add(updatedAt.replaceFirst('T', ' ').split('.').first);
     }
 
-    if (chars.isEmpty) {
-      if (!context.mounted) return null;
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No characters available for this subject'),
-        ),
-      );
-      return null;
+    return parts.isEmpty ? 'Tap to open history' : parts.join(' • ');
+  }
+
+  List<Map<String, dynamic>> _normalizedSessions(List<dynamic> raw) {
+    final items = raw
+        .whereType<Map>()
+        .map((e) => e.map((k, v) => MapEntry(k.toString(), v)))
+        .where((e) => !_hiddenSessions.contains((e['id'] ?? '').toString()))
+        .toList();
+
+    items.sort((a, b) {
+      final aDt =
+          DateTime.tryParse(
+            (a['updatedAt'] ?? a['createdAt'] ?? '').toString(),
+          ) ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      final bDt =
+          DateTime.tryParse(
+            (b['updatedAt'] ?? b['createdAt'] ?? '').toString(),
+          ) ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      return bDt.compareTo(aDt);
+    });
+
+    final q = _searchController.text.trim().toLowerCase();
+    if (q.isEmpty) {
+      return items;
     }
 
-    return showModalBottomSheet<_CharPick>(
-      // ignore: use_build_context_synchronously
-      context: context,
-      showDragHandle: true,
-      builder: (_) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  'Pick a tutor',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    return items.where((s) {
+      final hay = [
+        _displayTitle(s),
+        _subtitleFor(s),
+        (s['subject'] ?? '').toString(),
+        (s['topic'] ?? '').toString(),
+      ].join(' ').toLowerCase();
+      return hay.contains(q);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sessions = ref.watch(tutorSessionsProvider);
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(title: const SizedBox.shrink(), centerTitle: true),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createFreshChat,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New chat'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Column(
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'NOVA',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.9,
+                              height: 0.95,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Your AI tutor',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.68),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              for (final c in chars)
-                ListTile(
-                  title: Text(c.name),
-                  subtitle: Text(c.subtitle),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).pop(c),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        cs.primary.withValues(alpha: 0.16),
+                        cs.secondary.withValues(alpha: 0.08),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.10),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Real chat history, cleaner threads, faster access.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: cs.onSurface.withValues(alpha: 0.75),
+                            ),
+                      ),
+                      const SizedBox(height: 14),
+                      Center(
+                        child: FilledButton.icon(
+                          onPressed: _createFreshChat,
+                          icon: const Icon(Icons.auto_awesome_rounded),
+                          label: const Text('Start a fresh conversation'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-            ],
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: 'Search chat history',
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: _searchController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.04),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      },
+          Expanded(
+            child: !_prefsLoaded
+                ? const Center(child: CircularProgressIndicator())
+                : sessions.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline_rounded, size: 40),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Failed to load chats',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '$e',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton(
+                                onPressed: () =>
+                                    ref.invalidate(tutorSessionsProvider),
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    data: (raw) {
+                      final items = _normalizedSessions(raw);
+
+                      if (items.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(28),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.forum_rounded, size: 42),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _searchController.text.trim().isEmpty
+                                      ? 'No chats yet'
+                                      : 'No chats match your search',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 10),
+                                FilledButton.icon(
+                                  onPressed: _createFreshChat,
+                                  icon: const Icon(Icons.add_comment_rounded),
+                                  label: const Text('Create first chat'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          ref.invalidate(tutorSessionsProvider);
+                        },
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+                          itemCount: items.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final session = items[index];
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(22),
+                              onTap: () => _openSession(session),
+                              child: Ink(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.04),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.08),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    14,
+                                    10,
+                                    14,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 42,
+                                        height: 42,
+                                        decoration: BoxDecoration(
+                                          color: cs.primary.withValues(
+                                            alpha: 0.14,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.auto_awesome_rounded,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _displayTitle(session),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleSmall
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _subtitleFor(session),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.copyWith(
+                                                    color: cs.onSurface
+                                                        .withValues(
+                                                          alpha: 0.65,
+                                                        ),
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () =>
+                                            _showSessionActions(session),
+                                        icon: const Icon(
+                                          Icons.more_horiz_rounded,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
-}
-
-class _CharPick {
-  const _CharPick({
-    required this.id,
-    required this.name,
-    required this.subtitle,
-  });
-  final String id;
-  final String name;
-  final String subtitle;
 }

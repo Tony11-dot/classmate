@@ -122,20 +122,7 @@ class SolutionsController extends Notifier<SolutionsState> {
     state = state.copyWith();
   }
 
-  final Map<String, int> _repostCountBySolutionId = <String, int>{};
-
-  int _repostCountFor(String solutionId) {
-    final local = _repostCountBySolutionId[solutionId];
-    if (local != null) return local;
-    final item = state.items.cast<Solution?>().firstWhere(
-      (e) => e?.id == solutionId,
-      orElse: () => null,
-    );
-    return item?.repostCount ?? 0;
-  }
-
   double _rankScore(Solution item) {
-    final reposts = _repostCountFor(item.id);
     final created = DateTime.tryParse(
       (item.createdAt ?? '').toString(),
     )?.toUtc();
@@ -144,23 +131,13 @@ class SolutionsController extends Notifier<SolutionsState> {
         : DateTime.now().toUtc().difference(created).inMinutes / 60.0;
     final recencyBoost = ageHours <= 0 ? 24.0 : (24.0 / (1.0 + ageHours / 6.0));
 
-    return item.likeCount * 3.0 +
-        item.commentCount * 5.0 +
-        reposts * 4.0 +
-        recencyBoost;
+    return item.likeCount * 3.0 + item.commentCount * 5.0 + recencyBoost;
   }
 
   List<Solution> _sortedFeed(List<Solution> items) {
     final next = [...items];
     next.sort((a, b) => _rankScore(b).compareTo(_rankScore(a)));
     return next;
-  }
-
-  int repostCountFor(String solutionId) => _repostCountFor(solutionId);
-
-  int displayRepostCountFor(Solution item) {
-    final live = _repostCountFor(item.id);
-    return live > item.repostCount ? live : item.repostCount;
   }
 
   @override
@@ -190,10 +167,6 @@ class SolutionsController extends Notifier<SolutionsState> {
         limit: _pageSize,
         cursor: null,
       );
-
-      for (final item in page.items) {
-        _repostCountBySolutionId[item.id] = item.repostCount;
-      }
 
       state = state.copyWith(
         items: _sortedFeed(page.items),
@@ -238,10 +211,6 @@ class SolutionsController extends Notifier<SolutionsState> {
         limit: _pageSize,
         cursor: cursor,
       );
-
-      for (final item in page.items) {
-        _repostCountBySolutionId[item.id] = item.repostCount;
-      }
 
       state = state.copyWith(
         items: _sortedFeed(<Solution>[...state.items, ...page.items]),
@@ -414,50 +383,6 @@ class SolutionsController extends Notifier<SolutionsState> {
         solutionId,
       ).copyWith(posting: false, error: e.toString());
       _bump();
-    }
-  }
-
-  Future<void> registerRepost(Solution original) async {
-    final id = original.id;
-    final repo = ref.read(solutionsRepoProvider);
-
-    _repostCountBySolutionId[id] = _repostCountFor(id) + 1;
-    final idx = state.items.indexWhere((e) => e.id == id);
-    if (idx != -1) {
-      final nextItems = [...state.items];
-      final current = nextItems[idx];
-      nextItems[idx] = current.copyWith(repostCount: _repostCountFor(id));
-      state = state.copyWith(items: _sortedFeed(nextItems), error: null);
-    } else {
-      _bump();
-    }
-
-    try {
-      final res = await repo.repostSolution(id);
-      final repostCount = (res['repostCount'] as num?)?.toInt();
-      if (repostCount != null) {
-        _repostCountBySolutionId[id] = repostCount;
-      }
-      if (idx != -1) {
-        final nextItems = [...state.items];
-        nextItems[idx] = nextItems[idx].copyWith(
-          repostCount: repostCount ?? _repostCountFor(id),
-        );
-        state = state.copyWith(items: _sortedFeed(nextItems), error: null);
-      } else {
-        _bump();
-      }
-    } catch (e) {
-      final rolledBack = (_repostCountFor(id) - 1).clamp(0, 1 << 30);
-      _repostCountBySolutionId[id] = rolledBack;
-      if (idx != -1) {
-        final nextItems = [...state.items];
-        nextItems[idx] = nextItems[idx].copyWith(repostCount: rolledBack);
-        state = state.copyWith(items: _sortedFeed(nextItems), error: null);
-      } else {
-        _bump();
-      }
-      rethrow;
     }
   }
 

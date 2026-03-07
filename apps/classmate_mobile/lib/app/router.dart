@@ -76,7 +76,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/tutor',
-            builder: (context, state) => const TutorScreen(),
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
           ),
           GoRoute(
             path: '/attendance',
