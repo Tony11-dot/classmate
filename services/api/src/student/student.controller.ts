@@ -1,6 +1,7 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   StudentScheduleTodayResponseSchema,
   StudentScheduleWeekQuerySchema,
@@ -32,6 +33,7 @@ export class StudentController {
     return this.student.generateParentLinkCode(req.user, b);
   }
 
+  @SkipThrottle()
   @Get('schedule/today')
   async today(@Req() req: any) {
     const out = await this.student.todaySchedule(req.user);
@@ -52,6 +54,7 @@ export class StudentController {
     return StudentScheduleTodayResponseSchema.parse({ ok: true, items: { date, items } });
   }
 
+  @SkipThrottle()
   @Get('schedule/week')
   async week(@Req() req: any) {
     const out = await this.student.weekSchedule(req.user);

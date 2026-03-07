@@ -14,6 +14,22 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   late DateTime _selectedDate;
 
+  String _friendlyScheduleError(Object error) {
+    final raw = error.toString();
+    if (raw.contains('HTTP 429') || raw.contains('Too Many Requests')) {
+      return 'Schedule is refreshing too fast right now. Wait a moment and try again.';
+    }
+    if (raw.contains('Student not onboarded')) {
+      return 'Your student profile is not fully set up yet.';
+    }
+    return 'Could not load schedule.';
+  }
+
+  Future<void> _retryWeek(String weekOf) async {
+    ref.invalidate(weekScheduleProvider(weekOf));
+    await ref.read(weekScheduleProvider(weekOf).future);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -28,10 +44,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final cs = theme.colorScheme;
 
     return RefreshIndicator(
-      onRefresh: () async {
-        ref.invalidate(weekScheduleProvider(weekOf));
-        await ref.read(weekScheduleProvider(weekOf).future);
-      },
+      onRefresh: () => _retryWeek(weekOf),
       child: GestureDetector(
         onHorizontalDragEnd: (details) {
           final v = details.primaryVelocity ?? 0;
@@ -48,9 +61,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             weekAsync.when(
               data: (data) => _heroCard(context, data),
               loading: () => _heroLoadingCard(context),
-              error: (error, _) => _heroErrorCard(context, '$error', () {
-                ref.invalidate(weekScheduleProvider(weekOf));
-              }),
+              error: (error, _) =>
+                  _heroErrorCard(context, _friendlyScheduleError(error), () {
+                    _retryWeek(weekOf);
+                  }),
             ),
             const SizedBox(height: 16),
             Container(
@@ -131,8 +145,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               data: (data) => _daySection(context, data),
               loading: () => const _LoadingState(),
               error: (error, _) => _ErrorState(
-                message: '$error',
-                onRetry: () => ref.invalidate(weekScheduleProvider(weekOf)),
+                message: _friendlyScheduleError(error),
+                onRetry: () {
+                  _retryWeek(weekOf);
+                },
               ),
             ),
           ],
@@ -246,7 +262,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Could not load weekly schedule',
+            'Could not load schedule',
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 12),

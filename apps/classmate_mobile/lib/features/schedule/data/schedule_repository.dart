@@ -12,6 +12,14 @@ final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
 });
 
 class ScheduleRepository {
+  String _weekYmd(DateTime d) {
+    final x = DateTime.utc(d.year, d.month, d.day);
+    final y = x.year.toString().padLeft(4, '0');
+    final m = x.month.toString().padLeft(2, '0');
+    final day = x.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+
   ScheduleRepository({required this.token});
 
   final String token;
@@ -19,18 +27,18 @@ class ScheduleRepository {
   CMApi get _api => CMApi(token: token);
 
   Future<Map<String, dynamic>> getWeek(DateTime weekOf) async {
-    final iso = weekOf.toIso8601String();
-
-    try {
-      final raw = await _api.getJson(
-        '/student/schedule/week',
-        query: <String, String>{'weekOf': iso},
-      );
-      return _normalizeWeek(raw, weekOf);
-    } catch (_) {
-      final raw = await _api.getJson('/student/schedule/week');
-      return _normalizeWeek(raw, weekOf);
-    }
+    final ymd = _weekYmd(weekOf);
+    final raw = await _api.getJson(
+      '/student/schedule/week',
+      query: <String, String>{'weekOf': ymd},
+    );
+    return _normalizeWeek(
+      raw,
+      DateTime.parse(
+        '$ymd'
+        'T00:00:00.000Z',
+      ),
+    );
   }
 
   Map<String, dynamic> _normalizeWeek(dynamic raw, DateTime requestedWeek) {
