@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -118,52 +119,102 @@ class SolutionsController extends Notifier<SolutionsState> {
   }
 
   void _bump() {
-    state = state; // notify listeners
+    state = state.copyWith();
   }
+
+  final Map<String, int> _repostCountBySolutionId = <String, int>{};
+
+  int _repostCountFor(String solutionId) {
+    return _repostCountBySolutionId[solutionId] ?? 0;
+  }
+
+  double _rankScore(Solution item) {
+    final reposts = _repostCountFor(item.id);
+    final created = DateTime.tryParse(
+      (item.createdAt ?? '').toString(),
+    )?.toUtc();
+    final ageHours = created == null
+        ? 9999.0
+        : DateTime.now().toUtc().difference(created).inMinutes / 60.0;
+    final recencyBoost = ageHours <= 0 ? 24.0 : (24.0 / (1.0 + ageHours / 6.0));
+
+    return item.likeCount * 3.0 +
+        item.commentCount * 5.0 +
+        reposts * 4.0 +
+        recencyBoost;
+  }
+
+  List<Solution> _sortedFeed(List<Solution> items) {
+    final next = [...items];
+    next.sort((a, b) => _rankScore(b).compareTo(_rankScore(a)));
+    return next;
+  }
+
+  int repostCountFor(String solutionId) => _repostCountFor(solutionId);
 
   @override
   SolutionsState build() {
-    state = SolutionsState.initial;
-    _loadInitial();
-    return state;
+    Future<void>.microtask(_loadInitial);
+    return SolutionsState.initial;
   }
 
   Future<void> _loadInitial() async {
+    final activeFilters = state.filters;
+
     state = state.copyWith(
+      items: const <Solution>[],
       loading: true,
       loadingMore: false,
       error: null,
-      items: const <Solution>[],
       nextCursor: null,
       hasMore: true,
+      filters: activeFilters,
     );
 
     final repo = ref.read(solutionsRepoProvider);
+
     try {
       final page = await repo.list(
-        filters: state.filters,
+        filters: activeFilters,
         limit: _pageSize,
         cursor: null,
       );
+
       state = state.copyWith(
-        items: page.items,
+        items: _sortedFeed(page.items),
         loading: false,
+        loadingMore: false,
+        error: null,
         nextCursor: page.nextCursor,
         hasMore: page.nextCursor != null,
+        filters: activeFilters,
       );
     } catch (e) {
-      state = state.copyWith(loading: false, error: e.toString());
+      state = state.copyWith(
+        loading: false,
+        loadingMore: false,
+        error: e.toString(),
+        filters: activeFilters,
+      );
     }
   }
 
-  Future<void> refresh() => _loadInitial();
+  Future<void> refresh() async {
+    await _loadInitial();
+  }
 
   Future<void> loadMore() async {
-    if (state.loadingMore || !state.hasMore) return;
+    if (state.loading || state.loadingMore || !state.hasMore) {
+      return;
+    }
+
     final cursor = state.nextCursor;
-    if (cursor == null || cursor.isEmpty) return;
+    if (cursor == null || cursor.isEmpty) {
+      return;
+    }
 
     state = state.copyWith(loadingMore: true, error: null);
+
     final repo = ref.read(solutionsRepoProvider);
 
     try {
@@ -172,9 +223,11 @@ class SolutionsController extends Notifier<SolutionsState> {
         limit: _pageSize,
         cursor: cursor,
       );
+
       state = state.copyWith(
-        items: <Solution>[...state.items, ...page.items],
+        items: _sortedFeed(<Solution>[...state.items, ...page.items]),
         loadingMore: false,
+        error: null,
         nextCursor: page.nextCursor,
         hasMore: page.nextCursor != null,
       );
@@ -183,70 +236,68 @@ class SolutionsController extends Notifier<SolutionsState> {
     }
   }
 
-  Future<void> setFilters(SolutionsFilters f) async {
-    state = state.copyWith(filters: f);
+  Future<void> setFilters(SolutionsFilters filters) async {
+    state = state.copyWith(filters: filters);
     await _loadInitial();
   }
 
-  Future<void> toggleLike(Solution item) async {
-    final repo = ref.read(solutionsRepoProvider);
+  Future<void> clearFilters() async {
+    state = state.copyWith(filters: const SolutionsFilters());
+    await _loadInitial();
+  }
 
-    final idx = state.items.indexWhere((x) => x.id == item.id);
-    if (idx == -1) return;
+  Future<void> toggleLike(String solutionId) async {
+    final idx = state.items.indexWhere((e) => e.id == solutionId);
+    if (idx == -1) {
+      return;
+    }
 
-    final cur = state.items[idx];
-    final optimisticLiked = !cur.likedByMe;
-    final optimisticLikeCount = cur.likeCount + (optimisticLiked ? 1 : -1);
-
-    final updatedOptimistic = cur.copyWith(
-      likedByMe: optimisticLiked,
-      likeCount: optimisticLikeCount < 0 ? 0 : optimisticLikeCount,
+    final current = state.items[idx];
+    final optimistic = current.copyWith(
+      likedByMe: !current.likedByMe,
+      likeCount: current.likedByMe
+          ? (current.likeCount > 0 ? current.likeCount - 1 : 0)
+          : current.likeCount + 1,
     );
 
-    final next = [...state.items];
-    next[idx] = updatedOptimistic;
-    state = state.copyWith(items: next);
+    final items = [...state.items];
+    items[idx] = optimistic;
+    state = state.copyWith(items: _sortedFeed(items), error: null);
+
+    final repo = ref.read(solutionsRepoProvider);
 
     try {
-      final m = optimisticLiked
-          ? await repo.like(cur.id)
-          : await repo.unlike(cur.id);
-      final likeCount = (m['likeCount'] is int)
-          ? m['likeCount'] as int
-          : updatedOptimistic.likeCount;
-      final commentCount = (m['commentCount'] is int)
-          ? m['commentCount'] as int
-          : updatedOptimistic.commentCount;
-      final likedByMe = (m['likedByMe'] is bool)
-          ? m['likedByMe'] as bool
-          : updatedOptimistic.likedByMe;
-
-      final fixed = updatedOptimistic.copyWith(
-        likeCount: likeCount,
-        commentCount: commentCount,
-        likedByMe: likedByMe,
-      );
-      final next2 = [...state.items];
-      next2[idx] = fixed;
-      state = state.copyWith(items: next2);
-    } catch (_) {
+      if (current.likedByMe) {
+        await repo.unlike(solutionId);
+      } else {
+        await repo.like(solutionId);
+      }
+    } catch (e) {
       final rollback = [...state.items];
-      rollback[idx] = cur;
-      state = state.copyWith(items: rollback);
+      final ridx = rollback.indexWhere((e) => e.id == solutionId);
+      if (ridx != -1) {
+        rollback[ridx] = current;
+      }
+      state = state.copyWith(items: _sortedFeed(rollback), error: e.toString());
     }
   }
 
-  Future<void> loadComments(Solution solution, {int limit = 20}) async {
-    final repo = ref.read(solutionsRepoProvider);
-    final id = solution.id;
-
-    final cur = commentsStateFor(id);
-    _commentsBySolutionId[id] = cur.copyWith(loading: true, error: null);
+  Future<void> loadComments(String solutionId) async {
+    _commentsBySolutionId[solutionId] = commentsStateFor(solutionId).copyWith(
+      items: const <SolutionComment>[],
+      nextCursor: null,
+      loading: true,
+      loadingMore: false,
+      posting: false,
+      error: null,
+    );
     _bump();
 
+    final repo = ref.read(solutionsRepoProvider);
+
     try {
-      final page = await repo.getComments(id, limit: limit, cursor: null);
-      _commentsBySolutionId[id] = SolutionCommentsState(
+      final page = await repo.getComments(solutionId, limit: 20, cursor: null);
+      _commentsBySolutionId[solutionId] = commentsStateFor(solutionId).copyWith(
         items: page.items,
         nextCursor: page.nextCursor,
         loading: false,
@@ -256,37 +307,47 @@ class SolutionsController extends Notifier<SolutionsState> {
       );
       _bump();
     } catch (e) {
-      _commentsBySolutionId[id] = cur.copyWith(
-        loading: false,
-        error: e.toString(),
-      );
+      _commentsBySolutionId[solutionId] = commentsStateFor(
+        solutionId,
+      ).copyWith(loading: false, error: e.toString());
       _bump();
     }
   }
 
-  Future<void> loadMoreComments(Solution solution, {int limit = 20}) async {
-    final repo = ref.read(solutionsRepoProvider);
-    final id = solution.id;
+  Future<void> loadMoreComments(String solutionId) async {
+    final current = commentsStateFor(solutionId);
+    if (current.loading || current.loadingMore) {
+      return;
+    }
 
-    final cur = commentsStateFor(id);
-    final cursor = cur.nextCursor;
-    if (cur.loadingMore || cursor == null || cursor.isEmpty) return;
+    final cursor = current.nextCursor;
+    if (cursor == null || cursor.isEmpty) {
+      return;
+    }
 
-    _commentsBySolutionId[id] = cur.copyWith(loadingMore: true, error: null);
+    _commentsBySolutionId[solutionId] = current.copyWith(
+      loadingMore: true,
+      error: null,
+    );
     _bump();
 
+    final repo = ref.read(solutionsRepoProvider);
+
     try {
-      final page = await repo.getComments(id, limit: limit, cursor: cursor);
-      final merged = <SolutionComment>[...cur.items, ...page.items];
-      _commentsBySolutionId[id] = cur.copyWith(
-        items: merged,
+      final page = await repo.getComments(
+        solutionId,
+        limit: 20,
+        cursor: cursor,
+      );
+      _commentsBySolutionId[solutionId] = current.copyWith(
+        items: [...current.items, ...page.items],
         nextCursor: page.nextCursor,
         loadingMore: false,
         error: null,
       );
       _bump();
     } catch (e) {
-      _commentsBySolutionId[id] = cur.copyWith(
+      _commentsBySolutionId[solutionId] = current.copyWith(
         loadingMore: false,
         error: e.toString(),
       );
@@ -294,41 +355,138 @@ class SolutionsController extends Notifier<SolutionsState> {
     }
   }
 
-  Future<void> addComment(Solution solution, String body) async {
-    final repo = ref.read(solutionsRepoProvider);
-    final id = solution.id;
-
-    final cur = commentsStateFor(id);
+  Future<void> addComment(String solutionId, String body) async {
     final text = body.trim();
-    if (cur.posting || text.isEmpty) return;
+    if (text.isEmpty) {
+      return;
+    }
 
-    _commentsBySolutionId[id] = cur.copyWith(posting: true, error: null);
+    final current = commentsStateFor(solutionId);
+    _commentsBySolutionId[solutionId] = current.copyWith(
+      posting: true,
+      error: null,
+    );
     _bump();
 
+    final repo = ref.read(solutionsRepoProvider);
+
     try {
-      final created = await repo.addComment(id, text);
-      final updated = <SolutionComment>[created, ...cur.items];
-      _commentsBySolutionId[id] = cur.copyWith(
-        items: updated,
+      final created = await repo.addComment(solutionId, text);
+
+      final nextComments = commentsStateFor(solutionId).copyWith(
+        items: [created, ...commentsStateFor(solutionId).items],
         posting: false,
         error: null,
       );
-      _bump();
+      _commentsBySolutionId[solutionId] = nextComments;
 
-      // bump commentCount in feed list (list drives counts; /:id may not)
-      final idx = state.items.indexWhere((x) => x.id == id);
+      final idx = state.items.indexWhere((e) => e.id == solutionId);
       if (idx != -1) {
-        final curSol = state.items[idx];
         final nextItems = [...state.items];
-        nextItems[idx] = curSol.copyWith(commentCount: curSol.commentCount + 1);
-        state = state.copyWith(items: nextItems);
+        nextItems[idx] = nextItems[idx].copyWith(
+          commentCount: nextItems[idx].commentCount + 1,
+        );
+        state = state.copyWith(items: _sortedFeed(nextItems), error: null);
+      } else {
+        _bump();
       }
     } catch (e) {
-      _commentsBySolutionId[id] = cur.copyWith(
-        posting: false,
-        error: e.toString(),
-      );
+      _commentsBySolutionId[solutionId] = commentsStateFor(
+        solutionId,
+      ).copyWith(posting: false, error: e.toString());
       _bump();
     }
+  }
+
+  Future<void> registerRepost(Solution original) async {
+    final id = original.id;
+    _repostCountBySolutionId[id] = _repostCountFor(id) + 1;
+
+    final idx = state.items.indexWhere((e) => e.id == id);
+    if (idx != -1) {
+      state = state.copyWith(items: _sortedFeed([...state.items]));
+    } else {
+      _bump();
+    }
+  }
+
+  Future<void> createSolution({
+    required String subject,
+    required String sourceType,
+    String? sourceName,
+    int? page,
+    String? questionNumber,
+    String? title,
+    String? notes,
+    String? body,
+  }) async {
+    final repo = ref.read(solutionsRepoProvider);
+
+    final created = await repo.create(
+      subject: subject,
+      sourceType: sourceType,
+      sourceName: sourceName,
+      page: page,
+      questionNumber: questionNumber,
+      title: title,
+      notes: notes,
+      body: body,
+    );
+
+    state = state.copyWith(
+      items: _sortedFeed(<Solution>[created, ...state.items]),
+      error: null,
+    );
+  }
+
+  Future<void> createSolutionWithImages({
+    required String subject,
+    required String sourceType,
+    String? sourceName,
+    int? page,
+    String? questionNumber,
+    String? title,
+    String? notes,
+    String? body,
+    required List<String> imagePaths,
+  }) async {
+    final repo = ref.read(solutionsRepoProvider);
+
+    final created = await repo.create(
+      subject: subject,
+      sourceType: sourceType,
+      sourceName: sourceName,
+      page: page,
+      questionNumber: questionNumber,
+      title: title,
+      notes: notes,
+      body: body,
+      forceStaffDevToken: true,
+    );
+
+    for (final path in imagePaths) {
+      final upload = await repo.uploadImageFile(
+        File(path),
+        forceStaffDevToken: true,
+      );
+      await repo.attachImage(
+        created.id,
+        upload: upload,
+        forceStaffDevToken: true,
+      );
+    }
+
+    final refreshed = await repo.list(
+      filters: state.filters,
+      limit: _pageSize,
+      cursor: null,
+    );
+
+    state = state.copyWith(
+      items: _sortedFeed(refreshed.items),
+      nextCursor: refreshed.nextCursor,
+      hasMore: refreshed.nextCursor != null,
+      error: null,
+    );
   }
 }

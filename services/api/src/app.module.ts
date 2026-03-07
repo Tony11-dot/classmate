@@ -1,9 +1,8 @@
-import { HealthController } from "./system/health.controller";
+import { HealthController } from './system/health.controller';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { MetricsController } from './metrics/metrics.controller';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';
 import { Module, ValidationPipe } from '@nestjs/common';
-import { BrainModule } from './brain/brain.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { APP_PIPE, APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -18,7 +17,6 @@ import { AuthModule } from './auth/auth.module';
 import { DevOverrideGuard } from './auth/dev-override.guard';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TutorModule } from './tutor/tutor.module';
-import { ScheduleModule } from './schedule/schedule.module';
 import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
 import { TeacherModule } from './teacher/teacher.module';
@@ -30,6 +28,10 @@ import { E2ESeedController } from './e2e/seed.controller';
 import { VersionModule } from './version/version.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClassroomsModule } from './classrooms/classrooms.module';
+import { OutboxModule } from './modules/outbox/outbox.module';
+import { ProjectionsModule } from './modules/projections/projections.module';
+import { BrainModule } from './brain/brain.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 const env = loadEnv();
 
@@ -78,6 +80,8 @@ const appControllers = [MetricsController, ...controllers];
   ],
 
   imports: [
+    OutboxModule,
+    ProjectionsModule,
     ClassroomsModule,
     ...serveStatic,
     ThrottlerModule.forRoot([

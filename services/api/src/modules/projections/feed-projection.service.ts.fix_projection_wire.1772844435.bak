@@ -1,0 +1,119 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { computeFeedRankingScore } from '../feed/feed-score';
+
+@Injectable()
+export class FeedProjectionService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async projectSolutionCreated(solutionId: string) {
+    const solution = await this.prisma.solution.findUnique({
+      where: { id: solutionId },
+      include: {
+        author: true,
+        images: {
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            reposts: true,
+          },
+        },
+      },
+    });
+
+    if (!solution) return;
+
+    const rankingScore = computeFeedRankingScore({
+      likeCount: solution._count.likes,
+      commentCount: solution._count.comments,
+      repostCount: solution._count.reposts,
+      teacherPick: false,
+      bestSolution: false,
+      createdAt: solution.createdAt,
+    });
+
+    await this.prisma.feedSolutionCard.upsert({
+      where: { solutionId: solution.id },
+      update: {
+        authorName: solution.authorName ?? solution.author?.name ?? 'Unknown',
+        subject: solution.subject,
+        sourceType: solution.sourceType,
+        sourceName: solution.sourceName,
+        page: solution.page,
+        questionNumber: solution.questionNumber,
+        title: solution.title,
+        bodyPreview: solution.body?.slice(0, 280) ?? null,
+        primaryImageUrl: solution.images[0]?.url ?? null,
+        imageCount: solution.images.length,
+        likeCount: solution._count.likes,
+        commentCount: solution._count.comments,
+        repostCount: solution._count.reposts,
+        rankingScore,
+      },
+      create: {
+        solutionId: solution.id,
+        schoolId: '00000000-0000-0000-0000-000000000000',
+        classId: null,
+        authorId: solution.authorId,
+        authorName: solution.authorName ?? solution.author?.name ?? 'Unknown',
+        subject: solution.subject,
+        sourceType: solution.sourceType,
+        sourceName: solution.sourceName,
+        page: solution.page,
+        questionNumber: solution.questionNumber,
+        title: solution.title,
+        bodyPreview: solution.body?.slice(0, 280) ?? null,
+        primaryImageUrl: solution.images[0]?.url ?? null,
+        imageCount: solution.images.length,
+        likeCount: solution._count.likes,
+        commentCount: solution._count.comments,
+        repostCount: solution._count.reposts,
+        rankingScore,
+        teacherPick: false,
+        bestSolution: false,
+        difficulty: null,
+        createdAt: solution.createdAt,
+      },
+    });
+  }
+
+  async projectSolutionCounters(solutionId: string) {
+    const counts = await this.prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: {
+        id: true,
+        createdAt: true,
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            reposts: true,
+          },
+        },
+      },
+    });
+
+    if (!counts) return;
+
+    const rankingScore = computeFeedRankingScore({
+      likeCount: counts._count.likes,
+      commentCount: counts._count.comments,
+      repostCount: counts._count.reposts,
+      createdAt: counts.createdAt,
+    });
+
+    await this.prisma.feedSolutionCard.update({
+      where: { solutionId },
+      data: {
+        likeCount: counts._count.likes,
+        commentCount: counts._count.comments,
+        repostCount: counts._count.reposts,
+        rankingScore,
+      },
+    });
+  }
+}

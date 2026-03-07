@@ -57,4 +57,25 @@ class SolutionsFilters {
 
     return q;
   }
+
+  bool get isActive =>
+      (subject?.trim().isNotEmpty ?? false) ||
+      (sourceType?.trim().isNotEmpty ?? false) ||
+      (sourceName?.trim().isNotEmpty ?? false) ||
+      page != null ||
+      (questionNumber?.trim().isNotEmpty ?? false);
+
+  @override
+  bool operator ==(Object other) {
+    return other is SolutionsFilters &&
+        other.subject == subject &&
+        other.sourceType == sourceType &&
+        other.sourceName == sourceName &&
+        other.page == page &&
+        other.questionNumber == questionNumber;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(subject, sourceType, sourceName, page, questionNumber);
 }

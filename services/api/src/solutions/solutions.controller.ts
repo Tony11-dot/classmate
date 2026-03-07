@@ -15,11 +15,15 @@ import { SolutionsService } from './solutions.service';
 import { CreateSolutionDto } from './dto/create-solution.dto';
 import { UpdateSolutionDto } from './dto/update-solution.dto';
 import { AddSolutionImageDto } from './dto/add-solution-image.dto';
+import { OutboxRunnerService } from '../modules/projections/outbox-runner.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('solutions')
 export class SolutionsController {
-  constructor(private readonly solutions: SolutionsService) {}
+  constructor(
+    private readonly solutions: SolutionsService,
+    private readonly outboxRunner: OutboxRunnerService,
+  ) {}
 
   @Post()
   create(@CurrentUser() user: any, @Body() dto: CreateSolutionDto) {
@@ -80,8 +84,16 @@ export class SolutionsController {
   }
 
   @Post(':id/comments')
-  addComment(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: any) {
+  addComment(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() dto: any,
+  ) {
     return this.solutions.addComment(user, id, dto);
   }
-}
 
+  @Post('dev/run-projections')
+  runProjections() {
+    return this.outboxRunner.runOnce(200);
+  }
+}

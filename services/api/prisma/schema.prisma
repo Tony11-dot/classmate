@@ -762,8 +762,6 @@ model TutorReplyCache {
 
 // ### CLASSMATE:MODELS:BEGIN
 model Solution {
-  @@index([createdAt])
-
   id             String   @id @default(uuid())
   authorId       String
   subject        String // "math" | "physics" | ...
@@ -784,6 +782,7 @@ model Solution {
   comments SolutionComment[]
 
   @@unique([createdAt, id])
+  @@index([createdAt])
   @@index([subject, sourceType])
   @@index([subject, sourceName, page])
   @@index([subject, sourceName, page, questionNumber])
@@ -830,10 +829,7 @@ model SolutionLike {
   @@unique([solutionId, userId])
   @@index([solutionId])
   @@index([userId])
-
-  
 }
-
 
 model SolutionComment {
   id        String   @id @default(cuid())
@@ -1045,4 +1041,97 @@ model ClassroomMeeting {
 
   @@index([courseId, startsAt])
   @@index([courseId, createdAt])
+}
+
+model OutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  type        String
+  aggregateId String?   @map("aggregate_id") @db.Uuid
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  availableAt DateTime  @default(now()) @map("available_at")
+  processedAt DateTime? @map("processed_at")
+  failedAt    DateTime? @map("failed_at")
+  retryCount  Int       @default(0) @map("retry_count")
+  error       String?
+
+  @@index([processedAt, availableAt, createdAt], map: "idx_outbox_process_queue")
+  @@index([type, createdAt], map: "idx_outbox_type_created_at")
+  @@map("outbox_events")
+}
+
+model FeedSolutionCard {
+  solutionId      String   @id @map("solution_id") @db.Uuid
+  schoolId        String   @map("school_id") @db.Uuid
+  classId         String?  @map("class_id") @db.Uuid
+  authorId        String   @map("author_id") @db.Uuid
+  authorName      String   @map("author_name")
+  subject         String
+  sourceType      String   @map("source_type")
+  sourceName      String?  @map("source_name")
+  page            Int?
+  questionNumber  String?  @map("question_number")
+  title           String?
+  bodyPreview     String?  @map("body_preview")
+  primaryImageUrl String?  @map("primary_image_url")
+  imageCount      Int      @default(0) @map("image_count")
+  likeCount       Int      @default(0) @map("like_count")
+  commentCount    Int      @default(0) @map("comment_count")
+  repostCount     Int      @default(0) @map("repost_count")
+  rankingScore    Float    @default(0) @map("ranking_score")
+  teacherPick     Boolean  @default(false) @map("teacher_pick")
+  bestSolution    Boolean  @default(false) @map("best_solution")
+  difficulty      String?
+  createdAt       DateTime @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([schoolId, rankingScore(sort: Desc), createdAt(sort: Desc)], map: "idx_feed_solution_cards_school_rank_created")
+  @@index([schoolId, subject, rankingScore(sort: Desc)], map: "idx_feed_solution_cards_school_subject_rank")
+  @@index([schoolId, sourceName, page, questionNumber], map: "idx_feed_solution_cards_lookup")
+  @@map("feed_solution_cards")
+}
+
+model ClassroomPreviewCard {
+  classroomId       String    @id @map("classroom_id") @db.Uuid
+  schoolId          String?   @map("school_id") @db.Uuid
+  title             String
+  subject           String?
+  latestMessageText String?   @map("latest_message_text")
+  latestMessageAt   DateTime? @map("latest_message_at")
+  latestSenderName  String?   @map("latest_sender_name")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([schoolId, latestMessageAt(sort: Desc)], map: "idx_classroom_preview_cards_school_latest")
+  @@map("classroom_preview_cards")
+}
+
+model ClassroomUserCounter {
+  id                String    @id @default(uuid()) @db.Uuid
+  classroomId       String    @map("classroom_id") @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  unreadCount       Int       @default(0) @map("unread_count")
+  lastSeenMessageId String?   @map("last_seen_message_id") @db.Uuid
+  lastSeenAt        DateTime? @map("last_seen_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@unique([classroomId, userId], map: "uq_classroom_user_counters_classroom_user")
+  @@index([userId, unreadCount(sort: Desc)], map: "idx_classroom_user_counters_user_unread")
+  @@map("classroom_user_counters")
+}
+
+model WeeklySolverLeaderboard {
+  id                   String @id @default(uuid()) @db.Uuid
+  schoolId             String @map("school_id") @db.Uuid
+  weekKey              String @map("week_key")
+  userId               String @map("user_id") @db.Uuid
+  userName             String @map("user_name")
+  solutionCount        Int    @default(0) @map("solution_count")
+  likeCountReceived    Int    @default(0) @map("like_count_received")
+  commentCountReceived Int    @default(0) @map("comment_count_received")
+  repostCountReceived  Int    @default(0) @map("repost_count_received")
+  score                Float  @default(0)
+
+  @@unique([schoolId, weekKey, userId], map: "uq_weekly_solver_leaderboard_school_week_user")
+  @@index([schoolId, weekKey, score(sort: Desc)], map: "idx_weekly_solver_leaderboard_rank")
+  @@map("weekly_solver_leaderboard")
 }
