@@ -16,6 +16,7 @@ class Solution {
     required this.images,
     required this.likeCount,
     required this.commentCount,
+    required this.repostCount,
     required this.likedByMe,
   });
 
@@ -33,6 +34,7 @@ class Solution {
 
   final int likeCount;
   final int commentCount;
+  final int repostCount;
   final bool likedByMe;
 
   Solution copyWith({
@@ -49,6 +51,7 @@ class Solution {
     List<Map<String, dynamic>>? images,
     int? likeCount,
     int? commentCount,
+    int? repostCount,
     bool? likedByMe,
   }) {
     return Solution(
@@ -65,6 +68,7 @@ class Solution {
       images: images ?? this.images,
       likeCount: likeCount ?? this.likeCount,
       commentCount: commentCount ?? this.commentCount,
+      repostCount: repostCount ?? this.repostCount,
       likedByMe: likedByMe ?? this.likedByMe,
     );
   }
@@ -94,6 +98,9 @@ class Solution {
     commentCount: (j['commentCount'] is int)
         ? j['commentCount']
         : int.tryParse((j['commentCount'] ?? 0).toString()) ?? 0,
+    repostCount: (j['repostCount'] is int)
+        ? j['repostCount']
+        : int.tryParse((j['repostCount'] ?? 0).toString()) ?? 0,
     likedByMe: (j['likedByMe'] is bool)
         ? j['likedByMe'] as bool
         : (j['likedByMe']?.toString() == 'true'),

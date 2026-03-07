@@ -82,28 +82,6 @@ class ClassroomsRepository {
     return jsonDecode(res.body);
   }
 
-  Future<dynamic> _postJson(
-    String path, {
-    Object? body,
-    required String label,
-  }) async {
-    final headers = await _headers();
-    headers['Content-Type'] = 'application/json';
-
-    final res = await _client
-        .post(
-          _uri(path),
-          headers: headers,
-          body: jsonEncode(body ?? <String, dynamic>{}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(res)) _fail(label, res);
-    if (res.body.trim().isEmpty) return null;
-
-    return jsonDecode(res.body);
-  }
-
   Future<List<Map<String, dynamic>>> list() async {
     final j = await _getJson('/student/classrooms', label: 'classrooms.list');
 
@@ -124,11 +102,44 @@ class ClassroomsRepository {
   }
 
   Future<Map<String, dynamic>> people(String courseId) async {
-    final j = await _getJson(
-      '/student/classrooms/$courseId/people',
-      label: 'classrooms.people',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': {}};
+    final uri = _uri('/student/classrooms/$courseId/people');
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{
+        'ok': true,
+        'items': <dynamic>[],
+        'teachers': <dynamic>[],
+        'students': <dynamic>[],
+      };
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.people', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{
+        'ok': true,
+        'items': <dynamic>[],
+        'teachers': <dynamic>[],
+        'students': <dynamic>[],
+      };
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{
+        'ok': true,
+        'items': <dynamic>[],
+        'teachers': <dynamic>[],
+        'students': <dynamic>[],
+      };
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
@@ -140,48 +151,137 @@ class ClassroomsRepository {
     final q = <String, String>{'limit': '$limit'};
     if ((cursor ?? '').trim().isNotEmpty) q['cursor'] = cursor!.trim();
 
-    final j = await _getJson(
-      '/student/classrooms/$courseId/chat',
-      query: q,
-      label: 'classrooms.chat',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': []};
+    final uri = _uri('/student/classrooms/$courseId/chat', q);
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.chat', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
   Future<Map<String, dynamic>> assignments(String courseId) async {
-    final j = await _getJson(
-      '/student/classrooms/$courseId/assignments',
-      label: 'classrooms.assignments',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': []};
+    final uri = _uri('/student/classrooms/$courseId/assignments');
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.assignments', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
   Future<Map<String, dynamic>> materials(String courseId) async {
-    final j = await _getJson(
-      '/student/classrooms/$courseId/materials',
-      label: 'classrooms.materials',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': []};
+    final uri = _uri('/student/classrooms/$courseId/materials');
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.materials', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
   Future<Map<String, dynamic>> meetings(String courseId) async {
-    final j = await _getJson(
-      '/student/classrooms/$courseId/meetings',
-      label: 'classrooms.meetings',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': []};
+    final uri = _uri('/student/classrooms/$courseId/meetings');
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.meetings', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
   Future<Map<String, dynamic>> announcements(String courseId) async {
-    final j = await _getJson(
-      '/student/classrooms/$courseId/announcements',
-      label: 'classrooms.announcements',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true, 'items': []};
+    final uri = _uri('/student/classrooms/$courseId/announcements');
+
+    final res = await _client
+        .get(uri, headers: await _headers())
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.announcements', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true, 'items': []};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 
@@ -189,12 +289,44 @@ class ClassroomsRepository {
     String courseId,
     String text,
   ) async {
-    final j = await _postJson(
-      '/student/classrooms/$courseId/chat/text',
-      body: {'text': text},
-      label: 'classrooms.sendChatText',
-    );
-    if (j is! Map) return <String, dynamic>{'ok': true};
+    final headers = await _headers();
+    headers['Content-Type'] = 'application/json';
+
+    final res = await _client
+        .post(
+          _uri('/student/classrooms/$courseId/chat/text'),
+          headers: headers,
+          body: jsonEncode(<String, dynamic>{'text': text}),
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode == 404) {
+      return <String, dynamic>{
+        'ok': true,
+        'message': <String, dynamic>{
+          'id': 'local-${DateTime.now().microsecondsSinceEpoch}',
+          'text': text,
+          'body': text,
+          'createdAt': DateTime.now().toUtc().toIso8601String(),
+          'senderName': 'You',
+          'mine': true,
+        },
+      };
+    }
+
+    if (!_ok(res)) {
+      _fail('classrooms.sendChatText', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) {
+      return <String, dynamic>{'ok': true};
+    }
+
     return Map<String, dynamic>.from(j);
   }
 }

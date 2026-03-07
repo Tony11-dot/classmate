@@ -1,17 +1,20 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { ScheduleModule } from '../schedule/schedule.module';
 import { StudentController } from './student.controller';
+import { StudentService } from './student.service';
 import { StudentAttendanceController } from './student.attendance.controller';
 import { StudentScheduleController } from './student.schedule.controller';
-import { StudentService } from './student.service';
+import { StudentClassroomsController } from './student.classrooms.controller';
+import { ScheduleModule } from '../schedule/schedule.module';
 
 @Module({
   imports: [ScheduleModule],
   controllers: [
     StudentController,
     StudentAttendanceController,
-    StudentScheduleController,  ],
-  providers: [StudentService, PrismaService],
+    StudentScheduleController,
+    StudentClassroomsController,
+  ],
+  providers: [StudentService],
+  exports: [StudentService],
 })
 export class StudentModule {}

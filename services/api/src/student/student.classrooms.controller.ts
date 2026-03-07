@@ -109,13 +109,12 @@ export class StudentClassroomsController {
 
     const teacherUserId = course.teacherId ? String(course.teacherId) : null;
 
-    const teacher =
-      teacherUserId
-        ? await this.prisma.user.findUnique({
-            where: { id: teacherUserId },
-            select: { id: true, name: true },
-          })
-        : null;
+    const teacher = teacherUserId
+      ? await this.prisma.user.findUnique({
+          where: { id: teacherUserId },
+          select: { id: true, name: true },
+        })
+      : null;
 
     return {
       ok: true,

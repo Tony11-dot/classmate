@@ -36,8 +36,8 @@ export class SolutionsController {
   }
 
   @Get(':id')
-  get(@Param('id') id: string) {
-    return this.solutions.get(id);
+  get(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.solutions.get(user, id);
   }
 
   @Patch(':id')
@@ -95,5 +95,10 @@ export class SolutionsController {
   @Post('dev/run-projections')
   runProjections() {
     return this.outboxRunner.runOnce(200);
+  }
+
+  @Post(':id/repost')
+  repost(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.solutions.repost(user, id);
   }
 }

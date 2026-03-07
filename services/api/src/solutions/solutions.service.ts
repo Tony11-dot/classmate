@@ -48,6 +48,12 @@ export class SolutionsService {
     };
   }
 
+  private async getSolutionRepostCount(solutionId: string) {
+    const repostModel = (this.prisma as any).solutionRepost;
+    if (!repostModel?.count) return 0;
+    return repostModel.count({ where: { solutionId } });
+  }
+
   private async resolveAuthorId(user: any) {
     const candidateIds = [user?.sub, user?.id].filter(
       (v) => typeof v == 'string' && v.trim().length > 0,
@@ -209,24 +215,37 @@ export class SolutionsService {
       authorName: row.authorName,
       likeCount: row.likeCount,
       commentCount: row.commentCount,
+      repostCount: row.repostCount ?? 0,
       likedByMe: likedSet.has(row.solutionId),
     }));
 
     return { items, nextCursor };
   }
 
-  async get(id: string) {
+  async get(user: any, id: string) {
+    const likedUserId =
+      typeof user?.sub === 'string' && user.sub.trim().length > 0
+        ? user.sub
+        : typeof user?.id === 'string' && user.id.trim().length > 0
+          ? user.id
+          : null;
+
     const row = await this.prisma.solution.findUnique({
       where: { id },
       include: {
         images: true,
         author: { select: { id: true, name: true } },
         _count: { select: { likes: true, comments: true } },
-        likes: false,
+        likes: likedUserId
+          ? { where: { userId: likedUserId }, select: { id: true } }
+          : false,
       },
     });
     if (!row) throw new NotFoundException();
-    return this.mapSolutionRow(row);
+    return {
+      ...this.mapSolutionRow(row),
+      repostCount: await this.getSolutionRepostCount(id),
+    };
   }
 
   async update(user: any, id: string, dto: any) {
@@ -403,6 +422,57 @@ export class SolutionsService {
         : null;
 
     return { items: rows, nextCursor };
+  }
+
+  async repost(user: any, id: string) {
+    const userId =
+      typeof user?.sub === 'string' && user.sub.trim().length > 0
+        ? user.sub
+        : typeof user?.id === 'string' && user.id.trim().length > 0
+          ? user.id
+          : null;
+
+    if (!userId) throw new ForbiddenException('Unauthorized');
+
+    const solution = await this.prisma.solution.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!solution) throw new NotFoundException();
+
+    const repostModel = (this.prisma as any).solutionRepost;
+    if (!repostModel) {
+      throw new BadRequestException('Solution reposts are not available');
+    }
+
+    await repostModel.upsert({
+      where: {
+        solutionId_userId: {
+          solutionId: id,
+          userId,
+        },
+      },
+      update: {},
+      create: {
+        solutionId: id,
+        userId,
+      },
+    });
+
+    await this.outbox.publish(this.prisma, {
+      type: 'solution.reposted',
+      aggregateId: id,
+      payload: { solutionId: id, userId },
+    });
+
+    const [likeCount, commentCount, repostCount] = await Promise.all([
+      this.prisma.solutionLike.count({ where: { solutionId: id } }),
+      this.prisma.solutionComment.count({ where: { solutionId: id } }),
+      repostModel.count({ where: { solutionId: id } }),
+    ]);
+
+    return { ok: true, likeCount, commentCount, repostCount };
   }
 
   async addComment(user: any, id: string, dto: any) {

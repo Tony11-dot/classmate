@@ -196,4 +196,9 @@ class SolutionsRepo {
     final c = Map<String, dynamic>.from((m['comment'] as Map?) ?? const {});
     return SolutionComment.fromJson(c);
   }
+
+  Future<Map<String, dynamic>> repostSolution(String solutionId) async {
+    final j = await _api().postJson('/solutions/$solutionId/repost');
+    return Map<String, dynamic>.from(j as Map);
+  }
 }

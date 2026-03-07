@@ -341,7 +341,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       builder: (context) {
         final reaction = _reactionByMessage[messageId];
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -585,7 +585,33 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         subtitle: '$e',
       ),
       data: (m) {
-        final raw = (m['items'] is List) ? (m['items'] as List) : const [];
+        final items = (m['items'] is Map)
+            ? Map<String, dynamic>.from(m['items'] as Map)
+            : <String, dynamic>{};
+
+        final raw = <Map<String, dynamic>>[];
+
+        final teacher = items['teacher'];
+        final teacherUserId = (items['teacherUserId'] ?? '').toString().trim();
+        if (teacher is Map) {
+          raw.add(<String, dynamic>{
+            'id': teacherUserId,
+            'name': (teacher['name'] ?? teacher['email'] ?? 'Teacher')
+                .toString(),
+            'email': (teacher['email'] ?? '').toString(),
+          });
+        }
+
+        final students = (items['students'] is List)
+            ? (items['students'] as List)
+            : const <dynamic>[];
+
+        for (final student in students) {
+          if (student is Map) {
+            raw.add(Map<String, dynamic>.from(student));
+          }
+        }
+
         if (raw.isEmpty) {
           return const _CenteredState(
             icon: Icons.group_outlined,
@@ -712,12 +738,41 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
               final peopleMap = people.maybeWhen(
                 data: (pm) {
-                  final raw = (pm['items'] is List)
-                      ? (pm['items'] as List)
-                      : const [];
-                  return <String, String>{
-                    for (final x in raw) _pick(x, 'id'): _pick(x, 'name'),
-                  };
+                  final items = (pm['items'] is Map)
+                      ? Map<String, dynamic>.from(pm['items'] as Map)
+                      : <String, dynamic>{};
+
+                  final out = <String, String>{};
+
+                  final teacher = items['teacher'];
+                  final teacherUserId = (items['teacherUserId'] ?? '')
+                      .toString()
+                      .trim();
+                  if (teacher is Map && teacherUserId.isNotEmpty) {
+                    out[teacherUserId] =
+                        (teacher['name'] ?? teacher['email'] ?? 'Teacher')
+                            .toString()
+                            .trim();
+                  }
+
+                  final students = (items['students'] is List)
+                      ? (items['students'] as List)
+                      : const <dynamic>[];
+
+                  for (final student in students) {
+                    if (student is Map) {
+                      final id = (student['id'] ?? '').toString().trim();
+                      final name =
+                          (student['name'] ?? student['email'] ?? 'Student')
+                              .toString()
+                              .trim();
+                      if (id.isNotEmpty) {
+                        out[id] = name;
+                      }
+                    }
+                  }
+
+                  return out;
                 },
                 orElse: () => const <String, String>{},
               );
@@ -758,6 +813,26 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   final originalText = _pick(item, 'text', fallback: '(empty)');
                   final text = (_editedTextByMessage[messageId] ?? originalText)
                       .trim();
+
+                  String replySender = '';
+                  String replySnippet = '';
+                  String messageText = text;
+
+                  if (text.startsWith('↪ ')) {
+                    final afterArrow = text.substring(2).trim();
+                    final colon = afterArrow.indexOf(':');
+                    if (colon != -1) {
+                      replySender = afterArrow.substring(0, colon).trim();
+                      final rest = afterArrow.substring(colon + 1).trim();
+                      final dash = rest.lastIndexOf(' — ');
+                      if (dash != -1) {
+                        replySnippet = rest.substring(0, dash).trim();
+                        messageText = rest.substring(dash + 3).trim();
+                      } else {
+                        messageText = rest;
+                      }
+                    }
+                  }
 
                   final isMine =
                       myUserId.isNotEmpty && senderId.trim() == myUserId;
@@ -833,8 +908,75 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       ),
                                     ),
                                   ),
+                                if (replySender.isNotEmpty ||
+                                    replySnippet.isNotEmpty) ...[
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.fromLTRB(
+                                      10,
+                                      8,
+                                      10,
+                                      8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          (isMine
+                                                  ? cs.onPrimaryContainer
+                                                  : cs.primaryContainer)
+                                              .withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border(
+                                        left: BorderSide(
+                                          color: isMine
+                                              ? cs.onPrimaryContainer
+                                              : cs.primary,
+                                          width: 3,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          replySender.isEmpty
+                                              ? 'Reply'
+                                              : replySender,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
+                                            color: isMine
+                                                ? cs.onPrimaryContainer
+                                                : cs.primary,
+                                          ),
+                                        ),
+                                        if (replySnippet.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            replySnippet,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              height: 1.2,
+                                              color:
+                                                  (isMine
+                                                          ? cs.onPrimaryContainer
+                                                          : cs.onSurfaceVariant)
+                                                      .withValues(alpha: 0.88),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
                                 Text(
-                                  text.isEmpty ? '(empty)' : text,
+                                  messageText.isEmpty ? '(empty)' : messageText,
                                   style: TextStyle(
                                     height: 1.25,
                                     color: isMine
@@ -961,20 +1103,45 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: 4,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Replying to ${_replyToSender ?? 'message'}',
-                          style: const TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          (_replyToText ?? '').trim(),
+                          _replyToSender?.trim().isNotEmpty == true
+                              ? _replyToSender!.trim()
+                              : 'Replying',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          (_replyToText ?? '').trim(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                height: 1.2,
+                              ),
                         ),
                       ],
                     ),
@@ -982,6 +1149,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   IconButton(
                     onPressed: _clearReply,
                     icon: const Icon(Icons.close_rounded),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),

@@ -66,6 +66,7 @@ model User {
   teachingTemplateSlots ScheduleTemplateSlot[] @relation("TeacherSlots")
 
   studentTemplateBinds StudentScheduleTemplate[]
+  solutionReposts      SolutionRepost[]
 }
 
 model UserRole {
@@ -779,6 +780,7 @@ model Solution {
   images SolutionImage[]
 
   likes    SolutionLike[]
+  reposts  SolutionRepost[]
   comments SolutionComment[]
 
   @@unique([createdAt, id])
@@ -817,6 +819,21 @@ model SolutionImage {
 }
 
 model SolutionLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  solutionId String
+  userId     String
+
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([solutionId, userId])
+  @@index([solutionId])
+  @@index([userId])
+}
+
+model SolutionRepost {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 

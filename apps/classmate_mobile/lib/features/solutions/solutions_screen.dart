@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../core/auth/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,6 +14,11 @@ class SolutionsScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<SolutionsScreen> createState() => _SolutionsScreenState();
+}
+
+bool _isStaffToken(String token) {
+  final t = token.trim().toLowerCase();
+  return t == 'dev-token-admin@classmate.local' || t == 'admin@classmate.local';
 }
 
 class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
@@ -128,9 +134,15 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     Text(
                       repostFrom == null
                           ? 'Create solution'
-                          : 'Repost solution',
+                          : 'Post alternate solution',
                       style: Theme.of(sheetContext).textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      repostFrom == null
+                          ? 'Share a clear, useful solution for other students.'
+                          : 'Create a cleaner or better version of this solution.',
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -252,15 +264,20 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
   Widget build(BuildContext context) {
     final s = ref.watch(solutionsControllerProvider);
     final c = ref.read(solutionsControllerProvider.notifier);
+    final session = ref.watch(authSessionProvider);
+    final token = (session.token ?? '').trim();
+    final canCreate = _isStaffToken(token);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await _openSolutionComposer(context);
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Upload'),
-      ),
+      floatingActionButton: canCreate
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                await _openSolutionComposer(context);
+              },
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Upload'),
+            )
+          : null,
       body: Column(
         children: [
           Padding(
@@ -345,13 +362,41 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
 
                   if (s.items.isEmpty) {
                     return ListView(
-                      children: const [
-                        SizedBox(height: 24),
-                        Center(
-                          child: Text(
-                            'No solutions yet — upload the first one',
-                          ),
+                      padding: const EdgeInsets.fromLTRB(24, 56, 24, 24),
+                      children: [
+                        Icon(
+                          Icons.auto_stories_rounded,
+                          size: 56,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          s.filters.isActive
+                              ? 'No solutions match these filters'
+                              : 'No solutions yet',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          s.filters.isActive
+                              ? 'Try clearing one or two filters and check again.'
+                              : (canCreate
+                                    ? 'Upload the first solution for your school.'
+                                    : 'Solutions will show up here once teachers or admins upload them.'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        if (s.filters.isActive)
+                          Center(
+                            child: OutlinedButton.icon(
+                              onPressed: c.clearFilters,
+                              icon: const Icon(Icons.filter_alt_off_rounded),
+                              label: const Text('Clear filters'),
+                            ),
+                          ),
                       ],
                     );
                   }
@@ -428,6 +473,8 @@ class _FullscreenSolutionPost extends ConsumerWidget {
     final v = item.questionNumber?.trim() ?? '';
     return v.isNotEmpty ? v : '—';
   }
+
+  String get _repostCount => '${item.repostCount}';
 
   String get _createdText {
     final raw = item.createdAt?.trim() ?? '';
@@ -528,18 +575,40 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                         height: 1.3,
                                       ),
                                 ),
-                                if (_createdText.isNotEmpty) ...[
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    _createdText,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.72,
-                                          ),
-                                        ),
-                                  ),
-                                ],
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 6,
+                                  children: [
+                                    if ((item.authorName ?? '')
+                                        .trim()
+                                        .isNotEmpty)
+                                      Text(
+                                        'By ${item.authorName!.trim()}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.86,
+                                              ),
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    if (_createdText.isNotEmpty)
+                                      Text(
+                                        _createdText,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.72,
+                                              ),
+                                            ),
+                                      ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -581,22 +650,26 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                             const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.repeat_rounded,
-                              label: '',
+                              label: _repostCount,
                               color: Colors.white,
-                              onTap: () {
-                                final state = context
-                                    .findAncestorStateOfType<
-                                      _SolutionsScreenState
-                                    >();
-                                if (state == null) {
-                                  return;
+                              onTap: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  await controller.registerRepost(item);
+                                  if (context.mounted) {
+                                    messenger.showSnackBar(
+                                      const SnackBar(content: Text('Reposted')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text('Repost failed: $e'),
+                                      ),
+                                    );
+                                  }
                                 }
-                                unawaited(
-                                  state._openSolutionComposer(
-                                    context,
-                                    repostFrom: item,
-                                  ),
-                                );
                               },
                             ),
                           ],
@@ -890,7 +963,10 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
     final controller = ref.read(solutionsControllerProvider.notifier);
     final comments = controller.commentsStateFor(widget.solution.id);
     final cs = Theme.of(context).colorScheme;
-    final count = widget.solution.commentCount + comments.items.length;
+    final loadedCount = comments.items.length;
+    final count = loadedCount > widget.solution.commentCount
+        ? loadedCount
+        : widget.solution.commentCount;
 
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.82,
