@@ -38,31 +38,41 @@ class CMApi {
     };
   }
 
-  Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
-    final res = await _client.get(
-      _buildUri(path, query: query),
-      headers: _headers(),
-    );
-
-    if (res.body.isEmpty) return null;
+  dynamic _decodeOrNull(http.Response res) {
+    if (res.body.trim().isEmpty) return null;
     return jsonDecode(res.body);
+  }
+
+  void _throwIfBad(http.Response res, Uri uri) {
+    if (res.statusCode >= 200 && res.statusCode < 300) return;
+    throw Exception(
+      'HTTP ${res.statusCode} ${uri.toString()} :: '
+      '${res.body.trim().isEmpty ? 'empty body' : res.body}',
+    );
+  }
+
+  Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
+    final uri = _buildUri(path, query: query);
+    final res = await _client.get(uri, headers: _headers());
+    _throwIfBad(res, uri);
+    return _decodeOrNull(res);
   }
 
   Future<dynamic> postJson(String path, {Object? body}) async {
+    final uri = _buildUri(path);
     final res = await _client.post(
-      _buildUri(path),
+      uri,
       headers: _headers(),
       body: jsonEncode(body ?? {}),
     );
-
-    if (res.body.isEmpty) return null;
-    return jsonDecode(res.body);
+    _throwIfBad(res, uri);
+    return _decodeOrNull(res);
   }
 
   Future<dynamic> deleteJson(String path) async {
-    final res = await _client.delete(_buildUri(path), headers: _headers());
-
-    if (res.body.isEmpty) return null;
-    return jsonDecode(res.body);
+    final uri = _buildUri(path);
+    final res = await _client.delete(uri, headers: _headers());
+    _throwIfBad(res, uri);
+    return _decodeOrNull(res);
   }
 }

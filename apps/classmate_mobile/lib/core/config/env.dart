@@ -7,8 +7,8 @@ class Env {
     final rawBase = const String.fromEnvironment('CM_API_BASE_URL');
     apiBaseUrl = rawBase.trim().isEmpty
         ? const String.fromEnvironment(
-            'CM_API_BASE',
-            defaultValue: 'http://127.0.0.1:3001',
+            'CM_API_BASE_URL',
+            defaultValue: 'http://127.0.0.1:3001/api',
           )
         : rawBase.trim();
 

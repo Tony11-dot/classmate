@@ -12,23 +12,32 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: { roles: true },
-    });
+  const user = await this.prisma.user.findUnique({
+    where: { email },
+    include: { roles: true },
+  });
 
-    if (!user) return null;
+  if (!user) return null;
 
-    const ok = ((await bcrypt.compare(password, user.password)) || (user.password === password));
-    if (!ok) return null;
+  const ok =
+    (await bcrypt.compare(password, user.password)) ||
+    user.password === password;
 
-    const token = this.jwt.sign({
-      sub: user.id,
-      roles: user.roles.map((r) => r.role),
-    });
+  if (!ok) return null;
 
-    return { token };
-  }
+  const student = await this.prisma.studentProfile.findUnique({
+    where: { userId: user.id },
+  });
+
+  const token = this.jwt.sign({
+    sub: user.id,
+    roles: user.roles.map((r) => r.role),
+    actingStudentId: user.id,
+    cohortId: student ? student.cohortId : null,
+  });
+
+  return { token };
+}
 
   async register(dto: RegisterDto) {
     const nEmail = String((dto as any)?.email ?? '').trim();
@@ -58,14 +67,12 @@ export class AuthService {
     });
 
     return {
-      ok: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles.map((r) => r.role),
-      },
-    };
+  token,
+  user: {
+    id: user.id,
+    email: user.email,
+    roles: user.roles.map((r) => r.role),
+  }
+};
   }
 }

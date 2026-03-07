@@ -1,9 +1,10 @@
-import { Router } from "express";
-import { prisma } from "../../lib/prisma";
+import { Router } from 'express';
+import { prisma } from '../../lib/prisma';
+import type { Router as ExpressRouter } from 'express';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
-router.post("/:id/like", async (req: any, res) => {
+router.post('/:id/like', async (req: any, res) => {
   const userId = req.user.id;
   const solutionId = req.params.id;
 
@@ -11,9 +12,9 @@ router.post("/:id/like", async (req: any, res) => {
     where: {
       solutionId_userId: {
         userId,
-        solutionId
-      }
-    }
+        solutionId,
+      },
+    },
   });
 
   if (existing) {
@@ -21,9 +22,9 @@ router.post("/:id/like", async (req: any, res) => {
       where: {
         solutionId_userId: {
           userId,
-          solutionId
-        }
-      }
+          solutionId,
+        },
+      },
     });
 
     return res.json({ liked: false });
@@ -32,8 +33,8 @@ router.post("/:id/like", async (req: any, res) => {
   await prisma.solutionLike.create({
     data: {
       userId,
-      solutionId
-    }
+      solutionId,
+    },
   });
 
   res.json({ liked: true });

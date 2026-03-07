@@ -11,6 +11,7 @@ class Solution {
     required this.questionNumber,
     required this.title,
     required this.body,
+    required this.authorName,
     required this.createdAt,
     required this.images,
     required this.likeCount,
@@ -26,6 +27,7 @@ class Solution {
   final String? questionNumber;
   final String? title;
   final String? body;
+  final String? authorName;
   final String? createdAt;
   final List<Map<String, dynamic>> images;
 
@@ -42,6 +44,7 @@ class Solution {
     String? questionNumber,
     String? title,
     String? body,
+    String? authorName,
     String? createdAt,
     List<Map<String, dynamic>>? images,
     int? likeCount,
@@ -57,6 +60,7 @@ class Solution {
       questionNumber: questionNumber ?? this.questionNumber,
       title: title ?? this.title,
       body: body ?? this.body,
+      authorName: authorName ?? this.authorName,
       createdAt: createdAt ?? this.createdAt,
       images: images ?? this.images,
       likeCount: likeCount ?? this.likeCount,
@@ -76,6 +80,7 @@ class Solution {
     questionNumber: j['questionNumber']?.toString(),
     title: j['title']?.toString(),
     body: j['body']?.toString(),
+    authorName: j['authorName']?.toString(),
     createdAt: j['createdAt']?.toString(),
     images: (j['images'] is List)
         ? (j['images'] as List)

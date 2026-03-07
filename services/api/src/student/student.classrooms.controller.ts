@@ -96,17 +96,42 @@ export class StudentClassroomsController {
 
     const students = await this.prisma.studentProfile.findMany({
       where: { cohortId },
-      select: { userId: true },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
       orderBy: [{ userId: 'asc' }],
     });
 
     const teacherUserId = course.teacherId ? String(course.teacherId) : null;
+
+    const teacher =
+      teacherUserId
+        ? await this.prisma.user.findUnique({
+            where: { id: teacherUserId },
+            select: { id: true, name: true },
+          })
+        : null;
 
     return {
       ok: true,
       items: {
         teacherUserId,
         studentUserIds: students.map((x) => x.userId),
+        teacher: teacher
+          ? {
+              id: teacher.id,
+              name: teacher.name ?? null,
+            }
+          : null,
+        students: students.map((x) => ({
+          id: x.userId,
+          name: x.user?.name ?? null,
+        })),
       },
     };
   }

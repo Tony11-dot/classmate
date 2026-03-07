@@ -1,64 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { httpMetricsMiddleware } from './metrics/http-metrics.middleware';
-import { corsOrigins, env } from './config/env';
-import helmet from 'helmet';
-import compression from 'compression';
-import { RequestIdMiddleware } from './common/request-id.middleware';
-import { HttpLoggingInterceptor } from './common/http-logging.interceptor';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { loadEnv } from './env';
 
 async function bootstrap() {
-  // Ensure PORT exists before env parsing/validation
-  process.env.PORT = process.env.PORT ?? '3000';
-  const env = loadEnv();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true
-  }));
-
-  app.use(httpMetricsMiddleware);
-  // ✅ CORS for admin-web dev + e2e
-  // allow:
-  // - explicit localhost/127.0.0.1:3001
-  // - your LAN ip:3001 (any 192.168.x.x:3001)
-  // - tools/no-origin requests (curl/postman)
-  app.enableCors({
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      const ok =
-        origin === 'http://127.0.0.1:3001' ||
-        origin === 'http://127.0.0.1:3000' ||
-        origin === 'http://localhost:3001' ||
-        origin === 'http://localhost:3000' ||
-        /^http:\/\/192\.168\.\d+\.\d+:3001$/.test(origin);
-      return cb(null, ok);
-    },
-    credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
   });
 
-  app.use(new RequestIdMiddleware().use);
-  app.useGlobalInterceptors(new HttpLoggingInterceptor());
-
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false,
-    }),
-  );
-  app.use(compression());
-
-  app.use(require('express').json({ limit: '1mb' }));
-  app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
-
-  app.setGlobalPrefix('api');
-  await app.listen(Number(process.env.PORT) || 3000, '0.0.0.0');
+  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3001, '0.0.0.0');
 }
-
 bootstrap();

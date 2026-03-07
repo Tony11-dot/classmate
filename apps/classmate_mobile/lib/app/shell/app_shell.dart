@@ -54,8 +54,15 @@ class AppShell extends ConsumerWidget {
       appBar: _TopBar(title: _pageTitle(loc)),
       body: child,
       bottomNavigationBar: NavigationBar(
+        animationDuration: const Duration(milliseconds: 90),
         selectedIndex: idx,
-        onDestinationSelected: (i) => context.go(_locFor(i)),
+        onDestinationSelected: (i) {
+          final next = _locFor(i);
+          if (next == loc) {
+            return;
+          }
+          context.go(next);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.event_note_outlined),

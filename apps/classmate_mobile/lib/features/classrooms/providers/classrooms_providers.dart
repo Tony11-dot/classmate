@@ -39,3 +39,9 @@ final classroomMeetingsProvider = FutureProvider.autoDispose
       final repo = ref.read(classroomsRepoProvider);
       return repo.meetings(id);
     });
+
+final classroomDetailProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, String>((ref, id) async {
+      final repo = ref.read(classroomsRepoProvider);
+      return repo.detail(id);
+    });

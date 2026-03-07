@@ -4,7 +4,6 @@ import { ScheduleModule } from '../schedule/schedule.module';
 import { StudentController } from './student.controller';
 import { StudentAttendanceController } from './student.attendance.controller';
 import { StudentScheduleController } from './student.schedule.controller';
-import { StudentClassroomsController } from './student.classrooms.controller';
 import { StudentService } from './student.service';
 
 @Module({
@@ -12,9 +11,7 @@ import { StudentService } from './student.service';
   controllers: [
     StudentController,
     StudentAttendanceController,
-    StudentScheduleController,
-    StudentClassroomsController,
-  ],
+    StudentScheduleController,  ],
   providers: [StudentService, PrismaService],
 })
 export class StudentModule {}

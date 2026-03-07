@@ -1,6 +1,7 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ScheduleService } from '../schedule/schedule.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -25,12 +26,14 @@ export class StudentScheduleController {
     return String(sp.cohortId);
   }
 
+  @SkipThrottle()
   @Get('today')
   async today(@Req() req: any) {
     const cohortId = await this.cohortIdFromUser(req);
     return this.schedule.getTodayForCohort(cohortId);
   }
 
+  @SkipThrottle()
   @Get('week')
   async week(@Req() req: any, @Query('weekOf') weekOf?: string) {
     const cohortId = await this.cohortIdFromUser(req);

@@ -1,4 +1,5 @@
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateSolutionDto {
   @IsString()
@@ -7,15 +8,27 @@ export class CreateSolutionDto {
   @IsString()
   sourceType!: string;
 
+  @IsOptional()
   @IsString()
-  sourceName!: string;
+  sourceName?: string;
 
+  @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  page!: number;
+  @Min(1)
+  page?: number;
 
   @IsOptional()
   @IsString()
   questionNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 
   @IsOptional()
   @IsString()

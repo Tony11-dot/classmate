@@ -1,13 +1,18 @@
 {
   "extends": "./tsconfig.json",
   "exclude": [
-    "node_modules",
+    "**/*.e2e-spec.ts",
+    "**/*.spec.ts",
+    "**/*spec.ts",
     "dist",
-    "test",
+    "node_modules",
     "prisma",
     "prisma.config.ts",
-    "**/*.spec.ts",
-    "**/*.e2e-spec.ts"
+    "src/admin/schedule-templates/**/*",
+    "src/brain/**/*",
+    "src/schedule/**/*",
+    "src/student/student.classrooms.controller.ts",
+    "test"
   ],
   "compilerOptions": {
     "outDir": "./dist",

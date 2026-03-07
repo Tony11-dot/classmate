@@ -24,4 +24,8 @@ export class AddSolutionImageDto {
   @IsOptional()
   @IsInt()
   height?: number;
+
+  @IsOptional()
+  @IsString()
+  originalName?: string;
 }
