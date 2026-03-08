@@ -341,191 +341,247 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final sessions = ref.watch(tutorSessionsProvider);
     final cs = Theme.of(context).colorScheme;
 
+    Widget topSection() {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    cs.primary.withValues(alpha: 0.22),
+                    cs.secondary.withValues(alpha: 0.10),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: cs.primary.withValues(alpha: 0.16)),
+                boxShadow: [
+                  BoxShadow(
+                    color: cs.primary.withValues(alpha: 0.10),
+                    blurRadius: 28,
+                    offset: const Offset(0, 16),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: cs.surface.withValues(alpha: 0.42),
+                      border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'N',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            color: cs.onSurface,
+                            letterSpacing: -0.5,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'NOVA',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your AI tutor',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.76),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Real chat history, cleaner threads, faster access.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.72),
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _createFreshChat,
+                    icon: const Icon(Icons.auto_awesome_rounded),
+                    label: const Text('Start a fresh conversation'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              decoration: InputDecoration(
+                hintText: 'Search chat history',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: _searchController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {});
+                          FocusScope.of(context).unfocus();
+                        },
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.38),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: cs.outlineVariant.withValues(alpha: 0.55),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: cs.outlineVariant.withValues(alpha: 0.55),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(
+                    color: cs.primary.withValues(alpha: 0.85),
+                    width: 1.25,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const SizedBox.shrink(), centerTitle: true),
+      appBar: AppBar(
+        title: const SizedBox.shrink(),
+        centerTitle: true,
+        elevation: 0,
+        toolbarHeight: 44,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createFreshChat,
         icon: const Icon(Icons.add_rounded),
         label: const Text('New chat'),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Column(
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'NOVA',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -0.9,
-                              height: 0.95,
-                            ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Your AI tutor',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.68),
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.2,
+      body: !_prefsLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : sessions.when(
+              loading: () => ListView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+                children: [
+                  topSection(),
+                  const SizedBox(height: 24),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ),
+              error: (e, _) => ListView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+                children: [
+                  topSection(),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.error_outline_rounded, size: 40),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Failed to load chats',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        cs.primary.withValues(alpha: 0.16),
-                        cs.secondary.withValues(alpha: 0.08),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$e',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: () =>
+                              ref.invalidate(tutorSessionsProvider),
+                          child: const Text('Retry'),
+                        ),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.10),
-                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                ],
+              ),
+              data: (raw) {
+                final items = _normalizedSessions(raw);
+
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    ref.invalidate(tutorSessionsProvider);
+                  },
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
                     children: [
-                      Text(
-                        'NOVA — Your AI Tutor',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.75),
-                            ),
-                      ),
-                      const SizedBox(height: 14),
-                      Center(
-                        child: FilledButton.icon(
-                          onPressed: _createFreshChat,
-                          icon: const Icon(Icons.auto_awesome_rounded),
-                          label: const Text('Start a fresh conversation'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _searchController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: 'Search chat history',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: _searchController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {});
-                            },
-                            icon: const Icon(Icons.close_rounded),
-                          ),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.04),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            child: !_prefsLoaded
-                ? const Center(child: CircularProgressIndicator())
-                : sessions.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
+                      topSection(),
+                      if (items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(28),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.error_outline_rounded, size: 40),
+                              const Icon(Icons.forum_rounded, size: 42),
                               const SizedBox(height: 12),
                               Text(
-                                'Failed to load chats',
+                                _searchController.text.trim().isEmpty
+                                    ? 'No chats yet'
+                                    : 'No chats match your search',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '$e',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              FilledButton(
-                                onPressed: () =>
-                                    ref.invalidate(tutorSessionsProvider),
-                                child: const Text('Retry'),
+                              const SizedBox(height: 12),
+                              FilledButton.icon(
+                                onPressed: _createFreshChat,
+                                icon: const Icon(Icons.add_comment_rounded),
+                                label: const Text('Create first chat'),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                    data: (raw) {
-                      final items = _normalizedSessions(raw);
-
-                      if (items.isEmpty) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(28),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.forum_rounded, size: 42),
-                                const SizedBox(height: 12),
-                                Text(
-                                  _searchController.text.trim().isEmpty
-                                      ? 'No chats yet'
-                                      : 'No chats match your search',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 10),
-                                FilledButton.icon(
-                                  onPressed: _createFreshChat,
-                                  icon: const Icon(Icons.add_comment_rounded),
-                                  label: const Text('Create first chat'),
-                                ),
-                              ],
+                        )
+                      else
+                        ...List.generate(items.length, (index) {
+                          final session = items[index];
+                          return Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              16,
+                              index == 0 ? 4 : 0,
+                              16,
+                              10,
                             ),
-                          ),
-                        );
-                      }
-
-                      return RefreshIndicator(
-                        onRefresh: () async {
-                          ref.invalidate(tutorSessionsProvider);
-                        },
-                        child: ListView.separated(
-                          keyboardDismissBehavior:
-                              ScrollViewKeyboardDismissBehavior.onDrag,
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
-                          itemCount: items.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            final session = items[index];
-                            return InkWell(
+                            child: InkWell(
                               borderRadius: BorderRadius.circular(22),
                               onTap: () => _openSession(session),
+                              onLongPress: () => _showSessionActions(session),
                               child: Ink(
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.04),
@@ -558,8 +614,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                           Icons.auto_awesome_rounded,
                                         ),
                                       ),
-                                      const SizedBox(width: 14),
-                                      Flexible(
+                                      const SizedBox(width: 12),
+                                      Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -570,49 +626,81 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                               overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .titleSmall
+                                                  .titleMedium
                                                   ?.copyWith(
-                                                    fontWeight: FontWeight.w700,
+                                                    fontWeight: FontWeight.w800,
                                                   ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               _subtitleFor(session),
-                                              maxLines: 1,
+                                              maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodySmall
                                                   ?.copyWith(
-                                                    color: cs.onSurface
-                                                        .withValues(
-                                                          alpha: 0.65,
-                                                        ),
+                                                    color: cs.onSurfaceVariant,
+                                                    height: 1.3,
                                                   ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      IconButton(
-                                        onPressed: () =>
-                                            _showSessionActions(session),
-                                        icon: const Icon(
-                                          Icons.more_horiz_rounded,
-                                        ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            _sessionTimeLabel(session),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelSmall
+                                                ?.copyWith(
+                                                  color: cs.onSurfaceVariant,
+                                                ),
+                                          ),
+                                          IconButton(
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            onPressed: () =>
+                                                _showSessionActions(session),
+                                            icon: const Icon(
+                                              Icons.more_horiz_rounded,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      );
-                    },
+                            ),
+                          );
+                        }),
+                    ],
                   ),
-          ),
-        ],
-      ),
+                );
+              },
+            ),
     );
+  }
+}
+
+String _sessionTimeLabel(Map<String, dynamic> session) {
+  final raw = session['updatedAt'] ?? session['createdAt'];
+  if (raw == null) return '';
+
+  try {
+    final dt = DateTime.parse(raw.toString()).toLocal();
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  } catch (_) {
+    return '';
   }
 }

@@ -31,7 +31,7 @@ String _cmNovaSubjectForSolution(dynamic item) {
 void _cmOpenExplain(BuildContext context, dynamic item) {
   final title = (item.title ?? '').toString().trim();
 
-  Navigator.of(context, rootNavigator: true).push(
+  Navigator.of(context).push(
     MaterialPageRoute(
       builder: (_) => TutorScreen(
         initialPrompt: _cmNovaPromptForSolution(item),
@@ -177,7 +177,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                           ? 'Share a clear, useful solution for other students.'
                           : 'Create a cleaner or better version of this solution.',
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: subjectCtl,
                       decoration: const InputDecoration(labelText: 'Subject *'),
@@ -382,7 +382,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                       children: [
                         const SizedBox(height: 24),
                         Center(child: Text('Error: ${s.error}')),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Center(
                           child: FilledButton(
                             onPressed: c.refresh,
@@ -548,7 +548,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
                 child: Column(
                   children: [
                     const Spacer(),
@@ -557,7 +557,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.34),
                               borderRadius: BorderRadius.circular(22),
@@ -579,7 +579,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                     _OverlayPill(text: 'Q: $_questionText'),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 12),
                                 Text(
                                   _title,
                                   maxLines: 2,
@@ -596,14 +596,14 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 const SizedBox(height: 8),
                                 Text(
                                   _caption,
-                                  maxLines: 3,
+                                  maxLines: 4,
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.bodyLarge
                                       ?.copyWith(
                                         color: Colors.white.withValues(
                                           alpha: 0.96,
                                         ),
-                                        height: 1.2,
+                                        height: 1.3,
                                       ),
                                 ),
                                 const SizedBox(height: 10),
@@ -644,7 +644,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -660,7 +660,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 await controller.toggleLike(item.id);
                               },
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.chat_bubble_outline_rounded,
                               label: item.commentCount == 0
@@ -678,7 +678,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 );
                               },
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.repeat_rounded,
                               label: '',
@@ -697,7 +697,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 );
                               },
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.auto_awesome_rounded,
                               label: 'Explain',
@@ -713,7 +713,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 _cmOpenExplain(context, item);
                               },
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             _SideAction(
                               icon: Icons.upload_rounded,
                               label: 'Upload your own',
@@ -1100,7 +1100,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           FilledButton.icon(
                             onPressed: () async {
                               await controller.loadComments(widget.solution.id);

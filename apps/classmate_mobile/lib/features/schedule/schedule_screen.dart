@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'providers/schedule_providers.dart';
+import '../classrooms/ui/classroom_detail_screen.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -515,7 +515,11 @@ class _ScheduleTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       onTap: courseId.isEmpty
           ? null
-          : () => context.go('/classrooms/$courseId'),
+          : () => Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ClassroomDetailScreen(courseId: courseId),
+              ),
+            ),
       child: Ink(
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow.withValues(alpha: 0.92),

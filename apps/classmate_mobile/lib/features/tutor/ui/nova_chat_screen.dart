@@ -385,7 +385,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                         blocks[i].text.trimRight(),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           height: 1.62,
-                          color: Colors.white.withValues(alpha: 0.96),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     if (i != blocks.length - 1) const SizedBox(height: 14),
@@ -411,7 +411,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               context,
             ).colorScheme.primary.withValues(alpha: 0.16),
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outlineVariant.withValues(alpha: 0.28),
+            ),
           ),
           child: SelectableText(
             content,
@@ -434,8 +438,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -449,7 +451,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             Text(
               _sessionId == null ? 'New conversation' : 'Saved in history',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.65),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
           ],
@@ -468,9 +472,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              cs.primary.withValues(alpha: 0.05),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
               Colors.transparent,
-              cs.secondary.withValues(alpha: 0.03),
+              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.03),
             ],
           ),
         ),
@@ -511,7 +515,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       ),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.10),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -630,16 +636,18 @@ class _CodeBlock extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.52),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
       ),
       child: SelectableText(
         code.trimRight(),
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontFamily: 'monospace',
           height: 1.5,
-          color: Colors.white.withValues(alpha: 0.96),
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -651,8 +659,6 @@ class _NovaAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Container(
       width: 32,
       height: 32,
@@ -660,8 +666,8 @@ class _NovaAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: [
-            cs.primary.withValues(alpha: 0.95),
-            cs.secondary.withValues(alpha: 0.85),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.95),
+            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.85),
           ],
         ),
         border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
@@ -677,7 +683,7 @@ class _NovaAvatar extends StatelessWidget {
       child: Text(
         'N',
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.2,
         ),

@@ -197,8 +197,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     _chatScrollCtl.animateTo(
       target,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutQuart,
     );
   }
 
@@ -255,18 +255,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 'Edit message',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
               TextField(
                 controller: ctl,
                 autofocus: true,
                 minLines: 2,
                 maxLines: 6,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(18)),
+                  ),
                   hintText: 'Edit your message...',
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
               Row(
                 children: [
                   FilledButton.tonalIcon(
@@ -283,7 +289,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         vertical: 10,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(22),
                       ),
                     ),
                   ),
@@ -386,7 +392,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 2),
                 ListTile(
                   leading: const Icon(Icons.reply_rounded),
                   title: const Text('Reply'),
@@ -508,9 +514,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     onBack: _goBackToClassrooms,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 2),
                 _CenteredTabs(controller: _tabs),
-                const SizedBox(height: 8),
+                const SizedBox(height: 2),
                 Expanded(
                   child: TabBarView(
                     controller: _tabs,
@@ -559,7 +565,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               left: 0,
               top: 0,
               bottom: 0,
-              width: 28,
+              width: 22,
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onHorizontalDragEnd: (details) {
@@ -621,20 +627,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
           itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 6),
           itemBuilder: (context, index) {
             final item = raw[index];
             final name = _pick(item, 'name', fallback: 'Student');
             final email = _pick(item, 'email');
             return Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               decoration: _panelDecoration(context),
               child: Row(
                 children: [
                   _InitialsAvatar(name: name),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 2),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -647,7 +653,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           ),
                         ),
                         if (email.trim().isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             email,
                             style: Theme.of(context).textTheme.bodySmall,
@@ -689,9 +695,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
           itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 6),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
         );
       },
@@ -796,7 +802,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
               return ListView.builder(
                 controller: _chatScrollCtl,
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 6),
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   final item = filtered[index];
@@ -857,6 +863,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   final showName = !isMine && !groupedWithPrevious;
 
                   final bubble = GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onHorizontalDragUpdate: (details) {
+                      final v = details.delta.dx;
+                      final shouldReply = isMine ? v < -180 : v > 180;
+                      if (shouldReply) {
+                        _replyTo(
+                          messageId: messageId,
+                          sender: isMine ? 'You' : senderName,
+                          text: messageText.isEmpty ? '(empty)' : messageText,
+                        );
+                      }
+                    },
                     onLongPress: () => _openBubbleMenu(
                       context,
                       messageId: messageId,
@@ -876,15 +894,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             : CrossAxisAlignment.start,
                         children: [
                           Container(
-                            constraints: const BoxConstraints(maxWidth: 290),
-                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                            constraints: const BoxConstraints(maxWidth: 336),
+                            padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
                             decoration: BoxDecoration(
                               color: isMine ? cs.primaryContainer : cs.surface,
                               borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(18),
-                                topRight: const Radius.circular(18),
-                                bottomLeft: Radius.circular(isMine ? 18 : 6),
-                                bottomRight: Radius.circular(isMine ? 6 : 18),
+                                topLeft: Radius.circular(
+                                  groupedWithPrevious ? 16 : 22,
+                                ),
+                                topRight: Radius.circular(
+                                  groupedWithPrevious ? 16 : 22,
+                                ),
+                                bottomLeft: Radius.circular(isMine ? 22 : 8),
+                                bottomRight: Radius.circular(isMine ? 8 : 22),
                               ),
                               border: Border.all(
                                 color: cs.outlineVariant.withValues(
@@ -898,7 +920,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               children: [
                                 if (showName)
                                   Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
+                                    padding: const EdgeInsets.only(bottom: 2),
                                     child: Text(
                                       senderName,
                                       style: TextStyle(
@@ -912,12 +934,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     replySnippet.isNotEmpty) ...[
                                   Container(
                                     width: double.infinity,
-                                    margin: const EdgeInsets.only(bottom: 8),
+                                    margin: const EdgeInsets.only(bottom: 6),
                                     padding: const EdgeInsets.fromLTRB(
                                       10,
-                                      8,
+                                      7,
                                       10,
-                                      8,
+                                      7,
                                     ),
                                     decoration: BoxDecoration(
                                       color:
@@ -978,13 +1000,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 Text(
                                   messageText.isEmpty ? '(empty)' : messageText,
                                   style: TextStyle(
-                                    height: 1.25,
+                                    height: 1.18,
                                     color: isMine
                                         ? cs.onPrimaryContainer
                                         : cs.onSurface,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -1021,7 +1043,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             ),
                           ),
                           if (reaction != null) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1046,8 +1068,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      top: groupedWithPrevious ? 4 : 10,
-                      bottom: 2,
+                      top: groupedWithPrevious ? 1 : 6,
+                      bottom: 0,
                     ),
                     child: Row(
                       mainAxisAlignment: isMine
@@ -1057,15 +1079,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       children: [
                         if (!isMine)
                           SizedBox(
-                            width: 34,
+                            width: 22,
                             child: showAvatar
                                 ? _InitialsAvatar(name: senderName)
                                 : const SizedBox.shrink(),
                           ),
-                        if (!isMine) const SizedBox(width: 8),
+                        if (!isMine) const SizedBox(width: 0),
                         Flexible(child: bubble),
-                        if (isMine) const SizedBox(width: 8),
-                        if (isMine) const SizedBox(width: 34),
+                        if (isMine) const SizedBox(width: 0),
+                        if (isMine) const SizedBox(width: 28),
                       ],
                     ),
                   );
@@ -1076,7 +1098,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         ),
         if (_typing && !_sending)
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 6),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -1090,9 +1112,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),
         if (_replyToMessageId != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
             child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(20),
@@ -1156,7 +1178,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             ),
           ),
         Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          padding: const EdgeInsets.fromLTRB(0, 4, 0, 6),
           decoration: BoxDecoration(
             color: Theme.of(
               context,
@@ -1178,8 +1200,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   onSubmitted: (_) => _sendChat(),
                   decoration: const InputDecoration(
                     hintText: 'Message classroom...',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(22)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(22)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(22)),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     isDense: true,
+                    filled: true,
                   ),
                 ),
               ),
@@ -1224,7 +1259,7 @@ class _TopHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(22),
@@ -1243,11 +1278,11 @@ class _TopHeader extends StatelessWidget {
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(22),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 2),
             Container(
               width: 48,
               height: 48,
@@ -1283,7 +1318,7 @@ class _TopHeader extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 2),
             IconButton(
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh_rounded),
@@ -1302,7 +1337,7 @@ class _HeaderSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: EdgeInsets.fromLTRB(8, 6, 8, 0),
       child: SizedBox(height: 84, child: Card()),
     );
   }
@@ -1318,7 +1353,7 @@ class _CenteredTabs extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
+      padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
@@ -1347,7 +1382,7 @@ class _CenteredTabs extends StatelessWidget {
           ),
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
-          splashBorderRadius: BorderRadius.circular(20),
+          splashBorderRadius: BorderRadius.circular(28),
           tabs: const [
             Tab(child: _TabChipLabel(text: 'Chat')),
             Tab(child: _TabChipLabel(text: 'Assignments')),
@@ -1369,7 +1404,7 @@ class _TabChipLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -1395,7 +1430,7 @@ class _SimpleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: _panelDecoration(context),
       child: Row(
         children: [
@@ -1408,14 +1443,14 @@ class _SimpleCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 if (subtitle.trim().isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(subtitle),
                 ],
               ],
             ),
           ),
           if (trailing.trim().isNotEmpty) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 2),
             Text(
               trailing,
               style: Theme.of(context).textTheme.bodySmall,
@@ -1471,7 +1506,7 @@ class _CenteredState extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     textAlign: TextAlign.center,
@@ -1607,4 +1642,45 @@ String _initialsForName(String name) {
     return v.length >= 2 ? v.substring(0, 2).toUpperCase() : v.toUpperCase();
   }
   return (parts.first[0] + parts.last[0]).toUpperCase();
+}
+
+class BubbleTail extends StatelessWidget {
+  final bool isMe;
+  const BubbleTail({super.key, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(8, 10),
+      painter: _BubbleTailPainter(isMe),
+    );
+  }
+}
+
+class _BubbleTailPainter extends CustomPainter {
+  final bool isMe;
+  _BubbleTailPainter(this.isMe);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = isMe ? const Color(0xFFDCF8C6) : const Color(0xFFECECEC);
+
+    final path = Path();
+
+    if (isMe) {
+      path.moveTo(0, 0);
+      path.lineTo(size.width, size.height / 2);
+      path.lineTo(0, size.height);
+    } else {
+      path.moveTo(size.width, 0);
+      path.lineTo(0, size.height / 2);
+      path.lineTo(size.width, size.height);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

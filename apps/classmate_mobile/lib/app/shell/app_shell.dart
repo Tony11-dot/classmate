@@ -45,9 +45,18 @@ class AppShell extends ConsumerWidget {
 
   bool _hideBottomNav(String loc) {
     if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
     if (loc.contains('/chat')) return true;
+    return false;
+  }
 
-    return loc.startsWith('/classrooms/') || loc.startsWith('/classrooms?');
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
   }
 
   @override
@@ -55,11 +64,12 @@ class AppShell extends ConsumerWidget {
     final loc = GoRouterState.of(context).uri.toString();
     final idx = _indexFor(loc);
     final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
 
     return Scaffold(
       drawerEnableOpenDragGesture: true,
-      drawer: const MainDrawer(),
-      appBar: _TopBar(title: _pageTitle(loc)),
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
       body: child,
       bottomNavigationBar: hideBottomNav
           ? null
@@ -110,7 +120,7 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +138,14 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 12),
+          padding: const EdgeInsets.only(right: 10),
           child: Center(
-            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ],
