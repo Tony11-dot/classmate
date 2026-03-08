@@ -26,10 +26,7 @@ class InsightsRepository {
     return <String, dynamic>{'ok': true, 'grades': <dynamic>[]};
   }
 
-  Future<Map<String, dynamic>> getAttendance({
-    String? from,
-    String? to,
-  }) async {
+  Future<Map<String, dynamic>> getAttendance({String? from, String? to}) async {
     final query = <String, String>{};
     if ((from ?? '').trim().isNotEmpty) {
       query['from'] = from!.trim();

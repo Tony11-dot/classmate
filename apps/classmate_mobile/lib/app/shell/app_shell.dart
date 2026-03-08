@@ -43,54 +43,64 @@ class AppShell extends ConsumerWidget {
     return 'Schedule';
   }
 
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.contains('/chat')) return true;
+
+    return loc.startsWith('/classrooms/') || loc.startsWith('/classrooms?');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = GoRouterState.of(context).uri.toString();
     final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
 
     return Scaffold(
       drawerEnableOpenDragGesture: true,
       drawer: const MainDrawer(),
       appBar: _TopBar(title: _pageTitle(loc)),
       body: child,
-      bottomNavigationBar: NavigationBar(
-        animationDuration: const Duration(milliseconds: 90),
-        selectedIndex: idx,
-        onDestinationSelected: (i) {
-          final next = _locFor(i);
-          if (next == loc) {
-            return;
-          }
-          context.go(next);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.event_note_outlined),
-            selectedIcon: Icon(Icons.event_note),
-            label: 'Schedule',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.groups_outlined),
-            selectedIcon: Icon(Icons.groups),
-            label: 'Classrooms',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.smart_display_outlined),
-            selectedIcon: Icon(Icons.smart_display),
-            label: 'Solutions',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.insights_outlined),
-            selectedIcon: Icon(Icons.insights),
-            label: 'Insights',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'NOVA',
-          ),
-        ],
-      ),
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Solutions',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
     );
   }
 }

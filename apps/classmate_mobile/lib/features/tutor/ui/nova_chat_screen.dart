@@ -371,7 +371,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.35,
-                        color: Colors.white.withValues(alpha: 0.72),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.92),
                       ),
                     ),
                   ),
@@ -698,4 +700,39 @@ class _Msg {
 
   final String role;
   final String content;
+}
+
+class TypingIndicator extends StatefulWidget {
+  const TypingIndicator({super.key});
+
+  @override
+  State<TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: .3, end: 1.0).animate(_c),
+      child: const Text("NOVA is thinking..."),
+    );
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
 }

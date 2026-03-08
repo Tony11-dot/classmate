@@ -55,6 +55,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           }
         },
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
@@ -67,7 +68,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   }),
             ),
             const SizedBox(height: 16),
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOut,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
@@ -130,16 +133,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                'Tap the date to open the calendar. Swipe left or right to move between days.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-            ),
             const SizedBox(height: 16),
             weekAsync.when(
               data: (data) => _daySection(context, data),
@@ -188,13 +181,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               letterSpacing: -0.4,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${_friendlyDate(_ymd(_selectedDate))} · ${_weekdayLong(_selectedDate)}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,
@@ -210,7 +196,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 context,
                 icon: Icons.calendar_view_week_rounded,
                 label: 'This week',
-                value: '${_weekTotal(days)} classes',
+                value:
+                    '${days.fold<int>(0, (sum, day) => sum + (((day['items'] as List?)?.length) ?? 0))} classes',
               ),
               _statPill(
                 context,
@@ -391,13 +378,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         .whereType<Map>()
         .map((e) => Map<String, dynamic>.from(e))
         .toList();
-  }
-
-  int _weekTotal(List<Map<String, dynamic>> days) {
-    return days.fold<int>(0, (sum, day) {
-      final items = (day['items'] as List?) ?? const [];
-      return sum + items.length;
-    });
   }
 
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);

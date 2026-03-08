@@ -255,7 +255,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 'Edit message',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               TextField(
                 controller: ctl,
                 autofocus: true,
@@ -266,7 +266,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   hintText: 'Edit your message...',
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   FilledButton.tonalIcon(
@@ -386,7 +386,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 ListTile(
                   leading: const Icon(Icons.reply_rounded),
                   title: const Text('Reply'),
@@ -634,7 +634,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               child: Row(
                 children: [
                   _InitialsAvatar(name: name),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -984,7 +984,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         : cs.onSurface,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -1095,7 +1095,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: Theme.of(
                     context,
@@ -1247,13 +1247,13 @@ class _TopHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Container(
               width: 48,
               height: 48,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: cs.primary),
@@ -1335,7 +1335,7 @@ class _CenteredTabs extends StatelessWidget {
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
             color: cs.primaryContainer.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
             boxShadow: [
               BoxShadow(
@@ -1347,7 +1347,7 @@ class _CenteredTabs extends StatelessWidget {
           ),
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
-          splashBorderRadius: BorderRadius.circular(16),
+          splashBorderRadius: BorderRadius.circular(20),
           tabs: const [
             Tab(child: _TabChipLabel(text: 'Chat')),
             Tab(child: _TabChipLabel(text: 'Assignments')),
@@ -1415,7 +1415,7 @@ class _SimpleCard extends StatelessWidget {
             ),
           ),
           if (trailing.trim().isNotEmpty) ...[
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Text(
               trailing,
               style: Theme.of(context).textTheme.bodySmall,
