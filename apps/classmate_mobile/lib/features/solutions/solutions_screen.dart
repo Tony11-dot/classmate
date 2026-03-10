@@ -8,6 +8,7 @@ import '../tutor/ui/tutor_screen.dart';
 import 'solution_model.dart';
 import 'solutions_controller.dart';
 import 'solutions_filters.dart';
+import 'package:go_router/go_router.dart';
 
 String _cmNovaPromptForSolution(dynamic item) {
   final title = (item.title ?? '').toString().trim();
@@ -57,7 +58,7 @@ bool _isStaffToken(String token) {
 class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
   final _scroll = ScrollController();
   final _pageCtl = PageController();
-  bool _filtersOpen = false;
+  final bool _filtersOpen = false;
 
   Future<void> _openSolutionComposer(
     BuildContext context, {
@@ -345,9 +346,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     ),
                   ),
                 FilledButton.tonalIcon(
-                  onPressed: () {
-                    setState(() => _filtersOpen = !_filtersOpen);
-                  },
+                  onPressed: () => context.push('/solutions/subjects'),
                   icon: Icon(
                     _filtersOpen
                         ? Icons.keyboard_arrow_up_rounded
@@ -520,6 +519,98 @@ class _FullscreenSolutionPost extends ConsumerWidget {
     return '$y-$m-$d  $hh:$mm';
   }
 
+  void _openFullCaptionSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.72,
+          minChildSize: 0.45,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 42,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    _title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _OverlayPill(text: _subject),
+                      _OverlayPill(text: _sourceType),
+                      _OverlayPill(text: 'Book: $_sourceName'),
+                      _OverlayPill(text: 'Page: $_pageText'),
+                      _OverlayPill(text: 'Q: $_questionText'),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    _caption,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.96),
+                      height: 1.35,
+                    ),
+                  ),
+                  if ((item.authorName ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      'By ${item.authorName!.trim()}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.86),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  if (_createdText.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      _createdText,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(solutionsControllerProvider.notifier);
@@ -548,7 +639,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
+                padding: const EdgeInsets.fromLTRB(10, 10, 8, 12),
                 child: Column(
                   children: [
                     const Spacer(),
@@ -557,15 +648,16 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.34),
+                              color: Colors.black.withValues(alpha: 0.24),
                               borderRadius: BorderRadius.circular(22),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.10),
                               ),
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Wrap(
@@ -579,7 +671,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                     _OverlayPill(text: 'Q: $_questionText'),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 10),
                                 Text(
                                   _title,
                                   maxLines: 2,
@@ -593,18 +685,21 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                         letterSpacing: -0.4,
                                       ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _caption,
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyLarge
-                                      ?.copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.96,
+                                const SizedBox(height: 6),
+                                GestureDetector(
+                                  onTap: () => _openFullCaptionSheet(context),
+                                  child: Text(
+                                    _caption,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodyLarge
+                                        ?.copyWith(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.96,
+                                          ),
+                                          height: 1.28,
                                         ),
-                                        height: 1.3,
-                                      ),
+                                  ),
                                 ),
                                 const SizedBox(height: 10),
                                 Wrap(
@@ -644,7 +739,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 6),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -660,7 +755,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 await controller.toggleLike(item.id);
                               },
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             _SideAction(
                               icon: Icons.chat_bubble_outline_rounded,
                               label: item.commentCount == 0
@@ -678,7 +773,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 );
                               },
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             _SideAction(
                               icon: Icons.repeat_rounded,
                               label: '',
@@ -697,7 +792,7 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 );
                               },
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             _SideAction(
                               icon: Icons.auto_awesome_rounded,
                               label: 'Explain',
@@ -713,10 +808,10 @@ class _FullscreenSolutionPost extends ConsumerWidget {
                                 _cmOpenExplain(context, item);
                               },
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             _SideAction(
                               icon: Icons.upload_rounded,
-                              label: 'Upload your own',
+                              label: 'Upload',
                               color: Colors.white,
                               onTap: () async {
                                 final state = context

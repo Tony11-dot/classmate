@@ -33,9 +33,7 @@ class MainDrawer extends ConsumerWidget {
         leading: Icon(icon),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         onTap: () {
-          try {
-            Scaffold.of(context).closeDrawer();
-          } catch (_) {}
+          Navigator.of(context).pop();
           onTap();
         },
       );
@@ -55,7 +53,7 @@ class MainDrawer extends ConsumerWidget {
                     height: 44,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: cs.primaryContainer.withValues(alpha: (0.75)),
+                      color: cs.primaryContainer.withValues(alpha: 0.75),
                     ),
                     child: Icon(
                       Icons.school_rounded,
@@ -84,12 +82,7 @@ class MainDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            Divider(
-              height: 1,
-              color: cs.outlineVariant.withValues(alpha: (0.4)),
-            ),
-
-            // 1) Core bottom-nav tabs
+            Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.4)),
             section('Core'),
             item(
               icon: Icons.calendar_month_rounded,
@@ -103,8 +96,8 @@ class MainDrawer extends ConsumerWidget {
             ),
             item(
               icon: Icons.auto_awesome_rounded,
-              title: 'NOVA',
-              onTap: () => context.go('/tutor'),
+              title: 'Practice',
+              onTap: () => context.go('/practice'),
             ),
             item(
               icon: Icons.insights_rounded,
@@ -112,13 +105,11 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/insights'),
             ),
             item(
-              icon: Icons.video_collection_rounded,
-              title: 'Solutions',
-              onTap: () => context.go('/solutions'),
+              icon: Icons.psychology_rounded,
+              title: 'NOVA',
+              onTap: () => context.go('/tutor'),
             ),
-
-            // 2) LifeDoc features
-            section('LifeDoc'),
+            section('School tools'),
             item(
               icon: Icons.how_to_reg_rounded,
               title: 'Attendance',
@@ -135,12 +126,15 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/notifications'),
             ),
             item(
+              icon: Icons.bookmark_rounded,
+              title: 'Saved questions',
+              onTap: () => context.go('/saved-questions'),
+            ),
+            item(
               icon: Icons.warning_amber_rounded,
               title: 'Alerts',
               onTap: () {},
             ),
-
-            // 3) Profile/settings
             section('Profile'),
             item(
               icon: Icons.person_rounded,

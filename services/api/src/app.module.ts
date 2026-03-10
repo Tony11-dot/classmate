@@ -1,4 +1,5 @@
 import { HealthController } from './system/health.controller';
+import { PracticeModule } from './practice/practice.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { MetricsController } from './metrics/metrics.controller';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';
@@ -84,18 +85,7 @@ const appControllers = [MetricsController, ...controllers];
     ProjectionsModule,
     ClassroomsModule,
     ...serveStatic,
-    ThrottlerModule.forRoot([
-      {
-        name: 'global',
-        ttl: 60_000,
-        limit: 120,
-      },
-      {
-        name: 'auth',
-        ttl: 60_000,
-        limit: 30,
-      },
-    ]),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
     HealthModule,
     PrismaModule,
     AuthModule,
@@ -110,6 +100,7 @@ const appControllers = [MetricsController, ...controllers];
     VersionModule,
     NotificationsModule,
     BrainModule,
+    PracticeModule,
   ],
 })
 export class AppModule {}

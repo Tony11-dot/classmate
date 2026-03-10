@@ -26,6 +26,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   late final TabController _tabs = TabController(length: 5, vsync: this);
   final TextEditingController _chatCtl = TextEditingController();
   final ScrollController _chatScrollCtl = ScrollController();
+  final Map<String, double> _swipeDxByMessage = <String, double>{};
 
   bool _sending = false;
 
@@ -802,7 +803,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
               return ListView.builder(
                 controller: _chatScrollCtl,
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 6),
+                padding: const EdgeInsets.fromLTRB(0, 2, 0, 4),
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   final item = filtered[index];
@@ -861,18 +862,41 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
                   final showAvatar = !isMine && !groupedWithPrevious;
                   final showName = !isMine && !groupedWithPrevious;
+                  final swipeDx = _swipeDxByMessage[messageId] ?? 0;
 
                   final bubble = GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onHorizontalDragUpdate: (details) {
-                      final v = details.delta.dx;
-                      final shouldReply = isMine ? v < -180 : v > 180;
-                      if (shouldReply) {
+                      final next = (swipeDx + details.delta.dx).clamp(
+                        0.0,
+                        84.0,
+                      );
+                      if ((_swipeDxByMessage[messageId] ?? 0) != next) {
+                        setState(() {
+                          _swipeDxByMessage[messageId] = next;
+                        });
+                      }
+                    },
+                    onHorizontalDragEnd: (_) {
+                      final current = _swipeDxByMessage[messageId] ?? 0;
+                      if (current >= 56) {
                         _replyTo(
                           messageId: messageId,
                           sender: isMine ? 'You' : senderName,
                           text: messageText.isEmpty ? '(empty)' : messageText,
                         );
+                      }
+                      if (_swipeDxByMessage.containsKey(messageId)) {
+                        setState(() {
+                          _swipeDxByMessage.remove(messageId);
+                        });
+                      }
+                    },
+                    onHorizontalDragCancel: () {
+                      if (_swipeDxByMessage.containsKey(messageId)) {
+                        setState(() {
+                          _swipeDxByMessage.remove(messageId);
+                        });
                       }
                     },
                     onLongPress: () => _openBubbleMenu(
@@ -882,193 +906,202 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       senderLabel: isMine ? 'You' : senderName,
                       isMine: isMine,
                     ),
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.96, end: 1),
-                      duration: const Duration(milliseconds: 180),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, scale, child) =>
-                          Transform.scale(scale: scale, child: child),
-                      child: Column(
-                        crossAxisAlignment: isMine
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            constraints: const BoxConstraints(maxWidth: 336),
-                            padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
-                            decoration: BoxDecoration(
-                              color: isMine ? cs.primaryContainer : cs.surface,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(
-                                  groupedWithPrevious ? 16 : 22,
-                                ),
-                                topRight: Radius.circular(
-                                  groupedWithPrevious ? 16 : 22,
-                                ),
-                                bottomLeft: Radius.circular(isMine ? 22 : 8),
-                                bottomRight: Radius.circular(isMine ? 8 : 22),
-                              ),
-                              border: Border.all(
-                                color: cs.outlineVariant.withValues(
-                                  alpha: 0.35,
-                                ),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (showName)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Text(
-                                      senderName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 12,
-                                        color: cs.primary,
-                                      ),
-                                    ),
-                                  ),
-                                if (replySender.isNotEmpty ||
-                                    replySnippet.isNotEmpty) ...[
-                                  Container(
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.only(bottom: 6),
-                                    padding: const EdgeInsets.fromLTRB(
-                                      10,
-                                      7,
-                                      10,
-                                      7,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          (isMine
-                                                  ? cs.onPrimaryContainer
-                                                  : cs.primaryContainer)
-                                              .withValues(alpha: 0.18),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border(
-                                        left: BorderSide(
-                                          color: isMine
-                                              ? cs.onPrimaryContainer
-                                              : cs.primary,
-                                          width: 3,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          replySender.isEmpty
-                                              ? 'Reply'
-                                              : replySender,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w800,
-                                            color: isMine
-                                                ? cs.onPrimaryContainer
-                                                : cs.primary,
-                                          ),
-                                        ),
-                                        if (replySnippet.isNotEmpty) ...[
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            replySnippet,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              height: 1.2,
-                                              color:
-                                                  (isMine
-                                                          ? cs.onPrimaryContainer
-                                                          : cs.onSurfaceVariant)
-                                                      .withValues(alpha: 0.88),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                                Text(
-                                  messageText.isEmpty ? '(empty)' : messageText,
-                                  style: TextStyle(
-                                    height: 1.18,
-                                    color: isMine
-                                        ? cs.onPrimaryContainer
-                                        : cs.onSurface,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (_editedTextByMessage.containsKey(
-                                      messageId,
-                                    )) ...[
-                                      Text(
-                                        'edited',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color:
-                                              (isMine
-                                                      ? cs.onPrimaryContainer
-                                                      : cs.onSurfaceVariant)
-                                                  .withValues(alpha: 0.72),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                    ],
-                                    Text(
-                                      _friendlyTime(createdRaw),
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color:
-                                            (isMine
-                                                    ? cs.onPrimaryContainer
-                                                    : cs.onSurfaceVariant)
-                                                .withValues(alpha: 0.82),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (reaction != null) ...[
-                            const SizedBox(height: 2),
+                    child: Transform.translate(
+                      offset: Offset(swipeDx, 0),
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.96, end: 1),
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, scale, child) =>
+                            Transform.scale(scale: scale, child: child),
+                        child: Column(
+                          crossAxisAlignment: isMine
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
+                              constraints: const BoxConstraints(maxWidth: 344),
+                              padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
                               decoration: BoxDecoration(
-                                color: cs.surface,
-                                borderRadius: BorderRadius.circular(999),
+                                color: isMine
+                                    ? cs.primaryContainer
+                                    : cs.surface,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                    groupedWithPrevious ? 16 : 22,
+                                  ),
+                                  topRight: Radius.circular(
+                                    groupedWithPrevious ? 16 : 22,
+                                  ),
+                                  bottomLeft: Radius.circular(isMine ? 22 : 8),
+                                  bottomRight: Radius.circular(isMine ? 8 : 22),
+                                ),
                                 border: Border.all(
                                   color: cs.outlineVariant.withValues(
                                     alpha: 0.35,
                                   ),
                                 ),
                               ),
-                              child: Text(reaction),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (showName)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: Text(
+                                        senderName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 12,
+                                          color: cs.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  if (replySender.isNotEmpty ||
+                                      replySnippet.isNotEmpty) ...[
+                                    Container(
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.only(bottom: 6),
+                                      padding: const EdgeInsets.fromLTRB(
+                                        10,
+                                        7,
+                                        10,
+                                        7,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            (isMine
+                                                    ? cs.onPrimaryContainer
+                                                    : cs.primaryContainer)
+                                                .withValues(alpha: 0.18),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border(
+                                          left: BorderSide(
+                                            color: isMine
+                                                ? cs.onPrimaryContainer
+                                                : cs.primary,
+                                            width: 3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            replySender.isEmpty
+                                                ? 'Reply'
+                                                : replySender,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w800,
+                                              color: isMine
+                                                  ? cs.onPrimaryContainer
+                                                  : cs.primary,
+                                            ),
+                                          ),
+                                          if (replySnippet.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              replySnippet,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                height: 1.2,
+                                                color:
+                                                    (isMine
+                                                            ? cs.onPrimaryContainer
+                                                            : cs.onSurfaceVariant)
+                                                        .withValues(
+                                                          alpha: 0.88,
+                                                        ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                  Text(
+                                    messageText.isEmpty
+                                        ? '(empty)'
+                                        : messageText,
+                                    style: TextStyle(
+                                      height: 1.18,
+                                      color: isMine
+                                          ? cs.onPrimaryContainer
+                                          : cs.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (_editedTextByMessage.containsKey(
+                                        messageId,
+                                      )) ...[
+                                        Text(
+                                          'edited',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color:
+                                                (isMine
+                                                        ? cs.onPrimaryContainer
+                                                        : cs.onSurfaceVariant)
+                                                    .withValues(alpha: 0.72),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Text(
+                                        _friendlyTime(createdRaw),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color:
+                                              (isMine
+                                                      ? cs.onPrimaryContainer
+                                                      : cs.onSurfaceVariant)
+                                                  .withValues(alpha: 0.82),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
+                            if (reaction != null) ...[
+                              const SizedBox(height: 2),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: cs.surface,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: cs.outlineVariant.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(reaction),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   );
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      top: groupedWithPrevious ? 1 : 6,
+                      top: groupedWithPrevious ? 1 : 4,
                       bottom: 0,
                     ),
                     child: Row(
@@ -1079,7 +1112,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       children: [
                         if (!isMine)
                           SizedBox(
-                            width: 22,
+                            width: 18,
                             child: showAvatar
                                 ? _InitialsAvatar(name: senderName)
                                 : const SizedBox.shrink(),
@@ -1087,7 +1120,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         if (!isMine) const SizedBox(width: 0),
                         Flexible(child: bubble),
                         if (isMine) const SizedBox(width: 0),
-                        if (isMine) const SizedBox(width: 28),
+                        if (isMine) const SizedBox(width: 4),
                       ],
                     ),
                   );

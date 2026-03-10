@@ -10,6 +10,7 @@ class AppShell extends ConsumerWidget {
 
   int _indexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
     if (loc.startsWith('/solutions')) return 2;
     if (loc.startsWith('/insights')) return 3;
     if (loc.startsWith('/tutor')) return 4;
@@ -19,7 +20,7 @@ class AppShell extends ConsumerWidget {
   String _locFor(int index) => switch (index) {
     0 => '/schedule',
     1 => '/classrooms',
-    2 => '/solutions',
+    2 => '/practice',
     3 => '/insights',
     4 => '/tutor',
     _ => '/schedule',
@@ -27,6 +28,7 @@ class AppShell extends ConsumerWidget {
 
   String _pageTitle(String loc) {
     if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
     if (loc.startsWith('/solutions')) return 'Solutions';
     if (loc.startsWith('/insights')) return 'Insights';
     if (loc.startsWith('/tutor')) return 'NOVA';
@@ -44,6 +46,8 @@ class AppShell extends ConsumerWidget {
   }
 
   bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
     if (loc.startsWith('/classrooms/')) return true;
     if (loc.startsWith('/tutor?')) return true;
     if (loc.startsWith('/tutor/')) return true;
@@ -52,6 +56,8 @@ class AppShell extends ConsumerWidget {
   }
 
   bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
     if (loc.startsWith('/classrooms/')) return true;
     if (loc.startsWith('/tutor?')) return true;
     if (loc.startsWith('/tutor/')) return true;
@@ -78,9 +84,7 @@ class AppShell extends ConsumerWidget {
               selectedIndex: idx,
               onDestinationSelected: (i) {
                 final next = _locFor(i);
-                if (next == loc) {
-                  return;
-                }
+                if (next == loc) return;
                 context.go(next);
               },
               destinations: const [
@@ -97,7 +101,7 @@ class AppShell extends ConsumerWidget {
                 NavigationDestination(
                   icon: Icon(Icons.smart_display_outlined),
                   selectedIcon: Icon(Icons.smart_display),
-                  label: 'Solutions',
+                  label: 'Practice',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.insights_outlined),

@@ -20,9 +20,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       return 'Schedule is refreshing too fast right now. Wait a moment and try again.';
     }
     if (raw.contains('Student not onboarded')) {
-      return 'Your student profile is not fully set up yet.';
+      return 'Your student profile is not fully set up yet. Showing a demo schedule for now.';
     }
-    return 'Could not load schedule.';
+    return 'Could not load schedule yet.';
   }
 
   Future<void> _retryWeek(String weekOf) async {
@@ -249,7 +249,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Could not load schedule',
+            'Could not load schedule yet',
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
@@ -654,7 +654,7 @@ class _ErrorState extends StatelessWidget {
           const Icon(Icons.cloud_off_rounded, size: 34),
           const SizedBox(height: 10),
           const Text(
-            'Could not load schedule',
+            'Could not load schedule yet',
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
           ),
