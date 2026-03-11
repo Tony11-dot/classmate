@@ -11,7 +11,7 @@ class AppShell extends ConsumerWidget {
   int _indexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
     if (loc.startsWith('/practice')) return 2;
-    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/nova')) return 2;
     if (loc.startsWith('/insights')) return 3;
     if (loc.startsWith('/tutor')) return 4;
     return 0;
@@ -27,9 +27,9 @@ class AppShell extends ConsumerWidget {
   };
 
   String _pageTitle(String loc) {
-    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/classrooms')) return 'Classes';
     if (loc.startsWith('/practice')) return 'Practice';
-    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/nova')) return 'NOVA';
     if (loc.startsWith('/insights')) return 'Insights';
     if (loc.startsWith('/tutor')) return 'NOVA';
 
@@ -96,7 +96,7 @@ class AppShell extends ConsumerWidget {
                 NavigationDestination(
                   icon: Icon(Icons.groups_outlined),
                   selectedIcon: Icon(Icons.groups),
-                  label: 'Classrooms',
+                  label: 'Classes',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.smart_display_outlined),

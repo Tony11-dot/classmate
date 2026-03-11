@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../data/practice_prompt_builder.dart';
+
 import '../domain/practice_models.dart';
 import '../providers/practice_providers.dart';
 import 'practice_session_screen.dart';
@@ -104,6 +104,8 @@ String practiceModeLabel(PracticeMode mode) {
       return 'Concept builder';
     case PracticeMode.adaptive:
       return 'Adaptive';
+    case PracticeMode.bagrut:
+      return 'Bagrut';
   }
 }
 
@@ -121,6 +123,8 @@ String practiceModeDescription(PracticeMode mode) {
       return 'Slower, deeper, explanation-first understanding.';
     case PracticeMode.adaptive:
       return 'Pushes up or down based on how you are doing.';
+    case PracticeMode.bagrut:
+      return 'One real Bagrut exam question. No timer. No lives.';
   }
 }
 
@@ -138,6 +142,8 @@ String practiceModeBadge(PracticeMode mode) {
       return 'Deep';
     case PracticeMode.adaptive:
       return 'Smart';
+    case PracticeMode.bagrut:
+      return 'Bagrut';
   }
 }
 
@@ -155,6 +161,8 @@ IconData practiceModeIcon(PracticeMode mode) {
       return Icons.school_rounded;
     case PracticeMode.adaptive:
       return Icons.auto_awesome_rounded;
+    case PracticeMode.bagrut:
+      return Icons.description_rounded;
   }
 }
 
@@ -414,7 +422,16 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               onPressed: loading
                   ? null
                   : () async {
-                      await sessionCtl.start();
+                      final startFilter = filter.mode == PracticeMode.bagrut
+                          ? filter.copyWith(
+                              questionCount: 1,
+                              useAiTiming: false,
+                              timePreferenceSeconds: null,
+                              maxLives: 1,
+                              hasInfiniteLives: true,
+                            )
+                          : filter;
+                      await sessionCtl.start(startFilter);
                       if (!context.mounted) return;
                       await Navigator.of(context).push(
                         MaterialPageRoute(
@@ -673,6 +690,8 @@ class _ModeTile extends StatelessWidget {
         return Colors.green;
       case PracticeMode.adaptive:
         return Colors.purple;
+      case PracticeMode.bagrut:
+        return Colors.orange;
     }
   }
 

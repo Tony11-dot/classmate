@@ -5,6 +5,7 @@ enum PracticeMode {
   examPrep,
   conceptBuilder,
   adaptive,
+  bagrut,
 }
 
 enum PracticeDifficulty { easy, medium, hard, olympiad, adaptive }

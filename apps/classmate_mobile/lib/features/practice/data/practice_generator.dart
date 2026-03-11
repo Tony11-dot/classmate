@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../domain/practice_models.dart';
+import 'bagrut_repository.dart';
 
 class PracticeGenerator {
   static const _apiBase = String.fromEnvironment(
@@ -11,11 +12,49 @@ class PracticeGenerator {
 
   static const _devToken = String.fromEnvironment('CM_DEV_TOKEN');
 
+  final BagrutRepository _bagrutRepo = BagrutRepository();
+
   Future<List<PracticeQuestion>> generate(PracticeFilter filter) async {
+    if (filter.mode == PracticeMode.bagrut) {
+      final bagrut = await _generateBagrutQuestion(filter);
+      if (bagrut != null) return [bagrut];
+      return generateFallback(filter);
+    }
+
     final remote = await _generateFromApi(filter);
     if (remote.isNotEmpty) return remote;
 
     return generateFallback(filter);
+  }
+
+  Future<PracticeQuestion?> _generateBagrutQuestion(
+    PracticeFilter filter,
+  ) async {
+    final dto = await _bagrutRepo.getQuestion(
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+    );
+    if (dto == null) return null;
+
+    return PracticeQuestion(
+      id: 'bagrut-${dto.examCode}-${dto.questionIndex}-${dto.year}',
+      subject: dto.subject,
+      topicLabel: dto.topicLabel,
+      mode: PracticeMode.bagrut,
+      difficulty: _parseDifficulty(dto.difficulty) ?? filter.difficulty,
+      prompt: dto.promptLatex.isNotEmpty ? dto.promptLatex : 'Bagrut question',
+      options: const [
+        'Open with NOVA',
+        'Show official solution',
+        'Save for later',
+        'End question',
+      ],
+      correctIndex: 1,
+      explanation: dto.solutionLatex.isNotEmpty
+          ? dto.solutionLatex
+          : 'Official Bagrut-style solution unavailable.',
+      recommendedTimeSeconds: 3600,
+    );
   }
 
   Future<List<PracticeQuestion>> generateFallback(PracticeFilter filter) async {
@@ -181,6 +220,27 @@ class PracticeGenerator {
     final topic = filter.topicLabel.toLowerCase();
     final subject = filter.subject.toLowerCase();
 
+    if (filter.mode == PracticeMode.bagrut) {
+      return PracticeQuestion(
+        id: 'fallback-bagrut-$index',
+        subject: filter.subject,
+        topicLabel: filter.topicLabel,
+        mode: filter.mode,
+        difficulty: filter.difficulty,
+        prompt:
+            'Bagrut fallback: solve the requested topic formally in exam style.',
+        options: const [
+          'Open with NOVA',
+          'Show official-style solution',
+          'Save for later',
+          'End question',
+        ],
+        correctIndex: 1,
+        explanation: 'Formal school-style solution will appear here.',
+        recommendedTimeSeconds: 3600,
+      );
+    }
+
     if (_mentions(subject, const ['computer science', 'cs', 'programming']) &&
         _mentions(topic, const [
           'condition',
@@ -280,9 +340,10 @@ class PracticeGenerator {
         return PracticeMode.conceptBuilder;
       case 'adaptive':
         return PracticeMode.adaptive;
-      default:
-        return null;
+      case 'bagrut':
+        return PracticeMode.bagrut;
     }
+    return null;
   }
 
   PracticeDifficulty? _parseDifficulty(String? v) {
@@ -297,8 +358,7 @@ class PracticeGenerator {
         return PracticeDifficulty.olympiad;
       case 'adaptive':
         return PracticeDifficulty.adaptive;
-      default:
-        return null;
     }
+    return null;
   }
 }

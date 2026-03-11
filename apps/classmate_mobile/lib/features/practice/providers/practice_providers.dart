@@ -103,7 +103,16 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   }
 
   Future<void> start([PracticeFilter? override]) async {
-    final PracticeFilter filter = override ?? ref.read(practiceFilterProvider);
+    final PracticeFilter base = override ?? ref.read(practiceFilterProvider);
+    final PracticeFilter filter = base.mode == PracticeMode.bagrut
+        ? base.copyWith(
+            questionCount: 1,
+            useAiTiming: false,
+            timePreferenceSeconds: null,
+            hasInfiniteLives: true,
+            maxLives: 9999,
+          )
+        : base;
 
     ref.read(practiceSessionLoadingProvider.notifier).setLoading(true);
     _timer?.cancel();
@@ -123,30 +132,9 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
         stats: PracticeStats.zero,
       );
 
-      if (questions.isNotEmpty) {
+      if (questions.isNotEmpty && filter.mode != PracticeMode.bagrut) {
         _startTimer();
       }
-    } catch (e, st) {
-      final fallback = await _generator.generateFallback(filter);
-      final firstQuestion = fallback.isEmpty ? null : fallback.first;
-
-      state = state.copyWith(
-        filter: filter,
-        questions: fallback,
-        currentIndex: 0,
-        secondsRemaining: _resolveTime(filter, firstQuestion),
-        isComplete: fallback.isEmpty,
-        stats: PracticeStats.zero,
-      );
-
-      if (fallback.isNotEmpty) {
-        _startTimer();
-      }
-
-      // ignore: avoid_print
-      print('practice.start failed: $e');
-      // ignore: avoid_print
-      print(st);
     } finally {
       ref.read(practiceSessionLoadingProvider.notifier).setLoading(false);
     }
@@ -181,17 +169,19 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
         answered: state.stats.answered + 1,
         correct: state.stats.correct + (isCorrect ? 1 : 0),
         streak: isCorrect ? state.stats.streak + 1 : 0,
-        xp: state.stats.xp + (isCorrect ? _xpFor(q, state.filter) : 0),
+        xp: state.filter.mode == PracticeMode.bagrut
+            ? state.stats.xp
+            : state.stats.xp + (isCorrect ? _xpFor(q, state.filter) : 0),
       ),
       lastResult: PracticeAnswerResult(
         selectedIndex: answerIndex,
         isCorrect: isCorrect,
         timeTakenSeconds: timeTaken,
       ),
-      isComplete: outOfHearts,
+      isComplete: state.filter.mode == PracticeMode.bagrut ? true : outOfHearts,
     );
 
-    if (outOfHearts) {
+    if (state.isComplete) {
       _timer?.cancel();
       _autoAdvanceTimer?.cancel();
       return;
@@ -220,12 +210,23 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
       secondsRemaining: _resolveTime(state.filter, q),
       clearLastResult: true,
     );
-    _startTimer();
+    if (state.filter.mode != PracticeMode.bagrut) {
+      _startTimer();
+    }
   }
 
   void skip() {
-    if (state.filter.mode == PracticeMode.flashcards) return;
+    if (state.filter.mode == PracticeMode.flashcards ||
+        state.filter.mode == PracticeMode.bagrut) {
+      return;
+    }
     nextQuestion();
+  }
+
+  void endWithoutRewards() {
+    _timer?.cancel();
+    _autoAdvanceTimer?.cancel();
+    state = state.copyWith(isComplete: true, stats: PracticeStats.zero);
   }
 
   void reset() {
@@ -276,6 +277,7 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   }
 
   int _resolveTime(PracticeFilter filter, PracticeQuestion? q) {
+    if (filter.mode == PracticeMode.bagrut) return 3600;
     if (q == null) {
       return filter.useAiTiming ? 15 : (filter.timePreferenceSeconds ?? 15);
     }
@@ -285,13 +287,24 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   }
 
   int _xpFor(PracticeQuestion q, PracticeFilter filter) {
-    final difficultyBoost = switch (filter.difficulty) {
-      PracticeDifficulty.easy => 6,
-      PracticeDifficulty.medium => 10,
-      PracticeDifficulty.hard => 16,
-      PracticeDifficulty.olympiad => 24,
-      PracticeDifficulty.adaptive => 14,
+    final base = switch (filter.difficulty) {
+      PracticeDifficulty.easy => 8,
+      PracticeDifficulty.medium => 12,
+      PracticeDifficulty.hard => 18,
+      PracticeDifficulty.olympiad => 28,
+      PracticeDifficulty.adaptive => 16,
     };
-    return difficultyBoost + (q.recommendedTimeSeconds ~/ 12);
+
+    final modeBonus = switch (filter.mode) {
+      PracticeMode.practice => 0,
+      PracticeMode.flashcards => 2,
+      PracticeMode.speedRound => 4,
+      PracticeMode.examPrep => 5,
+      PracticeMode.conceptBuilder => 3,
+      PracticeMode.adaptive => 6,
+      PracticeMode.bagrut => 0,
+    };
+
+    return base + modeBonus;
   }
 }
