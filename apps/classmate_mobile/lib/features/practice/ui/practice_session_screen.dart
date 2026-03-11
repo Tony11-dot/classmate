@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'mode_ui_spec.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/practice_models.dart';
@@ -214,17 +215,73 @@ If the learner made a mistake, point out exactly what was wrong.
     final savedCtl = ref.read(savedQuestionsProvider.notifier);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final modeUi = PracticeModeUiSpec.fromMode(
+      (() {
+        try {
+          return widget.mode;
+        } catch (_) {
+          return null;
+        }
+      })(),
+    );
 
     if (state.questions.isEmpty && !state.isComplete) {
       return Scaffold(
-        backgroundColor: cs.surface,
-        body: const SafeArea(child: Center(child: CircularProgressIndicator())),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            final shouldEnd = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('End quiz?'),
+                content: const Text('Your current progress will be closed.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('End Quiz'),
+                  ),
+                ],
+              ),
+            );
+            if (shouldEnd == true && context.mounted) {
+              Navigator.of(context).maybePop();
+            }
+          },
+          icon: const Icon(Icons.flag_rounded),
+          label: const Text('End Quiz'),
+        ),
+        backgroundColor: Color.alphaBlend(
+          modeUi.surfaceTint.withValues(alpha: 0.10),
+          cs.surface,
+        ),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('Stop Generating'),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
     if (state.isComplete) {
       return Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: Color.alphaBlend(
+          modeUi.surfaceTint.withValues(alpha: 0.10),
+          cs.surface,
+        ),
         body: SafeArea(
           child: ListView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -316,7 +373,10 @@ If the learner made a mistake, point out exactly what was wrong.
     final mode = state.filter.mode;
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: Color.alphaBlend(
+        modeUi.surfaceTint.withValues(alpha: 0.10),
+        cs.surface,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
