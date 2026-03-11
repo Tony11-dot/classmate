@@ -109,215 +109,6 @@ Color practiceModeColor(PracticeMode mode) {
   }
 }
 
-Widget practiceModePreview(BuildContext context, PracticeMode mode) {
-  final accent = practiceModeColor(mode);
-
-  switch (mode) {
-    case PracticeMode.practice:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 38,
-            height: 6,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.30),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Container(
-            width: 18,
-            height: 6,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.flashcards:
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 34,
-            height: 20,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          Positioned(
-            left: 7,
-            top: -3,
-            child: Container(
-              width: 34,
-              height: 20,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.28),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.speedRound:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          4,
-          (i) => Padding(
-            padding: EdgeInsets.only(right: i == 3 ? 0 : 4),
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.18 + (i * 0.08)),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-        ),
-      );
-
-    case PracticeMode.examPrep:
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 42,
-            height: 5,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.28),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: 30,
-            height: 5,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: 20,
-            height: 5,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.conceptBuilder:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.40),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            width: 18,
-            height: 3,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.28),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.adaptive:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 14,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Container(
-            width: 8,
-            height: 10,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.30),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Container(
-            width: 8,
-            height: 18,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.46),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.bagrut:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            alignment: Alignment.center,
-            child: Container(
-              width: 8,
-              height: 2,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            width: 24,
-            height: 5,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.24),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ],
-      );
-  }
-}
-
 String practiceModeSubtitle(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
@@ -789,12 +580,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SearchPickerSheet<String>(
-        title: title,
-        items: items,
-        labelFor: (x) => x,
-        searchHint: 'Search...',
-      ),
+      builder: (_) => _SimplePickerSheet(title: title, items: items),
     );
   }
 
@@ -807,12 +593,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SearchPickerSheet<List<String>>(
-        title: title,
-        items: items,
-        labelFor: (x) => x.join(' · '),
-        searchHint: 'Search...',
-      ),
+      builder: (_) => _SimplePickerSheet(title: title, items: items),
     );
   }
 
@@ -986,6 +767,350 @@ class _LiquidField extends StatelessWidget {
             const Icon(Icons.search_rounded),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SimplePickerSheet extends StatelessWidget {
+  final String title;
+  final List items;
+
+  const _SimplePickerSheet({required this.title, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: items.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 6),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final label = item is List
+                      ? item.join(' · ')
+                      : item.toString();
+                  return ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    tileColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.55),
+                    title: Text(label),
+                    onTap: () => Navigator.of(context).pop(item),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeTile extends StatelessWidget {
+  final PracticeMode mode;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ModeTile({
+    required this.mode,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final accent = practiceModeColor(mode);
+
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 180),
+      scale: selected ? 1.0 : 0.985,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: selected
+                  ? accent.withValues(alpha: 0.12)
+                  : cs.surfaceContainerHighest.withValues(alpha: 0.58),
+              border: Border.all(
+                color: selected
+                    ? accent.withValues(alpha: 0.90)
+                    : cs.outlineVariant.withValues(alpha: 0.24),
+                width: selected ? 1.8 : 1,
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.16),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(practiceModeIcon(mode), size: 18, color: accent),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  practiceModeLabel(mode),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  practiceModeSubtitle(mode),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    height: 1.15,
+                    fontSize: 11.5,
+                  ),
+                ),
+                const Spacer(),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    height: 4,
+                    width: selected ? 52 : 28,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: selected ? 0.95 : 0.30),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DifficultyChip extends StatelessWidget {
+  const _DifficultyChip({
+    required this.selected,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool selected;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Ink(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected
+              ? cs.primaryContainer.withValues(alpha: 0.90)
+              : cs.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: selected
+                ? cs.primary
+                : cs.outlineVariant.withValues(alpha: 0.28),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassToggleRow extends StatelessWidget {
+  const _GlassToggleRow({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.26)),
+      ),
+      child: SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        value: value,
+        onChanged: onChanged,
+        title: Text(
+          title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        subtitle: Text(subtitle),
+      ),
+    );
+  }
+}
+
+class _StepperRow extends StatelessWidget {
+  const _StepperRow({
+    required this.title,
+    required this.caption,
+    required this.value,
+    required this.onMinus,
+    required this.onPlus,
+  });
+
+  final String title;
+  final String caption;
+  final String value;
+  final VoidCallback onMinus;
+  final VoidCallback onPlus;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.26)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+              IconButton(
+                onPressed: onMinus,
+                icon: const Icon(Icons.remove_rounded),
+              ),
+              Container(
+                constraints: const BoxConstraints(minWidth: 78),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+              IconButton(
+                onPressed: onPlus,
+                icon: const Icon(Icons.add_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              caption,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniPill extends StatelessWidget {
+  const _MiniPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.34)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
