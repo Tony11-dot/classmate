@@ -455,12 +455,13 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                     onTap: () async {
                       final picked = await showDialog<int>(
                         context: context,
-                        builder: (_) => SimpleDialog(
+                        builder: (dialogContext) => SimpleDialog(
                           title: const Text('Choose total exam duration'),
                           children: [
                             for (final mins in [15, 30, 45, 60, 90, 120])
                               SimpleDialogOption(
-                                onPressed: () => Navigator.pop(context, mins),
+                                onPressed: () =>
+                                    Navigator.of(dialogContext).pop(mins),
                                 child: Text('$mins minutes'),
                               ),
                           ],
