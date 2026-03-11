@@ -90,6 +90,44 @@ const Map<String, List<List<String>>> practiceSubjectCatalog = {
   ],
 };
 
+Color practiceModeColor(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return Colors.indigo;
+    case PracticeMode.flashcards:
+      return Colors.purple;
+    case PracticeMode.speedRound:
+      return Colors.orange;
+    case PracticeMode.examPrep:
+      return Colors.redAccent;
+    case PracticeMode.conceptBuilder:
+      return Colors.green;
+    case PracticeMode.adaptive:
+      return Colors.deepPurple;
+    case PracticeMode.bagrut:
+      return const Color(0xFF2962FF);
+  }
+}
+
+String practiceModeSubtitle(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return 'Standard practice';
+    case PracticeMode.flashcards:
+      return 'Quick concept review';
+    case PracticeMode.speedRound:
+      return 'Timed drills';
+    case PracticeMode.examPrep:
+      return 'Exam simulation';
+    case PracticeMode.conceptBuilder:
+      return 'Understand ideas';
+    case PracticeMode.adaptive:
+      return 'AI adjusts difficulty';
+    case PracticeMode.bagrut:
+      return 'Real Bagrut questions';
+  }
+}
+
 String practiceModeLabel(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
@@ -190,6 +228,20 @@ class PracticeSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
+  int _modeGridCount(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    if (w >= 1200) return 3;
+    if (w >= 820) return 1;
+    return 2;
+  }
+
+  double _modeChildAspectRatio(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    if (w >= 1200) return 1.18;
+    if (w >= 820) return 1.02;
+    return 0.86;
+  }
+
   @override
   Widget build(BuildContext context) {
     final filter = ref.watch(practiceFilterProvider);
@@ -212,16 +264,15 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
         : topicOptions.first;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Practice'), centerTitle: true),
+      appBar: AppBar(centerTitle: true),
       body: SafeArea(
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
           children: [
             _HeroCard(
-              title: 'Build a cleaner session',
-              subtitle:
-                  'Apple-clean, tighter controls, searchable liquid-glass pickers.',
+              title: 'Start a session',
+              subtitle: 'Choose a mode, timing, and difficulty.',
               accent: cs.primary,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,11 +365,11 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: PracticeMode.values.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 0.78,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _modeGridCount(context),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: _modeChildAspectRatio(context),
                 ),
                 itemBuilder: (context, index) {
                   final mode = PracticeMode.values[index];
@@ -441,7 +492,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.hourglass_bottom_rounded),
@@ -535,12 +586,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SearchPickerSheet<String>(
-        title: title,
-        items: items,
-        labelFor: (x) => x,
-        searchHint: 'Search...',
-      ),
+      builder: (_) => _SimplePickerSheet(title: title, items: items),
     );
   }
 
@@ -553,12 +599,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SearchPickerSheet<List<String>>(
-        title: title,
-        items: items,
-        labelFor: (x) => x.join(' · '),
-        searchHint: 'Search topic...',
-      ),
+      builder: (_) => _SimplePickerSheet(title: title, items: items),
     );
   }
 
@@ -719,7 +760,7 @@ class _LiquidField extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     value.isEmpty ? hint : value,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
@@ -737,105 +778,158 @@ class _LiquidField extends StatelessWidget {
   }
 }
 
+class _SimplePickerSheet extends StatelessWidget {
+  final String title;
+  final List items;
+
+  const _SimplePickerSheet({required this.title, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: items.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 6),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final label = item is List
+                      ? item.join(' · ')
+                      : item.toString();
+                  return ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    tileColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.55),
+                    title: Text(label),
+                    onTap: () => Navigator.of(context).pop(item),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ModeTile extends StatelessWidget {
+  final PracticeMode mode;
+  final bool selected;
+  final VoidCallback onTap;
+
   const _ModeTile({
     required this.mode,
     required this.selected,
     required this.onTap,
   });
 
-  final PracticeMode mode;
-  final bool selected;
-  final VoidCallback onTap;
-
-  Color _accent(ColorScheme cs) {
-    switch (mode) {
-      case PracticeMode.practice:
-        return cs.primary;
-      case PracticeMode.flashcards:
-        return cs.tertiary;
-      case PracticeMode.speedRound:
-        return Colors.orange;
-      case PracticeMode.examPrep:
-        return Colors.redAccent;
-      case PracticeMode.conceptBuilder:
-        return Colors.green;
-      case PracticeMode.adaptive:
-        return Colors.purple;
-      case PracticeMode.bagrut:
-        return const Color(0xFF2962FF);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final accent = _accent(cs);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final accent = practiceModeColor(mode);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Ink(
-        width: 182,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              accent.withValues(alpha: selected ? 0.22 : 0.10),
-              cs.surface.withValues(alpha: 0.92),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 180),
+      scale: selected ? 1.0 : 0.985,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected
-                ? accent.withValues(alpha: 0.88)
-                : cs.outlineVariant.withValues(alpha: 0.24),
-            width: selected ? 1.4 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: selected ? 22 : 14,
-              offset: const Offset(0, 10),
-              color: accent.withValues(alpha: selected ? 0.14 : 0.05),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: selected
+                  ? accent.withValues(alpha: 0.12)
+                  : cs.surfaceContainerHighest.withValues(alpha: 0.58),
+              border: Border.all(
+                color: selected
+                    ? accent.withValues(alpha: 0.90)
+                    : cs.outlineVariant.withValues(alpha: 0.24),
+                width: selected ? 1.8 : 1,
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.16),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
+                      ),
+                    ]
+                  : null,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  width: 42,
-                  height: 42,
+                  width: 34,
+                  height: 34,
                   decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(14),
+                    color: accent.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(practiceModeIcon(mode), color: accent),
+                  alignment: Alignment.center,
+                  child: Icon(practiceModeIcon(mode), size: 18, color: accent),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  practiceModeLabel(mode),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  practiceModeSubtitle(mode),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    height: 1.15,
+                    fontSize: 11.5,
+                  ),
                 ),
                 const Spacer(),
-                _MiniBadge(label: practiceModeBadge(mode), tint: accent),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    height: 4,
+                    width: selected ? 52 : 28,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: selected ? 0.95 : 0.30),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              practiceModeLabel(mode),
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              practiceModeDescription(mode),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.35,
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -941,7 +1035,7 @@ class _StepperRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
       decoration: BoxDecoration(
         color: cs.surface.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(18),
@@ -1023,208 +1117,6 @@ class _MiniPill extends StatelessWidget {
         style: Theme.of(
           context,
         ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-      ),
-    );
-  }
-}
-
-class _MiniBadge extends StatelessWidget {
-  const _MiniBadge({required this.label, required this.tint});
-
-  final String label;
-  final Color tint;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: tint.withValues(alpha: 0.24)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w800,
-          color: tint,
-        ),
-      ),
-    );
-  }
-}
-
-class _SearchPickerSheet<T> extends StatefulWidget {
-  const _SearchPickerSheet({
-    required this.title,
-    required this.items,
-    required this.labelFor,
-    required this.searchHint,
-  });
-
-  final String title;
-  final List<T> items;
-  final String Function(T item) labelFor;
-  final String searchHint;
-
-  @override
-  State<_SearchPickerSheet<T>> createState() => _SearchPickerSheetState<T>();
-}
-
-class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
-  final TextEditingController _searchCtl = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchCtl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final q = _searchCtl.text.trim().toLowerCase();
-    final filtered = widget.items
-        .where((item) {
-          if (q.isEmpty) return true;
-          return widget.labelFor(item).toLowerCase().contains(q);
-        })
-        .toList(growable: false);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-        top: 24,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.94),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 30,
-              offset: const Offset(0, 16),
-              color: Colors.black.withValues(alpha: 0.12),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 42,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: cs.outlineVariant.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _searchCtl,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: widget.searchHint,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest.withValues(
-                      alpha: 0.6,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(
-                        color: cs.outlineVariant.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(
-                        color: cs.outlineVariant.withValues(alpha: 0.18),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Flexible(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 420),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, index) => const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
-                        final item = filtered[index];
-                        final label = widget.labelFor(item);
-                        return InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () => Navigator.of(context).pop(item),
-                          child: Ink(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest.withValues(
-                                alpha: 0.42,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: cs.outlineVariant.withValues(
-                                  alpha: 0.22,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    label,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 16,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
