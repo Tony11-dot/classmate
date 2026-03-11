@@ -112,38 +112,38 @@ String practiceModeLabel(PracticeMode mode) {
 String practiceModeDescription(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
-      return 'Balanced session with standard feedback and pacing.';
+      return 'Balanced daily practice with full feedback.';
     case PracticeMode.flashcards:
-      return 'Fast memory-based recall with instant reveal vibes.';
+      return 'Reveal, self-check, and lock concepts into memory.';
     case PracticeMode.speedRound:
-      return 'Arcade-style pressure. Snap answers and keep moving.';
+      return 'Fast arcade reps under pressure.';
     case PracticeMode.examPrep:
-      return 'More formal wording and exam-like pressure.';
+      return 'Formal school-style solving with calmer pacing.';
     case PracticeMode.conceptBuilder:
-      return 'Slower, deeper, explanation-first understanding.';
+      return 'Learn the rule first, then answer.';
     case PracticeMode.adaptive:
-      return 'Pushes up or down based on how you are doing.';
+      return 'Difficulty shifts with your performance.';
     case PracticeMode.bagrut:
-      return 'One real Bagrut exam question. No timer. No lives.';
+      return 'Real Bagrut-style question flow.';
   }
 }
 
 String practiceModeBadge(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
-      return 'Balanced';
+      return 'Daily';
     case PracticeMode.flashcards:
-      return 'Recall';
+      return 'Memory';
     case PracticeMode.speedRound:
       return 'Arcade';
     case PracticeMode.examPrep:
       return 'Formal';
     case PracticeMode.conceptBuilder:
-      return 'Deep';
+      return 'Learn';
     case PracticeMode.adaptive:
       return 'Smart';
     case PracticeMode.bagrut:
-      return 'Bagrut';
+      return 'Exam';
   }
 }
 
@@ -310,17 +310,24 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: 'Mode',
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final mode in PracticeMode.values)
-                    _ModeTile(
-                      mode: mode,
-                      selected: filter.mode == mode,
-                      onTap: () => filterCtl.patch(mode: mode),
-                    ),
-                ],
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: PracticeMode.values.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 0.78,
+                ),
+                itemBuilder: (context, index) {
+                  final mode = PracticeMode.values[index];
+                  return _ModeTile(
+                    mode: mode,
+                    selected: filter.mode == mode,
+                    onTap: () => filterCtl.patch(mode: mode),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 16),
@@ -418,6 +425,70 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               ),
             ),
             const SizedBox(height: 18),
+            _SectionCard(
+              title: 'Exam timing',
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Unlimited time'),
+                    subtitle: const Text('Turn off countdown for the session'),
+                    value: filter.timePreferenceSeconds == null,
+                    onChanged: (v) {
+                      filterCtl.patch(
+                        timePreferenceSeconds: v ? null : 60,
+                        useAiTiming: false,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.hourglass_bottom_rounded),
+                    title: const Text('Exam duration'),
+                    subtitle: Text(
+                      filter.timePreferenceSeconds == null
+                          ? 'Not set yet'
+                          : '${filter.timePreferenceSeconds! * filter.questionCount ~/ 60} min total',
+                    ),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () async {
+                      final picked = await showDialog<int>(
+                        context: context,
+                        builder: (_) => SimpleDialog(
+                          title: const Text('Choose total exam duration'),
+                          children: [
+                            for (final mins in [15, 30, 45, 60, 90, 120])
+                              SimpleDialogOption(
+                                onPressed: () => Navigator.pop(context, mins),
+                                child: Text('$mins minutes'),
+                              ),
+                          ],
+                        ),
+                      );
+
+                      if (picked == null) {
+                        return;
+                      }
+
+                      final totalSeconds = picked * 60;
+                      final perQuestion =
+                          (totalSeconds /
+                                  (filter.questionCount <= 0
+                                      ? 1
+                                      : filter.questionCount))
+                              .round();
+
+                      filterCtl.patch(
+                        timePreferenceSeconds: perQuestion,
+                        useAiTiming: false,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             FilledButton.icon(
               onPressed: loading
                   ? null
@@ -433,7 +504,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                           : filter;
                       await sessionCtl.start(startFilter);
                       if (!context.mounted) return;
-                      await Navigator.of(context).push(
+                      await Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(
                           builder: (_) => const PracticeSessionScreen(),
                         ),
@@ -608,7 +679,7 @@ class _LiquidField extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Ink(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.82),
           borderRadius: BorderRadius.circular(18),
@@ -691,7 +762,7 @@ class _ModeTile extends StatelessWidget {
       case PracticeMode.adaptive:
         return Colors.purple;
       case PracticeMode.bagrut:
-        return Colors.orange;
+        return const Color(0xFF2962FF);
     }
   }
 
@@ -705,7 +776,7 @@ class _ModeTile extends StatelessWidget {
       onTap: onTap,
       child: Ink(
         width: 182,
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [

@@ -1,6 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+String _normalizeIncoming(String s) {
+  return s
+      .replaceAll(r'\(', '')
+      .replaceAll(r'\)', '')
+      .replaceAll(r'\[', '')
+      .replaceAll(r'\]', '')
+      .replaceAll(r'\\', r'\');
+}
+
 class BagrutQuestionDto {
   final String id;
   final String subject;
@@ -37,8 +46,8 @@ class BagrutQuestionDto {
       season: '${json['season'] ?? ''}',
       examCode: '${json['examCode'] ?? ''}',
       questionIndex: (json['questionIndex'] as num?)?.toInt() ?? 0,
-      promptLatex: '${json['promptLatex'] ?? ''}',
-      solutionLatex: '${json['solutionLatex'] ?? ''}',
+      promptLatex: _normalizeIncoming('${json['promptLatex'] ?? ''}'),
+      solutionLatex: _normalizeIncoming('${json['solutionLatex'] ?? ''}'),
       difficulty: '${json['difficulty'] ?? ''}',
       points: (json['points'] as num?)?.toInt() ?? 0,
     );
@@ -57,7 +66,8 @@ class BagrutRepository {
     required String subject,
     required String topicLabel,
   }) async {
-    final client = HttpClient()..connectionTimeout = const Duration(seconds: 15);
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 15);
 
     try {
       final uri = Uri.parse('$_apiBase/bagrut/question');
@@ -68,15 +78,18 @@ class BagrutRepository {
         req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_devToken');
       }
 
-      req.write(jsonEncode({
-        'subject': subject,
-        'topicLabel': topicLabel,
-      }));
+      req.write(jsonEncode({'subject': subject, 'topicLabel': topicLabel}));
 
       final res = await req.close();
       final body = await utf8.decodeStream(res);
       if (res.statusCode < 200 || res.statusCode >= 300) {
         stderr.writeln('bagrut.question http ${res.statusCode}: $body');
+        return null;
+      }
+      if (body.trim().isEmpty) {
+        stderr.writeln(
+          'bagrut.question empty body with status ${res.statusCode}',
+        );
         return null;
       }
 

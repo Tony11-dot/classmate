@@ -16,7 +16,7 @@ Color modeColor(PracticeMode mode, ColorScheme cs) {
     case PracticeMode.adaptive:
       return Colors.deepPurple;
     case PracticeMode.bagrut:
-      return Colors.amber.shade700;
+      return const Color(0xFF2962FF);
   }
 }
 
@@ -35,7 +35,7 @@ Color modeSurface(PracticeMode mode, ColorScheme cs) {
     case PracticeMode.adaptive:
       return Colors.deepPurple.withValues(alpha: 0.14);
     case PracticeMode.bagrut:
-      return Colors.amber.withValues(alpha: 0.16);
+      return const Color(0xFF2962FF).withValues(alpha: 0.16);
   }
 }
 

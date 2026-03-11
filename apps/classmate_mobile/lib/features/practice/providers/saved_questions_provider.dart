@@ -8,6 +8,19 @@ final savedQuestionsProvider =
     );
 
 class SavedQuestionsController extends Notifier<List<PracticeQuestion>> {
+  void toggleQuestion(PracticeQuestion question) {
+    final exists = state.any((x) => x.id == question.id);
+    if (exists) {
+      state = [
+        for (final x in state)
+          if (x.id != question.id) x,
+      ];
+      return;
+    }
+
+    state = [question, ...state];
+  }
+
   @override
   List<PracticeQuestion> build() => const [];
 
