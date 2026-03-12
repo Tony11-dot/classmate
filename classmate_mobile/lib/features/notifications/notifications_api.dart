@@ -8,7 +8,8 @@ class NotificationsApi {
     final x = await api.getAny('/notifications');
     if (x is List) return x;
     // accept wrapped payloads too
-    if (x is Map && x['notifications'] is List) return (x['notifications'] as List).cast<dynamic>();
+    if (x is Map && x['notifications'] is List)
+      return (x['notifications'] as List).cast<dynamic>();
     return const [];
   }
 

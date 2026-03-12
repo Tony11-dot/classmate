@@ -194,6 +194,11 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
     }
   }
 
+  void previousQuestion() {
+    if (state.currentIndex <= 0) return;
+    state = state.copyWith(currentIndex: state.currentIndex - 1);
+  }
+
   void nextQuestion() {
     _autoAdvanceTimer?.cancel();
     final nextIndex = state.currentIndex + 1;

@@ -4,6 +4,7 @@ import '../data/practice_prompt_builder.dart';
 
 import '../domain/practice_models.dart';
 import '../providers/practice_providers.dart';
+import '../domain/timing_mode.dart';
 import 'practice_session_screen.dart';
 
 const Map<String, List<List<String>>> practiceSubjectCatalog = {
@@ -128,6 +129,104 @@ String practiceModeSubtitle(PracticeMode mode) {
   }
 }
 
+Widget practiceModePreview(PracticeMode mode, Color accent) {
+  switch (mode) {
+    case PracticeMode.speedRound:
+      return Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        children: List.generate(
+          4,
+          (unused) => Container(
+            width: 18,
+            height: 12,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.24),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+      );
+
+    case PracticeMode.flashcards:
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 26,
+            height: 18,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(7),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Container(
+            width: 26,
+            height: 18,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(7),
+            ),
+          ),
+        ],
+      );
+
+    case PracticeMode.examPrep:
+    case PracticeMode.bagrut:
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 3,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.26),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Container(
+            width: 38,
+            height: 3,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.20),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            width: 30,
+            height: 3,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+        ],
+      );
+
+    default:
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(
+          3,
+          (i) => Padding(
+            padding: EdgeInsets.only(bottom: i == 2 ? 0 : 4),
+            child: Container(
+              width: 42 - (i * 4),
+              height: 6,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.22 - (i * 0.03)),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ),
+        ),
+      );
+  }
+}
+
 String practiceModeLabel(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
@@ -228,12 +327,17 @@ class PracticeSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
+  TimingMode _timingMode = TimingMode.ai;
+  TimingScope _timingScope = TimingScope.perQuestion;
+  int _customPerQuestionSeconds = 45;
+  int _customExamMinutes = 20;
+
   int _modeGridCount(BuildContext context) {
     return 2;
   }
 
   double _modeChildAspectRatio(BuildContext context) {
-    return 0.92;
+    return 0.72;
   }
 
   @override
@@ -245,7 +349,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final subjectOptions = practiceSubjectCatalog.keys.toList(growable: false);
+    final subjectOptions = practiceSubjectCatalog.keys.toList(growable: true);
+    if (!subjectOptions.contains('General Knowledge')) {
+      subjectOptions.add('General Knowledge');
+    }
     final topicOptions =
         practiceSubjectCatalog[filter.subject] ??
         const <List<String>>[
@@ -262,7 +369,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       body: SafeArea(
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
             _HeroCard(
               title: 'Start a session',
@@ -333,6 +440,51 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       );
                     },
                   ),
+                  const SizedBox(height: 6),
+                  _LiquidField(
+                    label: 'Custom subject',
+                    value: '',
+                    hint: 'Type your own subject',
+                    leading: Icons.edit_note_rounded,
+                    onTap: () async {
+                      final controller = TextEditingController(
+                        text: filter.subject,
+                      );
+                      final subjectInputController = TextEditingController();
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Custom subject'),
+                          content: TextField(
+                            controller: subjectInputController,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter subject',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                Navigator.of(context).pop(value),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(controller.text),
+                              child: const Text('Use'),
+                            ),
+                          ],
+                        ),
+                      );
+                      final next = result?.trim();
+                      if (next == null || next.isEmpty) return;
+                      filterCtl.patch(
+                        subject: next,
+                        topicPath: const ['General'],
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   _LiquidField(
                     label: 'Topic',
@@ -347,6 +499,48 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       );
                       if (picked == null) return;
                       filterCtl.patch(topicPath: picked);
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _LiquidField(
+                    label: 'Custom topic',
+                    value: '',
+                    hint: 'Type your own topic',
+                    leading: Icons.edit_note_rounded,
+                    onTap: () async {
+                      final controller = TextEditingController(
+                        text: filter.topicPath.join(' · '),
+                      );
+                      final topicInputController = TextEditingController();
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Custom topic'),
+                          content: TextField(
+                            controller: topicInputController,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter topic',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                Navigator.of(context).pop(value),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(controller.text),
+                              child: const Text('Use'),
+                            ),
+                          ],
+                        ),
+                      );
+                      final next = result?.trim();
+                      if (next == null || next.isEmpty) return;
+                      filterCtl.patch(topicPath: [next]);
                     },
                   ),
                 ],
@@ -412,32 +606,158 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                           : 25;
                       filterCtl.patch(questionCount: next);
                     },
+                    onSubmitted: (raw) {
+                      final parsed = int.tryParse(raw.trim());
+                      if (parsed == null) return;
+                      final next = parsed.clamp(1, 25);
+                      filterCtl.patch(questionCount: next);
+                    },
                   ),
                   const SizedBox(height: 12),
-                  _GlassToggleRow(
-                    title: 'AI timing',
-                    subtitle: 'Let the generator choose time per question',
-                    value: filter.useAiTiming,
-                    onChanged: (value) => filterCtl.patch(useAiTiming: value),
-                  ),
-                  if (!filter.useAiTiming) ...[
-                    const SizedBox(height: 12),
-                    _StepperRow(
-                      title: 'Seconds per question',
-                      caption: 'Fixed timer for each question',
-                      value: '${filter.timePreferenceSeconds ?? 15}s',
-                      onMinus: () {
-                        final current = filter.timePreferenceSeconds ?? 15;
-                        final next = current > 5 ? current - 5 : 5;
-                        filterCtl.patch(timePreferenceSeconds: next);
-                      },
-                      onPlus: () {
-                        final current = filter.timePreferenceSeconds ?? 15;
-                        final next = current < 300 ? current + 5 : 300;
-                        filterCtl.patch(timePreferenceSeconds: next);
-                      },
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.82),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.26),
+                      ),
                     ),
-                  ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Timing',
+                          style: text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Choose scope first, then AI, your own time, or infinite.',
+                          style: text.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('Per question'),
+                              selected: _timingScope == TimingScope.perQuestion,
+                              onSelected: (_) {
+                                setState(() {
+                                  _timingScope = TimingScope.perQuestion;
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              label: const Text('Whole quiz'),
+                              selected: _timingScope == TimingScope.exam,
+                              onSelected: (_) {
+                                setState(() {
+                                  _timingScope = TimingScope.exam;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('AI'),
+                              selected: _timingMode == TimingMode.ai,
+                              onSelected: (_) {
+                                setState(() {
+                                  _timingMode = TimingMode.ai;
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              label: const Text('My time'),
+                              selected: _timingMode == TimingMode.custom,
+                              onSelected: (_) {
+                                setState(() {
+                                  _timingMode = TimingMode.custom;
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              label: const Text('Infinite'),
+                              selected: _timingMode == TimingMode.infinite,
+                              onSelected: (_) {
+                                setState(() {
+                                  _timingMode = TimingMode.infinite;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        if (_timingMode == TimingMode.custom) ...[
+                          const SizedBox(height: 12),
+                          _StepperRow(
+                            title: _timingScope == TimingScope.perQuestion
+                                ? 'Seconds per question'
+                                : 'Quiz minutes',
+                            caption: _timingScope == TimingScope.perQuestion
+                                ? 'Your own timer for each question'
+                                : 'Your own timer for the whole quiz',
+                            value: _timingScope == TimingScope.perQuestion
+                                ? '$_customPerQuestionSeconds'
+                                : '$_customExamMinutes',
+                            onMinus: () {
+                              setState(() {
+                                if (_timingScope == TimingScope.perQuestion) {
+                                  _customPerQuestionSeconds =
+                                      _customPerQuestionSeconds > 5
+                                      ? _customPerQuestionSeconds - 5
+                                      : 5;
+                                } else {
+                                  _customExamMinutes = _customExamMinutes > 5
+                                      ? _customExamMinutes - 5
+                                      : 5;
+                                }
+                              });
+                            },
+                            onPlus: () {
+                              setState(() {
+                                if (_timingScope == TimingScope.perQuestion) {
+                                  _customPerQuestionSeconds =
+                                      _customPerQuestionSeconds < 600
+                                      ? _customPerQuestionSeconds + 5
+                                      : 600;
+                                } else {
+                                  _customExamMinutes = _customExamMinutes < 300
+                                      ? _customExamMinutes + 5
+                                      : 300;
+                                }
+                              });
+                            },
+                            onSubmitted: (raw) {
+                              final parsed = int.tryParse(raw.trim());
+                              if (parsed == null) return;
+                              setState(() {
+                                if (_timingScope == TimingScope.perQuestion) {
+                                  _customPerQuestionSeconds = parsed.clamp(
+                                    5,
+                                    600,
+                                  );
+                                } else {
+                                  _customExamMinutes = parsed.clamp(5, 300);
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   _GlassToggleRow(
                     title: 'Infinite lives',
@@ -464,73 +784,13 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             : 99;
                         filterCtl.patch(maxLives: next);
                       },
+                      onSubmitted: (raw) {
+                        final parsed = int.tryParse(raw.trim());
+                        if (parsed == null) return;
+                        filterCtl.patch(maxLives: parsed.clamp(1, 99));
+                      },
                     ),
                   ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            _SectionCard(
-              title: 'Exam timing',
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Unlimited time'),
-                    subtitle: const Text('Turn off countdown for the session'),
-                    value: filter.timePreferenceSeconds == null,
-                    onChanged: (v) {
-                      filterCtl.patch(
-                        timePreferenceSeconds: v ? null : 60,
-                        useAiTiming: false,
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.hourglass_bottom_rounded),
-                    title: const Text('Exam duration'),
-                    subtitle: Text(
-                      filter.timePreferenceSeconds == null
-                          ? 'Not set yet'
-                          : '${filter.timePreferenceSeconds! * filter.questionCount ~/ 60} min total',
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () async {
-                      final picked = await showDialog<int>(
-                        context: context,
-                        builder: (dialogContext) => SimpleDialog(
-                          title: const Text('Choose total exam duration'),
-                          children: [
-                            for (final mins in [15, 30, 45, 60, 90, 120])
-                              SimpleDialogOption(
-                                onPressed: () =>
-                                    Navigator.of(dialogContext).pop(mins),
-                                child: Text('$mins minutes'),
-                              ),
-                          ],
-                        ),
-                      );
-
-                      if (picked == null) {
-                        return;
-                      }
-
-                      final totalSeconds = picked * 60;
-                      final perQuestion =
-                          (totalSeconds /
-                                  (filter.questionCount <= 0
-                                      ? 1
-                                      : filter.questionCount))
-                              .round();
-
-                      filterCtl.patch(
-                        timePreferenceSeconds: perQuestion,
-                        useAiTiming: false,
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
@@ -539,20 +799,27 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               onPressed: loading
                   ? null
                   : () async {
-                      final startFilter = filter.mode == PracticeMode.bagrut
-                          ? filter.copyWith(
-                              questionCount: 1,
-                              useAiTiming: false,
-                              timePreferenceSeconds: null,
-                              maxLives: 1,
-                              hasInfiniteLives: true,
-                            )
-                          : filter;
+                      var startFilter = _resolvedFilterForStart(filter)
+                          .copyWith(
+                            hasInfiniteLives: filter.hasInfiniteLives,
+                            maxLives: filter.maxLives,
+                          );
+
+                      if (filter.mode == PracticeMode.bagrut) {
+                        startFilter = startFilter.copyWith(
+                          questionCount: 1,
+                          useAiTiming: false,
+                          timePreferenceSeconds: null,
+                          maxLives: 1,
+                          hasInfiniteLives: true,
+                        );
+                      }
+
                       await sessionCtl.start(startFilter);
                       if (!context.mounted) return;
                       await Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(
-                          builder: (_) => const PracticeSessionScreen(),
+                          builder: (context) => const PracticeSessionScreen(),
                         ),
                       );
                     },
@@ -571,6 +838,38 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
     );
   }
 
+  PracticeFilter _resolvedFilterForStart(PracticeFilter filter) {
+    return switch ((_timingScope, _timingMode)) {
+      (TimingScope.perQuestion, TimingMode.ai) => filter.copyWith(
+        useAiTiming: true,
+        timePreferenceSeconds: null,
+      ),
+      (TimingScope.perQuestion, TimingMode.infinite) => filter.copyWith(
+        useAiTiming: false,
+        timePreferenceSeconds: null,
+      ),
+      (TimingScope.perQuestion, TimingMode.custom) => filter.copyWith(
+        useAiTiming: false,
+        timePreferenceSeconds: _customPerQuestionSeconds,
+      ),
+      (TimingScope.exam, TimingMode.ai) => filter.copyWith(
+        useAiTiming: true,
+        timePreferenceSeconds: null,
+      ),
+      (TimingScope.exam, TimingMode.infinite) => filter.copyWith(
+        useAiTiming: false,
+        timePreferenceSeconds: null,
+      ),
+      (TimingScope.exam, TimingMode.custom) => filter.copyWith(
+        useAiTiming: false,
+        timePreferenceSeconds:
+            ((_customExamMinutes * 60) /
+                    (filter.questionCount <= 0 ? 1 : filter.questionCount))
+                .round(),
+      ),
+    };
+  }
+
   Future<String?> _pickString(
     BuildContext context, {
     required String title,
@@ -580,7 +879,12 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SimplePickerSheet(title: title, items: items),
+      builder: (_) => _SearchPickerSheet<String>(
+        title: title,
+        items: items,
+        labelFor: (item) => item,
+        searchHint: 'Search...',
+      ),
     );
   }
 
@@ -593,7 +897,12 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SimplePickerSheet(title: title, items: items),
+      builder: (_) => _SearchPickerSheet<List<String>>(
+        title: title,
+        items: items,
+        labelFor: (item) => item.join(' · '),
+        searchHint: 'Search...',
+      ),
     );
   }
 
@@ -772,52 +1081,123 @@ class _LiquidField extends StatelessWidget {
   }
 }
 
-class _SimplePickerSheet extends StatelessWidget {
-  final String title;
-  final List items;
+class _SearchPickerSheet<T> extends StatefulWidget {
+  const _SearchPickerSheet({
+    required this.title,
+    required this.items,
+    required this.labelFor,
+    required this.searchHint,
+  });
 
-  const _SimplePickerSheet({required this.title, required this.items});
+  final String title;
+  final List<T> items;
+  final String Function(T item) labelFor;
+  final String searchHint;
+
+  @override
+  State<_SearchPickerSheet<T>> createState() => _SearchPickerSheetState<T>();
+}
+
+class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
+  final TextEditingController _controller = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final filtered = widget.items
+        .where((item) {
+          final label = widget.labelFor(item).toLowerCase();
+          return _query.trim().isEmpty ||
+              label.contains(_query.trim().toLowerCase());
+        })
+        .toList(growable: false);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: cs.surface.withValues(alpha: 0.96),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.28),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 30,
+                  offset: const Offset(0, 12),
+                  color: Colors.black.withValues(alpha: 0.10),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Flexible(
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: items.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 6),
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  final label = item is List
-                      ? item.join(' · ')
-                      : item.toString();
-                  return ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
-                    tileColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.55),
-                    title: Text(label),
-                    onTap: () => Navigator.of(context).pop(item),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _controller,
+                    onChanged: (v) => setState(() => _query = v),
+                    decoration: InputDecoration(
+                      hintText: widget.searchHint,
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest.withValues(
+                        alpha: 0.65,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 6),
+                      itemBuilder: (context, index) {
+                        final item = filtered[index];
+                        final label = widget.labelFor(item);
+                        return ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          tileColor: cs.surfaceContainerHighest.withValues(
+                            alpha: 0.55,
+                          ),
+                          title: Text(label),
+                          onTap: () => Navigator.of(context).pop(item),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -852,11 +1232,11 @@ class _ModeTile extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: selected
-                  ? accent.withValues(alpha: 0.12)
+                  ? accent.withValues(alpha: 0.20)
                   : cs.surfaceContainerHighest.withValues(alpha: 0.58),
               border: Border.all(
                 color: selected
@@ -888,7 +1268,7 @@ class _ModeTile extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Icon(practiceModeIcon(mode), size: 18, color: accent),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
                   practiceModeLabel(mode),
                   maxLines: 1,
@@ -906,14 +1286,17 @@ class _ModeTile extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: cs.onSurfaceVariant,
                     height: 1.15,
-                    fontSize: 11.5,
+                    fontSize: 10.5,
                   ),
                 ),
+                const SizedBox(height: 6),
+                practiceModePreview(mode, accent),
                 const Spacer(),
+
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Container(
-                    height: 4,
+                    height: 3,
                     width: selected ? 52 : 28,
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: selected ? 0.95 : 0.30),
@@ -1017,6 +1400,7 @@ class _StepperRow extends StatelessWidget {
     required this.value,
     required this.onMinus,
     required this.onPlus,
+    this.onSubmitted,
   });
 
   final String title;
@@ -1024,10 +1408,12 @@ class _StepperRow extends StatelessWidget {
   final String value;
   final VoidCallback onMinus;
   final VoidCallback onPlus;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
       decoration: BoxDecoration(
@@ -1051,22 +1437,31 @@ class _StepperRow extends StatelessWidget {
                 onPressed: onMinus,
                 icon: const Icon(Icons.remove_rounded),
               ),
-              Container(
-                constraints: const BoxConstraints(minWidth: 78),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Text(
-                  value,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+              SizedBox(
+                width: 88,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: TextFormField(
+                    initialValue: value,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    onFieldSubmitted: onSubmitted,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ),
               IconButton(

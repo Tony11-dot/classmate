@@ -1152,3 +1152,61 @@ model WeeklySolverLeaderboard {
   @@index([schoolId, weekKey, score(sort: Desc)], map: "idx_weekly_solver_leaderboard_rank")
   @@map("weekly_solver_leaderboard")
 }
+
+
+model BagrutQuestion {
+  id            String   @id @default(cuid())
+  subject       String
+  topicLabel    String
+  year          Int
+  season        String
+  examCode      String
+  questionIndex Int
+
+  promptLatex   String
+  solutionLatex String
+
+  difficulty    String
+  points        Int
+
+  createdAt     DateTime @default(now())
+}
+
+model PracticeAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  subject         String
+  topicLabel      String
+  mode            String
+  difficulty      String
+  questionId      String
+  prompt          String
+  selectedIndex   Int?
+  correctIndex    Int
+  isCorrect       Boolean
+  timeTakenMs     Int?
+  usedNova        Boolean  @default(false)
+  source          String   @default("ai")
+  createdAt       DateTime @default(now())
+
+  @@index([userId, subject, topicLabel, createdAt])
+  @@index([userId, createdAt])
+}
+
+
+model PracticeSkillProfile {
+  id               String   @id @default(cuid())
+  userId           String
+  subject          String
+  topicLabel       String
+  theta            Float    @default(0)
+  uncertainty      Float    @default(1)
+  streak           Int      @default(0)
+  totalSeen        Int      @default(0)
+  totalCorrect     Int      @default(0)
+  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now())
+
+  @@unique([userId, subject, topicLabel])
+  @@index([userId, subject, updatedAt])
+}

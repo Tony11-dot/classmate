@@ -19,7 +19,9 @@ class MathView extends StatelessWidget {
         s.contains('}') ||
         s.contains(r'$') ||
         s.contains('frac') ||
-        s.contains('sqrt');
+        s.contains('sqrt') ||
+        s.contains('int') ||
+        s.contains('sum');
   }
 
   @override
@@ -39,11 +41,14 @@ class MathView extends StatelessWidget {
       );
     }
 
-    return Math.tex(
-      value,
-      mathStyle: MathStyle.text,
-      textStyle: textStyle,
-      onErrorFallback: (_) => SelectableText(value, style: textStyle),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Math.tex(
+        value,
+        mathStyle: MathStyle.display,
+        textStyle: textStyle,
+        onErrorFallback: (_) => SelectableText(value, style: textStyle),
+      ),
     );
   }
 }

@@ -8,6 +8,25 @@ import '../providers/practice_providers.dart';
 import '../providers/saved_questions_provider.dart';
 import '../../tutor/ui/nova_chat_screen.dart';
 
+Color _modeAccent(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return const Color(0xFF2563EB);
+    case PracticeMode.flashcards:
+      return const Color(0xFFF59E0B);
+    case PracticeMode.speedRound:
+      return const Color(0xFFEF4444);
+    case PracticeMode.examPrep:
+      return const Color(0xFF7C3AED);
+    case PracticeMode.conceptBuilder:
+      return const Color(0xFF14B8A6);
+    case PracticeMode.adaptive:
+      return const Color(0xFF4F46E5);
+    case PracticeMode.bagrut:
+      return const Color(0xFF16A34A);
+  }
+}
+
 class PracticeSessionScreen extends ConsumerStatefulWidget {
   const PracticeSessionScreen({super.key});
 
@@ -214,40 +233,14 @@ If the learner made a mistake, point out exactly what was wrong.
     final savedCtl = ref.read(savedQuestionsProvider.notifier);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-
+    final mode = state.filter.mode;
+    final accent = _modeAccent(mode);
     if (state.questions.isEmpty && !state.isComplete) {
       return Scaffold(
-        floatingActionButton: state.questions.isEmpty || state.isComplete
-            ? null
-            : FloatingActionButton.extended(
-                onPressed: () async {
-                  final shouldEnd = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('End quiz?'),
-                      content: const Text(
-                        'Your current progress will be closed.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        FilledButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('End Quiz'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (shouldEnd == true && context.mounted) {
-                    Navigator.of(context).maybePop();
-                  }
-                },
-                icon: const Icon(Icons.flag_rounded),
-                label: const Text('End Quiz'),
-              ),
-        backgroundColor: cs.surface,
+        backgroundColor: Color.alphaBlend(
+          accent.withValues(alpha: 0.04),
+          cs.surface,
+        ),
         body: SafeArea(
           child: Center(
             child: Column(
@@ -278,7 +271,7 @@ If the learner made a mistake, point out exactly what was wrong.
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
+                  color: _modeTint(cs, mode),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
                     color: cs.outlineVariant.withValues(alpha: 0.32),
@@ -286,11 +279,7 @@ If the learner made a mistake, point out exactly what was wrong.
                 ),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.emoji_events_rounded,
-                      size: 54,
-                      color: cs.primary,
-                    ),
+                    Icon(Icons.emoji_events_rounded, size: 54, color: accent),
                     const SizedBox(height: 12),
                     Text(
                       'Practice complete',
@@ -358,8 +347,6 @@ If the learner made a mistake, point out exactly what was wrong.
 
     final answered = q != null && state.answersByQuestionId.containsKey(q.id);
     final result = q == null ? null : state.answersByQuestionId[q.id];
-    final mode = state.filter.mode;
-
     return Scaffold(
       backgroundColor: cs.surface,
       body: SafeArea(
@@ -400,7 +387,7 @@ If the learner made a mistake, point out exactly what was wrong.
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      Icon(_modeIcon(mode), color: cs.primary),
+                      Icon(_modeIcon(mode), color: accent),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -415,11 +402,47 @@ If the learner made a mistake, point out exactly what was wrong.
                     ],
                   ),
                   const SizedBox(height: 14),
-                  Text(
-                    'Question ${state.currentIndex + 1} of ${state.questions.length}',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Question ${state.currentIndex + 1} of ${state.questions.length}',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'End Quiz',
+                        onPressed: () async {
+                          final shouldEnd = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('End quiz?'),
+                              content: const Text(
+                                'Your current progress will be closed.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  child: const Text('End Quiz'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (shouldEnd == true && context.mounted) {
+                            Navigator.of(context).maybePop();
+                          }
+                        },
+                        icon: Icon(Icons.flag_rounded, color: accent),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
@@ -453,7 +476,10 @@ If the learner made a mistake, point out exactly what was wrong.
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
+                color: Color.alphaBlend(
+                  accent.withValues(alpha: 0.06),
+                  cs.surfaceContainerHigh,
+                ),
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
                   color: cs.outlineVariant.withValues(alpha: 0.28),
@@ -484,7 +510,10 @@ If the learner made a mistake, point out exactly what was wrong.
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: cs.secondaryContainer.withValues(alpha: 0.55),
+                        color: Color.alphaBlend(
+                          accent.withValues(alpha: 0.10),
+                          cs.secondaryContainer.withValues(alpha: 0.55),
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: cs.outlineVariant.withValues(alpha: 0.28),
@@ -506,7 +535,10 @@ If the learner made a mistake, point out exactly what was wrong.
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
+                  color: Color.alphaBlend(
+                    accent.withValues(alpha: 0.04),
+                    cs.surfaceContainerHigh,
+                  ),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
                     color: cs.outlineVariant.withValues(alpha: 0.28),
@@ -538,6 +570,7 @@ If the learner made a mistake, point out exactly what was wrong.
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _AnswerTile(
+                            mode: mode,
                             label: entry.value,
                             selected: isCorrect,
                             correct: isCorrect,
@@ -587,37 +620,67 @@ If the learner made a mistake, point out exactly what was wrong.
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.28),
-                  ),
+                  border: Border.all(color: accent.withValues(alpha: 0.22)),
                 ),
-                child: Column(
-                  children: [
-                    for (final entry in options.asMap().entries)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _AnswerTile(
-                          label: entry.value,
-                          selected: _selectedIndex == entry.key,
-                          correct: answered
-                              ? (entry.key == q.correctIndex)
-                              : null,
-                          onTap: answered
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _selectedIndex = entry.key;
-                                    _showExplanation = true;
-                                  });
-                                  sessionCtl.submit(entry.key);
-                                  if (mode == PracticeMode.speedRound) {
+                child: mode == PracticeMode.speedRound
+                    ? GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: options.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 1.8,
+                            ),
+                        itemBuilder: (context, index) {
+                          final entry = options[index];
+                          return _AnswerTile(
+                            label: entry,
+                            mode: mode,
+                            selected: _selectedIndex == index,
+                            correct: answered
+                                ? (index == q.correctIndex)
+                                : null,
+                            onTap: answered
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _selectedIndex = index;
+                                      _showExplanation = true;
+                                    });
+                                    sessionCtl.submit(index);
                                     _queueNext(sessionCtl);
-                                  }
-                                },
-                        ),
+                                  },
+                          );
+                        },
+                      )
+                    : Column(
+                        children: [
+                          for (final entry in options.asMap().entries)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _AnswerTile(
+                                mode: mode,
+                                label: entry.value,
+                                selected: _selectedIndex == entry.key,
+                                correct: answered
+                                    ? (entry.key == q.correctIndex)
+                                    : null,
+                                onTap: answered
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _selectedIndex = entry.key;
+                                          _showExplanation = true;
+                                        });
+                                        sessionCtl.submit(entry.key);
+                                      },
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
-                ),
               ),
             if ((answered || _showExplanation) &&
                 mode != PracticeMode.flashcards) ...[
@@ -626,7 +689,7 @@ If the learner made a mistake, point out exactly what was wrong.
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: (result?.isCorrect ?? false)
-                      ? cs.primary.withValues(alpha: 0.10)
+                      ? accent.withValues(alpha: 0.12)
                       : cs.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
@@ -657,7 +720,7 @@ If the learner made a mistake, point out exactly what was wrong.
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: (result?.isCorrect ?? false)
-                      ? cs.primary.withValues(alpha: 0.10)
+                      ? accent.withValues(alpha: 0.12)
                       : cs.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
@@ -701,26 +764,46 @@ If the learner made a mistake, point out exactly what was wrong.
               ],
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: (!answered && mode != PracticeMode.flashcards)
-                    ? null
-                    : () {
-                        sessionCtl.nextQuestion();
-                        setState(() {
-                          _selectedIndex = null;
-                          _showExplanation = false;
-                          _flashcardRevealed = false;
-                        });
-                      },
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: Text(
-                  state.currentIndex + 1 >= state.questions.length
-                      ? 'Finish'
-                      : 'Next',
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: state.currentIndex > 0
+                        ? () {
+                            sessionCtl.previousQuestion();
+                            setState(() {
+                              _selectedIndex = null;
+                              _showExplanation = false;
+                              _flashcardRevealed = false;
+                            });
+                          }
+                        : null,
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    label: const Text('Previous'),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: (!answered && mode != PracticeMode.flashcards)
+                        ? null
+                        : () {
+                            sessionCtl.nextQuestion();
+                            setState(() {
+                              _selectedIndex = null;
+                              _showExplanation = false;
+                              _flashcardRevealed = false;
+                            });
+                          },
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(
+                      state.currentIndex + 1 >= state.questions.length
+                          ? 'Finish'
+                          : 'Next',
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -734,6 +817,7 @@ class _AnswerTile extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    required this.mode,
     this.correct,
   });
 
@@ -741,56 +825,73 @@ class _AnswerTile extends StatelessWidget {
   final bool selected;
   final bool? correct;
   final VoidCallback? onTap;
+  final PracticeMode mode;
+
+  Color _accent(ColorScheme cs) {
+    switch (mode) {
+      case PracticeMode.speedRound:
+        return const Color(0xFFFF6B3D);
+      case PracticeMode.flashcards:
+        return const Color(0xFFF59E0B);
+      case PracticeMode.examPrep:
+      case PracticeMode.bagrut:
+        return const Color(0xFF7C3AED);
+      case PracticeMode.conceptBuilder:
+        return const Color(0xFF10B981);
+      case PracticeMode.adaptive:
+        return const Color(0xFF4F46E5);
+      case PracticeMode.practice:
+        return const Color(0xFF2563EB);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final accent = _accent(cs);
 
     final Color bg = switch (correct) {
-      true => cs.primary.withValues(alpha: 0.18),
+      true => accent.withValues(alpha: 0.18),
       false => cs.error.withValues(alpha: 0.14),
       null =>
         selected
-            ? cs.primary.withValues(alpha: 0.10)
+            ? accent.withValues(alpha: 0.10)
             : cs.surfaceContainerHigh.withValues(alpha: 0.45),
     };
 
     final Color border = switch (correct) {
-      true => cs.primary,
+      true => accent,
       false => cs.error,
-      null => selected ? cs.primary : cs.outlineVariant.withValues(alpha: 0.28),
+      null => selected ? accent : cs.outlineVariant.withValues(alpha: 0.34),
     };
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(22),
-      onTap: onTap,
-      child: Ink(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: border),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              correct == null
-                  ? Icons.radio_button_unchecked_rounded
-                  : (correct == true
-                        ? Icons.check_circle_rounded
-                        : Icons.cancel_rounded),
+    final Color textColor = switch (correct) {
+      true => accent,
+      false => cs.error,
+      null => cs.onSurface,
+    };
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Ink(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: border, width: selected ? 1.6 : 1.0),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.w700,
+              height: 1.35,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  height: 1.35,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -806,30 +907,31 @@ class _MetricPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.34)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
       ),
-      child: RichText(
-        text: TextSpan(
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(color: cs.onSurface),
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: const TextStyle(fontWeight: FontWeight.w700),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
             ),
-            TextSpan(
-              text: value,
-              style: const TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -843,20 +945,18 @@ class _MiniPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.34)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: cs.onSurface,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }

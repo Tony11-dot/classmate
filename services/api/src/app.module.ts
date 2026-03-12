@@ -1,5 +1,8 @@
 import { HealthController } from './system/health.controller';
 import { PracticeModule } from './practice/practice.module';
+import { BagrutModule } from './bagrut/bagrut.module';
+import { PracticeAdaptiveModule } from './practice_adaptive/practice_adaptive.module';
+import { NovaModule } from './nova/nova.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { MetricsController } from './metrics/metrics.controller';
 import { DevAuthGuard } from './auth/guards/dev-auth.guard';
@@ -81,6 +84,9 @@ const appControllers = [MetricsController, ...controllers];
   ],
 
   imports: [
+    BagrutModule,
+    PracticeAdaptiveModule,
+    NovaModule,
     OutboxModule,
     ProjectionsModule,
     ClassroomsModule,

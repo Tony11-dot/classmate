@@ -18,7 +18,10 @@ class Api {
 
   String get base {
     // default to pilot api
-    const env = String.fromEnvironment('API_BASE', defaultValue: 'http://127.0.0.1:3000/api');
+    const env = String.fromEnvironment(
+      'API_BASE',
+      defaultValue: 'http://127.0.0.1:3000/api',
+    );
     return env.replaceAll(RegExp(r'\/$'), '');
   }
 
@@ -26,10 +29,13 @@ class Api {
     final token = await Session.token();
     final uri = Uri.parse('$base$path');
 
-    final res = await http.get(uri, headers: {
-      'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    });
+    final res = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+    );
 
     return _decodeAnyOrThrow(res);
   }
@@ -65,7 +71,11 @@ class Api {
         final m = j;
         msg = (m['message'] ?? m['error'] ?? msg).toString();
       }
-      throw ApiException(res.statusCode, msg, json: j is Map ? j.cast<String, dynamic>() : null);
+      throw ApiException(
+        res.statusCode,
+        msg,
+        json: j is Map ? j.cast<String, dynamic>() : null,
+      );
     }
 
     return j;
