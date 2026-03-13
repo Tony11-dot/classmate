@@ -25,14 +25,11 @@ class CMSearchableDropdown<T> extends StatelessWidget {
         final result = await showModalBottomSheet<T>(
           context: context,
           isScrollControlled: true,
-          backgroundColor: cs.surface.withOpacity(.96),
+          backgroundColor: cs.surface.withValues(alpha: .96),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          builder: (_) => _DropdownSheet(
-            items: items,
-            itemLabel: itemLabel,
-          ),
+          builder: (_) => _DropdownSheet(items: items, itemLabel: itemLabel),
         );
 
         if (result != null) onChanged(result);
@@ -41,7 +38,7 @@ class CMSearchableDropdown<T> extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
-          color: cs.surfaceContainerHighest.withOpacity(.6),
+          color: cs.surfaceContainerHighest.withValues(alpha: .6),
         ),
         child: Row(
           children: [
@@ -63,10 +60,7 @@ class _DropdownSheet<T> extends StatefulWidget {
   final List<T> items;
   final String Function(T) itemLabel;
 
-  const _DropdownSheet({
-    required this.items,
-    required this.itemLabel,
-  });
+  const _DropdownSheet({required this.items, required this.itemLabel});
 
   @override
   State<_DropdownSheet<T>> createState() => _DropdownSheetState<T>();

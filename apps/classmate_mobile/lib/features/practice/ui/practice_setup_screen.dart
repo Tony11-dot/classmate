@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/practice_prompt_builder.dart';
 
 import '../domain/practice_models.dart';
+import '../domain/practice_mode_behavior.dart';
 import 'practice_mode_specs.dart';
 import '../providers/practice_providers.dart';
 import '../domain/timing_mode.dart';
@@ -109,7 +110,7 @@ String practiceDifficultyLabel(PracticeDifficulty difficulty) {
   }
 }
 
-String _matchmakingTipForMode(PracticeMode mode) {
+String _modeHelpText(PracticeMode mode) {
   switch (mode) {
     case PracticeMode.practice:
       return 'Balanced mode: solve, check, explain, then keep moving.';
@@ -193,7 +194,6 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       final accent = practiceModeColor(mode);
 
                       return Container(
-                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Color.alphaBlend(
                             accent.withValues(alpha: 0.08),
@@ -204,10 +204,22 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             color: accent.withValues(alpha: 0.22),
                           ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
+                        child: Theme(
+                          data: theme.copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 4,
+                            ),
+                            childrenPadding: const EdgeInsets.fromLTRB(
+                              14,
+                              0,
+                              14,
+                              14,
+                            ),
+                            leading: Container(
                               width: 42,
                               height: 42,
                               decoration: BoxDecoration(
@@ -220,36 +232,32 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                                 color: accent,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    practiceModeLabel(mode),
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w800),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    practiceModeSubtitle(mode),
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: accent,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    practiceModeDescription(mode),
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: cs.onSurfaceVariant,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ],
+                            title: Text(
+                              practiceModeLabel(mode),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
-                          ],
+                            subtitle: Text(
+                              practiceModeSubtitle(mode),
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: accent,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  _modeHelpText(mode),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -266,6 +274,8 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final filter = ref.watch(practiceFilterProvider);
+    final behavior = behaviorForMode(filter.mode);
+
     final filterCtl = ref.read(practiceFilterProvider.notifier);
     final sessionCtl = ref.read(practiceSessionProvider.notifier);
     final loading = ref.watch(practiceSessionLoadingProvider);
@@ -365,20 +375,19 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                   const SizedBox(height: 6),
                   _LiquidField(
                     label: 'Custom subject',
-                    value: '',
+                    value: filter.subject,
                     hint: 'Type your own subject',
                     leading: Icons.edit_note_rounded,
                     onTap: () async {
                       final controller = TextEditingController(
                         text: filter.subject,
                       );
-                      final subjectInputController = TextEditingController();
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Custom subject'),
                           content: TextField(
-                            controller: subjectInputController,
+                            controller: controller,
                             decoration: const InputDecoration(
                               hintText: 'Enter subject',
                             ),
@@ -426,20 +435,19 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                   const SizedBox(height: 6),
                   _LiquidField(
                     label: 'Custom topic',
-                    value: '',
+                    value: filter.topicPath.join(' · '),
                     hint: 'Type your own topic',
                     leading: Icons.edit_note_rounded,
                     onTap: () async {
                       final controller = TextEditingController(
                         text: filter.topicPath.join(' · '),
                       );
-                      final topicInputController = TextEditingController();
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Custom topic'),
                           content: TextField(
-                            controller: topicInputController,
+                            controller: controller,
                             decoration: const InputDecoration(
                               hintText: 'Enter topic',
                             ),
@@ -462,7 +470,16 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       );
                       final next = result?.trim();
                       if (next == null || next.isEmpty) return;
-                      filterCtl.patch(topicPath: [next]);
+
+                      final parsedPath = next
+                          .split(RegExp(r'\s*(?:>|/|\\|·|•|-)\s*'))
+                          .map((x) => x.trim())
+                          .where((x) => x.isNotEmpty)
+                          .toList();
+
+                      filterCtl.patch(
+                        topicPath: parsedPath.isEmpty ? [next] : parsedPath,
+                      );
                     },
                   ),
                 ],
@@ -485,14 +502,6 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      tooltip: 'How modes work',
-                      onPressed: () => _showModeInfoSheet(context),
-                      icon: const Icon(Icons.help_outline_rounded),
-                    ),
-                  ),
                   const SizedBox(height: 6),
                   GridView.builder(
                     shrinkWrap: true,
@@ -509,7 +518,36 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       return _ModeTile(
                         mode: mode,
                         selected: filter.mode == mode,
-                        onTap: () => filterCtl.patch(mode: mode),
+                        onTap: () {
+                          final nextBehavior = behaviorForMode(mode);
+
+                          setState(() {
+                            if (!nextBehavior.allowTimer) {
+                              _timingMode = TimingMode.infinite;
+                            } else if (nextBehavior.aiTiming) {
+                              _timingMode = TimingMode.ai;
+                            } else if (nextBehavior.perQuestionTimingOnly) {
+                              _timingScope = TimingScope.perQuestion;
+                              if (_timingMode == TimingMode.ai) {
+                                _timingMode = TimingMode.custom;
+                              }
+                            } else if (nextBehavior.perQuizTimingOnly) {
+                              _timingScope = TimingScope.exam;
+                              if (_timingMode == TimingMode.ai) {
+                                _timingMode = TimingMode.custom;
+                              }
+                            }
+
+                            if (!nextBehavior.allowLives) {
+                              filterCtl.patch(
+                                hasInfiniteLives: true,
+                                maxLives: 3,
+                              );
+                            }
+                          });
+
+                          filterCtl.patch(mode: mode);
+                        },
                       );
                     },
                   ),
@@ -571,158 +609,177 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-                    decoration: BoxDecoration(
-                      color: cs.surface.withValues(alpha: 0.82),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.26),
+                  if (behavior.allowTimer) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                      decoration: BoxDecoration(
+                        color: cs.surface.withValues(alpha: 0.82),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.26),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Timing',
+                            style: text.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Choose scope first, then AI, your own time, or infinite.',
+                            style: text.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              ChoiceChip(
+                                label: const Text('Per question'),
+                                selected:
+                                    _timingScope == TimingScope.perQuestion,
+                                onSelected: behavior.perQuizTimingOnly
+                                    ? null
+                                    : (_) {
+                                        setState(() {
+                                          _timingScope =
+                                              TimingScope.perQuestion;
+                                        });
+                                      },
+                              ),
+                              ChoiceChip(
+                                label: const Text('Whole quiz'),
+                                selected: _timingScope == TimingScope.exam,
+                                onSelected: behavior.perQuestionTimingOnly
+                                    ? null
+                                    : (_) {
+                                        setState(() {
+                                          _timingScope = TimingScope.exam;
+                                        });
+                                      },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              ChoiceChip(
+                                label: const Text('AI'),
+                                selected: _timingMode == TimingMode.ai,
+                                onSelected: behavior.aiTiming
+                                    ? (_) {
+                                        setState(() {
+                                          _timingMode = TimingMode.ai;
+                                        });
+                                      }
+                                    : null,
+                              ),
+                              ChoiceChip(
+                                label: const Text('My time'),
+                                selected: _timingMode == TimingMode.custom,
+                                onSelected: behavior.aiTiming
+                                    ? null
+                                    : (_) {
+                                        setState(() {
+                                          _timingMode = TimingMode.custom;
+                                        });
+                                      },
+                              ),
+                              ChoiceChip(
+                                label: const Text('Infinite'),
+                                selected: _timingMode == TimingMode.infinite,
+                                onSelected: behavior.aiTiming
+                                    ? null
+                                    : (_) {
+                                        setState(() {
+                                          _timingMode = TimingMode.infinite;
+                                        });
+                                      },
+                              ),
+                            ],
+                          ),
+                          if (_timingMode == TimingMode.custom) ...[
+                            const SizedBox(height: 12),
+                            _StepperRow(
+                              title: _timingScope == TimingScope.perQuestion
+                                  ? 'Seconds per question'
+                                  : 'Quiz minutes',
+                              caption: _timingScope == TimingScope.perQuestion
+                                  ? 'Your own timer for each question'
+                                  : 'Your own timer for the whole quiz',
+                              value: _timingScope == TimingScope.perQuestion
+                                  ? '$_customPerQuestionSeconds'
+                                  : '$_customExamMinutes',
+                              onMinus: () {
+                                setState(() {
+                                  if (_timingScope == TimingScope.perQuestion) {
+                                    _customPerQuestionSeconds =
+                                        _customPerQuestionSeconds > 5
+                                        ? _customPerQuestionSeconds - 5
+                                        : 5;
+                                  } else {
+                                    _customExamMinutes = _customExamMinutes > 5
+                                        ? _customExamMinutes - 5
+                                        : 5;
+                                  }
+                                });
+                              },
+                              onPlus: () {
+                                setState(() {
+                                  if (_timingScope == TimingScope.perQuestion) {
+                                    _customPerQuestionSeconds =
+                                        _customPerQuestionSeconds < 600
+                                        ? _customPerQuestionSeconds + 5
+                                        : 600;
+                                  } else {
+                                    _customExamMinutes =
+                                        _customExamMinutes < 300
+                                        ? _customExamMinutes + 5
+                                        : 300;
+                                  }
+                                });
+                              },
+                              onSubmitted: (raw) {
+                                final parsed = int.tryParse(raw.trim());
+                                if (parsed == null) return;
+                                setState(() {
+                                  if (_timingScope == TimingScope.perQuestion) {
+                                    _customPerQuestionSeconds = parsed.clamp(
+                                      5,
+                                      600,
+                                    );
+                                  } else {
+                                    _customExamMinutes = parsed.clamp(5, 300);
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Timing',
-                          style: text.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Choose scope first, then AI, your own time, or infinite.',
-                          style: text.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            ChoiceChip(
-                              label: const Text('Per question'),
-                              selected: _timingScope == TimingScope.perQuestion,
-                              onSelected: (_) {
-                                setState(() {
-                                  _timingScope = TimingScope.perQuestion;
-                                });
-                              },
-                            ),
-                            ChoiceChip(
-                              label: const Text('Whole quiz'),
-                              selected: _timingScope == TimingScope.exam,
-                              onSelected: (_) {
-                                setState(() {
-                                  _timingScope = TimingScope.exam;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            ChoiceChip(
-                              label: const Text('AI'),
-                              selected: _timingMode == TimingMode.ai,
-                              onSelected: (_) {
-                                setState(() {
-                                  _timingMode = TimingMode.ai;
-                                });
-                              },
-                            ),
-                            ChoiceChip(
-                              label: const Text('My time'),
-                              selected: _timingMode == TimingMode.custom,
-                              onSelected: (_) {
-                                setState(() {
-                                  _timingMode = TimingMode.custom;
-                                });
-                              },
-                            ),
-                            ChoiceChip(
-                              label: const Text('Infinite'),
-                              selected: _timingMode == TimingMode.infinite,
-                              onSelected: (_) {
-                                setState(() {
-                                  _timingMode = TimingMode.infinite;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        if (_timingMode == TimingMode.custom) ...[
-                          const SizedBox(height: 12),
-                          _StepperRow(
-                            title: _timingScope == TimingScope.perQuestion
-                                ? 'Seconds per question'
-                                : 'Quiz minutes',
-                            caption: _timingScope == TimingScope.perQuestion
-                                ? 'Your own timer for each question'
-                                : 'Your own timer for the whole quiz',
-                            value: _timingScope == TimingScope.perQuestion
-                                ? '$_customPerQuestionSeconds'
-                                : '$_customExamMinutes',
-                            onMinus: () {
-                              setState(() {
-                                if (_timingScope == TimingScope.perQuestion) {
-                                  _customPerQuestionSeconds =
-                                      _customPerQuestionSeconds > 5
-                                      ? _customPerQuestionSeconds - 5
-                                      : 5;
-                                } else {
-                                  _customExamMinutes = _customExamMinutes > 5
-                                      ? _customExamMinutes - 5
-                                      : 5;
-                                }
-                              });
-                            },
-                            onPlus: () {
-                              setState(() {
-                                if (_timingScope == TimingScope.perQuestion) {
-                                  _customPerQuestionSeconds =
-                                      _customPerQuestionSeconds < 600
-                                      ? _customPerQuestionSeconds + 5
-                                      : 600;
-                                } else {
-                                  _customExamMinutes = _customExamMinutes < 300
-                                      ? _customExamMinutes + 5
-                                      : 300;
-                                }
-                              });
-                            },
-                            onSubmitted: (raw) {
-                              final parsed = int.tryParse(raw.trim());
-                              if (parsed == null) return;
-                              setState(() {
-                                if (_timingScope == TimingScope.perQuestion) {
-                                  _customPerQuestionSeconds = parsed.clamp(
-                                    5,
-                                    600,
-                                  );
-                                } else {
-                                  _customExamMinutes = parsed.clamp(5, 300);
-                                }
-                              });
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+                  ],
                   const SizedBox(height: 12),
-                  _GlassToggleRow(
-                    title: 'Infinite lives',
-                    subtitle: 'Never end the session because of wrong answers',
-                    value: filter.hasInfiniteLives,
-                    onChanged: (value) =>
-                        filterCtl.patch(hasInfiniteLives: value),
-                  ),
+                  if (behavior.allowLives)
+                    _GlassToggleRow(
+                      title: 'Infinite lives',
+                      subtitle:
+                          'Never end the session because of wrong answers',
+                      value: filter.hasInfiniteLives,
+                      onChanged: (value) {
+                        if (!behavior.allowLives) return;
+                        filterCtl.patch(hasInfiniteLives: value);
+                      },
+                    ),
                   if (!filter.hasInfiniteLives) ...[
                     const SizedBox(height: 12),
                     _StepperRow(
@@ -825,9 +882,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                                           difficulty: practiceDifficultyLabel(
                                             startFilter.difficulty,
                                           ),
-                                          tip: _matchmakingTipForMode(
-                                            startFilter.mode,
-                                          ),
+                                          tip: _modeHelpText(startFilter.mode),
                                           onCancel: () async {
                                             await sessionCtl.cancelGeneration();
                                             if (context.mounted) {
@@ -841,9 +896,21 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               ),
                             );
 
-                            await sessionCtl
-                                .start(startFilter)
-                                .timeout(const Duration(seconds: 25));
+                            try {
+                              await sessionCtl.start(startFilter);
+                            } catch (e) {
+                              if (context.mounted &&
+                                  Navigator.of(
+                                    context,
+                                    rootNavigator: true,
+                                  ).canPop()) {
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).pop();
+                              }
+                              rethrow;
+                            }
 
                             if (!context.mounted) return;
 
@@ -1398,9 +1465,7 @@ class _DifficultyPill extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected
-              ? cs.primaryContainer.withValues(alpha: 0.90)
-              : cs.surface,
+          color: selected ? cs.primary.withValues(alpha: 0.16) : cs.surface,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
@@ -1408,11 +1473,21 @@ class _DifficultyPill extends StatelessWidget {
                 : cs.outlineVariant.withValues(alpha: 0.28),
           ),
         ),
-        child: Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (selected) ...[
+              Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: selected ? cs.primary : null,
+              ),
+            ),
+          ],
         ),
       ),
     );

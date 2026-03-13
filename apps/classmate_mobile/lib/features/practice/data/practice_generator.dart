@@ -8,6 +8,38 @@ import '../domain/practice_models.dart';
 import 'practice_prompt_builder.dart';
 import 'bagrut_repository.dart';
 
+String normalizeMathInline(String text) {
+  var t = text;
+
+  // Convert \( ... \) → $...$
+  t = t.replaceAllMapped(RegExp(r'\\((.*?)\\)'), (m) => '\$${m.group(1)}\$');
+
+  // Convert \[ ... \] → $...$
+  t = t.replaceAllMapped(RegExp(r'\\[(.*?)\\]'), (m) => '\$${m.group(1)}\$');
+
+  // Repair lost leading backslashes on common latex commands inside math/text.
+  t = t.replaceAllMapped(
+    RegExp(
+      r'(^|[^\A-Za-z])(frac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|left|right|alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma)',
+    ),
+    (m) => '${m.group(1)}\${m.group(2)}',
+  );
+
+  // Wrap simple powers if they are still plain text.
+  t = t.replaceAllMapped(
+    RegExp(r'(?<!\$)([a-zA-Z0-9]+\^[0-9]+)(?!\$)'),
+    (m) => '\$${m.group(1)}\$',
+  );
+
+  // Wrap simple slash fractions if they are still plain text.
+  t = t.replaceAllMapped(
+    RegExp(r'(?<!\$)([0-9a-zA-Z]+/[0-9a-zA-Z]+)(?!\$)'),
+    (m) => '\$${m.group(1)}\$',
+  );
+
+  return t;
+}
+
 class PracticeGenerator {
   static const _apiBase = String.fromEnvironment(
     'CM_API_BASE_URL',
@@ -25,7 +57,7 @@ class PracticeGenerator {
       return generateFallback(filter);
     }
 
-    final remote = await _generateFromApi(filter);
+    final remote = await _generateFromApiWithRetry(filter);
     if (remote.isNotEmpty) return remote;
 
     return generateFallback(filter);
@@ -72,9 +104,23 @@ class PracticeGenerator {
     return out;
   }
 
+  Future<List<PracticeQuestion>> _generateFromApiWithRetry(
+    PracticeFilter filter,
+  ) async {
+    var last = const <PracticeQuestion>[];
+    for (var attempt = 0; attempt < 2; attempt++) {
+      last = await _generateFromApi(filter);
+      if (last.isNotEmpty) return last;
+      await Future<void>.delayed(
+        Duration(milliseconds: attempt == 0 ? 700 : 0),
+      );
+    }
+    return last;
+  }
+
   Future<List<PracticeQuestion>> _generateFromApi(PracticeFilter filter) async {
     final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 20);
+      ..connectionTimeout = const Duration(seconds: 60);
 
     try {
       final uri = Uri.parse('$_apiBase/practice/generate');
@@ -83,9 +129,10 @@ class PracticeGenerator {
       final req = await client
           .postUrl(uri)
           .timeout(
-            const Duration(seconds: 8),
-            onTimeout: () =>
-                throw TimeoutException('practice.generate postUrl timeout'),
+            const Duration(seconds: 90),
+            onTimeout: () => throw TimeoutException(
+              'practice.generate postUrl timeout after 20s',
+            ),
           );
 
       req.headers.contentType = ContentType.json;
@@ -114,16 +161,17 @@ class PracticeGenerator {
       req.write(jsonEncode(payload));
 
       final res = await req.close().timeout(
-        const Duration(seconds: 20),
+        const Duration(seconds: 90),
         onTimeout: () =>
-            throw TimeoutException('practice.generate close timeout'),
+            throw TimeoutException('practice.generate close timeout after 90s'),
       );
       final body = await utf8
           .decodeStream(res)
           .timeout(
-            const Duration(seconds: 20),
-            onTimeout: () =>
-                throw TimeoutException('practice.generate body timeout'),
+            const Duration(seconds: 60),
+            onTimeout: () => throw TimeoutException(
+              'practice.generate body timeout after 90s',
+            ),
           );
       debugPrint('practice.generate status=${res.statusCode}');
       debugPrint('practice.generate ok body: $body');
@@ -310,8 +358,7 @@ class PracticeGenerator {
       topicLabel: filter.topicLabel,
       mode: filter.mode,
       difficulty: filter.difficulty,
-      prompt:
-          'Fallback question for ${filter.subject} • ${filter.topicLabel}: compute 3 * $x + 1.',
+      prompt: '${filter.subject} • ${filter.topicLabel}: compute 3 * $x + 1.',
       options: ['$y', '${y + 1}', '${y - 1}', '${x + 1}'],
       correctIndex: 0,
       explanation: '3 * $x + 1 = $y.',

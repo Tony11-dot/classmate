@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/practice_models.dart';
+import '../domain/practice_mode_behavior.dart';
+
 import '../providers/practice_providers.dart';
 import 'practice_mode_specs.dart';
 import 'modes/mode_common.dart';
@@ -145,6 +147,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
     final wrong = answered - correct;
     final total = state.questions.length;
     final accuracy = answered == 0 ? 0 : ((correct / answered) * 100).round();
+    final behavior = behaviorForMode(state.filter.mode);
 
     if (loading && state.questions.isEmpty && !state.isComplete) {
       return Scaffold(
@@ -155,26 +158,6 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircularProgressIndicator(),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SegmentedButton<bool>(
-                        segments: const [
-                          ButtonSegment(value: false, label: Text('Stacked')),
-                          ButtonSegment(value: true, label: Text('Focus')),
-                        ],
-                        selected: {_focusReview},
-                        onSelectionChanged: (v) {
-                          setState(() {
-                            _focusReview = v.first;
-                            _reviewIndex = 0;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 12),
 
                 OutlinedButton.icon(
@@ -285,6 +268,26 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               ),
               const SizedBox(height: 16),
               Row(
+                children: [
+                  Expanded(
+                    child: SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(value: false, label: Text('Stacked')),
+                        ButtonSegment(value: true, label: Text('Focus')),
+                      ],
+                      selected: {_focusReview},
+                      onSelectionChanged: (v) {
+                        setState(() {
+                          _focusReview = v.first;
+                          _reviewIndex = 0;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
@@ -369,6 +372,8 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     ? question.options[question.correctIndex]
                     : 'Unknown';
                 final isCorrect = result?.isCorrect ?? false;
+                final isFlashcards =
+                    state.filter.mode == PracticeMode.flashcards;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -417,35 +422,65 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          'Your answer',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
+                        if (isFlashcards) ...[
+                          Text(
+                            'Reflection',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        MathView(selectedLabel, compact: true),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Correct answer',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: Colors.green,
-                            fontWeight: FontWeight.w700,
+                          const SizedBox(height: 4),
+                          Text(
+                            isCorrect ? 'Knew it' : 'Review again',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: isCorrect
+                                  ? Colors.green
+                                  : cs.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        MathView(correctLabel, compact: true),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Explanation',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
+                          const SizedBox(height: 10),
+                          Text(
+                            'Back of card',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        MathView(question.explanation, compact: true),
+                          const SizedBox(height: 4),
+                          MathView(question.explanation, compact: true),
+                        ] else ...[
+                          Text(
+                            'Your answer',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          MathView(selectedLabel, compact: true),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Correct answer',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          MathView(correctLabel, compact: true),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Explanation',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          MathView(question.explanation, compact: true),
+                        ],
                       ],
                     ),
                   ),
@@ -569,10 +604,11 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      _MetricPill(
-                        label: 'Time',
-                        value: '${state.secondsRemaining}s',
-                      ),
+                      if (behavior.allowTimer)
+                        _MetricPill(
+                          label: 'Time',
+                          value: '${state.secondsRemaining}s',
+                        ),
                       _MetricPill(label: 'XP', value: '${state.stats.xp}'),
                       _MetricPill(
                         label: 'Streak',

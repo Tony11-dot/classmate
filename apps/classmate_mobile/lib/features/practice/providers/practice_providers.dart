@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/practice_generator.dart';
+import '../data/practice_history_repository.dart';
 import '../domain/practice_models.dart';
+import '../domain/practice_mode_behavior.dart';
+import '../domain/practice_history_models.dart';
+import '../domain/practice_analytics_models.dart';
 
 PracticeFilter _defaultFilter() {
   return const PracticeFilter(
@@ -76,13 +80,38 @@ class PracticeFilterController extends Notifier<PracticeFilter> {
   }
 }
 
+final practiceHistoryProvider = FutureProvider<List<PracticeHistorySession>>((
+  ref,
+) async {
+  final repo = PracticeHistoryRepository();
+  return repo.loadSessions();
+});
+
+final practiceAnalyticsProvider = FutureProvider<PracticeAnalyticsSnapshot>((
+  ref,
+) async {
+  final sessions = await ref.watch(practiceHistoryProvider.future);
+  const builder = PracticeAnalyticsBuilder();
+  return builder.build(sessions);
+});
+
 final practiceSessionProvider =
     NotifierProvider<PracticeSessionController, PracticeSessionState>(
       PracticeSessionController.new,
     );
 
 class PracticeSessionController extends Notifier<PracticeSessionState> {
+  Future<void> cancelGeneration() async {
+    _generationEpoch++;
+    _timer?.cancel();
+    _autoAdvanceTimer?.cancel();
+    ref.read(practiceSessionLoadingProvider.notifier).setLoading(false);
+    state = PracticeSessionState.initial(ref.read(practiceFilterProvider));
+  }
+
   final PracticeGenerator _generator = PracticeGenerator();
+  final PracticeHistoryRepository _historyRepo = PracticeHistoryRepository();
+  int _generationEpoch = 0;
   Timer? _timer;
   Timer? _autoAdvanceTimer;
 
@@ -103,6 +132,8 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   }
 
   Future<void> start([PracticeFilter? override]) async {
+    final requestEpoch = ++_generationEpoch;
+
     final PracticeFilter base = override ?? ref.read(practiceFilterProvider);
     final PracticeFilter filter = base.mode == PracticeMode.bagrut
         ? base.copyWith(
@@ -120,23 +151,38 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
     state = PracticeSessionState.initial(filter);
 
     try {
-      final questions = await _generator.generate(filter);
+      final behavior = behaviorForMode(filter.mode);
+      final normalizedFilter = !behavior.allowTimer
+          ? filter.copyWith(
+              timePreferenceSeconds: null,
+              useAiTiming: false,
+              hasInfiniteLives: true,
+            )
+          : filter;
+
+      final questions = await _generator.generate(normalizedFilter);
       final firstQuestion = questions.isEmpty ? null : questions.first;
 
       state = state.copyWith(
-        filter: filter,
+        filter: normalizedFilter,
         questions: questions,
         currentIndex: 0,
-        secondsRemaining: _resolveTime(filter, firstQuestion),
+        secondsRemaining: behavior.allowTimer
+            ? _resolveTime(normalizedFilter, firstQuestion)
+            : 0,
         isComplete: questions.isEmpty,
         stats: PracticeStats.zero,
       );
 
-      if (questions.isNotEmpty && filter.mode != PracticeMode.bagrut) {
+      if (questions.isNotEmpty &&
+          normalizedFilter.mode != PracticeMode.bagrut &&
+          behavior.allowTimer) {
         _startTimer();
       }
     } finally {
-      ref.read(practiceSessionLoadingProvider.notifier).setLoading(false);
+      if (requestEpoch == _generationEpoch) {
+        ref.read(practiceSessionLoadingProvider.notifier).setLoading(false);
+      }
     }
   }
 
@@ -184,13 +230,12 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
     if (state.isComplete) {
       _timer?.cancel();
       _autoAdvanceTimer?.cancel();
+      _saveCompletedSession();
       return;
     }
 
     if (state.filter.mode == PracticeMode.speedRound) {
-      _queueAutoAdvance(const Duration(milliseconds: 700));
-    } else if (state.filter.mode == PracticeMode.flashcards) {
-      _queueAutoAdvance(const Duration(milliseconds: 950));
+      _queueAutoAdvance(const Duration(milliseconds: 350));
     }
   }
 
@@ -232,9 +277,11 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
     _timer?.cancel();
     _autoAdvanceTimer?.cancel();
     state = state.copyWith(isComplete: true, stats: PracticeStats.zero);
+    _saveCompletedSession();
   }
 
   void reset() {
+    _generationEpoch++;
     _timer?.cancel();
     _autoAdvanceTimer?.cancel();
     state = PracticeSessionState.initial(ref.read(practiceFilterProvider));
@@ -252,6 +299,12 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   void _startTimer() {
     _timer?.cancel();
 
+    final behavior = behaviorForMode(state.filter.mode);
+    if (!behavior.allowTimer) {
+      state = state.copyWith(secondsRemaining: 0);
+      return;
+    }
+
     final q = state.currentQuestion;
     if (q == null) return;
 
@@ -265,7 +318,7 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
         timer.cancel();
 
         if (state.filter.mode == PracticeMode.flashcards) {
-          submit(state.currentQuestion!.correctIndex);
+          state = state.copyWith(secondsRemaining: 0);
           return;
         }
 
@@ -289,6 +342,50 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
     return filter.useAiTiming
         ? q.recommendedTimeSeconds
         : (filter.timePreferenceSeconds ?? q.recommendedTimeSeconds);
+  }
+
+  Future<void> _saveCompletedSession() async {
+    if (state.questions.isEmpty) return;
+
+    final answered = state.stats.answered;
+    final correct = state.stats.correct;
+    final wrong = answered - correct;
+    final total = state.questions.length;
+    final accuracy = answered == 0 ? 0 : ((correct / answered) * 100).round();
+
+    final session = PracticeHistorySession(
+      id: 'practice-${DateTime.now().millisecondsSinceEpoch}',
+      completedAt: DateTime.now(),
+      subject: state.filter.subject,
+      topicLabel: state.filter.topicLabel,
+      mode: state.filter.mode,
+      difficulty: state.filter.difficulty,
+      totalQuestions: total,
+      answered: answered,
+      correct: correct,
+      wrong: wrong,
+      xp: state.stats.xp,
+      streak: state.stats.streak,
+      accuracyPercent: accuracy,
+      questions: state.questions
+          .map((q) {
+            final result = state.answersByQuestionId[q.id];
+            return PracticeHistoryQuestion(
+              id: q.id,
+              prompt: q.prompt,
+              options: q.options,
+              correctIndex: q.correctIndex,
+              selectedIndex: result?.selectedIndex,
+              isCorrect: result?.isCorrect ?? false,
+              explanation: q.explanation,
+              topicLabel: q.topicLabel,
+            );
+          })
+          .toList(growable: false),
+    );
+
+    await _historyRepo.saveSession(session);
+    ref.invalidate(practiceHistoryProvider);
   }
 
   int _xpFor(PracticeQuestion q, PracticeFilter filter) {

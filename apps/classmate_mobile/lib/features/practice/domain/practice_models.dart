@@ -10,6 +10,8 @@ enum PracticeMode {
 
 enum PracticeDifficulty { easy, medium, hard, olympiad, adaptive }
 
+enum FlashcardReflection { again, hard, good, easy }
+
 class PracticeTopicNode {
   const PracticeTopicNode({
     required this.label,

@@ -7,6 +7,21 @@ class FlashcardsModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final correctIndex = d.q?.correctIndex ?? 0;
+    final fallbackWrongIndex = d.options.isEmpty
+        ? 0
+        : d.options.asMap().keys.firstWhere(
+            (i) => i != correctIndex,
+            orElse: () => 0,
+          );
+
+    void reflect(bool knewIt) {
+      if (!d.answered) {
+        d.sessionCtl.submit(knewIt ? correctIndex : fallbackWrongIndex);
+      }
+      d.next();
+    }
+
     return questionCard(
       d,
       child: Column(
@@ -58,53 +73,84 @@ class FlashcardsModeView extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: d.openNova,
-                  icon: const Icon(Icons.tips_and_updates_rounded),
-                  label: const Text(
-                    'NOVA hint',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          if (!d.showExplanation)
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: d.openNova,
+                    icon: const Icon(Icons.tips_and_updates_rounded),
+                    label: const Text(
+                      'NOVA hint',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    if (!d.showExplanation) {
-                      d.onShowExplanation(true);
-                      if (!d.answered) {
-                        d.sessionCtl.submit(d.q?.correctIndex ?? 0);
-                      }
-                      return;
-                    }
-                    d.next();
-                  },
-                  icon: Icon(
-                    d.showExplanation
-                        ? Icons.arrow_forward_rounded
-                        : Icons.visibility_rounded,
-                  ),
-                  label: Text(
-                    d.showExplanation ? 'Next card' : 'Reveal',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton.icon(
+                    onPressed: () => d.onShowExplanation(true),
+                    icon: const Icon(Icons.visibility_rounded),
+                    label: const Text(
+                      'Reveal',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                compactIconAction(
+                  onPressed: d.end,
+                  icon: Icons.close_rounded,
+                  tooltip: 'End session',
+                ),
+              ],
+            )
+          else ...[
+            Text(
+              'How did that feel?',
+              style: d.theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w900,
               ),
-              const SizedBox(width: 8),
-              compactIconAction(
-                onPressed: d.end,
-                icon: Icons.close_rounded,
-                tooltip: 'End session',
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton(
+                  onPressed: () => reflect(false),
+                  child: const Text('Again'),
+                ),
+                OutlinedButton(
+                  onPressed: () => reflect(false),
+                  child: const Text('Hard'),
+                ),
+                FilledButton(
+                  onPressed: () => reflect(true),
+                  child: const Text('Good'),
+                ),
+                FilledButton(
+                  onPressed: () => reflect(true),
+                  child: const Text('Easy'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: novaHintAction(d)),
+                const SizedBox(width: 8),
+                compactIconAction(
+                  onPressed: d.end,
+                  icon: Icons.close_rounded,
+                  tooltip: 'End session',
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
