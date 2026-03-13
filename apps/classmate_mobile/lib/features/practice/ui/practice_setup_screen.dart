@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/practice_prompt_builder.dart';
 
 import '../domain/practice_models.dart';
+import 'practice_mode_specs.dart';
 import '../providers/practice_providers.dart';
 import '../domain/timing_mode.dart';
 import 'practice_session_screen.dart';
+import 'practice_history_screen.dart';
+import 'practice_analytics_debug_screen.dart';
 
 const Map<String, List<List<String>>> practiceSubjectCatalog = {
   'Math': [
@@ -91,218 +94,6 @@ const Map<String, List<List<String>>> practiceSubjectCatalog = {
   ],
 };
 
-Color practiceModeColor(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return Colors.indigo;
-    case PracticeMode.flashcards:
-      return Colors.purple;
-    case PracticeMode.speedRound:
-      return Colors.orange;
-    case PracticeMode.examPrep:
-      return Colors.redAccent;
-    case PracticeMode.conceptBuilder:
-      return Colors.green;
-    case PracticeMode.adaptive:
-      return Colors.deepPurple;
-    case PracticeMode.bagrut:
-      return const Color(0xFF2962FF);
-  }
-}
-
-String practiceModeSubtitle(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return 'Standard practice';
-    case PracticeMode.flashcards:
-      return 'Quick concept review';
-    case PracticeMode.speedRound:
-      return 'Timed drills';
-    case PracticeMode.examPrep:
-      return 'Exam simulation';
-    case PracticeMode.conceptBuilder:
-      return 'Understand ideas';
-    case PracticeMode.adaptive:
-      return 'AI adjusts difficulty';
-    case PracticeMode.bagrut:
-      return 'Real Bagrut questions';
-  }
-}
-
-Widget practiceModePreview(PracticeMode mode, Color accent) {
-  switch (mode) {
-    case PracticeMode.speedRound:
-      return Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        children: List.generate(
-          4,
-          (unused) => Container(
-            width: 18,
-            height: 12,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.24),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ),
-      );
-
-    case PracticeMode.flashcards:
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 26,
-            height: 18,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(7),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Container(
-            width: 26,
-            height: 18,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(7),
-            ),
-          ),
-        ],
-      );
-
-    case PracticeMode.examPrep:
-    case PracticeMode.bagrut:
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 3,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.26),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Container(
-            width: 38,
-            height: 3,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: 30,
-            height: 3,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ],
-      );
-
-    default:
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          3,
-          (i) => Padding(
-            padding: EdgeInsets.only(bottom: i == 2 ? 0 : 4),
-            child: Container(
-              width: 42 - (i * 4),
-              height: 6,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.22 - (i * 0.03)),
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ),
-        ),
-      );
-  }
-}
-
-String practiceModeLabel(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return 'Practice';
-    case PracticeMode.flashcards:
-      return 'Flashcards';
-    case PracticeMode.speedRound:
-      return 'Speed round';
-    case PracticeMode.examPrep:
-      return 'Exam prep';
-    case PracticeMode.conceptBuilder:
-      return 'Concept builder';
-    case PracticeMode.adaptive:
-      return 'Adaptive';
-    case PracticeMode.bagrut:
-      return 'Bagrut';
-  }
-}
-
-String practiceModeDescription(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return 'Balanced daily practice with full feedback.';
-    case PracticeMode.flashcards:
-      return 'Reveal, self-check, and lock concepts into memory.';
-    case PracticeMode.speedRound:
-      return 'Fast arcade reps under pressure.';
-    case PracticeMode.examPrep:
-      return 'Formal school-style solving with calmer pacing.';
-    case PracticeMode.conceptBuilder:
-      return 'Learn the rule first, then answer.';
-    case PracticeMode.adaptive:
-      return 'Difficulty shifts with your performance.';
-    case PracticeMode.bagrut:
-      return 'Real Bagrut-style question flow.';
-  }
-}
-
-String practiceModeBadge(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return 'Daily';
-    case PracticeMode.flashcards:
-      return 'Memory';
-    case PracticeMode.speedRound:
-      return 'Arcade';
-    case PracticeMode.examPrep:
-      return 'Formal';
-    case PracticeMode.conceptBuilder:
-      return 'Learn';
-    case PracticeMode.adaptive:
-      return 'Smart';
-    case PracticeMode.bagrut:
-      return 'Exam';
-  }
-}
-
-IconData practiceModeIcon(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return Icons.tune_rounded;
-    case PracticeMode.flashcards:
-      return Icons.style_rounded;
-    case PracticeMode.speedRound:
-      return Icons.flash_on_rounded;
-    case PracticeMode.examPrep:
-      return Icons.assignment_rounded;
-    case PracticeMode.conceptBuilder:
-      return Icons.school_rounded;
-    case PracticeMode.adaptive:
-      return Icons.auto_awesome_rounded;
-    case PracticeMode.bagrut:
-      return Icons.description_rounded;
-  }
-}
-
 String practiceDifficultyLabel(PracticeDifficulty difficulty) {
   switch (difficulty) {
     case PracticeDifficulty.easy:
@@ -315,6 +106,25 @@ String practiceDifficultyLabel(PracticeDifficulty difficulty) {
       return 'Olympiad';
     case PracticeDifficulty.adaptive:
       return 'Adaptive';
+  }
+}
+
+String _matchmakingTipForMode(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return 'Balanced mode: solve, check, explain, then keep moving.';
+    case PracticeMode.flashcards:
+      return 'Flashcards work best when you try to recall before revealing.';
+    case PracticeMode.speedRound:
+      return 'Speed Round trains fast recall. Move quickly and trust strong instincts.';
+    case PracticeMode.examPrep:
+      return 'Exam Prep is calmer and more formal, like a real school session.';
+    case PracticeMode.conceptBuilder:
+      return 'Concept Builder teaches the idea first, then asks you to apply it.';
+    case PracticeMode.adaptive:
+      return 'Adaptive mode changes the challenge level based on your performance.';
+    case PracticeMode.bagrut:
+      return 'Bagrut mode focuses on strict exam-style solving and review.';
   }
 }
 
@@ -337,7 +147,120 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
   }
 
   double _modeChildAspectRatio(BuildContext context) {
-    return 0.72;
+    return 1.08;
+  }
+
+  Future<void> _showModeInfoSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final cs = theme.colorScheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'How each mode works',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: PracticeMode.values.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final mode = PracticeMode.values[index];
+                      final accent = practiceModeColor(mode);
+
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Color.alphaBlend(
+                            accent.withValues(alpha: 0.08),
+                            cs.surface,
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: accent.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                practiceModeIcon(mode),
+                                color: accent,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    practiceModeLabel(mode),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    practiceModeSubtitle(mode),
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: accent,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    practiceModeDescription(mode),
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -365,7 +288,6 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
         : topicOptions.first;
 
     return Scaffold(
-      appBar: AppBar(centerTitle: true),
       body: SafeArea(
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -549,40 +471,75 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: 'Mode',
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: PracticeMode.values.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: _modeGridCount(context),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: _modeChildAspectRatio(context),
+              trailing: GestureDetector(
+                onTap: () => _showModeInfoSheet(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Icon(
+                    Icons.help_outline_rounded,
+                    size: 16,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
-                itemBuilder: (context, index) {
-                  final mode = PracticeMode.values[index];
-                  return _ModeTile(
-                    mode: mode,
-                    selected: filter.mode == mode,
-                    onTap: () => filterCtl.patch(mode: mode),
-                  );
-                },
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      tooltip: 'How modes work',
+                      onPressed: () => _showModeInfoSheet(context),
+                      icon: const Icon(Icons.help_outline_rounded),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: PracticeMode.values.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _modeGridCount(context),
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: _modeChildAspectRatio(context),
+                    ),
+                    itemBuilder: (context, index) {
+                      final mode = PracticeMode.values[index];
+                      return _ModeTile(
+                        mode: mode,
+                        selected: filter.mode == mode,
+                        onTap: () => filterCtl.patch(mode: mode),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
             _SectionCard(
               title: 'Difficulty',
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final difficulty in PracticeDifficulty.values)
-                    _DifficultyChip(
-                      selected: filter.difficulty == difficulty,
-                      label: practiceDifficultyLabel(difficulty),
-                      onTap: () => filterCtl.patch(difficulty: difficulty),
-                    ),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.18),
+                  ),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final difficulty in PracticeDifficulty.values)
+                      _DifficultyPill(
+                        label: practiceDifficultyLabel(difficulty),
+                        selected: filter.difficulty == difficulty,
+                        onTap: () => filterCtl.patch(difficulty: difficulty),
+                      ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -633,7 +590,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           'Choose scope first, then AI, your own time, or infinite.',
                           style: text.bodySmall?.copyWith(
@@ -795,42 +752,132 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            FilledButton.icon(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      var startFilter = _resolvedFilterForStart(filter)
-                          .copyWith(
-                            hasInfiniteLives: filter.hasInfiniteLives,
-                            maxLives: filter.maxLives,
-                          );
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Practice history',
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PracticeHistoryScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.history_rounded),
+                ),
+                const SizedBox(width: 6),
+                IconButton(
+                  tooltip: 'Practice analytics',
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PracticeAnalyticsDebugScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.analytics_rounded),
+                ),
+                const SizedBox(width: 8),
+                if (loading) ...[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await sessionCtl.cancelGeneration();
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                      label: const Text('Stop Generating'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: loading
+                        ? null
+                        : () async {
+                            var startFilter = _resolvedFilterForStart(filter)
+                                .copyWith(
+                                  hasInfiniteLives: filter.hasInfiniteLives,
+                                  maxLives: filter.maxLives,
+                                );
 
-                      if (filter.mode == PracticeMode.bagrut) {
-                        startFilter = startFilter.copyWith(
-                          questionCount: 1,
-                          useAiTiming: false,
-                          timePreferenceSeconds: null,
-                          maxLives: 1,
-                          hasInfiniteLives: true,
-                        );
-                      }
+                            if (filter.mode == PracticeMode.bagrut) {
+                              startFilter = startFilter.copyWith(
+                                questionCount: 1,
+                                useAiTiming: false,
+                                timePreferenceSeconds: null,
+                                maxLives: 1,
+                                hasInfiniteLives: true,
+                              );
+                            }
+                            Navigator.of(context, rootNavigator: true).push(
+                              PageRouteBuilder<void>(
+                                opaque: false,
+                                barrierDismissible: false,
+                                barrierColor: Colors.transparent,
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        PracticeSessionMatchmakingScreen(
+                                          mode: practiceModeLabel(
+                                            startFilter.mode,
+                                          ),
+                                          subject: startFilter.subject,
+                                          difficulty: practiceDifficultyLabel(
+                                            startFilter.difficulty,
+                                          ),
+                                          tip: _matchmakingTipForMode(
+                                            startFilter.mode,
+                                          ),
+                                          onCancel: () async {
+                                            await sessionCtl.cancelGeneration();
+                                            if (context.mounted) {
+                                              Navigator.of(
+                                                context,
+                                                rootNavigator: true,
+                                              ).pop();
+                                            }
+                                          },
+                                        ),
+                              ),
+                            );
 
-                      await sessionCtl.start(startFilter);
-                      if (!context.mounted) return;
-                      await Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute(
-                          builder: (context) => const PracticeSessionScreen(),
-                        ),
-                      );
-                    },
-              icon: loading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.play_arrow_rounded),
-              label: Text(loading ? 'Generating...' : 'Start session'),
+                            await sessionCtl
+                                .start(startFilter)
+                                .timeout(const Duration(seconds: 25));
+
+                            if (!context.mounted) return;
+
+                            if (Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).canPop()) {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
+
+                            final nextState = ref.read(practiceSessionProvider);
+                            final stillLoading = ref.read(
+                              practiceSessionLoadingProvider,
+                            );
+                            if (stillLoading || nextState.questions.isEmpty) {
+                              return;
+                            }
+
+                            await Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).push(PracticeSessionRouteHelper.screen);
+                          },
+                    icon: loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow_rounded),
+                    label: Text(loading ? 'Generating...' : 'Start session'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -970,29 +1017,43 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({required this.title, required this.child, this.trailing});
 
   final String title;
   final Widget child;
+  final Widget? trailing;
+
+  static List<Widget> _maybeTrailing(Widget? trailing) {
+    return trailing == null ? const <Widget>[] : <Widget>[trailing];
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
       ),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              ..._maybeTrailing(trailing),
+            ],
           ),
           const SizedBox(height: 12),
           child,
@@ -1060,7 +1121,7 @@ class _LiquidField extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     value.isEmpty ? hint : value,
                     maxLines: 1,
@@ -1220,6 +1281,7 @@ class _ModeTile extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final accent = practiceModeColor(mode);
+    final tint = practiceModeTint(cs, mode);
 
     return AnimatedScale(
       duration: const Duration(milliseconds: 180),
@@ -1236,7 +1298,7 @@ class _ModeTile extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: selected
-                  ? accent.withValues(alpha: 0.20)
+                  ? tint
                   : cs.surfaceContainerHighest.withValues(alpha: 0.58),
               border: Border.all(
                 color: selected
@@ -1262,7 +1324,9 @@ class _ModeTile extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.14),
+                    color: selected
+                        ? accent.withValues(alpha: 0.18)
+                        : accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -1278,20 +1342,21 @@ class _ModeTile extends StatelessWidget {
                     height: 1.0,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   practiceModeSubtitle(mode),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: cs.onSurfaceVariant,
-                    height: 1.15,
+                    height: 1.0,
                     fontSize: 10.5,
                   ),
                 ),
                 const SizedBox(height: 6),
                 practiceModePreview(mode, accent),
-                const Spacer(),
+                const SizedBox(height: 6),
 
                 Align(
                   alignment: Alignment.bottomLeft,
@@ -1313,8 +1378,8 @@ class _ModeTile extends StatelessWidget {
   }
 }
 
-class _DifficultyChip extends StatelessWidget {
-  const _DifficultyChip({
+class _DifficultyPill extends StatelessWidget {
+  const _DifficultyPill({
     required this.selected,
     required this.label,
     required this.onTap,
@@ -1470,7 +1535,7 @@ class _StepperRow extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(

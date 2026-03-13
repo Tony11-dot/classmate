@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'mode_common.dart';
+
+class SpeedRoundModeView extends StatelessWidget {
+  final ModeContextData d;
+  const SpeedRoundModeView({super.key, required this.d});
+
+  @override
+  Widget build(BuildContext context) {
+    return questionCard(
+      d,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: d.accent.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: d.accent.withValues(alpha: 0.20)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.flash_on_rounded, color: d.accent, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Speed round · fast decisions, instant momentum',
+                    style: d.theme.textTheme.labelLarge?.copyWith(
+                      color: d.accent,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${d.state.secondsRemaining}s',
+                  style: d.theme.textTheme.titleMedium?.copyWith(
+                    color: d.accent,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          sessionProgressStrip(d),
+          const SizedBox(height: 14),
+          MathView(d.promptOf()),
+          const SizedBox(height: 14),
+          answerList(d),
+          const SizedBox(height: 12),
+          answerFeedbackSection(d),
+          const SizedBox(height: 12),
+          if (d.showExplanation) ...[
+            explanationCard(d, title: 'Fast feedback'),
+            const SizedBox(height: 10),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: sharedPrimaryActionButton(
+                  d,
+                  preAnswerLabel: 'Lock in',
+                  postAnswerLabel: 'Next',
+                  preAnswerIcon: Icons.bolt_rounded,
+                ),
+              ),
+              const SizedBox(width: 8),
+              novaHintAction(d),
+              compactIconAction(
+                onPressed: d.end,
+                icon: Icons.close_rounded,
+                tooltip: 'End session',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,31 +1,92 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/practice_models.dart';
 import '../providers/practice_providers.dart';
-import '../providers/saved_questions_provider.dart';
-import '../../tutor/ui/nova_chat_screen.dart';
+import 'practice_mode_specs.dart';
+import 'modes/mode_common.dart';
+import 'modes/practice_mode_view.dart';
+import 'modes/flashcards_mode_view.dart';
+import 'modes/speed_round_mode_view.dart';
+import 'modes/exam_prep_mode_view.dart';
+import 'modes/concept_builder_mode_view.dart';
+import 'modes/adaptive_mode_view.dart';
+import 'modes/bagrut_mode_view.dart';
 
-Color _modeAccent(PracticeMode mode) {
-  switch (mode) {
-    case PracticeMode.practice:
-      return const Color(0xFF2563EB);
-    case PracticeMode.flashcards:
-      return const Color(0xFFF59E0B);
-    case PracticeMode.speedRound:
-      return const Color(0xFFEF4444);
-    case PracticeMode.examPrep:
-      return const Color(0xFF7C3AED);
-    case PracticeMode.conceptBuilder:
-      return const Color(0xFF14B8A6);
-    case PracticeMode.adaptive:
-      return const Color(0xFF4F46E5);
-    case PracticeMode.bagrut:
-      return const Color(0xFF16A34A);
+Color _sessionPanelBorder(ColorScheme cs) {
+  return cs.brightness == Brightness.dark
+      ? cs.outlineVariant.withValues(alpha: 0.32)
+      : cs.outlineVariant.withValues(alpha: 0.44);
+}
+
+Color _sessionPanelBg(ColorScheme cs, Color accent) {
+  return cs.brightness == Brightness.dark
+      ? Color.alphaBlend(
+          accent.withValues(alpha: 0.10),
+          cs.surfaceContainerHigh,
+        )
+      : Color.alphaBlend(accent.withValues(alpha: 0.05), cs.surface);
+}
+
+String _friendlyModeLoadingTitle(String mode) {
+  switch (mode.toLowerCase()) {
+    case 'practice':
+      return 'Building your practice session';
+    case 'flashcards':
+      return 'Shuffling your flashcards';
+    case 'speed round':
+    case 'speedround':
+      return 'Starting the speed round';
+    case 'exam prep':
+    case 'examprep':
+      return 'Preparing your exam session';
+    case 'concept builder':
+    case 'conceptbuilder':
+      return 'Loading concept coach';
+    case 'adaptive':
+      return 'Personalizing your challenge';
+    case 'bagrut':
+      return 'Preparing your Bagrut set';
+    default:
+      return 'Preparing your session';
   }
 }
+
+Color _sessionAccentFromModeLabel(String mode) {
+  switch (mode.toLowerCase()) {
+    case 'practice':
+      return const Color(0xFF2563EB);
+    case 'flashcards':
+      return const Color(0xFF7C3AED);
+    case 'speed round':
+    case 'speedround':
+      return const Color(0xFFF59E0B);
+    case 'exam prep':
+    case 'examprep':
+      return const Color(0xFF14B8A6);
+    case 'concept builder':
+    case 'conceptbuilder':
+      return const Color(0xFF4F46E5);
+    case 'adaptive':
+      return const Color(0xFFEC4899);
+    case 'bagrut':
+      return const Color(0xFFDC2626);
+    default:
+      return const Color(0xFF2563EB);
+  }
+}
+
+class PracticeSessionRouteHelper {
+  static Route<void> get screen => PageRouteBuilder<void>(
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        const PracticeSessionScreen(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+  );
+}
+
+enum _ReviewFilter { all, wrong, correct }
 
 class PracticeSessionScreen extends ConsumerStatefulWidget {
   const PracticeSessionScreen({super.key});
@@ -38,209 +99,56 @@ class PracticeSessionScreen extends ConsumerStatefulWidget {
 class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
   int? _selectedIndex;
   bool _showExplanation = false;
-  bool _flashcardRevealed = false;
-  String? _boundQuestionId;
-  Timer? _autoNextTimer;
+  _ReviewFilter _reviewFilter = _ReviewFilter.all;
+  bool _focusReview = false;
+  int _reviewIndex = 0;
 
-  @override
-  void dispose() {
-    _autoNextTimer?.cancel();
-    super.dispose();
-  }
-
-  String _promptOf(PracticeQuestion? q) => (q?.prompt ?? 'Question').toString();
-
-  String _explanationOf(PracticeQuestion? q) {
-    final txt = (q?.explanation ?? '').toString().trim();
-    return txt.isEmpty ? 'No explanation available yet.' : txt;
-  }
-
-  List<String> _optionsOf(PracticeQuestion? q) {
-    final raw = q?.options ?? const <String>[];
-    return raw.map((e) => e.toString()).toList(growable: false);
-  }
-
-  String _modeHeadline(PracticeMode mode) {
-    switch (mode) {
-      case PracticeMode.flashcards:
-        return 'Flashcards';
-      case PracticeMode.speedRound:
-        return 'Speed round';
-      case PracticeMode.examPrep:
-        return 'Exam prep';
-      case PracticeMode.conceptBuilder:
-        return 'Concept builder';
-      case PracticeMode.adaptive:
-      case PracticeMode.bagrut:
-        return 'Adaptive';
-      case PracticeMode.practice:
-        return 'Practice';
-    }
-  }
-
-  String _modeHint(PracticeMode mode) {
-    switch (mode) {
-      case PracticeMode.flashcards:
-        return 'Memory-first mode. Reveal, self-check, then rate yourself.';
-      case PracticeMode.speedRound:
-        return 'Fast pressure reps. Lock in quickly and auto-move on.';
-      case PracticeMode.examPrep:
-        return 'Formal school-style solving with calmer pacing.';
-      case PracticeMode.conceptBuilder:
-        return 'Learn the rule first, then answer.';
-      case PracticeMode.adaptive:
-      case PracticeMode.bagrut:
-        return 'Mixed challenge mode that shifts by topic feel and pacing.';
-      case PracticeMode.practice:
-        return 'Balanced daily practice with full feedback.';
-    }
-  }
-
-  IconData _modeIcon(PracticeMode mode) {
-    switch (mode) {
-      case PracticeMode.flashcards:
-        return Icons.style_rounded;
-      case PracticeMode.speedRound:
-        return Icons.flash_on_rounded;
-      case PracticeMode.examPrep:
-        return Icons.assignment_rounded;
-      case PracticeMode.conceptBuilder:
-        return Icons.school_rounded;
-      case PracticeMode.adaptive:
-      case PracticeMode.bagrut:
-        return Icons.auto_awesome_rounded;
-      case PracticeMode.practice:
-        return Icons.tune_rounded;
-    }
-  }
-
-  Color _modeTint(ColorScheme cs, PracticeMode mode) {
-    switch (mode) {
-      case PracticeMode.flashcards:
-        return cs.tertiary.withValues(alpha: 0.18);
-      case PracticeMode.speedRound:
-        return cs.error.withValues(alpha: 0.14);
-      case PracticeMode.examPrep:
-        return cs.primary.withValues(alpha: 0.18);
-      case PracticeMode.conceptBuilder:
-        return cs.secondary.withValues(alpha: 0.18);
-      case PracticeMode.adaptive:
-      case PracticeMode.bagrut:
-        return cs.secondaryContainer.withValues(alpha: 0.30);
-      case PracticeMode.practice:
-        return cs.surfaceContainerHighest.withValues(alpha: 0.45);
-    }
-  }
-
-  String _buildNovaPrompt(PracticeQuestion q, PracticeSessionState state) {
-    final optionsText = q.options
-        .asMap()
-        .entries
-        .map((e) => '${String.fromCharCode(65 + e.key)}. ${e.value}')
-        .join('\n');
-
-    return '''
-You are helping with a ClassMate practice question.
-
-Subject: ${state.filter.subject}
-Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
-Mode: ${state.filter.mode.name}
-Difficulty: ${state.filter.difficulty.name}
-
-Question:
-${q.prompt}
-
-Options:
-$optionsText
-
-Reference explanation:
-${q.explanation}
-
-Give a helpful step-by-step explanation.
-If this is bagrut mode, solve it formally like a school exam solution.
-If the learner made a mistake, point out exactly what was wrong.
-''';
-  }
-
-  Future<void> _openNova(
-    BuildContext context,
-    PracticeQuestion? q,
-    PracticeSessionState state,
-  ) async {
-    if (q == null) return;
-
-    final prompt = _buildNovaPrompt(q, state);
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => NovaChatScreen(
-          initialTitle: (q.topicLabel).toString(),
-          initialPrompt: prompt,
-        ),
-      ),
-    );
-  }
-
-  void _bindQuestion(PracticeQuestion? q) {
-    final currentQuestionId = q?.id.toString();
-    if (currentQuestionId == null) return;
-    if (_boundQuestionId == currentQuestionId) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      setState(() {
-        _boundQuestionId = currentQuestionId;
-        _selectedIndex = null;
-        _showExplanation = false;
-        _flashcardRevealed = false;
-      });
-    });
-  }
-
-  void _queueNext(PracticeSessionController sessionCtl) {
-    _autoNextTimer?.cancel();
-    _autoNextTimer = Timer(const Duration(milliseconds: 550), () {
-      if (!mounted) return;
-      sessionCtl.nextQuestion();
-      setState(() {
-        _selectedIndex = null;
-        _showExplanation = false;
-        _flashcardRevealed = false;
-      });
-    });
-  }
-
-  void _submitFlashcard(
-    PracticeSessionController sessionCtl,
-    PracticeQuestion q, {
-    required bool knewIt,
-  }) {
-    final wrongIndex = q.options.isEmpty
-        ? 0
-        : (q.correctIndex + 1) % q.options.length;
-
-    sessionCtl.submit(knewIt ? q.correctIndex : wrongIndex);
-
+  void _resetTransientUi() {
     setState(() {
-      _showExplanation = true;
+      _selectedIndex = null;
+      _showExplanation = false;
     });
+  }
+
+  Widget _modeBody(ModeContextData d) {
+    switch (d.state.filter.mode) {
+      case PracticeMode.practice:
+        return PracticeModeView(d: d);
+      case PracticeMode.flashcards:
+        return FlashcardsModeView(d: d);
+      case PracticeMode.speedRound:
+        return SpeedRoundModeView(d: d);
+      case PracticeMode.examPrep:
+        return ExamPrepModeView(d: d);
+      case PracticeMode.conceptBuilder:
+        return ConceptBuilderModeView(d: d);
+      case PracticeMode.adaptive:
+        return AdaptiveModeView(d: d);
+      case PracticeMode.bagrut:
+        return BagrutModeView(d: d);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(practiceSessionProvider);
     final sessionCtl = ref.read(practiceSessionProvider.notifier);
-    final savedCtl = ref.read(savedQuestionsProvider.notifier);
+    final loading = ref.watch(practiceSessionLoadingProvider);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final mode = state.filter.mode;
-    final accent = _modeAccent(mode);
-    if (state.questions.isEmpty && !state.isComplete) {
+    final accent = practiceModeColor(state.filter.mode);
+    final q = state.currentQuestion;
+    final options = q?.options ?? const <String>[];
+
+    final answered = state.stats.answered;
+    final correct = state.stats.correct;
+    final wrong = answered - correct;
+    final total = state.questions.length;
+    final accuracy = answered == 0 ? 0 : ((correct / answered) * 100).round();
+
+    if (loading && state.questions.isEmpty && !state.isComplete) {
       return Scaffold(
-        backgroundColor: Color.alphaBlend(
-          accent.withValues(alpha: 0.04),
-          cs.surface,
-        ),
+        backgroundColor: cs.surface,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -248,8 +156,33 @@ If the learner made a mistake, point out exactly what was wrong.
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SegmentedButton<bool>(
+                        segments: const [
+                          ButtonSegment(value: false, label: Text('Stacked')),
+                          ButtonSegment(value: true, label: Text('Focus')),
+                        ],
+                        selected: {_focusReview},
+                        onSelectionChanged: (v) {
+                          setState(() {
+                            _focusReview = v.first;
+                            _reviewIndex = 0;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
                 OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () async {
+                    await sessionCtl.cancelGeneration();
+                    if (!context.mounted) return;
+                    Navigator.of(context).maybePop();
+                  },
                   icon: const Icon(Icons.close_rounded),
                   label: const Text('Stop Generating'),
                 ),
@@ -261,28 +194,53 @@ If the learner made a mistake, point out exactly what was wrong.
     }
 
     if (state.isComplete) {
+      final reviewQuestions = state.questions.where((question) {
+        final result = state.answersByQuestionId[question.id];
+        return switch (_reviewFilter) {
+          _ReviewFilter.all => true,
+          _ReviewFilter.wrong => result != null && !result.isCorrect,
+          _ReviewFilter.correct => result != null && result.isCorrect,
+        };
+      }).toList();
+
+      if (_reviewIndex >= reviewQuestions.length &&
+          reviewQuestions.isNotEmpty) {
+        _reviewIndex = reviewQuestions.length - 1;
+      }
+      if (reviewQuestions.isEmpty) {
+        _reviewIndex = 0;
+      }
+
+      final reviewVisible = _focusReview && reviewQuestions.isNotEmpty
+          ? <PracticeQuestion>[reviewQuestions[_reviewIndex]]
+          : reviewQuestions;
+
       return Scaffold(
         backgroundColor: cs.surface,
         body: SafeArea(
           child: ListView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: _modeTint(cs, mode),
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.32),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      accent.withValues(alpha: 0.16),
+                      accent.withValues(alpha: 0.06),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: _sessionPanelBorder(cs)),
                 ),
                 child: Column(
                   children: [
                     Icon(Icons.emoji_events_rounded, size: 54, color: accent),
                     const SizedBox(height: 12),
                     Text(
-                      'Practice complete',
+                      '${practiceModeLabel(state.filter.mode)} complete',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -292,82 +250,289 @@ If the learner made a mistake, point out exactly what was wrong.
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        _MetricPill(
-                          label: 'Answered',
-                          value: '${state.stats.answered}',
-                        ),
-                        _MetricPill(
-                          label: 'Correct',
-                          value: '${state.stats.correct}',
-                        ),
+                        _MetricPill(label: 'Answered', value: '$answered'),
+                        _MetricPill(label: 'Correct', value: '$correct'),
+                        _MetricPill(label: 'Wrong', value: '$wrong'),
+                        _MetricPill(label: 'Accuracy', value: '$accuracy%'),
+                        _MetricPill(label: 'Total', value: '$total'),
                         _MetricPill(label: 'XP', value: '${state.stats.xp}'),
                         _MetricPill(
                           label: 'Streak',
                           value: '${state.stats.streak}',
                         ),
-                        _MetricPill(
-                          label: 'Mode',
-                          value: _modeHeadline(state.filter.mode),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () async {
-                          setState(() {
-                            _selectedIndex = null;
-                            _showExplanation = false;
-                            _flashcardRevealed = false;
-                          });
-                          await sessionCtl.start(state.filter);
-                        },
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Run again'),
+                    Text(
+                      practiceModeDescription(state.filter.mode),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${state.filter.subject} • ${state.filter.topicLabel}',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('All'),
+                          selected: _reviewFilter == _ReviewFilter.all,
+                          onSelected: (_) {
+                            setState(() {
+                              _reviewFilter = _ReviewFilter.all;
+                              _reviewIndex = 0;
+                            });
+                          },
+                        ),
+                        ChoiceChip(
+                          label: const Text('Wrong'),
+                          selected: _reviewFilter == _ReviewFilter.wrong,
+                          onSelected: (_) {
+                            setState(() {
+                              _reviewFilter = _ReviewFilter.wrong;
+                              _reviewIndex = 0;
+                            });
+                          },
+                        ),
+                        ChoiceChip(
+                          label: const Text('Correct'),
+                          selected: _reviewFilter == _ReviewFilter.correct,
+                          onSelected: (_) {
+                            setState(() {
+                              _reviewFilter = _ReviewFilter.correct;
+                              _reviewIndex = 0;
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Session review',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (reviewQuestions.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: cs.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: cs.outlineVariant.withValues(alpha: 0.28),
+                    ),
+                  ),
+                  child: Text(
+                    'No questions match this filter yet.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ...reviewVisible.map((question) {
+                final result = state.answersByQuestionId[question.id];
+                final selectedIndex = result?.selectedIndex;
+                final selectedLabel =
+                    (selectedIndex != null &&
+                        selectedIndex >= 0 &&
+                        selectedIndex < question.options.length)
+                    ? question.options[selectedIndex]
+                    : 'No answer';
+                final correctLabel =
+                    (question.correctIndex >= 0 &&
+                        question.correctIndex < question.options.length)
+                    ? question.options[question.correctIndex]
+                    : 'Unknown';
+                final isCorrect = result?.isCorrect ?? false;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: isCorrect
+                            ? Colors.green.withValues(alpha: 0.30)
+                            : cs.outlineVariant.withValues(alpha: 0.32),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                question.topicLabel,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: accent,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              isCorrect
+                                  ? Icons.check_circle_rounded
+                                  : Icons.radio_button_unchecked_rounded,
+                              color: isCorrect
+                                  ? Colors.green
+                                  : cs.outlineVariant,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        MathView(
+                          question.prompt,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            height: 1.3,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Your answer',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        MathView(selectedLabel, compact: true),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Correct answer',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        MathView(correctLabel, compact: true),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Explanation',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        MathView(question.explanation, compact: true),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              if (_focusReview && reviewQuestions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        onPressed: _reviewIndex > 0
+                            ? () => setState(() => _reviewIndex--)
+                            : null,
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            '${_reviewIndex + 1} / ${reviewQuestions.length}',
+                            style: theme.textTheme.labelLarge,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_forward_ios_rounded),
+                        onPressed: _reviewIndex < reviewQuestions.length - 1
+                            ? () => setState(() => _reviewIndex++)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              OutlinedButton.icon(
+                onPressed: () {
+                  sessionCtl.reset();
+                  Navigator.of(context).maybePop();
+                },
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                label: const Text('Back to setup'),
               ),
             ],
           ),
         ),
       );
     }
-
-    final q = state.currentQuestion;
-    _bindQuestion(q);
-
-    final options = _optionsOf(q);
-    final isSaved = q != null && savedCtl.isSaved(q.id);
     final progress = state.questions.isEmpty
         ? 0.0
-        : ((state.currentIndex + 1) / state.questions.length).clamp(0.0, 1.0);
+        : ((state.currentIndex + 1) / state.questions.length)
+              .clamp(0.0, 1.0)
+              .toDouble();
 
-    final answered = q != null && state.answersByQuestionId.containsKey(q.id);
-    final result = q == null ? null : state.answersByQuestionId[q.id];
+    final d = ModeContextData(
+      context: context,
+      ref: ref,
+      state: state,
+      sessionCtl: sessionCtl,
+      q: q,
+      options: options,
+      selectedIndex: _selectedIndex,
+      showExplanation: _showExplanation,
+      onSelected: (v) => setState(() => _selectedIndex = v),
+      onShowExplanation: (v) => setState(() => _showExplanation = v),
+      resetTransientUi: _resetTransientUi,
+    );
+
     return Scaffold(
       backgroundColor: cs.surface,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: _modeTint(cs, mode),
+                color: cs.brightness == Brightness.dark
+                    ? _sessionPanelBg(cs, accent)
+                    : cs.surface,
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.32),
-                ),
+                border: Border.all(color: _sessionPanelBorder(cs)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
                       _MiniPill(label: state.filter.subject),
                       _MiniPill(
@@ -375,74 +540,21 @@ If the learner made a mistake, point out exactly what was wrong.
                             ? 'General'
                             : state.filter.topicPath.join(' • '),
                       ),
-                      _MiniPill(label: state.filter.difficulty.name),
-                      _MiniPill(label: _modeHeadline(mode)),
                       _MiniPill(
-                        label: state.filter.useAiTiming
-                            ? 'AI timing'
-                            : '${state.filter.timePreferenceSeconds ?? 20}s / q',
+                        label: state.filter.difficulty
+                            .toString()
+                            .split('.')
+                            .last,
                       ),
+                      _MiniPill(label: practiceModeLabel(state.filter.mode)),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Icon(_modeIcon(mode), color: accent),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _modeHint(mode),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            height: 1.35,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Question ${state.currentIndex + 1} of ${state.questions.length}',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'End Quiz',
-                        onPressed: () async {
-                          final shouldEnd = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('End quiz?'),
-                              content: const Text(
-                                'Your current progress will be closed.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text('Cancel'),
-                                ),
-                                FilledButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: const Text('End Quiz'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (shouldEnd == true && context.mounted) {
-                            Navigator.of(context).maybePop();
-                          }
-                        },
-                        icon: Icon(Icons.flag_rounded, color: accent),
-                      ),
-                    ],
+                  Text(
+                    'Question ${state.currentIndex + 1} of ${state.questions.length}',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
@@ -457,15 +569,14 @@ If the learner made a mistake, point out exactly what was wrong.
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      if (mode != PracticeMode.examPrep)
-                        _MetricPill(
-                          label: 'Time',
-                          value: '${state.secondsRemaining}s',
-                        ),
+                      _MetricPill(
+                        label: 'Time',
+                        value: '${state.secondsRemaining}s',
+                      ),
                       _MetricPill(label: 'XP', value: '${state.stats.xp}'),
                       _MetricPill(
-                        label: 'Correct',
-                        value: '${state.stats.correct}',
+                        label: 'Streak',
+                        value: '${state.stats.streak}',
                       ),
                     ],
                   ),
@@ -473,425 +584,8 @@ If the learner made a mistake, point out exactly what was wrong.
               ),
             ),
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Color.alphaBlend(
-                  accent.withValues(alpha: 0.06),
-                  cs.surfaceContainerHigh,
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.28),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (mode == PracticeMode.examPrep)
-                    Text(
-                      'Bagrut-style prompt',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: cs.primary,
-                      ),
-                    ),
-                  if (mode == PracticeMode.examPrep) const SizedBox(height: 8),
-                  Text(
-                    _promptOf(q),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.35,
-                    ),
-                  ),
-                  if (mode == PracticeMode.conceptBuilder) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Color.alphaBlend(
-                          accent.withValues(alpha: 0.10),
-                          cs.secondaryContainer.withValues(alpha: 0.55),
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: cs.outlineVariant.withValues(alpha: 0.28),
-                        ),
-                      ),
-                      child: Text(
-                        _explanationOf(q),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (q != null && mode == PracticeMode.flashcards)
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Color.alphaBlend(
-                    accent.withValues(alpha: 0.04),
-                    cs.surfaceContainerHigh,
-                  ),
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.28),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _flashcardRevealed = true;
-                          });
-                        },
-                        icon: const Icon(Icons.visibility_rounded),
-                        label: Text(
-                          _flashcardRevealed
-                              ? 'Answer revealed'
-                              : 'Reveal answer',
-                        ),
-                      ),
-                    ),
-                    if (_flashcardRevealed) ...[
-                      const SizedBox(height: 16),
-                      ...options.asMap().entries.map((entry) {
-                        final i = entry.key;
-                        final isCorrect = i == q.correctIndex;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: _AnswerTile(
-                            mode: mode,
-                            label: entry.value,
-                            selected: isCorrect,
-                            correct: isCorrect,
-                            onTap: null,
-                          ),
-                        );
-                      }),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: answered
-                                  ? null
-                                  : () => _submitFlashcard(
-                                      sessionCtl,
-                                      q,
-                                      knewIt: false,
-                                    ),
-                              icon: const Icon(Icons.close_rounded),
-                              label: const Text("Didn't know it"),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: FilledButton.icon(
-                              onPressed: answered
-                                  ? null
-                                  : () => _submitFlashcard(
-                                      sessionCtl,
-                                      q,
-                                      knewIt: true,
-                                    ),
-                              icon: const Icon(Icons.check_rounded),
-                              label: const Text('Knew it'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: accent.withValues(alpha: 0.22)),
-                ),
-                child: mode == PracticeMode.speedRound
-                    ? GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: options.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1.8,
-                            ),
-                        itemBuilder: (context, index) {
-                          final entry = options[index];
-                          return _AnswerTile(
-                            label: entry,
-                            mode: mode,
-                            selected: _selectedIndex == index,
-                            correct: answered
-                                ? (index == q.correctIndex)
-                                : null,
-                            onTap: answered
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _selectedIndex = index;
-                                      _showExplanation = true;
-                                    });
-                                    sessionCtl.submit(index);
-                                    _queueNext(sessionCtl);
-                                  },
-                          );
-                        },
-                      )
-                    : Column(
-                        children: [
-                          for (final entry in options.asMap().entries)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _AnswerTile(
-                                mode: mode,
-                                label: entry.value,
-                                selected: _selectedIndex == entry.key,
-                                correct: answered
-                                    ? (entry.key == q.correctIndex)
-                                    : null,
-                                onTap: answered
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          _selectedIndex = entry.key;
-                                          _showExplanation = true;
-                                        });
-                                        sessionCtl.submit(entry.key);
-                                      },
-                              ),
-                            ),
-                        ],
-                      ),
-              ),
-            if ((answered || _showExplanation) &&
-                mode != PracticeMode.flashcards) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: (result?.isCorrect ?? false)
-                      ? accent.withValues(alpha: 0.12)
-                      : cs.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.28),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      (result?.isCorrect ?? false) ? 'Nice.' : 'Review',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _explanationOf(q),
-                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            if (answered && mode == PracticeMode.flashcards) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: (result?.isCorrect ?? false)
-                      ? accent.withValues(alpha: 0.12)
-                      : cs.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.28),
-                  ),
-                ),
-                child: Text(
-                  _explanationOf(q),
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: q == null
-                        ? null
-                        : () {
-                            savedCtl.toggle(q);
-                          },
-                    icon: Icon(
-                      isSaved
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_border_rounded,
-                    ),
-                    label: Text(isSaved ? 'Saved' : 'Save'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: q == null
-                        ? null
-                        : () => _openNova(context, q, state),
-                    icon: const Icon(Icons.psychology_alt_rounded),
-                    label: const Text('Open in NOVA'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.currentIndex > 0
-                        ? () {
-                            sessionCtl.previousQuestion();
-                            setState(() {
-                              _selectedIndex = null;
-                              _showExplanation = false;
-                              _flashcardRevealed = false;
-                            });
-                          }
-                        : null,
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    label: const Text('Previous'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: (!answered && mode != PracticeMode.flashcards)
-                        ? null
-                        : () {
-                            sessionCtl.nextQuestion();
-                            setState(() {
-                              _selectedIndex = null;
-                              _showExplanation = false;
-                              _flashcardRevealed = false;
-                            });
-                          },
-                    icon: const Icon(Icons.arrow_forward_rounded),
-                    label: Text(
-                      state.currentIndex + 1 >= state.questions.length
-                          ? 'Finish'
-                          : 'Next',
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _modeBody(d),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AnswerTile extends StatelessWidget {
-  const _AnswerTile({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.mode,
-    this.correct,
-  });
-
-  final String label;
-  final bool selected;
-  final bool? correct;
-  final VoidCallback? onTap;
-  final PracticeMode mode;
-
-  Color _accent(ColorScheme cs) {
-    switch (mode) {
-      case PracticeMode.speedRound:
-        return const Color(0xFFFF6B3D);
-      case PracticeMode.flashcards:
-        return const Color(0xFFF59E0B);
-      case PracticeMode.examPrep:
-      case PracticeMode.bagrut:
-        return const Color(0xFF7C3AED);
-      case PracticeMode.conceptBuilder:
-        return const Color(0xFF10B981);
-      case PracticeMode.adaptive:
-        return const Color(0xFF4F46E5);
-      case PracticeMode.practice:
-        return const Color(0xFF2563EB);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final accent = _accent(cs);
-
-    final Color bg = switch (correct) {
-      true => accent.withValues(alpha: 0.18),
-      false => cs.error.withValues(alpha: 0.14),
-      null =>
-        selected
-            ? accent.withValues(alpha: 0.10)
-            : cs.surfaceContainerHigh.withValues(alpha: 0.45),
-    };
-
-    final Color border = switch (correct) {
-      true => accent,
-      false => cs.error,
-      null => selected ? accent : cs.outlineVariant.withValues(alpha: 0.34),
-    };
-
-    final Color textColor = switch (correct) {
-      true => accent,
-      false => cs.error,
-      null => cs.onSurface,
-    };
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: Ink(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: border, width: selected ? 1.6 : 1.0),
-          ),
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w700,
-              height: 1.35,
-            ),
-          ),
         ),
       ),
     );
@@ -910,9 +604,13 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        color: cs.surface.withValues(alpha: 0.70),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: cs.brightness == Brightness.dark
+              ? cs.outlineVariant.withValues(alpha: 0.30)
+              : cs.outlineVariant.withValues(alpha: 0.40),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -926,10 +624,9 @@ class _MetricPill extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: cs.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -946,17 +643,170 @@ class _MiniPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.60),
+        color: cs.surface.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        border: Border.all(
+          color: cs.brightness == Brightness.dark
+              ? cs.outlineVariant.withValues(alpha: 0.30)
+              : cs.outlineVariant.withValues(alpha: 0.40),
+        ),
       ),
       child: Text(
         label,
         style: Theme.of(
           context,
         ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+class PracticeSessionMatchmakingScreen extends StatelessWidget {
+  const PracticeSessionMatchmakingScreen({
+    super.key,
+    required this.mode,
+    required this.subject,
+    required this.difficulty,
+    required this.tip,
+    required this.onCancel,
+  });
+
+  final String mode;
+  final String subject;
+  final String difficulty;
+  final String tip;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final accent = _sessionAccentFromModeLabel(mode);
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(accent.withValues(alpha: .12), cs.surface),
+                cs.surface,
+                Color.alphaBlend(accent.withValues(alpha: .06), cs.surface),
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const Spacer(),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: cs.surface.withValues(alpha: .92),
+                    borderRadius: BorderRadius.circular(32),
+                    border: Border.all(color: accent.withValues(alpha: .22)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accent.withValues(alpha: .10),
+                        blurRadius: 28,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: accent.withValues(alpha: .12),
+                        child: Icon(
+                          practiceModeIcon(
+                            PracticeMode.values.firstWhere(
+                              (m) =>
+                                  practiceModeLabel(m).toLowerCase() ==
+                                  mode.toLowerCase(),
+                              orElse: () => PracticeMode.practice,
+                            ),
+                          ),
+                          color: accent,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(accent),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        _friendlyModeLoadingTitle(mode),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "$mode • $subject",
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "Difficulty: $difficulty",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Color.alphaBlend(
+                            accent.withValues(alpha: .08),
+                            cs.surfaceContainerHighest,
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Text(
+                          tip,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            height: 1.35,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: accent.withValues(alpha: .28),
+                          ),
+                        ),
+                        onPressed: onCancel,
+                        icon: Icon(Icons.close_rounded, color: accent),
+                        label: const Text("Stop generating"),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../domain/practice_models.dart';
+import 'practice_prompt_builder.dart';
 import 'bagrut_repository.dart';
 
 class PracticeGenerator {
@@ -74,7 +78,15 @@ class PracticeGenerator {
 
     try {
       final uri = Uri.parse('$_apiBase/practice/generate');
-      final req = await client.postUrl(uri);
+      debugPrint('practice.generate uri=$uri');
+      debugPrint('practice.generate devTokenLen=${_devToken.length}');
+      final req = await client
+          .postUrl(uri)
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () =>
+                throw TimeoutException('practice.generate postUrl timeout'),
+          );
 
       req.headers.contentType = ContentType.json;
       req.headers.set(HttpHeaders.acceptHeader, 'application/json');
@@ -86,21 +98,38 @@ class PracticeGenerator {
         'subject': filter.subject,
         'topicLabel': filter.topicLabel,
         'topicPath': filter.topicPath,
+        'topicPathText': filter.topicPath.isEmpty
+            ? filter.topicLabel
+            : filter.topicPath.join(' > '),
         'mode': filter.mode.name,
         'difficulty': filter.difficulty.name,
         'questionCount': filter.questionCount,
         'timePreferenceSeconds': filter.timePreferenceSeconds,
         'useAiTiming': filter.useAiTiming,
         'maxLives': filter.maxLives,
+        'strictPromptSummary': buildStrictPracticeFilterSection(filter),
       };
 
+      debugPrint('practice.generate payload=${jsonEncode(payload)}');
       req.write(jsonEncode(payload));
 
-      final res = await req.close();
-      final body = await utf8.decodeStream(res);
+      final res = await req.close().timeout(
+        const Duration(seconds: 20),
+        onTimeout: () =>
+            throw TimeoutException('practice.generate close timeout'),
+      );
+      final body = await utf8
+          .decodeStream(res)
+          .timeout(
+            const Duration(seconds: 20),
+            onTimeout: () =>
+                throw TimeoutException('practice.generate body timeout'),
+          );
+      debugPrint('practice.generate status=${res.statusCode}');
+      debugPrint('practice.generate ok body: $body');
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        stderr.writeln('practice.generate http ${res.statusCode}: $body');
+        debugPrint('practice.generate http ${res.statusCode}: $body');
         return const [];
       }
 
@@ -115,8 +144,8 @@ class PracticeGenerator {
 
       return out;
     } catch (e, st) {
-      stderr.writeln('practice.generate failed: $e');
-      stderr.writeln('$st');
+      debugPrint('practice.generate failed: $e');
+      debugPrint('$st');
       return const [];
     } finally {
       client.close(force: true);
@@ -222,13 +251,13 @@ class PracticeGenerator {
 
     if (filter.mode == PracticeMode.bagrut) {
       return PracticeQuestion(
-        id: 'fallback-bagrut-$index',
+        id: 'bagrut-local-$index',
         subject: filter.subject,
         topicLabel: filter.topicLabel,
         mode: filter.mode,
         difficulty: filter.difficulty,
         prompt:
-            'Bagrut fallback: solve the requested topic formally in exam style.',
+            'Solve a ${filter.subject} question in the topic ${filter.topicLabel} formally in exam style.',
         options: const [
           'Open with NOVA',
           'Show official-style solution',
@@ -281,7 +310,8 @@ class PracticeGenerator {
       topicLabel: filter.topicLabel,
       mode: filter.mode,
       difficulty: filter.difficulty,
-      prompt: 'Compute 3 * $x + 1.',
+      prompt:
+          'Fallback question for ${filter.subject} • ${filter.topicLabel}: compute 3 * $x + 1.',
       options: ['$y', '${y + 1}', '${y - 1}', '${x + 1}'],
       correctIndex: 0,
       explanation: '3 * $x + 1 = $y.',
