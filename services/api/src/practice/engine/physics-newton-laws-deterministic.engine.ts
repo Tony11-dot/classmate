@@ -9,20 +9,17 @@ import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class PhysicsNewtonLawsDeterministicEngine implements PracticeEngine {
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
-    const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`
-      .toLowerCase()
-      .trim();
+    const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
 
     return (
       s === 'physics' &&
       (
         t.includes('newton') ||
-        t.includes('second law') ||
-        t.includes('f = ma') ||
-        t.includes('force, mass, acceleration') ||
-        t.includes('force mass acceleration')
+        t.includes('f=ma') ||
+        (t.includes('force') && t.includes('mass') && t.includes('acceleration'))
       )
     );
   }

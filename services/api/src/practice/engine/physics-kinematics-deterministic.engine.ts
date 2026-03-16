@@ -9,22 +9,34 @@ import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class PhysicsKinematicsDeterministicEngine implements PracticeEngine {
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
-    const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`
-      .toLowerCase()
-      .trim();
+    const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
 
     return (
       s === 'physics' &&
       (
         t.includes('kinematics') ||
-        t.includes('speed') ||
-        t.includes('velocity') ||
-        t.includes('acceleration') ||
         t.includes('distance-time') ||
-        t.includes('motion')
-      )
+        t.includes('velocity') ||
+        t.includes('average velocity') ||
+        t.includes('average speed') ||
+        t.includes('acceleration')
+      ) &&
+      !t.includes('newton') &&
+      !t.includes('force') &&
+      !t.includes('forces') &&
+      !t.includes('friction') &&
+      !t.includes('energy') &&
+      !t.includes('work') &&
+      !t.includes('momentum') &&
+      !t.includes('impulse') &&
+      !t.includes('electric') &&
+      !t.includes('circuit') &&
+      !t.includes('wave') &&
+      !t.includes('optics') &&
+      !t.includes('thermo')
     );
   }
 

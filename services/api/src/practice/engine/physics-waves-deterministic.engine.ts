@@ -9,10 +9,22 @@ import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class PhysicsWavesDeterministicEngine implements PracticeEngine {
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
-    return s === 'physics' && (t.includes('waves') || t.includes('wavelength') || t.includes('frequency'));
+
+    return (
+      s === 'physics' &&
+      (
+        t.includes('waves') ||
+        t.includes('wave speed') ||
+        t.includes('wavelength') ||
+        t.includes('frequency') ||
+        t.includes('period') ||
+        t.includes('amplitude')
+      )
+    );
   }
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
