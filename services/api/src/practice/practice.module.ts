@@ -46,6 +46,12 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
     PhysicsForcesDeterministicEngine,
     PhysicsEnergyDeterministicEngine,
     PhysicsMomentumDeterministicEngine,
+    PhysicsElectricityDeterministicEngine,
+    PhysicsElectricFieldDeterministicEngine,
+    PhysicsCircuitsDeterministicEngine,
+    PhysicsWavesDeterministicEngine,
+    PhysicsOpticsDeterministicEngine,
+    PhysicsThermodynamicsDeterministicEngine,
   ],
 })
 export class PracticeModule {}
