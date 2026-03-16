@@ -144,7 +144,7 @@ export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
   }
 
   private makeHard(i: number, overrideSeconds: number | null): GQ {
-    const mode = i % 3;
+    const mode = i % 5;
 
     if (mode === 0) {
       const m = this.pick(i, [2, 3, 4]);
@@ -158,8 +158,8 @@ export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
         distractors: [
           `${m * v} kg·m/s`,
           `${m * u} kg·m/s`,
-          `${dp + 2} kg·m/s`,
-          `${Math.max(1, dp - 2)} kg·m/s`,
+          `${dp + m} kg·m/s`,
+          `${Math.max(1, dp - m)} kg·m/s`,
         ],
         explanation: `Change in momentum = m(v - u) = ${m}×(${v} - ${u}) = ${dp} kg·m/s.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
@@ -180,7 +180,7 @@ export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
           `${f * t} m/s`,
           `${this.num((f * t) / (m * 2))} m/s`,
           `${this.num(dv + 2)} m/s`,
-          `${this.num(Math.max(1, dv - 1))} m/s`,
+          `${this.num(Math.max(0.5, dv - 1.5))} m/s`,
         ],
         explanation: `Impulse Ft equals change in momentum mΔv. So Δv = Ft/m = (${f}×${t})/${m} = ${this.num(dv)} m/s.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
@@ -188,22 +188,63 @@ export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
       });
     }
 
-    const m1 = this.pick(i, [1, 2, 3]);
-    const u1 = this.pick(i + 1, [6, 8, 10]);
-    const m2 = this.pick(i + 2, [1, 2, 3]);
-    const u2 = 0;
-    const v = (m1 * u1 + m2 * u2) / (m1 + m2);
+    if (mode === 2) {
+      const m1 = this.pick(i, [1, 2, 3]);
+      const u1 = this.pick(i + 1, [6, 8, 10]);
+      const m2 = this.pick(i + 2, [1, 2, 4]);
+      const v = (m1 * u1) / (m1 + m2);
+
+      return this.finish({
+        prompt: `A ${m1} kg cart moving at ${u1} m/s sticks to a ${m2} kg cart at rest. What is their common speed after collision?`,
+        answer: `${this.num(v)} m/s`,
+        distractors: [
+          `${u1} m/s`,
+          `${this.num((m1 * u1) / m2)} m/s`,
+          `${this.num(v + 2)} m/s`,
+          `${this.num(Math.max(0.5, v - 1))} m/s`,
+        ],
+        explanation: `Conservation of momentum gives v = (m₁u₁ + m₂u₂)/(m₁ + m₂) = (${m1}×${u1} + ${m2}×0)/${m1 + m2} = ${this.num(v)} m/s.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 3) {
+      const m = this.pick(i, [0.2, 0.5, 1]);
+      const u = this.pick(i + 1, [10, 12, 15]);
+      const v = -this.pick(i + 2, [4, 5, 6]);
+      const j = m * Math.abs(v - u);
+
+      return this.finish({
+        prompt: `A ball of mass ${this.num(m)} kg moves toward a wall at ${u} m/s and rebounds at ${Math.abs(v)} m/s. What is the magnitude of the impulse on the ball?`,
+        answer: `${this.num(j)} Ns`,
+        distractors: [
+          `${this.num(m * u)} Ns`,
+          `${this.num(m * Math.abs(v))} Ns`,
+          `${this.num(j + 1)} Ns`,
+          `${this.num(Math.max(0.1, j - 0.8))} Ns`,
+        ],
+        explanation: `Impulse magnitude equals change in momentum magnitude: J = m|v - u| = ${this.num(m)}×|${v} - ${u}| = ${this.num(j)} Ns.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const m1 = this.pick(i, [10, 12, 15]);
+    const m2 = this.pick(i + 1, [20, 18, 25]);
+    const u1 = this.pick(i + 2, [6, 8, 10]);
+    const v1 = ((m1 - m2) / (m1 + m2)) * u1;
 
     return this.finish({
-      prompt: `A ${m1} kg cart moving at ${u1} m/s sticks to a ${m2} kg cart at rest. What is their common speed after collision?`,
-      answer: `${this.num(v)} m/s`,
+      prompt: `A ${m1} kg object moving at ${u1} m/s collides elastically with a stationary ${m2} kg object. What is the velocity of the first object after the collision?`,
+      answer: `${this.num(v1)} m/s`,
       distractors: [
         `${u1} m/s`,
-        `${this.num((m1 * u1) / m2)} m/s`,
-        `${this.num(v + 2)} m/s`,
-        `${this.num(Math.max(1, v - 1))} m/s`,
+        `${this.num(-u1)} m/s`,
+        `${this.num(v1 + 2)} m/s`,
+        `${this.num(v1 - 2)} m/s`,
       ],
-      explanation: `Conservation of momentum gives (m₁u₁ + m₂u₂) / (m₁ + m₂) = (${m1}×${u1} + ${m2}×0) / ${m1 + m2} = ${this.num(v)} m/s.`,
+      explanation: `For a 1D elastic collision with the second mass initially at rest, v₁ = ((m₁-m₂)/(m₁+m₂))u₁ = ((${m1}-${m2})/${m1 + m2})×${u1} = ${this.num(v1)} m/s.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });

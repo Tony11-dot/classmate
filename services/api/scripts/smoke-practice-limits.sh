@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:3000}"
+BASE_URL="${BASE_URL:-http://127.0.0.1:3001}"
 TOKEN="${TOKEN:-dev-token-student1@classmate.app}"
 
 BASE_URL="${BASE_URL%/}"

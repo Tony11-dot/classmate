@@ -12,12 +12,30 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
+
     return (
       s === 'physics' &&
       (
         t.includes('electricity') ||
-        (t.includes('electric') && !t.includes('field') && !t.includes('circuit'))
-      )
+        t.includes('current') ||
+        t.includes('voltage') ||
+        t.includes('charge') ||
+        t.includes('power')
+      ) &&
+      !t.includes('electric field') &&
+      !t.includes('field strength') &&
+      !t.includes('circuits') &&
+      !t.includes('circuit') &&
+      !t.includes('resistance') &&
+      !t.includes('ohm') &&
+      !t.includes('waves') &&
+      !t.includes('optics') &&
+      !t.includes('thermo') &&
+      !t.includes('energy') &&
+      !t.includes('momentum') &&
+      !t.includes('kinematics') &&
+      !t.includes('newton') &&
+      !t.includes('force')
     );
   }
 
@@ -25,7 +43,7 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
     const out: GeneratedQuestion[] = [];
     const seen = new Set<string>();
 
-    for (let i = 0; out.length < req.questionCount && i < req.questionCount * 10; i++) {
+    for (let i = 0; out.length < req.questionCount && i < req.questionCount * 12; i++) {
       const q = this.makeQuestion(i, req.difficulty, req.timePreferenceSeconds);
       const key = `${q.prompt}__${q.correctAnswerText}`;
       if (seen.has(key)) continue;
@@ -53,100 +71,219 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
   }
 
   private makeEasy(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const q = this.pick(i, [2, 3, 4, 5, 6]);
-    const answer = `${q} C`;
+    const mode = i % 3;
+
+    if (mode === 0) {
+      return this.finish({
+        prompt: `What is the SI unit of electric current?`,
+        answer: `Ampere`,
+        distractors: [`Volt`, `Ohm`, `Coulomb`],
+        explanation: `Electric current is measured in amperes (A).`,
+        recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 1) {
+      const q = this.pick(i, [2, 3, 5]);
+      const t = this.pick(i + 1, [2, 4, 6]);
+      const charge = q * t;
+      return this.finish({
+        prompt: `A current of ${q} A flows for ${t} s. How much charge passes a point in the circuit?`,
+        answer: `${charge} C`,
+        distractors: [`${q + t} C`, `${q} C`, `${t} C`],
+        explanation: `Charge Q = It = ${q}×${t} = ${charge} C.`,
+        recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const v = this.pick(i, [6, 12, 24]);
+    const iamp = this.pick(i + 1, [1, 2, 3]);
+    const p = v * iamp;
     return this.finish({
-      prompt: `How much electric charge passes a point when a current of ${q} A flows for 1 second?`,
-      answer,
-      distractors: [`${q + 1} C`, `${q - 1} C`, `${q * 2} C`],
-      explanation: `Charge = current × time = ${q} × 1 = ${q} C.`,
+      prompt: `A device operates at ${v} V and draws ${iamp} A. What is its electrical power?`,
+      answer: `${p} W`,
+      distractors: [`${v + iamp} W`, `${v} W`, `${iamp} W`],
+      explanation: `Power P = VI = ${v}×${iamp} = ${p} W.`,
       recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
       seed: i,
     });
   }
 
   private makeMedium(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    if (i % 2 === 0) {
-      const iAmp = this.pick(i, [2, 3, 4, 5]);
-      const tSec = this.pick(i + 1, [3, 4, 5, 6]);
-      const q = iAmp * tSec;
+    const mode = i % 4;
+
+    if (mode === 0) {
+      const v = this.pick(i, [12, 18, 24]);
+      const r = this.pick(i + 1, [3, 4, 6]);
+      const current = v / r;
 
       return this.finish({
-        prompt: `A current of ${iAmp} A flows for ${tSec} s. How much charge passes through the wire?`,
-        answer: `${q} C`,
-        distractors: [`${iAmp + tSec} C`, `${q + iAmp} C`, `${tSec} C`],
-        explanation: `Charge Q = I×t = ${iAmp}×${tSec} = ${q} C.`,
+        prompt: `A circuit has a voltage of ${v} V and a resistance of ${r} Ω. What is the current?`,
+        answer: `${this.num(current)} A`,
+        distractors: [
+          `${v * r} A`,
+          `${this.num(r / v)} A`,
+          `${r} A`,
+        ],
+        explanation: `Using Ohm's law, I = V/R = ${v}/${r} = ${this.num(current)} A.`,
         recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
         seed: i,
       });
     }
 
-    const v = this.pick(i, [6, 9, 12, 15]);
-    const q = this.pick(i + 1, [2, 3, 4, 5]);
-    const w = v * q;
+    if (mode === 1) {
+      const iamp = this.pick(i, [2, 3, 4]);
+      const r = this.pick(i + 1, [5, 6, 8]);
+      const v = iamp * r;
+
+      return this.finish({
+        prompt: `A current of ${iamp} A flows through a resistor of ${r} Ω. What is the voltage across it?`,
+        answer: `${v} V`,
+        distractors: [
+          `${iamp + r} V`,
+          `${this.num(iamp / r)} V`,
+          `${r} V`,
+        ],
+        explanation: `Voltage V = IR = ${iamp}×${r} = ${v} V.`,
+        recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 2) {
+      const q = this.pick(i, [4, 6, 10]);
+      const t = this.pick(i + 1, [2, 5, 10]);
+      const iamp = q / t;
+
+      return this.finish({
+        prompt: `${q} C of charge passes through a conductor in ${t} s. What is the current?`,
+        answer: `${this.num(iamp)} A`,
+        distractors: [
+          `${q * t} A`,
+          `${q} A`,
+          `${t} A`,
+        ],
+        explanation: `Current I = Q/t = ${q}/${t} = ${this.num(iamp)} A.`,
+        recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const v = this.pick(i, [10, 20, 30]);
+    const iamp = this.pick(i + 1, [2, 3, 5]);
+    const p = v * iamp;
 
     return this.finish({
-      prompt: `A charge of ${q} C moves through a potential difference of ${v} V. How much electrical work is done?`,
-      answer: `${w} J`,
-      distractors: [`${v + q} J`, `${v} J`, `${w + q} J`],
-      explanation: `Electrical work = V×Q = ${v}×${q} = ${w} J.`,
+      prompt: `A device runs on ${v} V and draws ${iamp} A. What power does it use?`,
+      answer: `${p} W`,
+      distractors: [
+        `${v + iamp} W`,
+        `${v / iamp} W`,
+        `${iamp} W`,
+      ],
+      explanation: `Power P = VI = ${v}×${iamp} = ${p} W.`,
       recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
       seed: i,
     });
   }
 
   private makeHard(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    if (i % 2 === 0) {
-      const p = this.pick(i, [24, 36, 48, 60]);
-      const v = this.pick(i + 1, [6, 12]);
-      const current = p / v;
+    const mode = i % 4;
+
+    if (mode === 0) {
+      const v = this.pick(i, [12, 18, 24]);
+      const p = this.pick(i + 1, [24, 36, 48]);
+      const iamp = p / v;
 
       return this.finish({
-        prompt: `A device uses ${p} W when connected to a ${v} V source. What current does it draw?`,
-        answer: `${this.num(current)} A`,
+        prompt: `A device uses ${p} W of power on a ${v} V supply. What current does it draw?`,
+        answer: `${this.num(iamp)} A`,
         distractors: [
-          `${this.num(current + 1)} A`,
-          `${this.num(v / (current || 1))} A`,
-          `${this.num(p / 2)} A`,
+          `${p * v} A`,
+          `${this.num(v / p)} A`,
+          `${this.num(iamp + 1)} A`,
         ],
-        explanation: `Power P = VI, so I = P/V = ${p}/${v} = ${this.num(current)} A.`,
+        explanation: `Using P = VI, current I = P/V = ${p}/${v} = ${this.num(iamp)} A.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
         seed: i,
       });
     }
 
-    const q = this.pick(i, [12, 18, 24, 30]);
-    const t = this.pick(i + 1, [3, 4, 5, 6]);
-    const iAmp = q / t;
+    if (mode === 1) {
+      const q = this.pick(i, [120, 180, 240]);
+      const iamp = this.pick(i + 1, [2, 3, 4]);
+      const t = q / iamp;
+
+      return this.finish({
+        prompt: `How long does it take a current of ${iamp} A to transfer ${q} C of charge?`,
+        answer: `${this.num(t)} s`,
+        distractors: [
+          `${q * iamp} s`,
+          `${this.num(iamp / q)} s`,
+          `${q} s`,
+        ],
+        explanation: `Q = It, so t = Q/I = ${q}/${iamp} = ${this.num(t)} s.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 2) {
+      const v = this.pick(i, [6, 12, 24]);
+      const iamp = this.pick(i + 1, [2, 4, 5]);
+      const e = this.pick(i + 2, [60, 120, 240]);
+      const t = e / (v * iamp);
+
+      return this.finish({
+        prompt: `A device connected to ${v} V draws ${iamp} A. How long will it take to transfer ${e} J of electrical energy?`,
+        answer: `${this.num(t)} s`,
+        distractors: [
+          `${v * iamp * e} s`,
+          `${this.num((v * iamp) / e)} s`,
+          `${e} s`,
+        ],
+        explanation: `Power P = VI = ${v * iamp} W, and E = Pt. So t = E/P = ${e}/${v * iamp} = ${this.num(t)} s.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const v = this.pick(i, [12, 15, 20]);
+    const r = this.pick(i + 1, [3, 5, 10]);
+    const p = (v * v) / r;
 
     return this.finish({
-      prompt: `If ${q} C of charge pass through a conductor in ${t} s, what is the current?`,
-      answer: `${this.num(iAmp)} A`,
+      prompt: `A resistor of ${r} Ω is connected across a ${v} V source. How much power does it dissipate?`,
+      answer: `${this.num(p)} W`,
       distractors: [
-        `${this.num(iAmp + 1)} A`,
-        `${q} A`,
-        `${this.num(t / iAmp)} A`,
+        `${v * r} W`,
+        `${this.num(v / r)} W`,
+        `${r} W`,
       ],
-      explanation: `Current I = Q/t = ${q}/${t} = ${this.num(iAmp)} A.`,
+      explanation: `Power can be found by P = V²/R = ${v * v}/${r} = ${this.num(p)} W.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });
   }
 
   private makeOlympiad(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const p = this.pick(i, [18, 24, 30, 36]);
-    const iAmp = this.pick(i + 1, [2, 3, 4, 5]);
-    const v = p / iAmp;
+    const v = this.pick(i, [12, 18, 24]);
+    const p = this.pick(i + 1, [24, 54, 96]);
+    const t = this.pick(i + 2, [5, 10, 20]);
+    const iamp = p / v;
+    const q = iamp * t;
 
     return this.finish({
-      prompt: `A circuit transfers energy at a rate of ${p} W while carrying a current of ${iAmp} A. What is the potential difference across it?`,
-      answer: `${this.num(v)} V`,
+      prompt: `A device operates at ${v} V and ${p} W for ${t} s. How much charge passes through it during that time?`,
+      answer: `${this.num(q)} C`,
       distractors: [
-        `${this.num(v + 2)} V`,
-        `${this.num(p + iAmp)} V`,
-        `${this.num(iAmp)} V`,
+        `${p * t} C`,
+        `${this.num(v * t)} C`,
+        `${this.num(q + 10)} C`,
       ],
-      explanation: `Using P = VI, the voltage is V = P/I = ${p}/${iAmp} = ${this.num(v)} V.`,
+      explanation: `First find current: I = P/V = ${p}/${v} = ${this.num(iamp)} A. Then charge Q = It = ${this.num(iamp)}×${t} = ${this.num(q)} C.`,
       recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
       seed: i,
     });
@@ -160,14 +297,8 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
     recommendedTimeSeconds: number;
     seed: number;
   }): GeneratedQuestion {
-    const raw = [args.answer, ...args.distractors];
-    const options = uniqueFirst(raw, 4);
-
-    while (options.length < 4) {
-      options.push(`${args.answer}_${options.length + args.seed}`);
-    }
-
-    const rotated = rotateBySeed(options.slice(0, 4), args.seed);
+    const options = uniqueFirst([args.answer, ...args.distractors]).slice(0, 4);
+    const rotated = rotateBySeed(options, args.seed);
 
     return {
       prompt: args.prompt,
