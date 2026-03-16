@@ -168,24 +168,69 @@ export class StatisticsDeterministicEngine implements PracticeEngine {
   }
 
   private makeOlympiad(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const a = this.pick(i, [4, 6, 8, 10]);
-    const b = this.pick(i + 1, [8, 10, 12, 14]);
-    const c = this.pick(i + 2, [12, 14, 16, 18]);
-    const d = this.pick(i + 3, [16, 18, 20, 22]);
-    const e = this.pick(i + 4, [20, 22, 24, 26]);
-    const nums = [a, b, c, d, e];
-    const answer = (a + b + c + d + e) / 5;
+    const mode = i % 3;
+
+    if (mode === 0) {
+      const a = this.pick(i, [8, 10, 12, 14, 16]);
+      const b = this.pick(i + 1, [18, 20, 22, 24, 26]);
+      const mean = (a + b) / 2;
+
+      return this.finish({
+        prompt: `The mean of two numbers is ${mean}. One number is ${a}. What is the other number?`,
+        answer: this.num(b),
+        distractors: [
+          this.num(mean),
+          this.num(b - 2),
+          this.num(a + mean),
+          this.num(b + 2),
+        ],
+        explanation: `If the mean of two numbers is ${mean}, then their sum is ${this.num(mean * 2)}. So the missing number is ${this.num(mean * 2)} - ${a} = ${b}.`,
+        recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 1) {
+      const data = this.pick(i, [
+        [3, 5, 7, 9, 11, 13],
+        [4, 6, 8, 10, 12, 14],
+        [2, 4, 6, 8, 10, 12],
+        [5, 7, 9, 11, 13, 15],
+      ])
+      const x = data[2]
+      const median = (data[2] + data[3]) / 2
+
+      return this.finish({
+        prompt: `One value is removed from the ordered data set ${data.join(', ')}. The median of the remaining five numbers is ${x}. Which value was removed?`,
+        answer: this.num(data[5]),
+        distractors: [
+          this.num(data[0]),
+          this.num(data[1]),
+          this.num(data[3]),
+          this.num(median),
+        ],
+        explanation: `Removing ${data[5]} leaves ${data.slice(0,5).join(', ')}. The median of five ordered numbers is the middle value, which is ${x}.`,
+        recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const base = this.pick(i, [6, 8, 10, 12]);
+    const mean = this.pick(i + 1, [14, 16, 18, 20]);
+    const count = this.pick(i + 2, [4, 5, 6]);
+    const total = mean * count
+    const last = total - base * (count - 1)
 
     return this.finish({
-      prompt: `Find the mean of the data set: ${nums.join(', ')}`,
-      answer: String(answer),
+      prompt: `A data set has ${count} numbers. ${count - 1} of them are ${base}, and the mean of the full data set is ${mean}. What is the remaining number?`,
+      answer: this.num(last),
       distractors: [
-        String(c),
-        String((b + d) / 2),
-        String(answer + this.pick(i + 5, [1, -1, 2])),
-        String(a + e),
+        this.num(total - base),
+        this.num(mean),
+        this.num(last - base),
+        this.num(last + base),
       ],
-      explanation: `Mean = (${nums.join(' + ')}) / 5 = ${a + b + c + d + e} / 5 = ${answer}.`,
+      explanation: `Total sum = mean × count = ${mean} × ${count} = ${total}. The known ${count - 1} numbers sum to ${base * (count - 1)}, so the remaining number is ${total} - ${base * (count - 1)} = ${last}.`,
       recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
       seed: i,
     });
@@ -217,6 +262,10 @@ export class StatisticsDeterministicEngine implements PracticeEngine {
       recommendedTimeSeconds: args.recommendedTimeSeconds,
       topicMatchNote: 'Statistics',
     };
+  }
+
+  private num(n: number): string {
+    return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(2)));
   }
 
   private timeFor(
