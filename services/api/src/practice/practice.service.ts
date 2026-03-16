@@ -115,6 +115,10 @@ export class PracticeService {
 
     const firstValid = this.validateQuestionSet(first, questionCount);
 
+    console.log(
+      `[practice.generate] first_pass valid=${firstValid.length}/${questionCount}`,
+    );
+
     const finalQuestions =
       firstValid.length == questionCount
         ? firstValid
@@ -124,10 +128,14 @@ export class PracticeService {
               requestPayload,
               questionCount,
               repairNote:
-                'Your previous output had drift and/or invalid answer alignment. Regenerate from scratch. Obey the requested subject/topic exactly. correctAnswerText must exactly equal options[correctIndex]. Double-check every explanation before returning.',
+                'Your previous output had drift and/or invalid answer alignment. Regenerate from scratch. Obey the requested subject/topic exactly. correctAnswerText must exactly equal options[correctIndex]. Double-check every explanation before returning. Every question must be unique. If any item is uncertain, replace it with a fresh valid item.',
             }),
             questionCount,
           );
+
+    console.log(
+      `[practice.generate] final_pass valid=${finalQuestions.length}/${questionCount}`,
+    );
 
     if (finalQuestions.length != questionCount) {
       throw new InternalServerErrorException(
@@ -300,28 +308,37 @@ export class PracticeService {
     expectedCount: number,
   ): RawGeneratedQuestion[] {
     const out: RawGeneratedQuestion[] = [];
+    const seen = new Set<string>();
 
     for (const raw of questions) {
       if (!this.isValidQuestion(raw)) continue;
+
+      const fp = this.questionFingerprint(raw);
+      if (seen.has(fp)) continue;
+      seen.add(fp);
+
       out.push(raw);
     }
 
-    if (out.length === expectedCount) {
-      return out;
-    }
-
-    // graceful repair: keep valid questions and duplicate if needed
-    if (out.length > 0) {
-      while (out.length < expectedCount) {
-        out.push(out[out.length % out.length]);
-      }
-      return out.slice(0, expectedCount);
-    }
-
-    return [];
+    return out.length === expectedCount ? out : [];
   }
 
   
+  private questionFingerprint(raw: RawGeneratedQuestion) {
+    const prompt = String(raw.prompt ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    const options = Array.isArray(raw.options)
+      ? raw.options
+          .map((x: any) => String(x ?? '').trim().toLowerCase().replace(/\s+/g, ' '))
+          .join('||')
+      : '';
+
+    return `${prompt}##${options}`;
+  }
+
   private shuffleOptions(options: string[], correctIndex: number) {
     const correctValue = options[correctIndex];
     const arr = options.map((v) => v);
@@ -352,8 +369,13 @@ export class PracticeService {
     const recommendedTimeSeconds = Number(raw.recommendedTimeSeconds ?? 0);
 
     if (!prompt || !explanation || !topicMatchNote) return false;
-    if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3)
+    if (prompt.length < 12) return false;
+    if (explanation.length < 18) return false;
+
+    if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3) {
       return false;
+    }
+
     if (
       !Number.isInteger(recommendedTimeSeconds) ||
       recommendedTimeSeconds < 5 ||
@@ -364,8 +386,9 @@ export class PracticeService {
 
     if (!Array.isArray(raw.options) || raw.options.length !== 4) return false;
 
-    
     const explanationLower = explanation.toLowerCase();
+    const promptLower = prompt.toLowerCase();
+    const noteLower = topicMatchNote.toLowerCase();
 
     if (
       explanationLower.includes('correction needed') ||
@@ -378,7 +401,15 @@ export class PracticeService {
       explanationLower.includes('this contradicts options') ||
       explanationLower.includes('correct option is') ||
       explanationLower.includes('should be') ||
-      explanationLower.includes('wait:')
+      explanationLower.includes('wait:') ||
+      explanationLower.includes('to align with problem') ||
+      explanationLower.includes('to match options') ||
+      explanationLower.includes('options mismatch') ||
+      explanationLower.includes('accept as final') ||
+      explanationLower.includes('for coherence') ||
+      explanationLower.includes('closest is') ||
+      explanationLower.includes('likely') ||
+      explanationLower.includes('maybe')
     ) {
       return false;
     }
@@ -386,7 +417,13 @@ export class PracticeService {
     const options = raw.options.map((x: any) => String(x ?? '').trim());
     if (options.some((x: string) => !x)) return false;
 
+    const normalizedOptions = options.map((x) => x.toLowerCase().replace(/\s+/g, ' '));
+    if (new Set(normalizedOptions).size !== 4) return false;
+
     if (options[correctIndex] !== correctAnswerText) return false;
+
+    if (noteLower.length < 2) return false;
+    if (promptLower === explanationLower) return false;
 
     return true;
   }
