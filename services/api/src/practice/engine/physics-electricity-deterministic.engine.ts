@@ -309,7 +309,7 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
     const options = uniqueFirst(raw, 4);
 
     while (options.length < 4) {
-      options.push(`${args.answer}_${options.length + args.seed}`);
+      options.push(`__BAD_DUP___`);
     }
 
     const rotated = rotateBySeed(options.slice(0, 4), args.seed);
