@@ -1,0 +1,320 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/practice_prompt_builder.dart';
+
+import '../domain/practice_models.dart';
+import '../domain/practice_mode_behavior.dart';
+import 'practice_mode_specs.dart';
+import '../providers/practice_providers.dart';
+import '../domain/timing_mode.dart';
+import 'practice_session_screen.dart';
+import 'practice_history_screen.dart';
+import 'practice_analytics_debug_screen.dart';
+
+const Map<String, List<List<String>>> practiceSubjectCatalog = {
+  'Math': [
+    ['Algebra'],
+    ['Algebra', 'Linear equations'],
+    ['Algebra', 'Quadratic equations'],
+    ['Algebra', 'Functions'],
+    ['Geometry'],
+    ['Geometry', 'Triangles'],
+    ['Geometry', 'Circles'],
+    ['Geometry', 'Analytic geometry'],
+    ['Trigonometry'],
+    ['Probability'],
+    ['Statistics'],
+    ['Sequences'],
+    ['Calculus', 'Limits'],
+    ['Calculus', 'Derivatives'],
+  ],
+  'Physics': [
+    ['Mechanics'],
+    ['Mechanics', 'Kinematics'],
+    ['Mechanics', 'Newton laws'],
+    ['Mechanics', 'Forces'],
+    ['Mechanics', 'Energy'],
+    ['Mechanics', 'Momentum'],
+    ['Electricity'],
+    ['Electricity', 'Electric field'],
+    ['Electricity', 'Circuits'],
+    ['Waves'],
+    ['Optics'],
+    ['Thermodynamics'],
+  ],
+  'Computer Science': [
+    ['Conditions'],
+    ['Conditions', 'Boolean logic'],
+    ['Conditions', 'if / else'],
+    ['Conditions', 'Nested conditions'],
+    ['Loops'],
+    ['Functions'],
+    ['Variables'],
+    ['Arrays'],
+    ['Strings'],
+    ['Algorithms'],
+    ['Complexity'],
+    ['Recursion'],
+  ],
+  'Chemistry': [
+    ['Atoms'],
+    ['Periodic table'],
+    ['Chemical bonds'],
+    ['Reactions'],
+    ['Stoichiometry'],
+    ['Acids and bases'],
+    ['Organic chemistry'],
+  ],
+  'Biology': [
+    ['Cells'],
+    ['Genetics'],
+    ['Human body'],
+    ['Ecology'],
+    ['Evolution'],
+    ['Systems'],
+  ],
+  'English': [
+    ['Grammar'],
+    ['Reading comprehension'],
+    ['Vocabulary'],
+    ['Tenses'],
+    ['Writing'],
+  ],
+  'Arabic': [
+    ['Grammar'],
+    ['Reading comprehension'],
+    ['بلاغة'],
+    ['Vocabulary'],
+    ['Writing'],
+  ],
+  'Hebrew': [
+    ['Grammar'],
+    ['Reading comprehension'],
+    ['Vocabulary'],
+    ['Writing'],
+  ],
+};
+
+String practiceDifficultyLabel(PracticeDifficulty difficulty) {
+  switch (difficulty) {
+    case PracticeDifficulty.easy:
+      return 'Easy';
+    case PracticeDifficulty.medium:
+      return 'Medium';
+    case PracticeDifficulty.hard:
+      return 'Hard';
+    case PracticeDifficulty.olympiad:
+      return 'Olympiad';
+    case PracticeDifficulty.adaptive:
+      return 'Adaptive';
+  }
+}
+
+String _modeHelpText(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return 'Balanced mode: solve, check, explain, then keep moving.';
+    case PracticeMode.flashcards:
+      return 'Flashcards work best when you try to recall before revealing.';
+    case PracticeMode.speedRound:
+      return 'Speed Round trains fast recall. Move quickly and trust strong instincts.';
+    case PracticeMode.examPrep:
+      return 'Exam Prep is calmer and more formal, like a real school session.';
+    case PracticeMode.conceptBuilder:
+      return 'Concept Builder teaches the idea first, then asks you to apply it.';
+    case PracticeMode.adaptive:
+      return 'Adaptive mode changes the challenge level based on your performance.';
+    case PracticeMode.bagrut:
+      return 'Bagrut mode focuses on strict exam-style solving and review.';
+  }
+}
+
+class PracticeSetupScreen extends ConsumerStatefulWidget {
+  const PracticeSetupScreen({super.key});
+
+  @override
+  ConsumerState<PracticeSetupScreen> createState() =>
+      _PracticeSetupScreenState();
+}
+
+class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
+  TimingMode _timingMode = TimingMode.ai;
+  TimingScope _timingScope = TimingScope.perQuestion;
+  int _customPerQuestionSeconds = 45;
+  int _customExamMinutes = 20;
+
+  int _modeGridCount(BuildContext context) {
+    return 2;
+  }
+
+  double _modeChildAspectRatio(BuildContext context) {
+    return 1.08;
+  }
+
+  Future<void> _showModeInfoSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final cs = theme.colorScheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'How each mode works',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: PracticeMode.values.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final mode = PracticeMode.values[index];
+                      final accent = practiceModeColor(mode);
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Color.alphaBlend(
+                            accent.withValues(alpha: 0.08),
+                            cs.surface,
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: accent.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: Theme(
+                          data: theme.copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 4,
+                            ),
+                            childrenPadding: const EdgeInsets.fromLTRB(
+                              14,
+                              0,
+                              14,
+                              14,
+                            ),
+                            leading: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                practiceModeIcon(mode),
+                                color: accent,
+                              ),
+                            ),
+                            title: Text(
+                              practiceModeLabel(mode),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            subtitle: Text(
+                              practiceModeSubtitle(mode),
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: accent,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  _modeHelpText(mode),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filter = ref.watch(practiceFilterProvider);
+    final behavior = behaviorForMode(filter.mode);
+
+    final filterCtl = ref.read(practiceFilterProvider.notifier);
+    final sessionCtl = ref.read(practiceSessionProvider.notifier);
+    final loading = ref.watch(practiceSessionLoadingProvider);
+    final cs = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+
+    final subjectOptions = practiceSubjectCatalog.keys.toList(growable: true);
+    if (!subjectOptions.contains('General Knowledge')) {
+      subjectOptions.add('General Knowledge');
+    }
+    final topicOptions =
+        practiceSubjectCatalog[filter.subject] ??
+        const <List<String>>[
+          ['General'],
+        ];
+
+    final selectedTopicPath =
+        topicOptions.any((x) => _samePath(x, filter.topicPath))
+        ? filter.topicPath
+        : topicOptions.first;
+
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          children: [
+            _HeroCard(
+              title: 'Start a session',
+              subtitle: 'Choose a mode, timing, and difficulty.',
+              accent: cs.primary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      _MiniPill(label: filter.subject),
+                      _MiniPill(label: filter.topicLabel),
+                      _MiniPill(label: practiceModeLabel(filter.mode)),
+                      _MiniPill(

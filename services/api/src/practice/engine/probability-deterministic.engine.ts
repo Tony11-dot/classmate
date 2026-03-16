@@ -166,17 +166,13 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
       `${reduced.n + 2}/${reduced.d + 2}`,
     ];
 
-    const out: string[] = [];
-    for (const item of raw) {
-      if (!out.includes(item)) out.push(item);
-      if (out.length === 4) break;
-    }
+    const out = uniqueFirst(raw, 4);
 
     while (out.length < 4) {
       out.push(`${reduced.n + out.length + seed + 1}/${reduced.d + out.length + 2}`);
     }
 
-    return this.rotate(out.slice(0, 4), seed);
+    return rotateBySeed(out.slice(0, 4), seed);
   }
 
   private timeFor(

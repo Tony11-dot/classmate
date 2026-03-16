@@ -1,0 +1,400 @@
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-practicequestion.1773159359.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-practicequestion.1773159359.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-practicequestion.1773159359.bak:346:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-practicequestion.1773159359.bak:348:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-practicequestion.1773159359.bak:386:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_history_screen.dart:194:          '${session.subject} • ${session.topicLabel}',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:644:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.preview-dedupe.1773153382.bak:703:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:676:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-dup-settings.1773153089.bak:735:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.warn-clean.1773160440.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.warn-clean.1773160440.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.warn-clean.1773160440.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.warn-clean.1773160440.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.warn-clean.1773160440.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:10:    'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:11:    'Linear equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:12:    'Quadratics',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:13:    'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:14:    'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:15:    'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:30:    'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:100:    final selectedTopic = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:102:        : filter.topicPath.last;
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:162:                        topicPath: [nextTopics.first],
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak:180:                      filterCtl.patch(topicPath: [topic]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.clean-warnings.1773161978.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.listen_fix.1773081909.bak:51:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.listen_fix.1773081909.bak:127:                    gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.listen_fix.1773081909.bak:147:                          _MetaPill(text: q.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.listen_fix.1773081909.bak:403:        LinearProgressIndicator(value: value),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:139:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:176:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:195:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:270:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:358:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:380:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:382:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-join-newline.1773151022.bak:403:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.cleanup.1773161081.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.cleanup.1773161081.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.cleanup.1773161081.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.cleanup.1773161081.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.cleanup.1773161081.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.warn-clean.1773160440.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-warn-fix.1773162172.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-warn-fix.1773162172.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-warn-fix.1773162172.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-warn-fix.1773162172.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-warn-fix.1773162172.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrut-nova-fix.1773146500.bak:89:      '&title=${Uri.encodeComponent(q.topicLabel)}'
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrut-nova-fix.1773146500.bak:121:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrut-nova-fix.1773146500.bak:233:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrut-nova-fix.1773146500.bak:254:                    _MiniPill(label: state.filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrut-nova-fix.1773146500.bak:277:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:43:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:63:          initialTitle: q?.topicLabel?.toString() ?? 'Practice explain',
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:89:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:180:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:202:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:204:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_practice_drawer.1773136846.bak:220:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:303:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:675:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.exact-bagrut-fix.1773145465.bak:734:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix2.1773082053.bak:51:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix2.1773082053.bak:127:                    gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix2.1773082053.bak:147:                          _MetaPill(text: q.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix2.1773082053.bak:403:        LinearProgressIndicator(value: value),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.notifier_fix.1773082532.bak:51:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.notifier_fix.1773082532.bak:127:                    gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.notifier_fix.1773082532.bak:147:                          _MetaPill(text: q.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.notifier_fix.1773082532.bak:399:        LinearProgressIndicator(value: value),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:303:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:675:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-bagrut-fix.1773145584.bak:734:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-switches.1773162438.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-switches.1773162438.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-switches.1773162438.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-switches.1773162438.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-switches.1773162438.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:88:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:89:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:90:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:91:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:92:          'Linear equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:93:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:96:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:143:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:219:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:291:                        filterCtl.patch(subject: subject, topicPath: nextTopic);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:374:                            filterCtl.patch(topicPath: [suggestion]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:412:                        topicPath: clean.isEmpty ? const ['General'] : [clean],
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:424:                      for (final part in filter.topicPath)
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:503:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.saved.1773141668.bak:559:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:85:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:107:      '&title=${Uri.encodeComponent(q.topicLabel)}'
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:136:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:248:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:269:                    _MiniPill(label: state.filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.lives.1773143576.bak:292:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/modes/mode_common.dart:62:  String get topicText => state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/modes/mode_common.dart:64:      : state.filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/modes/mode_common.dart:222:              child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/modes/mode_common.dart:323:              d.state.filter.topicLabel,
+apps/classmate_mobile/lib/features/practice/ui/modes/adaptive_mode_view.dart:29:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773161081.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/saved_questions_screen.dart.stabilize.1773158975.bak:24:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/saved_questions_screen.dart.stabilize.1773158975.bak:100:                          _Pill(label: q.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:106:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:107:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:108:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:109:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:110:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:111:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:161:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:210:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:218:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:258:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:260:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:306:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:675:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-switches.1773162438.bak:734:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:43:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:63:          initialTitle: (q?.topicLabel ?? 'Practice explain').toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:89:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:180:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:202:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:204:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pre_auth_fix.1773137254.bak:220:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass30.1773094113.bak:77:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass30.1773094113.bak:156:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass30.1773094113.bak:178:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass30.1773094113.bak:180:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass30.1773094113.bak:196:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:101:        topicOptions.any((x) => _samePath(x, filter.topicPath))
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:102:        ? filter.topicPath
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:124:                      _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:170:                  filterCtl.patch(subject: value, topicPath: nextTopics.first);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:193:                  filterCtl.patch(topicPath: path);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.1773176687.bak:380:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:43:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:63:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:89:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:180:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:202:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:204:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ui_polish.1773138372.bak:220:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass8.1773083764.bak:58:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass8.1773083764.bak:157:            selectedPath: filter.topicPath,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass8.1773083764.bak:283:        return const <String>['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass5.1773083106.bak:58:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass5.1773083106.bak:105:                          .patch(subject: subject, topicPath: nextTopics);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass5.1773083106.bak:157:            selectedPath: filter.topicPath,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass5.1773083106.bak:160:              filter = filter.copyWith(topicPath: path);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass5.1773083106.bak:283:        return const <String>['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:106:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:107:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:108:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:109:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:110:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:111:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:161:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:210:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:218:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:258:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:260:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:307:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:676:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.fix-setup-switches.1773162648.bak:735:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-clean.1773161176.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-clean.1773161176.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-clean.1773161176.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-clean.1773161176.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-clean.1773161176.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-fix.1773160371.bak:131:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-fix.1773160371.bak:162:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-fix.1773160371.bak:345:                        label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-fix.1773160371.bak:347:                            : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.final-fix.1773160371.bak:385:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.cleanup.1773160264.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass27.1773093426.bak:78:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass27.1773093426.bak:157:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass27.1773093426.bak:179:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass27.1773093426.bak:181:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass27.1773093426.bak:197:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-clean.1773161176.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:43:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:63:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:89:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:180:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:202:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:204:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.pass_fix_nav.1773137376.bak:220:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:87:    final topic = state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:89:        : state.filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:140:        : ((q?.topicLabel ?? 'Practice explain').trim().isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:142:              : q!.topicLabel);
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:215:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:304:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:326:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:328:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.nova-fix.1773148328.bak:432:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:96:    _topicCtl = TextEditingController(text: filter.topicLabel);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:112:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:113:          'Linear equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:114:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:115:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:116:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:147:      topicPath: topicText.isEmpty ? const ['General'] : [topicText],
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:163:    if (_topicCtl.text != filter.topicLabel) _topicCtl.text = filter.topicLabel;
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:232:                                topicPath: [firstTopic],
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:269:                            selected: filter.topicLabel == topic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:271:                              filterCtl.patch(topicPath: [topic]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.keyboard-to-last.1773157567.bak:461:                    _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.beauty_pass2.1773088549.bak:94:                  gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.beauty_pass2.1773088549.bak:187:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.beauty_pass2.1773088549.bak:224:                    child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:140:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:169:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:244:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:332:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:354:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:356:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix-1773150015.bak:377:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:43:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:63:          initialTitle: (q.topicLabel).toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:89:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:180:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:202:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:204:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.fix_nav_auth.1773137492.bak:220:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrutnote.1773145111.bak:85:      '&title=${Uri.encodeComponent(q.topicLabel)}'
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrutnote.1773145111.bak:117:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrutnote.1773145111.bak:229:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrutnote.1773145111.bak:250:                    _MiniPill(label: state.filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.bagrutnote.1773145111.bak:273:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:102:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:103:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:104:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:105:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:106:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:107:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:157:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:208:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:216:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:256:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:258:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:304:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:673:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.final-fix.1773160371.bak:732:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:91:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:113:      '&title=${Uri.encodeComponent(q.topicLabel)}'
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:142:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:253:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:274:                    _MiniPill(label: state.filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.modepass.1773143162.bak:297:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:122:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:123:          'Geometry',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:124:          'Functions',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:125:          'Probability',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:126:          'Quadratic equations',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:127:          'Sequences',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:177:        return const ['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:226:    filterCtl.patch(subject: clean, topicPath: const ['General']);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:234:    filterCtl.patch(topicPath: clean.isEmpty ? const ['General'] : [clean]);
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:274:    final nextTopicText = filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:276:        : filter.topicPath.join(' • ');
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:323:                              topicPath: nextTopic,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:692:                  _MiniPill(label: filter.topicLabel),
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.full-rewrite.1773162868.bak:751:        gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:44:Topic: ${state.filter.topicPath.isEmpty ? 'General' : state.filter.topicPath.join(' • ')}
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:64:          initialTitle: q.topicLabel.toString(),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:130:                gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:232:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:254:                      label: state.filter.topicPath.isEmpty
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:256:                          : state.filter.topicPath.join(' • '),
+apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.arabic_custom.1773140159.bak:285:                  child: LinearProgressIndicator(
+apps/classmate_mobile/lib/features/practice/ui/practice_history_review_screen.dart:60:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_history_review_screen.dart:78:                  '${widget.session.subject} • ${widget.session.topicLabel}',
+apps/classmate_mobile/lib/features/practice/ui/practice_history_review_screen.dart:191:                            q.topicLabel,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass7.1773083400.bak:58:              gradient: LinearGradient(
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass7.1773083400.bak:157:            selectedPath: filter.topicPath,
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.pass7.1773083400.bak:283:        return const <String>['Algebra'];
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.bagrutnote.1773145111.bak:94:          'Algebra',
+apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.bagrutnote.1773145111.bak:95:          'Geometry',
