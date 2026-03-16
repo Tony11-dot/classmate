@@ -57,8 +57,9 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
   }
 
   private makeEasy(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const x = this.pick(i, [-4, -3, -2, -1, 1, 2, 3, 4, 5]);
+    const x = this.pick(i, [-4, -3, -2, -1, 1, 2, 3, 4]);
     const y = this.pick(i + 1, [-3, -2, -1, 1, 2, 3, 4, 5]);
+
     const a1 = this.pick(i + 2, [1, 2, 3]);
     const b1 = this.pick(i + 3, [1, 2, 3]);
     const a2 = this.pick(i + 4, [1, 2, 3]);
@@ -68,13 +69,12 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
     const c2 = a2 * x + b2 * y;
 
     return this.finish({
+      prompt: `Solve the system:\n${this.equation(a1, b1, c1)}\n${this.equation(a2, b2, c2)}`,
       x,
       y,
-      eq1: this.equation(a1, b1, c1),
-      eq2: this.equation(a2, b2, c2),
       explanation:
-        `Use substitution or elimination. The pair x = ${x}, y = ${y} satisfies both equations. ` +
-        `Checking confirms both left-hand sides equal the given constants.`,
+        `Use substitution or elimination. Solving the system gives x = ${x} and y = ${y}. ` +
+        `Checking the pair in both equations confirms both equalities are true.`,
       recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
       seed: i,
     });
@@ -83,6 +83,7 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
   private makeMedium(i: number, overrideSeconds: number | null): GeneratedQuestion {
     const x = this.pick(i, [-5, -4, -3, -2, -1, 1, 2, 3, 4]);
     const y = this.pick(i + 1, [-4, -3, -2, -1, 1, 2, 3, 4]);
+
     const a1 = this.pick(i + 2, [2, 3, 4, 5]);
     const b1 = this.pick(i + 3, [1, 2, 3, 4]);
     const a2 = this.pick(i + 4, [1, 2, 3, 4]);
@@ -92,12 +93,11 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
     const c2 = a2 * x + b2 * y;
 
     return this.finish({
+      prompt: `Solve the system:\n${this.equation(a1, b1, c1)}\n${this.equation(a2, b2, c2)}`,
       x,
       y,
-      eq1: this.equation(a1, b1, c1),
-      eq2: this.equation(a2, b2, c2),
       explanation:
-        `Eliminate one variable. Solving the system gives x = ${x}. ` +
+        `Eliminate one variable. From the simplified system, x = ${x}. ` +
         `Substitute back to get y = ${y}.`,
       recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
       seed: i,
@@ -107,22 +107,23 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
   private makeHard(i: number, overrideSeconds: number | null): GeneratedQuestion {
     const x = this.pick(i, [-4, -3, -2, -1, 1, 2, 3, 4]);
     const y = this.pick(i + 1, [-4, -3, -2, -1, 1, 2, 3, 4]);
+
     const m = this.pick(i + 2, [2, 3, 4]);
     const n = this.pick(i + 3, [2, 3, 4, 5]);
     const p = this.pick(i + 4, [1, 2, 3]);
     const q = -this.pick(i + 5, [1, 2, 3]);
+    const r = this.pick(i + 6, [3, 4, 5]);
 
     const c1 = m * (x + p) + n * y;
-    const c2 = q * x + (n + 1) * (y - p);
+    const c2 = q * x + r * (y - p);
 
     return this.finish({
+      prompt: `Solve the system:\n${m}(x + ${p}) + ${n}y = ${c1}\n${q}x + ${r}(y - ${p}) = ${c2}`,
       x,
       y,
-      eq1: `${m}(x + ${p}) ${n >= 0 ? '+' : '-'} ${Math.abs(n)}y = ${c1}`,
-      eq2: `${q}x + ${n + 1}(y - ${p}) = ${c2}`,
       explanation:
         `Expand both equations first, then collect like terms. ` +
-        `After solving the linear system, you get x = ${x} and y = ${y}.`,
+        `After solving the linear system, x = ${x} and y = ${y}.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });
@@ -131,6 +132,7 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
   private makeOlympiad(i: number, overrideSeconds: number | null): GeneratedQuestion {
     const x = this.pick(i, [-3, -2, -1, 1, 2, 3, 4]);
     const y = this.pick(i + 1, [-3, -2, -1, 1, 2, 3, 4]);
+
     const a = this.pick(i + 2, [2, 3, 4, 5]);
     const b = this.pick(i + 3, [2, 3, 4]);
     const c = this.pick(i + 4, [1, 2, 3]);
@@ -141,23 +143,21 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
     const rhs2 = e * x + (a - 1) * y;
 
     return this.finish({
+      prompt: `Solve the system:\n${a}(x + ${c}) - ${b}(y - ${d}) = ${rhs1}\n${e}x + ${a - 1}y = ${rhs2}`,
       x,
       y,
-      eq1: `${a}(x + ${c}) - ${b}(y - ${d}) = ${rhs1}`,
-      eq2: `${e}x + ${a - 1}y = ${rhs2}`,
       explanation:
         `Expand the brackets and simplify each equation. ` +
-        `Then eliminate one variable to find x = ${x}, and substitute to get y = ${y}.`,
+        `Then eliminate one variable to obtain x = ${x}, and substitute to get y = ${y}.`,
       recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
       seed: i,
     });
   }
 
   private finish(args: {
+    prompt: string;
     x: number;
     y: number;
-    eq1: string;
-    eq2: string;
     explanation: string;
     recommendedTimeSeconds: number;
     seed: number;
@@ -166,7 +166,7 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
     const options = this.makeOptions(args.x, args.y, args.seed);
 
     return {
-      prompt: `Solve the system:\n${args.eq1}\n${args.eq2}`,
+      prompt: args.prompt,
       options,
       correctIndex: options.indexOf(answer),
       correctAnswerText: answer,
@@ -182,7 +182,10 @@ export class SystemsOfEquationsDeterministicEngine implements PracticeEngine {
       this.pair(y, x),
       this.pair(-x, y),
       this.pair(x, -y),
-      this.pair(x + this.pick(i + 7, [1, -1, 2]), y + this.pick(i + 8, [1, -1, -2])),
+      this.pair(
+        x + this.pick(i + 7, [1, -1, 2]),
+        y + this.pick(i + 8, [1, -1, -2]),
+      ),
     ];
 
     const out: string[] = [];
