@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { PracticeEngineRequest, GeneratedQuestion } from './practice-engine.types';
 import type { PracticeEngine } from './practice-engine.interface';
 import { LinearEquationsDeterministicEngine } from './linear-equations-deterministic.engine';
+import { SystemsOfEquationsDeterministicEngine } from './systems-of-equations-deterministic.engine';
 import { QuadraticDeterministicEngine } from './quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.engine';
 
@@ -11,11 +12,13 @@ export class PracticeEngineRegistry {
 
   constructor(
     private readonly linearEquationsEngine: LinearEquationsDeterministicEngine,
+    private readonly systemsOfEquationsEngine: SystemsOfEquationsDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
   ) {
     this.engines = [
       this.linearEquationsEngine,
+      this.systemsOfEquationsEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
     ];
