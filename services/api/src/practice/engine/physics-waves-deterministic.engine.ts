@@ -9,7 +9,6 @@ import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class PhysicsWavesDeterministicEngine implements PracticeEngine {
-
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
@@ -23,7 +22,16 @@ export class PhysicsWavesDeterministicEngine implements PracticeEngine {
         t.includes('frequency') ||
         t.includes('period') ||
         t.includes('amplitude')
-      )
+      ) &&
+      !t.includes('kinematics') &&
+      !t.includes('newton') &&
+      !t.includes('force') &&
+      !t.includes('energy') &&
+      !t.includes('momentum') &&
+      !t.includes('electric') &&
+      !t.includes('circuit') &&
+      !t.includes('optics') &&
+      !t.includes('thermo')
     );
   }
 
@@ -59,13 +67,17 @@ export class PhysicsWavesDeterministicEngine implements PracticeEngine {
   }
 
   private makeEasy(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const f = this.pick(i, [2, 3, 4, 5]);
+    const f = this.pick(i, [2, 4, 5, 10]);
     const t = 1 / f;
 
     return this.finish({
       prompt: `A wave has frequency ${f} Hz. What is its period?`,
       answer: `${this.num(t)} s`,
-      distractors: [`${f} s`, `${this.num(t + 0.25)} s`, `${this.num(f / 2)} s`],
+      distractors: [
+        `${this.num(f)} s`,
+        `${this.num(t + 0.1)} s`,
+        `${this.num(Math.max(0.05, t / 2))} s`,
+      ],
       explanation: `Period and frequency are related by T = 1/f = 1/${f} = ${this.num(t)} s.`,
       recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
       seed: i,
@@ -75,71 +87,114 @@ export class PhysicsWavesDeterministicEngine implements PracticeEngine {
   private makeMedium(i: number, overrideSeconds: number | null): GeneratedQuestion {
     if (i % 2 === 0) {
       const f = this.pick(i, [2, 3, 4, 5]);
-      const lambda = this.pick(i + 1, [4, 5, 6, 8]);
-      const v = f * lambda;
+      const l = this.pick(i + 1, [2, 3, 5, 6]);
+      const v = f * l;
 
       return this.finish({
-        prompt: `A wave has frequency ${f} Hz and wavelength ${lambda} m. What is its speed?`,
+        prompt: `A wave has frequency ${f} Hz and wavelength ${l} m. What is its wave speed?`,
         answer: `${v} m/s`,
-        distractors: [`${f + lambda} m/s`, `${lambda} m/s`, `${v + 2} m/s`],
-        explanation: `Wave speed is v = fλ = ${f}×${lambda} = ${v} m/s.`,
+        distractors: [
+          `${f + l} m/s`,
+          `${f} m/s`,
+          `${l} m/s`,
+        ],
+        explanation: `Wave speed is v = fλ = ${f}×${l} = ${v} m/s.`,
         recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
         seed: i,
       });
     }
 
-    const v = this.pick(i, [12, 16, 20, 24]);
-    const f = this.pick(i + 1, [2, 4, 5]);
-    const lambda = v / f;
+    const v = this.pick(i, [12, 15, 18, 20]);
+    const f = this.pick(i + 1, [3, 4, 5]);
+    const l = v / f;
 
     return this.finish({
       prompt: `A wave travels at ${v} m/s and has frequency ${f} Hz. What is its wavelength?`,
-      answer: `${this.num(lambda)} m`,
-      distractors: [`${this.num(lambda + 1)} m`, `${this.num(v * f)} m`, `${this.num(f)} m`],
-      explanation: `Wavelength λ = v/f = ${v}/${f} = ${this.num(lambda)} m.`,
+      answer: `${this.num(l)} m`,
+      distractors: [
+        `${this.num(v + f)} m`,
+        `${this.num(f)} m`,
+        `${this.num(l + 1)} m`,
+      ],
+      explanation: `Wavelength λ = v/f = ${v}/${f} = ${this.num(l)} m.`,
       recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
       seed: i,
     });
   }
 
   private makeHard(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    if (i % 2 === 0) {
-      const crestToCrest = this.pick(i, [3, 4, 5, 6]);
-      const wavelength = crestToCrest;
+    const mode = i % 3;
+
+    if (mode === 0) {
+      const t = this.pick(i, [0.2, 0.25, 0.5, 1]);
+      const f = 1 / t;
 
       return this.finish({
-        prompt: `The distance between two consecutive crests of a wave is ${crestToCrest} m. What is the wavelength?`,
-        answer: `${wavelength} m`,
-        distractors: [`${wavelength * 2} m`, `${this.num(wavelength / 2)} m`, `${wavelength + 1} m`],
-        explanation: `The wavelength is the distance between two consecutive crests, so it is ${wavelength} m.`,
+        prompt: `A wave completes one oscillation in ${this.num(t)} s. What is its frequency?`,
+        answer: `${this.num(f)} Hz`,
+        distractors: [
+          `${this.num(t)} Hz`,
+          `${this.num(f + 1)} Hz`,
+          `${this.num(Math.max(0.5, f / 2))} Hz`,
+        ],
+        explanation: `Frequency is the reciprocal of period: f = 1/T = 1/${this.num(t)} = ${this.num(f)} Hz.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
         seed: i,
       });
     }
 
-    const f = this.pick(i, [4, 5, 8, 10]);
-    const t = 1 / f;
+    if (mode === 1) {
+      const v = this.pick(i, [24, 30, 36]);
+      const l = this.pick(i + 1, [3, 4, 6]);
+      const f = v / l;
+
+      return this.finish({
+        prompt: `A wave moves at ${v} m/s with wavelength ${l} m. What is its frequency?`,
+        answer: `${this.num(f)} Hz`,
+        distractors: [
+          `${this.num(v + l)} Hz`,
+          `${this.num(f + 2)} Hz`,
+          `${this.num(l)} Hz`,
+        ],
+        explanation: `Using v = fλ, frequency is f = v/λ = ${v}/${l} = ${this.num(f)} Hz.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const f = this.pick(i, [5, 6, 8]);
+    const l = this.pick(i + 1, [0.5, 1.5, 2]);
+    const v = f * l;
 
     return this.finish({
-      prompt: `A source produces ${f} complete vibrations each second. What is the period of the wave?`,
-      answer: `${this.num(t)} s`,
-      distractors: [`${f} s`, `${this.num(t + 0.1)} s`, `${this.num(f / 10)} s`],
-      explanation: `Frequency is ${f} Hz, so the period is T = 1/f = ${this.num(t)} s.`,
+      prompt: `A source vibrates at ${f} Hz and creates waves of wavelength ${this.num(l)} m. What is the wave speed?`,
+      answer: `${this.num(v)} m/s`,
+      distractors: [
+        `${this.num(v + 1)} m/s`,
+        `${this.num(f)} m/s`,
+        `${this.num(l)} m/s`,
+      ],
+      explanation: `Wave speed is v = fλ = ${f}×${this.num(l)} = ${this.num(v)} m/s.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });
   }
 
   private makeOlympiad(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const v = this.pick(i, [30, 36, 40, 48]);
-    const lambda = this.pick(i + 1, [3, 4, 5, 6]);
-    const f = v / lambda;
+    const v = this.pick(i, [18, 24, 30]);
+    const t = this.pick(i + 1, [0.2, 0.25, 0.5]);
+    const f = 1 / t;
+    const l = v / f;
 
     return this.finish({
-      prompt: `A wave moves at ${v} m/s and has wavelength ${lambda} m. What is its frequency?`,
-      answer: `${this.num(f)} Hz`,
-      distractors: [`${this.num(f + 1)} Hz`, `${this.num(v + lambda)} Hz`, `${this.num(lambda)} Hz`],
-      explanation: `Frequency f = v/λ = ${v}/${lambda} = ${this.num(f)} Hz.`,
+      prompt: `A wave travels at ${v} m/s and has period ${this.num(t)} s. What is its wavelength?`,
+      answer: `${this.num(l)} m`,
+      distractors: [
+        `${this.num(v * t)} m`,
+        `${this.num(l + 1)} m`,
+        `${this.num(f)} m`,
+      ],
+      explanation: `First find f = 1/T = 1/${this.num(t)} = ${this.num(f)} Hz. Then λ = v/f = ${v}/${this.num(f)} = ${this.num(l)} m.`,
       recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
       seed: i,
     });
