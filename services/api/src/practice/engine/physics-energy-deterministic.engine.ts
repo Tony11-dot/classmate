@@ -15,16 +15,31 @@ export class PhysicsEnergyDeterministicEngine implements PracticeEngine {
       .toLowerCase()
       .trim();
 
-    return (
-      s === 'physics' &&
-      (
-        t.includes('energy') ||
-        t.includes('work') ||
-        t.includes('kinetic') ||
-        t.includes('potential') ||
-        t.includes('conservation of energy')
-      )
-    );
+    const isEnergyTopic =
+      t.includes('energy') ||
+      t.includes('work') ||
+      t.includes('kinetic energy') ||
+      t.includes('potential energy') ||
+      t.includes('gravitational potential energy') ||
+      t.includes('mechanical energy') ||
+      t.includes('conservation of energy');
+
+    const isExcluded =
+      t.includes('electricity') ||
+      t.includes('electric current') ||
+      t.includes('current electricity') ||
+      t.includes('electric charge') ||
+      t.includes('electric field') ||
+      t.includes('field strength') ||
+      t.includes('potential difference') ||
+      t.includes('voltage') ||
+      t.includes('electrical power') ||
+      t.includes('circuits') ||
+      t.includes('circuit') ||
+      t.includes('resistance') ||
+      t.includes('ohm');
+
+    return s === 'physics' && isEnergyTopic && !isExcluded;
   }
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {

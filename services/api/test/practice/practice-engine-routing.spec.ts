@@ -107,4 +107,28 @@ describe('practice engine routing guards', () => {
       ),
     ).toBe(true);
   });
+
+  it('energy does not capture electricity topics with potential difference wording', () => {
+    expect(
+      energy.supports(
+        req({
+          topicLabel: 'Electricity',
+          topicPathText: 'Physics > Electricity',
+          strictPromptSummary: 'potential difference voltage electric current electric charge',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('electricity supports electricity topics with potential difference wording', () => {
+    expect(
+      electricity.supports(
+        req({
+          topicLabel: 'Electricity',
+          topicPathText: 'Physics > Electricity',
+          strictPromptSummary: 'potential difference voltage electric current electric charge',
+        }),
+      ),
+    ).toBe(true);
+  });
 });
