@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   BadRequestException,
 } from '@nestjs/common';
+import { PracticeEngineRegistry } from './engine/practice-engine.registry';
 
 type PracticeMode =
   | 'practice'
@@ -51,6 +52,7 @@ type VerifierDecision = {
 
 @Injectable()
 export class PracticeService {
+  constructor(private readonly engineRegistry: PracticeEngineRegistry) {}
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -89,6 +91,46 @@ export class PracticeService {
 
     if (!subject) {
       throw new BadRequestException('subject is required');
+    }
+
+    const deterministic = await this.engineRegistry.generate({
+      subject,
+      topicLabel,
+      topicPath,
+      topicPathText,
+      strictPromptSummary,
+      questionCount,
+      mode,
+      difficulty,
+      timePreferenceSeconds,
+      useAiTiming,
+      maxLives,
+    });
+
+    if (deterministic && deterministic.length === questionCount) {
+      const now = Date.now();
+
+      return {
+        questions: deterministic.map((q, i) => {
+          const shuffled = this.shuffleOptions(
+            (q.options as string[]).map(String).slice(0, 4),
+            Number(q.correctIndex),
+          );
+
+          return {
+            id: `${subject}-${topicLabel}-${mode}-${difficulty}-${now}-${i}`,
+            subject,
+            topicLabel,
+            mode,
+            difficulty,
+            prompt: String(q.prompt).trim(),
+            options: shuffled.options,
+            correctIndex: shuffled.correctIndex,
+            explanation: String(q.explanation).trim(),
+            recommendedTimeSeconds: Number(q.recommendedTimeSeconds ?? 30),
+          };
+        }),
+      };
     }
 
     const requestPayload = {
