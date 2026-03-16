@@ -5,6 +5,7 @@ import { PracticeEngineRegistry } from './engine/practice-engine.registry';
 import { LinearEquationsDeterministicEngine } from './engine/linear-equations-deterministic.engine';
 import { SystemsOfEquationsDeterministicEngine } from './engine/systems-of-equations-deterministic.engine';
 import { ProbabilityDeterministicEngine } from './engine/probability-deterministic.engine';
+import { GeometryDeterministicEngine } from './engine/geometry-deterministic.engine';
 import { QuadraticDeterministicEngine } from './engine/quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './engine/trigonometry-deterministic.engine';
 
@@ -16,6 +17,7 @@ import { TrigonometryDeterministicEngine } from './engine/trigonometry-determini
     LinearEquationsDeterministicEngine,
     SystemsOfEquationsDeterministicEngine,
     ProbabilityDeterministicEngine,
+    GeometryDeterministicEngine,
     QuadraticDeterministicEngine,
     TrigonometryDeterministicEngine,
   ],

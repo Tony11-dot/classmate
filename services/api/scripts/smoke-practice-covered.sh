@@ -59,6 +59,21 @@ post "probability-medium" '{
   "maxLives": 3
 }'
 
+
+post "geometry-medium" '{
+  "subject": "Math",
+  "topicLabel": "Geometry",
+  "topicPath": ["Math", "Geometry"],
+  "topicPathText": "Math > Geometry",
+  "strictPromptSummary": "Area, perimeter, triangles, circles",
+  "questionCount": 3,
+  "mode": "practice",
+  "difficulty": "medium",
+  "timePreferenceSeconds": 40,
+  "useAiTiming": false,
+  "maxLives": 3
+}'
+
 post "quadratic-easy" '{
   "subject": "Math",
   "topicLabel": "Quadratic equations",
