@@ -6,7 +6,7 @@ import type {
   GeneratedQuestion as GQ,
   EngineDifficulty,
 } from './practice-engine.types';
-import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
+import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
@@ -326,11 +326,7 @@ export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
     seed: number;
   }): GQ {
     const raw = [args.answer, ...args.distractors];
-    const options = uniqueFirst(raw, 4);
-
-    while (options.length < 4) {
-      options.push(`__BAD_DUP___`);
-    }
+    const options = fillOptionsWithSafeFallback(uniqueFirst(raw, 4), args.answer, args.seed);
 
     const rotated = rotateBySeed(options.slice(0, 4), args.seed);
 
