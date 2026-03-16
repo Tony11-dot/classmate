@@ -6,6 +6,7 @@ import { LinearEquationsDeterministicEngine } from './engine/linear-equations-de
 import { SystemsOfEquationsDeterministicEngine } from './engine/systems-of-equations-deterministic.engine';
 import { ProbabilityDeterministicEngine } from './engine/probability-deterministic.engine';
 import { GeometryDeterministicEngine } from './engine/geometry-deterministic.engine';
+import { FunctionsDeterministicEngine } from './engine/functions-deterministic.engine';
 import { QuadraticDeterministicEngine } from './engine/quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './engine/trigonometry-deterministic.engine';
 
@@ -18,6 +19,7 @@ import { TrigonometryDeterministicEngine } from './engine/trigonometry-determini
     SystemsOfEquationsDeterministicEngine,
     ProbabilityDeterministicEngine,
     GeometryDeterministicEngine,
+    FunctionsDeterministicEngine,
     QuadraticDeterministicEngine,
     TrigonometryDeterministicEngine,
   ],

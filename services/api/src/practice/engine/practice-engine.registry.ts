@@ -5,6 +5,7 @@ import { LinearEquationsDeterministicEngine } from './linear-equations-determini
 import { SystemsOfEquationsDeterministicEngine } from './systems-of-equations-deterministic.engine';
 import { ProbabilityDeterministicEngine } from './probability-deterministic.engine';
 import { GeometryDeterministicEngine } from './geometry-deterministic.engine';
+import { FunctionsDeterministicEngine } from './functions-deterministic.engine';
 import { QuadraticDeterministicEngine } from './quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.engine';
 
@@ -17,6 +18,7 @@ export class PracticeEngineRegistry {
     private readonly systemsOfEquationsEngine: SystemsOfEquationsDeterministicEngine,
     private readonly probabilityEngine: ProbabilityDeterministicEngine,
     private readonly geometryEngine: GeometryDeterministicEngine,
+    private readonly functionsEngine: FunctionsDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
   ) {
@@ -24,6 +26,7 @@ export class PracticeEngineRegistry {
       this.systemsOfEquationsEngine,
       this.linearEquationsEngine,
       this.probabilityEngine,
+      this.functionsEngine,
       this.geometryEngine,
       this.quadraticEngine,
       this.trigonometryEngine,

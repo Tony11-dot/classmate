@@ -60,6 +60,21 @@ post "probability-medium" '{
 }'
 
 
+
+post "functions-medium" '{
+  "subject":"Math",
+  "topicLabel":"Functions",
+  "topicPath":["Math","Algebra","Functions"],
+  "topicPathText":"Math > Algebra > Functions",
+  "strictPromptSummary":"Evaluate functions, slope, intercept, linear functions",
+  "questionCount":3,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
 post "geometry-medium" '{
   "subject": "Math",
   "topicLabel": "Geometry",
