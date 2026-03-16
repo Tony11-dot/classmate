@@ -14,6 +14,14 @@ export class LinearEquationsDeterministicEngine implements PracticeEngine {
       .toLowerCase()
       .trim();
 
+    const isSystemTopic =
+      t.includes('system of equations') ||
+      t.includes('systems of equations') ||
+      t.includes('simultaneous equations') ||
+      (t.includes('system') && t.includes('equation'));
+
+    if (isSystemTopic) return false;
+
     return (
       s === 'math' &&
       (
@@ -22,7 +30,7 @@ export class LinearEquationsDeterministicEngine implements PracticeEngine {
         t.includes('solve for x') ||
         t.includes('one-variable equation') ||
         t.includes('one variable equation') ||
-        (t.includes('linear') && !t.includes('system') && !t.includes('quadratic'))
+        (t.includes('linear') && !t.includes('quadratic'))
       )
     );
   }

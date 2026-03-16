@@ -17,8 +17,8 @@ export class PracticeEngineRegistry {
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
   ) {
     this.engines = [
-      this.linearEquationsEngine,
       this.systemsOfEquationsEngine,
+      this.linearEquationsEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
     ];
