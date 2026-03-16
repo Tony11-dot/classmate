@@ -68,3 +68,33 @@ describe('practice option sanity', () => {
     }
   });
 });
+
+
+it('does not emit placeholder fallback distractors', async () => {
+  const req = {
+    subject: 'Physics',
+    topicLabel: 'Electricity',
+    topicPathText: 'Physics > Electricity',
+    strictPromptSummary: 'electric current voltage resistance',
+    questionCount: 5,
+    difficulty: 'medium',
+    mode: 'practice',
+  } as any;
+
+  const engines = [
+    new PhysicsElectricityDeterministicEngine(),
+    new PhysicsElectricFieldDeterministicEngine(),
+    new PhysicsCircuitsDeterministicEngine(),
+  ];
+
+  for (const engine of engines) {
+    const out = await engine.generate(req);
+    for (const q of out) {
+      for (const option of q.options) {
+        expect(option).not.toContain('__BAD_DUP___');
+        expect(option).not.toMatch(/_[0-9]+$/);
+        expect(option).not.toMatch(/Ω_|N_|V_|C_|J_|W_/);
+      }
+    }
+  }
+});
