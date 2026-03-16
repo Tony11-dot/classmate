@@ -55,9 +55,6 @@ export class PracticeService {
   constructor(private readonly engineRegistry: PracticeEngineRegistry) {}
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new InternalServerErrorException('OPENAI_API_KEY is missing');
-    }
 
     const subject = String(input.subject ?? 'Math').trim();
     const providedTopicLabel = String(input.topicLabel ?? '').trim();
@@ -131,6 +128,10 @@ export class PracticeService {
           };
         }),
       };
+    }
+
+    if (!apiKey) {
+      throw new InternalServerErrorException('OPENAI_API_KEY is missing');
     }
 
     const requestPayload = {

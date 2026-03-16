@@ -20,7 +20,8 @@ export class QuadraticDeterministicEngine implements PracticeEngine {
       s === 'math' &&
       (
         t.includes('quadratic') ||
-        t.includes('algebra')
+        t.includes('quadratic equation') ||
+        t.includes('quadratic equations')
       )
     );
   }
