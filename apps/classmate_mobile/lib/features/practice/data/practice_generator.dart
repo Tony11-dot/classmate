@@ -131,7 +131,7 @@ class PracticeGenerator {
           .timeout(
             const Duration(seconds: 180),
             onTimeout: () => throw TimeoutException(
-              'practice.generate postUrl timeout after 20s',
+              'practice.generate postUrl timeout after 180s',
             ),
           );
 
@@ -170,7 +170,7 @@ class PracticeGenerator {
           .timeout(
             const Duration(seconds: 60),
             onTimeout: () => throw TimeoutException(
-              'practice.generate body timeout after 90s',
+              'practice.generate body timeout after 180s',
             ),
           );
       debugPrint('practice.generate status=${res.statusCode}');
