@@ -309,21 +309,53 @@ export class PracticeService {
   ): RawGeneratedQuestion[] {
     const out: RawGeneratedQuestion[] = [];
     const seen = new Set<string>();
+    const reasonCounts = new Map<string, number>();
 
-    for (const raw of questions) {
-      if (!this.isValidQuestion(raw)) continue;
+    for (const [index, raw] of questions.entries()) {
+      const reason = this.invalidReason(raw);
+      if (reason != null) {
+        reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
+
+        const promptPreview = String(raw?.prompt ?? '')
+          .replace(/\s+/g, ' ')
+          .slice(0, 140);
+
+        const explanationPreview = String(raw?.explanation ?? '')
+          .replace(/\s+/g, ' ')
+          .slice(0, 500);
+
+        console.log(
+          `[practice.generate] reject index=${index} reason=${reason} prompt="${promptPreview}" explanation="${explanationPreview}"`,
+        );
+        continue;
+      }
 
       const fp = this.questionFingerprint(raw);
-      if (seen.has(fp)) continue;
-      seen.add(fp);
+      if (seen.has(fp)) {
+        reasonCounts.set(
+          'duplicate_fingerprint',
+          (reasonCounts.get('duplicate_fingerprint') ?? 0) + 1,
+        );
+        console.log(
+          `[practice.generate] reject index=${index} reason=duplicate_fingerprint prompt="${String(raw?.prompt ?? '').replace(/\s+/g, ' ').slice(0, 140)}"`,
+        );
+        continue;
+      }
 
+      seen.add(fp);
       out.push(raw);
+    }
+
+    if (reasonCounts.size > 0) {
+      console.log(
+        `[practice.generate] reject_summary ${JSON.stringify(Object.fromEntries(reasonCounts))}`,
+      );
     }
 
     return out.length === expectedCount ? out : [];
   }
 
-  
+
   private questionFingerprint(raw: RawGeneratedQuestion) {
     const prompt = String(raw.prompt ?? '')
       .trim()
@@ -358,8 +390,8 @@ export class PracticeService {
     };
   }
 
-  private isValidQuestion(raw: any): raw is RawGeneratedQuestion {
-    if (!raw || typeof raw !== 'object') return false;
+  private invalidReason(raw: any): string | null {
+    if (!raw || typeof raw !== 'object') return 'not_object';
 
     const prompt = String(raw.prompt ?? '').trim();
     const explanation = String(raw.explanation ?? '').trim();
@@ -368,12 +400,13 @@ export class PracticeService {
     const correctIndex = Number(raw.correctIndex ?? -1);
     const recommendedTimeSeconds = Number(raw.recommendedTimeSeconds ?? 0);
 
-    if (!prompt || !explanation || !topicMatchNote) return false;
-    if (prompt.length < 12) return false;
-    if (explanation.length < 18) return false;
+    if (!prompt) return 'missing_prompt';
+    if (!explanation) return 'missing_explanation';
+    if (prompt.length < 12) return 'prompt_too_short';
+    if (explanation.length < 18) return 'explanation_too_short';
 
     if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3) {
-      return false;
+      return 'invalid_correct_index';
     }
 
     if (
@@ -381,50 +414,62 @@ export class PracticeService {
       recommendedTimeSeconds < 5 ||
       recommendedTimeSeconds > 900
     ) {
-      return false;
+      return 'invalid_recommended_time';
     }
 
-    if (!Array.isArray(raw.options) || raw.options.length !== 4) return false;
+    if (!Array.isArray(raw.options)) return 'options_not_array';
+    if (raw.options.length !== 4) return 'options_length_not_4';
+
+    const options = raw.options.map((x: any) => String(x ?? '').trim());
+    if (options.some((x: string) => !x)) return 'empty_option';
+
+    const normalizedOptions = options.map((x) =>
+      x.toLowerCase().replace(/\s+/g, ' '),
+    );
+    if (new Set(normalizedOptions).size !== 4) return 'duplicate_options';
+
+    if (!correctAnswerText) return 'missing_correct_answer_text';
+    if (options[correctIndex] !== correctAnswerText) {
+      return 'correct_answer_text_mismatch';
+    }
 
     const explanationLower = explanation.toLowerCase();
     const promptLower = prompt.toLowerCase();
     const noteLower = topicMatchNote.toLowerCase();
 
-    if (
-      explanationLower.includes('correction needed') ||
-      explanationLower.includes('adjust options') ||
-      explanationLower.includes('options should be adjusted') ||
-      explanationLower.includes('must be adjusted') ||
-      explanationLower.includes('re-check calculation') ||
-      explanationLower.includes('recheck calculation') ||
-      explanationLower.includes('correction:') ||
-      explanationLower.includes('this contradicts options') ||
-      explanationLower.includes('correct option is') ||
-      explanationLower.includes('should be') ||
-      explanationLower.includes('wait:') ||
-      explanationLower.includes('to align with problem') ||
-      explanationLower.includes('to match options') ||
-      explanationLower.includes('options mismatch') ||
-      explanationLower.includes('accept as final') ||
-      explanationLower.includes('for coherence') ||
-      explanationLower.includes('closest is') ||
-      explanationLower.includes('likely') ||
-      explanationLower.includes('maybe')
-    ) {
-      return false;
+    const badPhrases = [
+      'correction needed',
+      'adjust options',
+      'options should be adjusted',
+      'must be adjusted',
+      're-check calculation',
+      'recheck calculation',
+      'correction:',
+      'this contradicts options',
+      'correct option is',
+      'wait:',
+      'to align with problem',
+      'to match options',
+      'options mismatch',
+      'accept as final',
+    ];
+
+    for (const phrase of badPhrases) {
+      if (explanationLower.includes(phrase)) {
+        return `bad_phrase:${phrase}`;
+      }
     }
 
-    const options = raw.options.map((x: any) => String(x ?? '').trim());
-    if (options.some((x: string) => !x)) return false;
+    if (promptLower === explanationLower) return 'prompt_equals_explanation';
 
-    const normalizedOptions = options.map((x) => x.toLowerCase().replace(/\s+/g, ' '));
-    if (new Set(normalizedOptions).size !== 4) return false;
+    if (topicMatchNote && noteLower.length < 2) {
+      return 'topic_match_note_too_short';
+    }
 
-    if (options[correctIndex] !== correctAnswerText) return false;
+    return null;
+  }
 
-    if (noteLower.length < 2) return false;
-    if (promptLower === explanationLower) return false;
-
-    return true;
+  private isValidQuestion(raw: any): raw is RawGeneratedQuestion {
+    return this.invalidReason(raw) == null;
   }
 }
