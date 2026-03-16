@@ -5,6 +5,7 @@ import type {
   GeneratedQuestion,
   EngineDifficulty,
 } from './practice-engine.types';
+import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class GeometryDeterministicEngine implements PracticeEngine {
@@ -192,19 +193,9 @@ export class GeometryDeterministicEngine implements PracticeEngine {
   }
 
   private uniqueRotate(raw: string[], seed: number): string[] {
-    const out: string[] = [];
-    for (const item of raw) {
-      if (!out.includes(item)) out.push(item);
-      if (out.length === 4) break;
-    }
+    const out = uniqueFirst(raw, 4);
     while (out.length < 4) out.push(String(out.length + seed + 10));
-    return this.rotate(out.slice(0, 4), seed);
-  }
-
-  private rotate<T>(arr: T[], seed: number): T[] {
-    if (arr.length <= 1) return arr.slice();
-    const k = ((seed % arr.length) + arr.length) % arr.length;
-    return arr.slice(k).concat(arr.slice(0, k));
+    return rotateBySeed(out.slice(0, 4), seed);
   }
 
   private num(n: number): string {
@@ -215,22 +206,18 @@ export class GeometryDeterministicEngine implements PracticeEngine {
     difficulty: EngineDifficulty,
     overrideSeconds: number | null,
   ): number {
-    if (overrideSeconds != null && Number.isFinite(overrideSeconds)) {
-      return Math.max(5, Math.min(900, Math.round(overrideSeconds)));
-    }
-
     switch (difficulty) {
       case 'easy':
-        return 25;
+        return clampTime(overrideSeconds, 25);
       case 'medium':
       case 'adaptive':
-        return 40;
+        return clampTime(overrideSeconds, 40);
       case 'hard':
-        return 60;
+        return clampTime(overrideSeconds, 60);
       case 'olympiad':
-        return 75;
+        return clampTime(overrideSeconds, 75);
       default:
-        return 40;
+        return clampTime(overrideSeconds, 40);
     }
   }
 

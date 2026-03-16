@@ -5,6 +5,7 @@ import type {
   GeneratedQuestion,
   EngineDifficulty,
 } from './practice-engine.types';
+import { clampTime, gcd, reduceFraction, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class ProbabilityDeterministicEngine implements PracticeEngine {
@@ -64,7 +65,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     const total = this.pick(i, [6, 8, 10, 12, 14, 15]);
     const favorable = this.pick(i + 1, [1, 2, 3, 4, 5, 6]);
     const f = Math.min(favorable, total - 1);
-    const reduced = this.reduce(f, total);
+    const reduced = reduceFraction(f, total);
 
     return this.finish({
       prompt: `A bag contains ${total} marbles. ${f} of them are red. One marble is chosen at random. What is the probability of choosing a red marble?`,
@@ -81,7 +82,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     const first = this.pick(i + 1, [4, 6, 8, 10, 12, 14]);
     const second = this.pick(i + 2, [3, 5, 6, 9, 12, 15]);
     const favorable = Math.min(first + second, total - 1);
-    const reduced = this.reduce(favorable, total);
+    const reduced = reduceFraction(favorable, total);
 
     return this.finish({
       prompt: `A class has ${total} students. ${first} play football and ${second} play basketball, and no student plays both. If one student is chosen at random, what is the probability that the student plays football or basketball?`,
@@ -99,7 +100,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     const total = red + blue;
     const numerator = red * (red - 1);
     const denominator = total * (total - 1);
-    const reduced = this.reduce(numerator, denominator);
+    const reduced = reduceFraction(numerator, denominator);
 
     return this.finish({
       prompt: `A box contains ${red} red balls and ${blue} blue balls. Two balls are drawn without replacement. What is the probability that both balls are red?`,
@@ -117,7 +118,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     const total = even + odd;
     const numerator = 2 * even * odd;
     const denominator = total * (total - 1);
-    const reduced = this.reduce(numerator, denominator);
+    const reduced = reduceFraction(numerator, denominator);
 
     return this.finish({
       prompt: `A number is chosen at random from a set containing ${even} even numbers and ${odd} odd numbers. Then a second number is chosen from the remaining numbers without replacement. What is the probability that one chosen number is even and the other is odd?`,
@@ -137,7 +138,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     recommendedTimeSeconds: number;
     seed: number;
   }): GeneratedQuestion {
-    const reduced = this.reduce(args.numerator, args.denominator);
+    const reduced = reduceFraction(args.numerator, args.denominator);
     const answer = `${reduced.n}/${reduced.d}`;
     const options = this.makeOptions(args.numerator, args.denominator, args.seed);
 
@@ -153,7 +154,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
   }
 
   private makeOptions(numerator: number, denominator: number, seed: number): string[] {
-    const reduced = this.reduce(numerator, denominator);
+    const reduced = reduceFraction(numerator, denominator);
     const correct = `${reduced.n}/${reduced.d}`;
 
     const raw = [
@@ -178,48 +179,22 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
     return this.rotate(out.slice(0, 4), seed);
   }
 
-  private reduce(n: number, d: number): { n: number; d: number } {
-    const g = this.gcd(Math.abs(n), Math.abs(d));
-    return { n: n / g, d: d / g };
-  }
-
-  private gcd(a: number, b: number): number {
-    let x = a;
-    let y = b;
-    while (y !== 0) {
-      const t = x % y;
-      x = y;
-      y = t;
-    }
-    return x || 1;
-  }
-
-  private rotate<T>(arr: T[], seed: number): T[] {
-    if (arr.length <= 1) return arr.slice();
-    const k = ((seed % arr.length) + arr.length) % arr.length;
-    return arr.slice(k).concat(arr.slice(0, k));
-  }
-
   private timeFor(
     difficulty: EngineDifficulty,
     overrideSeconds: number | null,
   ): number {
-    if (overrideSeconds != null && Number.isFinite(overrideSeconds)) {
-      return Math.max(5, Math.min(900, Math.round(overrideSeconds)));
-    }
-
     switch (difficulty) {
       case 'easy':
-        return 25;
+        return clampTime(overrideSeconds, 25);
       case 'medium':
       case 'adaptive':
-        return 40;
+        return clampTime(overrideSeconds, 40);
       case 'hard':
-        return 60;
+        return clampTime(overrideSeconds, 60);
       case 'olympiad':
-        return 80;
+        return clampTime(overrideSeconds, 80);
       default:
-        return 40;
+        return clampTime(overrideSeconds, 40);
     }
   }
 
