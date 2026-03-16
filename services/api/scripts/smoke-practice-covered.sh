@@ -61,6 +61,21 @@ post "probability-medium" '{
 
 
 
+
+post "statistics-medium" '{
+  "subject":"Math",
+  "topicLabel":"Statistics",
+  "topicPath":["Math","Statistics"],
+  "topicPathText":"Math > Statistics",
+  "strictPromptSummary":"Mean, median, mode, range, averages",
+  "questionCount":3,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
 post "functions-medium" '{
   "subject":"Math",
   "topicLabel":"Functions",
