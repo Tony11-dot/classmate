@@ -106,36 +106,34 @@ export class PracticeService {
       },
     };
 
-    const first = await this.requestQuestionSet({
-      apiKey,
-      requestPayload,
-      questionCount,
-      repairNote: '',
-    });
+    const attemptNotes = [
+      '',
+      'Your previous output had drift and/or invalid answer alignment. Regenerate from scratch. Obey the requested subject/topic exactly. correctAnswerText must exactly equal options[correctIndex]. Double-check every explanation before returning. Every question must be unique. If any item is uncertain, replace it with a fresh valid item.',
+      'RETRY HARDER: Do not leave any unresolved mismatch. Never mention adjusting options, correcting later, or uncertainty. Return only fully solved, internally consistent questions with final answers already aligned to the options.',
+      'FINAL RETRY: Every item must be classroom-valid on first read. No meta commentary. No repairing language. No option mismatch. No duplicate prompts. Prefer simpler but correct questions over ambitious but uncertain ones.',
+    ];
 
-    const firstValid = this.validateQuestionSet(first, questionCount);
+    let finalQuestions: RawGeneratedQuestion[] = [];
 
-    console.log(
-      `[practice.generate] first_pass valid=${firstValid.length}/${questionCount}`,
-    );
+    for (let attempt = 0; attempt < attemptNotes.length; attempt++) {
+      const raw = await this.requestQuestionSet({
+        apiKey,
+        requestPayload,
+        questionCount,
+        repairNote: attemptNotes[attempt],
+      });
 
-    const finalQuestions =
-      firstValid.length == questionCount
-        ? firstValid
-        : this.validateQuestionSet(
-            await this.requestQuestionSet({
-              apiKey,
-              requestPayload,
-              questionCount,
-              repairNote:
-                'Your previous output had drift and/or invalid answer alignment. Regenerate from scratch. Obey the requested subject/topic exactly. correctAnswerText must exactly equal options[correctIndex]. Double-check every explanation before returning. Every question must be unique. If any item is uncertain, replace it with a fresh valid item.',
-            }),
-            questionCount,
-          );
+      const valid = this.validateQuestionSet(raw, questionCount);
 
-    console.log(
-      `[practice.generate] final_pass valid=${finalQuestions.length}/${questionCount}`,
-    );
+      console.log(
+        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} valid=${valid.length}/${questionCount}`,
+      );
+
+      if (valid.length === questionCount) {
+        finalQuestions = valid;
+        break;
+      }
+    }
 
     if (finalQuestions.length != questionCount) {
       throw new InternalServerErrorException(
