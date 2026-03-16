@@ -3,6 +3,7 @@ import type { PracticeEngineRequest, GeneratedQuestion } from './practice-engine
 import type { PracticeEngine } from './practice-engine.interface';
 import { LinearEquationsDeterministicEngine } from './linear-equations-deterministic.engine';
 import { SystemsOfEquationsDeterministicEngine } from './systems-of-equations-deterministic.engine';
+import { ProbabilityDeterministicEngine } from './probability-deterministic.engine';
 import { QuadraticDeterministicEngine } from './quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.engine';
 
@@ -13,12 +14,14 @@ export class PracticeEngineRegistry {
   constructor(
     private readonly linearEquationsEngine: LinearEquationsDeterministicEngine,
     private readonly systemsOfEquationsEngine: SystemsOfEquationsDeterministicEngine,
+    private readonly probabilityEngine: ProbabilityDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
   ) {
     this.engines = [
       this.systemsOfEquationsEngine,
       this.linearEquationsEngine,
+      this.probabilityEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
     ];

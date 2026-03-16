@@ -44,6 +44,21 @@ post "systems-medium" '{
   "maxLives": 3
 }'
 
+
+post "probability-medium" '{
+  "subject": "Math",
+  "topicLabel": "Probability",
+  "topicPath": ["Math", "Probability"],
+  "topicPathText": "Math > Probability",
+  "strictPromptSummary": "Basic probability and compound probability",
+  "questionCount": 3,
+  "mode": "practice",
+  "difficulty": "medium",
+  "timePreferenceSeconds": 40,
+  "useAiTiming": false,
+  "maxLives": 3
+}'
+
 post "quadratic-easy" '{
   "subject": "Math",
   "topicLabel": "Quadratic equations",
