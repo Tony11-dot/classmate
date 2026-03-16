@@ -3,6 +3,8 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:3001}"
 TOKEN="${TOKEN:-dev-token-student1@classmate.app}"
+AUTH="Authorization: Bearer ${TOKEN}"
+
 
 BASE_URL="${BASE_URL%/}"
 BASE_URL="${BASE_URL%/api}"
