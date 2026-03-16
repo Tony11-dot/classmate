@@ -12,6 +12,9 @@ import { DerivativesDeterministicEngine } from './derivatives-deterministic.engi
 import { LimitsDeterministicEngine } from './limits-deterministic.engine';
 import { QuadraticDeterministicEngine } from './quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.engine';
+import { PhysicsForcesDeterministicEngine } from './physics-forces-deterministic.engine';
+import { PhysicsNewtonLawsDeterministicEngine } from './physics-newton-laws-deterministic.engine';
+import { PhysicsKinematicsDeterministicEngine } from './physics-kinematics-deterministic.engine';
 
 @Injectable()
 export class PracticeEngineRegistry {
@@ -29,6 +32,9 @@ export class PracticeEngineRegistry {
     private readonly limitsEngine: LimitsDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
+    private readonly physicsKinematicsEngine: PhysicsKinematicsDeterministicEngine,
+    private readonly physicsNewtonLawsEngine: PhysicsNewtonLawsDeterministicEngine,
+    private readonly physicsForcesEngine: PhysicsForcesDeterministicEngine,
   ) {
     this.engines = [
       this.systemsOfEquationsEngine,
@@ -42,6 +48,9 @@ export class PracticeEngineRegistry {
       this.geometryEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
+      this.physicsKinematicsEngine,
+      this.physicsNewtonLawsEngine,
+      this.physicsForcesEngine,
     ];
   }
 
