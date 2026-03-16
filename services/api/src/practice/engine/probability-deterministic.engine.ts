@@ -27,9 +27,16 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
     const out: GeneratedQuestion[] = [];
-    for (let i = 0; i < req.questionCount; i++) {
-      out.push(this.makeQuestion(i, req.difficulty, req.timePreferenceSeconds));
+    const seen = new Set<string>();
+
+    for (let i = 0; out.length < req.questionCount && i < req.questionCount * 8; i++) {
+      const q = this.makeQuestion(i, req.difficulty, req.timePreferenceSeconds);
+      const key = `${q.prompt}__${q.correctAnswerText}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(q);
     }
+
     return out;
   }
 
@@ -54,61 +61,69 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
   }
 
   private makeEasy(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const total = this.pick(i, [6, 8, 10, 12]);
-    const favorable = this.pick(i + 1, [1, 2, 3, 4, 5]);
+    const total = this.pick(i, [6, 8, 10, 12, 14, 15]);
+    const favorable = this.pick(i + 1, [1, 2, 3, 4, 5, 6]);
     const f = Math.min(favorable, total - 1);
+    const reduced = this.reduce(f, total);
 
     return this.finish({
       prompt: `A bag contains ${total} marbles. ${f} of them are red. One marble is chosen at random. What is the probability of choosing a red marble?`,
       numerator: f,
       denominator: total,
-      explanation: `Probability = favorable outcomes / total outcomes = ${f}/${total}.`,
+      explanation: `Probability = favorable outcomes / total outcomes = ${f}/${total} = ${reduced.n}/${reduced.d}.`,
       recommendedTimeSeconds: this.timeFor('easy', overrideSeconds),
       seed: i,
     });
   }
 
   private makeMedium(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const total = this.pick(i, [20, 24, 30, 36]);
-    const first = this.pick(i + 1, [4, 6, 8, 10, 12]);
-    const second = this.pick(i + 2, [3, 5, 6, 9, 12]);
+    const total = this.pick(i, [20, 24, 30, 36, 40]);
+    const first = this.pick(i + 1, [4, 6, 8, 10, 12, 14]);
+    const second = this.pick(i + 2, [3, 5, 6, 9, 12, 15]);
     const favorable = Math.min(first + second, total - 1);
+    const reduced = this.reduce(favorable, total);
 
     return this.finish({
       prompt: `A class has ${total} students. ${first} play football and ${second} play basketball, and no student plays both. If one student is chosen at random, what is the probability that the student plays football or basketball?`,
       numerator: favorable,
       denominator: total,
-      explanation: `Since the groups do not overlap, favorable outcomes = ${first} + ${second} = ${favorable}. So the probability is ${favorable}/${total}.`,
+      explanation: `Since the groups do not overlap, favorable outcomes = ${first} + ${second} = ${favorable}. So the probability is ${favorable}/${total} = ${reduced.n}/${reduced.d}.`,
       recommendedTimeSeconds: this.timeFor('medium', overrideSeconds),
       seed: i,
     });
   }
 
   private makeHard(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const red = this.pick(i, [3, 4, 5, 6]);
-    const blue = this.pick(i + 1, [4, 5, 6, 7]);
+    const red = this.pick(i, [3, 4, 5, 6, 7]);
+    const blue = this.pick(i + 1, [4, 5, 6, 7, 8]);
     const total = red + blue;
+    const numerator = red * (red - 1);
+    const denominator = total * (total - 1);
+    const reduced = this.reduce(numerator, denominator);
 
     return this.finish({
       prompt: `A box contains ${red} red balls and ${blue} blue balls. Two balls are drawn without replacement. What is the probability that both balls are red?`,
-      numerator: red * (red - 1),
-      denominator: total * (total - 1),
-      explanation: `The probability of red then red is (${red}/${total})·(${red - 1}/${total - 1}) = ${red * (red - 1)}/${total * (total - 1)}.`,
+      numerator,
+      denominator,
+      explanation: `The probability of red then red is (${red}/${total})·(${red - 1}/${total - 1}) = ${numerator}/${denominator} = ${reduced.n}/${reduced.d}.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });
   }
 
   private makeOlympiad(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const even = this.pick(i, [4, 5, 6]);
-    const odd = this.pick(i + 1, [3, 4, 5]);
+    const even = this.pick(i, [4, 5, 6, 7]);
+    const odd = this.pick(i + 1, [3, 4, 5, 6]);
     const total = even + odd;
+    const numerator = 2 * even * odd;
+    const denominator = total * (total - 1);
+    const reduced = this.reduce(numerator, denominator);
 
     return this.finish({
       prompt: `A number is chosen at random from a set containing ${even} even numbers and ${odd} odd numbers. Then a second number is chosen from the remaining numbers without replacement. What is the probability that one chosen number is even and the other is odd?`,
-      numerator: 2 * even * odd,
-      denominator: total * (total - 1),
-      explanation: `The favorable orders are even-odd or odd-even. So the probability is (${even}/${total})·(${odd}/${total - 1}) + (${odd}/${total})·(${even}/${total - 1}) = ${2 * even * odd}/${total * (total - 1)}.`,
+      numerator,
+      denominator,
+      explanation: `The favorable orders are even-odd or odd-even. So the probability is (${even}/${total})·(${odd}/${total - 1}) + (${odd}/${total})·(${even}/${total - 1}) = ${numerator}/${denominator} = ${reduced.n}/${reduced.d}.`,
       recommendedTimeSeconds: this.timeFor('olympiad', overrideSeconds),
       seed: i,
     });
@@ -147,6 +162,7 @@ export class ProbabilityDeterministicEngine implements PracticeEngine {
       `${reduced.n}/${Math.max(2, reduced.d + 1)}`,
       `${reduced.d}/${reduced.n}`,
       `${Math.max(1, reduced.n - 1)}/${reduced.d}`,
+      `${reduced.n + 2}/${reduced.d + 2}`,
     ];
 
     const out: string[] = [];
