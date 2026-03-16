@@ -129,7 +129,7 @@ class PracticeGenerator {
       final req = await client
           .postUrl(uri)
           .timeout(
-            const Duration(seconds: 90),
+            const Duration(seconds: 180),
             onTimeout: () => throw TimeoutException(
               'practice.generate postUrl timeout after 20s',
             ),
@@ -161,9 +161,9 @@ class PracticeGenerator {
       req.write(jsonEncode(payload));
 
       final res = await req.close().timeout(
-        const Duration(seconds: 90),
+        const Duration(seconds: 180),
         onTimeout: () =>
-            throw TimeoutException('practice.generate close timeout after 90s'),
+            throw TimeoutException('practice.generate close timeout after 180s'),
       );
       final body = await utf8
           .decodeStream(res)

@@ -43,6 +43,12 @@ type RawGeneratedQuestion = {
   topicMatchNote?: unknown;
 };
 
+type VerifierDecision = {
+  index?: unknown;
+  verdict?: unknown;
+  reason?: unknown;
+};
+
 @Injectable()
 export class PracticeService {
   async generate(input: PracticeFilterPayload) {
@@ -108,9 +114,9 @@ export class PracticeService {
 
     const attemptNotes = [
       '',
-      'Your previous output had drift and/or invalid answer alignment. Regenerate from scratch. Obey the requested subject/topic exactly. correctAnswerText must exactly equal options[correctIndex]. Double-check every explanation before returning. Every question must be unique. If any item is uncertain, replace it with a fresh valid item.',
-      'RETRY HARDER: Do not leave any unresolved mismatch. Never mention adjusting options, correcting later, or uncertainty. Return only fully solved, internally consistent questions with final answers already aligned to the options.',
-      'FINAL RETRY: Every item must be classroom-valid on first read. No meta commentary. No repairing language. No option mismatch. No duplicate prompts. Prefer simpler but correct questions over ambitious but uncertain ones.',
+      'Regenerate from scratch. Use only clean, standard, classroom-valid questions. correctAnswerText must exactly equal options[correctIndex]. If any item is uncertain or the exact answer is not already in the options, discard it internally and generate a different item.',
+      'Use conservative textbook-style questions only. No parameter traps unless trivial. Explanations must be short, final, direct, and option-agnostic.',
+      'Final retry. Prefer simpler but unquestionably correct questions over ambitious ones. Never mention options, mismatch, correction, approximation, or uncertainty.',
     ];
 
     let finalQuestions: RawGeneratedQuestion[] = [];
@@ -123,19 +129,31 @@ export class PracticeService {
         repairNote: attemptNotes[attempt],
       });
 
-      const valid = this.validateQuestionSet(raw, questionCount);
+      const locallyValid = this.validateQuestionSet(raw, questionCount);
 
       console.log(
-        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} valid=${valid.length}/${questionCount}`,
+        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} local_valid=${locallyValid.length}/${questionCount}`,
       );
 
-      if (valid.length === questionCount) {
-        finalQuestions = valid;
+      if (locallyValid.length !== questionCount) continue;
+
+      const verified = await this.verifyQuestionSet({
+        apiKey,
+        requestPayload,
+        questions: locallyValid,
+      });
+
+      console.log(
+        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} verified=${verified.length}/${questionCount}`,
+      );
+
+      if (verified.length === questionCount) {
+        finalQuestions = verified;
         break;
       }
     }
 
-    if (finalQuestions.length != questionCount) {
+    if (finalQuestions.length !== questionCount) {
       throw new InternalServerErrorException(
         'Model returned an invalid question set',
       );
@@ -146,8 +164,8 @@ export class PracticeService {
     return {
       questions: finalQuestions.map((q, i) => {
         const shuffled = this.shuffleOptions(
-          (q.options as string[]).map(String).slice(0,4),
-          Number(q.correctIndex)
+          (q.options as string[]).map(String).slice(0, 4),
+          Number(q.correctIndex),
         );
 
         return {
@@ -182,6 +200,8 @@ export class PracticeService {
       'If any of those fields specify a narrower topic than your instinct, obey the narrower topic.',
       'Do NOT switch to neighboring chapters.',
       'Do NOT invent mismatched solutions, mismatched options, or mismatched correctIndex values.',
+      'If the correct final answer is not exactly present in the 4 options, throw away that item internally and generate a different one before responding.',
+      'Never mention option mismatch, correction, reconsideration, repair, approximation, or uncertainty in the explanation.',
       'Each item must have exactly 4 answer options.',
       'correctIndex must be 0..3.',
       'correctAnswerText must EXACTLY equal options[correctIndex].',
@@ -190,6 +210,8 @@ export class PracticeService {
       'Difficulty must materially affect complexity.',
       'All questions must be different from each other.',
       'Use realistic school wording.',
+      'Explanations must be concise, final, teacher-style solutions.',
+      'Explanations must be option-agnostic and must not narrate self-correction.',
       'For flashcards, answers can still be 4 options, but make them concept-first.',
       'For olympiad difficulty, make questions meaningfully harder, not just bigger numbers.',
       repairNote ? `REPAIR NOTE: ${repairNote}` : '',
@@ -200,6 +222,199 @@ export class PracticeService {
       .join('\n');
 
     const user = JSON.stringify(requestPayload, null, 2);
+
+    const parsed = await this.callResponsesJson({
+      apiKey,
+      schemaName: 'practice_questions',
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          questions: {
+            type: 'array',
+            minItems: questionCount,
+            maxItems: questionCount,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                prompt: { type: 'string' },
+                options: {
+                  type: 'array',
+                  minItems: 4,
+                  maxItems: 4,
+                  items: { type: 'string' },
+                },
+                correctIndex: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 3,
+                },
+                correctAnswerText: { type: 'string' },
+                explanation: { type: 'string' },
+                recommendedTimeSeconds: {
+                  type: 'integer',
+                  minimum: 5,
+                  maximum: 900,
+                },
+                topicMatchNote: { type: 'string' },
+              },
+              required: [
+                'prompt',
+                'options',
+                'correctIndex',
+                'correctAnswerText',
+                'explanation',
+                'recommendedTimeSeconds',
+                'topicMatchNote',
+              ],
+            },
+          },
+        },
+        required: ['questions'],
+      },
+      system,
+      user,
+    });
+
+    return Array.isArray(parsed?.questions) ? parsed.questions : [];
+  }
+
+  private async verifyQuestionSet(args: {
+    apiKey: string;
+    requestPayload: Record<string, unknown>;
+    questions: RawGeneratedQuestion[];
+  }): Promise<RawGeneratedQuestion[]> {
+    const { apiKey, requestPayload, questions } = args;
+
+    const system = [
+      'You are a strict academic verifier for a school practice generator.',
+      'Return STRICT JSON ONLY.',
+      'Solve each item independently from scratch.',
+      'Reject any item with wrong math, wrong logic, wrong keyed answer, ambiguous wording, option mismatch, unsupported explanation, weak explanation, topic drift, or hidden self-correction.',
+      'Reject any item if the explanation mentions mismatch, adjustment, correction, reconsideration, closest option, approximation, repair, or uncertainty.',
+      'Accept only if the keyed answer is exactly correct and the explanation is clean, final, teacher-style, and actually supports that answer.',
+      'Be conservative. If uncertain, reject.',
+      'Keep reasons extremely short.',
+      'JSON shape:',
+      '{ "decisions": [ { "index": number, "verdict": "accept" | "reject", "reason": string } ] }',
+    ].join('\n');
+
+    const user = JSON.stringify(
+      {
+        requestPayload,
+        questions: questions.map((q, index) => ({
+          index,
+          prompt: q.prompt,
+          options: q.options,
+          correctIndex: q.correctIndex,
+          correctAnswerText: q.correctAnswerText,
+          explanation: q.explanation,
+          topicMatchNote: q.topicMatchNote,
+          recommendedTimeSeconds: q.recommendedTimeSeconds,
+        })),
+      },
+      null,
+      2,
+    );
+
+    const parsed = await this.callResponsesJson({
+      apiKey,
+      schemaName: 'practice_verifier',
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          decisions: {
+            type: 'array',
+            minItems: questions.length,
+            maxItems: questions.length,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                index: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: Math.max(0, questions.length - 1),
+                },
+                verdict: {
+                  type: 'string',
+                  enum: ['accept', 'reject'],
+                },
+                reason: { type: 'string' },
+              },
+              required: ['index', 'verdict', 'reason'],
+            },
+          },
+        },
+        required: ['decisions'],
+      },
+      system,
+      user,
+    });
+
+    const decisions = Array.isArray(parsed?.decisions) ? parsed.decisions : [];
+    const accepted = new Set<number>();
+    const seenIndexes = new Set<number>();
+    const reasonCounts = new Map<string, number>();
+
+    for (const raw of decisions) {
+      const decision = this.parseVerifierDecision(raw);
+      if (!decision) continue;
+      if (seenIndexes.has(decision.index)) continue;
+      seenIndexes.add(decision.index);
+
+      if (decision.verdict === 'accept') {
+        accepted.add(decision.index);
+      } else {
+        reasonCounts.set(decision.reason, (reasonCounts.get(decision.reason) ?? 0) + 1);
+      }
+    }
+
+    if (reasonCounts.size > 0) {
+      console.log(
+        `[practice.verify] reject_summary ${JSON.stringify(Object.fromEntries(reasonCounts))}`,
+      );
+    }
+
+    if (accepted.size !== questions.length) {
+      return [];
+    }
+
+    return questions.slice();
+  }
+
+  private parseVerifierDecision(raw: any): {
+    index: number;
+    verdict: 'accept' | 'reject';
+    reason: string;
+  } | null {
+    if (!raw || typeof raw !== 'object') return null;
+
+    const index = Number(raw.index ?? -1);
+    const verdict = String(raw.verdict ?? '').trim();
+    const reason = String(raw.reason ?? '').trim();
+
+    if (!Number.isInteger(index) || index < 0) return null;
+    if (verdict !== 'accept' && verdict !== 'reject') return null;
+    if (!reason) return null;
+
+    return {
+      index,
+      verdict,
+      reason,
+    };
+  }
+
+  private async callResponsesJson(args: {
+    apiKey: string;
+    schemaName: string;
+    schema: Record<string, unknown>;
+    system: string;
+    user: string;
+  }): Promise<any> {
+    const { apiKey, schemaName, schema, system, user } = args;
 
     const res = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -219,58 +434,13 @@ export class PracticeService {
             content: [{ type: 'input_text', text: user }],
           },
         ],
+        max_output_tokens: 4000,
         text: {
           format: {
             type: 'json_schema',
-            name: 'practice_questions',
+            name: schemaName,
             strict: true,
-            schema: {
-              type: 'object',
-              additionalProperties: false,
-              properties: {
-                questions: {
-                  type: 'array',
-                  minItems: questionCount,
-                  maxItems: questionCount,
-                  items: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                      prompt: { type: 'string' },
-                      options: {
-                        type: 'array',
-                        minItems: 4,
-                        maxItems: 4,
-                        items: { type: 'string' },
-                      },
-                      correctIndex: {
-                        type: 'integer',
-                        minimum: 0,
-                        maximum: 3,
-                      },
-                      correctAnswerText: { type: 'string' },
-                      explanation: { type: 'string' },
-                      recommendedTimeSeconds: {
-                        type: 'integer',
-                        minimum: 5,
-                        maximum: 900,
-                      },
-                      topicMatchNote: { type: 'string' },
-                    },
-                    required: [
-                      'prompt',
-                      'options',
-                      'correctIndex',
-                      'correctAnswerText',
-                      'explanation',
-                      'recommendedTimeSeconds',
-                      'topicMatchNote',
-                    ],
-                  },
-                },
-              },
-              required: ['questions'],
-            },
+            schema,
           },
         },
       }),
@@ -291,14 +461,11 @@ export class PracticeService {
         .join('') ??
       '';
 
-    let parsed: any;
     try {
-      parsed = JSON.parse(jsonText);
+      return JSON.parse(jsonText);
     } catch {
       throw new InternalServerErrorException('Model did not return valid JSON');
     }
-
-    return Array.isArray(parsed?.questions) ? parsed.questions : [];
   }
 
   private validateQuestionSet(
@@ -353,7 +520,6 @@ export class PracticeService {
     return out.length === expectedCount ? out : [];
   }
 
-
   private questionFingerprint(raw: RawGeneratedQuestion) {
     const prompt = String(raw.prompt ?? '')
       .trim()
@@ -362,7 +528,9 @@ export class PracticeService {
 
     const options = Array.isArray(raw.options)
       ? raw.options
-          .map((x: any) => String(x ?? '').trim().toLowerCase().replace(/\s+/g, ' '))
+          .map((x: any) =>
+            String(x ?? '').trim().toLowerCase().replace(/\s+/g, ' '),
+          )
           .join('||')
       : '';
 
@@ -450,6 +618,41 @@ export class PracticeService {
       'to match options',
       'options mismatch',
       'accept as final',
+      'for coherence',
+      'closest is',
+      'not in the options',
+      'not among the options',
+      'option mismatch',
+      'mismatch',
+      're-examine',
+      'reconsider',
+      'fixing this accordingly',
+      'replace options',
+      'change question',
+      'choose option',
+      'check again',
+      'double-check',
+      'review again',
+      'revisit',
+      'but the options',
+      'however the options',
+      'does not match the options',
+      "doesn't match the options",
+      'approximately',
+      'approximate',
+      'assuming a typo',
+      'assuming typo',
+      'if the options',
+      'if options',
+      'nearest option',
+      'nearest answer',
+      'pick the closest',
+      'best match',
+      'best choice from the options',
+      'none of the options',
+      'none match',
+      'option not listed',
+      'not listed',
     ];
 
     for (const phrase of badPhrases) {
