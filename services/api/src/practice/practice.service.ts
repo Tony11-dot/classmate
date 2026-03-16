@@ -22,11 +22,13 @@ type PracticeDifficulty =
 
 type PracticeFilterPayload = {
   subject?: string;
+  topic?: string;
   topicLabel?: string;
   topicPath?: string[];
   topicPathText?: string;
   strictPromptSummary?: string;
   questionCount?: number;
+  count?: number;
   mode?: PracticeMode;
   difficulty?: PracticeDifficulty;
   timePreferenceSeconds?: number | null;
@@ -58,19 +60,25 @@ export class PracticeService {
 
     const subject = String(input.subject ?? 'Math').trim();
     const providedTopicLabel = String(input.topicLabel ?? '').trim();
+    const legacyTopic = String(input.topic ?? '').trim();
     const topicPath = Array.isArray(input.topicPath)
       ? input.topicPath.map(String).map((x) => x.trim()).filter(Boolean)
       : [];
-    const topicPathText = String(input.topicPathText ?? '').trim();
+    const topicPathText =
+      String(input.topicPathText ?? '').trim() ||
+      providedTopicLabel ||
+      legacyTopic;
     const strictPromptSummary = String(input.strictPromptSummary ?? '').trim();
 
     const topicLabel =
       providedTopicLabel ||
+      legacyTopic ||
       (topicPath.length ? topicPath.join(' > ') : 'General');
 
+    const requestedCountRaw = Number(input.questionCount ?? input.count ?? 10);
     const questionCount = Math.max(
       1,
-      Math.min(20, Number(input.questionCount ?? 10)),
+      Math.min(20, Number.isFinite(requestedCountRaw) ? requestedCountRaw : 10),
     );
 
     const mode = String(input.mode ?? 'practice') as PracticeMode;
