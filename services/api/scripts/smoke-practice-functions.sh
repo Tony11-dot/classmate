@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API="${API:-http://localhost:3000}"
+BASE_URL="${BASE_URL:-http://localhost:3000}"
 TOKEN="${TOKEN:-dev-token-student1@classmate.app}"
+
+BASE_URL="${BASE_URL%/}"
+BASE_URL="${BASE_URL%/api}"
 
 post() {
   local name="$1"
   local payload="$2"
   echo
   echo "===== $name ====="
-  curl -sS -X POST "$API/practice/generate" \
+  curl -sS -X POST "$BASE_URL/practice/generate" \
     -H "Authorization: Bearer $TOKEN" \
     -H 'Content-Type: application/json' \
     -d "$payload" | jq .

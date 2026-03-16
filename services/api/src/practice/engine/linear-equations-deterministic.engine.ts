@@ -20,7 +20,17 @@ export class LinearEquationsDeterministicEngine implements PracticeEngine {
       t.includes('simultaneous equations') ||
       (t.includes('system') && t.includes('equation'));
 
-    if (isSystemTopic) return false;
+    const isFunctionTopic =
+      t.includes('function') ||
+      t.includes('functions') ||
+      t.includes('linear function') ||
+      t.includes('slope') ||
+      t.includes('intercept') ||
+      t.includes('evaluate f(') ||
+      t.includes('evaluate g(') ||
+      t.includes('domain');
+
+    if (isSystemTopic || isFunctionTopic) return false;
 
     return (
       s === 'math' &&
