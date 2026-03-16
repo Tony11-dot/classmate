@@ -146,64 +146,103 @@ export class PhysicsEnergyDeterministicEngine implements PracticeEngine {
   }
 
   private makeHard(i: number, overrideSeconds: number | null): GeneratedQuestion {
-    const mode = i % 3;
+    const mode = i % 5;
 
     if (mode === 0) {
-      const m = this.pick(i, [2, 4, 6]);
-      const h = this.pick(i + 1, [5, 8, 10]);
-      const g = 10;
-      const pe = m * g * h;
+      const m = this.pick(i, [2, 3, 4, 5]);
+      const v = this.pick(i + 1, [4, 6, 8, 10]);
+      const ke = 0.5 * m * v * v;
 
       return this.finish({
-        prompt: `A ${m} kg object starts from rest at height ${h} m. Ignore air resistance and take g = ${g} m/s². What is its kinetic energy just before hitting the ground?`,
-        answer: `${pe} J`,
+        prompt: `A ${m} kg object is moving at ${v} m/s. What is its kinetic energy?`,
+        answer: `${this.num(ke)} J`,
         distractors: [
-          `${m * h} J`,
-          `${pe / 2} J`,
-          `${pe + 20} J`,
-          `${Math.max(1, pe - 20)} J`,
+          `${this.num(m * v)} J`,
+          `${this.num(ke / 2)} J`,
+          `${this.num(ke * 2)} J`,
+          `${this.num(ke + m)} J`,
         ],
-        explanation: `By conservation of energy, all initial potential energy becomes kinetic energy. KE = mgh = ${m}×${g}×${h} = ${pe} J.`,
+        explanation: `Kinetic energy is KE = ½mv² = 0.5 × ${m} × ${v}² = ${this.num(ke)} J.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
         seed: i,
       });
     }
 
     if (mode === 1) {
-      const m = this.pick(i, [2, 3, 5]);
-      const v = this.pick(i + 1, [6, 8, 10]);
-      const ke = 0.5 * m * v * v;
-      const h = ke / (m * 10);
+      const m = this.pick(i, [2, 5, 10]);
+      const h = this.pick(i + 1, [4, 5, 8]);
+      const g = 9.8;
+      const pe = m * g * h;
 
       return this.finish({
-        prompt: `A ${m} kg object has kinetic energy ${this.num(ke)} J. Taking g = 10 m/s², to what height could it rise if all this energy converted to gravitational potential energy?`,
-        answer: `${this.num(h)} m`,
+        prompt: `A ${m} kg object is lifted vertically upwards by ${h} m. What is its increase in gravitational potential energy? (Use g = ${g} m/s²)`,
+        answer: `${this.num(pe)} J`,
         distractors: [
-          `${this.num(ke / m)} m`,
-          `${this.num(h + 2)} m`,
-          `${this.num(Math.max(1, h - 1))} m`,
-          `${m} m`,
+          `${this.num(m * h)} J`,
+          `${this.num(pe / 2)} J`,
+          `${this.num(pe * 2)} J`,
+          `${this.num(pe + 10)} J`,
         ],
-        explanation: `Set KE = PE, so ${this.num(ke)} = ${m}×10×h. Hence h = ${this.num(ke)}/${m * 10} = ${this.num(h)} m.`,
+        explanation: `Potential energy increase = mgh = ${m} × ${g} × ${h} = ${this.num(pe)} J.`,
         recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
         seed: i,
       });
     }
 
-    const p = this.pick(i, [40, 60, 80]);
-    const t = this.pick(i + 1, [2, 4, 5]);
-    const e = p * t;
+    if (mode === 2) {
+      const f = this.pick(i, [15, 20, 25]);
+      const d = this.pick(i + 1, [3, 4, 10]);
+      const w = f * d;
+
+      return this.finish({
+        prompt: `How much work is done if a force of ${f} N moves an object ${d} m in the direction of the force?`,
+        answer: `${this.num(w)} J`,
+        distractors: [
+          `${this.num(f + d)} J`,
+          `${this.num(w / 2)} J`,
+          `${this.num(w + 15)} J`,
+          `${this.num(f)} J`,
+        ],
+        explanation: `Work done = Force × Displacement = ${f} × ${d} = ${this.num(w)} J.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    if (mode === 3) {
+      const work = this.pick(i, [200, 500, 800]);
+      const time = this.pick(i + 1, [4, 10, 20]);
+      const power = work / time;
+
+      return this.finish({
+        prompt: `A machine does ${work} J of work in ${time} seconds. What is its power output?`,
+        answer: `${this.num(power)} W`,
+        distractors: [
+          `${this.num(work * time)} W`,
+          `${this.num(work / (time * 2))} W`,
+          `${this.num(power + 25)} W`,
+          `${this.num(time)} W`,
+        ],
+        explanation: `Power = work done / time = ${work} / ${time} = ${this.num(power)} W.`,
+        recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
+        seed: i,
+      });
+    }
+
+    const ke = this.pick(i, [100, 160, 250, 360]);
+    const v = this.pick(i + 1, [8, 10, 12]);
+    const m = (2 * ke) / (v * v);
 
     return this.finish({
-      prompt: `A machine uses power ${p} W for ${t} s. How much energy does it transfer?`,
-      answer: `${e} J`,
+      prompt: `An object is moving with a velocity of ${v} m/s and has a kinetic energy of ${ke} J. What is its mass?`,
+      answer: `${this.num(m)} kg`,
       distractors: [
-        `${p + t} J`,
-        `${e + 10} J`,
-        `${Math.max(1, e - 10)} J`,
-        `${p} J`,
+        `${this.num(m * 2)} kg`,
+        `${this.num(v / 2)} kg`,
+        `${this.num(m + 5)} kg`,
+        `${this.num(Math.max(1, m - 2))} kg`,
       ],
-      explanation: `Energy transferred = power × time = ${p} × ${t} = ${e} J.`,
+      explanation: `Using KE = ½mv², mass = 2×KE / v² = (2×${ke}) / ${v ** 2} = ${this.num(m)} kg.`,
       recommendedTimeSeconds: this.timeFor('hard', overrideSeconds),
       seed: i,
     });

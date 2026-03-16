@@ -3,7 +3,6 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:3001}"
 TOKEN="${TOKEN:-dev-token-student1@classmate.app}"
-AUTH="Authorization: Bearer ${TOKEN}"
 
 
 BASE_URL="${BASE_URL%/}"
@@ -155,7 +154,7 @@ post "trigonometry-medium" '{
 echo
 echo "===== derivatives-medium ====="
 curl -sS -X POST "$BASE_URL/practice/generate" \
-  -H "$AUTH" \
+  -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
     "subject":"Math",
@@ -174,7 +173,7 @@ curl -sS -X POST "$BASE_URL/practice/generate" \
 echo
 echo "===== limits-medium ====="
 curl -sS -X POST "$BASE_URL/practice/generate" \
-  -H "$AUTH" \
+  -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
     "subject":"Math",

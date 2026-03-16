@@ -297,8 +297,14 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
     recommendedTimeSeconds: number;
     seed: number;
   }): GeneratedQuestion {
-    const options = uniqueFirst([args.answer, ...args.distractors]).slice(0, 4);
-    const rotated = rotateBySeed(options, args.seed);
+    const raw = [args.answer, ...args.distractors];
+    const options = uniqueFirst(raw, 4);
+
+    while (options.length < 4) {
+      options.push(`${args.answer}_${options.length + args.seed}`);
+    }
+
+    const rotated = rotateBySeed(options.slice(0, 4), args.seed);
 
     return {
       prompt: args.prompt,
