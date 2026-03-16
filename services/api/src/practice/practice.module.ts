@@ -9,6 +9,7 @@ import { GeometryDeterministicEngine } from './engine/geometry-deterministic.eng
 import { FunctionsDeterministicEngine } from './engine/functions-deterministic.engine';
 import { StatisticsDeterministicEngine } from './engine/statistics-deterministic.engine';
 import { SequencesDeterministicEngine } from './engine/sequences-deterministic.engine';
+import { DerivativesDeterministicEngine } from './engine/derivatives-deterministic.engine';
 import { QuadraticDeterministicEngine } from './engine/quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './engine/trigonometry-deterministic.engine';
 
@@ -24,6 +25,7 @@ import { TrigonometryDeterministicEngine } from './engine/trigonometry-determini
     FunctionsDeterministicEngine,
     StatisticsDeterministicEngine,
     SequencesDeterministicEngine,
+    DerivativesDeterministicEngine,
     QuadraticDeterministicEngine,
     TrigonometryDeterministicEngine,
   ],
