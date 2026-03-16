@@ -15,6 +15,15 @@ export class FunctionsDeterministicEngine implements PracticeEngine {
       .toLowerCase()
       .trim();
 
+    const isCalculusTopic =
+      t.includes('derivative') ||
+      t.includes('derivatives') ||
+      t.includes('differentiate') ||
+      t.includes('rate of change') ||
+      t.includes('calculus') ||
+      t.includes('limit') ||
+      t.includes('limits');
+
     const looksLikeMathFunctions =
       t.includes('function') ||
       t.includes('functions') ||
@@ -25,7 +34,7 @@ export class FunctionsDeterministicEngine implements PracticeEngine {
       t.includes('linear function') ||
       t.includes('domain');
 
-    return s === 'math' && looksLikeMathFunctions;
+    return s === 'math' && !isCalculusTopic && looksLikeMathFunctions;
   }
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
