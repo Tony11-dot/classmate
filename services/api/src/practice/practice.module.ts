@@ -13,6 +13,11 @@ import { DerivativesDeterministicEngine } from './engine/derivatives-determinist
 import { LimitsDeterministicEngine } from './engine/limits-deterministic.engine';
 import { QuadraticDeterministicEngine } from './engine/quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './engine/trigonometry-deterministic.engine';
+import { PhysicsKinematicsDeterministicEngine } from './engine/physics-kinematics-deterministic.engine';
+import { PhysicsNewtonLawsDeterministicEngine } from './engine/physics-newton-laws-deterministic.engine';
+import { PhysicsForcesDeterministicEngine } from './engine/physics-forces-deterministic.engine';
+import { PhysicsEnergyDeterministicEngine } from './engine/physics-energy-deterministic.engine';
+import { PhysicsMomentumDeterministicEngine } from './engine/physics-momentum-deterministic.engine';
 
 @Module({
   controllers: [PracticeController],
