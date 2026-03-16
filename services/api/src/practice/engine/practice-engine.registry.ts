@@ -15,6 +15,8 @@ import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.en
 import { PhysicsForcesDeterministicEngine } from './physics-forces-deterministic.engine';
 import { PhysicsNewtonLawsDeterministicEngine } from './physics-newton-laws-deterministic.engine';
 import { PhysicsKinematicsDeterministicEngine } from './physics-kinematics-deterministic.engine';
+import { PhysicsMomentumDeterministicEngine } from './physics-momentum-deterministic.engine';
+import { PhysicsEnergyDeterministicEngine } from './physics-energy-deterministic.engine';
 
 @Injectable()
 export class PracticeEngineRegistry {
@@ -35,6 +37,8 @@ export class PracticeEngineRegistry {
     private readonly physicsKinematicsEngine: PhysicsKinematicsDeterministicEngine,
     private readonly physicsNewtonLawsEngine: PhysicsNewtonLawsDeterministicEngine,
     private readonly physicsForcesEngine: PhysicsForcesDeterministicEngine,
+    private readonly physicsEnergyEngine: PhysicsEnergyDeterministicEngine,
+    private readonly physicsMomentumEngine: PhysicsMomentumDeterministicEngine,
   ) {
     this.engines = [
       this.systemsOfEquationsEngine,
@@ -51,6 +55,8 @@ export class PracticeEngineRegistry {
       this.physicsKinematicsEngine,
       this.physicsNewtonLawsEngine,
       this.physicsForcesEngine,
+      this.physicsEnergyEngine,
+      this.physicsMomentumEngine,
     ];
   }
 

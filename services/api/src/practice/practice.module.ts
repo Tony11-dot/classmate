@@ -35,6 +35,11 @@ import { PhysicsMomentumDeterministicEngine } from './engine/physics-momentum-de
     LimitsDeterministicEngine,
     QuadraticDeterministicEngine,
     TrigonometryDeterministicEngine,
+    PhysicsKinematicsDeterministicEngine,
+    PhysicsNewtonLawsDeterministicEngine,
+    PhysicsForcesDeterministicEngine,
+    PhysicsEnergyDeterministicEngine,
+    PhysicsMomentumDeterministicEngine,
   ],
 })
 export class PracticeModule {}

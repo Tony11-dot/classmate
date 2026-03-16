@@ -188,3 +188,47 @@ curl -sS -X POST "$BASE_URL/practice/generate" \
     "maxLives":3
   }' | jq .
 
+
+
+
+post "physics-kinematics-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Kinematics",
+  "topicPath":["Physics","Mechanics","Kinematics"],
+  "topicPathText":"Physics > Mechanics > Kinematics",
+  "strictPromptSummary":"Speed, velocity, acceleration, distance-time",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-newton-laws-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Newton laws",
+  "topicPath":["Physics","Mechanics","Newton laws"],
+  "topicPathText":"Physics > Mechanics > Newton laws",
+  "strictPromptSummary":"Force, mass, acceleration, Newton second law, F=ma",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-forces-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Forces",
+  "topicPath":["Physics","Mechanics","Forces"],
+  "topicPathText":"Physics > Mechanics > Forces",
+  "strictPromptSummary":"Net force, balanced forces, friction basics",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
