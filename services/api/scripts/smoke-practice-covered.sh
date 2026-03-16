@@ -90,6 +90,21 @@ post "functions-medium" '{
   "maxLives":3
 }'
 
+
+post "sequences-medium" '{
+  "subject":"Math",
+  "topicLabel":"Sequences",
+  "topicPath":["Math","Sequences"],
+  "topicPathText":"Math > Sequences",
+  "strictPromptSummary":"Arithmetic sequences, geometric sequences, common difference, common ratio",
+  "questionCount":3,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
 post "geometry-medium" '{
   "subject": "Math",
   "topicLabel": "Geometry",

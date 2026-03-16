@@ -7,6 +7,7 @@ import { ProbabilityDeterministicEngine } from './probability-deterministic.engi
 import { GeometryDeterministicEngine } from './geometry-deterministic.engine';
 import { FunctionsDeterministicEngine } from './functions-deterministic.engine';
 import { StatisticsDeterministicEngine } from './statistics-deterministic.engine';
+import { SequencesDeterministicEngine } from './sequences-deterministic.engine';
 import { QuadraticDeterministicEngine } from './quadratic-deterministic.engine';
 import { TrigonometryDeterministicEngine } from './trigonometry-deterministic.engine';
 
@@ -21,6 +22,7 @@ export class PracticeEngineRegistry {
     private readonly geometryEngine: GeometryDeterministicEngine,
     private readonly functionsEngine: FunctionsDeterministicEngine,
     private readonly statisticsEngine: StatisticsDeterministicEngine,
+    private readonly sequencesEngine: SequencesDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
   ) {
@@ -30,6 +32,7 @@ export class PracticeEngineRegistry {
       this.probabilityEngine,
       this.functionsEngine,
       this.statisticsEngine,
+      this.sequencesEngine,
       this.geometryEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
