@@ -51,7 +51,7 @@ export function fillOptionsWithSafeFallback(existing: string[], answer: string, 
     const decimals = rawValue.includes('.') ? rawValue.split('.')[1].length : 0;
     const deltas = [1, 2, 3, 4, 5, 10, 0.5, 1.5, 2.5];
 
-    for (let i = 0; out.length < 4 and i < deltas.length * 2; i++) {
+    for (let i = 0; out.length < 4 && i < deltas.length * 2; i++) {
       const delta = deltas[i % deltas.length];
       const sign = i < deltas.length ? 1 : -1;
       const candidateValue = Number((value + sign * delta).toFixed(decimals));
