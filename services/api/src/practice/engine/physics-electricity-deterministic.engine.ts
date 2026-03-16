@@ -13,30 +13,38 @@ export class PhysicsElectricityDeterministicEngine implements PracticeEngine {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
 
-    return (
-      s === 'physics' &&
-      (
-        t.includes('electricity') ||
-        t.includes('current') ||
-        t.includes('voltage') ||
-        t.includes('charge') ||
-        t.includes('power')
-      ) &&
-      !t.includes('electric field') &&
-      !t.includes('field strength') &&
-      !t.includes('circuits') &&
-      !t.includes('circuit') &&
-      !t.includes('resistance') &&
-      !t.includes('ohm') &&
-      !t.includes('waves') &&
-      !t.includes('optics') &&
-      !t.includes('thermo') &&
-      !t.includes('energy') &&
-      !t.includes('momentum') &&
-      !t.includes('kinematics') &&
-      !t.includes('newton') &&
-      !t.includes('force')
-    );
+    const isElectricityTopic =
+      t.includes('electricity') ||
+      t.includes('electric current') ||
+      t.includes('current electricity') ||
+      t.includes('electric charge') ||
+      t.includes('potential difference') ||
+      t.includes('voltage') ||
+      t.includes('electrical power');
+
+    const isExcluded =
+      t.includes('electric field') ||
+      t.includes('field strength') ||
+      t.includes('circuits') ||
+      t.includes('circuit') ||
+      t.includes('resistance') ||
+      t.includes('ohm') ||
+      t.includes('energy') ||
+      t.includes('work') ||
+      t.includes('kinetic') ||
+      t.includes('potential') ||
+      t.includes('gravitational') ||
+      t.includes('conservation of energy') ||
+      t.includes('mechanical energy') ||
+      t.includes('momentum') ||
+      t.includes('kinematics') ||
+      t.includes('newton') ||
+      t.includes('force') ||
+      t.includes('waves') ||
+      t.includes('optics') ||
+      t.includes('thermo');
+
+    return s === 'physics' && isElectricityTopic && !isExcluded;
   }
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
