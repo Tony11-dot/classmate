@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+BASE_URL="http://localhost:3000"
+AUTH="Authorization: Bearer dev-token-student1@classmate.app"
+
 
 BASE_URL="${BASE_URL:-http://localhost:3000}"
 TOKEN="${TOKEN:-dev-token-student1@classmate.app}"
@@ -146,3 +149,42 @@ post "trigonometry-medium" '{
   "useAiTiming": false,
   "maxLives": 3
 }'
+
+echo
+echo "===== derivatives-medium ====="
+curl -sS -X POST "$BASE_URL/practice/generate" \
+  -H "$AUTH" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "subject":"Math",
+    "topicLabel":"Derivatives",
+    "topicPath":["Math","Calculus","Derivatives"],
+    "topicPathText":"Math > Calculus > Derivatives",
+    "strictPromptSummary":"Derivative rules, tangent slope, power rule",
+    "questionCount":3,
+    "mode":"practice",
+    "difficulty":"medium",
+    "timePreferenceSeconds":40,
+    "useAiTiming":false,
+    "maxLives":3
+  }' | jq .
+
+echo
+echo "===== limits-medium ====="
+curl -sS -X POST "$BASE_URL/practice/generate" \
+  -H "$AUTH" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "subject":"Math",
+    "topicLabel":"Limits",
+    "topicPath":["Math","Calculus","Limits"],
+    "topicPathText":"Math > Calculus > Limits",
+    "strictPromptSummary":"Limits, approaching values, continuity, removable discontinuities",
+    "questionCount":3,
+    "mode":"practice",
+    "difficulty":"medium",
+    "timePreferenceSeconds":40,
+    "useAiTiming":false,
+    "maxLives":3
+  }' | jq .
+
