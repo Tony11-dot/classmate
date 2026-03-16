@@ -70,7 +70,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = a * c + b;
 
     return this.finish({
-      prompt: `Find \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \(\$\{a\}x \$\{this\.sign\(b\)\}\)\\$end:math:text$.`,
+      prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \(${a}x ${this.sign(b)}\)\\.`,
       answer: this.num(answer),
       distractors: [
         this.num(a + b),
@@ -92,7 +92,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const valueAtC = m * c + p;
 
       return this.finish({
-        prompt: `Find \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \(\$\{m\}x \$\{this\.sign\(p\)\}\)\\$end:math:text$.`,
+        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \(${m}x ${this.sign(p)}\)\\.`,
         answer: this.num(valueAtC),
         distractors: [
           this.num(m + p),
@@ -118,7 +118,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
         `A function is defined by ` +
         `f(x) = ${leftK}x ${this.sign(leftB)} for x < ${c}, and ` +
         `f(x) = ${rightK}x ${this.sign(rightB)} for x > ${c}. ` +
-        `If both sides approach the same value, what is \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} f\(x\)\\$end:math:text$?`,
+        `If both sides approach the same value, what is \\\\\lim\_\{x \\\\to ${c}\} f\(x\)\\?`,
       answer: this.num(value),
       distractors: [
         this.num(c),
@@ -143,7 +143,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const answer = linearAtC;
 
       return this.finish({
-        prompt: `Find \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \\\\frac\{\(\$\{a\}x \$\{this\.sign\(b\)\}\)\(x \$\{this\.sign\(\-denominatorConst\)\}\)\}\{x \$\{this\.sign\(\-denominatorConst\)\}\}\\$end:math:text$.`,
+        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{\(${a}x ${this.sign(b)}\)\(x ${this.sign(-denominatorConst)}\)\}\{x ${this.sign(-denominatorConst)}\}\\.`,
         answer: this.num(answer),
         distractors: [
           this.num(denominatorConst),
@@ -161,7 +161,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = 2 * c;
 
     return this.finish({
-      prompt: `Find \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \\\\frac\{x\^2 \$\{this\.sign\(\-\(c \* c\)\)\}\}\{x \$\{this\.sign\(\-c\)\}\}\\$end:math:text$.`,
+      prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{x\^2 ${this.sign(-(c * c))}\}\{x ${this.sign(-c)}\}\\.`,
       answer: this.num(answer),
       distractors: [
         this.num(c),
@@ -183,7 +183,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const answer = 2 * c + 1;
 
       return this.finish({
-        prompt: `Find \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \\\\frac\{x\^2 \+ x \$\{this\.sign\(\-\(c \* c \+ c\)\)\}\}\{x \$\{this\.sign\(\-c\)\}\}\\$end:math:text$.`,
+        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{x\^2 \+ x ${this.sign(-(c * c + c))}\}\{x ${this.sign(-c)}\}\\.`,
         answer: this.num(answer),
         distractors: [
           this.num(c),
@@ -206,7 +206,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
         prompt:
           `A function is defined by ` +
           `f(x) = 2x + 3 for x < ${c}, and f(x) = ${right} for x > ${c}. ` +
-          `What is \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} f\(x\)\\$end:math:text$ if the limit exists?`,
+          `What is \\\\\lim\_\{x \\\\to ${c}\} f\(x\)\\ if the limit exists?`,
         answer: this.num(left === right ? left : left),
         distractors: [
           this.num(right),
@@ -228,7 +228,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = k;
 
     return this.finish({
-      prompt: `Find k if \$begin:math:text$\\\\lim\_\{x \\\\to \$\{c\}\} \\\\frac\{kx \$\{this\.sign\(\-\(k \* c\)\)\}\}\{x \$\{this\.sign\(\-c\)\}\} \= \$\{k\}\\$end:math:text$.`,
+      prompt: `Find k if \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{kx ${this.sign(-(k * c))}\}\{x ${this.sign(-c)}\} \= ${k}\\.`,
       answer: this.num(answer),
       distractors: [
         this.num(c),
