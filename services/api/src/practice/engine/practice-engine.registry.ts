@@ -16,6 +16,12 @@ import { PhysicsForcesDeterministicEngine } from './physics-forces-deterministic
 import { PhysicsNewtonLawsDeterministicEngine } from './physics-newton-laws-deterministic.engine';
 import { PhysicsKinematicsDeterministicEngine } from './physics-kinematics-deterministic.engine';
 import { PhysicsMomentumDeterministicEngine } from './physics-momentum-deterministic.engine';
+import { PhysicsThermodynamicsDeterministicEngine } from './physics-thermodynamics-deterministic.engine';
+import { PhysicsOpticsDeterministicEngine } from './physics-optics-deterministic.engine';
+import { PhysicsWavesDeterministicEngine } from './physics-waves-deterministic.engine';
+import { PhysicsCircuitsDeterministicEngine } from './physics-circuits-deterministic.engine';
+import { PhysicsElectricFieldDeterministicEngine } from './physics-electric-field-deterministic.engine';
+import { PhysicsElectricityDeterministicEngine } from './physics-electricity-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './physics-energy-deterministic.engine';
 
 @Injectable()
@@ -39,6 +45,12 @@ export class PracticeEngineRegistry {
     private readonly physicsForcesEngine: PhysicsForcesDeterministicEngine,
     private readonly physicsEnergyEngine: PhysicsEnergyDeterministicEngine,
     private readonly physicsMomentumEngine: PhysicsMomentumDeterministicEngine,
+    private readonly physicsElectricityEngine: PhysicsElectricityDeterministicEngine,
+    private readonly physicsElectricFieldEngine: PhysicsElectricFieldDeterministicEngine,
+    private readonly physicsCircuitsEngine: PhysicsCircuitsDeterministicEngine,
+    private readonly physicsWavesEngine: PhysicsWavesDeterministicEngine,
+    private readonly physicsOpticsEngine: PhysicsOpticsDeterministicEngine,
+    private readonly physicsThermodynamicsEngine: PhysicsThermodynamicsDeterministicEngine,
   ) {
     this.engines = [
       this.systemsOfEquationsEngine,
@@ -57,6 +69,12 @@ export class PracticeEngineRegistry {
       this.physicsForcesEngine,
       this.physicsEnergyEngine,
       this.physicsMomentumEngine,
+      this.physicsElectricityEngine,
+      this.physicsElectricFieldEngine,
+      this.physicsCircuitsEngine,
+      this.physicsWavesEngine,
+      this.physicsOpticsEngine,
+      this.physicsThermodynamicsEngine,
     ];
   }
 

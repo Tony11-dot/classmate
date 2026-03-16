@@ -18,6 +18,12 @@ import { PhysicsNewtonLawsDeterministicEngine } from './engine/physics-newton-la
 import { PhysicsForcesDeterministicEngine } from './engine/physics-forces-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './engine/physics-energy-deterministic.engine';
 import { PhysicsMomentumDeterministicEngine } from './engine/physics-momentum-deterministic.engine';
+import { PhysicsThermodynamicsDeterministicEngine } from './engine/physics-thermodynamics-deterministic.engine';
+import { PhysicsOpticsDeterministicEngine } from './engine/physics-optics-deterministic.engine';
+import { PhysicsWavesDeterministicEngine } from './engine/physics-waves-deterministic.engine';
+import { PhysicsCircuitsDeterministicEngine } from './engine/physics-circuits-deterministic.engine';
+import { PhysicsElectricFieldDeterministicEngine } from './engine/physics-electric-field-deterministic.engine';
+import { PhysicsElectricityDeterministicEngine } from './engine/physics-electricity-deterministic.engine';
 
 @Module({
   controllers: [PracticeController],

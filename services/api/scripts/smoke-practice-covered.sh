@@ -232,3 +232,87 @@ post "physics-forces-medium" '{
   "useAiTiming":false,
   "maxLives":3
 }'
+
+post "physics-electricity-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Electricity",
+  "topicPath":["Physics","Electricity"],
+  "topicPathText":"Physics > Electricity",
+  "strictPromptSummary":"Charge current voltage resistance power basic electricity",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-electric-field-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Electric field",
+  "topicPath":["Physics","Electricity","Electric field"],
+  "topicPathText":"Physics > Electricity > Electric field",
+  "strictPromptSummary":"Electric force electric field field direction charge interactions",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-circuits-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Circuits",
+  "topicPath":["Physics","Electricity","Circuits"],
+  "topicPathText":"Physics > Electricity > Circuits",
+  "strictPromptSummary":"Ohm law series circuits parallel circuits current voltage resistance",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-waves-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Waves",
+  "topicPath":["Physics","Waves"],
+  "topicPathText":"Physics > Waves",
+  "strictPromptSummary":"Wave speed frequency wavelength amplitude period",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-optics-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Optics",
+  "topicPath":["Physics","Optics"],
+  "topicPathText":"Physics > Optics",
+  "strictPromptSummary":"Reflection refraction mirrors lenses image formation",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
+
+post "physics-thermodynamics-medium" '{
+  "subject":"Physics",
+  "topicLabel":"Thermodynamics",
+  "topicPath":["Physics","Thermodynamics"],
+  "topicPathText":"Physics > Thermodynamics",
+  "strictPromptSummary":"Temperature heat specific heat thermal equilibrium expansion",
+  "questionCount":5,
+  "mode":"practice",
+  "difficulty":"medium",
+  "timePreferenceSeconds":40,
+  "useAiTiming":false,
+  "maxLives":3
+}'
