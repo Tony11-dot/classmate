@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${PORT:-3001}"
+LOG_FILE="${LOG_FILE:-/tmp/classmate-api-${PORT}.log}"
+
+kill -9 $(lsof -tiTCP:${PORT} -sTCP:LISTEN) 2>/dev/null || true
+sleep 2
+rm -f "$LOG_FILE"
+rm -rf dist
+
+PORT="$PORT" pnpm -s start:dev >"$LOG_FILE" 2>&1 &
+sleep 10
+
+curl -sS "http://127.0.0.1:${PORT}/health"
+echo
