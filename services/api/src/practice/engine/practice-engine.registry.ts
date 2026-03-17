@@ -23,6 +23,7 @@ import { PhysicsCircuitsDeterministicEngine } from './physics-circuits-determini
 import { PhysicsElectricFieldDeterministicEngine } from './physics-electric-field-deterministic.engine';
 import { PhysicsElectricityDeterministicEngine } from './physics-electricity-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './physics-energy-deterministic.engine';
+import { ElectronicsDeterministicEngine } from './electronics-deterministic.engine';
 
 @Injectable()
 export class PracticeEngineRegistry {
@@ -51,6 +52,7 @@ export class PracticeEngineRegistry {
     private readonly physicsWavesEngine: PhysicsWavesDeterministicEngine,
     private readonly physicsOpticsEngine: PhysicsOpticsDeterministicEngine,
     private readonly physicsThermodynamicsEngine: PhysicsThermodynamicsDeterministicEngine,
+    private readonly electronicsEngine: ElectronicsDeterministicEngine,
   ) {
     this.engines = [
       this.systemsOfEquationsEngine,
@@ -75,6 +77,7 @@ export class PracticeEngineRegistry {
       this.physicsWavesEngine,
       this.physicsOpticsEngine,
       this.physicsThermodynamicsEngine,
+      this.electronicsEngine,
     ];
   }
 

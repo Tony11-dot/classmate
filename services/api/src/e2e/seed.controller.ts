@@ -39,8 +39,8 @@ export class E2ESeedController {
       // per-grade defaults for Test School (best-effort; only if model exists)
       await prisma.schoolGradeSubjectDefault?.upsert?.({
         where: { schoolId_grade: { schoolId, grade: 10 } } as any,
-        update: { subjects: ['Math','English','Chemistry','Biology'] } as any,
-        create: { schoolId, grade: 10, subjects: ['Math','English','Chemistry','Biology'] } as any,
+        update: { subjects: ['Math','English','Chemistry','Biology','Electronics'] } as any,
+        create: { schoolId, grade: 10, subjects: ['Math','English','Chemistry','Biology','Electronics'] } as any,
       } as any).catch(() => {});
 
 
@@ -98,8 +98,8 @@ export class E2ESeedController {
         } as any,
         create: {
           id: 'e2e-course',
-          name: 'E2E Math',
-          subject: 'Math',
+          name: 'E2E Electronics',
+          subject: 'Electronics',
           teacherId: teacher.id,
           cohortId: cohort.id,
         } as any,

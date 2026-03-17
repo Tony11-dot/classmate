@@ -17,6 +17,7 @@ import { PhysicsKinematicsDeterministicEngine } from './engine/physics-kinematic
 import { PhysicsNewtonLawsDeterministicEngine } from './engine/physics-newton-laws-deterministic.engine';
 import { PhysicsForcesDeterministicEngine } from './engine/physics-forces-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './engine/physics-energy-deterministic.engine';
+import { ElectronicsDeterministicEngine } from './engine/electronics-deterministic.engine';
 import { PhysicsMomentumDeterministicEngine } from './engine/physics-momentum-deterministic.engine';
 import { PhysicsThermodynamicsDeterministicEngine } from './engine/physics-thermodynamics-deterministic.engine';
 import { PhysicsOpticsDeterministicEngine } from './engine/physics-optics-deterministic.engine';
@@ -45,6 +46,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
     PhysicsNewtonLawsDeterministicEngine,
     PhysicsForcesDeterministicEngine,
     PhysicsEnergyDeterministicEngine,
+    ElectronicsDeterministicEngine,
     PhysicsMomentumDeterministicEngine,
     PhysicsElectricityDeterministicEngine,
     PhysicsElectricFieldDeterministicEngine,
