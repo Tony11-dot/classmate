@@ -172,6 +172,7 @@ export class PracticeService {
     ];
 
     let finalQuestions: RawGeneratedQuestion[] = [];
+    let bestLocalValid: RawGeneratedQuestion[] = [];
 
     for (let attempt = 0; attempt < attemptNotes.length; attempt++) {
       const raw = await this.requestQuestionSet({
@@ -189,6 +190,8 @@ export class PracticeService {
 
       if (locallyValid.length !== questionCount) continue;
 
+      bestLocalValid = locallyValid;
+
       const verified = await this.verifyQuestionSet({
         apiKey,
         requestPayload,
@@ -203,6 +206,13 @@ export class PracticeService {
         finalQuestions = verified;
         break;
       }
+    }
+
+    if (finalQuestions.length !== questionCount && bestLocalValid.length === questionCount) {
+      console.log(
+        `[practice.generate] verifier_fallback_using_local_valid count=${bestLocalValid.length}`,
+      );
+      finalQuestions = bestLocalValid;
     }
 
     if (finalQuestions.length !== questionCount) {
