@@ -5,7 +5,7 @@ import { GroundedGeneratorService } from './grounded-generator.service';
 @Injectable()
 export class GroundedPracticeService {
   constructor(
-    private readonly retrieval: RetrievalService = new RetrievalService(),
+    private readonly retrieval: RetrievalService,
     private readonly generator: GroundedGeneratorService = new GroundedGeneratorService(),
   ) {}
 
