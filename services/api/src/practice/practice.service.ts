@@ -14,6 +14,12 @@ import { analyzeCustomPracticeTopic } from './intake/custom-topic-intake';
 import { FactualQuizService } from './factual/factual-quiz.service';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
+import { AdaptivePracticeFlowService } from './adaptive/flow/adaptive-practice-flow.service';
+import type {
+  AdaptiveAttemptInput,
+  AdaptiveAttemptResult,
+  AdaptiveSessionSummary,
+} from './adaptive/contracts/adaptive-practice.types';
 
 type PracticeMode =
   | 'practice'
@@ -114,7 +120,23 @@ export class PracticeService {
     private readonly conceptualTopicService: ConceptualTopicService = new ConceptualTopicService(),
     @Optional()
     private readonly symbolicTopicService: SymbolicTopicService = new SymbolicTopicService(),
+    @Optional()
+    private readonly adaptivePracticeFlowService: AdaptivePracticeFlowService = new AdaptivePracticeFlowService(),
   ) {}
+  submitAdaptiveAttempt(
+    input: AdaptiveAttemptInput,
+  ): AdaptiveAttemptResult {
+    return this.adaptivePracticeFlowService.submitAttempt(input);
+  }
+
+  getAdaptiveSessionSummary(input: {
+    sessionId: string;
+    subject: string;
+    topicLabel: string;
+  }): AdaptiveSessionSummary {
+    return this.adaptivePracticeFlowService.getSessionSummary(input);
+  }
+
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
 
