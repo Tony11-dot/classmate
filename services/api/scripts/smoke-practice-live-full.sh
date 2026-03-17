@@ -15,6 +15,9 @@ jq -e '
   (.questions | length) == 5 and
   ([.questions[].options | length] | all(. == 4)) and
   ([.questions[].correctIndex] | all(. >= 0 and . < 4)) and
+  ([.questions[].topicLabel] | all(type == "string" and length > 0 and . != "General")) and
+  ([.questions[].mode] | all(type == "string" and length > 0)) and
+  ([.questions[].difficulty] | all(type == "string" and length > 0)) and
   ([.questions[].prompt] | all(type == "string" and length > 0)) and
   ([.questions[].explanation] | all(type == "string" and length > 0)) and
   ([.questions[].recommendedTimeSeconds] | all(type == "number" and . >= 5 and . <= 900))
@@ -40,6 +43,9 @@ do
     (.questions | length) == 3 and
     ([.questions[].options | length] | all(. == 4)) and
     ([.questions[].correctIndex] | all(. >= 0 and . < 4)) and
+    ([.questions[].topicLabel] | all(type == "string" and length > 0 and . != "General")) and
+    ([.questions[].mode] | all(type == "string" and length > 0)) and
+    ([.questions[].difficulty] | all(type == "string" and length > 0)) and
     ([.questions[].prompt] | all(type == "string" and length > 0)) and
     ([.questions[].explanation] | all(type == "string" and length > 0)) and
     ([.questions[].recommendedTimeSeconds] | all(type == "number" and . >= 5 and . <= 900))
