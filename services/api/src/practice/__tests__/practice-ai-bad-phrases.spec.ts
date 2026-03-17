@@ -1,3 +1,4 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { PracticeService } from '../practice.service';
 
 describe('PracticeService bad phrase hard rejection', () => {
@@ -15,11 +16,7 @@ describe('PracticeService bad phrase hard rejection', () => {
 
       if (args.schemaName === 'practice_verifier') {
         return {
-          decisions: [
-            { index: 0, verdict: 'accept', reason: 'ok' },
-            { index: 1, verdict: 'accept', reason: 'ok' },
-            { index: 2, verdict: 'accept', reason: 'ok' },
-          ],
+          decisions: [{ index: 0, verdict: 'accept', reason: 'ok' }],
         };
       }
 
@@ -34,7 +31,7 @@ describe('PracticeService bad phrase hard rejection', () => {
     process.env.OPENAI_API_KEY = 'test-key';
   });
 
-  it('rejects reconsider/correction/adjust-options style content before finalization', async () => {
+  it('hard-rejects reconsider/correction/adjust-options style content and refuses invalid finalization', async () => {
     service.queue.push([
       {
         prompt: 'If P(x)=x^3-4x^2+ax-6 has factor (x-2), what is a?',
@@ -48,20 +45,17 @@ describe('PracticeService bad phrase hard rejection', () => {
       },
     ]);
 
-    const res = await service.generate({
-      subject: 'Math',
-      topic: 'Polynomials',
-      difficulty: 'hard',
-      mode: 'examPrep',
-      count: 1,
-      timePreferenceSeconds: 75,
-      useAiTiming: true,
-      maxLives: 2,
-    });
-
-    expect(res.questions).toHaveLength(1);
-    expect(res.questions[0].explanation.toLowerCase()).not.toContain('correction');
-    expect(res.questions[0].explanation.toLowerCase()).not.toContain('reconsider');
-    expect(res.questions[0].explanation.toLowerCase()).not.toContain('adjust options');
+    await expect(
+      service.generate({
+        subject: 'Math',
+        topic: 'Polynomials',
+        difficulty: 'hard',
+        mode: 'examPrep',
+        count: 1,
+        timePreferenceSeconds: 75,
+        useAiTiming: true,
+        maxLives: 2,
+      }),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 });
