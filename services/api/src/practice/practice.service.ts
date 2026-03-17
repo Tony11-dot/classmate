@@ -4,6 +4,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
+import { resolveCanonicalPracticeSubject } from './catalog/practice-subject-catalog';
+import { resolveCanonicalPracticeTopic } from './catalog/practice-topic-catalog';
 
 type PracticeMode =
   | 'practice'
@@ -52,25 +54,56 @@ type VerifierDecision = {
   reason?: unknown;
 };
 
+function normalizePracticeSubject(raw: string): string {
+  const v = String(raw ?? '').trim().toLowerCase();
+  if (!v) return 'Math';
+
+  const map: Record<string, string> = {
+    math: 'Math',
+    mathematics: 'Math',
+
+    physics: 'Physics',
+    physic: 'Physics',
+
+    electronics: 'Electronics',
+    elictronics: 'Electronics',
+    electronic: 'Electronics',
+    eletronics: 'Electronics',
+    electroncis: 'Electronics',
+  };
+
+  return map[v] ?? String(raw ?? '').trim();
+}
+
 @Injectable()
 export class PracticeService {
   constructor(private readonly engineRegistry: PracticeEngineRegistry) {}
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
 
-    const subject = String(input.subject ?? 'Math').trim();
+    const subject = resolveCanonicalPracticeSubject(String(input.subject ?? 'Math').trim());
     const providedTopicLabel = String(input.topicLabel ?? '').trim();
     const legacyTopic = String(input.topic ?? '').trim();
     const topicPath = Array.isArray(input.topicPath)
       ? input.topicPath.map(String).map((x) => x.trim()).filter(Boolean)
       : [];
-    const topicPathText =
-      String(input.topicPathText ?? '').trim() ||
-      providedTopicLabel ||
-      legacyTopic;
+    const explicitTopicPathText = String(input.topicPathText ?? '').trim();
     const strictPromptSummary = String(input.strictPromptSummary ?? '').trim();
 
-    const topicLabel =
+    const rawTopicLabel =
+      providedTopicLabel ||
+      legacyTopic ||
+      (topicPath.length ? topicPath.join(' > ') : 'General');
+
+    const canonicalTopic =
+      resolveCanonicalPracticeTopic(subject, rawTopicLabel) ||
+      resolveCanonicalPracticeTopic(subject, explicitTopicPathText) ||
+      null;
+
+    const topicLabel = canonicalTopic?.canonicalTopic ?? rawTopicLabel;
+    const topicPathText =
+      explicitTopicPathText ||
+      canonicalTopic?.canonicalTopic ||
       providedTopicLabel ||
       legacyTopic ||
       (topicPath.length ? topicPath.join(' > ') : 'General');

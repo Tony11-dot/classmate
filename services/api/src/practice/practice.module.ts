@@ -18,6 +18,10 @@ import { PhysicsNewtonLawsDeterministicEngine } from './engine/physics-newton-la
 import { PhysicsForcesDeterministicEngine } from './engine/physics-forces-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './engine/physics-energy-deterministic.engine';
 import { ElectronicsDeterministicEngine } from './engine/electronics-deterministic.engine';
+import { PhysicsMagnetismDeterministicEngine } from './engine/physics-magnetism-deterministic.engine';
+import { PhysicsRelativityDeterministicEngine } from './engine/physics-relativity-deterministic.engine';
+import { PolynomialsDeterministicEngine } from './engine/polynomials-deterministic.engine';
+import { SetTheoryDeterministicEngine } from './engine/set-theory-deterministic.engine';
 import { PhysicsMomentumDeterministicEngine } from './engine/physics-momentum-deterministic.engine';
 import { PhysicsThermodynamicsDeterministicEngine } from './engine/physics-thermodynamics-deterministic.engine';
 import { PhysicsOpticsDeterministicEngine } from './engine/physics-optics-deterministic.engine';
@@ -47,6 +51,10 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
     PhysicsForcesDeterministicEngine,
     PhysicsEnergyDeterministicEngine,
     ElectronicsDeterministicEngine,
+    PhysicsMagnetismDeterministicEngine,
+    PhysicsRelativityDeterministicEngine,
+    PolynomialsDeterministicEngine,
+    SetTheoryDeterministicEngine,
     PhysicsMomentumDeterministicEngine,
     PhysicsElectricityDeterministicEngine,
     PhysicsElectricFieldDeterministicEngine,

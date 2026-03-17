@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/saved_questions_provider.dart';
+import '../../../common/widgets/cm_rich_content.dart';
 
 class SavedQuestionsScreen extends ConsumerWidget {
   const SavedQuestionsScreen({super.key});
@@ -103,11 +104,11 @@ class SavedQuestionsScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        q.prompt,
+                      DefaultTextStyle.merge(
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
+                        child: CMRichContent(data: q.prompt),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -117,12 +118,12 @@ class SavedQuestionsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        q.explanation,
+                      DefaultTextStyle.merge(
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                           height: 1.35,
                         ),
+                        child: CMRichContent(data: q.explanation),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton.icon(

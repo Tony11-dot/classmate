@@ -23,10 +23,34 @@ import { PhysicsCircuitsDeterministicEngine } from './physics-circuits-determini
 import { PhysicsElectricFieldDeterministicEngine } from './physics-electric-field-deterministic.engine';
 import { PhysicsElectricityDeterministicEngine } from './physics-electricity-deterministic.engine';
 import { PhysicsEnergyDeterministicEngine } from './physics-energy-deterministic.engine';
+import { PhysicsMagnetismDeterministicEngine } from './physics-magnetism-deterministic.engine';
+import { PhysicsRelativityDeterministicEngine } from './physics-relativity-deterministic.engine';
+import { PolynomialsDeterministicEngine } from './polynomials-deterministic.engine';
+import { SetTheoryDeterministicEngine } from './set-theory-deterministic.engine';
 import { ElectronicsDeterministicEngine } from './electronics-deterministic.engine';
 
 @Injectable()
 export class PracticeEngineRegistry {
+
+  private ensureQuestionCount(questions: any[], requested: number) {
+    if (!Array.isArray(questions)) return [];
+    if (questions.length >= requested) return questions.slice(0, requested);
+
+    const padded = [...questions];
+    let i = 0;
+
+    while (padded.length < requested && questions.length > 0) {
+      const base = questions[i % questions.length];
+      padded.push({
+        ...base,
+        _padded: true,
+      });
+      i++;
+    }
+
+    return padded;
+  }
+
   private readonly engines: PracticeEngine[];
 
   constructor(
@@ -41,10 +65,14 @@ export class PracticeEngineRegistry {
     private readonly limitsEngine: LimitsDeterministicEngine,
     private readonly quadraticEngine: QuadraticDeterministicEngine,
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
+    private readonly polynomialsEngine: PolynomialsDeterministicEngine,
+    private readonly setTheoryEngine: SetTheoryDeterministicEngine,
     private readonly physicsKinematicsEngine: PhysicsKinematicsDeterministicEngine,
     private readonly physicsNewtonLawsEngine: PhysicsNewtonLawsDeterministicEngine,
     private readonly physicsForcesEngine: PhysicsForcesDeterministicEngine,
     private readonly physicsEnergyEngine: PhysicsEnergyDeterministicEngine,
+    private readonly physicsMagnetismEngine: PhysicsMagnetismDeterministicEngine,
+    private readonly physicsRelativityEngine: PhysicsRelativityDeterministicEngine,
     private readonly physicsMomentumEngine: PhysicsMomentumDeterministicEngine,
     private readonly physicsElectricityEngine: PhysicsElectricityDeterministicEngine,
     private readonly physicsElectricFieldEngine: PhysicsElectricFieldDeterministicEngine,
@@ -66,10 +94,14 @@ export class PracticeEngineRegistry {
       this.geometryEngine,
       this.quadraticEngine,
       this.trigonometryEngine,
+      this.polynomialsEngine,
+      this.setTheoryEngine,
       this.physicsKinematicsEngine,
       this.physicsNewtonLawsEngine,
       this.physicsForcesEngine,
       this.physicsEnergyEngine,
+      this.physicsMagnetismEngine,
+      this.physicsRelativityEngine,
       this.physicsMomentumEngine,
       this.physicsElectricityEngine,
       this.physicsElectricFieldEngine,
@@ -84,7 +116,8 @@ export class PracticeEngineRegistry {
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[] | null> {
     for (const engine of this.engines) {
       if (engine.supports(req)) {
-        return engine.generate(req);
+        const questions = await engine.generate(req);
+        return this.ensureQuestionCount(questions, req.questionCount ?? 2);
       }
     }
     return null;

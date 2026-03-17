@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/practice_history_models.dart';
 import '../../../../ui/math/math_view.dart';
 import 'practice_mode_specs.dart';
+import '../../../common/widgets/cm_rich_content.dart';
 
 class PracticeHistoryReviewScreen extends StatefulWidget {
   final PracticeHistorySession session;
@@ -205,12 +206,12 @@ class _PracticeHistoryReviewScreenState
                       ],
                     ),
                     const SizedBox(height: 8),
-                    MathView(
-                      q.prompt,
+                    DefaultTextStyle.merge(
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         height: 1.3,
                       ),
+                      child: CMRichContent(data: q.prompt),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -241,7 +242,7 @@ class _PracticeHistoryReviewScreenState
                       ),
                     ),
                     const SizedBox(height: 4),
-                    MathView(q.explanation, compact: true),
+                    CMRichContent(data: q.explanation),
                   ],
                 ),
               ),
