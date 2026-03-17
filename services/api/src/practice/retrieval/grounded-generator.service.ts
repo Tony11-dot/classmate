@@ -17,34 +17,26 @@ export class GroundedGeneratorService {
     const context = input.chunks.map(c => c.content).join('\n\n');
 
     const prompt = `
-You are an expert ${input.subject} exam writer.
+You are a STRICT academic exam generator.
 
-STRICT RULES:
-- Only use the provided context
-- No hallucinations
-- Generate EXACTLY ${input.count} MCQs
-- Each question must have 4 options
+RULES:
+- ONLY use the provided context
+- If unsure → DO NOT GUESS
+- Questions must be precise and unambiguous
+- EXACTLY ${input.count} questions
+- Each must have 4 options
 - One correct answer
-- Include explanation
-- Difficulty: ${input.difficulty}
+- Explanation must match context
 
 CONTEXT:
 ${context}
 
-OUTPUT JSON:
-[
-  {
-    "prompt": "...",
-    "options": ["A","B","C","D"],
-    "correctIndex": 0,
-    "explanation": "..."
-  }
-]
+Return ONLY JSON array.
 `;
 
     const res = await this.client.chat.completions.create({
       model: 'gpt-4o-mini',
-      temperature: 0.2,
+      temperature: 0,
       messages: [{ role: 'user', content: prompt }],
     });
 
