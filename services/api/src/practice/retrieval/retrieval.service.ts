@@ -1,51 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { EmbeddingService } from './embedding.service';
-import { InMemoryVectorStore } from './vector/vector-store';
-import { MultiSourceService } from './multi-source.service';
+import { EmbeddingService } from './vector/embedding.service';
+import { RankingService } from './ranking.service';
+import { PersistentVectorStore } from './vector/persistent/persistent-vector-store';
 
 @Injectable()
 export class RetrievalService {
   private embedder = new EmbeddingService();
-  private store = new InMemoryVectorStore();
+  private ranker = new RankingService();
+  private persistentStore = new PersistentVectorStore();
 
-  constructor(
-    private readonly embedding: EmbeddingService,
-    private readonly multi: MultiSourceService,
-  ) {}
+  async retrieve(input: { subject: string; topic: string }) {
+    const query = `${input.subject} ${input.topic}`;
 
-  private chunk(text: string, size = 300): string[] {
-    const chunks: string[] = [];
-    for (let i = 0; i < text.length; i += size) {
-      chunks.push(text.slice(i, i + size));
-    }
-    return chunks;
-  }
+    const queryEmbedding = await this.embedder.embed(query);
 
-  async retrieve(input: {
-    subject: string;
-    topic: string;
-  }) {
-    const raw = await this.multi.fetch(input.topic);
+    // existing sources (if any logic exists later, keep simple fallback)
+    const results: any[] = [];
 
-    for (const r of raw) {
-      const pieces = this.chunk(r.content);
+    const persistent = this.persistentStore.search(queryEmbedding, 5);
 
-      for (const p of pieces) {
-        const emb = await this.embedding.embed(p);
+    const combined = [...persistent, ...results];
 
-        this.store.add({
-          id: Math.random().toString(),
-          content: p,
-          embedding: emb,
-          source: r.source,
-        });
-      }
-    }
-
-    const queryEmb = await this.embedding.embed(input.topic);
-
-    const results = this.store.search(queryEmb, 5);
-
-    return results;
+    return this.ranker.rank(queryEmbedding, combined).slice(0, 5);
   }
 }
