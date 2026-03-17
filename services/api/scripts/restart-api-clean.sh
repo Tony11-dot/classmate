@@ -7,7 +7,7 @@ BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT}}"
 
 kill -9 "$(lsof -tiTCP:${PORT} -sTCP:LISTEN)" 2>/dev/null || true
 sleep 2
-rm -f ""
+rm -f "$LOG_FILE"
 rm -rf dist
 
 PORT="$PORT" pnpm -s start:dev >"$LOG_FILE" 2>&1 &

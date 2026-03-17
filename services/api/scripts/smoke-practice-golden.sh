@@ -19,8 +19,7 @@ printf '\n=== DETERMINISTIC REGRESSION ===\n'
 tail -n 40 /tmp/practice-golden-deterministic.out
 
 printf '\n=== LOG SUMMARY ===\n'
-./scripts/practice-log-summary.sh ""
+./scripts/practice-log-summary.sh "$LOG_FILE"
 
 # FAIL_EADDRINUSE is enforced by practice-log-summary.sh
-
 echo 'practice-golden-ok'
