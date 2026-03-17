@@ -20,11 +20,23 @@ run_payload() {
     ([.questions[].options | unique | length] | all(. == 4)) and
     ([.questions[].correctIndex] | all(. >= 0 and . < 4)) and
     ([.questions[].topicLabel] | all(type == "string" and length > 0 and . != "General")) and
+    ([.questions[].mode] | all(type == "string" and length > 0)) and
+    ([.questions[].difficulty] | all(type == "string" and length > 0)) and
     ([.questions[].prompt] | all(type == "string" and length > 0)) and
     ([.questions[].explanation] | all(type == "string" and length > 0)) and
     ([.questions[].recommendedTimeSeconds] | all(type == "number" and . >= 5 and . <= 900))
   ' /tmp/practice-live-payload.json >/dev/null || {
     echo 'FAIL_PAYLOAD'
+    cat /tmp/practice-live-payload.json
+    exit 1
+  }
+
+  jq -e '
+    ([.questions[].topicLabel] | all(. != null and . != "")) and
+    ([.questions[].mode] | all(. != null and . != "")) and
+    ([.questions[].difficulty] | all(. != null and . != ""))
+  ' /tmp/practice-live-payload.json >/dev/null || {
+    echo 'FAIL_TOPIC_STYLE'
     cat /tmp/practice-live-payload.json
     exit 1
   }
