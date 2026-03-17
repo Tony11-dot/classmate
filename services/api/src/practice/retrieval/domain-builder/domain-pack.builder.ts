@@ -21,6 +21,6 @@ export class DomainPackBuilder {
       });
     }
 
-    this.store.add(entries);
+    this.store.add(entries as any);
   }
 }

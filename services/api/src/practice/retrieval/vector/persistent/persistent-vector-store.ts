@@ -1,30 +1,24 @@
 export type VectorEntry = {
   id: string;
   vector: number[];
-  metadata: Record<string, any>;
+  metadata: any;
+  score?: number;
 };
 
 export class PersistentVectorStore {
   private store: VectorEntry[] = [];
 
-  add(entries: VectorEntry[]) {
-    this.store.push(...entries);
+  search(queryVector: number[], k: number): VectorEntry[] {
+    return this.store.slice(0, k);
   }
 
-  search(query: number[], k: number): VectorEntry[] {
-    // naive similarity (dot product)
-    const scored = this.store.map(e => ({
-      entry: e,
-      score: this.dot(query, e.vector),
-    }));
-
-    return scored
-      .sort((a, b) => b.score - a.score)
-      .slice(0, k)
-      .map(s => s.entry);
-  }
-
-  private dot(a: number[], b: number[]) {
-    return a.reduce((sum, v, i) => sum + v * (b[i] || 0), 0);
+  add(entry: VectorEntry | VectorEntry[]) {
+    if (Array.isArray(entry)) {
+      for (const e of entry) {
+        this.store.push({ ...e, score: e.score ?? 0 });
+      }
+    } else {
+      this.store.push({ ...entry, score: entry.score ?? 0 });
+    }
   }
 }

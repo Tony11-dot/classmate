@@ -11,16 +11,23 @@ export class RetrievalService {
 
   async retrieve(input: { subject: string; topic: string }) {
     const query = `${input.subject} ${input.topic}`;
-
     const queryEmbedding = await this.embedder.embed(query);
 
-    // existing sources (if any logic exists later, keep simple fallback)
     const results: any[] = [];
-
     const persistent = this.persistentStore.search(queryEmbedding, 5);
 
     const combined = [...persistent, ...results];
 
-    return this.ranker.rank(queryEmbedding, combined).slice(0, 5);
+    const ranked = this.ranker.rank(queryEmbedding, combined);
+
+    const feedbackBoosted = ranked.map((item: any) => {
+      if (item.metadata?.correct === true) item.score += 0.1;
+      if (item.metadata?.correct === false) item.score -= 0.1;
+      return item;
+    });
+
+    return feedbackBoosted
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 5);
   }
 }
