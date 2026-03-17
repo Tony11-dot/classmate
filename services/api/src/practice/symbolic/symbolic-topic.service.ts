@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { analyzeCustomPracticeTopic } from '../intake/custom-topic-intake';
+import { DERIVATIVE_BASIC_SEEDS } from './seeds/derivatives.basic';
+import { LIMIT_BASIC_SEEDS } from './seeds/limits.basic';
 
 export type SymbolicQuestionSeed = {
   stem: string;
@@ -48,7 +50,6 @@ export class SymbolicTopicService {
     const topic = String(intake.effectiveTopic || '').trim();
     const lower = topic.toLowerCase();
     const count = Math.max(1, Math.min(10, Number(input.questionCount ?? 3) || 3));
-    const seeds: SymbolicQuestionSeed[] = [];
     const gaps: string[] = [];
 
     const isSymbolicCandidate =
@@ -72,65 +73,41 @@ export class SymbolicTopicService {
     }
 
     if (/derivative|derivatives/i.test(lower)) {
-      seeds.push(
-        {
-          stem: 'What is the derivative of x^2 ?',
-          options: ['2x', 'x', 'x^3', '2'],
-          correctIndex: 0,
-          explanation: 'Using the power rule, d/dx(x^2) = 2x.',
-          recommendedTimeSeconds: 35,
-        },
-        {
-          stem: 'What is the derivative of 3x^3 ?',
-          options: ['9x^2', '3x^2', '6x', 'x^3'],
-          correctIndex: 0,
-          explanation: 'Using the power rule, d/dx(3x^3) = 9x^2.',
-          recommendedTimeSeconds: 40,
-        },
-        {
-          stem: 'What is the derivative of a constant?',
-          options: ['0', '1', 'The constant itself', 'Undefined'],
-          correctIndex: 0,
-          explanation: 'The derivative of any constant is 0.',
-          recommendedTimeSeconds: 25,
-        },
-      );
-    } else if (/limit|limits/i.test(lower)) {
-      seeds.push(
-        {
-          stem: 'What is lim(x→2) (x + 3) ?',
-          options: ['5', '3', '2', '1'],
-          correctIndex: 0,
-          explanation: 'For a continuous expression like x + 3, substitute x = 2 to get 5.',
-          recommendedTimeSeconds: 30,
-        },
-        {
-          stem: 'What is lim(x→1) (x^2) ?',
-          options: ['1', '2', '0', 'Undefined'],
-          correctIndex: 0,
-          explanation: 'For a polynomial, direct substitution works. 1^2 = 1.',
-          recommendedTimeSeconds: 30,
-        },
-        {
-          stem: 'When a function is continuous at x = a, how do you evaluate its limit there?',
-          options: [
-            'Substitute x = a directly',
-            'Always use L’Hôpital’s rule',
-            'The limit does not exist',
-            'Differentiate first',
-          ],
-          correctIndex: 0,
-          explanation: 'For continuous functions, the limit at a point equals the function value there.',
-          recommendedTimeSeconds: 35,
-        },
-      );
-    } else if (/matrix|matrices/i.test(lower)) {
-      seeds.push(
+      return {
+        ok: true,
+        ready: true,
+        subject: intake.effectiveSubject,
+        topic: intake.effectiveTopic,
+        confidence: 0.8,
+        needsClarification: false,
+        gaps: [],
+        seeds: DERIVATIVE_BASIC_SEEDS.slice(0, count),
+        intake,
+      };
+    }
+
+    if (/limit|limits/i.test(lower)) {
+      return {
+        ok: true,
+        ready: true,
+        subject: intake.effectiveSubject,
+        topic: intake.effectiveTopic,
+        confidence: 0.8,
+        needsClarification: false,
+        gaps: [],
+        seeds: LIMIT_BASIC_SEEDS.slice(0, count),
+        intake,
+      };
+    }
+
+    if (/matrix|matrices/i.test(lower)) {
+      const seeds: SymbolicQuestionSeed[] = [
         {
           stem: 'If A and B are 2×2 matrices, what is the size of A + B ?',
           options: ['2×2', '4×4', '2×1', 'Undefined always'],
           correctIndex: 0,
-          explanation: 'Matrices can be added only when they have the same dimensions, and the result keeps that size.',
+          explanation:
+            'Matrices can be added only when they have the same dimensions, and the result keeps that size.',
           recommendedTimeSeconds: 35,
         },
         {
@@ -142,7 +119,8 @@ export class SymbolicTopicService {
             'They must have the same entries',
           ],
           correctIndex: 0,
-          explanation: 'Matrix addition is defined only when both matrices have the same dimensions.',
+          explanation:
+            'Matrix addition is defined only when both matrices have the same dimensions.',
           recommendedTimeSeconds: 35,
         },
         {
@@ -152,9 +130,23 @@ export class SymbolicTopicService {
           explanation: 'Matrix size is written as rows × columns.',
           recommendedTimeSeconds: 25,
         },
-      );
-    } else if (/integral|integrals/i.test(lower)) {
-      seeds.push(
+      ];
+
+      return {
+        ok: true,
+        ready: true,
+        subject: intake.effectiveSubject,
+        topic: intake.effectiveTopic,
+        confidence: 0.8,
+        needsClarification: false,
+        gaps: [],
+        seeds: seeds.slice(0, count),
+        intake,
+      };
+    }
+
+    if (/integral|integrals/i.test(lower)) {
+      const seeds: SymbolicQuestionSeed[] = [
         {
           stem: 'What is ∫ x dx ?',
           options: ['x^2/2 + C', 'x + C', '2x + C', '1/x + C'],
@@ -171,7 +163,8 @@ export class SymbolicTopicService {
             'Because constants cannot appear in functions',
           ],
           correctIndex: 0,
-          explanation: 'Different constants vanish under differentiation, so indefinite integrals include +C.',
+          explanation:
+            'Different constants vanish under differentiation, so indefinite integrals include +C.',
           recommendedTimeSeconds: 35,
         },
         {
@@ -181,27 +174,32 @@ export class SymbolicTopicService {
           explanation: 'The antiderivative of 1 is x + C.',
           recommendedTimeSeconds: 25,
         },
-      );
-    } else {
-      gaps.push('symbolic_generation_not_ready');
+      ];
+
+      return {
+        ok: true,
+        ready: true,
+        subject: intake.effectiveSubject,
+        topic: intake.effectiveTopic,
+        confidence: 0.8,
+        needsClarification: false,
+        gaps: [],
+        seeds: seeds.slice(0, count),
+        intake,
+      };
     }
 
-    const limited = seeds.slice(0, count);
-    const ready = limited.length > 0;
-    const needsClarification = !ready;
-
-    if (!ready && gaps.length === 0) gaps.push('symbolic_generation_not_ready');
-    if (!ready && !gaps.includes('symbolic_generation_not_ready')) gaps.push('symbolic_generation_not_ready');
+    gaps.push('symbolic_generation_not_ready');
 
     return {
-      ok: ready,
-      ready,
+      ok: false,
+      ready: false,
       subject: intake.effectiveSubject,
       topic: intake.effectiveTopic,
-      confidence: ready ? 0.8 : 0,
-      needsClarification,
+      confidence: 0,
+      needsClarification: true,
       gaps,
-      seeds: limited,
+      seeds: [],
       intake,
     };
   }
