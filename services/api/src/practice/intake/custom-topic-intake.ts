@@ -164,6 +164,24 @@ function isLowSignalTopicText(raw: string): boolean {
   return false;
 }
 
+
+function isLikelySymbolicCustomTopic(subject: string, topic: string): boolean {
+  const s = lower(subject);
+  const t = lower(topic);
+
+  const stemSubject =
+    ['math', 'physics', 'electronics', 'chemistry', 'biology', 'computer science'].includes(s);
+
+  const explicit =
+    /\b(equation|equations|derivative|derivatives|partial derivative|partial derivatives|limit|limits|polynomial|polynomials|quadratic|quadratics|integral|integrals|vector|vectors|matrix|matrices|matrix multiplication|determinant|determinants|eigenvalue|eigenvalues|eigenvector|eigenvectors|complex number|complex numbers|gradient|gradients|jacobian|jacobians|laplace transform|laplace transforms|fourier series|fourier transform|taylor series|maclaurin series|differential equation|differential equations)\b/.test(t);
+
+  const symbolicStyle =
+    /[=^+\-*/()]/.test(topic) ||
+    /\b(solve|simplify|differentiate|integrate|factor|expand|evaluate|compute|calculate|prove)\b/.test(t);
+
+  return stemSubject && (explicit || symbolicStyle);
+}
+
 function inferTopicType(subject: string, topic: string): CustomTopicIntakeResult['topicType'] {
   const s = lower(subject);
   const t = lower(topic);
@@ -171,7 +189,10 @@ function inferTopicType(subject: string, topic: string): CustomTopicIntakeResult
   if (
     ['math', 'physics', 'electronics', 'chemistry', 'biology', 'computer science'].includes(s)
   ) {
-    if (/\b(equation|equations|derivative|derivatives|limit|limits|polynomial|quadratic|integral|vector|matrix|circuit|resistor|ohm|kirchhoff)\b/.test(t)) {
+    if (
+      /\b(equation|equations|derivative|derivatives|partial derivative|partial derivatives|limit|limits|polynomial|polynomials|quadratic|quadratics|integral|integrals|vector|vectors|matrix|matrices|determinant|determinants|eigenvalue|eigenvalues|complex number|complex numbers|gradient|gradients|jacobian|jacobians|circuit|circuits|resistor|resistors|ohm|kirchhoff)\b/.test(t) ||
+      isLikelySymbolicCustomTopic(subject, topic)
+    ) {
       return 'symbolic';
     }
     return 'school_stem';
@@ -344,7 +365,11 @@ export function analyzeCustomPracticeTopic(input: {
     !rawTopic ||
     confidence < 0.6 ||
     quizzability === 'low' ||
-    (breadth === 'broad' && generationStrategy !== 'deterministic');
+    (
+      breadth === 'broad' &&
+      generationStrategy !== 'deterministic' &&
+      generationStrategy !== 'symbolic'
+    );
 
   return {
     rawSubject,

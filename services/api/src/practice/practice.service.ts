@@ -2,13 +2,18 @@ import {
   Injectable,
   InternalServerErrorException,
   BadRequestException,
+  Optional,
 } from '@nestjs/common';
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
 import { resolveCanonicalPracticeSubject } from './catalog/practice-subject-catalog';
-import { resolveCanonicalPracticeTopic } from './catalog/practice-topic-catalog';
+import {
+  resolveCanonicalPracticeTopic,
+  isDeterministicPracticeTopic,
+} from './catalog/practice-topic-catalog';
 import { analyzeCustomPracticeTopic } from './intake/custom-topic-intake';
 import { FactualQuizService } from './factual/factual-quiz.service';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
+import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 
 type PracticeMode =
   | 'practice'
@@ -64,9 +69,36 @@ type PracticeRouteKind =
   | 'symbolic'
   | 'ai_fallback';
 
+
+function isStemStructuredSubject(subject: string): boolean {
+  const s = String(subject ?? '').trim().toLowerCase();
+  return [
+    'math',
+    'physics',
+    'electronics',
+    'chemistry',
+    'biology',
+    'computer science',
+  ].includes(s);
+}
+
+function isLikelySymbolicBoundaryTopic(topic: string): boolean {
+  const t = String(topic ?? '').trim().toLowerCase();
+
+  const explicit =
+    /\b(derivative|derivatives|partial derivative|partial derivatives|limit|limits|integral|integrals|matrix|matrices|matrix multiplication|vector|vectors|eigenvalue|eigenvalues|eigenvector|eigenvectors|determinant|determinants|gradient|gradients|jacobian|jacobians|taylor series|maclaurin series|sequence and series|series expansion|differential equation|differential equations|laplace transform|laplace transforms|fourier series|fourier transform|complex number|complex numbers|complex analysis|linear algebra|calculus|tensor|tensors|theorem|theorems|proof|proofs|series|transform|transforms)\b/.test(t);
+
+  const symbolicStyle =
+    /[=^+\-*/()]/.test(topic) ||
+    /\b(solve|simplify|differentiate|integrate|factor|expand|evaluate|compute|calculate|prove)\b/.test(t);
+
+  return explicit || symbolicStyle;
+}
+
 type PracticeRoutingDecision = {
   route: PracticeRouteKind;
   symbolicReason?: string;
+  hasDeterministicCatalogTopic: boolean;
 };
 
 
@@ -76,8 +108,12 @@ type PracticeRoutingDecision = {
 export class PracticeService {
   constructor(
     private readonly engineRegistry: PracticeEngineRegistry,
+    @Optional()
     private readonly factualQuizService: FactualQuizService = new FactualQuizService(),
+    @Optional()
     private readonly conceptualTopicService: ConceptualTopicService = new ConceptualTopicService(),
+    @Optional()
+    private readonly symbolicTopicService: SymbolicTopicService = new SymbolicTopicService(),
   ) {}
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -111,6 +147,10 @@ export class PracticeService {
       null;
 
     const topicLabel = canonicalTopic?.canonicalTopic ?? rawTopicLabel;
+    const hasDeterministicCatalogTopic =
+      isDeterministicPracticeTopic(subject, rawTopicLabel) ||
+      isDeterministicPracticeTopic(subject, explicitTopicPathText) ||
+      Boolean(canonicalTopic?.deterministic);
     const shouldCanonicalizeTopicPathText =
       !!canonicalTopic &&
       !!rawTopicLabel &&
@@ -170,22 +210,112 @@ export class PracticeService {
       questionCount,
     });
 
+    const symbolic = this.symbolicTopicService.resolve({
+      subject,
+      topicLabel,
+      topicPathText,
+      questionCount,
+      difficulty,
+    });
+
+    
+    // =========================
+    // HARD SYMBOLIC STOP (NO AI FALLBACK EVER)
+    // =========================
+    const isSymbolicTopic =
+      !hasDeterministicCatalogTopic &&
+      (
+        intake.generationStrategy === 'symbolic' ||
+        intake.topicType === 'symbolic' ||
+        isLikelySymbolicBoundaryTopic(topicLabel)
+      );
+
+    if (isSymbolicTopic && !symbolic.ready) {
+      return {
+        questions: [],
+        symbolic: {
+          ready: false,
+          topic: symbolic.topic || topicLabel,
+          gaps: symbolic.gaps.length
+            ? symbolic.gaps
+            : ['symbolic_generation_not_ready'],
+        },
+      };
+    }
+
     const routing = this.buildRoutingDecision({
       intake,
       topicLabel,
       deterministicQuestions: deterministic ?? [],
       conceptual,
+      symbolic,
+      hasDeterministicCatalogTopic,
     });
 
     if (routing.route === 'deterministic' && deterministic && deterministic.length === questionCount) {
-      return this.buildDeterministicResponse({
+      const base = this.buildDeterministicResponse({
         subject,
         topicLabel,
         mode,
         difficulty,
         deterministic,
       });
+
+      const shouldAttachSymbolicMeta =
+        symbolic.ready &&
+        (
+          intake.generationStrategy === 'symbolic' ||
+          intake.topicType === 'symbolic' ||
+          isLikelySymbolicBoundaryTopic(topicLabel)
+        );
+
+      if (shouldAttachSymbolicMeta) {
+        return {
+          ...base,
+          symbolic: {
+            ready: true,
+            topic: symbolic.topic || topicLabel,
+            gaps: [],
+          },
+        };
+      }
+
+      return base;
     }
+
+    const conceptualBoundaryKeyword =
+      /\b(big o|music theory|conditional|conditionals|if statements|algorithmic complexity|time complexity|space complexity|music)\b/i
+        .test(topicLabel);
+
+    const conceptualBoundary =
+      intake.generationStrategy === 'conceptual' || conceptualBoundaryKeyword;
+
+    if (conceptualBoundary && !conceptual.ready) {
+      return {
+        questions: [],
+        conceptual: {
+          ready: false,
+          gaps: conceptual.gaps.length
+            ? conceptual.gaps
+            : ['broad_conceptual_topic'],
+        },
+      };
+    }
+
+    const symbolicBoundaryKeyword =
+      /\b(derivative|derivatives|partial derivative|partial derivatives|limit|limits|integral|integrals|matrix|matrices|matrix multiplication|vector|vectors|eigenvalue|eigenvalues|eigenvector|eigenvectors|determinant|determinants|gradient|gradients|jacobian|jacobians|taylor series|maclaurin series|sequence and series|series expansion|differential equation|differential equations|laplace transform|laplace transforms|fourier series|fourier transform|complex number|complex numbers|complex analysis|linear algebra|calculus|tensor|tensors|theorem|theorems|proof|proofs|series|transform|transforms)\b/i
+        .test(topicLabel);
+
+    const symbolicBoundary =
+      intake.generationStrategy === 'symbolic' ||
+      intake.topicType === 'symbolic' ||
+      symbolicBoundaryKeyword ||
+      (Array.isArray(symbolic.gaps) &&
+        symbolic.gaps.some((g) =>
+          ['symbolic_generation_not_ready'].includes(String(g)),
+        ));
+
+
 
     if (routing.route === 'grounded_factual') {
       return await this.buildFactualResponse({
@@ -209,12 +339,41 @@ export class PracticeService {
     }
 
     if (routing.route === 'symbolic') {
+      if (symbolic.ready && symbolic.seeds.length > 0) {
+        const now = Date.now();
+
+        return {
+          questions: symbolic.seeds.slice(0, questionCount).map((seed, i) => ({
+            id: `${subject}-${topicLabel}-${mode}-${difficulty}-symbolic-${now}-${i}`,
+            subject,
+            topicLabel: symbolic.topic,
+            mode,
+            difficulty,
+            prompt: seed.stem,
+            options: seed.options,
+            correctIndex: seed.correctIndex,
+            explanation: seed.explanation,
+            recommendedTimeSeconds: seed.recommendedTimeSeconds ?? 35,
+          })),
+          symbolic: {
+            ready: true,
+            topic: symbolic.topic,
+            gaps: [],
+          },
+        };
+      }
+
       return {
         questions: [],
         symbolic: {
           ready: false,
-          topic: topicLabel,
-          gaps: [routing.symbolicReason ?? 'symbolic_generation_not_ready'],
+          topic: symbolic.topic || topicLabel,
+          gaps: Array.from(
+            new Set([
+              ...(symbolic.gaps.length ? symbolic.gaps : []),
+              routing.symbolicReason ?? 'symbolic_generation_not_ready',
+            ]),
+          ),
         },
       };
     }
@@ -395,34 +554,66 @@ export class PracticeService {
     topicLabel: string;
     deterministicQuestions: unknown[];
     conceptual: ReturnType<ConceptualTopicService['resolve']>;
+    symbolic: ReturnType<SymbolicTopicService['resolve']>;
+    hasDeterministicCatalogTopic: boolean;
   }): PracticeRoutingDecision {
     if (Array.isArray(args.deterministicQuestions) && args.deterministicQuestions.length > 0) {
-      return { route: 'deterministic' };
+      return {
+        route: 'deterministic',
+        hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
+      };
     }
 
     if (args.intake.generationStrategy === 'grounded_factual') {
-      return { route: 'grounded_factual' };
+      return {
+        route: 'grounded_factual',
+        hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
+      };
     }
 
-    const conceptualPattern =
-      /\b(big o|music theory|conditional|conditionals|if statements|algorithmic complexity|time complexity|space complexity|music)\b/i;
+    const conceptualKeyword =
+      /\b(big o|music theory|conditional|conditionals|if statements|algorithmic complexity|time complexity|space complexity|music)\b/i
+        .test(args.topicLabel);
 
     if (
       args.intake.generationStrategy === 'conceptual' ||
       args.conceptual.ok ||
-      conceptualPattern.test(args.topicLabel)
+      conceptualKeyword
     ) {
-      return { route: 'conceptual' };
-    }
-
-    if (args.intake.generationStrategy === 'symbolic') {
       return {
-        route: 'symbolic',
-        symbolicReason: 'symbolic_generation_not_ready',
+        route: 'conceptual',
+        hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
       };
     }
 
-    return { route: 'ai_fallback' };
+    const symbolicKeyword =
+      /(derivative|derivatives|partial derivative|partial derivatives|limit|limits|integral|integrals|matrix|matrices|matrix multiplication|vector|vectors|eigenvalue|eigenvalues|eigenvector|eigenvectors|determinant|determinants|gradient|gradients|jacobian|jacobians|taylor series|maclaurin series|sequence and series|series expansion|differential equation|differential equations|laplace transform|laplace transforms|fourier series|fourier transform|complex number|complex numbers|complex analysis|linear algebra|calculus|tensor|tensors|theorem|theorems|proof|proofs|series|transform|transforms)/i
+        .test(args.topicLabel);
+
+    const isSymbolic =
+      args.symbolic.ok ||
+      (
+        !args.hasDeterministicCatalogTopic &&
+        (
+          args.intake.generationStrategy === 'symbolic' ||
+          args.intake.topicType === 'symbolic' ||
+          symbolicKeyword
+        )
+      );
+
+    if (isSymbolic) {
+      return {
+        route: 'symbolic',
+        symbolicReason:
+          args.symbolic.gaps?.[0] ?? 'symbolic_generation_not_ready',
+        hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
+      };
+    }
+
+    return {
+      route: 'ai_fallback',
+      hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
+    };
   }
 
   private buildConceptualResponse(args: {

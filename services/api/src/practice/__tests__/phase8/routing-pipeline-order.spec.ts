@@ -3,6 +3,7 @@ import { PracticeService } from '../../practice.service';
 import { PracticeEngineRegistry } from '../../engine/practice-engine.registry';
 import { FactualQuizService } from '../../factual/factual-quiz.service';
 import { ConceptualTopicService } from '../../conceptual/conceptual-topic.service';
+import { SymbolicTopicService } from '../../symbolic/symbolic-topic.service';
 
 describe('PHASE 8 — routing pipeline order', () => {
   it('prefers deterministic before factual and conceptual', async () => {
@@ -50,6 +51,22 @@ describe('PHASE 8 — routing pipeline order', () => {
         { provide: PracticeEngineRegistry, useValue: registry },
         { provide: FactualQuizService, useValue: factual },
         { provide: ConceptualTopicService, useValue: conceptual },
+        {
+          provide: SymbolicTopicService,
+          useValue: {
+            resolve: jest.fn(() => ({
+              ok: false,
+              ready: false,
+              subject: 'Math',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: false,
+              gaps: ['not_symbolic'],
+              seeds: [],
+              intake: {} as any,
+            })),
+          },
+        },
       ],
     }).compile();
 
@@ -121,6 +138,22 @@ describe('PHASE 8 — routing pipeline order', () => {
         { provide: PracticeEngineRegistry, useValue: registry },
         { provide: FactualQuizService, useValue: factual },
         { provide: ConceptualTopicService, useValue: conceptual },
+        {
+          provide: SymbolicTopicService,
+          useValue: {
+            resolve: jest.fn(() => ({
+              ok: false,
+              ready: false,
+              subject: 'Math',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: false,
+              gaps: ['not_symbolic'],
+              seeds: [],
+              intake: {} as any,
+            })),
+          },
+        },
       ],
     }).compile();
 
@@ -172,6 +205,22 @@ describe('PHASE 8 — routing pipeline order', () => {
         { provide: PracticeEngineRegistry, useValue: registry },
         { provide: FactualQuizService, useValue: factual },
         { provide: ConceptualTopicService, useValue: conceptual },
+        {
+          provide: SymbolicTopicService,
+          useValue: {
+            resolve: jest.fn(() => ({
+              ok: false,
+              ready: false,
+              subject: 'Math',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: false,
+              gaps: ['not_symbolic'],
+              seeds: [],
+              intake: {} as any,
+            })),
+          },
+        },
       ],
     }).compile();
 

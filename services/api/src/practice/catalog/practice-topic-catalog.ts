@@ -17,12 +17,16 @@ export const PRACTICE_TOPIC_CATALOG: PracticeTopicCatalogRow[] = [
   { subject: 'Math', canonicalTopic: 'Limits', aliases: ['limits', 'limit'], deterministic: true },
   { subject: 'Math', canonicalTopic: 'Quadratic equations', aliases: ['quadratic equations', 'quadratic equation', 'quadratics'], deterministic: true },
   { subject: 'Math', canonicalTopic: 'Trigonometry', aliases: ['trigonometry', 'trig'], deterministic: true },
+  { subject: 'Math', canonicalTopic: 'Polynomials', aliases: ['polynomials', 'polynomial'], deterministic: true },
+  { subject: 'Math', canonicalTopic: 'Set theory', aliases: ['set theory', 'sets'], deterministic: true },
 
   { subject: 'Physics', canonicalTopic: 'Kinematics', aliases: ['kinematics', 'motion'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Newton laws', aliases: ["newton laws", "newton's laws", 'laws of motion'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Forces', aliases: ['forces', 'force'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Energy', aliases: ['energy', 'work and energy'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Momentum', aliases: ['momentum'], deterministic: true },
+  { subject: 'Physics', canonicalTopic: 'Magnetism', aliases: ['magnetism', 'magnetic fields'], deterministic: true },
+  { subject: 'Physics', canonicalTopic: 'Relativity', aliases: ['relativity'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Electricity', aliases: ['electricity'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Electric field', aliases: ['electric field', 'electric fields'], deterministic: true },
   { subject: 'Physics', canonicalTopic: 'Circuits', aliases: ['circuits', 'electric circuits'], deterministic: true },
@@ -52,7 +56,14 @@ export function resolveCanonicalPracticeTopic(subject: string, topicLike: string
   const t = norm(topicLike);
   return (
     PRACTICE_TOPIC_CATALOG.find(
-      (row) => row.subject === s && row.aliases.some((a) => norm(a) === t),
+      (row) =>
+        row.subject === s &&
+        (norm(row.canonicalTopic) === t || row.aliases.some((a) => norm(a) === t)),
     ) ?? null
   );
+}
+
+export function isDeterministicPracticeTopic(subject: string, topicLike: string): boolean {
+  const row = resolveCanonicalPracticeTopic(subject, topicLike);
+  return Boolean(row?.deterministic);
 }

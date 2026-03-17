@@ -20,6 +20,7 @@ import { PhysicsEnergyDeterministicEngine } from './engine/physics-energy-determ
 import { ElectronicsDeterministicEngine } from './engine/electronics-deterministic.engine';
 import { FactualQuizService } from './factual/factual-quiz.service';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
+import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 import { FactualFactPackBuilder } from './factual/factual-fact-pack.builder';
 import { PhysicsMagnetismDeterministicEngine } from './engine/physics-magnetism-deterministic.engine';
 import { PhysicsRelativityDeterministicEngine } from './engine/physics-relativity-deterministic.engine';
@@ -56,6 +57,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
     ElectronicsDeterministicEngine,
     FactualQuizService,
     ConceptualTopicService,
+    SymbolicTopicService,
     FactualFactPackBuilder,
     PhysicsMagnetismDeterministicEngine,
     PhysicsRelativityDeterministicEngine,
