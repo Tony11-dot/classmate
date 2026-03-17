@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { analyzeCustomPracticeTopic } from '../intake/custom-topic-intake';
 import { DERIVATIVE_BASIC_SEEDS } from './seeds/derivatives.basic';
 import { LIMIT_BASIC_SEEDS } from './seeds/limits.basic';
+import { INTEGRALS_BASIC_SEEDS } from './seeds/integrals.basic';
+import { VECTORS_BASIC_SEEDS } from './seeds/vectors.basic';
 
 export type SymbolicQuestionSeed = {
   stem: string;
