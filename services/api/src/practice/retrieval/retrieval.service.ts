@@ -5,6 +5,7 @@ import { MultiSourceService } from './multi-source.service';
 
 @Injectable()
 export class RetrievalService {
+  private embedder = new EmbeddingService();
   private store = new InMemoryVectorStore();
 
   constructor(
