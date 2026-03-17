@@ -511,11 +511,11 @@ export class PracticeService {
       );
     }
 
-    if (accepted.size !== questions.length) {
+    if (accepted.size === 0) {
       return [];
     }
 
-    return questions.slice();
+    return questions.filter((_, index) => accepted.has(index));
   }
 
   private parseVerifierDecision(raw: any): {
@@ -650,7 +650,7 @@ export class PracticeService {
       );
     }
 
-    return out.length === expectedCount ? out : [];
+    return out.length > 0 ? out : [];
   }
 
   private questionFingerprint(raw: RawGeneratedQuestion) {

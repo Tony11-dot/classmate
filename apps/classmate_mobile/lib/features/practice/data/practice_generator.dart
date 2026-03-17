@@ -162,8 +162,9 @@ class PracticeGenerator {
 
       final res = await req.close().timeout(
         const Duration(seconds: 180),
-        onTimeout: () =>
-            throw TimeoutException('practice.generate close timeout after 180s'),
+        onTimeout: () => throw TimeoutException(
+          'practice.generate close timeout after 180s',
+        ),
       );
       final body = await utf8
           .decodeStream(res)
