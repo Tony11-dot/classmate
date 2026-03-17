@@ -25,6 +25,7 @@ import { MasteryService } from './adaptive/mastery.service';
 import { AttemptEvaluatorService } from './adaptive/evaluator/attempt-evaluator.service';
 import { AdaptiveSelectorService } from './adaptive/selector/adaptive-selector.service';
 import { PracticePersistenceService } from './adaptive/persistence/practice-persistence.service';
+import { ProgressSummaryService } from './adaptive/summary/progress-summary.service';
 import { FactualFactPackBuilder } from './factual/factual-fact-pack.builder';
 import { PhysicsMagnetismDeterministicEngine } from './engine/physics-magnetism-deterministic.engine';
 import { PhysicsRelativityDeterministicEngine } from './engine/physics-relativity-deterministic.engine';
@@ -41,6 +42,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
 @Module({
   controllers: [PracticeController],
   providers: [
+    ProgressSummaryService,
     PracticePersistenceService,
     AdaptiveSelectorService,
     AttemptEvaluatorService,
