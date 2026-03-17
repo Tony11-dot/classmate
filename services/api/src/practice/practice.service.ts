@@ -129,11 +129,11 @@ export class PracticeService {
             topicLabel,
             mode,
             difficulty,
-            prompt: String(safe.prompt).trim(),
+            prompt: safe.prompt,
             options: shuffled.options,
             correctIndex: shuffled.correctIndex,
-            explanation: String(safe.explanation).trim(),
-            recommendedTimeSeconds: Number(safe.recommendedTimeSeconds ?? 30),
+            explanation: safe.explanation,
+            recommendedTimeSeconds: safe.recommendedTimeSeconds,
           };
         }),
       };
@@ -237,6 +237,68 @@ export class PracticeService {
     };
   }
 
+
+  private modeInstruction(mode: PracticeMode): string {
+    switch (mode) {
+      case 'flashcards':
+        return 'Mode shaping: flashcards must be concept-first, recognition-heavy, short, memory-oriented, and definition/relationship focused.';
+      case 'speedRound':
+        return 'Mode shaping: speedRound must prefer quick-answer, low-reading-load prompts with compact numbers and minimal setup.';
+      case 'examPrep':
+        return 'Mode shaping: examPrep must feel like classroom exam material, balanced in wording, slightly formal, and realistic in structure.';
+      case 'conceptBuilder':
+        return 'Mode shaping: conceptBuilder must emphasize understanding, interpretation, and why/when a concept applies.';
+      case 'adaptive':
+        return 'Mode shaping: adaptive must stay classroom-valid and choose a moderate learning gradient across the set.';
+      case 'practice':
+      default:
+        return 'Mode shaping: practice must be balanced, classroom-valid, and straightforward.';
+    }
+  }
+
+  private difficultyInstruction(difficulty: PracticeDifficulty): string {
+    switch (difficulty) {
+      case 'easy':
+        return 'Difficulty shaping: easy means direct, single-step or very light reasoning, low trap risk, simple numbers.';
+      case 'medium':
+        return 'Difficulty shaping: medium means standard classroom level, moderate reasoning, no unusual traps.';
+      case 'hard':
+        return 'Difficulty shaping: hard means clearly more demanding multi-step reasoning, but still school-valid and clean.';
+      case 'olympiad':
+        return 'Difficulty shaping: olympiad means meaningfully harder insight/reasoning, not merely larger numbers.';
+      case 'adaptive':
+      default:
+        return 'Difficulty shaping: adaptive means moderate, stable, school-valid difficulty unless other constraints imply otherwise.';
+    }
+  }
+
+  private timingInstruction(
+    timePreferenceSeconds: number | null,
+    useAiTiming: boolean,
+  ): string {
+    if (timePreferenceSeconds != null && Number.isFinite(timePreferenceSeconds)) {
+      return `Timing shaping: target about ${Math.max(5, Math.round(timePreferenceSeconds))} seconds per question unless correctness would suffer.`;
+    }
+
+    if (useAiTiming) {
+      return 'Timing shaping: choose recommendedTimeSeconds realistically based on reading load and reasoning depth.';
+    }
+
+    return 'Timing shaping: keep recommendedTimeSeconds conservative and stable.';
+  }
+
+  private livesInstruction(maxLives: number): string {
+    if (maxLives <= 1) {
+      return 'Lives shaping: with 1 life, avoid trick wording and favor fairness, clarity, and unambiguous correctness.';
+    }
+
+    if (maxLives <= 2) {
+      return 'Lives shaping: with low lives, keep challenge but reduce gotcha phrasing and avoid brittle interpretation.';
+    }
+
+    return 'Lives shaping: standard fairness is enough; challenge may be normal for the chosen difficulty.';
+  }
+
   private async requestQuestionSet(args: {
     apiKey: string;
     requestPayload: Record<string, unknown>;
@@ -245,6 +307,7 @@ export class PracticeService {
   }): Promise<any[]> {
     const { apiKey, requestPayload, questionCount, repairNote } = args;
 
+    const rp: any = requestPayload;
     const system = [
       'You generate high-quality school practice questions for a mobile app.',
       'Return STRICT JSON ONLY. No markdown. No commentary.',
@@ -263,10 +326,17 @@ export class PracticeService {
       'Difficulty must materially affect complexity.',
       'All questions must be different from each other.',
       'Use realistic school wording.',
+      'Keep response style/order consistent across the whole set.',
+      'Within one set, keep formatting, granularity, and tone stable.',
       'Explanations must be concise, final, teacher-style solutions.',
       'Explanations must be option-agnostic and must not narrate self-correction.',
-      'For flashcards, answers can still be 4 options, but make them concept-first.',
-      'For olympiad difficulty, make questions meaningfully harder, not just bigger numbers.',
+      this.modeInstruction(String(rp.mode ?? 'practice') as any),
+      this.difficultyInstruction(String(rp.difficulty ?? 'medium') as any),
+      this.timingInstruction(
+        rp.timePreferenceSeconds == null ? null : Number(rp.timePreferenceSeconds),
+        Boolean(rp.useAiTiming ?? true),
+      ),
+      this.livesInstruction(Number(rp.maxLives ?? 3)),
       repairNote ? `REPAIR NOTE: ${repairNote}` : '',
       'JSON shape:',
       '{ "questions": [ { "prompt": string, "options": [string,string,string,string], "correctIndex": number, "correctAnswerText": string, "explanation": string, "recommendedTimeSeconds": number, "topicMatchNote": string } ] }',
@@ -590,9 +660,20 @@ export class PracticeService {
     return `${prompt}##${options}`;
   }
 
+  private sanitizeText(value: unknown): string {
+    return String(value ?? '')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+      .replace(/\\r\\n/g, '\n')
+      .replace(/\\r/g, '\n')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   private sanitizeQuestion(q: any) {
     let options = Array.isArray(q?.options)
-      ? q.options.filter(Boolean).map((x: any) => String(x).trim()).filter(Boolean)
+      ? q.options
+          .map((x: any) => this.sanitizeText(x))
+          .filter(Boolean)
       : [];
 
     const seen = new Set<string>();
@@ -619,16 +700,25 @@ export class PracticeService {
     let correctIndex = Number.isInteger(q?.correctIndex) ? q.correctIndex : 0;
     if (correctIndex < 0 || correctIndex >= options.length) correctIndex = 0;
 
+    const prompt = this.sanitizeText(q?.prompt) || 'Question prompt unavailable.';
     const explanation =
-      typeof q?.explanation === 'string' && q.explanation.trim().length > 0
-        ? q.explanation.trim()
-        : 'Step-by-step solution not provided.';
+      this.sanitizeText(q?.explanation) || 'Step-by-step solution not provided.';
+    const topicMatchNote = this.sanitizeText(q?.topicMatchNote);
+    const correctAnswerText = this.sanitizeText(q?.correctAnswerText);
+    const recommendedTimeSecondsRaw = Number(q?.recommendedTimeSeconds ?? 30);
+    const recommendedTimeSeconds = Number.isFinite(recommendedTimeSecondsRaw)
+      ? Math.max(5, Math.min(900, Math.round(recommendedTimeSecondsRaw)))
+      : 30;
 
     return {
       ...q,
+      prompt,
       options,
       correctIndex,
       explanation,
+      topicMatchNote,
+      correctAnswerText,
+      recommendedTimeSeconds,
     };
   }
 
