@@ -9,33 +9,57 @@ import 'package:classmate_mobile/features/practice/providers/saved_questions_pro
 import 'package:classmate_mobile/features/practice/ui/practice_history_review_screen.dart';
 import 'package:classmate_mobile/features/practice/ui/saved_questions_screen.dart';
 
+class TestSavedQuestionsController extends SavedQuestionsController {
+  TestSavedQuestionsController(this.seed);
+  final List<PracticeQuestion> seed;
+
+  @override
+  List<PracticeQuestion> build() => List<PracticeQuestion>.from(seed);
+}
+
 void main() {
-  testWidgets('practice history review renders rich content', (tester) async {
+  testWidgets('CMRichContent renders plain math text safely', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: CMRichContent(
+            data: r'Find \(x^2+3x+2\) and explain why \(x=1\) is not a root.',
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CMRichContent), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('PracticeHistoryReviewScreen renders prompt + explanation with rich content', (tester) async {
     final session = PracticeHistorySession(
       id: 'sess-1',
+      completedAt: DateTime.parse('2026-03-17T18:00:00Z'),
       subject: 'Physics',
       topicLabel: 'Relativity',
       mode: PracticeMode.practice,
       difficulty: PracticeDifficulty.medium,
       totalQuestions: 1,
+      answered: 1,
       correct: 1,
       wrong: 0,
-      answered: 1,
-      accuracyPercent: 100,
       xp: 10,
       streak: 1,
-      completedAt: DateTime.parse('2026-03-17T18:00:00Z'),
-      questions: [
+      accuracyPercent: 100,
+      questions: const [
         PracticeHistoryQuestion(
-          id: 'q-1',
-          subject: 'Physics',
-          topicLabel: 'Relativity',
+          id: 'hq-1',
           prompt: r'What is \(\gamma\) when \(v=0.8c\)?',
-          options: const ['1.25', '1.67', '2', '0.8'],
+          options: ['1.25', '1.67', '2', '0.8'],
           correctIndex: 1,
           selectedIndex: 1,
+          isCorrect: true,
           explanation: r'Use \(\gamma = 1/\sqrt{1-v^2/c^2}\).',
-          recommendedTimeSeconds: 30,
+          topicLabel: 'Relativity',
         ),
       ],
     );
@@ -52,23 +76,26 @@ void main() {
     expect(find.textContaining('Relativity'), findsWidgets);
   });
 
-  testWidgets('saved questions screen renders rich content', (tester) async {
-    final seed = <SavedQuestion>[
-      SavedQuestion(
+  testWidgets('SavedQuestionsScreen renders saved prompt + explanation with rich content', (tester) async {
+    final seed = <PracticeQuestion>[
+      const PracticeQuestion(
         id: 'sq-1',
         subject: 'Physics',
         topicLabel: 'Relativity',
+        mode: PracticeMode.practice,
+        difficulty: PracticeDifficulty.medium,
         prompt: r'If \(v=0.6c\), what is the time dilation factor?',
-        options: const ['1.25', '1.67', '2', '0.6'],
+        options: ['1.25', '1.67', '2', '0.6'],
         correctIndex: 0,
         explanation: r'Time dilation uses \(\gamma\).',
+        recommendedTimeSeconds: 30,
       ),
     ];
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          savedQuestionsProvider.overrideWith(() => SavedQuestionsController(seed: seed)),
+          savedQuestionsProvider.overrideWith(() => TestSavedQuestionsController(seed)),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -77,6 +104,7 @@ void main() {
         ),
       ),
     );
+
     await tester.pumpAndSettle();
 
     expect(find.text('Saved questions'), findsOneWidget);
