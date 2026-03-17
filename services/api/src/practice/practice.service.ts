@@ -324,6 +324,7 @@ export class PracticeService {
         questionCount,
         mode,
         difficulty,
+        intake,
       });
     }
 
@@ -703,11 +704,13 @@ export class PracticeService {
     questionCount: number;
     mode: PracticeMode;
     difficulty: PracticeDifficulty;
+    intake: ReturnType<typeof analyzeCustomPracticeTopic>;
   }) {
     const factualPack = await this.factualQuizService.buildFactPack({
       subject: args.subject,
       topic: args.topicLabel,
       questionCount: args.questionCount,
+      intake: args.intake,
     });
 
     if (factualPack.ok) {

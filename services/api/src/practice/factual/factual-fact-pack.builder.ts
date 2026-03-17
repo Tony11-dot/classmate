@@ -5,6 +5,15 @@ import {
 } from '../intake/custom-topic-intake';
 import type { FactualEvidenceItem } from './factual-quiz.types';
 
+import { TENNIS_HISTORY_FACTS } from './domain-packs/sports.tennis-history';
+import { ASTRONOMY_FACTS } from './domain-packs/physics.astronomy';
+import { HISTORY_ANCIENT_TRADE_ROUTES } from './domain-packs/history.ancient-trade-routes';
+import { SCIENCE_SPACE_BASICS } from './domain-packs/science.space-basics';
+import { SPORTS_GENERAL } from './domain-packs/sports.general';
+import { BIOLOGY_CELLS_BASICS } from './domain-packs/biology.cells-basics';
+import { CHEMISTRY_MATTER_BASICS } from './domain-packs/chemistry.matter-basics';
+import { GEOGRAPHY_EARTH_BASICS } from './domain-packs/geography.earth-basics';
+
 export type FactualFactPack = {
   topic: string;
   subject: string;
@@ -14,6 +23,86 @@ export type FactualFactPack = {
   needsClarification: boolean;
   intake: CustomTopicIntakeResult;
 };
+
+type StaticFactPack = {
+  topic: string;
+  facts: string[];
+  evidence: FactualEvidenceItem[];
+};
+
+type SubjectScopedStaticPack = {
+  requiredRawSubject: string;
+  pack: StaticFactPack;
+};
+
+function norm(x: unknown): string {
+  return String(x ?? '')
+    .toLowerCase()
+    .replace(/[’']/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isEvidenceArray(value: unknown): value is FactualEvidenceItem[] {
+  return Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((x) => typeof x === 'string');
+}
+
+function asStaticFactPack(value: unknown): StaticFactPack | null {
+  if (!value || typeof value !== 'object') return null;
+  const v = value as Record<string, unknown>;
+  if (
+    typeof v.topic !== 'string' ||
+    !isStringArray(v.facts) ||
+    !isEvidenceArray(v.evidence)
+  ) {
+    return null;
+  }
+
+  return {
+    topic: v.topic,
+    facts: [...v.facts],
+    evidence: [...v.evidence],
+  };
+}
+
+const ALWAYS_AVAILABLE_STATIC_PACKS: StaticFactPack[] = [
+  asStaticFactPack(TENNIS_HISTORY_FACTS),
+  asStaticFactPack(ASTRONOMY_FACTS),
+].filter((x): x is StaticFactPack => Boolean(x));
+
+const SUBJECT_SCOPED_STATIC_PACKS: SubjectScopedStaticPack[] = [
+  { requiredRawSubject: 'History', pack: asStaticFactPack(HISTORY_ANCIENT_TRADE_ROUTES)! },
+  { requiredRawSubject: 'Science', pack: asStaticFactPack(SCIENCE_SPACE_BASICS)! },
+  { requiredRawSubject: 'Sports', pack: asStaticFactPack(SPORTS_GENERAL)! },
+  { requiredRawSubject: 'Biology', pack: asStaticFactPack(BIOLOGY_CELLS_BASICS)! },
+  { requiredRawSubject: 'Chemistry', pack: asStaticFactPack(CHEMISTRY_MATTER_BASICS)! },
+  { requiredRawSubject: 'Geography', pack: asStaticFactPack(GEOGRAPHY_EARTH_BASICS)! },
+].filter((x): x is SubjectScopedStaticPack => Boolean(x.pack));
+
+function findAlwaysAvailableStaticPack(topic: string): StaticFactPack | null {
+  const t = norm(topic);
+  return ALWAYS_AVAILABLE_STATIC_PACKS.find((pack) => norm(pack.topic) === t) ?? null;
+}
+
+function findSubjectScopedStaticPack(
+  rawSubject: string,
+  topic: string,
+): StaticFactPack | null {
+  const rs = norm(rawSubject);
+  const t = norm(topic);
+
+  return (
+    SUBJECT_SCOPED_STATIC_PACKS.find(
+      (entry) =>
+        norm(entry.requiredRawSubject) === rs &&
+        norm(entry.pack.topic) === t,
+    )?.pack ?? null
+  );
+}
 
 @Injectable()
 export class FactualFactPackBuilder {
@@ -38,40 +127,71 @@ export class FactualFactPackBuilder {
     ).trim();
     const lower = topic.toLowerCase();
 
+    const rawSubject = String(intake.rawSubject ?? input.subject ?? '').trim();
+
+    if (lower.includes('tennis history')) {
+      return {
+        topic: intake.effectiveTopic,
+        subject: intake.effectiveSubject,
+        facts: [
+          'Modern lawn tennis developed in the nineteenth century from earlier racket-and-ball games.',
+          'The four Grand Slam tournaments are the Australian Open, Roland-Garros, Wimbledon, and the US Open.',
+          'The Open Era began in 1968, allowing professionals to compete in the major championships.',
+        ],
+        evidence: [
+          {
+            sourceId: 'sports:tennis_history:origins',
+            title: 'Tennis history origins',
+            snippet: 'Modern lawn tennis developed from earlier racket-and-ball games.',
+          },
+          {
+            sourceId: 'sports:tennis_history:grand_slams',
+            title: 'Grand Slam tournaments',
+            snippet: 'The four Grand Slam tournaments are the Australian Open, Roland-Garros, Wimbledon, and the US Open.',
+          },
+          {
+            sourceId: 'sports:tennis_history:open_era',
+            title: 'Open Era',
+            snippet: 'The Open Era began in 1968, allowing professionals to compete in the major championships.',
+          },
+        ],
+        gaps: [],
+        needsClarification: false,
+        intake,
+      };
+    }
+
+    const alwaysPack = findAlwaysAvailableStaticPack(topic);
+    if (alwaysPack) {
+      return {
+        topic: intake.effectiveTopic,
+        subject: intake.effectiveSubject,
+        facts: [...alwaysPack.facts],
+        evidence: [...alwaysPack.evidence],
+        gaps: [],
+        needsClarification: false,
+        intake,
+      };
+    }
+
+    const subjectScopedPack = findSubjectScopedStaticPack(rawSubject, topic);
+    if (subjectScopedPack) {
+      return {
+        topic: intake.effectiveTopic,
+        subject: intake.effectiveSubject,
+        facts: [...subjectScopedPack.facts],
+        evidence: [...subjectScopedPack.evidence],
+        gaps: [],
+        needsClarification: false,
+        intake,
+      };
+    }
+
     const facts: string[] = [];
     const evidence: FactualEvidenceItem[] = [];
     const gaps: string[] = [];
 
-    if (lower.includes('tennis history')) {
-      facts.push(
-        'Modern lawn tennis developed in the nineteenth century from earlier racket-and-ball games.',
-        'The four Grand Slam tournaments are the Australian Open, Roland-Garros, Wimbledon, and the US Open.',
-        'The Open Era began in 1968, allowing professionals to compete in the major championships.',
-      );
-      evidence.push(
-        {
-          sourceId: 'sports:tennis_history:origins',
-          title: 'Tennis history origins',
-          snippet:
-            'Modern lawn tennis developed from earlier racket-and-ball games.',
-        },
-        {
-          sourceId: 'sports:tennis_history:grand_slams',
-          title: 'Grand Slam tournaments',
-          snippet:
-            'The four Grand Slam tournaments are the Australian Open, Roland-Garros, Wimbledon, and the US Open.',
-        },
-        {
-          sourceId: 'sports:tennis_history:open_era',
-          title: 'Open Era',
-          snippet:
-            'The Open Era began in 1968, allowing professionals to compete in the major championships.',
-        },
-      );
-    } else if (
-      lower.includes('world war 2') ||
-      lower.includes('world war ii')
-    ) {
+    if (lower.includes('world war 2') || lower.includes('world war ii')) {
       facts.push(
         'World War II lasted from 1939 to 1945.',
         'The war involved major Allied and Axis powers across multiple theaters.',

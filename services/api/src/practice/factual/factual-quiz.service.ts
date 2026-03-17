@@ -18,8 +18,9 @@ export class FactualQuizService {
     topic?: unknown;
     topicLabel?: unknown;
     topicPathText?: unknown;
+    intake?: ReturnType<typeof analyzeCustomPracticeTopic>;
   }) {
-    const intake = analyzeCustomPracticeTopic(input);
+    const intake = input.intake ?? analyzeCustomPracticeTopic(input);
 
     const pack = this.factPackBuilder.build({
       intake,
@@ -238,6 +239,7 @@ export class FactualQuizService {
     subject: string;
     topic: string;
     questionCount: number;
+    intake?: ReturnType<typeof analyzeCustomPracticeTopic>;
     mode:
       | 'practice'
       | 'flashcards'
@@ -251,6 +253,7 @@ export class FactualQuizService {
       subject: input.subject,
       topic: input.topic,
       questionCount: input.questionCount,
+      intake: input.intake,
     });
 
     if (!pack.ok) {
@@ -290,11 +293,13 @@ export class FactualQuizService {
     subject: string;
     topic: string;
     questionCount: number;
+    intake?: ReturnType<typeof analyzeCustomPracticeTopic>;
   }): Promise<FactualQuizFactPack> {
     const resolved = this.resolve({
       subject: input.subject,
       topicLabel: input.topic,
       topicPathText: input.topic,
+      intake: input.intake,
     });
 
     if (!resolved.ready) {
