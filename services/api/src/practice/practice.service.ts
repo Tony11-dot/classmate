@@ -117,9 +117,10 @@ export class PracticeService {
 
       return {
         questions: deterministic.map((q, i) => {
+          const safe = this.sanitizeQuestion(q);
           const shuffled = this.shuffleOptions(
-            (q.options as string[]).map(String).slice(0, 4),
-            Number(q.correctIndex),
+            (safe.options as string[]).map(String).slice(0, 4),
+            Number(safe.correctIndex),
           );
 
           return {
@@ -128,11 +129,11 @@ export class PracticeService {
             topicLabel,
             mode,
             difficulty,
-            prompt: String(q.prompt).trim(),
+            prompt: String(safe.prompt).trim(),
             options: shuffled.options,
             correctIndex: shuffled.correctIndex,
-            explanation: String(q.explanation).trim(),
-            recommendedTimeSeconds: Number(q.recommendedTimeSeconds ?? 30),
+            explanation: String(safe.explanation).trim(),
+            recommendedTimeSeconds: Number(safe.recommendedTimeSeconds ?? 30),
           };
         }),
       };
@@ -214,9 +215,10 @@ export class PracticeService {
 
     return {
       questions: finalQuestions.map((q, i) => {
+        const safe = this.sanitizeQuestion(q);
         const shuffled = this.shuffleOptions(
-          (q.options as string[]).map(String).slice(0, 4),
-          Number(q.correctIndex),
+          (safe.options as string[]).map(String).slice(0, 4),
+          Number(safe.correctIndex),
         );
 
         return {
@@ -225,11 +227,11 @@ export class PracticeService {
           topicLabel,
           mode,
           difficulty,
-          prompt: String(q.prompt).trim(),
+          prompt: String(safe.prompt).trim(),
           options: shuffled.options,
           correctIndex: shuffled.correctIndex,
-          explanation: String(q.explanation).trim(),
-          recommendedTimeSeconds: Number(q.recommendedTimeSeconds ?? 30),
+          explanation: String(safe.explanation).trim(),
+          recommendedTimeSeconds: Number(safe.recommendedTimeSeconds ?? 30),
         };
       }),
     };
@@ -586,6 +588,48 @@ export class PracticeService {
       : '';
 
     return `${prompt}##${options}`;
+  }
+
+  private sanitizeQuestion(q: any) {
+    let options = Array.isArray(q?.options)
+      ? q.options.filter(Boolean).map((x: any) => String(x).trim()).filter(Boolean)
+      : [];
+
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const option of options) {
+      const key = option.toLowerCase().replace(/\s+/g, ' ');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(option);
+    }
+    options = unique;
+
+    while (options.length < 4) {
+      const candidate = `Option ${options.length + 1}`;
+      const key = candidate.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        options.push(candidate);
+      }
+    }
+
+    options = options.slice(0, 4);
+
+    let correctIndex = Number.isInteger(q?.correctIndex) ? q.correctIndex : 0;
+    if (correctIndex < 0 || correctIndex >= options.length) correctIndex = 0;
+
+    const explanation =
+      typeof q?.explanation === 'string' && q.explanation.trim().length > 0
+        ? q.explanation.trim()
+        : 'Step-by-step solution not provided.';
+
+    return {
+      ...q,
+      options,
+      correctIndex,
+      explanation,
+    };
   }
 
   private shuffleOptions(options: string[], correctIndex: number) {
