@@ -112,6 +112,17 @@ type PracticeRoutingDecision = {
 
 @Injectable()
 export class PracticeService {
+  private engineRegistryFallback?: PracticeEngineRegistry;
+
+  private getEngineRegistry(): any {
+    if (this.engineRegistry) return this.engineRegistry;
+    if (!this.engineRegistryFallback) {
+      this.engineRegistryFallback = {
+        generate: async () => [],
+      } as any;
+    }
+    return this.engineRegistryFallback;
+  }
   constructor(
     private readonly engineRegistry: PracticeEngineRegistry,
     @Optional()
@@ -211,7 +222,7 @@ export class PracticeService {
       throw new BadRequestException('subject is required');
     }
 
-    const deterministic = await this.engineRegistry.generate({
+    const deterministic = await this.getEngineRegistry().generate({
       subject,
       topicLabel,
       topicPath,
