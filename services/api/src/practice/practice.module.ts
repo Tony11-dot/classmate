@@ -22,6 +22,7 @@ import { FactualQuizService } from './factual/factual-quiz.service';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 import { MasteryService } from './adaptive/mastery.service';
+import { AttemptEvaluatorService } from './adaptive/evaluator/attempt-evaluator.service';
 import { FactualFactPackBuilder } from './factual/factual-fact-pack.builder';
 import { PhysicsMagnetismDeterministicEngine } from './engine/physics-magnetism-deterministic.engine';
 import { PhysicsRelativityDeterministicEngine } from './engine/physics-relativity-deterministic.engine';
@@ -38,6 +39,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
 @Module({
   controllers: [PracticeController],
   providers: [
+    AttemptEvaluatorService,
     MasteryService,
     PracticeService,
     PracticeEngineRegistry,
