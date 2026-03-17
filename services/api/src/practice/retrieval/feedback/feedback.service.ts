@@ -1,30 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { PersistentVectorStore } from '../vector/persistent/persistent-vector-store';
-import { EmbeddingService } from '../vector/embedding.service';
-
-@Injectable()
 export class FeedbackService {
-  private store = new PersistentVectorStore();
-  private embedder = new EmbeddingService();
+  constructor(private ranker: any, private store: any) {}
 
   async record(input: {
-    question: string;
-    correct: boolean;
-    subject: string;
-    topic: string;
+    items: any[];
+    success: boolean;
+    feedback?: any;
   }) {
-    const embedding = await this.embedder.embed(input.question);
+    const { items, success } = input;
 
-    await this.store.add({
-      id: `feedback:${Date.now()}`,
-      vector: embedding,
-      metadata: {
-        type: 'feedback',
-        subject: input.subject,
-        topic: input.topic,
-        correct: input.correct,
-        timestamp: Date.now(),
-      },
-    });
+    // 1️⃣ update adaptive weights
+    if (items && typeof success === 'boolean') {
+      this.ranker.updateWeights(items, success);
+    }
+
+    // 2️⃣ persist feedback (optional memory layer)
+    if (items && items.length > 0) {
+      await this.store.add({
+        id: `feedback-${Date.now()}`,
+        vector: items[0]?.vector || [],
+        metadata: {
+          success,
+          timestamp: Date.now(),
+        },
+      });
+    }
   }
 }
