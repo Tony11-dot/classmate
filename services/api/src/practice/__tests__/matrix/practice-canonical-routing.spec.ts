@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { PracticeService } from '../../practice.service';
+import { FactualQuizService } from '../../factual/factual-quiz.service';
+import { ConceptualTopicService } from '../../conceptual/conceptual-topic.service';
 import { PracticeEngineRegistry } from '../../engine/practice-engine.registry';
 
 describe('practice canonical routing', () => {
@@ -22,6 +24,53 @@ describe('practice canonical routing', () => {
       providers: [
         PracticeService,
         { provide: PracticeEngineRegistry, useValue: registry },
+        {
+          provide: FactualQuizService,
+          useValue: {
+            buildFactPack: jest.fn().mockResolvedValue({
+              ok: false,
+              subject: 'General Knowledge',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: true,
+              facts: [],
+              evidence: [],
+              gaps: ['test_stub_not_used'],
+            }),
+            buildQuestionSeeds: jest.fn().mockResolvedValue({
+              ok: false,
+              subject: 'General Knowledge',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: true,
+              seeds: [],
+              evidence: [],
+              gaps: ['test_stub_not_used'],
+            }),
+          },
+        },
+        {
+          provide: ConceptualTopicService,
+          useValue: {
+            resolve: jest.fn(() => ({
+              ready: false,
+              subject: 'General Knowledge',
+              topic: 'General',
+              needsClarification: true,
+              gaps: ['test_stub_not_used'],
+            })),
+            buildQuestionSeeds: jest.fn().mockResolvedValue({
+              ok: false,
+              subject: 'General Knowledge',
+              topic: 'General',
+              confidence: 0,
+              needsClarification: true,
+              seeds: [],
+              evidence: [],
+              gaps: ['test_stub_not_used'],
+            }),
+          },
+        },
       ],
     }).compile();
 

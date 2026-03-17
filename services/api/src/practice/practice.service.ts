@@ -6,6 +6,9 @@ import {
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
 import { resolveCanonicalPracticeSubject } from './catalog/practice-subject-catalog';
 import { resolveCanonicalPracticeTopic } from './catalog/practice-topic-catalog';
+import { analyzeCustomPracticeTopic } from './intake/custom-topic-intake';
+import { FactualQuizService } from './factual/factual-quiz.service';
+import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 
 type PracticeMode =
   | 'practice'
@@ -54,34 +57,41 @@ type VerifierDecision = {
   reason?: unknown;
 };
 
-function normalizePracticeSubject(raw: string): string {
-  const v = String(raw ?? '').trim().toLowerCase();
-  if (!v) return 'Math';
+type PracticeRouteKind =
+  | 'deterministic'
+  | 'grounded_factual'
+  | 'conceptual'
+  | 'symbolic'
+  | 'ai_fallback';
 
-  const map: Record<string, string> = {
-    math: 'Math',
-    mathematics: 'Math',
+type PracticeRoutingDecision = {
+  route: PracticeRouteKind;
+  symbolicReason?: string;
+};
 
-    physics: 'Physics',
-    physic: 'Physics',
 
-    electronics: 'Electronics',
-    elictronics: 'Electronics',
-    electronic: 'Electronics',
-    eletronics: 'Electronics',
-    electroncis: 'Electronics',
-  };
 
-  return map[v] ?? String(raw ?? '').trim();
-}
 
 @Injectable()
 export class PracticeService {
-  constructor(private readonly engineRegistry: PracticeEngineRegistry) {}
+  constructor(
+    private readonly engineRegistry: PracticeEngineRegistry,
+    private readonly factualQuizService: FactualQuizService = new FactualQuizService(),
+    private readonly conceptualTopicService: ConceptualTopicService = new ConceptualTopicService(),
+  ) {}
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
 
-    const subject = resolveCanonicalPracticeSubject(String(input.subject ?? 'Math').trim());
+    const intake = analyzeCustomPracticeTopic({
+      subject: input.subject,
+      topicLabel: input.topicLabel,
+      topicPathText: input.topicPathText,
+      topic: input.topic,
+    });
+
+    const subject = resolveCanonicalPracticeSubject(
+      String(intake.effectiveSubject ?? input.subject ?? 'Math').trim(),
+    );
     const providedTopicLabel = String(input.topicLabel ?? '').trim();
     const legacyTopic = String(input.topic ?? '').trim();
     const topicPath = Array.isArray(input.topicPath)
@@ -93,7 +103,7 @@ export class PracticeService {
     const rawTopicLabel =
       providedTopicLabel ||
       legacyTopic ||
-      (topicPath.length ? topicPath.join(' > ') : 'General');
+      (topicPath.length ? topicPath[topicPath.length - 1] : 'General');
 
     const canonicalTopic =
       resolveCanonicalPracticeTopic(subject, rawTopicLabel) ||
@@ -101,12 +111,20 @@ export class PracticeService {
       null;
 
     const topicLabel = canonicalTopic?.canonicalTopic ?? rawTopicLabel;
+    const shouldCanonicalizeTopicPathText =
+      !!canonicalTopic &&
+      !!rawTopicLabel &&
+      rawTopicLabel.trim().toLowerCase() !==
+        canonicalTopic.canonicalTopic.trim().toLowerCase();
+
     const topicPathText =
       explicitTopicPathText ||
-      canonicalTopic?.canonicalTopic ||
-      providedTopicLabel ||
-      legacyTopic ||
-      (topicPath.length ? topicPath.join(' > ') : 'General');
+      (shouldCanonicalizeTopicPathText
+        ? canonicalTopic?.canonicalTopic
+        : (providedTopicLabel ||
+            legacyTopic ||
+            canonicalTopic?.canonicalTopic ||
+            (topicPath.length ? topicPath.join(' > ') : 'General')));
 
     const requestedCountRaw = Number(input.questionCount ?? input.count ?? 10);
     const questionCount = Math.max(
@@ -145,30 +163,59 @@ export class PracticeService {
       maxLives,
     });
 
-    if (deterministic && deterministic.length === questionCount) {
-      const now = Date.now();
+    const conceptual = this.conceptualTopicService.resolve({
+      subject,
+      topicLabel,
+      topicPathText,
+      questionCount,
+    });
 
+    const routing = this.buildRoutingDecision({
+      intake,
+      topicLabel,
+      deterministicQuestions: deterministic ?? [],
+      conceptual,
+    });
+
+    if (routing.route === 'deterministic' && deterministic && deterministic.length === questionCount) {
+      return this.buildDeterministicResponse({
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        deterministic,
+      });
+    }
+
+    if (routing.route === 'grounded_factual') {
+      return await this.buildFactualResponse({
+        subject,
+        topicLabel,
+        questionCount,
+        mode,
+        difficulty,
+      });
+    }
+
+    if (routing.route === 'conceptual') {
+      return this.buildConceptualResponse({
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        questionCount,
+        conceptual,
+      });
+    }
+
+    if (routing.route === 'symbolic') {
       return {
-        questions: deterministic.map((q, i) => {
-          const safe = this.sanitizeQuestion(q);
-          const shuffled = this.shuffleOptions(
-            (safe.options as string[]).map(String).slice(0, 4),
-            Number(safe.correctIndex),
-          );
-
-          return {
-            id: `${subject}-${topicLabel}-${mode}-${difficulty}-${now}-${i}`,
-            subject,
-            topicLabel,
-            mode,
-            difficulty,
-            prompt: safe.prompt,
-            options: shuffled.options,
-            correctIndex: shuffled.correctIndex,
-            explanation: safe.explanation,
-            recommendedTimeSeconds: safe.recommendedTimeSeconds,
-          };
-        }),
+        questions: [],
+        symbolic: {
+          ready: false,
+          topic: topicLabel,
+          gaps: [routing.symbolicReason ?? 'symbolic_generation_not_ready'],
+        },
       };
     }
 
@@ -340,6 +387,198 @@ export class PracticeService {
     }
 
     return 'Lives shaping: standard fairness is enough; challenge may be normal for the chosen difficulty.';
+  }
+
+
+  private buildRoutingDecision(args: {
+    intake: ReturnType<typeof analyzeCustomPracticeTopic>;
+    topicLabel: string;
+    deterministicQuestions: unknown[];
+    conceptual: ReturnType<ConceptualTopicService['resolve']>;
+  }): PracticeRoutingDecision {
+    if (Array.isArray(args.deterministicQuestions) && args.deterministicQuestions.length > 0) {
+      return { route: 'deterministic' };
+    }
+
+    if (args.intake.generationStrategy === 'grounded_factual') {
+      return { route: 'grounded_factual' };
+    }
+
+    const conceptualPattern =
+      /\b(big o|music theory|conditional|conditionals|if statements|algorithmic complexity|time complexity|space complexity|music)\b/i;
+
+    if (
+      args.intake.generationStrategy === 'conceptual' ||
+      args.conceptual.ok ||
+      conceptualPattern.test(args.topicLabel)
+    ) {
+      return { route: 'conceptual' };
+    }
+
+    if (args.intake.generationStrategy === 'symbolic') {
+      return {
+        route: 'symbolic',
+        symbolicReason: 'symbolic_generation_not_ready',
+      };
+    }
+
+    return { route: 'ai_fallback' };
+  }
+
+  private buildConceptualResponse(args: {
+    subject: string;
+    topicLabel: string;
+    mode: PracticeMode;
+    difficulty: PracticeDifficulty;
+    questionCount: number;
+    conceptual: ReturnType<ConceptualTopicService['resolve']>;
+  }) {
+    if (!args.conceptual.ready) {
+      return {
+        questions: [],
+        conceptual: {
+          ready: false,
+          gaps: args.conceptual.gaps.length
+            ? args.conceptual.gaps
+            : ['broad_conceptual_topic'],
+        },
+      };
+    }
+
+    const now = Date.now();
+    const built = args.conceptual.seeds.slice(0, args.questionCount).map((seed, i) => ({
+      id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-conceptual-${now}-${i}`,
+      subject: args.subject,
+      topicLabel: args.conceptual.topic,
+      mode: args.mode,
+      difficulty: args.difficulty,
+      prompt: seed.stem,
+      options: [
+        seed.acceptedAnswers[0],
+        'An unrelated statement',
+        'A contradictory statement',
+        'A vague incorrect statement',
+      ],
+      correctIndex: 0,
+      explanation: seed.explanation,
+      recommendedTimeSeconds: 30,
+    }));
+
+    return {
+      questions: built,
+      conceptual: {
+        ready: true,
+        gaps: [],
+      },
+    };
+  }
+
+  private buildDeterministicResponse(args: {
+    subject: string;
+    topicLabel: string;
+    mode: PracticeMode;
+    difficulty: PracticeDifficulty;
+    deterministic: unknown[];
+  }) {
+    const now = Date.now();
+
+    return {
+      questions: (args.deterministic as RawGeneratedQuestion[]).map((q, i) => {
+        const safe = this.sanitizeQuestion(q);
+        const shuffled = this.shuffleOptions(
+          (safe.options as string[]).map(String).slice(0, 4),
+          Number(safe.correctIndex),
+        );
+
+        return {
+          id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-${now}-${i}`,
+          subject: args.subject,
+          topicLabel: args.topicLabel,
+          mode: args.mode,
+          difficulty: args.difficulty,
+          prompt: safe.prompt,
+          options: shuffled.options,
+          correctIndex: shuffled.correctIndex,
+          explanation: safe.explanation,
+          recommendedTimeSeconds: safe.recommendedTimeSeconds,
+        };
+      }),
+    };
+  }
+
+  private async buildFactualResponse(args: {
+    subject: string;
+    topicLabel: string;
+    questionCount: number;
+    mode: PracticeMode;
+    difficulty: PracticeDifficulty;
+  }) {
+    const factualPack = await this.factualQuizService.buildFactPack({
+      subject: args.subject,
+      topic: args.topicLabel,
+      questionCount: args.questionCount,
+    });
+
+    if (factualPack.ok) {
+      const seeded = await this.factualQuizService.buildQuestionSeeds({
+        subject: args.subject,
+        topic: args.topicLabel,
+        questionCount: args.questionCount,
+        mode: args.mode,
+        difficulty: args.difficulty,
+      });
+
+      if (seeded.ok && seeded.seeds.length === args.questionCount) {
+        const now = Date.now();
+
+        return {
+          questions: seeded.seeds.map((seed, i) => {
+            const accepted = seed.acceptedAnswers[0] ?? 'Unknown';
+            const distractorBase = [
+              'None of the above',
+              'A later revision',
+              'An unrelated concept',
+              'A different historical milestone',
+              'An incorrect alternative',
+            ].filter((x) => x !== accepted);
+
+            const options = [accepted, ...distractorBase].slice(0, 4);
+            const shuffled = this.shuffleOptions(options, 0);
+
+            return {
+              id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-${now}-factual-${i}`,
+              subject: seeded.subject,
+              topicLabel: seeded.topic,
+              mode: args.mode,
+              difficulty: args.difficulty,
+              prompt: seed.stem,
+              options: shuffled.options,
+              correctIndex: shuffled.correctIndex,
+              explanation: seed.explanation,
+              recommendedTimeSeconds: 30,
+            };
+          }),
+          factual: {
+            ready: true,
+            evidence: seeded.evidence,
+            gaps: [],
+          },
+        };
+      }
+    }
+
+    return {
+      questions: [],
+      factual: {
+        ready: false,
+        subject: factualPack.subject,
+        topic: factualPack.topic,
+        needsClarification: factualPack.needsClarification,
+        facts: factualPack.facts,
+        evidence: factualPack.evidence,
+        gaps: factualPack.gaps,
+      },
+    };
   }
 
   private async requestQuestionSet(args: {
