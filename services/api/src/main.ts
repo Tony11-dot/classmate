@@ -8,7 +8,6 @@ async function bootstrap() {
 
   const logger = app.get(JsonLogger);
   app.useLogger(logger);
-
   app.useGlobalInterceptors(app.get(RequestMetricsInterceptor));
 
   const port = Number(process.env.PORT || 3000);

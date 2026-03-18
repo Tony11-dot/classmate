@@ -18,5 +18,7 @@ export const practiceWorker = !enabled
     );
 
 export async function closePracticeWorker() {
-  if (practiceWorker) await practiceWorker.close();
+  if (practiceWorker) {
+    await practiceWorker.close();
+  }
 }

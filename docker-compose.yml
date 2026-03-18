@@ -9,13 +9,13 @@ services:
       POSTGRES_DB: classmate
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d classmate"]
       interval: 5s
       timeout: 5s
       retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -24,13 +24,13 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
+    volumes:
+      - redis_data:/data
 
   api1:
     build:
@@ -38,6 +38,8 @@ services:
       dockerfile: Dockerfile
     container_name: classmate-api1
     restart: unless-stopped
+    env_file:
+      - .env.compose
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,12 +48,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
-      JWT_SECRET: "dev-super-secret-jwt-change-me"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -61,6 +58,8 @@ services:
       dockerfile: Dockerfile
     container_name: classmate-api2
     restart: unless-stopped
+    env_file:
+      - .env.compose
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,12 +68,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
-      JWT_SECRET: "dev-super-secret-jwt-change-me"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -84,6 +78,8 @@ services:
       dockerfile: Dockerfile
     container_name: classmate-api3
     restart: unless-stopped
+    env_file:
+      - .env.compose
     depends_on:
       postgres:
         condition: service_healthy
@@ -92,12 +88,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
-      JWT_SECRET: "dev-super-secret-jwt-change-me"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -107,6 +98,8 @@ services:
       dockerfile: Dockerfile
     container_name: classmate-worker
     restart: unless-stopped
+    env_file:
+      - .env.compose
     depends_on:
       postgres:
         condition: service_healthy
@@ -115,12 +108,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "true"
-      JWT_SECRET: "dev-super-secret-jwt-change-me"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     command: ["node", "dist/main.js"]
 
   nginx:

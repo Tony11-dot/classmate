@@ -1,13 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller()
 export class VersionController {
   @Get('version')
-  version() {
+  getVersion() {
     return {
       ok: true,
-      sha: process.env.GIT_SHA ?? null,
-      env: process.env.NODE_ENV ?? null,
+      service: 'classmate-api',
+      ts: new Date().toISOString(),
     };
   }
 }

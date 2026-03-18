@@ -5,11 +5,14 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 import { loadEnv } from './env';
-
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { JsonLogger } from './common/logging/json.logger';
 import { RequestMetricsInterceptor } from './common/interceptors/request-metrics.interceptor';
 import { MetricsController } from './common/controllers/metrics.controller';
+
+import { RolesGuard } from './auth/guards/roles.guard';
+import { DevOverrideGuard } from './auth/dev-override.guard';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,11 +35,6 @@ import { BagrutModule } from './bagrut/bagrut.module';
 import { PracticeAdaptiveModule } from './practice_adaptive/practice_adaptive.module';
 import { NovaModule } from './nova/nova.module';
 import { PracticeModule } from './practice/practice.module';
-
-import { RolesGuard } from './auth/guards/roles.guard';
-import { DevOverrideGuard } from './auth/dev-override.guard';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
-
 import { E2ESeedController } from './e2e/seed.controller';
 
 const env = loadEnv();
@@ -51,12 +49,10 @@ const serveStatic =
       ]
     : [];
 
-const seedControllers =
-  env.NODE_ENV === 'test'
-    ? [E2ESeedController]
-    : env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED
-      ? [E2ESeedController]
-      : [];
+const seedControllers = [
+  ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
+  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
+];
 
 @Module({
   imports: [
