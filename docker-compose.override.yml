@@ -1,7 +1,25 @@
 services:
-  db:
-    ports:
-      - "5432:5432"
-  api:
-    ports:
-      - "3000:3000"
+  api1:
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      ALLOW_DEV_TOKEN: "1"
+  api2:
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      ALLOW_DEV_TOKEN: "1"
+  api3:
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      ALLOW_DEV_TOKEN: "1"
+  worker:
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      ALLOW_DEV_TOKEN: "1"

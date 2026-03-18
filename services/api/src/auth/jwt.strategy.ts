@@ -36,7 +36,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     const token = auth.replace(/^Bearer\s+/i, '').trim();
 
     // E2E/dev shortcut: Bearer dev-token-<email>
-    if (process.env.NODE_ENV !== 'production' && token.startsWith('dev-token-')) {
+    if ((process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKEN === '1') && token.startsWith('dev-token-')) {
       const email = token.replace('dev-token-', '').trim().toLowerCase();
 
       // Ensure DB user exists; StudentProfile.userId references User.id (UUID), NOT email.
