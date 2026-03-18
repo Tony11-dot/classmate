@@ -33,3 +33,10 @@ final effectiveTotalAttemptsProvider = FutureProvider<int>((ref) async {
   final server = await ref.watch(serverInsightsProvider.future);
   return server?.totalAttempts ?? local.overall.answered;
 });
+
+final aiInsightsSummaryProvider = FutureProvider<AiInsightsSummary?>((
+  ref,
+) async {
+  final api = ref.watch(practiceAnalyticsApiProvider);
+  return api.fetchAiInsightsSummary();
+});

@@ -19,6 +19,7 @@ class InsightsScreen extends ConsumerWidget {
     final historyAsync = ref.watch(practiceHistoryProvider);
     final analyticsAsync = ref.watch(practiceAnalyticsProvider);
     final serverSummaryAsync = ref.watch(serverInsightsProvider);
+    final aiInsightsAsync = ref.watch(aiInsightsSummaryProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -204,6 +205,108 @@ class InsightsScreen extends ConsumerWidget {
                               onTap: () => context.go('/practice'),
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _SectionCard(
+                        title: 'AI study coach',
+                        subtitle:
+                            'Grounded guidance generated from your actual practice data.',
+                        child: aiInsightsAsync.when(
+                          loading: () => const _MiniLoader(),
+                          error: (_, __) => _ActionBanner(
+                            title: vm.focusMessageTitle,
+                            subtitle: vm.focusMessageBody,
+                            buttonLabel: 'Ask NOVA',
+                            onTap: () => context.go('/tutor', extra: null),
+                          ),
+                          data: (ai) {
+                            if (ai == null) {
+                              return _ActionBanner(
+                                title: vm.focusMessageTitle,
+                                subtitle: vm.focusMessageBody,
+                                buttonLabel: 'Ask NOVA',
+                                onTap: () => context.go('/tutor'),
+                              );
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .secondaryContainer
+                                            .withValues(alpha: 0.92),
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .tertiaryContainer
+                                            .withValues(alpha: 0.82),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(22),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant
+                                          .withValues(alpha: 0.35),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ai.headline,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        ai.summary,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                ...ai.cards.map(
+                                  (card) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: _AiInsightCardView(card: card),
+                                  ),
+                                ),
+                                if (ai.suggestedPrompt.trim().isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  _ActionBanner(
+                                    title: 'Send this to NOVA',
+                                    subtitle: ai.suggestedPrompt,
+                                    buttonLabel: 'Open NOVA',
+                                    onTap: () => context.go(
+                                      Uri(
+                                        path: '/tutor',
+                                        queryParameters: {
+                                          'prompt': ai.suggestedPrompt,
+                                          'title': 'AI Study Coach',
+                                        },
+                                      ).toString(),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -1168,6 +1271,54 @@ class _ServerTopicInsightRow extends StatelessWidget {
               _MiniChip(label: '${(topic.accuracy * 100).round()}% accuracy'),
               _MiniChip(label: '${topic.totalAnswered} questions'),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AiInsightCardView extends StatelessWidget {
+  const _AiInsightCardView({required this.card});
+
+  final AiInsightCard card;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    Color bg;
+    switch (card.tone) {
+      case 'focus':
+        bg = cs.errorContainer.withValues(alpha: 0.42);
+        break;
+      case 'strength':
+        bg = cs.secondaryContainer.withValues(alpha: 0.46);
+        break;
+      case 'next_step':
+        bg = cs.primaryContainer.withValues(alpha: 0.46);
+        break;
+      default:
+        bg = cs.surface.withValues(alpha: 0.72);
+        break;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(card.title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text(
+            card.body,
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
           ),
         ],
       ),

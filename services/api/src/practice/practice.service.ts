@@ -19,6 +19,7 @@ import { FactualQuizService } from './factual/factual-quiz.service';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 import { AdaptivePracticeFlowService } from './adaptive/flow/adaptive-practice-flow.service';
+import { PracticeAiInsightsService } from './practice-ai-insights.service';
 import type {
   AdaptiveAttemptInput,
   AdaptiveAttemptResult,
@@ -160,6 +161,8 @@ export class PracticeService {
     private readonly symbolicTopicService: SymbolicTopicService = new SymbolicTopicService(),
     @Optional()
     private readonly adaptivePracticeFlowService: AdaptivePracticeFlowService = new AdaptivePracticeFlowService(),
+    @Optional()
+    private readonly practiceAiInsightsService: PracticeAiInsightsService = new PracticeAiInsightsService(),
   ) {}
   submitAdaptiveAttempt(
     input: AdaptiveAttemptInput,
@@ -177,6 +180,11 @@ export class PracticeService {
 
   getProgressSummary(userId: string) {
     return this.adaptivePracticeFlowService.getProgressSummary(userId);
+  }
+
+  async getAiInsightsSummary(userId: string) {
+    const summary = this.getProgressSummary(userId);
+    return this.practiceAiInsightsService.generate(summary as any);
   }
 
   async generate(input: PracticeFilterPayload) {

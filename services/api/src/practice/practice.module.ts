@@ -43,6 +43,7 @@ import { PhysicsWavesDeterministicEngine } from './engine/physics-waves-determin
 import { PhysicsCircuitsDeterministicEngine } from './engine/physics-circuits-deterministic.engine';
 import { PhysicsElectricFieldDeterministicEngine } from './engine/physics-electric-field-deterministic.engine';
 import { PhysicsElectricityDeterministicEngine } from './engine/physics-electricity-deterministic.engine';
+import { PracticeAiInsightsService } from './practice-ai-insights.service';
 
 @Module({
   controllers: [PracticeController],
@@ -53,6 +54,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
     AdaptiveSelectorService,
     AttemptEvaluatorService,
     MasteryService,
+    PracticeAiInsightsService,
     PracticeService,
     PracticeEngineRegistry,
     LinearEquationsDeterministicEngine,

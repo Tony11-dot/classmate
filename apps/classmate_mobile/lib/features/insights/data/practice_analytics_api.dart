@@ -30,4 +30,16 @@ class PracticeAnalyticsApi {
       return null;
     }
   }
+
+  Future<AiInsightsSummary?> fetchAiInsightsSummary() async {
+    try {
+      final raw = await _api.getJson('/practice/insights-summary');
+      if (raw is! Map) return null;
+
+      final decoded = Map<String, dynamic>.from(raw);
+      return AiInsightsSummary.fromJson(decoded);
+    } catch (_) {
+      return null;
+    }
+  }
 }

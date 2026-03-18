@@ -23,4 +23,16 @@ export class PracticeController {
 
     return this.practiceService.getProgressSummary(userId);
   }
+
+  @Get('insights-summary')
+  getAiInsightsSummary(@Req() req: any) {
+    const userId = String(
+      req?.user?.sub ??
+        req?.user?.id ??
+        req?.user?.userId ??
+        'anonymous',
+    );
+
+    return this.practiceService.getAiInsightsSummary(userId);
+  }
 }
