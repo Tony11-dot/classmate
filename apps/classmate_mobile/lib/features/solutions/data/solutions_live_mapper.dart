@@ -107,6 +107,16 @@ class SolutionsLiveMapper {
     return int.tryParse('${raw ?? ''}') ?? fallback;
   }
 
+  static String? _nullableFirstNonEmpty(List<Object?> values) {
+    for (final value in values) {
+      final v = value;
+      if (v == null) continue;
+      final text = '$v'.trim();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
   static String _firstNonEmpty(List<Object?> values, {String fallback = ''}) {
     for (final value in values) {
       final s = '${value ?? ''}'.trim();
