@@ -1,516 +1,201 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AddSolutionImageDto } from './dto/add-solution-image.dto';
-import { OutboxService } from '../modules/outbox/outbox.service';
+import type {
+  CreateSolutionUploadBody,
+  ListSolutionsQuery,
+  ModerateSolutionBody,
+  VerifySolutionBody,
+} from './solutions.types';
 
 @Injectable()
 export class SolutionsService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly outbox: OutboxService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  private ensureStaff(user: any) {
-    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    const email =
-      typeof user?.email === 'string' ? user.email.trim().toLowerCase() : '';
-    const sub =
-      typeof user?.sub === 'string' ? user.sub.trim().toLowerCase() : '';
-    const id = typeof user?.id === 'string' ? user.id.trim().toLowerCase() : '';
-
-    const isDevStaffToken =
-      email === 'admin@classmate.local' ||
-      email === 'dev-token-admin@classmate.local' ||
-      sub === 'dev-token-admin@classmate.local' ||
-      id === 'dev-token-admin@classmate.local';
-
-    const ok =
-      roles.includes('TEACHER') || roles.includes('ADMIN') || isDevStaffToken;
-
-    if (!ok) throw new ForbiddenException('Staff only');
+  private userIdOf(user: any): string {
+    return String(user?.sub ?? user?.id ?? user?.userId ?? '');
   }
 
-  private mapSolutionRow(row: any) {
-    return {
-      ...row,
-      authorName: row?.author?.name ?? null,
-      likeCount: row?._count?.likes ?? 0,
-      commentCount: row?._count?.comments ?? 0,
-      likedByMe: Array.isArray(row?.likes) && row.likes.length > 0,
-      _count: undefined,
-      likes: undefined,
-      author: undefined,
-    };
+  private rolesOf(user: any): string[] {
+    return Array.isArray(user?.roles) ? user.roles.map(String) : [];
   }
 
-  private async getSolutionRepostCount(solutionId: string) {
-    const repostModel = (this.prisma as any).solutionRepost;
-    if (!repostModel?.count) return 0;
-    return repostModel.count({ where: { solutionId } });
+  private isStaff(user: any): boolean {
+    const roles = this.rolesOf(user).map((x) => x.toUpperCase());
+    return roles.includes('ADMIN') || roles.includes('TEACHER') || roles.includes('SECRETARY');
   }
 
-  private async resolveAuthorId(user: any) {
-    const candidateIds = [user?.sub, user?.id].filter(
-      (v) => typeof v == 'string' && v.trim().length > 0,
-    );
-
-    for (const candidateId of candidateIds) {
-      const existing = await this.prisma.user.findUnique({
-        where: { id: String(candidateId) },
-        select: { id: true },
-      });
-      if (existing?.id) return existing.id;
-    }
-
-    const candidateEmail =
-      typeof user?.email == 'string' && user.email.trim().length > 0
-        ? user.email.trim()
-        : null;
-
-    if (candidateEmail) {
-      const existing = await this.prisma.user.findFirst({
-        where: { email: candidateEmail },
-        select: { id: true },
-      });
-      if (existing?.id) return existing.id;
-    }
-
-    const fromExistingSolution = await this.prisma.solution.findFirst({
-      orderBy: [{ createdAt: 'desc' }],
-      select: { authorId: true },
-    });
-    if (fromExistingSolution?.authorId) return fromExistingSolution.authorId;
-
-    const anyUser = await this.prisma.user.findFirst({
-      orderBy: [{ createdAt: 'asc' }],
-      select: { id: true },
-    });
-    if (anyUser?.id) return anyUser.id;
-
-    throw new BadRequestException('No valid author user found');
-  }
-
-  async create(user: any, dto: any) {
-    this.ensureStaff(user);
-    const authorId = await this.resolveAuthorId(user);
-
-    const row = await this.prisma.solution.create({
-      data: {
-        subject: dto.subject,
-        sourceType: dto.sourceType,
-        sourceName: dto.sourceName ?? null,
-        page: dto.page ?? null,
-        questionNumber: dto.questionNumber ?? null,
-        title: dto.title ?? null,
-        notes: dto.notes ?? null,
-        body: dto.body ?? null,
-        authorId,
-      },
-      include: {
-        images: true,
-        author: { select: { id: true, name: true } },
-        _count: { select: { likes: true, comments: true } },
-        likes: user?.sub
-          ? { where: { userId: user.sub }, select: { id: true } }
-          : false,
-      },
-    });
-
-    await this.outbox.publish(this.prisma, {
-      type: 'solution.created',
-      aggregateId: row.id,
-      payload: { solutionId: row.id, authorId: row.authorId },
-    });
-
-    return this.mapSolutionRow(row);
-  }
-
-  async list(user: any, q: any) {
-    const take = Math.max(1, Math.min(Number(q?.limit ?? 20) || 20, 50));
-
-    const where: any = {};
-    if (q?.subject) where.subject = String(q.subject);
-    if (q?.sourceType) where.sourceType = String(q.sourceType);
-    if (q?.sourceName) where.sourceName = String(q.sourceName);
-    if (q?.page !== undefined && q?.page !== null && String(q.page).length) {
-      where.page = Number(q.page);
-    }
-    if (q?.questionNumber) where.questionNumber = String(q.questionNumber);
-
-    const cursorRaw = q?.cursor ? String(q.cursor) : '';
-    if (cursorRaw) {
-      const parts = cursorRaw.split('|');
-      if (parts.length !== 2) throw new BadRequestException('Invalid cursor');
-      const [createdAtStr, solutionId] = parts;
-      const createdAt = new Date(createdAtStr);
-      if (!createdAtStr || !solutionId || Number.isNaN(createdAt.getTime())) {
-        throw new BadRequestException('Invalid cursor');
-      }
-
-      where.OR = [
-        { createdAt: { lt: createdAt } },
-        { createdAt, solutionId: { lt: solutionId } },
-      ];
-    }
-
-    const rows = await this.prisma.feedSolutionCard.findMany({
-      where,
-      take,
-      orderBy: [{ createdAt: 'desc' }, { solutionId: 'desc' }],
-    });
-
-    const solutionIds = rows.map((r) => r.solutionId);
-    const likedIds = user?.sub
-      ? await this.prisma.solutionLike.findMany({
-          where: {
-            userId: user.sub,
-            solutionId: {
-              in: solutionIds.length
-                ? solutionIds
-                : ['00000000-0000-0000-0000-000000000000'],
-            },
-          },
-          select: { solutionId: true },
-        })
-      : [];
-
-    const likedSet = new Set(likedIds.map((x) => x.solutionId));
-
-    const nextCursor =
-      rows.length === take
-        ? `${rows[rows.length - 1].createdAt.toISOString()}|${rows[rows.length - 1].solutionId}`
-        : null;
-
-    const items = rows.map((row: any) => ({
-      id: row.solutionId,
-      authorId: row.authorId,
-      subject: row.subject,
-      sourceType: row.sourceType,
-      sourceName: row.sourceName,
-      page: row.page,
-      questionNumber: row.questionNumber,
-      title: row.title,
-      notes: null,
-      body: row.bodyPreview,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      images: row.primaryImageUrl
-        ? [
-            {
-              id: `primary-${row.solutionId}`,
-              url: row.primaryImageUrl,
-              storagePath: row.primaryImageUrl,
-              mime: 'image/*',
-              kind: 'image',
-              width: null,
-              height: null,
-            },
-          ]
-        : [],
-      authorName: row.authorName,
-      likeCount: row.likeCount,
-      commentCount: row.commentCount,
-      repostCount: row.repostCount ?? 0,
-      likedByMe: likedSet.has(row.solutionId),
-    }));
-
-    return { items, nextCursor };
-  }
-
-  async get(user: any, id: string) {
-    const likedUserId =
-      typeof user?.sub === 'string' && user.sub.trim().length > 0
-        ? user.sub
-        : typeof user?.id === 'string' && user.id.trim().length > 0
-          ? user.id
-          : null;
-
-    const row = await this.prisma.solution.findUnique({
-      where: { id },
-      include: {
-        images: true,
-        author: { select: { id: true, name: true } },
-        _count: { select: { likes: true, comments: true } },
-        likes: likedUserId
-          ? { where: { userId: likedUserId }, select: { id: true } }
-          : false,
-      },
-    });
-    if (!row) throw new NotFoundException();
-    return {
-      ...this.mapSolutionRow(row),
-      repostCount: await this.getSolutionRepostCount(id),
-    };
-  }
-
-  async update(user: any, id: string, dto: any) {
-    this.ensureStaff(user);
-
-    const row = await this.prisma.solution.update({
-      where: { id },
-      data: {
-        subject: dto.subject,
-        sourceType: dto.sourceType,
-        sourceName: dto.sourceName,
-        page: dto.page,
-        questionNumber: dto.questionNumber,
-        title: dto.title,
-        notes: dto.notes,
-        body: dto.body,
-      },
-      include: {
-        images: true,
-        author: { select: { id: true, name: true } },
-        _count: { select: { likes: true, comments: true } },
-        likes: user?.sub
-          ? { where: { userId: user.sub }, select: { id: true } }
-          : false,
-      },
-    });
-
-    return this.mapSolutionRow(row);
-  }
-
-  async remove(user: any, id: string) {
-    this.ensureStaff(user);
-    await this.prisma.solution.delete({ where: { id } });
-    return { ok: true };
-  }
-
-  async addImage(user: any, id: string, dto: AddSolutionImageDto) {
-    this.ensureStaff(user);
-
-    await this.prisma.solutionImage.create({
-      data: { solutionId: id, ...dto },
-    });
-
-    const row = await this.prisma.solution.findUnique({
-      where: { id },
-      include: {
-        images: true,
-        author: { select: { id: true, name: true } },
-        _count: { select: { likes: true, comments: true } },
-        likes: user?.sub
-          ? { where: { userId: user.sub }, select: { id: true } }
-          : false,
-      },
-    });
-
-    if (!row) throw new NotFoundException();
-    return this.mapSolutionRow(row);
-  }
-
-  async deleteImage(user: any, imageId: string) {
-    this.ensureStaff(user);
-    await this.prisma.solutionImage.delete({ where: { id: imageId } });
-    return { ok: true };
-  }
-
-  async like(user: any, id: string) {
-    const userId = user?.sub;
+  async create(user: any, body: CreateSolutionUploadBody) {
+    const userId = this.userIdOf(user);
     if (!userId) throw new ForbiddenException('Unauthorized');
 
-    const existing = await this.prisma.solutionLike.findUnique({
-      where: { solutionId_userId: { solutionId: id, userId } },
-    });
+    const subject = String(body.subject ?? '').trim();
+    const bookTitle = String(body.bookTitle ?? '').trim();
+    const questionNumber = String(body.questionNumber ?? '').trim();
+    const pageNumber = Number(body.pageNumber ?? 0);
+    const files = Array.isArray(body.files) ? body.files : [];
 
-    if (existing) {
-      await this.prisma.solutionLike.delete({
-        where: { solutionId_userId: { solutionId: id, userId } },
-      });
-
-      await this.outbox.publish(this.prisma, {
-        type: 'solution.unliked',
-        aggregateId: id,
-        payload: { solutionId: id, userId },
-      });
-
-      const [likeCount, commentCount] = await Promise.all([
-        this.prisma.solutionLike.count({ where: { solutionId: id } }),
-        this.prisma.solutionComment.count({ where: { solutionId: id } }),
-      ]);
-
-      return { ok: true, likeCount, commentCount, likedByMe: false };
+    if (!subject) throw new BadRequestException('subject required');
+    if (!bookTitle) throw new BadRequestException('bookTitle required');
+    if (!questionNumber) throw new BadRequestException('questionNumber required');
+    if (!Number.isFinite(pageNumber) || pageNumber <= 0) {
+      throw new BadRequestException('pageNumber must be positive');
     }
+    if (!files.length) throw new BadRequestException('at least one file required');
 
-    await this.prisma.solutionLike.create({
-      data: { solutionId: id, userId },
-    });
-
-    await this.outbox.publish(this.prisma, {
-      type: 'solution.liked',
-      aggregateId: id,
-      payload: { solutionId: id, userId },
-    });
-
-    const [likeCount, commentCount] = await Promise.all([
-      this.prisma.solutionLike.count({ where: { solutionId: id } }),
-      this.prisma.solutionComment.count({ where: { solutionId: id } }),
-    ]);
-
-    return { ok: true, likeCount, commentCount, likedByMe: true };
-  }
-
-  async unlike(user: any, solutionId: string) {
-    const userId = user?.sub;
-    if (!userId) throw new BadRequestException('Missing user');
-
-    await this.prisma.solutionLike.deleteMany({
-      where: { solutionId, userId },
-    });
-    await this.outbox.publish(this.prisma, {
-      type: 'solution.unliked',
-      aggregateId: solutionId,
-      payload: { solutionId, userId },
-    });
-
-    const counts = await this.prisma.solution.findUnique({
-      where: { id: solutionId },
-      select: { _count: { select: { likes: true, comments: true } } },
-    });
-
-    return {
-      ok: true,
-      likeCount: counts?._count?.likes ?? 0,
-      commentCount: counts?._count?.comments ?? 0,
-      likedByMe: false,
-    };
-  }
-
-  async listComments(solutionId: string, q: any) {
-    const take = Math.max(1, Math.min(Number(q?.limit ?? 20) || 20, 50));
-    const cursorRaw = q?.cursor ? String(q.cursor) : '';
-
-    const where: any = { solutionId };
-
-    if (cursorRaw) {
-      const parts = cursorRaw.split('|');
-      if (parts.length !== 2) throw new BadRequestException('Invalid cursor');
-      const [createdAtStr, id] = parts;
-      const createdAt = new Date(createdAtStr);
-      if (!createdAtStr || !id || Number.isNaN(createdAt.getTime())) {
-        throw new BadRequestException('Invalid cursor');
-      }
-
-      where.OR = [
-        { createdAt: { lt: createdAt } },
-        { createdAt, id: { lt: id } },
-      ];
-    }
-
-    const rows = await this.prisma.solutionComment.findMany({
-      where,
-      take,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      select: {
-        id: true,
-        body: true,
-        createdAt: true,
-        authorId: true,
-        author: { select: { id: true, name: true } },
-      },
-    });
-
-    const nextCursor =
-      rows.length === take
-        ? `${rows[rows.length - 1].createdAt.toISOString()}|${rows[rows.length - 1].id}`
-        : null;
-
-    return { items: rows, nextCursor };
-  }
-
-  async repost(user: any, id: string) {
-    const userId =
-      typeof user?.sub === 'string' && user.sub.trim().length > 0
-        ? user.sub
-        : typeof user?.id === 'string' && user.id.trim().length > 0
-          ? user.id
-          : null;
-
-    if (!userId) throw new ForbiddenException('Unauthorized');
-
-    const solution = await this.prisma.solution.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (!solution) throw new NotFoundException();
-
-    const repostModel = (this.prisma as any).solutionRepost;
-    if (!repostModel) {
-      throw new BadRequestException('Solution reposts are not available');
-    }
-
-    await repostModel.upsert({
+    const book = await this.prisma.solutionBook.upsert({
       where: {
-        solutionId_userId: {
-          solutionId: id,
-          userId,
+        subject_title: {
+          subject,
+          title: bookTitle,
         },
       },
       update: {},
       create: {
-        solutionId: id,
-        userId,
+        subject,
+        title: bookTitle,
+        slug: bookTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       },
     });
 
-    await this.outbox.publish(this.prisma, {
-      type: 'solution.reposted',
-      aggregateId: id,
-      payload: { solutionId: id, userId },
-    });
-
-    const [likeCount, commentCount, repostCount] = await Promise.all([
-      this.prisma.solutionLike.count({ where: { solutionId: id } }),
-      this.prisma.solutionComment.count({ where: { solutionId: id } }),
-      repostModel.count({ where: { solutionId: id } }),
-    ]);
-
-    return { ok: true, likeCount, commentCount, repostCount };
-  }
-
-  async addComment(user: any, id: string, dto: any) {
-    const userId = user?.sub;
-    if (!userId) throw new ForbiddenException('Unauthorized');
-
-    const body = typeof dto?.body === 'string' ? dto.body.trim() : '';
-
-    if (!body) {
-      throw new BadRequestException('body required');
-    }
-
-    const comment = await this.prisma.solutionComment.create({
+    const created = await this.prisma.solutionUpload.create({
       data: {
-        body,
-        solutionId: id,
-        authorId: userId,
+        userId,
+        subject,
+        bookId: book.id,
+        caption: body.caption?.trim() || null,
+        pageNumber,
+        questionNumber,
+        uploaderName: body.uploaderName?.trim() || null,
+        uploaderInitials: body.uploaderInitials?.trim() || null,
+        moderationStatus: 'PENDING',
+        verificationStatus: 'UNCHECKED',
+        files: {
+          create: files.map((f, index) => ({
+            kind: String(f.kind ?? 'file'),
+            url: String(f.url ?? '').trim(),
+            mimeType: f.mimeType?.trim() || null,
+            fileName: f.fileName?.trim() || null,
+            fileSize:
+              typeof f.fileSize === 'number' && Number.isFinite(f.fileSize)
+                ? Math.max(0, Math.trunc(f.fileSize))
+                : null,
+            sortOrder: index,
+          })),
+        },
       },
       include: {
-        author: { select: { id: true, name: true } },
+        book: true,
+        files: { orderBy: { sortOrder: 'asc' } },
       },
     });
 
-    await this.outbox.publish(this.prisma, {
-      type: 'solution.commented',
-      aggregateId: id,
-      payload: {
-        solutionId: id,
-        commentId: comment.id,
-        authorId: comment.authorId,
-      },
-    });
+    return { ok: true, upload: created };
+  }
 
-    const [likeCount, commentCount] = await Promise.all([
-      this.prisma.solutionLike.count({ where: { solutionId: id } }),
-      this.prisma.solutionComment.count({ where: { solutionId: id } }),
+  async list(query: ListSolutionsQuery) {
+    const page = Math.max(1, Number(query.page ?? 1));
+    const limit = Math.min(30, Math.max(1, Number(query.limit ?? 12)));
+    const skip = (page - 1) * limit;
+
+    const subject = String(query.subject ?? '').trim();
+    const bookTitle = String(query.bookTitle ?? '').trim();
+    const questionNumber = String(query.questionNumber ?? '').trim();
+    const pageNumber =
+      query.pageNumber != null && Number.isFinite(Number(query.pageNumber))
+        ? Number(query.pageNumber)
+        : null;
+
+    const where: any = {
+      isDeleted: false,
+      moderationStatus: { not: 'REJECTED' },
+      ...(subject ? { subject } : {}),
+      ...(pageNumber != null ? { pageNumber } : {}),
+      ...(questionNumber ? { questionNumber } : {}),
+      ...(bookTitle
+        ? {
+            book: {
+              title: bookTitle,
+            },
+          }
+        : {}),
+    };
+
+    const [total, items] = await Promise.all([
+      this.prisma.solutionUpload.count({ where }),
+      this.prisma.solutionUpload.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ verificationStatus: 'desc' }, { createdAt: 'desc' }],
+        include: {
+          book: true,
+          files: { orderBy: { sortOrder: 'asc' } },
+        },
+      }),
     ]);
 
-    return { ok: true, comment, likeCount, commentCount };
+    return {
+      ok: true,
+      page,
+      limit,
+      total,
+      hasMore: skip + items.length < total,
+      items,
+    };
+  }
+
+  async books(subject?: string) {
+    const where = subject ? { subject: String(subject).trim() } : {};
+    const rows = await this.prisma.solutionBook.findMany({
+      where,
+      orderBy: [{ subject: 'asc' }, { title: 'asc' }],
+    });
+    return { ok: true, books: rows };
+  }
+
+  async subjects() {
+    const rows = await this.prisma.solutionBook.findMany({
+      distinct: ['subject'],
+      select: { subject: true },
+      orderBy: { subject: 'asc' },
+    });
+    return { ok: true, subjects: rows.map((x) => x.subject) };
+  }
+
+  async verify(user: any, id: string, body: VerifySolutionBody) {
+    if (!this.isStaff(user)) throw new ForbiddenException('Staff only');
+
+    const updated = await this.prisma.solutionUpload.update({
+      where: { id },
+      data: {
+        verificationStatus: body.verificationStatus,
+        verificationNote: body.verificationNote?.trim() || null,
+      },
+      include: {
+        book: true,
+        files: { orderBy: { sortOrder: 'asc' } },
+      },
+    });
+
+    return { ok: true, upload: updated };
+  }
+
+  async moderate(user: any, id: string, body: ModerateSolutionBody) {
+    if (!this.isStaff(user)) throw new ForbiddenException('Staff only');
+
+    const updated = await this.prisma.solutionUpload.update({
+      where: { id },
+      data: {
+        moderationStatus: body.moderationStatus,
+        moderationReason: body.moderationReason?.trim() || null,
+        isDeleted: body.isDeleted === true,
+      },
+      include: {
+        book: true,
+        files: { orderBy: { sortOrder: 'asc' } },
+      },
+    });
+
+    return { ok: true, upload: updated };
   }
 }

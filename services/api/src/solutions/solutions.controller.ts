@@ -1,104 +1,61 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import { SolutionsService } from './solutions.service';
-import { CreateSolutionDto } from './dto/create-solution.dto';
-import { UpdateSolutionDto } from './dto/update-solution.dto';
-import { AddSolutionImageDto } from './dto/add-solution-image.dto';
-import { OutboxRunnerService } from '../modules/projections/outbox-runner.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('solutions')
 export class SolutionsController {
-  constructor(
-    private readonly solutions: SolutionsService,
-    private readonly outboxRunner: OutboxRunnerService,
-  ) {}
+  constructor(private readonly solutions: SolutionsService) {}
 
-  @Post()
-  create(@CurrentUser() user: any, @Body() dto: CreateSolutionDto) {
-    return this.solutions.create(user, dto);
+  @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @Get('subjects')
+  subjects() {
+    return this.solutions.subjects();
   }
 
+  @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @Get('books')
+  books(@Query('subject') subject?: string) {
+    return this.solutions.books(subject);
+  }
+
+  @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.SECRETARY)
   @Get()
-  list(@CurrentUser() user: any, @Query() q: any) {
-    return this.solutions.list(user, q);
-  }
-
-  @Get(':id')
-  get(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.solutions.get(user, id);
-  }
-
-  @Patch(':id')
-  update(
-    @CurrentUser() user: any,
-    @Param('id') id: string,
-    @Body() dto: UpdateSolutionDto,
+  list(
+    @Query('subject') subject?: string,
+    @Query('bookTitle') bookTitle?: string,
+    @Query('pageNumber') pageNumber?: string,
+    @Query('questionNumber') questionNumber?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.solutions.update(user, id, dto);
+    return this.solutions.list({
+      subject,
+      bookTitle,
+      pageNumber: pageNumber ? Number(pageNumber) : undefined,
+      questionNumber,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
   }
 
-  @Delete(':id')
-  remove(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.solutions.remove(user, id);
+  @Roles(Role.STUDENT, Role.ADMIN)
+  @Post()
+  create(@Req() req: any, @Body() body: any) {
+    return this.solutions.create(req.user, body);
   }
 
-  @Post(':id/images')
-  addImage(
-    @CurrentUser() user: any,
-    @Param('id') id: string,
-    @Body() dto: AddSolutionImageDto,
-  ) {
-    return this.solutions.addImage(user, id, dto);
+  @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @Patch(':id/verify')
+  verify(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.solutions.verify(req.user, id, body);
   }
 
-  @Delete('images/:imageId')
-  deleteImage(@CurrentUser() user: any, @Param('imageId') imageId: string) {
-    return this.solutions.deleteImage(user, imageId);
-  }
-
-  @Post(':id/like')
-  like(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.solutions.like(user, id);
-  }
-
-  @Delete(':id/like')
-  unlike(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.solutions.unlike(user, id);
-  }
-
-  @Get(':id/comments')
-  listComments(@Param('id') id: string, @Query() q: any) {
-    return this.solutions.listComments(id, q);
-  }
-
-  @Post(':id/comments')
-  addComment(
-    @CurrentUser() user: any,
-    @Param('id') id: string,
-    @Body() dto: any,
-  ) {
-    return this.solutions.addComment(user, id, dto);
-  }
-
-  @Post('dev/run-projections')
-  runProjections() {
-    return this.outboxRunner.runOnce(200);
-  }
-
-  @Post(':id/repost')
-  repost(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.solutions.repost(user, id);
+  @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @Patch(':id/moderate')
+  moderate(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.solutions.moderate(req.user, id, body);
   }
 }

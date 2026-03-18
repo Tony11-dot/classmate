@@ -1172,6 +1172,76 @@ model BagrutQuestion {
   createdAt     DateTime @default(now())
 }
 
+
+
+enum SolutionModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SolutionVerificationStatus {
+  UNCHECKED
+  VERIFIED
+  REJECTED
+}
+
+model SolutionBook {
+  id        String   @id @default(cuid())
+  subject   String
+  title     String
+  slug      String?
+  createdAt DateTime @default(now())
+
+  solutions SolutionUpload[]
+
+  @@unique([subject, title])
+  @@index([subject])
+}
+
+model SolutionUpload {
+  id                 String                     @id @default(cuid())
+  userId             String
+  subject            String
+  bookId             String
+  caption            String?
+  pageNumber         Int
+  questionNumber     String
+  uploaderName       String?
+  uploaderInitials   String?
+  moderationStatus   SolutionModerationStatus  @default(PENDING)
+  verificationStatus SolutionVerificationStatus @default(UNCHECKED)
+  moderationReason   String?
+  verificationNote   String?
+  isDeleted          Boolean                    @default(false)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  book   SolutionBook        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  files  SolutionUploadFile[]
+
+  @@index([userId, createdAt])
+  @@index([subject, pageNumber, createdAt])
+  @@index([subject, bookId, pageNumber, questionNumber])
+  @@index([bookId])
+}
+
+model SolutionUploadFile {
+  id         String   @id @default(cuid())
+  uploadId    String
+  kind       String
+  url        String
+  mimeType   String?
+  fileName   String?
+  fileSize   Int?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  upload SolutionUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([uploadId, sortOrder])
+}
+
 model PracticeAttempt {
   id              String   @id @default(cuid())
   userId          String
