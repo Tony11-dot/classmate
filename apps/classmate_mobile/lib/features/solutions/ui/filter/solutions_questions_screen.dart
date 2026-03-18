@@ -55,11 +55,11 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<SolutionSubject>(
-                      value: uploadSubject,
+                      initialValue: uploadSubject,
                       items: uploadState.subjects
                           .map(
                             (subject) => DropdownMenuItem<SolutionSubject>(
-                              value: subject,
+                              initialValue: subject,
                               child: Text(subject.title),
                             ),
                           )
@@ -73,11 +73,11 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<SolutionBook>(
-                      value: uploadBook,
+                      initialValue: uploadBook,
                       items: (uploadSubject?.books ?? const <SolutionBook>[])
                           .map(
                             (book) => DropdownMenuItem<SolutionBook>(
-                              value: book,
+                              initialValue: book,
                               child: Text(book.title),
                             ),
                           )
