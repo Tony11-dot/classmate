@@ -7,6 +7,7 @@ import type {
   StudentInsightsGradeItem,
   StudentInsightsGradesSummary,
   StudentInsightsPracticeSummary,
+  StudentInsightsPracticeTrend,
   StudentInsightsResponse,
 } from './student-insights.types';
 
@@ -78,6 +79,51 @@ export class StudentInsightsService {
       latest,
       bestSubject,
       weakestSubject,
+    };
+  }
+
+  private buildTrendWindow(label: '7d' | '30d', rows: any[]): StudentInsightsPracticeTrend['last7d'] {
+    const attempts = rows.length;
+    const correct = rows.filter((row) => row?.isCorrect === true).length;
+    const accuracy =
+      attempts > 0
+        ? Number(((correct / attempts) * 100).toFixed(1))
+        : null;
+
+    return {
+      label,
+      attempts,
+      correct,
+      accuracy,
+    };
+  }
+
+  private summarizePracticeTrend(rows: any[]): StudentInsightsPracticeTrend {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    const rows7d = rows.filter((row) => {
+      const createdAt = new Date(row?.createdAt ?? 0).getTime();
+      return Number.isFinite(createdAt) && now - createdAt <= 7 * dayMs;
+    });
+
+    const rows30d = rows.filter((row) => {
+      const createdAt = new Date(row?.createdAt ?? 0).getTime();
+      return Number.isFinite(createdAt) && now - createdAt <= 30 * dayMs;
+    });
+
+    const last7d = this.buildTrendWindow('7d', rows7d);
+    const last30d = this.buildTrendWindow('30d', rows30d);
+
+    const deltaAccuracy =
+      last7d.accuracy == null || last30d.accuracy == null
+        ? null
+        : Number((last7d.accuracy - last30d.accuracy).toFixed(1));
+
+    return {
+      last7d,
+      last30d,
+      deltaAccuracy,
     };
   }
 
@@ -158,7 +204,7 @@ export class StudentInsightsService {
       };
     }
 
-    const [gradeRows, attendanceRows] = await Promise.all([
+    const [gradeRows, attendanceRows, practiceAttemptRows] = await Promise.all([
       this.prisma.gradeRecord.findMany({
         where: { studentId },
         orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
@@ -181,6 +227,14 @@ export class StudentInsightsService {
           },
         },
       }),
+      this.prisma.practiceAttempt.findMany({
+        where: { userId: studentId },
+        orderBy: [{ createdAt: 'desc' }],
+        select: {
+          createdAt: true,
+          isCorrect: true,
+        },
+      }),
     ]);
 
     const practice =
@@ -194,7 +248,10 @@ export class StudentInsightsService {
       generatedAt: new Date().toISOString(),
       grades: this.summarizeGrades(gradeRows),
       attendance: this.summarizeAttendance(attendanceRows),
-      practice,
+      practice: {
+        ...practice,
+        trend: this.summarizePracticeTrend(practiceAttemptRows),
+      },
     };
   }
 }

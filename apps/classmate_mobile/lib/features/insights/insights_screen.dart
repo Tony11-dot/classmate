@@ -20,6 +20,7 @@ class InsightsScreen extends ConsumerWidget {
     final analyticsAsync = ref.watch(practiceAnalyticsProvider);
     final serverSummaryAsync = ref.watch(serverInsightsProvider);
     final aiInsightsAsync = ref.watch(aiInsightsSummaryProvider);
+    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
     final unifiedInsightsAsync = ref.watch(unifiedStudentInsightsProvider);
 
     return RefreshIndicator(
@@ -249,8 +250,7 @@ class InsightsScreen extends ConsumerWidget {
                                   child: _MetricTile(
                                     icon: Icons.quiz_rounded,
                                     label: 'Answered',
-                                    value: '${snapshot.overall.answered}'
-                                        .toString(),
+                                    value: '${snapshot.overall.answered}',
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -402,6 +402,94 @@ class InsightsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      if (unifiedAsync.maybeWhen(
+                        data: (value) => value != null,
+                        orElse: () => false,
+                      ))
+                        unifiedAsync.when(
+                          loading: () => const SizedBox.shrink(),
+                          error: (error, stackTrace) => const SizedBox.shrink(),
+                          data: (unified) {
+                            final trend = unified?.practice.trend;
+                            if (trend == null) return const SizedBox.shrink();
+
+                            String trendLabel() {
+                              final delta = trend.deltaAccuracy;
+                              if (delta == null) return 'Building baseline';
+                              if (delta >= 6) return 'Improving';
+                              if (delta <= -6) return 'Needs attention';
+                              return 'Stable';
+                            }
+
+                            String deltaLabel() {
+                              final delta = trend.deltaAccuracy;
+                              if (delta == null) return 'Need more attempts';
+                              if (delta == 0) return '0 pts';
+                              return '${delta > 0 ? '+' : ''}${delta.toStringAsFixed(1)} pts';
+                            }
+
+                            return Column(
+                              children: [
+                                _SectionCard(
+                                  title: 'Practice trend windows',
+                                  subtitle:
+                                      'Backend-driven short-term and monthly practice momentum.',
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: _MetricTile(
+                                              icon: Icons.date_range_rounded,
+                                              label: 'Last 7d',
+                                              value:
+                                                  trend.last7d.accuracy == null
+                                                  ? '—'
+                                                  : '${trend.last7d.accuracy!.toStringAsFixed(1)}%',
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: _MetricTile(
+                                              icon: Icons
+                                                  .calendar_view_month_rounded,
+                                              label: 'Last 30d',
+                                              value:
+                                                  trend.last30d.accuracy == null
+                                                  ? '—'
+                                                  : '${trend.last30d.accuracy!.toStringAsFixed(1)}%',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: _MetricTile(
+                                              icon: Icons.timeline_rounded,
+                                              label: 'Direction',
+                                              value: trendLabel(),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: _MetricTile(
+                                              icon: Icons.show_chart_rounded,
+                                              label: 'Delta',
+                                              value: deltaLabel(),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          },
+                        ),
                       _SectionCard(
                         title: 'Performance trend',
                         subtitle:

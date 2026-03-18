@@ -42,6 +42,7 @@ class InsightsServerSummary {
   final double overallAccuracy;
   final List<InsightsTopicSummary> weakTopics;
   final List<InsightsTopicSummary> strongestTopics;
+  final UnifiedPracticeTrend? trend;
 
   const InsightsServerSummary({
     required this.userId,
@@ -51,6 +52,7 @@ class InsightsServerSummary {
     required this.overallAccuracy,
     required this.weakTopics,
     required this.strongestTopics,
+    required this.trend,
   });
 
   factory InsightsServerSummary.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,8 @@ class InsightsServerSummary {
           .toList(growable: false);
     }
 
+    final rawTrend = json['trend'];
+
     return InsightsServerSummary(
       userId: '${json['userId'] ?? ''}',
       totalSessions: asInt(json['totalSessions']),
@@ -87,6 +91,11 @@ class InsightsServerSummary {
       overallAccuracy: asDouble(json['overallAccuracy']),
       weakTopics: parseTopics(json['weakTopics']),
       strongestTopics: parseTopics(json['strongestTopics']),
+      trend: rawTrend is Map
+          ? UnifiedPracticeTrend.fromJson(
+              rawTrend.map((k, v) => MapEntry(k.toString(), v)),
+            )
+          : null,
     );
   }
 }
@@ -367,6 +376,82 @@ class UnifiedStudentInsights {
       grades: UnifiedGradesSummary.fromJson(gradesMap),
       attendance: UnifiedAttendanceSummary.fromJson(attendanceMap),
       practice: InsightsServerSummary.fromJson(practiceMap),
+    );
+  }
+}
+
+class UnifiedPracticeTrendWindow {
+  final String label;
+  final int attempts;
+  final int correct;
+  final double? accuracy;
+
+  const UnifiedPracticeTrendWindow({
+    required this.label,
+    required this.attempts,
+    required this.correct,
+    required this.accuracy,
+  });
+
+  factory UnifiedPracticeTrendWindow.fromJson(Map<String, dynamic> json) {
+    double? asNullableDouble(Object? v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return double.tryParse('$v');
+    }
+
+    int asInt(Object? v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}') ?? 0;
+    }
+
+    return UnifiedPracticeTrendWindow(
+      label: '${json['label'] ?? ''}',
+      attempts: asInt(json['attempts']),
+      correct: asInt(json['correct']),
+      accuracy: asNullableDouble(json['accuracy']),
+    );
+  }
+}
+
+class UnifiedPracticeTrend {
+  final UnifiedPracticeTrendWindow last7d;
+  final UnifiedPracticeTrendWindow last30d;
+  final double? deltaAccuracy;
+
+  const UnifiedPracticeTrend({
+    required this.last7d,
+    required this.last30d,
+    required this.deltaAccuracy,
+  });
+
+  factory UnifiedPracticeTrend.fromJson(Map<String, dynamic> json) {
+    double? asNullableDouble(Object? v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return double.tryParse('$v');
+    }
+
+    final raw7d = json['last7d'];
+    final raw30d = json['last30d'];
+
+    return UnifiedPracticeTrend(
+      last7d: UnifiedPracticeTrendWindow.fromJson(
+        raw7d is Map
+            ? raw7d.map((k, v) => MapEntry(k.toString(), v))
+            : <String, dynamic>{},
+      ),
+      last30d: UnifiedPracticeTrendWindow.fromJson(
+        raw30d is Map
+            ? raw30d.map((k, v) => MapEntry(k.toString(), v))
+            : <String, dynamic>{},
+      ),
+      deltaAccuracy: asNullableDouble(json['deltaAccuracy']),
     );
   }
 }

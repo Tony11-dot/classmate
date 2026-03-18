@@ -22,13 +22,28 @@ export type StudentInsightsPracticeTopic = {
   totalAnswered: number;
 };
 
+export type StudentInsightsTrendWindow = {
+  label: '7d' | '30d';
+  attempts: number;
+  correct: number;
+  accuracy: number | null;
+};
+
+export type StudentInsightsPracticeTrend = {
+  last7d: StudentInsightsTrendWindow;
+  last30d: StudentInsightsTrendWindow;
+  deltaAccuracy: number | null;
+};
+
 export type StudentInsightsPracticeSummary = {
+  userId?: string;
   totalSessions: number;
   totalAttempts: number;
   totalCorrect: number;
   overallAccuracy: number;
   weakTopics: StudentInsightsPracticeTopic[];
   strongestTopics: StudentInsightsPracticeTopic[];
+  trend?: StudentInsightsPracticeTrend;
 };
 
 export type StudentInsightsGradesSummary = {
