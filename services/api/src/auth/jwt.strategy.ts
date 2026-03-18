@@ -40,47 +40,71 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       token.startsWith('dev-token-')
     ) {
       const email = token.replace('dev-token-', '').trim().toLowerCase();
-      if (!email) throw new UnauthorizedException('Invalid token');
+      const inferredRoles = rolesFromEmail(email);
 
-      const passwordHash = await bcrypt.hash(`dev-token:${email}`, 10);
+      try {
+        const existing = await this.prisma.user.findUnique({
+          where: { email },
+          select: { id: true, email: true, name: true, displayName: true },
+        });
 
-      const user = await this.prisma.user.upsert({
-        where: { email },
-        update: {},
-        create: {
-          email,
-          name: email.split('@')[0] || email,
-          password: passwordHash,
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          displayName: true,
-        },
-      });
+        let userId = existing?.id;
+        let userEmail = existing?.email ?? email;
+        let userName =
+          existing?.displayName ??
+          existing?.name ??
+          email.split('@')[0];
 
-      return {
-        sub: user.id,
-        id: user.id,
-        userId: user.id,
-        email: user.email,
-        roles: rolesFromEmail(user.email),
-        name: user.displayName ?? user.name ?? user.email,
-        actingStudentId: actingStudentId ?? null,
-        schoolId: schoolId ?? null,
-        cohortId: null,
-        isDevToken: true,
-      };
+        if (!userId) {
+          const passwordHash = await bcrypt.hash(`dev-token:${email}`, 10);
+
+          const created = await this.prisma.user.create({
+            data: {
+              email,
+              name: email.split('@')[0],
+              password: passwordHash,
+            },
+            select: { id: true, email: true, name: true, displayName: true },
+          });
+
+          userId = created.id;
+          userEmail = created.email;
+          userName =
+            created.displayName ??
+            created.name ??
+            email.split('@')[0];
+        }
+
+        return {
+          sub: userId,
+          id: userId,
+          userId: userId,
+          email: userEmail,
+          roles: inferredRoles,
+          role: inferredRoles[0],
+          name: userName,
+          displayName: userName,
+          fullName: userName,
+          ...(actingStudentId ? { actingStudentId } : {}),
+          ...(schoolId ? { schoolId } : {}),
+        };
+      } catch (error: any) {
+        console.error('DEV_TOKEN_VALIDATE_ERROR', {
+          message: error?.message,
+          code: error?.code,
+          meta: error?.meta,
+          stack: error?.stack,
+        });
+        throw error;
+      }
     }
 
     if (process.env.JWT_VALIDATE_DEBUG === '1') {
       console.error('JWT_VALIDATE_DEBUG', {
         authHeader: (req as any)?.headers?.authorization,
         tokenLen: String(((req as any)?.headers?.authorization || '')).length,
-        user: (req as any)?.user,
         nodeEnv: process.env.NODE_ENV,
-        e2e: process.env.E2E,
+        allowDevToken: process.env.ALLOW_DEV_TOKEN,
         port: process.env.PORT,
       });
     }
