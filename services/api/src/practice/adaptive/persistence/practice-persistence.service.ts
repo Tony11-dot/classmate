@@ -312,6 +312,7 @@ export class PracticePersistenceService {
     );
 
     return {
+      userId,
       totalSessions: sessionIds.length,
       totalAttempts,
       totalCorrect,

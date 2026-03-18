@@ -160,6 +160,10 @@ export class AdaptivePracticeFlowService {
     };
   }
 
+  getProgressSummary(userId: string) {
+    return this.persistence.getProgressSummary(userId);
+  }
+
   getSessionSummary(input: {
     sessionId: string;
     subject: string;

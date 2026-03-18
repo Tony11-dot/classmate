@@ -175,6 +175,10 @@ export class PracticeService {
     return this.adaptivePracticeFlowService.getSessionSummary(input);
   }
 
+  getProgressSummary(userId: string) {
+    return this.adaptivePracticeFlowService.getProgressSummary(userId);
+  }
+
   async generate(input: PracticeFilterPayload) {
     const apiKey = process.env.OPENAI_API_KEY;
 

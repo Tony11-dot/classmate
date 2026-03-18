@@ -1,6 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../practice/domain/practice_analytics_models.dart';
+import '../practice/domain/practice_history_models.dart';
+import '../practice/domain/practice_models.dart';
+import '../practice/providers/practice_providers.dart';
+import 'domain/insights_models.dart';
 import 'providers/insights_providers.dart';
 
 class InsightsScreen extends ConsumerWidget {
@@ -8,406 +16,674 @@ class InsightsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncValue = ref.watch(insightsSnapshotProvider);
-    final cs = Theme.of(context).colorScheme;
+    final historyAsync = ref.watch(practiceHistoryProvider);
+    final analyticsAsync = ref.watch(practiceAnalyticsProvider);
+    final serverSummaryAsync = ref.watch(serverInsightsProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(insightsSnapshotProvider);
-        await ref.read(insightsSnapshotProvider.future);
+        ref.invalidate(practiceHistoryProvider);
+        ref.invalidate(practiceAnalyticsProvider);
+        ref.invalidate(serverInsightsProvider);
+        await Future.wait([
+          ref.read(practiceHistoryProvider.future),
+          ref.read(practiceAnalyticsProvider.future),
+          ref.read(serverInsightsProvider.future),
+        ]);
       },
-      child: asyncValue.when(
-        loading: () => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          children: const [
-            SizedBox(
-              height: 140,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ],
-        ),
-        error: (error, _) => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          children: [
-            _StateCard(
-              icon: Icons.insights_outlined,
-              title: 'Could not load insights',
-              subtitle: '$error',
-              action: FilledButton.icon(
-                onPressed: () => ref.invalidate(insightsSnapshotProvider),
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        children: [
+          historyAsync.when(
+            loading: () => _HeroShell(
+              child: _LoadingCard(
+                title: 'Loading your insights',
+                subtitle:
+                    'Pulling together practice signals and school shortcuts.',
               ),
             ),
-          ],
-        ),
-        data: (data) {
-          final gradesMap = _map(data['grades']);
-          final attendanceMap = _map(data['attendance']);
-
-          final grades = _list(gradesMap['grades']);
-          final attendance = _list(attendanceMap['items']);
-
-          final presentCount = attendance
-              .where((e) => _statusOf(e) == 'PRESENT')
-              .length;
-          final absentCount = attendance
-              .where((e) => _statusOf(e) == 'ABSENT')
-              .length;
-          final lateCount = attendance
-              .where((e) => _statusOf(e) == 'LATE')
-              .length;
-          final excusedCount = attendance
-              .where((e) => _statusOf(e) == 'EXCUSED')
-              .length;
-
-          final attendedBase =
-              presentCount + absentCount + lateCount + excusedCount;
-          final attendanceRate = attendedBase == 0
-              ? null
-              : ((presentCount + lateCount) / attendedBase) * 100.0;
-
-          final numericGrades = grades
-              .map((e) => _gradeValue(e))
-              .whereType<double>()
-              .toList(growable: false);
-
-          final gradesAverage = numericGrades.isEmpty
-              ? null
-              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
-
-          final recentGrades = [...grades]
-            ..sort((a, b) {
-              final ad =
-                  DateTime.tryParse(_assessmentDate(a)) ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
-              final bd =
-                  DateTime.tryParse(_assessmentDate(b)) ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
-              return bd.compareTo(ad);
-            });
-
-          final recentAttendance = [...attendance]
-            ..sort((a, b) {
-              final ad =
-                  DateTime.tryParse(_attendanceDate(a)) ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
-              final bd =
-                  DateTime.tryParse(_attendanceDate(b)) ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
-              return bd.compareTo(ad);
-            });
-
-          final recentGradeAvg = _recentWindowAvg(
-            recentGrades,
-            recentHalf: true,
-          );
-          final olderGradeAvg = _recentWindowAvg(
-            recentGrades,
-            recentHalf: false,
-          );
-          final gradesTrend = _trendLabel(recentGradeAvg, olderGradeAvg);
-
-          final recentAttendanceSlice = recentAttendance.take(7).toList();
-          final olderAttendanceSlice = recentAttendance
-              .skip(7)
-              .take(7)
-              .toList();
-
-          double? attRate(List<Map<String, dynamic>> items) {
-            if (items.isEmpty) return null;
-            final presentish = items.where((e) {
-              final st = _statusOf(e);
-              return st == 'PRESENT' || st == 'LATE';
-            }).length;
-            return (presentish / items.length) * 100.0;
-          }
-
-          final recentAttendanceRate = attRate(recentAttendanceSlice);
-          final olderAttendanceRate = attRate(olderAttendanceSlice);
-          final attendanceTrend = _trendLabel(
-            recentAttendanceRate,
-            olderAttendanceRate,
-          );
-
-          final subjectAverages = _subjectAverages(grades);
-          final sortedSubjects = subjectAverages.entries.toList()
-            ..sort((a, b) => b.value.compareTo(a.value));
-          final strongestSubject = sortedSubjects.isEmpty
-              ? null
-              : sortedSubjects.first;
-          final weakestSubject = sortedSubjects.isEmpty
-              ? null
-              : sortedSubjects.last;
-          final consistency = _consistencyLabel(
-            attendanceRate: attendanceRate,
-            gradesAverage: gradesAverage,
-          );
-
-          final emptyAll = grades.isEmpty && attendance.isEmpty;
-
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(26),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      cs.primaryContainer.withValues(alpha: 0.95),
-                      cs.surfaceContainerHigh.withValues(alpha: 0.95),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Insights',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.4,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Your recent performance snapshot: attendance, grades, strongest subject, weakest subject, and trend direction.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+            error: (error, _) => _HeroShell(
+              child: _ErrorCard(
+                title: 'Could not load insights yet',
+                subtitle: '$error',
+                onRetry: () {
+                  ref.invalidate(practiceHistoryProvider);
+                  ref.invalidate(practiceAnalyticsProvider);
+                },
               ),
-              const SizedBox(height: 16),
-              if (emptyAll)
-                _StateCard(
-                  icon: Icons.insights_outlined,
-                  title: 'No insights yet',
-                  subtitle:
-                      'Once attendance and grades start coming in, this screen will show your progress here.',
-                  action: null,
-                )
-              else ...[
-                GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.18,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    _MetricCard(
-                      icon: Icons.fact_check_rounded,
-                      label: 'Attendance rate',
-                      value: attendanceRate == null
-                          ? '—'
-                          : '${attendanceRate.toStringAsFixed(0)}%',
-                      subtitle: attendedBase == 0
-                          ? 'No attendance records'
-                          : '$attendedBase records',
-                    ),
-                    _MetricCard(
-                      icon: Icons.school_rounded,
-                      label: 'Average grade',
-                      value: gradesAverage == null
-                          ? '—'
-                          : gradesAverage.toStringAsFixed(1),
-                      subtitle: grades.isEmpty
-                          ? 'No grades yet'
-                          : '${grades.length} grades',
-                    ),
-                    _MetricCard(
-                      icon: Icons.check_circle_outline_rounded,
-                      label: 'Present / late',
-                      value: '$presentCount',
-                      subtitle: lateCount > 0
-                          ? '$lateCount late'
-                          : 'On-time classes',
-                    ),
-                    _MetricCard(
-                      icon: Icons.warning_amber_rounded,
-                      label: 'Absent / excused',
-                      value: '$absentCount',
-                      subtitle: excusedCount > 0
-                          ? '$excusedCount excused'
-                          : 'Missed classes',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                _InsightSummaryCard(
-                  consistency: consistency,
-                  strongest: strongestSubject == null
-                      ? '—'
-                      : '${strongestSubject.key} ${strongestSubject.value.toStringAsFixed(1)}',
-                  weakest: weakestSubject == null
-                      ? '—'
-                      : '${weakestSubject.key} ${weakestSubject.value.toStringAsFixed(1)}',
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerLow.withValues(alpha: 0.88),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(
-                      color: cs.outlineVariant.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Focus next',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        weakestSubject == null
-                            ? 'Not enough subject data yet. Keep building attendance and grades so NOVA can spot your weakest area.'
-                            : 'Most room to improve right now: ${weakestSubject.key}. Keep attendance steady and aim to lift this subject first.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                          height: 1.35,
-                        ),
-                      ),
-                    ],
+            ),
+            data: (sessions) {
+              return analyticsAsync.when(
+                loading: () => _HeroShell(
+                  child: _LoadingCard(
+                    title: 'Loading your insights',
+                    subtitle: 'Crunching practice performance.',
                   ),
                 ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _InsightTrendCard(
-                        title: 'Grade direction',
-                        value: gradesTrend,
-                        subtitle: recentGradeAvg == null
-                            ? 'Need more grades'
-                            : 'Recent avg ${recentGradeAvg.toStringAsFixed(1)}',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _InsightTrendCard(
-                        title: 'Attendance direction',
-                        value: attendanceTrend,
-                        subtitle: recentAttendanceRate == null
-                            ? 'Need more records'
-                            : 'Recent ${recentAttendanceRate.toStringAsFixed(0)}%',
-                      ),
-                    ),
-                  ],
+                error: (error, _) => _HeroShell(
+                  child: _ErrorCard(
+                    title: 'Could not load analytics yet',
+                    subtitle: '$error',
+                    onRetry: () {
+                      ref.invalidate(practiceHistoryProvider);
+                      ref.invalidate(practiceAnalyticsProvider);
+                    },
+                  ),
                 ),
-                const SizedBox(height: 14),
-                _SectionCard(
-                  title: 'Latest grades',
+                data: (snapshot) {
+                  final vm = _InsightsViewModel.from(sessions, snapshot);
+                  return _HeroShell(child: _HeroCard(viewModel: vm));
+                },
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          _SectionCard(
+            title: 'School record',
+            subtitle:
+                'One place to jump into your official school data and the study systems around it.',
+            child: Column(
+              children: [
+                _QuickLinkTile(
+                  icon: Icons.how_to_reg_rounded,
+                  title: 'Attendance',
+                  subtitle: 'Open your attendance record and missed lessons',
+                  onTap: () => context.go('/attendance'),
+                ),
+                const SizedBox(height: 10),
+                _QuickLinkTile(
                   icon: Icons.grade_rounded,
-                  child: recentGrades.isEmpty
-                      ? const _MiniEmpty(
-                          title: 'No grades yet',
-                          subtitle:
-                              'Grades will appear here once teachers publish them.',
-                        )
-                      : Column(
-                          children: [
-                            for (final item in recentGrades.take(5)) ...[
-                              _GradeRow(item: item),
-                              if (item != recentGrades.take(5).last)
-                                const Divider(height: 16),
-                            ],
-                          ],
-                        ),
+                  title: 'Grades',
+                  subtitle:
+                      'Open recent grades, subjects, and academic standing',
+                  onTap: () => context.go('/grades'),
                 ),
-                const SizedBox(height: 14),
-                _SectionCard(
-                  title: 'Latest attendance',
-                  icon: Icons.event_available_rounded,
-                  child: recentAttendance.isEmpty
-                      ? const _MiniEmpty(
-                          title: 'No attendance yet',
-                          subtitle:
-                              'Attendance records will appear here once marked.',
-                        )
-                      : Column(
-                          children: [
-                            for (final item in recentAttendance.take(6)) ...[
-                              _AttendanceRow(item: item),
-                              if (item != recentAttendance.take(6).last)
-                                const Divider(height: 16),
-                            ],
-                          ],
-                        ),
+                const SizedBox(height: 10),
+                _QuickLinkTile(
+                  icon: Icons.assignment_rounded,
+                  title: 'Assignments',
+                  subtitle: 'Review work that still needs your attention',
+                  onTap: () => context.go('/assignments'),
+                ),
+                const SizedBox(height: 10),
+                _QuickLinkTile(
+                  icon: Icons.notifications_active_rounded,
+                  title: 'Notifications',
+                  subtitle: 'See the latest academic updates and reminders',
+                  onTap: () => context.go('/notifications'),
                 ),
               ],
-            ],
-          );
-        },
+            ),
+          ),
+          const SizedBox(height: 16),
+          analyticsAsync.when(
+            loading: () => const _SectionCard(
+              title: 'Practice intelligence',
+              subtitle: 'Building your latest performance profile.',
+              child: _MiniLoader(),
+            ),
+            error: (error, _) => _SectionCard(
+              title: 'Practice intelligence',
+              subtitle: 'Could not load practice analytics.',
+              child: Text('$error'),
+            ),
+            data: (snapshot) {
+              return historyAsync.when(
+                loading: () => const _SectionCard(
+                  title: 'Practice intelligence',
+                  subtitle: 'Building your latest performance profile.',
+                  child: _MiniLoader(),
+                ),
+                error: (error, _) => _SectionCard(
+                  title: 'Practice intelligence',
+                  subtitle: 'Could not load practice history.',
+                  child: Text('$error'),
+                ),
+                data: (sessions) {
+                  final vm = _InsightsViewModel.from(sessions, snapshot);
+
+                  return Column(
+                    children: [
+                      _SectionCard(
+                        title: 'Practice intelligence',
+                        subtitle:
+                            'A reliable look at how you perform, where you struggle, and what to do next.',
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _MetricTile(
+                                    icon: Icons.quiz_rounded,
+                                    label: 'Answered',
+                                    value: '${snapshot.overall.answered}',
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _MetricTile(
+                                    icon: Icons.check_circle_rounded,
+                                    label: 'Accuracy',
+                                    value:
+                                        '${snapshot.overall.accuracyPercent}%',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _MetricTile(
+                                    icon: Icons.local_fire_department_rounded,
+                                    label: 'Sessions',
+                                    value: serverSummaryAsync.maybeWhen(
+                                      data: (server) =>
+                                          '${server?.totalSessions ?? snapshot.overall.sessions}',
+                                      orElse: () =>
+                                          '${snapshot.overall.sessions}',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _MetricTile(
+                                    icon: Icons.bolt_rounded,
+                                    label: 'XP',
+                                    value: '${snapshot.overall.xp}',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            _ActionBanner(
+                              title: vm.focusMessageTitle,
+                              subtitle: vm.focusMessageBody,
+                              buttonLabel: 'Open practice',
+                              onTap: () => context.go('/practice'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _SectionCard(
+                        title: 'Performance trend',
+                        subtitle:
+                            'Recent momentum based on your latest saved practice sessions.',
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _TrendCallout(
+                                    label: 'Momentum',
+                                    value: vm.trendLabel,
+                                    icon: vm.trendIcon,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _TrendCallout(
+                                    label: 'Direction',
+                                    value: vm.deltaLabel,
+                                    icon: Icons.timeline_rounded,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            _SparkBars(points: vm.weeklyBars),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _SectionCard(
+                        title: 'Subject profile',
+                        subtitle:
+                            'How your recent sessions are distributed across subjects.',
+                        child: vm.subjectStats.isEmpty
+                            ? const _EmptyPracticeBody()
+                            : Column(
+                                children: vm.subjectStats
+                                    .map(
+                                      (row) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 10,
+                                        ),
+                                        child: _SubjectRow(row: row),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _SectionCard(
+                              title: 'Weak areas',
+                              subtitle:
+                                  'Topics that currently need more reps and attention.',
+                              child: (() {
+                                final serverWeak = serverSummaryAsync.maybeWhen(
+                                  data: (server) =>
+                                      server?.weakTopics ?? const [],
+                                  orElse: () => const [],
+                                );
+
+                                if (serverWeak.isNotEmpty) {
+                                  return Column(
+                                    children: serverWeak
+                                        .map(
+                                          (topic) => Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 10,
+                                            ),
+                                            child: _ServerTopicInsightRow(
+                                              topic: topic,
+                                              tone: _TopicTone.weak,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  );
+                                }
+
+                                if (snapshot.weakestTopics.isEmpty) {
+                                  return const _EmptyPracticeBody();
+                                }
+
+                                return Column(
+                                  children: snapshot.weakestTopics
+                                      .map(
+                                        (topic) => Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: _TopicInsightRow(
+                                            topic: topic,
+                                            tone: _TopicTone.weak,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              })(),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _SectionCard(
+                              title: 'Strong areas',
+                              subtitle:
+                                  'Topics where you are currently performing well.',
+                              child: (() {
+                                final serverStrong = serverSummaryAsync
+                                    .maybeWhen(
+                                      data: (server) =>
+                                          server?.strongestTopics ?? const [],
+                                      orElse: () => const [],
+                                    );
+
+                                if (serverStrong.isNotEmpty) {
+                                  return Column(
+                                    children: serverStrong
+                                        .map(
+                                          (topic) => Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 10,
+                                            ),
+                                            child: _ServerTopicInsightRow(
+                                              topic: topic,
+                                              tone: _TopicTone.strong,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  );
+                                }
+
+                                if (snapshot.strongestTopics.isEmpty) {
+                                  return const _EmptyPracticeBody();
+                                }
+
+                                return Column(
+                                  children: snapshot.strongestTopics
+                                      .map(
+                                        (topic) => Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: _TopicInsightRow(
+                                            topic: topic,
+                                            tone: _TopicTone.strong,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              })(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _SectionCard(
+                        title: 'Mode breakdown',
+                        subtitle:
+                            'See which learning modes you use most and how well they go.',
+                        child: snapshot.modeStats.isEmpty
+                            ? const _EmptyPracticeBody()
+                            : Column(
+                                children: snapshot.modeStats
+                                    .map(
+                                      (row) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 10,
+                                        ),
+                                        child: _ModeRow(row: row),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.subtitle,
+class _InsightsViewModel {
+  final String trendLabel;
+  final String deltaLabel;
+  final IconData trendIcon;
+  final String focusMessageTitle;
+  final String focusMessageBody;
+  final List<_SubjectInsightStat> subjectStats;
+  final List<double> weeklyBars;
+
+  const _InsightsViewModel({
+    required this.trendLabel,
+    required this.deltaLabel,
+    required this.trendIcon,
+    required this.focusMessageTitle,
+    required this.focusMessageBody,
+    required this.subjectStats,
+    required this.weeklyBars,
   });
 
-  final IconData icon;
-  final String label;
-  final String value;
-  final String subtitle;
+  factory _InsightsViewModel.from(
+    List<PracticeHistorySession> sessions,
+    PracticeAnalyticsSnapshot snapshot,
+  ) {
+    final recent = sessions.take(6).toList(growable: false);
+    final previous = sessions.skip(6).take(6).toList(growable: false);
+
+    int accuracyOf(List<PracticeHistorySession> items) {
+      final answered = items.fold<int>(0, (sum, s) => sum + s.answered);
+      final correct = items.fold<int>(0, (sum, s) => sum + s.correct);
+      if (answered == 0) return 0;
+      return ((correct / answered) * 100).round();
+    }
+
+    final recentAccuracy = accuracyOf(recent);
+    final previousAccuracy = accuracyOf(previous);
+    final delta = recentAccuracy - previousAccuracy;
+
+    final trendLabel = sessions.isEmpty
+        ? 'No data yet'
+        : previous.isEmpty
+        ? 'Building baseline'
+        : delta >= 6
+        ? 'Improving'
+        : delta <= -6
+        ? 'Needs attention'
+        : 'Stable';
+
+    final trendIcon = sessions.isEmpty
+        ? Icons.insights_rounded
+        : previous.isEmpty
+        ? Icons.hourglass_bottom_rounded
+        : delta >= 6
+        ? Icons.trending_up_rounded
+        : delta <= -6
+        ? Icons.trending_down_rounded
+        : Icons.trending_flat_rounded;
+
+    String deltaLabel;
+    if (sessions.isEmpty) {
+      deltaLabel = 'Start practicing';
+    } else if (previous.isEmpty) {
+      deltaLabel = 'Need more history';
+    } else {
+      deltaLabel = delta == 0
+          ? '0 pts vs prior block'
+          : '${delta > 0 ? '+' : ''}$delta pts';
+    }
+
+    final focusMessageTitle = snapshot.weakestTopics.isNotEmpty
+        ? 'Focus next: ${snapshot.weakestTopics.first.topicLabel}'
+        : snapshot.strongestTopics.isNotEmpty
+        ? 'Keep pushing ${snapshot.strongestTopics.first.topicLabel}'
+        : 'Start building practice history';
+
+    final focusMessageBody = snapshot.weakestTopics.isNotEmpty
+        ? 'This topic is your weakest current signal. A short targeted session here should move the needle fastest.'
+        : snapshot.strongestTopics.isNotEmpty
+        ? 'You are doing well here. Keep momentum and start increasing challenge level.'
+        : 'Once you complete a few sessions, this page will turn into your performance hub.';
+
+    final bySubject = <String, List<PracticeHistorySession>>{};
+    for (final session in sessions) {
+      bySubject
+          .putIfAbsent(session.subject, () => <PracticeHistorySession>[])
+          .add(session);
+    }
+
+    final subjectStats =
+        bySubject.entries.map((entry) {
+          final subjectSessions = entry.value;
+          final answered = subjectSessions.fold<int>(
+            0,
+            (sum, s) => sum + s.answered,
+          );
+          final correct = subjectSessions.fold<int>(
+            0,
+            (sum, s) => sum + s.correct,
+          );
+          final xp = subjectSessions.fold<int>(0, (sum, s) => sum + s.xp);
+          final accuracy = answered == 0
+              ? 0
+              : ((correct / answered) * 100).round();
+
+          final topics = <String, List<PracticeHistorySession>>{};
+          for (final s in subjectSessions) {
+            topics
+                .putIfAbsent(s.topicLabel, () => <PracticeHistorySession>[])
+                .add(s);
+          }
+
+          String? strongestTopic;
+          String? weakestTopic;
+          int strongest = -1;
+          int weakest = 101;
+
+          for (final topicEntry in topics.entries) {
+            final topicAnswered = topicEntry.value.fold<int>(
+              0,
+              (sum, s) => sum + s.answered,
+            );
+            final topicCorrect = topicEntry.value.fold<int>(
+              0,
+              (sum, s) => sum + s.correct,
+            );
+            if (topicAnswered == 0) continue;
+            final topicAccuracy = ((topicCorrect / topicAnswered) * 100)
+                .round();
+
+            if (topicAccuracy > strongest) {
+              strongest = topicAccuracy;
+              strongestTopic = topicEntry.key;
+            }
+            if (topicAccuracy < weakest) {
+              weakest = topicAccuracy;
+              weakestTopic = topicEntry.key;
+            }
+          }
+
+          return _SubjectInsightStat(
+            subject: entry.key,
+            sessions: subjectSessions.length,
+            answered: answered,
+            accuracyPercent: accuracy,
+            xp: xp,
+            strongestTopic: strongestTopic,
+            weakestTopic: weakestTopic,
+          );
+        }).toList()..sort((a, b) {
+          final bySessions = b.sessions.compareTo(a.sessions);
+          if (bySessions != 0) return bySessions;
+          return b.answered.compareTo(a.answered);
+        });
+
+    final now = DateTime.now();
+    final bars = List<double>.generate(7, (index) {
+      final targetDay = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: 6 - index));
+      final count = sessions.where((s) {
+        final d = DateTime(
+          s.completedAt.year,
+          s.completedAt.month,
+          s.completedAt.day,
+        );
+        return d == targetDay;
+      }).length;
+      return count.toDouble();
+    });
+
+    final maxBar = bars.fold<double>(0, math.max);
+    final normalizedBars = maxBar <= 0
+        ? List<double>.filled(7, 0)
+        : bars.map((v) => v / maxBar).toList(growable: false);
+
+    return _InsightsViewModel(
+      trendLabel: trendLabel,
+      deltaLabel: deltaLabel,
+      trendIcon: trendIcon,
+      focusMessageTitle: focusMessageTitle,
+      focusMessageBody: focusMessageBody,
+      subjectStats: subjectStats,
+      weeklyBars: normalizedBars,
+    );
+  }
+}
+
+class _SubjectInsightStat {
+  final String subject;
+  final int sessions;
+  final int answered;
+  final int accuracyPercent;
+  final int xp;
+  final String? strongestTopic;
+  final String? weakestTopic;
+
+  const _SubjectInsightStat({
+    required this.subject,
+    required this.sessions,
+    required this.answered,
+    required this.accuracyPercent,
+    required this.xp,
+    required this.strongestTopic,
+    required this.weakestTopic,
+  });
+}
+
+class _HeroShell extends StatelessWidget {
+  const _HeroShell({required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    return child;
+  }
+}
+
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({required this.viewModel});
+  final _InsightsViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(26),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primaryContainer.withValues(alpha: 0.96),
+            cs.surfaceContainerHigh.withValues(alpha: 0.96),
+          ],
+        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon),
-          const Spacer(),
           Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            'Your insights',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Everything important about your learning in one place.',
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
+              height: 1.35,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _StatPill(
+                icon: viewModel.trendIcon,
+                label: 'Momentum',
+                value: viewModel.trendLabel,
+              ),
+              _StatPill(
+                icon: Icons.timeline_rounded,
+                label: 'Recent change',
+                value: viewModel.deltaLabel,
+              ),
+              _StatPill(
+                icon: Icons.track_changes_rounded,
+                label: 'Focus',
+                value: viewModel.focusMessageTitle.replaceFirst(
+                  'Focus next: ',
+                  '',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -418,39 +694,43 @@ class _MetricCard extends StatelessWidget {
 class _SectionCard extends StatelessWidget {
   const _SectionCard({
     required this.title,
-    required this.icon,
+    required this.subtitle,
     required this.child,
   });
 
   final String title;
-  final IconData icon;
+  final String subtitle;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerHigh.withValues(alpha: 0.76),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.2,
-                ),
-              ),
-            ],
+          Text(
+            title,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.25,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: 14),
           child,
@@ -460,165 +740,63 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _GradeRow extends StatelessWidget {
-  const _GradeRow({required this.item});
+class _QuickLinkTile extends StatelessWidget {
+  const _QuickLinkTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
-  final Map<String, dynamic> item;
-
-  @override
-  Widget build(BuildContext context) {
-    final assessment = _map(item['assessment']);
-    final course = _map(item['course']);
-    final grade = _gradeValue(item);
-    final title = (assessment['title'] ?? 'Assessment').toString();
-    final subject = (course['subject'] ?? course['name'] ?? 'Course')
-        .toString();
-    final date = _friendlyDate(_assessmentDate(item));
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 46,
-          height: 46,
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            grade == null
-                ? '—'
-                : grade.toStringAsFixed(
-                    grade.truncateToDouble() == grade ? 0 : 1,
-                  ),
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 4),
-              Text(
-                '$subject · $date',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (((item['comment'] ?? '').toString().trim()).isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  (item['comment'] ?? '').toString().trim(),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(height: 1.25),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AttendanceRow extends StatelessWidget {
-  const _AttendanceRow({required this.item});
-
-  final Map<String, dynamic> item;
-
-  @override
-  Widget build(BuildContext context) {
-    final course = _map(item['course']);
-    final subject = (course['subject'] ?? course['name'] ?? 'Class').toString();
-    final period = (item['period'] ?? '').toString();
-    final status = _statusOf(item);
-    final note = (item['note'] ?? '').toString().trim();
-    final cs = Theme.of(context).colorScheme;
-
-    final Color tone = switch (status) {
-      'PRESENT' => cs.primary,
-      'LATE' => Colors.orange,
-      'ABSENT' => cs.error,
-      'EXCUSED' => cs.secondary,
-      _ => cs.onSurfaceVariant,
-    };
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          margin: const EdgeInsets.only(top: 5),
-          decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                subject,
-                style: const TextStyle(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${_friendlyDate(_attendanceDate(item))} · Period $period · ${_prettyStatus(status)}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (note.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  note,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(height: 1.25),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MiniEmpty extends StatelessWidget {
-  const _MiniEmpty({required this.title, required this.subtitle});
-
+  final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Ink(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cs.surface.withValues(alpha: 0.74),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+        ),
+        child: Row(
           children: [
-            Icon(Icons.inbox_outlined, size: 34, color: cs.onSurfaceVariant),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: cs.onPrimaryContainer),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.3),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 10),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -626,301 +804,637 @@ class _MiniEmpty extends StatelessWidget {
   }
 }
 
-class _StateCard extends StatelessWidget {
-  const _StateCard({
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
     required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.action,
+    required this.label,
+    required this.value,
   });
 
   final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 42),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-          ),
-          if (action != null) ...[const SizedBox(height: 14), action!],
-        ],
-      ),
-    );
-  }
-}
-
-Map<String, dynamic> _map(dynamic value) {
-  if (value is Map<String, dynamic>) {
-    return Map<String, dynamic>.from(value);
-  }
-  if (value is Map) {
-    return value.map((key, val) => MapEntry(key.toString(), val));
-  }
-  return <String, dynamic>{};
-}
-
-List<Map<String, dynamic>> _list(dynamic value) {
-  if (value is! List) {
-    return <Map<String, dynamic>>[];
-  }
-  return value
-      .whereType<Map>()
-      .map((e) => Map<String, dynamic>.from(e))
-      .toList(growable: false);
-}
-
-String _statusOf(Map<String, dynamic> item) {
-  return (item['status'] ?? '').toString().trim().toUpperCase();
-}
-
-double? _gradeValue(Map<String, dynamic> item) {
-  final raw = item['grade'];
-  if (raw is num) {
-    return raw.toDouble();
-  }
-  return double.tryParse((raw ?? '').toString());
-}
-
-String _assessmentDate(Map<String, dynamic> item) {
-  final assessment = _map(item['assessment']);
-  return (assessment['date'] ?? '').toString();
-}
-
-String _attendanceDate(Map<String, dynamic> item) {
-  return (item['date'] ?? '').toString();
-}
-
-String _prettyStatus(String status) {
-  switch (status) {
-    case 'PRESENT':
-      return 'Present';
-    case 'ABSENT':
-      return 'Absent';
-    case 'LATE':
-      return 'Late';
-    case 'EXCUSED':
-      return 'Excused';
-    default:
-      return status.isEmpty ? 'Unknown' : status;
-  }
-}
-
-String _friendlyDate(String raw) {
-  final dt = DateTime.tryParse(raw);
-  if (dt == null) {
-    return raw.isEmpty ? 'Unknown date' : raw;
-  }
-  final local = dt.toLocal();
-  final y = local.year.toString().padLeft(4, '0');
-  final m = local.month.toString().padLeft(2, '0');
-  final d = local.day.toString().padLeft(2, '0');
-  return '$y-$m-$d';
-}
-
-String _trendLabel(double? current, double? previous) {
-  if (current == null || previous == null) return 'Not enough data';
-  final diff = current - previous;
-  if (diff > 4) return 'Rising';
-  if (diff < -4) return 'Dropping';
-  return 'Stable';
-}
-
-double? _avgOf(List<double> values) {
-  if (values.isEmpty) return null;
-  return values.reduce((a, b) => a + b) / values.length;
-}
-
-double? _recentWindowAvg(
-  List<Map<String, dynamic>> grades, {
-  required bool recentHalf,
-}) {
-  final nums = grades
-      .map((e) => _gradeValue(e))
-      .whereType<double>()
-      .toList(growable: false);
-  if (nums.isEmpty) return null;
-  final mid = nums.length ~/ 2;
-  final slice = recentHalf ? nums.skip(mid).toList() : nums.take(mid).toList();
-  if (slice.isEmpty) return null;
-  return _avgOf(slice);
-}
-
-class _InsightTrendCard extends StatelessWidget {
-  const _InsightTrendCard({
-    required this.title,
-    required this.value,
-    required this.subtitle,
-  });
-
-  final String title;
+  final String label;
   final String value;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(22),
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icon, size: 20, color: cs.primary),
+          const SizedBox(height: 10),
           Text(
-            title,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
               color: cs.onSurfaceVariant,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-          ),
         ],
       ),
     );
   }
 }
 
-String _consistencyLabel({
-  required double? attendanceRate,
-  required double? gradesAverage,
-}) {
-  if (attendanceRate == null && gradesAverage == null) {
-    return 'Not enough data';
-  }
-  if ((attendanceRate ?? 0) >= 90 && (gradesAverage ?? 0) >= 85) {
-    return 'Excellent';
-  }
-  if ((attendanceRate ?? 0) >= 80 && (gradesAverage ?? 0) >= 75) {
-    return 'Strong';
-  }
-  if ((attendanceRate ?? 0) >= 70 || (gradesAverage ?? 0) >= 65) {
-    return 'Improving';
-  }
-  return 'Needs support';
-}
-
-Map<String, double> _subjectAverages(List<Map<String, dynamic>> grades) {
-  final buckets = <String, List<double>>{};
-  for (final item in grades) {
-    final g = _gradeValue(item);
-    if (g == null) continue;
-    final subject = _subjectOf(item);
-    buckets.putIfAbsent(subject, () => <double>[]).add(g);
-  }
-  final out = <String, double>{};
-  for (final entry in buckets.entries) {
-    if (entry.value.isEmpty) continue;
-    out[entry.key] = entry.value.reduce((a, b) => a + b) / entry.value.length;
-  }
-  return out;
-}
-
-class _InsightSummaryCard extends StatelessWidget {
-  const _InsightSummaryCard({
-    required this.consistency,
-    required this.strongest,
-    required this.weakest,
+class _ActionBanner extends StatelessWidget {
+  const _ActionBanner({
+    required this.title,
+    required this.subtitle,
+    required this.buttonLabel,
+    required this.onTap,
   });
 
-  final String consistency;
-  final String strongest;
-  final String weakest;
+  final String title;
+  final String subtitle;
+  final String buttonLabel;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow.withValues(alpha: 0.88),
+        gradient: LinearGradient(
+          colors: [
+            cs.secondaryContainer.withValues(alpha: 0.92),
+            cs.tertiaryContainer.withValues(alpha: 0.82),
+          ],
+        ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
           Text(
-            'AI summary',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            subtitle,
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
           ),
-          const SizedBox(height: 10),
-          Text('Consistency: $consistency'),
-          const SizedBox(height: 6),
-          Text('Strongest: $strongest'),
-          const SizedBox(height: 6),
-          Text('Needs work: $weakest'),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: onTap,
+            icon: const Icon(Icons.arrow_forward_rounded),
+            label: Text(buttonLabel),
+          ),
         ],
       ),
     );
   }
 }
 
-String _subjectOf(Map<String, dynamic> item) {
-  final subject = _pick(item, 'subject').trim();
-  if (subject.isNotEmpty) {
-    return subject;
-  }
+class _TrendCallout extends StatelessWidget {
+  const _TrendCallout({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
 
-  final course = _pick(item, 'course').trim();
-  if (course.isNotEmpty) {
-    return course;
-  }
+  final String label;
+  final String value;
+  final IconData icon;
 
-  final title = _pick(item, 'title').trim();
-  if (title.isNotEmpty) {
-    return title;
-  }
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
 
-  return 'General';
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: cs.primaryContainer.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-String _pick(Map<String, dynamic> item, String key, {String fallback = ''}) {
-  final value = item[key];
-  if (value == null) return fallback;
-  final text = value.toString().trim();
-  return text.isEmpty ? fallback : text;
+class _SparkBars extends StatelessWidget {
+  const _SparkBars({required this.points});
+  final List<double> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final labels = const ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: SizedBox(
+        height: 120,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: List.generate(7, (index) {
+            final value = index < points.length ? points[index] : 0.0;
+            final height = 14 + (74 * value);
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 240),
+                      curve: Curves.easeOut,
+                      height: height,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [cs.primary, cs.primaryContainer],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      labels[index],
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+class _SubjectRow extends StatelessWidget {
+  const _SubjectRow({required this.row});
+  final _SubjectInsightStat row;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final progress = (row.accuracyPercent.clamp(0, 100)) / 100.0;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  row.subject,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+              ),
+              Text(
+                '${row.accuracyPercent}%',
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress.isNaN ? 0 : progress,
+              minHeight: 10,
+              backgroundColor: cs.surfaceContainerHighest,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _MiniChip(label: '${row.sessions} sessions'),
+              _MiniChip(label: '${row.answered} answered'),
+              _MiniChip(label: 'XP ${row.xp}'),
+              if ((row.strongestTopic ?? '').isNotEmpty)
+                _MiniChip(label: 'Best: ${row.strongestTopic}'),
+              if ((row.weakestTopic ?? '').isNotEmpty)
+                _MiniChip(label: 'Needs work: ${row.weakestTopic}'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+enum _TopicTone { weak, strong }
+
+class _TopicInsightRow extends StatelessWidget {
+  const _TopicInsightRow({required this.topic, required this.tone});
+
+  final PracticeTopicStat topic;
+  final _TopicTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isWeak = tone == _TopicTone.weak;
+    final bg = isWeak
+        ? cs.errorContainer.withValues(alpha: 0.38)
+        : cs.secondaryContainer.withValues(alpha: 0.46);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            topic.topicLabel,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _MiniChip(label: '${topic.accuracyPercent}% accuracy'),
+              _MiniChip(label: '${topic.totalQuestions} questions'),
+              _MiniChip(label: '${topic.correct} correct'),
+              _MiniChip(label: '${topic.wrong} wrong'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ServerTopicInsightRow extends StatelessWidget {
+  const _ServerTopicInsightRow({required this.topic, required this.tone});
+
+  final InsightsTopicSummary topic;
+  final _TopicTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isWeak = tone == _TopicTone.weak;
+    final bg = isWeak
+        ? cs.errorContainer.withValues(alpha: 0.38)
+        : cs.secondaryContainer.withValues(alpha: 0.46);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${topic.subject} • ${topic.topicLabel}',
+            style: const TextStyle(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _MiniChip(label: '${(topic.accuracy * 100).round()}% accuracy'),
+              _MiniChip(label: '${topic.totalAnswered} questions'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeRow extends StatelessWidget {
+  const _ModeRow({required this.row});
+  final PracticeModeStat row;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: cs.primaryContainer.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.layers_rounded, color: cs.onPrimaryContainer),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _modeLabel(row.mode),
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${row.sessions} sessions • ${row.answered} answered • ${row.accuracyPercent}% accuracy',
+                  style: TextStyle(color: cs.onSurfaceVariant, height: 1.3),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            'XP ${row.xp}',
+            style: const TextStyle(fontWeight: FontWeight.w900),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingCard extends StatelessWidget {
+  const _LoadingCard({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        color: cs.surfaceContainerHigh.withValues(alpha: 0.78),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+          const SizedBox(height: 14),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  const _ErrorCard({
+    required this.title,
+    required this.subtitle,
+    required this.onRetry,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        color: cs.errorContainer.withValues(alpha: 0.5),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
+          ),
+          const SizedBox(height: 8),
+          Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant)),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniLoader extends StatelessWidget {
+  const _MiniLoader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _EmptyPracticeBody extends StatelessWidget {
+  const _EmptyPracticeBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        'Complete a few practice sessions to unlock this part of Insights.',
+        style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+      ),
+    );
+  }
+}
+
+class _StatPill extends StatelessWidget {
+  const _StatPill({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: cs.primary),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value, style: const TextStyle(fontWeight: FontWeight.w900)),
+              Text(
+                label,
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniChip extends StatelessWidget {
+  const _MiniChip({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: cs.onSurfaceVariant,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+String _modeLabel(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return 'Practice';
+    case PracticeMode.flashcards:
+      return 'Flashcards';
+    case PracticeMode.speedRound:
+      return 'Speed round';
+    case PracticeMode.examPrep:
+      return 'Exam prep';
+    case PracticeMode.conceptBuilder:
+      return 'Concept builder';
+    case PracticeMode.bagrut:
+      return 'Bagrut';
+    case PracticeMode.adaptive:
+      return 'Adaptive';
+  }
 }
