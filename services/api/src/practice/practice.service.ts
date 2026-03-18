@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   BadRequestException,
+  HttpException,
   Optional,
 } from '@nestjs/common';
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
@@ -184,22 +185,57 @@ export class PracticeService {
       topic: input.topic,
     });
 
-    if (
-      intake.topicType === 'unknown' ||
-      intake.quizzability === 'low'
-    ) {
+    const conceptualBroadEscape =
+      intake.topicType === 'conceptual' ||
+      intake.generationStrategy === 'conceptual' ||
+      (
+        intake.topicType === 'unknown' &&
+        intake.quizzability === 'low' &&
+        intake.breadth === 'broad' &&
+        /^(music|art|philosophy|ethics|logic|writing|grammar)$/i.test(
+          String(
+            intake.rawTopic ??
+              input.topicLabel ??
+              input.topicPathText ??
+              input.topic ??
+              '',
+          ).trim(),
+        )
+      );
+
+    const hardUnsupported =
+      intake.topicType === 'unknown' &&
+      intake.quizzability === 'low' &&
+      intake.breadth !== 'broad' &&
+      !conceptualBroadEscape;
+
+    if (hardUnsupported) {
+      const unsupportedSubject = String(
+        intake.effectiveSubject ?? input.subject ?? 'General Knowledge',
+      );
+      const unsupportedTopic = String(
+        intake.rawTopic ??
+          input.topicLabel ??
+          input.topicPathText ??
+          input.topic ??
+          '',
+      ).trim();
+
       throw new BadRequestException({
         code: 'UNSUPPORTED_TOPIC',
-        subject: intake.effectiveSubject,
-        topic: dto.topic,
-        message: qq{Topic "" is not supported yet for .},
-      });
+        subject: unsupportedSubject,
+        topic: unsupportedTopic,
+        message: `Topic "${unsupportedTopic}" is not supported yet for ${unsupportedSubject}.`,
+        suggestions: [],
+      } as any);
     }
-
 
     const subject = resolveCanonicalPracticeSubject(
       String(intake.effectiveSubject ?? input.subject ?? 'Math').trim(),
     );
+
+    const strictCatalogSubject =
+      subject === 'Math' || subject === 'Physics' || subject === 'Electronics';
     const providedTopicLabel = String(input.topicLabel ?? '').trim();
     const legacyTopic = String(input.topic ?? '').trim();
     const topicPath = Array.isArray(input.topicPath)
@@ -223,6 +259,31 @@ export class PracticeService {
       isDeterministicPracticeTopic(subject, rawTopicLabel) ||
       isDeterministicPracticeTopic(subject, explicitTopicPathText) ||
       Boolean(canonicalTopic?.deterministic);
+
+    const strictCatalogUnsupported =
+      strictCatalogSubject &&
+      !hasDeterministicCatalogTopic &&
+      intake.topicType === 'unknown' &&
+      intake.quizzability === 'low';
+
+    if (strictCatalogUnsupported) {
+      const unsupportedTopic = String(
+        intake.rawTopic ??
+          input.topicLabel ??
+          input.topicPathText ??
+          input.topic ??
+          rawTopicLabel ??
+          '',
+      ).trim();
+
+      throw new BadRequestException({
+        code: 'UNSUPPORTED_TOPIC',
+        subject,
+        topic: unsupportedTopic,
+        message: `Topic "${unsupportedTopic}" is not supported yet for ${subject}.`,
+        suggestions: [],
+      } as any);
+    }
     const shouldCanonicalizeTopicPathText =
       !!canonicalTopic &&
       !!rawTopicLabel &&
@@ -261,34 +322,58 @@ export class PracticeService {
       throw new BadRequestException('subject is required');
     }
 
-    const deterministic = await this.getEngineRegistry().generate({
-      subject,
-      topicLabel,
-      topicPath,
-      topicPathText,
-      strictPromptSummary,
-      questionCount,
-      mode,
-      difficulty,
-      timePreferenceSeconds,
-      useAiTiming,
-      maxLives,
-    });
+    const engineRegistry = this.getEngineRegistry();
+    const deterministic =
+      hasDeterministicCatalogTopic &&
+      engineRegistry &&
+      typeof (engineRegistry as any).generate === 'function'
+        ? await (engineRegistry as any).generate({
+            subject,
+            topicLabel,
+            topicPath,
+            topicPathText,
+            strictPromptSummary,
+            questionCount,
+            mode,
+            difficulty,
+            timePreferenceSeconds,
+            useAiTiming,
+            maxLives,
+          })
+        : [];
 
-    const conceptual = this.conceptualTopicService.resolve({
-      subject,
-      topicLabel,
-      topicPathText,
-      questionCount,
-    });
+    const conceptual =
+      this.conceptualTopicService &&
+      typeof (this.conceptualTopicService as any).resolve === 'function'
+        ? (this.conceptualTopicService as any).resolve({
+            subject,
+            topicLabel,
+            topicPathText,
+            questionCount,
+          })
+        : {
+            ready: false,
+            seeds: [],
+            gaps: ['conceptual_service_unavailable'],
+            needsClarification: false,
+          };
 
-    const symbolic = this.symbolicTopicService.resolve({
-      subject,
-      topicLabel,
-      topicPathText,
-      questionCount,
-      difficulty,
-    });
+    const symbolic =
+      this.symbolicTopicService &&
+      typeof (this.symbolicTopicService as any).resolve === 'function'
+        ? (this.symbolicTopicService as any).resolve({
+            subject,
+            topicLabel,
+            topicPathText,
+            questionCount,
+            difficulty,
+          })
+        : {
+            ready: false,
+            seeds: [],
+            gaps: ['symbolic_service_unavailable'],
+            needsClarification: false,
+          };
 
     
     // =========================
@@ -806,7 +891,22 @@ export class PracticeService {
     difficulty: PracticeDifficulty;
     intake: ReturnType<typeof analyzeCustomPracticeTopic>;
   }) {
-    const factualPack = await this.factualQuizService.buildFactPack({
+    if (
+      !this.factualQuizService ||
+      typeof (this.factualQuizService as any).buildFactPack !== 'function' ||
+      typeof (this.factualQuizService as any).buildQuestionSeeds !== 'function'
+    ) {
+      return {
+        questions: [],
+        factual: {
+          ready: false,
+          evidence: [],
+          gaps: ['factual_service_unavailable'],
+        },
+      };
+    }
+
+    const factualPack = await (this.factualQuizService as any).buildFactPack({
       subject: args.subject,
       topic: args.topicLabel,
       questionCount: args.questionCount,
@@ -814,7 +914,7 @@ export class PracticeService {
     });
 
     if (factualPack.ok) {
-      const seeded = await this.factualQuizService.buildQuestionSeeds({
+      const seeded = await (this.factualQuizService as any).buildQuestionSeeds({
         subject: args.subject,
         topic: args.topicLabel,
         questionCount: args.questionCount,
@@ -829,9 +929,9 @@ export class PracticeService {
           questions: seeded.seeds.map((seed, i) => {
             const accepted = seed.acceptedAnswers[0] ?? 'Unknown';
             const distractorBase = [
-              'Open Era began in 1968',
-              'A bat-and-ball team sport',
-              'A tournament played only on clay',
+              'Not enough information',
+              'A different era',
+              'A different concept',
               'A different historical milestone',
               'An incorrect alternative',
             ].filter((x) => x !== accepted);
