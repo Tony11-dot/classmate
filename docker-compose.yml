@@ -1,64 +1,179 @@
 services:
-  db:
-    image: postgres:16-alpine
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      api1:
+        condition: service_started
+      api2:
+        condition: service_started
+      api3:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    networks:
+      - classmate
+
+  api1:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/api/.env
     environment:
-      POSTGRES_USER: classmate
-      POSTGRES_PASSWORD: classmate
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3000"
+    restart: unless-stopped
+    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - classmate
+
+  api2:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/api/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3000"
+    restart: unless-stopped
+    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - classmate
+
+  api3:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/api/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3000"
+    restart: unless-stopped
+    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - classmate
+
+  worker:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/api/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: sh -lc "pnpm prisma generate && node dist/src/common/queue/practice.worker.js"
+    networks:
+      - classmate
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - classmate
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: classmate
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
-      - classmate_pg:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U classmate -d classmate"]
-      interval: 2s
-      timeout: 2s
-      retries: 20
-
-  api:
-
-    environment:
-
-      PORT: "3000"
-      HOST: "0.0.0.0"
-      ENABLE_E2E_SEED: "1"
-
-      NODE_ENV: "development"
-    build:
-      context: .
-      dockerfile: services/api/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      # IMPORTANT: single quotes inside the CMD-SHELL to avoid yaml quoting hell
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health | grep -q '\"ok\":true'"]
-      interval: 2s
-      timeout: 2s
-      retries: 30
-    ports:
-      - "3000:3000"
-  admin-web:
-    build:
-      context: .
-      dockerfile: apps/admin-web/Dockerfile
-    depends_on:
-      api:
-        condition: service_healthy
-    ports:
-      - "3001:3001"
-
-  parent-web:
-    build:
-      context: .
-      dockerfile: apps/parent-web/Dockerfile
-    depends_on:
-      api:
-        condition: service_healthy
-    ports:
-      - "3002:3002"
+      test: ["CMD-SHELL", "pg_isready -U postgres -d classmate"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - classmate
 
 volumes:
-  classmate_pg:
+  postgres_data:
+  redis_data:
+
+networks:
+  classmate:
+    driver: bridge

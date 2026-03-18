@@ -1,25 +1,36 @@
 export class FeedbackService {
-  constructor(private ranker: any, private store: any) {}
+  constructor(private ranker: any, private store: any, private evaluation: any) {}
 
   async record(input: {
     items: any[];
     success: boolean;
-    feedback?: any;
+    topic?: string;
+    correct?: boolean;
+    timeMs?: number;
   }) {
-    const { items, success } = input;
+    const { items, success, topic } = input;
 
-    // 1️⃣ update adaptive weights
+    // adaptive weights
     if (items && typeof success === 'boolean') {
       this.ranker.updateWeights(items, success);
     }
 
-    // 2️⃣ persist feedback (optional memory layer)
+    // evaluation tracking
+    if (topic) {
+      this.evaluation.record({
+        topic,
+        success,
+      });
+    }
+
+    // persistence
     if (items && items.length > 0) {
       await this.store.add({
         id: `feedback-${Date.now()}`,
         vector: items[0]?.vector || [],
         metadata: {
           success,
+          topic,
           timestamp: Date.now(),
         },
       });

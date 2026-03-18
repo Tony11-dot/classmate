@@ -5,6 +5,9 @@ import {
   Optional,
 } from '@nestjs/common';
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
+import { PracticeCacheService } from './cache/practice-cache.service';
+import { RateLimitService } from '../common/rate-limit/rate-limit.service';
+import { DedupService } from '../common/dedup/dedup.service';
 import { resolveCanonicalPracticeSubject } from './catalog/practice-subject-catalog';
 import {
   resolveCanonicalPracticeTopic,
@@ -112,6 +115,9 @@ type PracticeRoutingDecision = {
 
 @Injectable()
 export class PracticeService {
+  private cache = new PracticeCacheService();
+  private rateLimit = new RateLimitService();
+  private dedup = new DedupService();
   private engineRegistryFallback?: PracticeEngineRegistry;
 
   private getEngineRegistry(): any {

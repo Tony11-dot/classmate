@@ -26,6 +26,8 @@ export class RetrievalService {
       return item;
     });
 
+    this.ranker.debug(feedbackBoosted);
+
     return feedbackBoosted
       .sort((a: any, b: any) => b.score - a.score)
       .slice(0, 5);

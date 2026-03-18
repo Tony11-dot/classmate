@@ -1,3 +1,7 @@
+import { ConfidenceService } from './retrieval/confidence.service';
+import { MultiSourceService } from './retrieval/multi-source.service';
+import { RetrievalService } from './retrieval/retrieval.service';
+import { EmbeddingService } from './retrieval/embedding.service';
 import { Module } from '@nestjs/common';
 import { PracticeController } from './practice.controller';
 import { PracticeService } from './practice.service';
@@ -42,7 +46,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
 
 @Module({
   controllers: [PracticeController],
-  providers: [
+  providers: [ConfidenceService, MultiSourceService, RetrievalService, EmbeddingService, 
     AdaptivePracticeFlowService,
     ProgressSummaryService,
     PracticePersistenceService,
