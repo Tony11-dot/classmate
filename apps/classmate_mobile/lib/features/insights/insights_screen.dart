@@ -631,9 +631,9 @@ class InsightsScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 _QuickLinkTile(
                   icon: Icons.warning_rounded,
-                  title: 'Alerts',
+                  title: 'Announcements',
                   subtitle: 'See what needs attention right now',
-                  onTap: () => context.go('/alerts'),
+                  onTap: () => context.go('/announcements'),
                 ),
               ],
             ),

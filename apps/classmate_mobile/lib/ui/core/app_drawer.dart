@@ -25,7 +25,7 @@ class AppDrawer extends StatelessWidget {
 
           ListTile(title: Text("Attendance")),
           ListTile(title: Text("Grades")),
-          ListTile(title: Text("Alerts")),
+          ListTile(title: Text("Announcements")),
           ListTile(title: Text("Notifications")),
 
           Divider(),

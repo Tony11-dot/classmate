@@ -132,7 +132,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             item(
               icon: Icons.warning_amber_rounded,
-              title: 'Alerts',
+              title: 'Announcements',
               onTap: () {},
             ),
             section('Profile'),
