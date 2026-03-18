@@ -4,11 +4,15 @@ class SolutionUploadAsset {
   final String id;
   final String name;
   final SolutionAssetKind kind;
+  final String? filePath;
+  final String? remoteUrl;
 
   const SolutionUploadAsset({
     required this.id,
     required this.name,
     required this.kind,
+    this.filePath,
+    this.remoteUrl,
   });
 }
 
@@ -147,66 +151,10 @@ class SolutionsFlowState {
       SolutionSubject(id: 'cs', title: 'Computer Science', books: csBooks),
     ];
 
-    final demoAssets1 = <SolutionUploadAsset>[
-      const SolutionUploadAsset(
-        id: 'asset-1',
-        name: 'solution-page-42-q3.jpg',
-        kind: SolutionAssetKind.image,
-      ),
-    ];
-
-    final demoAssets2 = <SolutionUploadAsset>[
-      const SolutionUploadAsset(
-        id: 'asset-2',
-        name: 'mechanics-p18-q2.pdf',
-        kind: SolutionAssetKind.pdf,
-      ),
-    ];
-
     return SolutionsFlowState(
       searchQuery: '',
       subjects: subjects,
-      allSolutions: <QuestionSolutionCard>[
-        QuestionSolutionCard(
-          id: 'sol-1',
-          uploaderName: 'Maya Cohen',
-          uploaderInitials: 'MC',
-          subjectId: 'math',
-          bookId: 'math-book-1',
-          pageNumber: '42',
-          questionNumber: '3',
-          caption: 'Clean full solution with substitution steps.',
-          verifiedByNova: true,
-          assets: demoAssets1,
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        QuestionSolutionCard(
-          id: 'sol-2',
-          uploaderName: 'Yousef Ali',
-          uploaderInitials: 'YA',
-          subjectId: 'math',
-          bookId: 'math-book-1',
-          pageNumber: '42',
-          questionNumber: '5',
-          caption: 'Another way to solve the same page using factoring.',
-          verifiedByNova: false,
-          assets: demoAssets1,
-          createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        ),
-        QuestionSolutionCard(
-          id: 'sol-3',
-          uploaderName: 'Lina Haddad',
-          uploaderInitials: 'LH',
-          subjectId: 'physics',
-          bookId: 'physics-book-1',
-          pageNumber: '18',
-          questionNumber: '2',
-          caption: 'Kinematics setup and final numeric answer.',
-          verifiedByNova: true,
-          assets: demoAssets2,
-          createdAt: DateTime.now().subtract(const Duration(hours: 10)),
-        ),
-      ],
+      allSolutions: const <QuestionSolutionCard>[],
       selectedSubject: null,
       selectedBook: null,
       pageNumber: '',

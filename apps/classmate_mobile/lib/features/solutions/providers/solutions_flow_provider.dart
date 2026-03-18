@@ -1,64 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/solutions_api.dart';
-import '../data/solutions_live_mapper.dart';
 import '../domain/solutions_models.dart';
 
 final solutionsFlowProvider =
     NotifierProvider<SolutionsFlowNotifier, SolutionsFlowState>(
       SolutionsFlowNotifier.new,
     );
-
-final liveExactSolutionsPageProvider =
-    FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
-      final state = ref.watch(solutionsFlowProvider);
-      final api = ref.watch(solutionsApiProvider);
-
-      final subject = state.selectedSubject?.title.trim() ?? '';
-      final bookTitle = state.selectedBook?.title.trim() ?? '';
-      final pageNumber = int.tryParse(state.pageNumber.trim());
-      final questionNumber = state.questionNumber.trim();
-
-      if (subject.isEmpty ||
-          bookTitle.isEmpty ||
-          pageNumber == null ||
-          questionNumber.isEmpty) {
-        return LiveSolutionsPage.empty;
-      }
-
-      final raw = await api.fetchSolutions(
-        subject: subject,
-        bookTitle: bookTitle,
-        pageNumber: pageNumber,
-        questionNumber: questionNumber,
-        page: page,
-        limit: 12,
-      );
-      return SolutionsLiveMapper.pageFromJson(raw);
-    });
-
-final liveSamePageSolutionsPageProvider =
-    FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
-      final state = ref.watch(solutionsFlowProvider);
-      final api = ref.watch(solutionsApiProvider);
-
-      final subject = state.selectedSubject?.title.trim() ?? '';
-      final bookTitle = state.selectedBook?.title.trim() ?? '';
-      final pageNumber = int.tryParse(state.pageNumber.trim());
-
-      if (subject.isEmpty || bookTitle.isEmpty || pageNumber == null) {
-        return LiveSolutionsPage.empty;
-      }
-
-      final raw = await api.fetchSolutions(
-        subject: subject,
-        bookTitle: bookTitle,
-        pageNumber: pageNumber,
-        page: page,
-        limit: 12,
-      );
-      return SolutionsLiveMapper.pageFromJson(raw);
-    });
 
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
@@ -255,3 +203,31 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     return int.tryParse(value.trim()) ?? 999999;
   }
 }
+
+final liveSolutionsPreviewProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
+  final state = ref.watch(solutionsFlowProvider);
+  final api = ref.watch(solutionsApiProvider);
+
+  final subject = state.selectedSubject?.title;
+  final bookTitle = state.selectedBook?.title;
+  final pageNumber = int.tryParse(state.pageNumber.trim());
+  final questionNumber = state.questionNumber;
+
+  if ((subject ?? '').trim().isEmpty ||
+      (bookTitle ?? '').trim().isEmpty ||
+      pageNumber == null ||
+      questionNumber.trim().isEmpty) {
+    return <String, dynamic>{};
+  }
+
+  return api.fetchSolutions(
+    subject: subject,
+    bookTitle: bookTitle,
+    pageNumber: pageNumber,
+    questionNumber: questionNumber,
+    page: 1,
+    limit: 12,
+  );
+});

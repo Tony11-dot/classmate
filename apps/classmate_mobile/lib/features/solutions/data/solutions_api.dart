@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/env.dart';
 import '../../../core/http/cm_api.dart';
 
 const _devStudentToken = 'dev-token-student@classmate.local';
@@ -8,15 +12,44 @@ const _devStudentToken = 'dev-token-student@classmate.local';
 final solutionsApiProvider = Provider<SolutionsApi>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
-  return SolutionsApi(token: token.isEmpty ? _devStudentToken : token);
+  return SolutionsApi(
+    baseUrl: Env.apiBaseUrl,
+    token: token.isEmpty ? _devStudentToken : token,
+  );
 });
 
 class SolutionsApi {
-  const SolutionsApi({this.token = _devStudentToken});
+  const SolutionsApi({required this.baseUrl, this.token = _devStudentToken});
 
+  final String baseUrl;
   final String token;
 
   CMApi get _api => CMApi(token: token);
+
+  String _normalizedBaseUrl() {
+    return baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+  }
+
+  Uri _uri(String path) => Uri.parse('${_normalizedBaseUrl()}$path');
+
+  Map<String, String> _headers() {
+    final trimmed = token.trim();
+    final isJwtish = trimmed.split('.').length >= 3;
+    final isDevToken = trimmed.startsWith('dev-token-');
+    final hasToken = trimmed.isNotEmpty && (isJwtish || isDevToken);
+
+    return <String, String>{
+      if (hasToken) 'Authorization': 'Bearer $trimmed',
+      if (!hasToken) ...<String, String>{
+        'x-dev-role': 'STUDENT',
+        'x-dev-user-id': 'dev-student',
+        'x-dev-grade': '10',
+        'x-dev-school-id': 'test-school',
+      },
+    };
+  }
 
   Future<Map<String, dynamic>> fetchSubjects() async {
     final raw = await _api.getJson('/solutions/subjects');
@@ -52,6 +85,32 @@ class SolutionsApi {
 
     final raw = await _api.getJson('/solutions', query: q);
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  Future<List<Map<String, dynamic>>> uploadFilesMultipart(
+    List<String> paths,
+  ) async {
+    final out = <Map<String, dynamic>>[];
+
+    for (final path in paths) {
+      final req = http.MultipartRequest('POST', _uri('/uploads/solution-file'));
+      req.headers.addAll(_headers());
+      req.files.add(await http.MultipartFile.fromPath('file', path));
+
+      final streamed = await req.send();
+      final body = await streamed.stream.bytesToString();
+
+      if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
+        throw Exception('upload failed (${streamed.statusCode}): $body');
+      }
+
+      final decoded = jsonDecode(body);
+      if (decoded is Map && decoded['file'] is Map) {
+        out.add(Map<String, dynamic>.from(decoded['file'] as Map));
+      }
+    }
+
+    return out;
   }
 
   Future<Map<String, dynamic>> createSolution({

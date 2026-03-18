@@ -24,6 +24,7 @@ import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { SolutionsModule } from './solutions/solutions.module';
+import { UploadsModule } from './uploads/uploads.module';
 import { VersionModule } from './version/version.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClassroomsModule } from './classrooms/classrooms.module';
@@ -68,6 +69,7 @@ const seedControllers = [
     ParentModule,
     AnnouncementsModule,
     SolutionsModule,
+    UploadsModule,
     VersionModule,
     NotificationsModule,
     ClassroomsModule,

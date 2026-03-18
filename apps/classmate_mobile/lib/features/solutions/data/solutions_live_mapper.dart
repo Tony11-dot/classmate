@@ -3,143 +3,89 @@ import '../domain/solutions_models.dart';
 class LiveSolutionsPage {
   final List<QuestionSolutionCard> items;
   final bool hasMore;
-  final int nextPage;
-  final int total;
+  final int page;
 
   const LiveSolutionsPage({
     required this.items,
     required this.hasMore,
-    required this.nextPage,
-    required this.total,
+    required this.page,
   });
-
-  static const empty = LiveSolutionsPage(
-    items: <QuestionSolutionCard>[],
-    hasMore: false,
-    nextPage: 2,
-    total: 0,
-  );
 }
 
 class SolutionsLiveMapper {
-  static LiveSolutionsPage pageFromJson(Map<String, dynamic> raw) {
-    final list =
-        (raw['items'] ??
-                raw['uploads'] ??
-                raw['rows'] ??
-                raw['data'] ??
-                const <dynamic>[])
-            as List<dynamic>;
-
-    final items = list
-        .whereType<Map>()
-        .map((e) => mapUpload(e.map((k, v) => MapEntry(k.toString(), v))))
-        .toList(growable: false);
+  static LiveSolutionsPage mapPage(Map<String, dynamic> raw) {
+    final itemsRaw = raw['items'];
+    final items = itemsRaw is List
+        ? itemsRaw
+              .whereType<Map>()
+              .map((e) => mapUpload(e.map((k, v) => MapEntry('$k', v))))
+              .toList(growable: false)
+        : const <QuestionSolutionCard>[];
 
     final page = _asInt(raw['page'], fallback: 1);
-    final limit = _asInt(
-      raw['limit'],
-      fallback: items.isEmpty ? 12 : items.length,
-    );
-    final total = _asInt(raw['total'], fallback: items.length);
-    final hasMore =
-        raw['hasMore'] == true || ((page * (limit == 0 ? 1 : limit)) < total);
+    final hasMore = raw['hasMore'] == true;
 
-    return LiveSolutionsPage(
-      items: items,
-      hasMore: hasMore,
-      nextPage: page + 1,
-      total: total,
-    );
+    return LiveSolutionsPage(items: items, hasMore: hasMore, page: page);
   }
 
   static QuestionSolutionCard mapUpload(Map<String, dynamic> raw) {
-    final files =
-        (raw['files'] ?? raw['assets'] ?? const <dynamic>[]) as List<dynamic>;
-
-    final subject = _firstNonEmpty([
-      raw['subject'],
-      raw['book'] is Map ? (raw['book'] as Map)['subject'] : null,
-      raw['subjectId'],
-    ], fallback: 'general');
-
-    final bookId = _firstNonEmpty([
-      raw['bookId'],
-      raw['book'] is Map ? (raw['book'] as Map)['id'] : null,
-      raw['bookTitle'],
-      raw['sourceName'],
-    ], fallback: 'book');
-
-    final pageNumber = _firstNonEmpty([
-      raw['pageNumber'],
-      raw['page'],
-    ], fallback: '0');
-
-    final questionNumber = _firstNonEmpty([
-      raw['questionNumber'],
-      raw['question'],
-    ], fallback: '0');
+    final files = raw['files'];
 
     final uploaderName = _firstNonEmpty([
       raw['uploaderName'],
       raw['authorName'],
-      raw['author'] is Map ? (raw['author'] as Map)['name'] : null,
-      raw['user'] is Map ? (raw['user'] as Map)['name'] : null,
-    ], fallback: 'ClassMate student');
-
-    final uploaderInitials = _buildInitials(
-      _firstNonEmpty([
-        raw['uploaderInitials'],
-        raw['authorInitials'],
-      ], fallback: uploaderName),
-    );
-
-    final verified =
-        _firstNonEmpty([
-          raw['verificationStatus'],
-          raw['verifiedByNova'] == true ? 'VERIFIED' : null,
-        ]).toUpperCase() ==
-        'VERIFIED';
+      raw['userName'],
+    ], fallback: 'ClassMate Student');
 
     return QuestionSolutionCard(
       id: _firstNonEmpty([
         raw['id'],
-      ], fallback: 'solution-${DateTime.now().microsecondsSinceEpoch}'),
+      ], fallback: 'upload-${DateTime.now().microsecondsSinceEpoch}'),
       uploaderName: uploaderName,
-      uploaderInitials: uploaderInitials,
-      subjectId: subject,
-      bookId: bookId,
-      pageNumber: pageNumber,
-      questionNumber: questionNumber,
-      caption: _firstNonEmpty([
-        raw['caption'],
-        raw['body'],
-        raw['verificationNote'],
-      ], fallback: 'Shared solution'),
-      verifiedByNova: verified,
-      assets: files
-          .whereType<Map>()
-          .map(
-            (f) => SolutionUploadAsset(
-              id: _firstNonEmpty([
-                f['id'],
-              ], fallback: 'asset-${DateTime.now().microsecondsSinceEpoch}'),
-              name: _firstNonEmpty([
-                f['fileName'],
-                f['originalName'],
-                f['name'],
-                f['url'],
-              ], fallback: 'attachment'),
-              kind: _toKind(
-                _firstNonEmpty([
-                  f['kind'],
-                  f['mimeType'],
-                  f['mime'],
-                ], fallback: 'image'),
-              ),
-            ),
-          )
-          .toList(growable: false),
+      uploaderInitials: _firstNonEmpty([
+        raw['uploaderInitials'],
+      ], fallback: _buildInitials(uploaderName)),
+      subjectId: _firstNonEmpty([raw['subject']], fallback: 'general'),
+      bookId: _firstNonEmpty([
+        raw['bookId'],
+        raw['bookTitle'],
+      ], fallback: 'book'),
+      pageNumber: '${_asInt(raw['pageNumber'] ?? raw['page'], fallback: 0)}',
+      questionNumber: _firstNonEmpty([raw['questionNumber']], fallback: '—'),
+      caption: _firstNonEmpty([raw['caption']], fallback: 'Shared solution'),
+      verifiedByNova:
+          _firstNonEmpty([
+            raw['verificationStatus'],
+          ], fallback: '').toUpperCase() ==
+          'VERIFIED',
+      assets: files is List
+          ? files
+                .whereType<Map>()
+                .map(
+                  (f) => SolutionUploadAsset(
+                    id: _firstNonEmpty(
+                      [f['id']],
+                      fallback:
+                          'asset-${DateTime.now().microsecondsSinceEpoch}',
+                    ),
+                    name: _firstNonEmpty([
+                      f['fileName'],
+                      f['originalName'],
+                      f['name'],
+                      f['url'],
+                    ], fallback: 'attachment'),
+                    kind: _toKind(
+                      _firstNonEmpty([
+                        f['kind'],
+                        f['mimeType'],
+                        f['mime'],
+                      ], fallback: 'image'),
+                    ),
+                    remoteUrl: _firstNonEmpty([f['url']], fallback: ''),
+                  ),
+                )
+                .toList(growable: false)
+          : const <SolutionUploadAsset>[],
       createdAt:
           DateTime.tryParse(
             _firstNonEmpty([
