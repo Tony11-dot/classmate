@@ -30,40 +30,6 @@ class SolutionsApi {
     return baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
         : baseUrl;
-
-    Future<Map<String, dynamic>> moderateSolution({
-      required String id,
-      required String moderationStatus,
-      String? moderationReason,
-      bool isDeleted = false,
-    }) async {
-      final raw = await _api.patchJson(
-        '/solutions/staff/$id/moderate',
-        body: <String, dynamic>{
-          'moderationStatus': moderationStatus,
-          if ((moderationReason ?? '').trim().isNotEmpty)
-            'moderationReason': moderationReason!.trim(),
-          'isDeleted': isDeleted,
-        },
-      );
-      return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
-    }
-
-    Future<Map<String, dynamic>> verifySolution({
-      required String id,
-      required String verificationStatus,
-      String? verificationNote,
-    }) async {
-      final raw = await _api.patchJson(
-        '/solutions/staff/$id/verify',
-        body: <String, dynamic>{
-          'verificationStatus': verificationStatus,
-          if ((verificationNote ?? '').trim().isNotEmpty)
-            'verificationNote': verificationNote!.trim(),
-        },
-      );
-      return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
-    }
   }
 
   Uri _uri(String path) => Uri.parse('${_normalizedBaseUrl()}$path');

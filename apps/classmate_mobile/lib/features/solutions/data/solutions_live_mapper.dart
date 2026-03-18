@@ -37,6 +37,10 @@ class SolutionsLiveMapper {
       raw['userName'],
     ], fallback: 'ClassMate Student');
 
+    final verificationStatus = _firstNonEmpty([
+      raw['verificationStatus'],
+    ], fallback: 'UNCHECKED');
+
     return QuestionSolutionCard(
       id: _firstNonEmpty([
         raw['id'],
@@ -53,11 +57,12 @@ class SolutionsLiveMapper {
       pageNumber: '${_asInt(raw['pageNumber'] ?? raw['page'], fallback: 0)}',
       questionNumber: _firstNonEmpty([raw['questionNumber']], fallback: '—'),
       caption: _firstNonEmpty([raw['caption']], fallback: 'Shared solution'),
-      verifiedByNova:
-          _firstNonEmpty([
-            raw['verificationStatus'],
-          ], fallback: '').toUpperCase() ==
-          'VERIFIED',
+      verifiedByNova: verificationStatus.toUpperCase() == 'VERIFIED',
+      verificationStatus: verificationStatus,
+      verificationNote: _nullableText(raw['verificationNote']),
+      moderationStatus: _firstNonEmpty([
+        raw['moderationStatus'],
+      ], fallback: 'PENDING'),
       assets: files is List
           ? files
                 .whereType<Map>()
@@ -81,7 +86,9 @@ class SolutionsLiveMapper {
                         f['mime'],
                       ], fallback: 'image'),
                     ),
-                    remoteUrl: _firstNonEmpty([f['url']], fallback: ''),
+                    remoteUrl: _nullableText(f['url']),
+                    filePath: null,
+                    uploadState: UploadState.uploaded,
                   ),
                 )
                 .toList(growable: false)
@@ -107,14 +114,10 @@ class SolutionsLiveMapper {
     return int.tryParse('${raw ?? ''}') ?? fallback;
   }
 
-  static String? _nullableFirstNonEmpty(List<Object?> values) {
-    for (final value in values) {
-      final v = value;
-      if (v == null) continue;
-      final text = '$v'.trim();
-      if (text.isNotEmpty) return text;
-    }
-    return null;
+  static String? _nullableText(Object? value) {
+    if (value == null) return null;
+    final text = '$value'.trim();
+    return text.isEmpty ? null : text;
   }
 
   static String _firstNonEmpty(List<Object?> values, {String fallback = ''}) {
