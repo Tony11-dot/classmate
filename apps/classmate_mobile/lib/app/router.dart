@@ -18,6 +18,7 @@ import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/notifications_screen.dart';
+import '../features/lifedoc/meetings_screen.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -133,6 +134,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/assignments',
             builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/meetings',
+            builder: (context, state) => const MeetingsScreen(),
           ),
           GoRoute(
             path: '/announcements',

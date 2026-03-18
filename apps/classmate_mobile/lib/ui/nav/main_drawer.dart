@@ -122,6 +122,16 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/grades'),
             ),
             item(
+              icon: Icons.assignment_rounded,
+              title: 'Assignments',
+              onTap: () => context.go('/assignments'),
+            ),
+            item(
+              icon: Icons.video_call_rounded,
+              title: 'Meetings',
+              onTap: () => context.go('/meetings'),
+            ),
+            item(
               icon: Icons.campaign_rounded,
               title: 'Announcements',
               onTap: () => context.go('/announcements'),

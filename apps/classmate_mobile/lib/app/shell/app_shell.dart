@@ -36,6 +36,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/attendance')) return 'Attendance';
     if (loc.startsWith('/grades')) return 'Grades';
     if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/meetings')) return 'Meetings';
     if (loc.startsWith('/announcements')) return 'Announcements';
     if (loc.startsWith('/notifications')) return 'Notifications';
     if (loc.startsWith('/announcements')) return 'Announcements';
