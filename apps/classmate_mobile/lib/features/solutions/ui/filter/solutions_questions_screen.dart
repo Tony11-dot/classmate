@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
+import '../widgets/solution_asset_preview_sheet.dart';
 import '../../providers/solutions_flow_provider.dart';
 
 final liveExactSolutionsPageProvider =
@@ -105,6 +106,15 @@ class _SolutionsQuestionsScreenState
     });
     ref.invalidate(liveExactSolutionsPageProvider(1));
     ref.invalidate(liveSamePageSolutionsPageProvider(1));
+  }
+
+  Future<void> _openAssetPreview(SolutionUploadAsset asset) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SolutionAssetPreviewSheet(asset: asset),
+    );
   }
 
   Future<void> _pickImage() async {
@@ -483,7 +493,10 @@ class _SolutionsQuestionsScreenState
               ..._exactItems.map(
                 (item) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _SolutionCard(item: item),
+                  child: _SolutionCard(
+                    item: item,
+                    onOpenAsset: _openAssetPreview,
+                  ),
                 ),
               ),
               if (exactHasMore)
@@ -515,7 +528,10 @@ class _SolutionsQuestionsScreenState
               ..._samePageItems.map(
                 (item) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _SolutionCard(item: item),
+                  child: _SolutionCard(
+                    item: item,
+                    onOpenAsset: _openAssetPreview,
+                  ),
                 ),
               ),
               if (samePageHasMore)
@@ -575,9 +591,10 @@ class _EmptyCard extends StatelessWidget {
 }
 
 class _SolutionCard extends StatelessWidget {
-  const _SolutionCard({required this.item});
+  const _SolutionCard({required this.item, required this.onOpenAsset});
 
   final QuestionSolutionCard item;
+  final Future<void> Function(SolutionUploadAsset asset) onOpenAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -649,7 +666,7 @@ class _SolutionCard extends StatelessWidget {
                           : Icons.photo_outlined,
                       size: 18,
                     ),
-                    onPressed: () {},
+                    onPressed: () => onOpenAsset(asset),
                   ),
                 )
                 .toList(),
