@@ -1,11 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/solutions_api.dart';
 import '../domain/solutions_models.dart';
 
 final solutionsFlowProvider =
     NotifierProvider<SolutionsFlowNotifier, SolutionsFlowState>(
       SolutionsFlowNotifier.new,
     );
+
+final liveSolutionsPreviewProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
+  final state = ref.watch(solutionsFlowProvider);
+  final api = ref.watch(solutionsApiProvider);
+
+  final subject = state.selectedSubject?.title.trim() ?? '';
+  final bookTitle = state.selectedBook?.title.trim() ?? '';
+  final pageRaw = state.pageNumber.trim();
+  final questionNumber = state.questionNumber.trim();
+  final pageNumber = int.tryParse(pageRaw);
+
+  if (subject.isEmpty ||
+      bookTitle.isEmpty ||
+      pageNumber == null ||
+      questionNumber.isEmpty) {
+    return <String, dynamic>{};
+  }
+
+  return api.fetchSolutions(
+    subject: subject,
+    bookTitle: bookTitle,
+    pageNumber: pageNumber,
+    questionNumber: questionNumber,
+    page: 1,
+    limit: 12,
+  );
+});
 
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
