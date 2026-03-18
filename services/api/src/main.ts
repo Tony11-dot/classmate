@@ -1,15 +1,20 @@
 import { NestFactory } from '@nestjs/core';
-import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
+import { JsonLogger } from './common/logging/json.logger';
+import { RequestMetricsInterceptor } from './common/interceptors/request-metrics.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
+  const logger = app.get(JsonLogger);
+  app.useLogger(logger);
 
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3001, '0.0.0.0');
+  app.useGlobalInterceptors(app.get(RequestMetricsInterceptor));
+
+  const port = Number(process.env.PORT || 3000);
+  await app.listen(port, '0.0.0.0');
+
+  logger.log(`api_listening port=${port}`, 'Bootstrap');
 }
-bootstrap();
+
+void bootstrap();

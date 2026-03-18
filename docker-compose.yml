@@ -1,158 +1,8 @@
 services:
-  nginx:
-    image: nginx:1.27-alpine
-    depends_on:
-      api1:
-        condition: service_started
-      api2:
-        condition: service_started
-      api3:
-        condition: service_started
-    ports:
-      - "80:80"
-    volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    restart: unless-stopped
-    networks:
-      - classmate
-
-  api1:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/api/.env
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_URL: redis://redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      HOST: 0.0.0.0
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    expose:
-      - "3000"
-    restart: unless-stopped
-    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - classmate
-
-  api2:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/api/.env
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_URL: redis://redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      HOST: 0.0.0.0
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    expose:
-      - "3000"
-    restart: unless-stopped
-    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - classmate
-
-  api3:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/api/.env
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_URL: redis://redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      HOST: 0.0.0.0
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    expose:
-      - "3000"
-    restart: unless-stopped
-    command: sh -lc "pnpm prisma generate && pnpm prisma db push && node dist/main.js"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - classmate
-
-  worker:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/api/.env
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
-      REDIS_URL: redis://redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      HOST: 0.0.0.0
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    command: sh -lc "pnpm prisma generate && node dist/src/common/queue/practice.worker.js"
-    networks:
-      - classmate
-
-  redis:
-    image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-    networks:
-      - classmate
-
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15
+    container_name: classmate-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -161,19 +11,119 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d classmate"]
       interval: 10s
       timeout: 5s
       retries: 10
-    networks:
-      - classmate
+
+  redis:
+    image: redis:7-alpine
+    container_name: classmate-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api1:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ENABLE_PRACTICE_WORKER: "false"
+    expose:
+      - "3000"
+
+  api2:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ENABLE_PRACTICE_WORKER: "false"
+    expose:
+      - "3000"
+
+  api3:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ENABLE_PRACTICE_WORKER: "false"
+    expose:
+      - "3000"
+
+  worker:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/classmate?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ENABLE_PRACTICE_WORKER: "true"
+    command: ["node", "dist/main.js"]
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: classmate-nginx
+    restart: unless-stopped
+    depends_on:
+      - api1
+      - api2
+      - api3
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes:
   postgres_data:
   redis_data:
-
-networks:
-  classmate:
-    driver: bridge
