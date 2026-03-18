@@ -1,3 +1,5 @@
+enum DmThreadType { direct, group }
+
 enum DmRequestState {
   none,
   pendingIncoming,
@@ -6,58 +8,78 @@ enum DmRequestState {
   blocked,
 }
 
-class DmProfileLite {
-  final String id;
-  final String fullName;
-  final String handle;
-  final String avatarText;
-  final String? status;
+enum DmMediaMode { once, replay, keep }
 
-  const DmProfileLite({
+enum DmMessageKind { text, image, voice, system }
+
+class DmUserLite {
+  final String id;
+  final String name;
+  final String avatarText;
+  final bool isBlocked;
+  final bool canMessage;
+
+  const DmUserLite({
     required this.id,
-    required this.fullName,
-    required this.handle,
+    required this.name,
     required this.avatarText,
-    this.status,
+    this.isBlocked = false,
+    this.canMessage = true,
   });
 }
 
-class DmInboxItem {
+class DmThread {
   final String id;
-  final bool isGroup;
+  final DmThreadType type;
   final String title;
   final String subtitle;
-  final DateTime updatedAt;
-  final int unreadCount;
+  final String avatarText;
   final DmRequestState requestState;
-  final DmProfileLite otherUser;
+  final bool isGroup;
+  final bool isBlocked;
+  final int unreadCount;
+  final DateTime updatedAt;
+  final List<DmUserLite> participants;
 
-  const DmInboxItem({
+  const DmThread({
     required this.id,
-    required this.isGroup,
+    required this.type,
     required this.title,
     required this.subtitle,
-    required this.updatedAt,
-    required this.unreadCount,
+    required this.avatarText,
     required this.requestState,
-    required this.otherUser,
+    required this.isGroup,
+    required this.isBlocked,
+    required this.unreadCount,
+    required this.updatedAt,
+    required this.participants,
   });
 }
 
 class DmMessage {
   final String id;
   final String senderId;
+  final String senderName;
+  final bool isMine;
+  final DmMessageKind kind;
   final String text;
+  final String? mediaUrl;
+  final DmMediaMode? mediaMode;
+  final Duration? voiceDuration;
   final DateTime createdAt;
   final List<String> reactions;
-  final bool mine;
 
   const DmMessage({
     required this.id,
     required this.senderId,
+    required this.senderName,
+    required this.isMine,
+    required this.kind,
     required this.text,
+    required this.mediaUrl,
+    required this.mediaMode,
+    required this.voiceDuration,
     required this.createdAt,
     required this.reactions,
-    required this.mine,
   });
 }

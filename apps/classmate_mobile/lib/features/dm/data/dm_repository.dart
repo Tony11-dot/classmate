@@ -1,87 +1,126 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/dm_models.dart';
+
+final dmRepositoryProvider = Provider<DmRepository>(
+  (ref) => const DmRepository(),
+);
 
 class DmRepository {
   const DmRepository();
 
-  List<DmInboxItem> inbox() {
-    return <DmInboxItem>[
-      DmInboxItem(
-        id: 'req-1',
+  Future<List<DmThread>> listThreads() async {
+    final now = DateTime.now();
+    return <DmThread>[
+      DmThread(
+        id: 't-1',
+        type: DmThreadType.direct,
+        title: 'Ahmad K.',
+        subtitle: 'You: got it',
+        avatarText: 'AK',
+        requestState: DmRequestState.accepted,
         isGroup: false,
-        title: 'Layan Haddad',
-        subtitle: 'Sent you a first message request',
-        updatedAt: DateTime.now().subtract(const Duration(minutes: 8)),
-        unreadCount: 1,
-        requestState: DmRequestState.pendingIncoming,
-        otherUser: const DmProfileLite(
-          id: 'u-layan',
-          fullName: 'Layan Haddad',
-          handle: '@layan',
-          avatarText: 'LH',
-          status: 'Working on math',
-        ),
-      ),
-      DmInboxItem(
-        id: 'chat-1',
-        isGroup: false,
-        title: 'Omar Darwish',
-        subtitle: 'Can you send the physics sheet?',
-        updatedAt: DateTime.now().subtract(const Duration(minutes: 35)),
+        isBlocked: false,
         unreadCount: 2,
-        requestState: DmRequestState.accepted,
-        otherUser: const DmProfileLite(
-          id: 'u-omar',
-          fullName: 'Omar Darwish',
-          handle: '@omar',
-          avatarText: 'OD',
-          status: 'Physics grind',
-        ),
+        updatedAt: now.subtract(const Duration(minutes: 8)),
+        participants: const [
+          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
+          DmUserLite(id: 'u-ahmad', name: 'Ahmad K.', avatarText: 'AK'),
+        ],
       ),
-      DmInboxItem(
-        id: 'group-1',
-        isGroup: true,
+      DmThread(
+        id: 't-2',
+        type: DmThreadType.direct,
+        title: 'Maya R.',
+        subtitle: 'Message request',
+        avatarText: 'MR',
+        requestState: DmRequestState.pendingIncoming,
+        isGroup: false,
+        isBlocked: false,
+        unreadCount: 1,
+        updatedAt: now.subtract(const Duration(hours: 1)),
+        participants: const [
+          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
+          DmUserLite(id: 'u-maya', name: 'Maya R.', avatarText: 'MR'),
+        ],
+      ),
+      DmThread(
+        id: 'g-1',
+        type: DmThreadType.group,
         title: 'Math Legends',
-        subtitle: 'Rama: page 112 question 4 is solved',
-        updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
-        unreadCount: 0,
+        subtitle: 'Study group',
+        avatarText: 'ML',
         requestState: DmRequestState.accepted,
-        otherUser: const DmProfileLite(
-          id: 'g-math',
-          fullName: 'Math Legends',
-          handle: '@group',
-          avatarText: 'ML',
-          status: 'Group chat',
-        ),
+        isGroup: true,
+        isBlocked: false,
+        unreadCount: 0,
+        updatedAt: now.subtract(const Duration(hours: 3)),
+        participants: const [
+          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
+          DmUserLite(id: 'u-1', name: 'Ahmad K.', avatarText: 'AK'),
+          DmUserLite(id: 'u-2', name: 'Maya R.', avatarText: 'MR'),
+        ],
       ),
     ];
   }
 
-  List<DmMessage> thread(String threadId) {
+  Future<List<DmMessage>> listMessages(String threadId) async {
+    final now = DateTime.now();
     return <DmMessage>[
       DmMessage(
-        id: 'm1',
-        senderId: 'u-omar',
-        text: 'Hey, did you solve the mechanics question?',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 26)),
-        reactions: const ['👍', '🔥'],
-        mine: false,
+        id: 'm-1',
+        senderId: 'u-other',
+        senderName: 'Ahmad K.',
+        isMine: false,
+        kind: DmMessageKind.text,
+        text: 'Hey, did you solve question 4?',
+        mediaUrl: null,
+        mediaMode: null,
+        voiceDuration: null,
+        createdAt: now.subtract(const Duration(minutes: 12)),
+        reactions: const ['👍'],
       ),
       DmMessage(
-        id: 'm2',
-        senderId: 'me',
-        text: 'Yeah. I can send the setup and final result.',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 20)),
-        reactions: const ['✅'],
-        mine: true,
+        id: 'm-2',
+        senderId: 'u-me',
+        senderName: 'You',
+        isMine: true,
+        kind: DmMessageKind.image,
+        text: 'Here is my work',
+        mediaUrl: 'demo-image',
+        mediaMode: DmMediaMode.keep,
+        voiceDuration: null,
+        createdAt: now.subtract(const Duration(minutes: 9)),
+        reactions: const ['🔥'],
       ),
       DmMessage(
-        id: 'm3',
-        senderId: 'u-omar',
-        text: 'Perfect. Send it when you can.',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
+        id: 'm-3',
+        senderId: 'u-other',
+        senderName: 'Ahmad K.',
+        isMine: false,
+        kind: DmMessageKind.voice,
+        text: '',
+        mediaUrl: 'demo-voice',
+        mediaMode: DmMediaMode.replay,
+        voiceDuration: const Duration(seconds: 11),
+        createdAt: now.subtract(const Duration(minutes: 4)),
         reactions: const [],
-        mine: false,
       ),
     ];
   }
+
+  Future<void> acceptRequest(String threadId) async {}
+  Future<void> blockUser(String threadId) async {}
+  Future<void> unblockUser(String threadId) async {}
+  Future<void> sendText(String threadId, String text) async {}
+  Future<void> sendImage(
+    String threadId,
+    String path,
+    DmMediaMode mode,
+  ) async {}
+  Future<void> sendVoice(
+    String threadId,
+    String path,
+    DmMediaMode mode,
+  ) async {}
+  Future<void> createGroup(String title, List<String> userIds) async {}
 }

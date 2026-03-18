@@ -9,29 +9,17 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final name = TextEditingController(text: 'Tony Aboud');
-  final school = TextEditingController(
-    text: 'Technion / ClassMate demo school',
-  );
-  final grade = TextEditingController(text: 'CS • Physics • Mathematics');
-  final bio = TextEditingController(
-    text: 'Builder, tennis player, physics/math/AI lover.',
-  );
-  final status = TextEditingController(text: 'Shipping student app tonight.');
+  final school = TextEditingController();
+  final grade = TextEditingController();
+  final majors = TextEditingController();
+  final bio = TextEditingController();
+  final status = TextEditingController();
 
-  bool schoolPublic = true;
+  bool schoolPublic = false;
   bool gradePublic = true;
+  bool majorsPublic = true;
   bool bioPublic = true;
   bool statusPublic = true;
-
-  @override
-  void dispose() {
-    name.dispose();
-    school.dispose();
-    grade.dispose();
-    bio.dispose();
-    status.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,53 +28,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Center(
-            child: CircleAvatar(
-              radius: 34,
-              child: Text('TA', style: TextStyle(fontWeight: FontWeight.w900)),
-            ),
-          ),
+          const Center(child: CircleAvatar(radius: 38, child: Text('TA'))),
           const SizedBox(height: 16),
           TextField(
             controller: name,
             decoration: const InputDecoration(labelText: 'Full name'),
           ),
-          const SizedBox(height: 12),
           TextField(
             controller: school,
             decoration: const InputDecoration(labelText: 'School'),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: grade,
-            decoration: const InputDecoration(labelText: 'Grade / majors'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: bio,
-            maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Bio'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: status,
-            decoration: const InputDecoration(labelText: 'Status'),
-          ),
-          const SizedBox(height: 20),
           SwitchListTile(
             title: const Text('School public'),
             value: schoolPublic,
             onChanged: (v) => setState(() => schoolPublic = v),
           ),
+          TextField(
+            controller: grade,
+            decoration: const InputDecoration(labelText: 'Grade'),
+          ),
           SwitchListTile(
-            title: const Text('Grade / majors public'),
+            title: const Text('Grade public'),
             value: gradePublic,
             onChanged: (v) => setState(() => gradePublic = v),
+          ),
+          TextField(
+            controller: majors,
+            decoration: const InputDecoration(labelText: 'Majors'),
+          ),
+          SwitchListTile(
+            title: const Text('Majors public'),
+            value: majorsPublic,
+            onChanged: (v) => setState(() => majorsPublic = v),
+          ),
+          TextField(
+            controller: bio,
+            decoration: const InputDecoration(labelText: 'Bio'),
           ),
           SwitchListTile(
             title: const Text('Bio public'),
             value: bioPublic,
             onChanged: (v) => setState(() => bioPublic = v),
+          ),
+          TextField(
+            controller: status,
+            decoration: const InputDecoration(labelText: 'Status'),
           ),
           SwitchListTile(
             title: const Text('Status public'),

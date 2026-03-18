@@ -137,6 +137,11 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/dms'),
             ),
             item(
+              icon: Icons.forum_rounded,
+              title: 'DMs',
+              onTap: () => context.go('/dms'),
+            ),
+            item(
               icon: Icons.bookmark_rounded,
               title: 'Saved questions',
               onTap: () => context.go('/saved-questions'),

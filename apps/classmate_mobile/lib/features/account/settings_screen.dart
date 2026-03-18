@@ -40,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
                     icon: Icons.dark_mode_rounded,
                   ),
                 ],
-                onChanged: (v) => tc.setMode(v),
+                onChanged: tc.setMode,
                 searchHint: 'System / Light / Dark',
               ),
               const _Divider(),
@@ -50,14 +50,14 @@ class SettingsScreen extends ConsumerWidget {
                 value: t.textScale,
                 min: 0.9,
                 max: 1.3,
-                onChanged: (v) => tc.setTextScale(v),
+                onChanged: tc.setTextScale,
               ),
               const _Divider(),
               _ToggleRow(
                 title: 'Reduce motion',
                 subtitle: 'Fewer animations',
                 value: t.reduceMotion,
-                onChanged: (v) => tc.setReduceMotion(v),
+                onChanged: tc.setReduceMotion,
               ),
             ],
           ),
@@ -71,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Accent',
                 subtitle: 'App highlight color',
                 value: t.accent,
-                onPick: (c) => tc.setAccent(c),
+                onPick: tc.setAccent,
               ),
               const _Divider(),
               _SliderRow(
@@ -80,7 +80,7 @@ class SettingsScreen extends ConsumerWidget {
                 value: t.radius,
                 min: 8,
                 max: 28,
-                onChanged: (v) => tc.setRadius(v),
+                onChanged: tc.setRadius,
               ),
               const _Divider(),
               _SliderRow(
@@ -89,26 +89,27 @@ class SettingsScreen extends ConsumerWidget {
                 value: t.density,
                 min: -1,
                 max: 1,
-                onChanged: (v) => tc.setDensity(v),
+                onChanged: tc.setDensity,
               ),
             ],
           ),
         ),
         const SizedBox(height: 14),
         _Section(
-          title: 'Profile privacy',
+          title: 'Privacy',
           child: Column(
             children: const [
-              _StaticRow(title: 'School visibility', subtitle: 'Public'),
-              _Divider(),
-              _StaticRow(
-                title: 'Grade / majors visibility',
-                subtitle: 'Public',
+              ListTile(
+                title: Text('Profile field privacy'),
+                subtitle: Text('Managed from Edit profile'),
+                trailing: Icon(Icons.lock_rounded),
               ),
-              _Divider(),
-              _StaticRow(title: 'Bio visibility', subtitle: 'Public'),
-              _Divider(),
-              _StaticRow(title: 'Status visibility', subtitle: 'Public'),
+              Divider(height: 1),
+              ListTile(
+                title: Text('Messaging safety'),
+                subtitle: Text('Block/unblock inside DM threads'),
+                trailing: Icon(Icons.block_rounded),
+              ),
             ],
           ),
         ),
@@ -161,7 +162,6 @@ class _Section extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   const _Divider();
-
   @override
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.symmetric(vertical: 6),
@@ -189,22 +189,6 @@ class _Row extends StatelessWidget {
       subtitle: Text(subtitle),
       trailing: trailing,
       onTap: onTap,
-    );
-  }
-}
-
-class _StaticRow extends StatelessWidget {
-  const _StaticRow({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.lock_outline_rounded),
     );
   }
 }
@@ -295,7 +279,7 @@ class _ColorRow extends StatelessWidget {
       onTap: () async {
         final picked = await showDialog<Color>(
           context: context,
-          builder: (ctx) => _AccentPickerDialog(value: value),
+          builder: (_) => _AccentPickerDialog(value: value),
         );
         if (picked != null) onPick(picked);
       },
