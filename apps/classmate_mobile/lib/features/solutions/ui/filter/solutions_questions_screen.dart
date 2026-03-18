@@ -497,6 +497,36 @@ class _SolutionsQuestionsScreenState
                         ),
                       ],
                     ),
+                    if (uploadState.uploadFiles.any(
+                      (e) => e.uploadState == UploadState.failed,
+                    )) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer.withValues(alpha: 0.72),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline_rounded),
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Text(
+                                'Some files failed to upload. You can retry them.',
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _retryFailedUploads,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     if (uploadState.uploadFiles.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Wrap(
@@ -749,6 +779,21 @@ class _SolutionCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(item.caption),
+          if ((item.verificationNote ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                item.verificationNote!,
+                style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
