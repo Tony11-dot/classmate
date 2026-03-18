@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 
 class MainDrawer extends ConsumerWidget {
@@ -121,30 +122,30 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/grades'),
             ),
             item(
+              icon: Icons.campaign_rounded,
+              title: 'Announcements',
+              onTap: () => context.go('/announcements'),
+            ),
+            item(
               icon: Icons.notifications_rounded,
               title: 'Notifications',
               onTap: () => context.go('/notifications'),
+            ),
+            item(
+              icon: Icons.forum_rounded,
+              title: 'DMs',
+              onTap: () => context.go('/dms'),
             ),
             item(
               icon: Icons.bookmark_rounded,
               title: 'Saved questions',
               onTap: () => context.go('/saved-questions'),
             ),
-            item(
-              icon: Icons.warning_amber_rounded,
-              title: 'Announcements',
-              onTap: () {},
-            ),
             section('Profile'),
             item(
               icon: Icons.person_rounded,
               title: 'Profile',
               onTap: () => context.go('/profile'),
-            ),
-            item(
-              icon: Icons.tune_rounded,
-              title: 'Customization',
-              onTap: () => context.go('/settings'),
             ),
             item(
               icon: Icons.settings_rounded,

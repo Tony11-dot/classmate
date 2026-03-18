@@ -1,0 +1,2975 @@
+
+== ATTENDANCE + GRADES BACKEND/MOBILE ==
+
+===== apps/classmate_mobile/lib/features/classrooms/ui/classroom_detail_screen.dart.reply_ui_upgrade.1772889059.bak =====
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/auth/auth_session.dart';
+import '../providers/classrooms_providers.dart';
+import '../providers/classrooms_repo_provider.dart';
+
+class ClassroomDetailScreen extends ConsumerStatefulWidget {
+  const ClassroomDetailScreen({super.key, required this.courseId});
+
+  final String courseId;
+
+  @override
+  ConsumerState<ClassroomDetailScreen> createState() =>
+      _ClassroomDetailScreenState();
+}
+
+String _classroomSeenKey(String courseId) => 'classroom_last_seen_$courseId';
+
+class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs = TabController(length: 5, vsync: this);
+  final TextEditingController _chatCtl = TextEditingController();
+  final ScrollController _chatScrollCtl = ScrollController();
+
+  bool _sending = false;
+
+  void _goBackToClassrooms() {
+    if (!mounted) return;
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      context.go('/classrooms');
+    }
+  }
+
+  Future<void> _markChatSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _classroomSeenKey(widget.courseId),
+      DateTime.now().toUtc().toIso8601String(),
+    );
+  }
+
+  bool _typing = false;
+  String? _replyToMessageId;
+  String? _replyToSender;
+  String? _replyToText;
+
+  int _lastChatCount = -1;
+
+  Map<String, String> _reactionByMessage = <String, String>{};
+  Map<String, String> _editedTextByMessage = <String, String>{};
+  Set<String> _deletedMessageIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(_markChatSeen);
+    _tabs.addListener(() {
+      if (!_tabs.indexIsChanging && _tabs.index == 0) {
+        Future.microtask(_markChatSeen);
+      }
+    });
+    _chatCtl.addListener(_onComposerChanged);
+    _loadLocalChatState();
+  }
+
+  @override
+  void dispose() {
+    _tabs.dispose();
+    _chatCtl.removeListener(_onComposerChanged);
+    _chatCtl.dispose();
+    _chatScrollCtl.dispose();
+    super.dispose();
+  }
+
+  void _onComposerChanged() {
+    final next = _chatCtl.text.trim().isNotEmpty;
+    if (next != _typing && mounted) {
+      setState(() => _typing = next);
+    }
+  }
+
+  String _key(String suffix) => 'classroom_chat:${widget.courseId}:$suffix';
+
+  Future<void> _loadLocalChatState() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final reactionsRaw = prefs.getString(_key('reactions'));
+    final editsRaw = prefs.getString(_key('edits'));
+    final deletedRaw = prefs.getString(_key('deleted'));
+
+    Map<String, String> reactions = <String, String>{};
+    Map<String, String> edits = <String, String>{};
+    Set<String> deleted = <String>{};
+
+    if (reactionsRaw != null && reactionsRaw.trim().isNotEmpty) {
+      final decoded = jsonDecode(reactionsRaw);
+      if (decoded is Map) {
+        reactions = decoded.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+      }
+    }
+
+    if (editsRaw != null && editsRaw.trim().isNotEmpty) {
+      final decoded = jsonDecode(editsRaw);
+      if (decoded is Map) {
+        edits = decoded.map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        );
+      }
+    }
+
+    if (deletedRaw != null && deletedRaw.trim().isNotEmpty) {
+      final decoded = jsonDecode(deletedRaw);
+      if (decoded is List) {
+        deleted = decoded.map((e) => e.toString()).toSet();
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _reactionByMessage = reactions;
+      _editedTextByMessage = edits;
+      _deletedMessageIds = deleted;
+    });
+  }
+
+  Future<void> _persistLocalChatState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key('reactions'), jsonEncode(_reactionByMessage));
+    await prefs.setString(_key('edits'), jsonEncode(_editedTextByMessage));
+    await prefs.setString(
+      _key('deleted'),
+      jsonEncode(_deletedMessageIds.toList()..sort()),
+    );
+  }
+
+  void _refreshAll() {
+    ref.invalidate(classroomDetailProvider(widget.courseId));
+    ref.invalidate(classroomPeopleProvider(widget.courseId));
+    ref.invalidate(
+      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+    );
+    ref.invalidate(classroomAssignmentsProvider(widget.courseId));
+    ref.invalidate(classroomMaterialsProvider(widget.courseId));
+    ref.invalidate(classroomMeetingsProvider(widget.courseId));
+  }
+
+  Future<void> _sendChat() async {
+    final value = _chatCtl.text.trim();
+    if (value.isEmpty || _sending) return;
+
+    final senderPrefix = (_replyToSender ?? '').trim();
+    final replyPrefix = (_replyToText ?? '').trim();
+
+    String compactReply(String input) {
+      final oneLine = input.replaceAll(RegExp(r'\s+'), ' ').trim();
+      if (oneLine.length <= 72) return oneLine;
+      return '${oneLine.substring(0, 72).trimRight()}…';
+    }
+
+    final outbound = _replyToMessageId == null
+        ? value
+        : '[reply:${_replyToMessageId!}] '
+              '${senderPrefix.isEmpty ? 'Reply' : senderPrefix}'
+              '${replyPrefix.isEmpty ? '' : ' • ${compactReply(replyPrefix)}'}'
+              ' || $value';
+
+    setState(() => _sending = true);
+    try {
+      final repo = ref.read(classroomsRepoProvider);
+      await repo.sendChatText(widget.courseId, outbound);
+      _chatCtl.clear();
+      _clearReply();
+      await _markChatSeen();
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom(jump: false);
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _sending = false);
+      }
+    }
+  }
+
+  void _scrollToBottom({required bool jump}) {
+    if (!mounted) return;
+    if (!_chatScrollCtl.hasClients) return;
+    if (_chatScrollCtl.positions.length != 1) return;
+
+    final target = _chatScrollCtl.position.maxScrollExtent;
+    if (jump) {
+      _chatScrollCtl.jumpTo(target);
+      return;
+    }
+
+    _chatScrollCtl.animateTo(
+      target,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _clearReply() {
+    if (!mounted) return;
+    setState(() {
+      _replyToMessageId = null;
+      _replyToSender = null;
+      _replyToText = null;
+    });
+  }
+
+  Future<void> _setReaction(String messageId, String emoji) async {
+    setState(() {
+      if (_reactionByMessage[messageId] == emoji) {
+        _reactionByMessage.remove(messageId);
+      } else {
+        _reactionByMessage[messageId] = emoji;
+      }
+    });
+    await _persistLocalChatState();
+  }
+
+  Future<void> _deleteMessage(String messageId) async {
+    setState(() {
+      _deletedMessageIds.add(messageId);
+      _reactionByMessage.remove(messageId);
+      _editedTextByMessage.remove(messageId);
+    });
+    await _persistLocalChatState();
+  }
+
+  Future<void> _editMessage(
+    BuildContext context, {
+    required String messageId,
+    required String currentText,
+  }) async {
+    final ctl = TextEditingController(text: currentText);
+    final next = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.fix_gradesAverage_scope.1772995203.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          final gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No attendance yet',
+                          subtitle:
+                              'Attendance records will appear here once marked.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentAttendance.take(8)) ...[
+                              _AttendanceRow(item: item),
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.gradesAverage.1772995160.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          final gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No attendance yet',
+                          subtitle:
+                              'Attendance records will appear here once marked.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentAttendance.take(8)) ...[
+                              _AttendanceRow(item: item),
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.gradesAverage_final_fix.1772995656.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No attendance yet',
+                          subtitle:
+                              'Attendance records will appear here once marked.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentAttendance.take(8)) ...[
+                              _AttendanceRow(item: item),
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.gradesAverage_global_fix.1772995378.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final _gradesAvgRaw =
+              data['gradesAverage'] ??
+              data['averageGrade'] ??
+              ((data['summary'] is Map)
+                  ? (((data['summary'] as Map)['gradesAverage']) ??
+                        ((data['summary'] as Map)['averageGrade']))
+                  : null);
+
+          final double? gradesAverage = _gradesAvgRaw is num
+              ? _gradesAvgRaw.toDouble()
+              : double.tryParse((_gradesAvgRaw ?? '').toString());
+
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.gradesAverage_hardfix.1772995604.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          final double? gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final double? gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final double? gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+
+===== apps/classmate_mobile/lib/features/insights/insights_screen.dart.gradesAverage_scope_fix.1772995333.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/insights_providers.dart';
+
+class InsightsScreen extends ConsumerWidget {
+  const InsightsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(insightsSnapshotProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightsSnapshotProvider);
+        await ref.read(insightsSnapshotProvider.future);
+      },
+      child: asyncValue.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: const [
+            SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            const SizedBox(height: 12),
+            _InsightChip(
+              label: 'Study suggestion',
+              value: gradesAverage == null
+                  ? 'Once grades appear, NOVA will suggest study priorities.'
+                  : gradesAverage >= 90
+                  ? 'Keep momentum — maintain review cycles.'
+                  : gradesAverage >= 75
+                  ? 'Short daily revision sessions will lift results.'
+                  : 'Focus on fundamentals and solve extra practice.',
+            ),
+
+            _StateCard(
+              icon: Icons.insights_outlined,
+              title: 'Could not load insights',
+              subtitle: '$error',
+              action: FilledButton.icon(
+                onPressed: () => ref.invalidate(insightsSnapshotProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
+        ),
+        data: (data) {
+          final gradesMap = _map(data['grades']);
+          final attendanceMap = _map(data['attendance']);
+
+          final grades = _list(gradesMap['grades']);
+          final attendance = _list(attendanceMap['items']);
+
+          final presentCount = attendance
+              .where((e) => _statusOf(e) == 'PRESENT')
+              .length;
+          final absentCount = attendance
+              .where((e) => _statusOf(e) == 'ABSENT')
+              .length;
+          final lateCount = attendance
+              .where((e) => _statusOf(e) == 'LATE')
+              .length;
+          final excusedCount = attendance
+              .where((e) => _statusOf(e) == 'EXCUSED')
+              .length;
+
+          final totalAttendance =
+              presentCount + absentCount + lateCount + excusedCount;
+
+          final attendanceRate = totalAttendance == 0
+              ? null
+              : ((presentCount + lateCount) / totalAttendance) * 100.0;
+
+          final numericGrades = grades
+              .map((e) => _gradeValue(e))
+              .whereType<double>()
+              .toList(growable: false);
+
+          final gradesAverage = numericGrades.isEmpty
+              ? null
+              : numericGrades.reduce((a, b) => a + b) / numericGrades.length;
+
+          final recentGrades = List<Map<String, dynamic>>.from(grades)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_assessmentDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_assessmentDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final recentAttendance = List<Map<String, dynamic>>.from(attendance)
+            ..sort((a, b) {
+              final ad =
+                  DateTime.tryParse(_attendanceDate(a)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              final bd =
+                  DateTime.tryParse(_attendanceDate(b)) ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+              return bd.compareTo(ad);
+            });
+
+          final subjectAverages = _subjectAverages(grades);
+          final strongest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value >= b.value ? a : b;
+                });
+          final weakest = subjectAverages.isEmpty
+              ? null
+              : subjectAverages.entries.reduce((a, b) {
+                  return a.value <= b.value ? a : b;
+                });
+
+          final consistency = _consistencyLabel(
+            attendanceRate: attendanceRate,
+            gradesAverage: gradesAverage,
+          );
+
+          final focusText = weakest == null
+              ? 'Once more grades come in, NOVA will highlight where to focus.'
+              : 'Focus next on ${weakest.key} — current average ${weakest.value.toStringAsFixed(1)}.';
+
+          final emptyAll = grades.isEmpty && attendance.isEmpty;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _InsightHeroCard(
+                attendanceRate: attendanceRate,
+                gradesAverage: gradesAverage,
+                consistency: consistency,
+                strongest: strongest == null
+                    ? '—'
+                    : '${strongest.key} · ${strongest.value.toStringAsFixed(1)}',
+                weakest: weakest == null
+                    ? '—'
+                    : '${weakest.key} · ${weakest.value.toStringAsFixed(1)}',
+              ),
+              const SizedBox(height: 16),
+              if (emptyAll)
+                const _StateCard(
+                  icon: Icons.auto_graph_rounded,
+                  title: 'No insights yet',
+                  subtitle:
+                      'Once grades and attendance start coming in, this screen will show your progress here.',
+                )
+              else ...[
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.10,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _MetricCard(
+                      icon: Icons.fact_check_rounded,
+                      label: 'Attendance',
+                      value: attendanceRate == null
+                          ? '—'
+                          : '${attendanceRate.toStringAsFixed(0)}%',
+                      subtitle: totalAttendance == 0
+                          ? 'No records yet'
+                          : '$totalAttendance tracked',
+                    ),
+                    _MetricCard(
+                      icon: Icons.school_rounded,
+                      label: 'Average grade',
+                      value: gradesAverage == null
+                          ? '—'
+                          : gradesAverage.toStringAsFixed(1),
+                      subtitle: grades.isEmpty
+                          ? 'No grades yet'
+                          : '${grades.length} grades',
+                    ),
+                    _MetricCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Present',
+                      value: '$presentCount',
+                      subtitle: lateCount > 0
+                          ? '$lateCount late'
+                          : 'On-time classes',
+                    ),
+                    _MetricCard(
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Absent',
+                      value: '$absentCount',
+                      subtitle: excusedCount > 0
+                          ? '$excusedCount excused'
+                          : 'Missed classes',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'AI takeaways',
+                  icon: Icons.auto_awesome_rounded,
+                  child: Column(
+                    children: [
+                      _InsightChip(label: 'Consistency', value: consistency),
+                      const SizedBox(height: 10),
+                      _InsightChip(
+                        label: 'Best area',
+                        value: strongest == null
+                            ? 'Not enough grade data yet'
+                            : '${strongest.key} is leading with ${strongest.value.toStringAsFixed(1)}',
+                      ),
+                      const SizedBox(height: 10),
+                      _InsightChip(label: 'Focus next', value: focusText),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent grades',
+                  icon: Icons.grade_rounded,
+                  child: recentGrades.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No grades yet',
+                          subtitle:
+                              'Grades will appear here once teachers publish them.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentGrades.take(6)) ...[
+                              _GradeRow(item: item),
+                              if (item != recentGrades.take(6).last)
+                                const Divider(height: 16),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 14),
+                _SectionCard(
+                  title: 'Recent attendance',
+                  icon: Icons.event_available_rounded,
+                  child: recentAttendance.isEmpty
+                      ? const _MiniEmpty(
+                          title: 'No attendance yet',
+                          subtitle:
+                              'Attendance records will appear here once marked.',
+                        )
+                      : Column(
+                          children: [
+                            for (final item in recentAttendance.take(8)) ...[
+                              _AttendanceRow(item: item),
+
+===== apps/classmate_mobile/lib/features/lifedoc/attendance_screen.dart =====
+import 'package:flutter/material.dart';
+
+class AttendanceScreen extends StatelessWidget {
+  const AttendanceScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Center(child: Text('Attendance'));
+}
+
+===== apps/classmate_mobile/lib/features/lifedoc/attendance_screen.dart.pre_auth_fix.1773137254.bak =====
+import 'package:flutter/material.dart';
+
+class AttendanceScreen extends StatelessWidget {
+  const AttendanceScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Center(child: Text('Attendance'));
+}
+
+===== apps/classmate_mobile/lib/features/lifedoc/grades_screen.dart =====
+import 'package:flutter/material.dart';
+
+class GradesScreen extends StatelessWidget {
+  const GradesScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Center(child: Text('Grades'));
+}
+
+===== apps/classmate_mobile/lib/features/lifedoc/grades_screen.dart.pre_auth_fix.1773137254.bak =====
+import 'package:flutter/material.dart';
+
+class GradesScreen extends StatelessWidget {
+  const GradesScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Center(child: Text('Grades'));
+}
+
+===== apps/classmate_mobile/lib/features/practice/data/nova_grade_repository.dart =====
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
+
+class NovaGradeResultDto {
+  final int score;
+  final List<String> feedback;
+  final List<Map<String, dynamic>> stepDetections;
+
+  const NovaGradeResultDto({
+    required this.score,
+    required this.feedback,
+    required this.stepDetections,
+  });
+
+  factory NovaGradeResultDto.fromJson(Map<String, dynamic> json) {
+    return NovaGradeResultDto(
+      score: (json['score'] as num?)?.toInt() ?? 0,
+      feedback: (json['feedback'] as List<dynamic>? ?? const [])
+          .map((e) => '$e')
+          .toList(growable: false),
+      stepDetections: (json['stepDetections'] as List<dynamic>? ?? const [])
+          .whereType<Map>()
+          .map((e) => e.map((k, v) => MapEntry('$k', v)))
+          .toList(growable: false),
+    );
+  }
+}
+
+class NovaGradeRepository {
+  static const _apiBase = String.fromEnvironment(
+    'CM_API_BASE_URL',
+    defaultValue: 'http://127.0.0.1:3001',
+  );
+
+  static const _devToken = String.fromEnvironment('CM_DEV_TOKEN');
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<NovaGradeResultDto?> gradeFromCamera({
+    List<String> steps = const [],
+  }) async {
+    final image = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
+    if (image == null) return null;
+
+    final bytes = await File(image.path).readAsBytes();
+    final boundary = '----classmate-${DateTime.now().millisecondsSinceEpoch}';
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 20);
+
+    try {
+      final uri = Uri.parse('$_apiBase/nova/grade');
+      final req = await client.postUrl(uri);
+
+      req.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'multipart/form-data; boundary=$boundary',
+      );
+      req.headers.set(HttpHeaders.acceptHeader, 'application/json');
+      if (_devToken.isNotEmpty) {
+        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_devToken');
+      }
+
+      void writeField(String name, String value) {
+        req.write('--$boundary\r\n');
+        req.write('Content-Disposition: form-data; name="$name"\r\n\r\n');
+        req.write(value);
+        req.write('\r\n');
+      }
+
+      writeField('steps', jsonEncode(steps));
+
+      req.write('--$boundary\r\n');
+      req.write(
+        'Content-Disposition: form-data; name="image"; filename="solution.jpg"\r\n',
+      );
+      req.write('Content-Type: image/jpeg\r\n\r\n');
+      req.add(bytes);
+      req.write('\r\n--$boundary--\r\n');
+
+      final res = await req.close();
+      final body = await utf8.decodeStream(res);
+
+      if (res.statusCode < 200 ||
+          res.statusCode >= 300 ||
+          body.trim().isEmpty) {
+        return null;
+      }
+
+      final decoded = jsonDecode(body);
+      if (decoded is! Map<String, dynamic>) return null;
+      return NovaGradeResultDto.fromJson(decoded);
+    } catch (_) {
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+}
+
+===== apps/classmate_mobile/lib/features/practice/data/practice_generator.dart.ai_upgrade.1773090561.bak =====
+import 'dart:math';
+
+import '../domain/practice_models.dart';
+
+class PracticeGenerator {
+  final Random _rng = Random();
+
+  static const Map<String, List<PracticeTopicNode>> topicTree =
+      <String, List<PracticeTopicNode>>{
+        'Physics': <PracticeTopicNode>[
+          PracticeTopicNode(
+            label: 'Mechanics',
+            children: <PracticeTopicNode>[
+              PracticeTopicNode(label: 'Kinematics'),
+              PracticeTopicNode(
+                label: 'Newton Laws',
+                children: <PracticeTopicNode>[
+                  PracticeTopicNode(label: 'Newton First Law'),
+                  PracticeTopicNode(label: 'Newton Second Law'),
+                  PracticeTopicNode(label: 'Newton Third Law'),
+                ],
+              ),
+              PracticeTopicNode(label: 'Energy'),
+              PracticeTopicNode(label: 'Momentum'),
+            ],
+          ),
+          PracticeTopicNode(label: 'Electricity'),
+          PracticeTopicNode(label: 'Waves'),
+        ],
+        'Computer Science': <PracticeTopicNode>[
+          PracticeTopicNode(
+            label: 'Algorithms',
+            children: <PracticeTopicNode>[
+              PracticeTopicNode(label: 'Big-O Notation'),
+              PracticeTopicNode(label: 'Sorting'),
+              PracticeTopicNode(label: 'Recursion'),
+            ],
+          ),
+          PracticeTopicNode(label: 'Data Structures'),
+          PracticeTopicNode(label: 'Networks'),
+        ],
+        'Math': <PracticeTopicNode>[
+          PracticeTopicNode(label: 'Algebra'),
+          PracticeTopicNode(label: 'Functions'),
+          PracticeTopicNode(label: 'Calculus'),
+          PracticeTopicNode(label: 'Probability'),
+        ],
+      };
+
+  Future<List<PracticeQuestion>> generate(PracticeFilter filter) async {
+    return List<PracticeQuestion>.generate(
+      filter.questionCount,
+      (index) => _buildQuestion(filter, index),
+      growable: false,
+    );
+  }
+
+  PracticeQuestion _buildQuestion(PracticeFilter filter, int index) {
+    final topic = filter.topicLabel;
+    if (filter.subject == 'Physics' && topic.contains('Newton Second Law')) {
+      return _physicsNewtonQuestion(filter, index);
+    }
+    if (filter.subject == 'Computer Science' && topic.contains('Big-O')) {
+      return _bigOQuestion(filter, index);
+    }
+    if (filter.subject == 'Math') {
+      return _mathQuestion(filter, index);
+    }
+    return _conceptQuestion(filter, index);
+  }
+
+  PracticeQuestion _physicsNewtonQuestion(PracticeFilter filter, int index) {
+    final mass = 1 + _rng.nextInt(8);
+    final accel = 2 + _rng.nextInt(8);
+    final force = mass * accel;
+    final options = <int>{
+      force,
+      force + mass,
+      force + accel,
+      max(1, force - accel),
+    }.toList()..shuffle(_rng);
+    final correctIndex = options.indexOf(force);
+
+    return PracticeQuestion(
+      id: 'physics-newton-$index-${DateTime.now().microsecondsSinceEpoch}',
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt:
+          'A $mass kg object accelerates at $accel m/s². What net force acts on it?',
+      options: options.map((e) => '$e N').toList(growable: false),
+      correctIndex: correctIndex,
+      explanation:
+          'Use Newton’s Second Law: F = m × a = $mass × $accel = $force N.',
+      recommendedTimeSeconds: _timeFor(
+        filter.difficulty,
+        filter.mode,
+        fallback: 15,
+      ),
+    );
+  }
+
+  PracticeQuestion _bigOQuestion(PracticeFilter filter, int index) {
+    const prompts = <Map<String, Object>>[
+      <String, Object>{
+        'prompt':
+            'What is the time complexity of binary search in a sorted array?',
+        'options': <String>['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'],
+        'correct': 1,
+        'explanation':
+            'Binary search halves the search space every step, so it runs in O(log n).',
+      },
+      <String, Object>{
+        'prompt':
+            'What is the time complexity of checking every pair in a list of n items?',
+        'options': <String>['O(log n)', 'O(n)', 'O(n²)', 'O(2^n)'],
+        'correct': 2,
+        'explanation': 'Two nested loops over n items usually produce O(n²).',
+      },
+      <String, Object>{
+        'prompt': 'What best describes Big-O notation?',
+        'options': <String>[
+          'Exact runtime in seconds',
+          'Upper-bound growth rate',
+          'Memory address count',
+          'Compiler optimization level',
+        ],
+        'correct': 1,
+        'explanation':
+            'Big-O describes how runtime or space grows as input size grows.',
+      },
+    ];
+
+    final item = prompts[index % prompts.length];
+    return PracticeQuestion(
+      id: 'cs-bigo-$index-${DateTime.now().microsecondsSinceEpoch}',
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt: item['prompt'] as String,
+      options: (item['options'] as List<String>).toList(growable: false),
+      correctIndex: item['correct'] as int,
+      explanation: item['explanation'] as String,
+      recommendedTimeSeconds: _timeFor(
+        filter.difficulty,
+        filter.mode,
+        fallback: 12,
+      ),
+    );
+  }
+
+  PracticeQuestion _mathQuestion(PracticeFilter filter, int index) {
+    final a = 2 + _rng.nextInt(10);
+    final b = 1 + _rng.nextInt(10);
+    final correct = a + b;
+    final options = <int>{
+      correct,
+      correct + 1,
+      correct + 2,
+      max(0, correct - 1),
+    }.toList()..shuffle(_rng);
+    final correctIndex = options.indexOf(correct);
+
+    return PracticeQuestion(
+      id: 'math-$index-${DateTime.now().microsecondsSinceEpoch}',
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt: 'What is $a + $b ?',
+      options: options.map((e) => '$e').toList(growable: false),
+      correctIndex: correctIndex,
+      explanation: 'Add the two numbers directly: $a + $b = $correct.',
+      recommendedTimeSeconds: _timeFor(
+        filter.difficulty,
+        filter.mode,
+        fallback: 8,
+      ),
+    );
+  }
+
+  PracticeQuestion _conceptQuestion(PracticeFilter filter, int index) {
+    const options = <String>[
+      'Concept recall',
+      'Analytical reasoning',
+      'Procedural fluency',
+      'All of the above',
+    ];
+
+    return PracticeQuestion(
+      id: 'concept-$index-${DateTime.now().microsecondsSinceEpoch}',
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt:
+          'In ${filter.topicLabel}, which practice style helps most when building mastery?',
+      options: options,
+      correctIndex: 3,
+      explanation:
+          'Strong learning mixes recall, reasoning, and repeated procedural practice.',
+      recommendedTimeSeconds: _timeFor(
+        filter.difficulty,
+        filter.mode,
+        fallback: 10,
+      ),
+    );
+  }
+
+  int _timeFor(
+    PracticeDifficulty difficulty,
+    PracticeMode mode, {
+    required int fallback,
+  }) {
+    if (mode == PracticeMode.speedRound) return 7;
+    if (mode == PracticeMode.flashcards) return 0;
+    switch (difficulty) {
+      case PracticeDifficulty.easy:
+        return max(6, fallback - 4);
+      case PracticeDifficulty.medium:
+        return fallback;
+      case PracticeDifficulty.hard:
+        return fallback + 7;
+      case PracticeDifficulty.olympiad:
+        return fallback + 15;
+      case PracticeDifficulty.adaptive:
+        return fallback;
+    }
+  }
+}
+
+===== apps/classmate_mobile/lib/features/practice/ui/practice_session_screen.dart.ai_upgrade.1773090561.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../providers/practice_providers.dart';
+
+class PracticeSessionScreen extends ConsumerStatefulWidget {
+  const PracticeSessionScreen({super.key});
+
+  @override
+  ConsumerState<PracticeSessionScreen> createState() =>
+      _PracticeSessionScreenState();
+}
+
+class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
+  int? _selectedIndex;
+  bool _showExplanation = false;
+
+  String _promptOf(dynamic q) {
+    final p = q?.prompt ?? q?.question ?? '';
+    return p.toString();
+  }
+
+  String _explanationOf(dynamic q) {
+    final e = q?.explanation ?? '';
+    if (e.toString().trim().isEmpty) {
+      return 'No explanation available yet.';
+    }
+    return e.toString();
+  }
+
+  List<String> _optionsOf(dynamic q) {
+    final raw = q?.options ?? q?.choices ?? const [];
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    return [];
+  }
+
+  Future<void> _askNova(BuildContext context, dynamic q) async {
+    final text =
+        '''
+Explain this question step by step.
+
+Question:
+${_promptOf(q)}
+
+Explanation:
+${_explanationOf(q)}
+''';
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Question copied — opening NOVA')),
+    );
+
+    context.go('/tutor');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(practiceSessionProvider);
+    final sessionCtl = ref.read(practiceSessionProvider.notifier);
+    final theme = Theme.of(context);
+
+    if (state.questions.isEmpty && !state.isComplete) {
+      return const SafeArea(child: Center(child: CircularProgressIndicator()));
+    }
+
+    if (state.isComplete) {
+      return SafeArea(
+        child: Center(
+          child: Text(
+            'Practice Complete\nXP: ${state.stats.xp}',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall,
+          ),
+        ),
+      );
+    }
+
+    final q = state.currentQuestion;
+    final options = _optionsOf(q);
+
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(_promptOf(q), style: theme.textTheme.headlineSmall),
+
+          const SizedBox(height: 20),
+
+          for (int i = 0; i < options.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() => _selectedIndex = i);
+                },
+                child: Text(options[i]),
+              ),
+            ),
+
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _showExplanation = !_showExplanation;
+                    });
+                  },
+                  child: Text(_showExplanation ? 'Hide explain' : 'Explain'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _selectedIndex == null
+                      ? null
+                      : () {
+                          sessionCtl.submit(_selectedIndex!);
+                          setState(() => _showExplanation = true);
+                        },
+                  child: const Text('Submit'),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          OutlinedButton.icon(
+            icon: const Icon(Icons.psychology),
+            label: const Text('Ask NOVA'),
+            onPressed: () => _askNova(context, q),
+          ),
+
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    sessionCtl.skip();
+                    setState(() {
+                      _selectedIndex = null;
+                      _showExplanation = false;
+                    });
+                  },
+                  child: const Text('Skip'),
+                ),
+              ),
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    sessionCtl.nextQuestion();
+                    setState(() {
+                      _selectedIndex = null;
+                      _showExplanation = false;
+                    });
+                  },
+                  child: const Text('Next'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/features/practice/ui/practice_setup_screen.dart.design-upgrade.1773176509.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../domain/practice_models.dart';
+import '../providers/practice_providers.dart';
+
+const Map<String, List<String>> _practiceTopicsBySubject = {
+  'Math': [
+    'Algebra',
+    'Linear equations',
+    'Quadratics',
+    'Functions',
+    'Geometry',
+    'Probability',
+  ],
+  'Physics': [
+    'Mechanics',
+    'Newton laws',
+    'Kinematics',
+    'Energy',
+    'Momentum',
+    'Electricity',
+  ],
+  'Computer Science': [
+    'Algorithms',
+    'Big O',
+    'Conditions',
+    'Loops',
+    'Functions',
+    'Data structures',
+  ],
+  'English': ['Grammar', 'Vocabulary', 'Reading', 'Comprehension', 'Tenses'],
+  'Arabic': ['Grammar', 'Vocabulary', 'Reading', 'Comprehension'],
+};
+
+String practiceModeLabel(PracticeMode mode) => switch (mode) {
+  PracticeMode.practice => 'Practice',
+  PracticeMode.flashcards => 'Flashcards',
+  PracticeMode.speedRound => 'Speed round',
+  PracticeMode.examPrep => 'Exam prep',
+  PracticeMode.conceptBuilder => 'Concept builder',
+  PracticeMode.adaptive => 'Adaptive',
+};
+
+String practiceModeDescription(PracticeMode mode) => switch (mode) {
+  PracticeMode.practice => 'Balanced daily practice with full feedback.',
+  PracticeMode.flashcards => 'Memory-first mode. Reveal, self-check, move on.',
+  PracticeMode.speedRound => 'Fast reps with quick pacing.',
+  PracticeMode.examPrep => 'More formal school-style solving.',
+  PracticeMode.conceptBuilder => 'Learn the rule first, then answer.',
+  PracticeMode.adaptive => 'Mixed challenge that shifts by difficulty.',
+};
+
+IconData practiceModeIcon(PracticeMode mode) => switch (mode) {
+  PracticeMode.practice => Icons.tune_rounded,
+  PracticeMode.flashcards => Icons.style_rounded,
+  PracticeMode.speedRound => Icons.flash_on_rounded,
+  PracticeMode.examPrep => Icons.assignment_rounded,
+  PracticeMode.conceptBuilder => Icons.school_rounded,
+  PracticeMode.adaptive => Icons.auto_awesome_rounded,
+};
+
+String practiceDifficultyLabel(PracticeDifficulty difficulty) =>
+    switch (difficulty) {
+      PracticeDifficulty.easy => 'Easy',
+      PracticeDifficulty.medium => 'Medium',
+      PracticeDifficulty.hard => 'Hard',
+      PracticeDifficulty.olympiad => 'Olympiad',
+      PracticeDifficulty.adaptive => 'Adaptive',
+    };
+
+String _timingLabel(PracticeFilter filter) {
+  if (filter.useAiTiming) return 'AI timing';
+  return '${filter.timePreferenceSeconds ?? 15}s';
+}
+
+class PracticeSetupScreen extends ConsumerStatefulWidget {
+  const PracticeSetupScreen({super.key});
+
+  @override
+  ConsumerState<PracticeSetupScreen> createState() =>
+      _PracticeSetupScreenState();
+}
+
+class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
+  List<String> _topicsFor(String subject) {
+    return _practiceTopicsBySubject[subject] ?? const ['General'];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final filter = ref.watch(practiceFilterProvider);
+    final filterCtl = ref.read(practiceFilterProvider.notifier);
+    final loading = ref.watch(practiceSessionLoadingProvider);
+
+    final subjectTopics = _topicsFor(filter.subject);
+    final selectedTopic = filter.topicPath.isEmpty
+        ? subjectTopics.first
+        : filter.topicPath.last;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Practice setup')),
+      body: SafeArea(
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+          children: [
+            _HeroCard(
+              title: practiceModeLabel(filter.mode),
+              subtitle: practiceModeDescription(filter.mode),
+              accent: cs.primaryContainer,
+              icon: practiceModeIcon(filter.mode),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Quick summary',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _MiniPill(label: filter.subject),
+                  _MiniPill(label: selectedTopic),
+                  _MiniPill(label: practiceDifficultyLabel(filter.difficulty)),
+                  _MiniPill(label: '${filter.questionCount} questions'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Mode',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PracticeMode.values.map((mode) {
+                  return ChoiceChip(
+                    label: Text(practiceModeLabel(mode)),
+                    selected: filter.mode == mode,
+                    onSelected: (_) {
+                      filterCtl.patch(mode: mode);
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Subject',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _practiceTopicsBySubject.keys.map((subject) {
+                  return ChoiceChip(
+                    label: Text(subject),
+                    selected: filter.subject == subject,
+                    onSelected: (_) {
+                      final nextTopics = _topicsFor(subject);
+                      filterCtl.patch(
+                        subject: subject,
+                        topicPath: [nextTopics.first],
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Topic',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: subjectTopics.map((topic) {
+                  return ChoiceChip(
+                    label: Text(topic),
+                    selected: selectedTopic == topic,
+                    onSelected: (_) {
+                      filterCtl.patch(topicPath: [topic]);
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Difficulty',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PracticeDifficulty.values.map((difficulty) {
+                  return ChoiceChip(
+                    label: Text(practiceDifficultyLabel(difficulty)),
+                    selected: filter.difficulty == difficulty,
+                    onSelected: (_) {
+                      filterCtl.patch(difficulty: difficulty);
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Questions',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: const [5, 10, 15, 20].map((count) {
+                  return ChoiceChip(
+                    label: Text('$count'),
+                    selected: filter.questionCount == count,
+                    onSelected: (_) {
+                      filterCtl.patch(questionCount: count);
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SectionCard(
+              title: 'Timing',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    value: filter.useAiTiming,
+                    title: const Text('Use AI timing'),
+                    subtitle: Text(_timingLabel(filter)),
+                    onChanged: (value) {
+                      filterCtl.patch(useAiTiming: value);
+                    },
+                  ),
+                  if (!filter.useAiTiming)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: const [10, 15, 20, 30, 45, 60].map((seconds) {
+                        return ChoiceChip(
+                          label: Text('${seconds}s'),
+                          selected: filter.timePreferenceSeconds == seconds,
+                          onSelected: null,
+                        );
+                      }).toList(),
+                    ),
+                  if (!filter.useAiTiming) const SizedBox(height: 8),
+                  if (!filter.useAiTiming)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: const [10, 15, 20, 30, 45, 60].map((seconds) {
+                        return ChoiceChip(
+                          label: Text('${seconds}s'),
+                          selected: filter.timePreferenceSeconds == seconds,
+                          onSelected: (_) {
+                            filterCtl.patch(
+                              useAiTiming: false,
+                              timePreferenceSeconds: seconds,
+                            );
+
+===== services/api/src/nova/grade.service.ts =====
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class GradeService {
+  async gradeSolution(image: Buffer) {
+    return {
+      score: 8,
+      feedback: [
+        'Step 1 correct',
+        'Algebra mistake in step 2',
+        'Final answer incorrect',
+      ],
+      stepDetections: [
+        {
+          step: 1,
+          verdict: 'correct',
+          note: 'Good setup.',
+        },
+        {
+          step: 2,
+          verdict: 'mistake',
+          note: 'Sign error / algebra slip detected.',
+        },
+        {
+          step: 3,
+          verdict: 'follow-through',
+          note: 'Final answer inherits the earlier mistake.',
+        },
+      ],
+    };
+  }
+}
+
+===== services/api/src/parent/parent.attendance.controller.ts =====
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ParentService } from './parent.service';
+
+@UseGuards(JwtAuthGuard)
+@Roles(Role.PARENT, Role.ADMIN)
+@Controller('parent')
+export class ParentAttendanceController {
+  constructor(private readonly parent: ParentService) {}
+
+  @Get('attendance')
+  attendance(
+    @Req() req: any,
+    @Query('childId') childId: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.parent.getChildAttendance(req.user, { childId, from, to });
+  }
+}
+
+===== services/api/src/student/student.attendance.controller.ts =====
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { StudentService } from './student.service';
+
+@UseGuards(JwtAuthGuard)
+@Roles(Role.STUDENT, Role.ADMIN)
+@Controller('student')
+export class StudentAttendanceController {
+  constructor(private readonly student: StudentService) {}
+
+  @Get('attendance')
+  attendance(
+    @Req() req: any,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.student.getMyAttendance(req.user, { from, to });
+  }
+}
+
+===== services/api/src/test/grades.maxgrade.e2e.spec.ts =====
+import request from 'supertest';
+import { createTestApp } from './helpers/app';
+import { loginAsTeacher } from './helpers/auth';
+import { seedTeacherWithCourse } from './helpers/seed';
+
+
+describe('grades: maxGrade enforcement', () => {
+  let app: any;
+  let http: any;
+
+  beforeAll(async () => {
+    const t = await createTestApp();
+    app = t.app;
+    http = t.http;
+  });
+
+  afterAll(async () => {
+    await app?.close?.();
+  });
+
+it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
+    const token = await loginAsTeacher(http);
+
+    const seeded = await seedTeacherWithCourse('teacher1@classmate.app');
+
+    const courseId = seeded.courseId;
+    const cohortId = seeded.cohortId;
+
+    // create assessment with maxGrade 120
+    const created = await http
+      .post('/api/teacher/grades/assessment')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        courseId: courseId,
+        title: `E2E MaxGrade ${Date.now()}`,
+        maxGrade: 120,
+      })
+      .expect(201);
+
+    expect(created.body.ok).toBe(true);
+    const assessmentId = created.body.assessment?.id;
+    expect(assessmentId).toBeTruthy();
+
+    // load cohort students
+    const studentsRes = await http
+      .get(`/api/teacher/cohort/${cohortId}/students`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(studentsRes.body.ok).toBe(true);
+    expect(Array.isArray(studentsRes.body.students)).toBe(true);
+    expect(studentsRes.body.students.length).toBeGreaterThan(0);
+
+    const studentId = studentsRes.body.students[0].studentId;
+    expect(studentId).toBeTruthy();
+
+    // PASS: 120
+    await http
+      .post('/api/teacher/grades/bulk')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ assessmentId, grades: [{ studentId, grade: 120 }] })
+      .expect(201);
+
+    // FAIL: 121
+    const bad = await http
+      .post('/api/teacher/grades/bulk')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ assessmentId, grades: [{ studentId, grade: 121 }] })
+      .expect(400);
+
+    expect(String(bad.body?.message ?? '')).toMatch(/exceeds maxGrade/i);
+  });
+});
+
+===== services/api/src/test/parent.link.role-upgrade.e2e.spec.ts =====
+import request from 'supertest';
+import { createTestApp } from './helpers/app';
+
+describe('parent link upgrades role (e2e)', () => {
+  it('parent gets PARENT role after linking', async () => {
+    const t = await createTestApp();
+    const http = request(t.app.getHttpServer());
+
+        const seed = await http.post('/api/test/seed/admin-web').send({});
+    expect([200,201]).toContain(seed.status);
+
+    const cohortId = seed.body.cohortId;
+    expect(cohortId).toBeTruthy();
+
+    const teacherEmail =
+      seed.body?.teacherEmail ??
+      seed.body?.teacher?.email ??
+      seed.body?.teacherUser?.email ??
+      seed.body?.teacher_account?.email ??
+      seed.body?.emailTeacher ??
+      '';
+
+    const teacherPassword =
+      seed.body?.teacherPassword ??
+      seed.body?.teacher?.password ??
+      seed.body?.teacherUser?.password ??
+      seed.body?.teacher_account?.password ??
+      seed.body?.passwordTeacher ??
+      seed.body?.password ??
+      'Password123!';
+
+    expect(teacherEmail).toBeTruthy();
+    expect(teacherPassword).toBeTruthy();
+
+    const tlogin = await http.post('/api/auth/login').send({
+      email: teacherEmail,
+      password: teacherPassword,
+    });
+
+    expect([200, 201]).toContain(tlogin.status);
+
+        const tkn = tlogin.body?.accessToken ?? tlogin.body?.token;
+    expect(tkn).toBeTruthy();
+
+    const adminEmail =
+      seed.body?.adminEmail ??
+      seed.body?.admin?.email ??
+      seed.body?.adminUser?.email ??
+      seed.body?.admin_account?.email ??
+      seed.body?.emailAdmin ??
+      seed.body?.email ??
+      teacherEmail;
+
+    const adminPassword =
+      seed.body?.adminPassword ??
+      seed.body?.admin?.password ??
+      seed.body?.adminUser?.password ??
+      seed.body?.admin_account?.password ??
+      seed.body?.passwordAdmin ??
+      seed.body?.password ??
+      teacherPassword;
+
+    let adminToken = tkn;
+    if (adminEmail && adminPassword) {
+      const alogin = await http.post('/api/auth/login').send({ email: adminEmail, password: adminPassword });
+      expect([200, 201]).toContain(alogin.status);
+      adminToken = alogin.body?.accessToken ?? alogin.body?.token ?? adminToken;
+    }
+    expect(adminToken).toBeTruthy();
+  
+
+
+
+    // Generate join-code
+    const jc = await http
+          .post('/api/teacher/cohorts/join-code')
+          .set('Authorization', `Bearer ${tkn}`)
+          .send({ cohortId, expiresInHours: 24, length: 6 });
+    
+        expect([200, 201]).toContain(jc.status);
+const joinCode = String(jc.body?.code ?? '').trim();
+        expect(joinCode).toBeTruthy();
+const jc2 = await http.post('/api/admin/cohorts/join-code')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ cohortId, expiresInHours: 24, length: 6 });
+
+    const joinCode2 = String(jc2.body.code).trim();
+
+    expect(joinCode2).toBeTruthy();
+    // Register student
+    const studentEmail = `student+${Date.now()}@classmate.app`;
+
+    const studentEmail2 = `student+${Date.now()}@classmate.app`;
+
+    await http.post('/api/auth/register').send({
+      name: 'Student',
+      email: studentEmail,
+      password: 'Password123!',
+    });
+
+    const slogin = await http.post('/api/auth/login').send({
+      email: studentEmail2,
+      password: 'Password123!',
+    });
+
+    const studentToken = slogin.body?.accessToken ?? slogin.body?.token;
+
+    // Onboard
+    const onboard = await http.post('/api/student/onboard').set('Authorization', `Bearer ${studentToken}`)
+      .send({ cohortId, joinCode, englishLevel: 3, mathLevel: 3 });
+    expect(onboard.status).toBe(201);
+
+    // Generate parent link code
+    const plc = await http.post('/api/student/parent-link-code')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({});
+
+    const parentCode = plc.body.code;
+
+    // Register parent
+    const parentEmail = `parent+${Date.now()}@classmate.app`;
+
+    await http.post('/api/auth/register').send({
+      name: 'Parent',
+      email: parentEmail,
+      password: 'Password123!',
+    });
+
+    const plogin = await http.post('/api/auth/login').send({
+      email: parentEmail,
+      password: 'Password123!',
+    });
+
+    const parentToken = plogin.body?.accessToken ?? plogin.body?.token;
+
+    // Link parent
+    const link = await http.post('/api/parent/link')
+      .set('Authorization', `Bearer ${parentToken}`)
+      .send({ code: parentCode });
+
+    expect([200,201]).toContain(link.status);
+
+    const relog = await http.post('/api/auth/login').send({
+      email: parentEmail,
+      password: 'Password123!',
+    });
+
+    const relogToken = relog.body?.accessToken ?? relog.body?.token ?? null;
+    expect(relogToken).toBeTruthy();
+
+    const me = await http.get('/api/auth/me').set('Authorization', `Bearer ${relogToken}`);
+    expect([200, 201]).toContain(me.status);
+
+    const roles = (me.body?.user?.roles ?? me.body?.roles ?? relog.body?.user?.roles ?? relog.body?.roles ?? []) as any[];
+    const role =
+      (me.body?.user?.role ?? me.body?.role ?? relog.body?.user?.role ?? relog.body?.role ?? me.body?.user?.type ?? me.body?.type ?? null) as any;
+
+    const norm = (x: any) => String(x ?? '').toUpperCase().trim();
+    const roleSet = new Set<string>([...roles.map(norm), norm(role)].filter(Boolean));
+
+    expect(Array.from(roleSet)).toContain('PARENT');
+
+    await t.close();
+  });
+});

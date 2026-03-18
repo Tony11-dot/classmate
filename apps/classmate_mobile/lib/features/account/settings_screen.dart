@@ -96,6 +96,24 @@ class SettingsScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
         _Section(
+          title: 'Profile privacy',
+          child: Column(
+            children: const [
+              _StaticRow(title: 'School visibility', subtitle: 'Public'),
+              _Divider(),
+              _StaticRow(
+                title: 'Grade / majors visibility',
+                subtitle: 'Public',
+              ),
+              _Divider(),
+              _StaticRow(title: 'Bio visibility', subtitle: 'Public'),
+              _Divider(),
+              _StaticRow(title: 'Status visibility', subtitle: 'Public'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        _Section(
           title: 'Account',
           child: Column(
             children: [
@@ -143,6 +161,7 @@ class _Section extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   const _Divider();
+
   @override
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.symmetric(vertical: 6),
@@ -170,6 +189,22 @@ class _Row extends StatelessWidget {
       subtitle: Text(subtitle),
       trailing: trailing,
       onTap: onTap,
+    );
+  }
+}
+
+class _StaticRow extends StatelessWidget {
+  const _StaticRow({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.lock_outline_rounded),
     );
   }
 }

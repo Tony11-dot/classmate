@@ -1,0 +1,4898 @@
+
+== MOBILE ROUTER/SHELL/THEME ==
+
+===== apps/classmate_mobile/lib/app/app_shell.dart =====
+import 'package:flutter/material.dart';
+import '../ui/core/app_drawer.dart';
+import '../ui/core/app_top_bar.dart';
+
+class AppShell extends StatelessWidget {
+  final Widget child;
+  final String title;
+
+  const AppShell({super.key, required this.child, this.title = "ClassMate"});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: const AppDrawer(),
+      appBar: AppTopBar(title: title),
+      body: child,
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/app_shell.dart.bak.1772970709 =====
+import 'package:flutter/material.dart';
+import '../ui/core/app_drawer.dart';
+import '../ui/core/app_top_bar.dart';
+
+class AppShell extends StatelessWidget {
+  final Widget child;
+  final String title;
+
+  const AppShell({super.key, required this.child, this.title = "ClassMate"});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: const AppDrawer(),
+      appBar: AppTopBar(title: title),
+      body: child,
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/app_shell.dart.rescue.1772971143.bak =====
+
+bool _hideBottomNavForPath(String location) {
+  return location.contains('/tutor?') ||
+      location.contains('/tutor/') ||
+      location.contains('/classrooms/') ||
+      location.contains('/chat') ||
+      location.contains('/session');
+}
+
+import 'package:flutter/material.dart';
+import '../ui/core/app_drawer.dart';
+import '../ui/core/app_top_bar.dart';
+
+class AppShell extends StatelessWidget {
+  final Widget child;
+  final String title;
+
+  const AppShell({super.key, required this.child, this.title = "ClassMate"});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: const AppDrawer(),
+      appBar: AppTopBar(title: title),
+      body: child,
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/router.dart =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/saved_questions_screen.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/solutions/solutions_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      if (!session.ready) return null;
+
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        return loc.replaceFirst('/student', '');
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+
+      // fullscreen focus route
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+
+      // solutions filter flow
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      // shell routes with top + bottom bars
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/saved-questions',
+            builder: (context, state) => const SavedQuestionsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.bak.1772970709 =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/schedule/schedule_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.fix.1773141985.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/saved_questions_screen.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/solutions/solutions_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      if (!session.ready) return null;
+
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        return loc.replaceFirst('/student', '');
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+
+      // fullscreen focus route
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+
+      // solutions filter flow
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      // shell routes with top + bottom bars
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/saved-questions',
+            builder: (context, state) => const SavedQuestionsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.fix_schedule_import.1773060134.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/schedule/schedule_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.pass26.1773093309.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/practice',
+        builder: (context, state) => const PracticeSetupScreen(),
+        routes: [
+          GoRoute(
+            path: 'session',
+            builder: (context, state) => const PracticeSessionScreen(),
+          ),
+        ],
+      ),
+
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/solutions/subjects',
+            builder: (context, state) => const SolutionsSubjectScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/books',
+            builder: (context, state) => const SolutionsBooksScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/pages',
+            builder: (context, state) => const SolutionsPagesScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/questions',
+            builder: (context, state) => const SolutionsQuestionsScreen(),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: '/solutions/subjects',
+                builder: (context, state) => const SolutionsSubjectScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/books',
+                builder: (context, state) => const SolutionsBooksScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/pages',
+                builder: (context, state) => const SolutionsPagesScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/questions',
+                builder: (context, state) => const SolutionsQuestionsScreen(),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.pass31.1773094755.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/practice',
+        builder: (context, state) => const PracticeSetupScreen(),
+        routes: [
+          GoRoute(
+            path: 'session',
+            builder: (context, state) => const PracticeSessionScreen(),
+          ),
+        ],
+      ),
+
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          GoRoute(
+            path: '/practice/session',
+            builder: (context, state) => const PracticeSessionScreen(),
+          ),
+
+          GoRoute(
+            path: '/solutions/subjects',
+            builder: (context, state) => const SolutionsSubjectScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/books',
+            builder: (context, state) => const SolutionsBooksScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/pages',
+            builder: (context, state) => const SolutionsPagesScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/questions',
+            builder: (context, state) => const SolutionsQuestionsScreen(),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: '/solutions/subjects',
+                builder: (context, state) => const SolutionsSubjectScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/books',
+                builder: (context, state) => const SolutionsBooksScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/pages',
+                builder: (context, state) => const SolutionsPagesScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/questions',
+                builder: (context, state) => const SolutionsQuestionsScreen(),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.pass33.1773095359.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+
+      GoRoute(
+        path: '/practice',
+        builder: (context, state) => const PracticeSetupScreen(),
+        routes: [
+          GoRoute(
+            path: 'session',
+            builder: (context, state) => const PracticeSessionScreen(),
+          ),
+        ],
+      ),
+
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/solutions/subjects',
+            builder: (context, state) => const SolutionsSubjectScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/books',
+            builder: (context, state) => const SolutionsBooksScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/pages',
+            builder: (context, state) => const SolutionsPagesScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/questions',
+            builder: (context, state) => const SolutionsQuestionsScreen(),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: '/solutions/subjects',
+                builder: (context, state) => const SolutionsSubjectScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/books',
+                builder: (context, state) => const SolutionsBooksScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/pages',
+                builder: (context, state) => const SolutionsPagesScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/questions',
+                builder: (context, state) => const SolutionsQuestionsScreen(),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.pass34.1773095420.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/subjects',
+            builder: (context, state) => const SolutionsSubjectScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/books',
+            builder: (context, state) => const SolutionsBooksScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/pages',
+            builder: (context, state) => const SolutionsPagesScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/questions',
+            builder: (context, state) => const SolutionsQuestionsScreen(),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: '/solutions/subjects',
+                builder: (context, state) => const SolutionsSubjectScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/books',
+                builder: (context, state) => const SolutionsBooksScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/pages',
+                builder: (context, state) => const SolutionsPagesScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/questions',
+                builder: (context, state) => const SolutionsQuestionsScreen(),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.pass35_full_rewrite.1773095689.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          ),
+          ),
+          ),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              ),
+              ),
+              ),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.saved.1773141668.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/practice/ui/practice_session_screen.dart';
+import '../features/practice/ui/practice_setup_screen.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/solutions/solutions_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      if (!session.ready) return null;
+
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        return loc.replaceFirst('/student', '');
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+
+      // fullscreen focus route
+      GoRoute(
+        path: '/practice/session',
+        builder: (context, state) => const PracticeSessionScreen(),
+      ),
+
+      // solutions filter flow
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      // shell routes with top + bottom bars
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/practice',
+            builder: (context, state) => const PracticeSetupScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.schedule_alias_fix.1773060300.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/schedule/schedule_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.schedule_hardfix.1773060449.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.solutions_routes.1773062731.bak =====
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/router.dart.solutions_routes_fix.1773065947.bak =====
+import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/solutions/ui/filter/solutions_books_screen.dart';
+import '../features/solutions/ui/filter/solutions_pages_screen.dart';
+import '../features/solutions/ui/filter/solutions_questions_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/auth/auth_controller.dart';
+import '../features/account/login_screen.dart';
+import '../features/account/profile_screen.dart';
+import '../features/account/settings_screen.dart';
+import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classrooms/ui/classroom_detail_screen.dart';
+import '../features/insights/insights_screen.dart';
+import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/assignments_screen.dart';
+import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/grades_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
+import '../features/solutions/solutions_screen.dart';
+import '../features/tutor/tutor_screen.dart';
+import 'shell/app_shell.dart';
+import '../features/schedule/schedule_screen.dart' as schedule_ui;
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      // Wait for SharedPreferences token load before redirecting
+      if (!session.ready) return null;
+      // Legacy deep links (old scheme) -> new routes
+      final loc = state.matchedLocation;
+      if (loc.startsWith('/student/')) {
+        if (loc == '/student/schedule') return '/schedule';
+        if (loc == '/student/classrooms') return '/classrooms';
+        if (loc == '/student/tutor') return '/tutor';
+        if (loc == '/student/insights') return '/insights';
+        if (loc == '/student/solutions') return '/solutions';
+        // fallback: drop the /student prefix if it matches a known route
+        final candidate = loc.replaceFirst('/student', '');
+        return candidate;
+      }
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/schedule';
+      return null;
+    },
+    initialLocation: '/schedule',
+    routes: [
+      GoRoute(
+        path: '/solutions/subjects',
+        builder: (context, state) => const SolutionsSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/books',
+        builder: (context, state) => const SolutionsBooksScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/pages',
+        builder: (context, state) => const SolutionsPagesScreen(),
+      ),
+      GoRoute(
+        path: '/solutions/questions',
+        builder: (context, state) => const SolutionsQuestionsScreen(),
+      ),
+
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/solutions/subjects',
+            builder: (context, state) => const SolutionsSubjectScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/books',
+            builder: (context, state) => const SolutionsBooksScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/pages',
+            builder: (context, state) => const SolutionsPagesScreen(),
+          ),
+          GoRoute(
+            path: '/solutions/questions',
+            builder: (context, state) => const SolutionsQuestionsScreen(),
+          ),
+
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/classrooms',
+            builder: (context, state) => const ClassroomsHomeScreen(),
+            routes: [
+              GoRoute(
+                path: '/solutions/subjects',
+                builder: (context, state) => const SolutionsSubjectScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/books',
+                builder: (context, state) => const SolutionsBooksScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/pages',
+                builder: (context, state) => const SolutionsPagesScreen(),
+              ),
+              GoRoute(
+                path: '/solutions/questions',
+                builder: (context, state) => const SolutionsQuestionsScreen(),
+              ),
+
+              GoRoute(
+                path: ':id',
+                builder: (ctx, st) =>
+                    ClassroomDetailScreen(courseId: st.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/solutions',
+            builder: (context, state) => const SolutionsScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            builder: (context, state) => const InsightsScreen(),
+          ),
+          GoRoute(
+            path: '/tutor',
+            builder: (context, state) => TutorScreen(
+              initialPrompt: state.uri.queryParameters['prompt'],
+              initialSubject: state.uri.queryParameters['subject'],
+              initialTitle: state.uri.queryParameters['title'],
+            ),
+          ),
+          GoRoute(
+            path: '/attendance',
+            builder: (context, state) => const AttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/announcements',
+            builder: (context, state) => const AnnouncementsScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/nova')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classes';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/nova')) return 'NOVA';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) return;
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classes',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.bak.1772970709 =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/solutions',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: NavigationBar(
+        animationDuration: const Duration(milliseconds: 90),
+        selectedIndex: idx,
+        onDestinationSelected: (i) {
+          final next = _locFor(i);
+          if (next == loc) {
+            return;
+          }
+          context.go(next);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.event_note_outlined),
+            selectedIcon: Icon(Icons.event_note),
+            label: 'Schedule',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
+            label: 'Classrooms',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.smart_display_outlined),
+            selectedIcon: Icon(Icons.smart_display),
+            label: 'Solutions',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights),
+            label: 'Insights',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.psychology_outlined),
+            selectedIcon: Icon(Icons.psychology),
+            label: 'NOVA',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Center(
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.exact.1772978391.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/solutions',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.contains('/chat')) return true;
+
+    return loc.startsWith('/classrooms/') || loc.startsWith('/classrooms?');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Solutions',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.final-walkthrough.1772976216.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/solutions',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.contains('/chat')) return true;
+
+    return loc.startsWith('/classrooms/') || loc.startsWith('/classrooms?');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Solutions',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Center(
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.fix_nav_auth.1773137492.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.pass26.1773093309.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.pass31.1773094755.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.pass_fix_nav.1773137376.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.pre_auth_fix.1773137254.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/tutor')) return 2;
+    if (loc.startsWith('/practice')) return 4;
+    if (loc.startsWith('/solutions')) return 4;
+    if (loc.startsWith('/insights')) return 3;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/tutor',
+    3 => '/insights',
+    4 => '/practice',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.real-ui-pass.1772977295.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/solutions',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.contains('/chat')) return true;
+
+    return loc.startsWith('/classrooms/') || loc.startsWith('/classrooms?');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Solutions',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Center(
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.rescue.1772971143.bak =====
+
+bool _hideBottomNavForPath(String location) {
+  return location.contains('/tutor?') ||
+      location.contains('/tutor/') ||
+      location.contains('/classrooms/') ||
+      location.contains('/chat') ||
+      location.contains('/session');
+}
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/solutions',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: const MainDrawer(),
+      appBar: _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav ? null : NavigationBar(
+        animationDuration: const Duration(milliseconds: 90),
+        selectedIndex: idx,
+        onDestinationSelected: (i) {
+          final next = _locFor(i);
+          if (next == loc) {
+            return;
+          }
+          context.go(next);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.event_note_outlined),
+            selectedIcon: Icon(Icons.event_note),
+            label: 'Schedule',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
+            label: 'Classrooms',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.smart_display_outlined),
+            selectedIcon: Icon(Icons.smart_display),
+            label: 'Solutions',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights),
+            label: 'Insights',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.psychology_outlined),
+            selectedIcon: Icon(Icons.psychology),
+            label: 'NOVA',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Center(
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/app/shell/app_shell.dart.swap_practice_nova.1773136746.bak =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../ui/nav/main_drawer.dart';
+
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  int _indexFor(String loc) {
+    if (loc.startsWith('/classrooms')) return 1;
+    if (loc.startsWith('/practice')) return 2;
+    if (loc.startsWith('/solutions')) return 2;
+    if (loc.startsWith('/insights')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
+  }
+
+  String _locFor(int index) => switch (index) {
+    0 => '/schedule',
+    1 => '/classrooms',
+    2 => '/practice',
+    3 => '/insights',
+    4 => '/tutor',
+    _ => '/schedule',
+  };
+
+  String _pageTitle(String loc) {
+    if (loc.startsWith('/classrooms')) return 'Classrooms';
+    if (loc.startsWith('/practice')) return 'Practice';
+    if (loc.startsWith('/solutions')) return 'Solutions';
+    if (loc.startsWith('/insights')) return 'Insights';
+    if (loc.startsWith('/tutor')) return 'NOVA';
+
+    if (loc.startsWith('/attendance')) return 'Attendance';
+    if (loc.startsWith('/grades')) return 'Grades';
+    if (loc.startsWith('/assignments')) return 'Assignments';
+    if (loc.startsWith('/announcements')) return 'Announcements';
+    if (loc.startsWith('/notifications')) return 'Notifications';
+
+    if (loc.startsWith('/profile')) return 'Profile';
+    if (loc.startsWith('/settings')) return 'Settings';
+
+    return 'Schedule';
+  }
+
+  bool _hideBottomNav(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  bool _hideTopBar(String loc) {
+    if (loc.startsWith('/practice/session')) return true;
+    if (loc.startsWith('/practice')) return false;
+    if (loc.startsWith('/classrooms/')) return true;
+    if (loc.startsWith('/tutor?')) return true;
+    if (loc.startsWith('/tutor/')) return true;
+    if (loc.contains('/chat')) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = GoRouterState.of(context).uri.toString();
+    final idx = _indexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc);
+    final hideTopBar = _hideTopBar(loc);
+
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
+      drawer: hideTopBar ? null : const MainDrawer(),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      body: child,
+      bottomNavigationBar: hideBottomNav
+          ? null
+          : NavigationBar(
+              animationDuration: const Duration(milliseconds: 90),
+              selectedIndex: idx,
+              onDestinationSelected: (i) {
+                final next = _locFor(i);
+                if (next == loc) {
+                  return;
+                }
+                context.go(next);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.event_note_outlined),
+                  selectedIcon: Icon(Icons.event_note),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Classrooms',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.smart_display_outlined),
+                  selectedIcon: Icon(Icons.smart_display),
+                  label: 'Practice',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insights',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.psychology_outlined),
+                  selectedIcon: Icon(Icons.psychology),
+                  label: 'NOVA',
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar({required this.title});
+  final String title;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      centerTitle: true,
+      title: const Text(
+        'ClassMate',
+        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/core/theme/theme_controller.dart =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
+  ThemeController.new,
+);
+
+class ThemeState {
+  const ThemeState({
+    required this.mode,
+    required this.accent,
+    required this.radius,
+    required this.density,
+    required this.textScale,
+    required this.reduceMotion,
+  });
+
+  final ThemeMode mode;
+  final Color accent;
+  final double radius;
+  final double density;
+  final double textScale;
+  final bool reduceMotion;
+
+  ThemeState copyWith({
+    ThemeMode? mode,
+    Color? accent,
+    double? radius,
+    double? density,
+    double? textScale,
+    bool? reduceMotion,
+  }) {
+    return ThemeState(
+      mode: mode ?? this.mode,
+      accent: accent ?? this.accent,
+      radius: radius ?? this.radius,
+      density: density ?? this.density,
+      textScale: textScale ?? this.textScale,
+      reduceMotion: reduceMotion ?? this.reduceMotion,
+    );
+  }
+}
+
+class ThemeController extends Notifier<ThemeState> {
+  static const _kMode = 'ui_mode';
+  static const _kAccent = 'ui_accent';
+  static const _kRadius = 'ui_radius';
+  static const _kDensity = 'ui_density';
+  static const _kTextScale = 'ui_text_scale';
+  static const _kReduceMotion = 'ui_reduce_motion';
+
+  @override
+  ThemeState build() {
+    _load();
+    return const ThemeState(
+      mode: ThemeMode.system,
+      accent: Color(0xFF4F46E5),
+      radius: 18.0,
+      density: 0.0,
+      textScale: 1.0,
+      reduceMotion: false,
+    );
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final modeRaw = prefs.getString(_kMode) ?? 'system';
+    final mode = switch (modeRaw) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+
+    final accent = Color(
+      prefs.getInt(_kAccent) ?? const Color(0xFF4F46E5).toARGB32(),
+    );
+
+    final radius = (prefs.getDouble(_kRadius) ?? 18.0)
+        .clamp(8.0, 28.0)
+        .toDouble();
+    final density = (prefs.getDouble(_kDensity) ?? 0.0)
+        .clamp(-1.0, 1.0)
+        .toDouble();
+    final textScale = (prefs.getDouble(_kTextScale) ?? 1.0)
+        .clamp(0.9, 1.3)
+        .toDouble();
+    final reduceMotion = prefs.getBool(_kReduceMotion) ?? false;
+
+    state = state.copyWith(
+      mode: mode,
+      accent: accent,
+      radius: radius,
+      density: density,
+      textScale: textScale,
+      reduceMotion: reduceMotion,
+    );
+  }
+
+  Future<void> setMode(ThemeMode mode) async {
+    state = state.copyWith(mode: mode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kMode, switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      _ => 'system',
+    });
+  }
+
+  Future<void> setAccent(Color c) async {
+    state = state.copyWith(accent: c);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kAccent, c.toARGB32());
+  }
+
+  Future<void> setRadius(double r) async {
+    final v = r.clamp(8.0, 28.0).toDouble();
+    state = state.copyWith(radius: v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_kRadius, v);
+  }
+
+  Future<void> setDensity(double d) async {
+    final v = d.clamp(-1.0, 1.0).toDouble();
+    state = state.copyWith(density: v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_kDensity, v);
+  }
+
+  Future<void> setTextScale(double s) async {
+    final v = s.clamp(0.9, 1.3).toDouble();
+    state = state.copyWith(textScale: v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_kTextScale, v);
+  }
+
+  Future<void> setReduceMotion(bool v) async {
+    state = state.copyWith(reduceMotion: v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kReduceMotion, v);
+  }
+}
+
+ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
+  final scheme = ColorScheme.fromSeed(
+    seedColor: s.accent,
+    brightness: brightness,
+  );
+
+  final base = ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    colorScheme: scheme,
+    visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
+  );
+
+  final on = (brightness == Brightness.dark) ? Colors.white : Colors.black;
+
+  final fixedTextTheme = base.textTheme.apply(
+    bodyColor: on,
+    displayColor: on,
+    decorationColor: on,
+  );
+
+  final fixedPrimaryTextTheme = base.primaryTextTheme.apply(
+    bodyColor: on,
+    displayColor: on,
+    decorationColor: on,
+  );
+
+  return base.copyWith(
+    textTheme: fixedTextTheme,
+    primaryTextTheme: fixedPrimaryTextTheme,
+    scaffoldBackgroundColor: scheme.surface,
+    appBarTheme: AppBarTheme(
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: scheme.surface,
+      foregroundColor: scheme.onSurface,
+      surfaceTintColor: Colors.transparent,
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(s.radius),
+      ),
+    ),
+    listTileTheme: ListTileThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(s.radius),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      textColor: on,
+      iconColor: on,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(s.radius),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(s.radius),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      ),
+    ),
+  );
+}
+
+===== apps/classmate_mobile/lib/features/practice/theme/mode_theme.dart =====
+import 'package:flutter/material.dart';
+import '../domain/practice_models.dart';
+
+Color modeColor(PracticeMode mode, ColorScheme cs) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return cs.primary;
+    case PracticeMode.flashcards:
+      return Colors.purple;
+    case PracticeMode.speedRound:
+      return Colors.orange;
+    case PracticeMode.examPrep:
+      return Colors.redAccent;
+    case PracticeMode.conceptBuilder:
+      return Colors.green;
+    case PracticeMode.adaptive:
+      return Colors.deepPurple;
+    case PracticeMode.bagrut:
+      return const Color(0xFF2962FF);
+  }
+}
+
+Color modeSurface(PracticeMode mode, ColorScheme cs) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return cs.primaryContainer.withValues(alpha: 0.35);
+    case PracticeMode.flashcards:
+      return Colors.purple.withValues(alpha: 0.14);
+    case PracticeMode.speedRound:
+      return Colors.orange.withValues(alpha: 0.14);
+    case PracticeMode.examPrep:
+      return Colors.redAccent.withValues(alpha: 0.12);
+    case PracticeMode.conceptBuilder:
+      return Colors.green.withValues(alpha: 0.12);
+    case PracticeMode.adaptive:
+      return Colors.deepPurple.withValues(alpha: 0.14);
+    case PracticeMode.bagrut:
+      return const Color(0xFF2962FF).withValues(alpha: 0.16);
+  }
+}
+
+String modeLabel(PracticeMode mode) {
+  switch (mode) {
+    case PracticeMode.practice:
+      return 'Practice';
+    case PracticeMode.flashcards:
+      return 'Flashcards';
+    case PracticeMode.speedRound:
+      return 'Speed round';
+    case PracticeMode.examPrep:
+      return 'Exam prep';
+    case PracticeMode.conceptBuilder:
+      return 'Concept builder';
+    case PracticeMode.adaptive:
+      return 'Adaptive';
+    case PracticeMode.bagrut:
+      return 'Bagrut';
+  }
+}
+
+===== apps/classmate_mobile/lib/features/solutions/ui/filter/solutions_books_screen.dart.gorouter_fix.1773066605.bak =====
+import 'package:flutter/material.dart';
+
+class SolutionsBooksScreen extends StatelessWidget {
+  const SolutionsBooksScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final subject = ModalRoute.of(context)!.settings.arguments as String;
+
+    final books = ["Book 1", "Book 2", "Book 3"];
+
+    return Scaffold(
+      appBar: AppBar(title: Text(subject)),
+      body: ListView.builder(
+        itemCount: books.length,
+        itemBuilder: (context, i) {
+          final book = books[i];
+          return ListTile(
+            title: Text(book),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                "/solutions/pages",
+                arguments: {"subject": subject, "book": book},
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/features/solutions/ui/filter/solutions_pages_screen.dart.gorouter_fix.1773066605.bak =====
+import 'package:flutter/material.dart';
+
+class SolutionsPagesScreen extends StatelessWidget {
+  const SolutionsPagesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+    final subject = args["subject"];
+    final book = args["book"];
+
+    return Scaffold(
+      appBar: AppBar(title: Text("$subject • $book")),
+      body: ListView.builder(
+        itemCount: 20,
+        itemBuilder: (context, i) {
+          final page = i + 1;
+          return ListTile(
+            title: Text("Page $page"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                "/solutions/questions",
+                arguments: {"subject": subject, "book": book, "page": page},
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/features/solutions/ui/filter/solutions_questions_screen.dart.gorouter_fix.1773066605.bak =====
+import 'package:flutter/material.dart';
+
+class SolutionsQuestionsScreen extends StatelessWidget {
+  const SolutionsQuestionsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+
+    final page = args["page"];
+
+    return Scaffold(
+      appBar: AppBar(title: Text("Page $page Questions")),
+      body: ListView.builder(
+        itemCount: 10,
+        itemBuilder: (context, i) {
+          final q = i + 1;
+          return ListTile(
+            title: Text("Question $q"),
+            trailing: const Icon(Icons.chevron_right),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.upload),
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/features/solutions/ui/filter/solutions_subject_screen.dart.gorouter_fix.1773066605.bak =====
+import 'package:flutter/material.dart';
+
+class SolutionsSubjectScreen extends StatelessWidget {
+  const SolutionsSubjectScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final subjects = [
+      "Math",
+      "Physics",
+      "Chemistry",
+      "Biology",
+      "Computer Science",
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Subjects")),
+      body: ListView.builder(
+        itemCount: subjects.length,
+        itemBuilder: (context, i) {
+          final subject = subjects[i];
+          return ListTile(
+            title: Text(subject),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                "/solutions/books",
+                arguments: subject,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/main.dart =====
+import 'package:flutter/material.dart';
+import 'core/auth/auth_session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'app/app.dart';
+import 'core/config/env.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Env.init();
+  // ignore: avoid_print
+  // ignore: avoid_print
+  print(
+    'DEV_TOKEN_LEN=${devTokenLen()} ENV_DEV_TOKEN_LEN=${Env.devToken.trim().length}',
+  );
+  runApp(const ProviderScope(child: ClassMateApp()));
+}
+
+===== apps/classmate_mobile/lib/main.dart.bak.1772269431 =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'app/app.dart';
+import 'core/config/env.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Env.init();
+  runApp(const ProviderScope(child: ClassMateApp()));
+}
+
+===== apps/classmate_mobile/lib/routing/app_router.dart =====
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/auth/auth_session.dart';
+
+final goRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: ref.watch(authSessionProvider),
+    initialLocation: '/login',
+    redirect: (context, state) {
+      final session = ref.read(authSessionProvider);
+
+      if (!session.ready) return null;
+
+      final isLogin = state.matchedLocation == '/login';
+      final loggedIn = session.isLoggedIn;
+
+      if (!loggedIn && !isLogin) return '/login';
+      if (loggedIn && isLogin) return '/';
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const SizedBox.shrink(),
+      ),
+      GoRoute(path: '/', builder: (context, state) => const SizedBox.shrink()),
+    ],
+  );
+});
+
+===== apps/classmate_mobile/lib/ui/glass/cm_searchable_dropdown.dart =====
+import 'package:flutter/material.dart';
+
+class CMSearchableDropdown<T> extends StatelessWidget {
+  final String label;
+  final T? value;
+  final List<T> items;
+  final String Function(T) itemLabel;
+  final void Function(T) onChanged;
+
+  const CMSearchableDropdown({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.itemLabel,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: () async {
+        final result = await showModalBottomSheet<T>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: cs.surface.withValues(alpha: .96),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (_) => _DropdownSheet(items: items, itemLabel: itemLabel),
+        );
+
+        if (result != null) onChanged(result);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: cs.surfaceContainerHighest.withValues(alpha: .6),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                value == null ? label : itemLabel(value as T),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            const Icon(Icons.expand_more_rounded),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DropdownSheet<T> extends StatefulWidget {
+  final List<T> items;
+  final String Function(T) itemLabel;
+
+  const _DropdownSheet({required this.items, required this.itemLabel});
+
+  @override
+  State<_DropdownSheet<T>> createState() => _DropdownSheetState<T>();
+}
+
+class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
+  String query = "";
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = widget.items.where((e) {
+      return widget.itemLabel(e).toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: "Search...",
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (v) => setState(() => query = v),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filtered.length,
+              itemBuilder: (_, i) {
+                final item = filtered[i];
+
+                return ListTile(
+                  title: Text(widget.itemLabel(item)),
+                  onTap: () => Navigator.pop(context, item),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+===== apps/classmate_mobile/lib/ui/widgets/liquid_glass_dropdown.dart =====
+import 'dart:ui';
+import 'package:flutter/material.dart';
+
+class LiquidGlassDropdownItem<T> {
+  final T value;
+  final String label;
+  final IconData? icon;
+  const LiquidGlassDropdownItem({
+    required this.value,
+    required this.label,
+    this.icon,
+  });
+}
+
+class LiquidGlassDropdown<T> extends StatelessWidget {
+  final String label;
+  final T value;
+  final List<LiquidGlassDropdownItem<T>> items;
+  final ValueChanged<T> onChanged;
+  final String? searchHint;
+  final bool enabled;
+
+  const LiquidGlassDropdown({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    this.searchHint,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: enabled ? () => _open(context) : null,
+      borderRadius: BorderRadius.circular(14),
+      child: Ink(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: (0.55)),
+          ),
+          color: cs.surface.withValues(alpha: (0.55)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _labelFor(value),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelFor(T v) {
+    for (final it in items) {
+      if (it.value == v) return it.label;
+    }
+    return v.toString();
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final selected = await showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => _LiquidGlassPicker<T>(
+        title: label,
+        value: value,
+        items: items,
+        searchHint: searchHint,
+      ),
+    );
+
+    if (selected != null && selected != value) onChanged(selected);
+  }
+}
+
+class _LiquidGlassPicker<T> extends StatefulWidget {
+  final String title;
+  final T value;
+  final List<LiquidGlassDropdownItem<T>> items;
+  final String? searchHint;
+
+  const _LiquidGlassPicker({
+    required this.title,
+    required this.value,
+    required this.items,
+    this.searchHint,
+  });
+
+  @override
+  State<_LiquidGlassPicker<T>> createState() => _LiquidGlassPickerState<T>();
+}
+
+class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
+  final _ctrl = TextEditingController();
+  String _q = '';
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(22);
+
+    final items = widget.items
+        .where((it) {
+          final q = _q.trim().toLowerCase();
+          if (q.isEmpty) return true;
+          return it.label.toLowerCase().contains(q);
+        })
+        .toList(growable: false);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              color: cs.surface.withValues(alpha: (0.72)),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: (0.6)),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 28,
+                  spreadRadius: 2,
+                  color: Colors.black.withValues(alpha: (0.16)),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                    child: TextField(
+                      controller: _ctrl,
+                      onChanged: (v) => setState(() => _q = v),
+                      decoration: InputDecoration(
+                        hintText: widget.searchHint ?? 'Search...',
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        filled: true,
+                        fillColor: cs.surface.withValues(alpha: (0.5)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: (0.55)),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: (0.55)),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: cs.primary.withValues(alpha: (0.8)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
+                      itemCount: items.length,
+                      separatorBuilder: (_, _) => Divider(
+                        height: 1,
+                        color: cs.outlineVariant.withValues(alpha: (0.35)),
+                      ),
+                      itemBuilder: (context, i) {
+                        final it = items[i];
+                        final selected = it.value == widget.value;
+                        return ListTile(
+                          leading: it.icon != null ? Icon(it.icon) : null,
+                          title: Text(it.label),
+                          trailing: selected
+                              ? const Icon(Icons.check_rounded)
+                              : null,
+                          onTap: () => Navigator.of(context).pop<T>(it.value),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
