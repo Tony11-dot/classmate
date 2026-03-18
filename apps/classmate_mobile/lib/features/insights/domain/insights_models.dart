@@ -239,7 +239,7 @@ class UnifiedGradesSummary {
       if (v is double) return v;
       if (v is int) return v.toDouble();
       if (v is num) return v.toDouble();
-      return double.tryParse('${v ?? ''}');
+      return double.tryParse('$v');
     }
 
     int asInt(Object? v) {
@@ -248,8 +248,7 @@ class UnifiedGradesSummary {
       return int.tryParse('${v ?? ''}') ?? 0;
     }
 
-    final raw = json['latest'];
-    final list = raw is List ? raw : const [];
+    final list = json['latest'] is List ? json['latest'] as List : const [];
 
     return UnifiedGradesSummary(
       count: asInt(json['count']),
@@ -297,7 +296,7 @@ class UnifiedAttendanceSummary {
       if (v is double) return v;
       if (v is int) return v.toDouble();
       if (v is num) return v.toDouble();
-      return double.tryParse('${v ?? ''}');
+      return double.tryParse('$v');
     }
 
     int asInt(Object? v) {
@@ -306,8 +305,7 @@ class UnifiedAttendanceSummary {
       return int.tryParse('${v ?? ''}') ?? 0;
     }
 
-    final raw = json['latest'];
-    final list = raw is List ? raw : const [];
+    final list = json['latest'] is List ? json['latest'] as List : const [];
 
     return UnifiedAttendanceSummary(
       total: asInt(json['total']),

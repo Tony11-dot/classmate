@@ -116,7 +116,7 @@ class InsightsScreen extends ConsumerWidget {
                             label: 'Grade avg',
                             value: unified.grades.average == null
                                 ? '—'
-                                : '${unified.grades.average!.toStringAsFixed(1)}',
+                                : unified.grades.average!.toStringAsFixed(1),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -249,7 +249,8 @@ class InsightsScreen extends ConsumerWidget {
                                   child: _MetricTile(
                                     icon: Icons.quiz_rounded,
                                     label: 'Answered',
-                                    value: '${snapshot.overall.answered}',
+                                    value: '${snapshot.overall.answered}'
+                                        .toString(),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
