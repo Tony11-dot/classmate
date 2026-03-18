@@ -12,6 +12,7 @@ COPY . .
 RUN pnpm prisma generate
 RUN pnpm build
 
-EXPOSE 3000
+RUN chmod +x /app/docker-entrypoint.dev.sh
 
-CMD ["node", "dist/main.js"]
+EXPOSE 3000
+CMD ["/app/docker-entrypoint.dev.sh"]
