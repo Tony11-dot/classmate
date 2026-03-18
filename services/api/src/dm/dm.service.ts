@@ -149,7 +149,7 @@ export class DmService {
         unreadCount: 0,
         updatedAt: thread.updatedAt,
         participants: thread.participants.map((pp) => {
-          final name = this.displayNameFromUserId(pp.userId);
+          const name = this.displayNameFromUserId(pp.userId);
           return {
             id: pp.userId,
             fullName: name,
