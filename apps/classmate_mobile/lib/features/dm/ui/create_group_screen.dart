@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/dm_repository.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
@@ -54,12 +55,13 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () async {
+              final navigator = Navigator.of(context);
               await repo.createGroup(
                 title.text.trim(),
                 picked.toList(growable: false),
               );
               if (!mounted) return;
-              Navigator.of(context).pop();
+              navigator.pop();
             },
             child: const Text('Create group'),
           ),

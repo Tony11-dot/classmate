@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DmService } from './dm.service';
 import { CreateDmThreadDto } from './dto/create-thread.dto';
@@ -22,7 +30,11 @@ export class DmController {
   }
 
   @Post('threads/:id/request')
-  respondToRequest(@Req() req: any, @Param('id') id: string, @Body() dto: RespondDmRequestDto) {
+  respondToRequest(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: RespondDmRequestDto,
+  ) {
     return this.dm.respondToRequest(req.user, id, dto);
   }
 
@@ -37,7 +49,11 @@ export class DmController {
   }
 
   @Post('threads/:id/messages')
-  sendMessage(@Req() req: any, @Param('id') id: string, @Body() dto: SendDmMessageDto) {
+  sendMessage(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: SendDmMessageDto,
+  ) {
     return this.dm.sendMessage(req.user, id, dto);
   }
 
@@ -47,7 +63,11 @@ export class DmController {
   }
 
   @Post('messages/:id/react')
-  react(@Req() req: any, @Param('id') id: string, @Body() dto: ReactDmMessageDto) {
+  react(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: ReactDmMessageDto,
+  ) {
     return this.dm.react(req.user, id, dto);
   }
 }

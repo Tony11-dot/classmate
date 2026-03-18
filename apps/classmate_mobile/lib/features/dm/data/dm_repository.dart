@@ -140,21 +140,21 @@ class DmRepository {
   }
 
   Future<void> acceptRequest(String threadId) async {
-    await _api.patch(
+    await _api.postJson(
       '/dm/threads/$threadId/request',
       body: {'action': 'accept'},
     );
   }
 
   Future<void> blockUser(String threadId) async {
-    await _api.patch(
+    await _api.postJson(
       '/dm/threads/$threadId/request',
       body: {'action': 'block'},
     );
   }
 
   Future<void> unblockUser(String threadId) async {
-    await _api.patch(
+    await _api.postJson(
       '/dm/threads/$threadId/unblock',
       body: const <String, dynamic>{},
     );
