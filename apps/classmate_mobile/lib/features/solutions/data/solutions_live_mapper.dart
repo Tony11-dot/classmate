@@ -39,7 +39,7 @@ class SolutionsLiveMapper {
     final page = _asInt(raw['page'], fallback: 1);
     final limit = _asInt(
       raw['limit'],
-      fallback: items.length == 0 ? 12 : items.length,
+      fallback: items.isEmpty ? 12 : items.length,
     );
     final total = _asInt(raw['total'], fallback: items.length);
     final hasMore =

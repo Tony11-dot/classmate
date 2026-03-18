@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -163,7 +161,7 @@ class _SolutionsQuestionsScreenState
       final mapped = SolutionsLiveMapper.mapUpload(
         uploadRaw.map((k, v) => MapEntry(k.toString(), v)),
       );
-      notifier.addUploadLocally(mapped);
+      ref.read(solutionsFlowProvider.notifier).addUploadLocally(mapped);
     }
 
     ref.invalidate(liveExactSolutionsPageProvider(1));
@@ -181,7 +179,6 @@ class _SolutionsQuestionsScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(solutionsFlowProvider);
-    final notifier = ref.read(solutionsFlowProvider.notifier);
     final exactAsync = ref.watch(liveExactSolutionsPageProvider(_exactPage));
     final samePageAsync = ref.watch(
       liveSamePageSolutionsPageProvider(_samePagePage),

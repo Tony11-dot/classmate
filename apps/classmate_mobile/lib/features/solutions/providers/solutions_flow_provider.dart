@@ -9,34 +9,56 @@ final solutionsFlowProvider =
       SolutionsFlowNotifier.new,
     );
 
-final liveSolutionsPreviewProvider = FutureProvider<Map<String, dynamic>>((
-  ref,
-) async {
-  final state = ref.watch(solutionsFlowProvider);
-  final api = ref.watch(solutionsApiProvider);
+final liveExactSolutionsPageProvider =
+    FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
+      final state = ref.watch(solutionsFlowProvider);
+      final api = ref.watch(solutionsApiProvider);
 
-  final subject = state.selectedSubject?.title.trim() ?? '';
-  final bookTitle = state.selectedBook?.title.trim() ?? '';
-  final pageRaw = state.pageNumber.trim();
-  final questionNumber = state.questionNumber.trim();
-  final pageNumber = int.tryParse(pageRaw);
+      final subject = state.selectedSubject?.title.trim() ?? '';
+      final bookTitle = state.selectedBook?.title.trim() ?? '';
+      final pageNumber = int.tryParse(state.pageNumber.trim());
+      final questionNumber = state.questionNumber.trim();
 
-  if (subject.isEmpty ||
-      bookTitle.isEmpty ||
-      pageNumber == null ||
-      questionNumber.isEmpty) {
-    return <String, dynamic>{};
-  }
+      if (subject.isEmpty ||
+          bookTitle.isEmpty ||
+          pageNumber == null ||
+          questionNumber.isEmpty) {
+        return LiveSolutionsPage.empty;
+      }
 
-  return api.fetchSolutions(
-    subject: subject,
-    bookTitle: bookTitle,
-    pageNumber: pageNumber,
-    questionNumber: questionNumber,
-    page: 1,
-    limit: 12,
-  );
-});
+      final raw = await api.fetchSolutions(
+        subject: subject,
+        bookTitle: bookTitle,
+        pageNumber: pageNumber,
+        questionNumber: questionNumber,
+        page: page,
+        limit: 12,
+      );
+      return SolutionsLiveMapper.pageFromJson(raw);
+    });
+
+final liveSamePageSolutionsPageProvider =
+    FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
+      final state = ref.watch(solutionsFlowProvider);
+      final api = ref.watch(solutionsApiProvider);
+
+      final subject = state.selectedSubject?.title.trim() ?? '';
+      final bookTitle = state.selectedBook?.title.trim() ?? '';
+      final pageNumber = int.tryParse(state.pageNumber.trim());
+
+      if (subject.isEmpty || bookTitle.isEmpty || pageNumber == null) {
+        return LiveSolutionsPage.empty;
+      }
+
+      final raw = await api.fetchSolutions(
+        subject: subject,
+        bookTitle: bookTitle,
+        pageNumber: pageNumber,
+        page: page,
+        limit: 12,
+      );
+      return SolutionsLiveMapper.pageFromJson(raw);
+    });
 
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
@@ -200,30 +222,8 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     state = state.copyWith(uploadSelectedBook: book);
   }
 
-  void addMockImageUpload() {
-    final next = List<SolutionUploadAsset>.from(state.uploadFiles)
-      ..add(
-        SolutionUploadAsset(
-          id: 'mock-image-${DateTime.now().microsecondsSinceEpoch}',
-          name: 'photo_${state.uploadFiles.length + 1}.jpg',
-          kind: SolutionAssetKind.image,
-        ),
-      );
-
-    state = state.copyWith(uploadFiles: next);
-  }
-
-  void addMockPdfUpload() {
-    final next = List<SolutionUploadAsset>.from(state.uploadFiles)
-      ..add(
-        SolutionUploadAsset(
-          id: 'mock-pdf-${DateTime.now().microsecondsSinceEpoch}',
-          name: 'solution_${state.uploadFiles.length + 1}.pdf',
-          kind: SolutionAssetKind.pdf,
-        ),
-      );
-
-    state = state.copyWith(uploadFiles: next);
+  void setUploadFiles(List<SolutionUploadAsset> files) {
+    state = state.copyWith(uploadFiles: files);
   }
 
   void removeUploadAsset(String id) {
@@ -232,117 +232,26 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     );
   }
 
-  void addUpload() {
-    final subject = state.uploadSelectedSubject ?? state.selectedSubject;
-    final book = state.uploadSelectedBook ?? state.selectedBook;
-    final page = state.uploadPageNumber.trim();
-    final question = state.uploadQuestionNumber.trim();
-
-    if (subject == null || book == null || page.isEmpty || question.isEmpty) {
-      return;
-    }
-
-    final newSolution = QuestionSolutionCard(
-      id: 'solution-${DateTime.now().microsecondsSinceEpoch}',
-      uploaderName: 'You',
-      uploaderInitials: 'YO',
-      subjectId: subject.id,
-      bookId: book.id,
-      pageNumber: page,
-      questionNumber: question,
-      caption: state.uploadCaption.trim().isEmpty
-          ? 'Fresh upload from a classmate.'
-          : state.uploadCaption.trim(),
-      verifiedByNova: false,
-      assets: state.uploadFiles.isEmpty
-          ? <SolutionUploadAsset>[
-              SolutionUploadAsset(
-                id: 'fallback-${DateTime.now().microsecondsSinceEpoch}',
-                name: 'solution.jpg',
-                kind: SolutionAssetKind.image,
-              ),
-            ]
-          : state.uploadFiles,
-      createdAt: DateTime.now(),
-    );
-
+  void addUploadLocally(QuestionSolutionCard newSolution) {
     state = state.copyWith(
       allSolutions: <QuestionSolutionCard>[newSolution, ...state.allSolutions],
       uploadCaption: '',
       uploadPageNumber: '',
       uploadQuestionNumber: '',
       uploadFiles: const <SolutionUploadAsset>[],
-      selectedSubject: subject,
-      selectedBook: book,
-      pageNumber: page,
-      questionNumber: question,
+      selectedSubject: state.uploadSelectedSubject ?? state.selectedSubject,
+      selectedBook: state.uploadSelectedBook ?? state.selectedBook,
+      pageNumber: newSolution.pageNumber,
+      questionNumber: newSolution.questionNumber,
     );
 
-    _refreshPageContext(pageNumber: page, questionNumber: question);
+    _refreshPageContext(
+      pageNumber: newSolution.pageNumber,
+      questionNumber: newSolution.questionNumber,
+    );
   }
 
   int _sortableNumber(String value) {
     return int.tryParse(value.trim()) ?? 999999;
   }
 }
-
-final solutionsLiveExactProvider = FutureProvider<List<QuestionSolutionCard>>((
-  ref,
-) async {
-  final state = ref.watch(solutionsFlowProvider);
-  final api = ref.watch(solutionsApiProvider);
-
-  final subject = state.selectedSubject?.title.trim() ?? '';
-  final bookTitle = state.selectedBook?.title.trim() ?? '';
-  final pageNumber = int.tryParse(state.pageNumber.trim());
-  final questionNumber = state.questionNumber.trim();
-
-  if (subject.isEmpty ||
-      bookTitle.isEmpty ||
-      pageNumber == null ||
-      questionNumber.isEmpty) {
-    return const <QuestionSolutionCard>[];
-  }
-
-  final raw = await api.fetchSolutions(
-    subject: subject,
-    bookTitle: bookTitle,
-    pageNumber: pageNumber,
-    questionNumber: questionNumber,
-    page: 1,
-    limit: 20,
-  );
-
-  return SolutionsLiveMapper.mapUploads(raw['items'], subjects: state.subjects);
-});
-
-final solutionsLiveSamePageProvider =
-    FutureProvider<List<QuestionSolutionCard>>((ref) async {
-      final state = ref.watch(solutionsFlowProvider);
-      final api = ref.watch(solutionsApiProvider);
-
-      final subject = state.selectedSubject?.title.trim() ?? '';
-      final bookTitle = state.selectedBook?.title.trim() ?? '';
-      final pageNumber = int.tryParse(state.pageNumber.trim());
-      final questionNumber = state.questionNumber.trim();
-
-      if (subject.isEmpty || bookTitle.isEmpty || pageNumber == null) {
-        return const <QuestionSolutionCard>[];
-      }
-
-      final raw = await api.fetchSolutions(
-        subject: subject,
-        bookTitle: bookTitle,
-        pageNumber: pageNumber,
-        page: 1,
-        limit: 50,
-      );
-
-      final all = SolutionsLiveMapper.mapUploads(
-        raw['items'],
-        subjects: state.subjects,
-      );
-      return all
-          .where((e) => e.questionNumber.trim() != questionNumber)
-          .toList(growable: false);
-    });

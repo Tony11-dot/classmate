@@ -25,8 +25,9 @@ class SolutionsApi {
 
   Future<Map<String, dynamic>> fetchBooks({String? subject}) async {
     final q = <String, String>{};
-    if ((subject ?? '').trim().isNotEmpty) q['subject'] = subject!.trim();
-
+    if ((subject ?? '').trim().isNotEmpty) {
+      q['subject'] = subject!.trim();
+    }
     final raw = await _api.getJson('/solutions/books', query: q);
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
   }
@@ -53,8 +54,31 @@ class SolutionsApi {
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> createSolution(Map<String, dynamic> body) async {
-    final raw = await _api.postJson('/solutions', body: body);
+  Future<Map<String, dynamic>> createSolution({
+    required String subject,
+    required String bookTitle,
+    required int pageNumber,
+    required String questionNumber,
+    String? caption,
+    String? uploaderName,
+    String? uploaderInitials,
+    required List<Map<String, dynamic>> files,
+  }) async {
+    final raw = await _api.postJson(
+      '/solutions',
+      body: <String, dynamic>{
+        'subject': subject,
+        'bookTitle': bookTitle,
+        'pageNumber': pageNumber,
+        'questionNumber': questionNumber,
+        if ((caption ?? '').trim().isNotEmpty) 'caption': caption!.trim(),
+        if ((uploaderName ?? '').trim().isNotEmpty)
+          'uploaderName': uploaderName!.trim(),
+        if ((uploaderInitials ?? '').trim().isNotEmpty)
+          'uploaderInitials': uploaderInitials!.trim(),
+        'files': files,
+      },
+    );
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
   }
 }
