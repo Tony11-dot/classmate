@@ -38,6 +38,16 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
   void initState() {
     super.initState();
     _loadPrefs();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final prompt = (widget.initialPrompt ?? '').trim();
+      if (prompt.isEmpty) return;
+      _openSeededChat(
+        prompt: prompt,
+        title: widget.initialTitle,
+        subject: widget.initialSubject,
+      );
+    });
   }
 
   @override
@@ -77,6 +87,56 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_renameKey, jsonEncode(_localTitles));
     await prefs.setStringList(_hiddenKey, _hiddenSessions.toList());
+  }
+
+  Future<void> _openSeededChat({
+    required String prompt,
+    String? title,
+    String? subject,
+  }) async {
+    final repo = ref.read(tutorRepositoryProvider);
+
+    try {
+      final created = await repo.createSession(
+        subject: (subject ?? '').trim().isEmpty ? null : subject,
+        title: (title ?? '').trim().isEmpty ? 'NOVA' : title,
+        topic: (subject ?? '').trim().isEmpty ? null : subject,
+        initialMessage: prompt.trim().isEmpty ? null : prompt.trim(),
+      );
+
+      final session = (created['session'] is Map<String, dynamic>)
+          ? created['session'] as Map<String, dynamic>
+          : created;
+
+      final sessionId = (session['id'] ?? '').toString();
+      final seededPrompt = (created['seededPrompt'] ?? '').toString();
+      final effectivePrompt = seededPrompt.trim().isNotEmpty
+          ? seededPrompt
+          : prompt.trim();
+
+      ref.invalidate(tutorSessionsProvider);
+
+      if (!mounted || sessionId.isEmpty) {
+        return;
+      }
+
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(
+          builder: (_) => NovaChatScreen(
+            sessionId: sessionId,
+            initialTitle: (title ?? '').trim().isEmpty ? 'NOVA' : title,
+            initialPrompt: effectivePrompt.isEmpty ? null : effectivePrompt,
+          ),
+        ),
+      );
+
+      ref.invalidate(tutorSessionsProvider);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to open seeded chat: $e')));
+    }
   }
 
   Future<void> _createFreshChat() async {

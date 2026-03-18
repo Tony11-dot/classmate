@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../insights/providers/insights_providers.dart';
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
-import '../../insights/providers/insights_providers.dart';
 
 class NovaChatScreen extends ConsumerStatefulWidget {
   const NovaChatScreen({
@@ -25,11 +25,6 @@ class NovaChatScreen extends ConsumerStatefulWidget {
 }
 
 class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
-  String get _headerTitle {
-    final title = (widget.initialTitle ?? '').trim();
-    return title.isEmpty ? 'NOVA' : title;
-  }
-
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final FocusNode _focusNode = FocusNode();
@@ -41,6 +36,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   bool _sending = false;
   bool _loadingHistory = false;
   bool _bootedInitialPrompt = false;
+
+  String get _headerTitle {
+    final title = (widget.initialTitle ?? '').trim();
+    return title.isEmpty ? 'NOVA' : title;
+  }
 
   @override
   void initState() {
@@ -58,122 +58,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     super.dispose();
   }
 
-  Widget _academicBadge() {
-    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
-
-    return unifiedAsync.maybeWhen(
-      data: (data) {
-        if (data == null) return const SizedBox.shrink();
-        final weakTopic = data.practice.weakTopics.isNotEmpty
-            ? data.practice.weakTopics.first.topicLabel
-            : null;
-        final weakestSubject = data.grades.weakestSubject;
-        final attendance = data.attendance.attendanceRate;
-
-        final parts = <String>[
-          if ((weakTopic ?? '').trim().isNotEmpty) 'Focus: $weakTopic',
-          if ((weakestSubject ?? '').trim().isNotEmpty)
-            'Subject: $weakestSubject',
-          if (attendance != null)
-            'Attendance ${attendance.toStringAsFixed(0)}%',
-        ];
-
-        if (parts.isEmpty) return const SizedBox.shrink();
-
-        return Container(
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.secondaryContainer.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outlineVariant.withValues(alpha: 0.28),
-            ),
-          ),
-          child: Row(
-            children: [
-              _academicBadge(),
-              _starterChips(),
-              const Icon(Icons.psychology_alt_rounded, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'NOVA knows your performance • ${parts.join(' • ')}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      orElse: () => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _starterChips() {
-    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
-
-    return unifiedAsync.maybeWhen(
-      data: (data) {
-        if (data == null) return const SizedBox.shrink();
-
-        final chips = <String>[
-          if (data.practice.weakTopics.isNotEmpty)
-            'Help me with ${data.practice.weakTopics.first.topicLabel}',
-          if ((data.grades.weakestSubject ?? '').trim().isNotEmpty)
-            'Why am I weak in ${data.grades.weakestSubject}?',
-          if (data.practice.trend?.deltaAccuracy != null)
-            'Analyze my last 7d vs 30d progress',
-          if ((data.grades.bestSubject ?? '').trim().isNotEmpty)
-            'Push me harder in ${data.grades.bestSubject}',
-        ];
-
-        final uniq = <String>[];
-        for (final c in chips) {
-          if (c.trim().isEmpty) continue;
-          if (!uniq.contains(c)) uniq.add(c);
-        }
-
-        if (uniq.isEmpty) return const SizedBox.shrink();
-
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final chip in uniq.take(4))
-                ActionChip(
-                  label: Text(chip),
-                  onPressed: _sending
-                      ? null
-                      : () {
-                          _controller.text = chip;
-                          _onSend();
-                        },
-                ),
-            ],
-          ),
-        );
-      },
-      orElse: () => const SizedBox.shrink(),
-    );
-  }
-
   Future<void> _bootstrap() async {
     if (_sessionId != null && _sessionId!.isNotEmpty) {
       await _loadExistingSession(_sessionId!);
     } else if (_messages.isEmpty) {
       setState(() {
         _messages.add(
-          _Msg(
+          const _Msg(
             role: 'assistant',
             content:
                 'Hi. I’m NOVA.\n\nAsk anything and I’ll help step by step.',
@@ -202,9 +93,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
       final rawMessages = () {
         final direct = json['messages'];
-        if (direct is List) {
-          return direct;
-        }
+        if (direct is List) return direct;
 
         final session = json['session'];
         if (session is Map<String, dynamic> && session['messages'] is List) {
@@ -216,22 +105,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
       final next = <_Msg>[];
       for (final item in rawMessages) {
-        if (item is! Map) {
-          continue;
-        }
+        if (item is! Map) continue;
         final map = item.map((k, v) => MapEntry(k.toString(), v));
         final roleRaw = (map['role'] ?? '').toString().toUpperCase();
         final role = roleRaw == 'USER' ? 'user' : 'assistant';
         final content = (map['content'] ?? '').toString();
-        if (content.trim().isEmpty) {
-          continue;
-        }
+        if (content.trim().isEmpty) continue;
         next.add(_Msg(role: role, content: content));
       }
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _sessionId = sessionId;
@@ -239,7 +122,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           ..clear()
           ..addAll(
             next.isEmpty
-                ? <_Msg>[
+                ? const <_Msg>[
                     _Msg(
                       role: 'assistant',
                       content:
@@ -254,9 +137,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         _scrollToBottom(jump: true);
       });
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _messages
@@ -278,12 +159,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Future<void> _ensureSession() async {
-    if (_sessionId != null && _sessionId!.trim().isNotEmpty) {
-      return;
-    }
+    if (_sessionId != null && _sessionId!.trim().isNotEmpty) return;
 
     final repo = ref.read(tutorRepositoryProvider);
-    final created = await repo.createSession();
+    final created = await repo.createSession(
+      title: _headerTitle == 'NOVA' ? null : _headerTitle,
+    );
     final session = (created['session'] is Map<String, dynamic>)
         ? created['session'] as Map<String, dynamic>
         : created;
@@ -297,41 +178,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     ref.invalidate(tutorSessionsProvider);
   }
 
-  Future<void> _pickImage() async {
-    if (_sending) return;
-
-    setState(() {
-      _messages.add(
-        _Msg(
-          role: 'assistant',
-          content:
-              'Photo input UI is ready. Backend image understanding is the next wired step.',
-        ),
-      );
-    });
-    _scrollToBottom();
-  }
-
-  Future<void> _recordVoice() async {
-    if (_sending) return;
-
-    setState(() {
-      _messages.add(
-        _Msg(
-          role: 'assistant',
-          content:
-              'Voice message UI is ready. Recorder/transcription wiring is the next step.',
-        ),
-      );
-    });
-    _scrollToBottom();
-  }
-
   Future<void> _onSend() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _sending) {
-      return;
-    }
+    if (text.isEmpty || _sending) return;
 
     setState(() {
       _messages.add(_Msg(role: 'user', content: text));
@@ -349,7 +198,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
       final assistantIndex = _messages.length;
       setState(() {
-        _messages.add(_Msg(role: 'assistant', content: 'Thinking…'));
+        _messages.add(const _Msg(role: 'assistant', content: 'Thinking…'));
       });
 
       await _sseSub?.cancel();
@@ -363,13 +212,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
               if (type == 'chunk') {
                 final delta = (ev['delta'] ?? '').toString();
-                if (delta.isNotEmpty) {
-                  buffer.write(delta);
-                }
+                if (delta.isNotEmpty) buffer.write(delta);
 
-                if (!mounted) {
-                  return;
-                }
+                if (!mounted) return;
 
                 setState(() {
                   if (assistantIndex < _messages.length) {
@@ -389,9 +234,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                     ? (am['content'] ?? buffer.toString()).toString()
                     : buffer.toString();
 
-                if (!mounted) {
-                  return;
-                }
+                if (!mounted) return;
 
                 setState(() {
                   if (assistantIndex < _messages.length) {
@@ -402,60 +245,97 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   }
                   _sending = false;
                 });
-
+                _scrollToBottom();
                 ref.invalidate(tutorSessionsProvider);
+                return;
+              }
+
+              if (type == 'error') {
+                if (!mounted) return;
+
+                setState(() {
+                  if (assistantIndex < _messages.length) {
+                    _messages[assistantIndex] = _Msg(
+                      role: 'assistant',
+                      content:
+                          '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
+                    );
+                  }
+                  _sending = false;
+                });
                 _scrollToBottom();
               }
             },
             onError: (e) {
-              if (!mounted) {
-                return;
-              }
-
+              if (!mounted) return;
               setState(() {
-                if (assistantIndex < _messages.length) {
-                  _messages[assistantIndex] = _Msg(
-                    role: 'assistant',
-                    content: '⚠️ Reply failed: $e',
-                  );
-                }
+                _messages.add(
+                  _Msg(role: 'assistant', content: '⚠️ Stream failed: $e'),
+                );
                 _sending = false;
               });
+              _scrollToBottom();
             },
             onDone: () {
-              if (!mounted) {
-                return;
+              if (!mounted) return;
+              if (_sending) {
+                setState(() {
+                  _sending = false;
+                });
               }
-              setState(() {
-                _sending = false;
-              });
             },
           );
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
+      if (!mounted) return;
       setState(() {
         _messages.add(
           _Msg(role: 'assistant', content: '⚠️ Failed to send: $e'),
         );
         _sending = false;
       });
+      _scrollToBottom();
     }
+  }
+
+  Future<void> _pickImage() async {
+    if (_sending) return;
+
+    setState(() {
+      _messages.add(
+        const _Msg(
+          role: 'assistant',
+          content:
+              'Photo input UI is ready. Backend image understanding is the next wired step.',
+        ),
+      );
+    });
+    _scrollToBottom();
+  }
+
+  Future<void> _recordVoice() async {
+    if (_sending) return;
+
+    setState(() {
+      _messages.add(
+        const _Msg(
+          role: 'assistant',
+          content:
+              'Voice message UI is ready. Recorder/transcription wiring is the next step.',
+        ),
+      );
+    });
+    _scrollToBottom();
   }
 
   void _scrollToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scroll.hasClients) {
-        return;
-      }
-      final target = _scroll.position.maxScrollExtent + 120;
+      if (!_scroll.hasClients) return;
+      final pos = _scroll.position.maxScrollExtent;
       if (jump) {
-        _scroll.jumpTo(target);
+        _scroll.jumpTo(pos);
       } else {
         _scroll.animateTo(
-          target,
+          pos,
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOut,
         );
@@ -463,427 +343,232 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     });
   }
 
-  List<_NovaBlock> _blocksFor(String text) {
-    final parts = text.split('```');
-    final blocks = <_NovaBlock>[];
+  Widget _academicBadge() {
+    final async = ref.watch(unifiedStudentInsightsProvider);
 
-    for (var i = 0; i < parts.length; i++) {
-      final raw = parts[i];
-      if (raw.trim().isEmpty) {
-        continue;
-      }
+    return async.maybeWhen(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
 
-      if (i.isEven) {
-        blocks.add(_NovaBlock(_NovaBlockKind.text, raw.trimRight()));
-      } else {
-        final lines = raw.split('\n');
-        final maybeLang = lines.isNotEmpty ? lines.first.trim() : '';
-        final body = lines.length > 1 ? lines.skip(1).join('\n') : raw;
-        final code = maybeLang.contains(' ') ? raw : body;
-        blocks.add(_NovaBlock(_NovaBlockKind.code, code.trimRight()));
-      }
-    }
+        final bits = <String>[
+          if (data.practice.weakTopics.isNotEmpty)
+            'Focus: ${data.practice.weakTopics.first.topicLabel}',
+          if ((data.grades.weakestSubject ?? '').trim().isNotEmpty)
+            'Weakest subject: ${data.grades.weakestSubject}',
+          if (data.attendance.attendanceRate != null)
+            'Attendance ${data.attendance.attendanceRate!.toStringAsFixed(1)}%',
+        ];
 
-    if (blocks.isEmpty) {
-      blocks.add(_NovaBlock(_NovaBlockKind.text, text));
-    }
+        if (bits.isEmpty) return const SizedBox.shrink();
 
-    return blocks;
-  }
-
-  Widget _buildAssistantMessage(BuildContext context, String content) {
-    final blocks = _blocksFor(content);
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 980),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 2, right: 12),
-              child: _NovaAvatar(),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'NOVA',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.35,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.92),
-                      ),
-                    ),
-                  ),
-                  for (int i = 0; i < blocks.length; i++) ...[
-                    if (blocks[i].kind == _NovaBlockKind.code)
-                      _CodeBlock(code: blocks[i].text)
-                    else
-                      SelectableText(
-                        blocks[i].text.trimRight(),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.62,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                    if (i != blocks.length - 1) const SizedBox(height: 14),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserMessage(BuildContext context, String content) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 760),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 13, 16, 13),
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
             color: Theme.of(
               context,
-            ).colorScheme.primary.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outlineVariant.withValues(alpha: 0.28),
-            ),
+            ).colorScheme.secondaryContainer.withValues(alpha: 0.65),
           ),
-          child: SelectableText(
-            content,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(height: 1.5),
+          child: Row(
+            children: [
+              const Icon(Icons.psychology_alt_rounded, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'NOVA knows your performance • ${bits.join(' • ')}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
           ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _starterChips() {
+    final async = ref.watch(unifiedStudentInsightsProvider);
+
+    return async.maybeWhen(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
+
+        final chips = <String>[
+          if (data.practice.weakTopics.isNotEmpty)
+            'Help me with ${data.practice.weakTopics.first.topicLabel}',
+          if ((data.grades.weakestSubject ?? '').trim().isNotEmpty)
+            'Why am I weak in ${data.grades.weakestSubject}?',
+          if (data.practice.trend?.deltaAccuracy != null)
+            'Analyze my last 7d vs 30d progress',
+          if ((data.grades.bestSubject ?? '').trim().isNotEmpty)
+            'Push me harder in ${data.grades.bestSubject}',
+        ];
+
+        final uniq = <String>[];
+        for (final chip in chips) {
+          if (chip.trim().isEmpty) continue;
+          if (!uniq.contains(chip)) uniq.add(chip);
+        }
+
+        if (uniq.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final chip in uniq.take(4))
+                ActionChip(
+                  label: Text(chip),
+                  onPressed: _sending
+                      ? null
+                      : () async {
+                          _controller.text = chip;
+                          await _onSend();
+                        },
+                ),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildBubble(_Msg msg) {
+    final isUser = msg.role == 'user';
+    final cs = Theme.of(context).colorScheme;
+
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 720),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isUser
+              ? cs.primaryContainer.withValues(alpha: 0.90)
+              : cs.surfaceContainerHighest.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: SelectableText(
+          msg.content,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
     );
   }
 
-  String get _screenTitle {
-    final raw = (widget.initialTitle ?? '').trim();
-    if (raw.isNotEmpty) {
-      return raw;
-    }
-    return 'NOVA chat';
+  Widget _buildComposer() {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
+          ),
+          padding: const EdgeInsets.fromLTRB(10, 6, 8, 6),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  minLines: 1,
+                  maxLines: 6,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _onSend(),
+                  decoration: const InputDecoration(
+                    hintText: 'Ask NOVA anything…',
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: _sending ? null : _pickImage,
+                icon: const Icon(Icons.photo_outlined),
+              ),
+              IconButton(
+                onPressed: _sending ? null : _recordVoice,
+                icon: const Icon(Icons.mic_none_rounded),
+              ),
+              IconButton(
+                onPressed: _sending ? null : _onSend,
+                icon: const Icon(Icons.arrow_upward_rounded),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
+        centerTitle: true,
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_screenTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(_headerTitle),
             Text(
-              _sessionId == null ? 'New conversation' : 'Saved in history',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.65),
-              ),
+              _sending ? 'Thinking…' : 'Ready',
+              style: Theme.of(context).textTheme.labelSmall,
             ),
           ],
         ),
         actions: [
-          IconButton(
-            onPressed: _createAnotherChatFromHere,
-            icon: const Icon(Icons.add_comment_rounded),
-            tooltip: 'New chat',
-          ),
+          if (_sessionId != null && _sessionId!.isNotEmpty)
+            IconButton(
+              tooltip: 'Copy session id',
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: _sessionId!));
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Session id copied')),
+                );
+              },
+              icon: const Icon(Icons.link_rounded),
+            ),
         ],
       ),
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-              Colors.transparent,
-              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.03),
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: _loadingHistory
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      controller: _scroll,
-                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 150),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final m = _messages[index];
-                        final isUser = m.role == 'user';
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 26),
-                          child: isUser
-                              ? _buildUserMessage(context, m.content)
-                              : _buildAssistantMessage(context, m.content),
-                        );
-                      },
-                    ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 960),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.white.withValues(alpha: 0.10),
-                          Colors.white.withValues(alpha: 0.05),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.22),
-                          blurRadius: 36,
-                          offset: const Offset(0, 16),
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, -1),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 10, 10, 10),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: KeyboardListener(
-                              focusNode: _focusNode,
-                              onKeyEvent: (event) {
-                                if (event is KeyDownEvent &&
-                                    event.logicalKey ==
-                                        LogicalKeyboardKey.enter &&
-                                    !HardwareKeyboard.instance.isShiftPressed) {
-                                  _onSend();
-                                }
-                              },
-                              child: TextField(
-                                controller: _controller,
-                                minLines: 1,
-                                maxLines: 8,
-                                textInputAction: TextInputAction.newline,
-                                decoration: const InputDecoration(
-                                  hintText: 'Message NOVA…',
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          FilledButton(
-                            onPressed: _sending ? null : _onSend,
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size(50, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                            ),
-                            child: _sending
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.arrow_upward_rounded),
-                          ),
-                        ],
-                      ),
-                    ),
+      body: Column(
+        children: [
+          _academicBadge(),
+          _starterChips(),
+          Expanded(
+            child: _loadingHistory
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    controller: _scroll,
+                    padding: const EdgeInsets.only(top: 4, bottom: 8),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return _buildBubble(_messages[index]);
+                    },
                   ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _createAnotherChatFromHere() async {
-    final repo = ref.read(tutorRepositoryProvider);
-
-    try {
-      final created = await repo.createSession();
-      final session = (created['session'] is Map<String, dynamic>)
-          ? created['session'] as Map<String, dynamic>
-          : created;
-      final id = (session['id'] ?? '').toString();
-
-      ref.invalidate(tutorSessionsProvider);
-
-      if (!mounted || id.isEmpty) {
-        return;
-      }
-
-      await Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) =>
-              NovaChatScreen(sessionId: id, initialTitle: 'New chat'),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to create chat: $e')));
-    }
-  }
-}
-
-class _CodeBlock extends StatelessWidget {
-  const _CodeBlock({required this.code});
-
-  final String code;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.52),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        ),
-      ),
-      child: SelectableText(
-        code.trimRight(),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontFamily: 'monospace',
-          height: 1.5,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-    );
-  }
-}
-
-class _NovaAvatar extends StatelessWidget {
-  const _NovaAvatar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.95),
-            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.85),
-          ],
-        ),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
           ),
+          _buildComposer(),
         ],
       ),
-      alignment: Alignment.center,
-      child: Text(
-        'N',
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.2,
-        ),
-      ),
     );
   }
-}
-
-enum _NovaBlockKind { text, code }
-
-class _NovaBlock {
-  const _NovaBlock(this.kind, this.text);
-
-  final _NovaBlockKind kind;
-  final String text;
 }
 
 class _Msg {
-  _Msg({required this.role, required this.content});
+  const _Msg({required this.role, required this.content});
 
   final String role;
   final String content;
-}
-
-class TypingIndicator extends StatefulWidget {
-  const TypingIndicator({super.key});
-
-  @override
-  State<TypingIndicator> createState() => _TypingIndicatorState();
-}
-
-class _TypingIndicatorState extends State<TypingIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _c;
-
-  @override
-  void initState() {
-    super.initState();
-    _c = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: Tween(begin: .3, end: 1.0).animate(_c),
-      child: const Text("NOVA is thinking..."),
-    );
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
 }
