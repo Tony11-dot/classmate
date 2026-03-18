@@ -49,6 +49,13 @@ class NotificationsScreen extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Today',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -76,7 +83,7 @@ class NotificationsScreen extends ConsumerWidget {
             if (items.isEmpty)
               const _EmptyBody(
                 message:
-                    'Nothing new yet. Notifications will appear when grades, attendance, or practice signals change.',
+                    'No new updates yet. As soon as something changes in your academic activity, it will appear here.',
               )
             else
               ...items.map(

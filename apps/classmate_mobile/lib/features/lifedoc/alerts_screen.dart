@@ -50,6 +50,8 @@ class AlertsScreen extends ConsumerWidget {
             ),
         ];
 
+        cards.sort((a, b) => a.tone == _AlertTone.warning ? -1 : 1);
+
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
