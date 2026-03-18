@@ -17,6 +17,6 @@ import { PracticeModule } from '../practice/practice.module';
     StudentClassroomsController,
   ],
   providers: [StudentService, StudentInsightsService],
-  exports: [StudentService],
+  exports: [StudentService, StudentInsightsService],
 })
 export class StudentModule {}

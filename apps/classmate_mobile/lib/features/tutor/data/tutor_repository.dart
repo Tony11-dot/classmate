@@ -118,6 +118,21 @@ class TutorRepository {
     }
   }
 
+  Future<Map<String, dynamic>> fetchAcademicContext() async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/me/academic-context');
+
+    try {
+      final res = await http.get(uri, headers: headers).timeout(_timeout);
+      if (!_isOk(res)) {
+        _fail('fetchAcademicContext', res);
+      }
+      return (json.decode(res.body) as Map<String, dynamic>);
+    } on SocketException catch (e) {
+      throw Exception('fetchAcademicContext network error: $e (uri=$uri)');
+    }
+  }
+
   Future<List<dynamic>> fetchStudentSubjects() async {
     final headers = await _headers();
     final uri = _uri('/student/subjects');
@@ -156,6 +171,9 @@ class TutorRepository {
   Future<Map<String, dynamic>> createSession({
     String? characterId,
     String? subject,
+    String? title,
+    String? topic,
+    String? initialMessage,
   }) async {
     final headers = await _headers();
     final uri = _uri('/tutor/sessions');
@@ -164,6 +182,10 @@ class TutorRepository {
       if (characterId != null && characterId.trim().isNotEmpty)
         'characterId': characterId,
       if (subject != null && subject.trim().isNotEmpty) 'subject': subject,
+      if (title != null && title.trim().isNotEmpty) 'title': title.trim(),
+      if (topic != null && topic.trim().isNotEmpty) 'topic': topic.trim(),
+      if (initialMessage != null && initialMessage.trim().isNotEmpty)
+        'initialMessage': initialMessage.trim(),
     };
 
     try {

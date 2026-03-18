@@ -26,6 +26,12 @@ export class TutorController {
     return this.svc.upsertMyLearningProfile(req.user, body);
   }
 
+  @Roles(Role.STUDENT, Role.ADMIN)
+  @Get('me/academic-context')
+  getMyAcademicContext(@Req() req: any) {
+    return this.svc.getMyAcademicContext(req.user);
+  }
+
   // ---- Brain snapshot (read) ----
   @Roles(Role.STUDENT, Role.ADMIN)
   @Get('me/brain')

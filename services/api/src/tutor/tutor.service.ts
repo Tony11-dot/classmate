@@ -23,12 +23,98 @@ import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
 import { hasAnyRole } from '../auth/permissions';
 import { PrismaService } from '../prisma/prisma.service';
+import { StudentInsightsService } from '../student/student-insights.service';
 
 @Injectable()
 export class TutorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly studentInsightsService: StudentInsightsService,
+  ) {}
 
   private replyRateStore = new Map<string, number[]>();
+
+  private async buildAcademicContextBlock(user: any) {
+    try {
+      const insights = await this.studentInsightsService.getStudentInsights(user);
+      const grades = insights?.grades;
+      const attendance = insights?.attendance;
+      const practice = insights?.practice;
+      const weakTopic =
+        Array.isArray(practice?.weakTopics) && practice.weakTopics.length
+          ? practice.weakTopics[0]
+          : null;
+      const strongTopic =
+        Array.isArray(practice?.strongestTopics) && practice.strongestTopics.length
+          ? practice.strongestTopics[0]
+          : null;
+
+      return {
+        ok: true,
+        summary: {
+          gradeAverage: grades?.average ?? null,
+          bestSubject: grades?.bestSubject ?? null,
+          weakestSubject: grades?.weakestSubject ?? null,
+          attendanceRate: attendance?.attendanceRate ?? null,
+          totalPracticeAttempts: practice?.totalAttempts ?? 0,
+          overallPracticeAccuracy:
+            typeof practice?.overallAccuracy === 'number'
+              ? Number((practice.overallAccuracy * 100).toFixed(1))
+              : null,
+          weakTopic: weakTopic
+            ? {
+                subject: weakTopic.subject,
+                topicLabel: weakTopic.topicLabel,
+                accuracy:
+                  typeof weakTopic.accuracy === 'number'
+                    ? Number((weakTopic.accuracy * 100).toFixed(1))
+                    : null,
+              }
+            : null,
+          strongTopic: strongTopic
+            ? {
+                subject: strongTopic.subject,
+                topicLabel: strongTopic.topicLabel,
+                accuracy:
+                  typeof strongTopic.accuracy === 'number'
+                    ? Number((strongTopic.accuracy * 100).toFixed(1))
+                    : null,
+              }
+            : null,
+          trend: practice?.trend ?? null,
+        },
+        raw: insights,
+      };
+    } catch {
+      return {
+        ok: false,
+        summary: null,
+        raw: null,
+      };
+    }
+  }
+
+  private async buildAcademicContextPrompt(user: any) {
+    const ctx = await this.buildAcademicContextBlock(user);
+    if (!ctx?.ok || !ctx.summary) {
+      return '';
+    }
+
+    return [
+      '=== UNIFIED ACADEMIC CONTEXT ===',
+      JSON.stringify(ctx.summary, null, 2),
+      '- Use this context to personalize explanations, priorities, and examples.',
+      '- If grades are weak in a subject, lean toward fundamentals and confidence-building.',
+      '- If attendance is low, keep the plan realistic and concise.',
+      '- If a weak practice topic exists, bias examples and mini-quizzes toward it.',
+      '- Keep the response grounded in the actual context above; do not invent student data.',
+    ].join('\n');
+  }
+
+  async getMyAcademicContext(user: any) {
+    return this.buildAcademicContextBlock(user);
+  }
+
 
   private buildRefsAndExcerpt(materials: any[]) {
     const refs = materials?.length
@@ -377,6 +463,16 @@ export class TutorService {
         topic: dto?.topic ? String(dto.topic) : null,
       } as any,
     });
+
+    if (dto?.initialMessage && String(dto.initialMessage).trim()) {
+      await this.prisma.tutorMessage.create({
+        data: {
+          sessionId: row.id,
+          role: 'USER' as any,
+          content: String(dto.initialMessage).trim(),
+        } as any,
+      });
+    }
 
     return { ok: true, session: row };
   }
