@@ -184,6 +184,19 @@ export class PracticeService {
       topic: input.topic,
     });
 
+    if (
+      intake.topicType === 'unknown' ||
+      intake.quizzability === 'low'
+    ) {
+      throw new BadRequestException({
+        code: 'UNSUPPORTED_TOPIC',
+        subject: intake.effectiveSubject,
+        topic: dto.topic,
+        message: qq{Topic "" is not supported yet for .},
+      });
+    }
+
+
     const subject = resolveCanonicalPracticeSubject(
       String(intake.effectiveSubject ?? input.subject ?? 'Math').trim(),
     );
@@ -816,9 +829,9 @@ export class PracticeService {
           questions: seeded.seeds.map((seed, i) => {
             const accepted = seed.acceptedAnswers[0] ?? 'Unknown';
             const distractorBase = [
-              'None of the above',
-              'A later revision',
-              'An unrelated concept',
+              'Open Era began in 1968',
+              'A bat-and-ball team sport',
+              'A tournament played only on clay',
               'A different historical milestone',
               'An incorrect alternative',
             ].filter((x) => x !== accepted);
