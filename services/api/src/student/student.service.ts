@@ -7,6 +7,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { StudentInsightsService } from './student-insights.service';
 import {
   subjectDefaultsBySchoolGrade,
   studentSubjectOverrides,
@@ -18,6 +19,7 @@ export class StudentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly schedule: ScheduleService,
+    private readonly studentInsightsService: StudentInsightsService,
   ) {}
 
   private ensureStudent(user: any) {
@@ -141,6 +143,11 @@ export class StudentService {
       studentId: String(studentId),
       cohortId: String(sp.cohortId),
     });
+  }
+
+  async getInsights(user: any) {
+    this.ensureStudent(user);
+    return this.studentInsightsService.getStudentInsights(user);
   }
 
   async myGrades(user: any) {

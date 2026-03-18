@@ -20,6 +20,7 @@ class InsightsScreen extends ConsumerWidget {
     final analyticsAsync = ref.watch(practiceAnalyticsProvider);
     final serverSummaryAsync = ref.watch(serverInsightsProvider);
     final aiInsightsAsync = ref.watch(aiInsightsSummaryProvider);
+    final unifiedInsightsAsync = ref.watch(unifiedStudentInsightsProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -80,6 +81,96 @@ class InsightsScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 16),
+          unifiedInsightsAsync.when(
+            loading: () => const _SectionCard(
+              title: 'Academic snapshot',
+              subtitle:
+                  'Building a combined grades, attendance, and practice signal.',
+              child: _MiniLoader(),
+            ),
+            error: (error, stackTrace) => _SectionCard(
+              title: 'Academic snapshot',
+              subtitle: 'Could not load the combined student signal yet.',
+              child: Text(error.toString()),
+            ),
+            data: (unified) {
+              if (unified == null) {
+                return const _SectionCard(
+                  title: 'Academic snapshot',
+                  subtitle: 'No combined student signal available yet.',
+                  child: _EmptyPracticeBody(),
+                );
+              }
+
+              return _SectionCard(
+                title: 'Academic snapshot',
+                subtitle:
+                    'Your all-in-one academic signal across grades, attendance, and practice.',
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _MetricTile(
+                            icon: Icons.grade_rounded,
+                            label: 'Grade avg',
+                            value: unified.grades.average == null
+                                ? '—'
+                                : '${unified.grades.average!.toStringAsFixed(1)}',
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _MetricTile(
+                            icon: Icons.how_to_reg_rounded,
+                            label: 'Attendance',
+                            value: unified.attendance.attendanceRate == null
+                                ? '—'
+                                : '${unified.attendance.attendanceRate!.toStringAsFixed(1)}%',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _MetricTile(
+                            icon: Icons.workspace_premium_rounded,
+                            label: 'Best subject',
+                            value: (unified.grades.bestSubject ?? '').isEmpty
+                                ? '—'
+                                : unified.grades.bestSubject!,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _MetricTile(
+                            icon: Icons.flag_rounded,
+                            label: 'Needs work',
+                            value: (unified.grades.weakestSubject ?? '').isEmpty
+                                ? '—'
+                                : unified.grades.weakestSubject!,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    if (unified.grades.latest.isNotEmpty)
+                      _ActionBanner(
+                        title:
+                            'Latest grade: ${unified.grades.latest.first.assessmentTitle}',
+                        subtitle:
+                            '${unified.grades.latest.first.subject} • ${unified.grades.latest.first.grade.toStringAsFixed(0)}',
+                        buttonLabel: 'Open grades',
+                        onTap: () => context.go('/grades'),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
           _SectionCard(
             title: 'School record',
             subtitle:
@@ -127,7 +218,7 @@ class InsightsScreen extends ConsumerWidget {
             error: (error, _) => _SectionCard(
               title: 'Practice intelligence',
               subtitle: 'Could not load practice analytics.',
-              child: Text('$error'),
+              child: Text(error.toString()),
             ),
             data: (snapshot) {
               return historyAsync.when(
@@ -139,7 +230,7 @@ class InsightsScreen extends ConsumerWidget {
                 error: (error, _) => _SectionCard(
                   title: 'Practice intelligence',
                   subtitle: 'Could not load practice history.',
-                  child: Text('$error'),
+                  child: Text(error.toString()),
                 ),
                 data: (sessions) {
                   final vm = _InsightsViewModel.from(sessions, snapshot);
@@ -214,7 +305,7 @@ class InsightsScreen extends ConsumerWidget {
                             'Grounded guidance generated from your actual practice data.',
                         child: aiInsightsAsync.when(
                           loading: () => const _MiniLoader(),
-                          error: (_, __) => _ActionBanner(
+                          error: (error, stackTrace) => _ActionBanner(
                             title: vm.focusMessageTitle,
                             subtitle: vm.focusMessageBody,
                             buttonLabel: 'Ask NOVA',

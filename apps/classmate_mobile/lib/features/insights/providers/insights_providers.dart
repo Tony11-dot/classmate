@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../practice/providers/practice_providers.dart';
 import '../data/practice_analytics_api.dart';
+import '../data/student_insights_api.dart';
 import '../domain/insights_models.dart';
 
 final serverInsightsProvider = FutureProvider<InsightsServerSummary?>((
@@ -39,4 +40,11 @@ final aiInsightsSummaryProvider = FutureProvider<AiInsightsSummary?>((
 ) async {
   final api = ref.watch(practiceAnalyticsApiProvider);
   return api.fetchAiInsightsSummary();
+});
+
+final unifiedStudentInsightsProvider = FutureProvider<UnifiedStudentInsights?>((
+  ref,
+) async {
+  final api = ref.watch(studentInsightsApiProvider);
+  return api.fetchUnifiedInsights();
 });

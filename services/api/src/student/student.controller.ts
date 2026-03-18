@@ -111,6 +111,11 @@ export class StudentController {
     return this.student.myGrades(req.user);
   }
 
+  @Get('insights')
+  insights(@Req() req: any) {
+    return this.student.getInsights(req.user);
+  }
+
   @Get('subjects')
   subjects(@Req() req: any) {
     return this.student.mySubjects(req.user);

@@ -149,3 +149,226 @@ class AiInsightsSummary {
     );
   }
 }
+
+class UnifiedGradeInsight {
+  final String id;
+  final String subject;
+  final String courseName;
+  final String assessmentTitle;
+  final double grade;
+  final String? date;
+
+  const UnifiedGradeInsight({
+    required this.id,
+    required this.subject,
+    required this.courseName,
+    required this.assessmentTitle,
+    required this.grade,
+    required this.date,
+  });
+
+  factory UnifiedGradeInsight.fromJson(Map<String, dynamic> json) {
+    double asDouble(Object? v) {
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return double.tryParse('${v ?? ''}') ?? 0;
+    }
+
+    return UnifiedGradeInsight(
+      id: '${json['id'] ?? ''}',
+      subject: '${json['subject'] ?? ''}',
+      courseName: '${json['courseName'] ?? ''}',
+      assessmentTitle: '${json['assessmentTitle'] ?? ''}',
+      grade: asDouble(json['grade']),
+      date: json['date'] == null ? null : '${json['date']}',
+    );
+  }
+}
+
+class UnifiedAttendanceInsight {
+  final String date;
+  final int period;
+  final String status;
+  final String? subject;
+  final String? courseName;
+
+  const UnifiedAttendanceInsight({
+    required this.date,
+    required this.period,
+    required this.status,
+    required this.subject,
+    required this.courseName,
+  });
+
+  factory UnifiedAttendanceInsight.fromJson(Map<String, dynamic> json) {
+    int asInt(Object? v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}') ?? 0;
+    }
+
+    return UnifiedAttendanceInsight(
+      date: '${json['date'] ?? ''}',
+      period: asInt(json['period']),
+      status: '${json['status'] ?? ''}',
+      subject: json['subject'] == null ? null : '${json['subject']}',
+      courseName: json['courseName'] == null ? null : '${json['courseName']}',
+    );
+  }
+}
+
+class UnifiedGradesSummary {
+  final int count;
+  final double? average;
+  final String? bestSubject;
+  final String? weakestSubject;
+  final List<UnifiedGradeInsight> latest;
+
+  const UnifiedGradesSummary({
+    required this.count,
+    required this.average,
+    required this.bestSubject,
+    required this.weakestSubject,
+    required this.latest,
+  });
+
+  factory UnifiedGradesSummary.fromJson(Map<String, dynamic> json) {
+    double? asNullableDouble(Object? v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return double.tryParse('${v ?? ''}');
+    }
+
+    int asInt(Object? v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}') ?? 0;
+    }
+
+    final raw = json['latest'];
+    final list = raw is List ? raw : const [];
+
+    return UnifiedGradesSummary(
+      count: asInt(json['count']),
+      average: asNullableDouble(json['average']),
+      bestSubject: json['bestSubject'] == null
+          ? null
+          : '${json['bestSubject']}',
+      weakestSubject: json['weakestSubject'] == null
+          ? null
+          : '${json['weakestSubject']}',
+      latest: list
+          .whereType<Map>()
+          .map(
+            (e) => UnifiedGradeInsight.fromJson(
+              e.map((k, v) => MapEntry(k.toString(), v)),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}
+
+class UnifiedAttendanceSummary {
+  final int total;
+  final int present;
+  final int absent;
+  final int late;
+  final int justified;
+  final double? attendanceRate;
+  final List<UnifiedAttendanceInsight> latest;
+
+  const UnifiedAttendanceSummary({
+    required this.total,
+    required this.present,
+    required this.absent,
+    required this.late,
+    required this.justified,
+    required this.attendanceRate,
+    required this.latest,
+  });
+
+  factory UnifiedAttendanceSummary.fromJson(Map<String, dynamic> json) {
+    double? asNullableDouble(Object? v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return double.tryParse('${v ?? ''}');
+    }
+
+    int asInt(Object? v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}') ?? 0;
+    }
+
+    final raw = json['latest'];
+    final list = raw is List ? raw : const [];
+
+    return UnifiedAttendanceSummary(
+      total: asInt(json['total']),
+      present: asInt(json['present']),
+      absent: asInt(json['absent']),
+      late: asInt(json['late']),
+      justified: asInt(json['justified']),
+      attendanceRate: asNullableDouble(json['attendanceRate']),
+      latest: list
+          .whereType<Map>()
+          .map(
+            (e) => UnifiedAttendanceInsight.fromJson(
+              e.map((k, v) => MapEntry(k.toString(), v)),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}
+
+class UnifiedStudentInsights {
+  final bool ok;
+  final String studentId;
+  final String generatedAt;
+  final UnifiedGradesSummary grades;
+  final UnifiedAttendanceSummary attendance;
+  final InsightsServerSummary practice;
+
+  const UnifiedStudentInsights({
+    required this.ok,
+    required this.studentId,
+    required this.generatedAt,
+    required this.grades,
+    required this.attendance,
+    required this.practice,
+  });
+
+  factory UnifiedStudentInsights.fromJson(Map<String, dynamic> json) {
+    final gradesRaw = json['grades'];
+    final attendanceRaw = json['attendance'];
+    final practiceRaw = json['practice'];
+
+    final gradesMap = gradesRaw is Map
+        ? gradesRaw.map((k, v) => MapEntry(k.toString(), v))
+        : <String, dynamic>{};
+
+    final attendanceMap = attendanceRaw is Map
+        ? attendanceRaw.map((k, v) => MapEntry(k.toString(), v))
+        : <String, dynamic>{};
+
+    final practiceMap = practiceRaw is Map
+        ? practiceRaw.map((k, v) => MapEntry(k.toString(), v))
+        : <String, dynamic>{};
+
+    return UnifiedStudentInsights(
+      ok: json['ok'] == true,
+      studentId: '${json['studentId'] ?? ''}',
+      generatedAt: '${json['generatedAt'] ?? ''}',
+      grades: UnifiedGradesSummary.fromJson(gradesMap),
+      attendance: UnifiedAttendanceSummary.fromJson(attendanceMap),
+      practice: InsightsServerSummary.fromJson(practiceMap),
+    );
+  }
+}

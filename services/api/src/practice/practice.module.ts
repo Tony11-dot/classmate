@@ -89,5 +89,6 @@ import { PracticeAiInsightsService } from './practice-ai-insights.service';
     PhysicsOpticsDeterministicEngine,
     PhysicsThermodynamicsDeterministicEngine,
   ],
+  exports: [PracticeService],
 })
 export class PracticeModule {}
