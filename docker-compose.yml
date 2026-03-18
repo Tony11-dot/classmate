@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: classmate-postgres
     restart: unless-stopped
     environment:
@@ -13,29 +13,30 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d classmate"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
 
   redis:
     image: redis:7-alpine
     container_name: classmate-redis
     restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   api1:
     build:
       context: ./services/api
       dockerfile: Dockerfile
+    container_name: classmate-api1
     restart: unless-stopped
     depends_on:
       postgres:
@@ -49,6 +50,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
+      JWT_SECRET: "dev-super-secret-jwt-change-me"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -56,6 +59,7 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile
+    container_name: classmate-api2
     restart: unless-stopped
     depends_on:
       postgres:
@@ -69,6 +73,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
+      JWT_SECRET: "dev-super-secret-jwt-change-me"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -76,6 +82,7 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile
+    container_name: classmate-api3
     restart: unless-stopped
     depends_on:
       postgres:
@@ -89,6 +96,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "false"
+      JWT_SECRET: "dev-super-secret-jwt-change-me"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     expose:
       - "3000"
 
@@ -96,6 +105,7 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile
+    container_name: classmate-worker
     restart: unless-stopped
     depends_on:
       postgres:
@@ -109,6 +119,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENABLE_PRACTICE_WORKER: "true"
+      JWT_SECRET: "dev-super-secret-jwt-change-me"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-dummy}"
     command: ["node", "dist/main.js"]
 
   nginx:
