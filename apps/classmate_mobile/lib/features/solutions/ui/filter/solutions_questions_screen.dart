@@ -59,7 +59,7 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
                       items: uploadState.subjects
                           .map(
                             (subject) => DropdownMenuItem<SolutionSubject>(
-                              initialValue: subject,
+                              value: subject,
                               child: Text(subject.title),
                             ),
                           )
@@ -77,7 +77,7 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
                       items: (uploadSubject?.books ?? const <SolutionBook>[])
                           .map(
                             (book) => DropdownMenuItem<SolutionBook>(
-                              initialValue: book,
+                              value: book,
                               child: Text(book.title),
                             ),
                           )
