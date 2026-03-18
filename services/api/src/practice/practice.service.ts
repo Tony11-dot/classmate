@@ -24,6 +24,10 @@ import type {
   AdaptiveSessionSummary,
 } from './adaptive/contracts/adaptive-practice.types';
 import { normalizeQuestionSetShape } from './practice.safety';
+import {
+  practiceBadRequest,
+  practiceGenerationFailed,
+} from './errors/practice-error.util';
 
 type PracticeMode =
   | 'practice'
@@ -116,6 +120,21 @@ type PracticeRoutingDecision = {
 
 @Injectable()
 export class PracticeService {
+  private logPracticeEvent(event: string, payload: Record<string, unknown>) {
+    try {
+      console.log(
+        JSON.stringify({
+          scope: 'practice.generate',
+          event,
+          ...payload,
+        }),
+      );
+    } catch {
+      console.log(`[practice.generate] ${event}`);
+    }
+  }
+
+
   private cache = new PracticeCacheService();
   private rateLimit = new RateLimitService();
   private dedup = new DedupService();
@@ -464,9 +483,16 @@ export class PracticeService {
 
       const locallyValid = this.validateQuestionSet(raw, questionCount);
 
-      console.log(
-        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} local_valid=${locallyValid.length}/${questionCount}`,
-      );
+      this.logPracticeEvent('attempt_local_validation', {
+        attempt: attempt + 1,
+        maxAttempts: attemptNotes.length,
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        localValid: locallyValid.length,
+        requested: questionCount,
+      });
 
       if (locallyValid.length !== questionCount) continue;
 
@@ -478,9 +504,16 @@ export class PracticeService {
         questions: locallyValid,
       });
 
-      console.log(
-        `[practice.generate] attempt=${attempt + 1}/${attemptNotes.length} verified=${verified.length}/${questionCount}`,
-      );
+      this.logPracticeEvent('attempt_verified', {
+        attempt: attempt + 1,
+        maxAttempts: attemptNotes.length,
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        verified: verified.length,
+        requested: questionCount,
+      });
 
       if (verified.length === questionCount) {
         finalQuestions = normalizeQuestionSetShape(verified as any) as any;
@@ -489,16 +522,30 @@ export class PracticeService {
     }
 
     if (finalQuestions.length !== questionCount && bestLocalValid.length === questionCount) {
-      console.log(
-        `[practice.generate] verifier_fallback_using_local_valid count=${bestLocalValid.length}`,
-      );
+      this.logPracticeEvent('verifier_fallback_using_local_valid', {
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        count: bestLocalValid.length,
+      });
       finalQuestions = normalizeQuestionSetShape(bestLocalValid as any) as any;
     }
 
     if (finalQuestions.length !== questionCount) {
-      throw new InternalServerErrorException(
-        'Model returned an invalid question set',
-      );
+      this.logPracticeEvent('generation_failed', {
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        questionCount,
+        bestLocalValidCount: bestLocalValid.length,
+        finalQuestionsCount: finalQuestions.length,
+      });
+
+      throw practiceGenerationFailed({
+        message: 'Model returned an invalid question set',
+      });
     }
 
     const now = Date.now();

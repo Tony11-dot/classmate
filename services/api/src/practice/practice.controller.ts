@@ -1,5 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { HttpException } from '@nestjs/common';
 import { PracticeService } from './practice.service';
+import { isPracticeHttpException } from './errors/practice-error.util';
 
 @Controller('practice')
 export class PracticeController {
