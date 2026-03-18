@@ -10,7 +10,6 @@ class AttendanceScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(unifiedStudentInsightsProvider);
-    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: async.when(
