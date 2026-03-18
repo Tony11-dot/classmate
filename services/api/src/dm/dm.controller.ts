@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DmService } from './dm.service';
 import { CreateDmThreadDto } from './dto/create-thread.dto';
@@ -21,12 +21,12 @@ export class DmController {
     return this.dm.createThread(req.user, dto);
   }
 
-  @Patch('threads/:id/request')
+  @Post('threads/:id/request')
   respondToRequest(@Req() req: any, @Param('id') id: string, @Body() dto: RespondDmRequestDto) {
     return this.dm.respondToRequest(req.user, id, dto);
   }
 
-  @Patch('threads/:id/unblock')
+  @Post('threads/:id/unblock')
   unblock(@Req() req: any, @Param('id') id: string) {
     return this.dm.unblock(req.user, id);
   }

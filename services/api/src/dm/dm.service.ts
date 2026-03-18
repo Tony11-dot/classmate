@@ -225,7 +225,7 @@ export class DmService {
     const me = await this.requireParticipant(threadId, userId);
 
     if (me.state === 'BLOCKED') throw new ForbiddenException('Blocked thread');
-    if (!(await this.canChat(threadId)) && dto.kind !== 'SYSTEM') {
+    if (!(await this.canChat(threadId))) {
       throw new ForbiddenException('Request not accepted yet');
     }
 
