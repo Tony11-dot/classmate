@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/solutions_models.dart';
 import '../../providers/solutions_flow_provider.dart';
+import '../../data/solutions_api.dart';
 
 class SolutionsQuestionsScreen extends ConsumerWidget {
   const SolutionsQuestionsScreen({super.key});
@@ -11,8 +12,10 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(solutionsFlowProvider);
     final notifier = ref.read(solutionsFlowProvider.notifier);
-    final exact = notifier.currentQuestionSolutions();
-    final samePage = notifier.samePageSolutions();
+    final exactAsync = ref.watch(solutionsLiveExactProvider);
+    final samePageAsync = ref.watch(solutionsLiveSamePageProvider);
+    final exactLocal = notifier.currentQuestionSolutions();
+    final samePageLocal = notifier.samePageSolutions();
     final cs = Theme.of(context).colorScheme;
 
     Future<void> openUploadSheet() async {
@@ -152,8 +155,88 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
                     const SizedBox(height: 18),
                     FilledButton.icon(
                       onPressed: () {
-                        uploadNotifier.addUpload();
-                        Navigator.of(context).pop();
+                        final subject =
+                            uploadState.uploadSelectedSubject ??
+                            uploadState.selectedSubject;
+                        final book =
+                            uploadState.uploadSelectedBook ??
+                            uploadState.selectedBook;
+                        final page = int.tryParse(
+                          (uploadState.uploadPageNumber.isEmpty
+                                  ? state.pageNumber
+                                  : uploadState.uploadPageNumber)
+                              .trim(),
+                        );
+                        final question =
+                            (uploadState.uploadQuestionNumber.isEmpty
+                                    ? state.questionNumber
+                                    : uploadState.uploadQuestionNumber)
+                                .trim();
+                        final caption = uploadState.uploadCaption.trim();
+
+                        if (subject == null ||
+                            book == null ||
+                            page == null ||
+                            question.isEmpty) {
+                          Navigator.of(context).pop();
+                          return;
+                        }
+
+                        final api = ref.read(solutionsApiProvider);
+
+                        Future<void>(() async {
+                          try {
+                            await api.createSolution({
+                              'subject': subject.title,
+                              'bookTitle': book.title,
+                              'caption': caption.isEmpty ? null : caption,
+                              'pageNumber': page,
+                              'questionNumber': question,
+                              'uploaderName': 'You',
+                              'uploaderInitials': 'YO',
+                              'files': uploadState.uploadFiles.isEmpty
+                                  ? [
+                                      {
+                                        'kind': 'image',
+                                        'url': '/uploads/mock-solution.jpg',
+                                        'mimeType': 'image/jpeg',
+                                        'fileName': 'solution.jpg',
+                                      },
+                                    ]
+                                  : uploadState.uploadFiles
+                                        .map(
+                                          (file) => {
+                                            'kind':
+                                                file.kind ==
+                                                    SolutionAssetKind.pdf
+                                                ? 'pdf'
+                                                : 'image',
+                                            'url': '/uploads/${file.name}',
+                                            'mimeType':
+                                                file.kind ==
+                                                    SolutionAssetKind.pdf
+                                                ? 'application/pdf'
+                                                : 'image/jpeg',
+                                            'fileName': file.name,
+                                          },
+                                        )
+                                        .toList(),
+                            });
+                            uploadNotifier.addUpload();
+                            ref.invalidate(solutionsLiveExactProvider);
+                            ref.invalidate(solutionsLiveSamePageProvider);
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          } catch (_) {
+                            uploadNotifier.addUpload();
+                            ref.invalidate(solutionsLiveExactProvider);
+                            ref.invalidate(solutionsLiveSamePageProvider);
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          }
+                        });
                       },
                       icon: const Icon(Icons.cloud_upload_outlined),
                       label: const Text('Upload solution'),
@@ -189,45 +272,126 @@ class SolutionsQuestionsScreen extends ConsumerWidget {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
-            _SectionTitle(
-              title: 'Solutions for this exact question',
-              subtitle: exact.isEmpty
-                  ? 'Nothing has been uploaded for this exact question yet. Be the first to help your classmates.'
-                  : '${exact.length} upload${exact.length == 1 ? '' : 's'} found',
-            ),
-            const SizedBox(height: 10),
-            if (exact.isEmpty)
-              _EmptyCard(
-                text:
-                    'No exact match yet. You can upload one now, or check what classmates solved on this same page.',
-              )
-            else
-              ...exact.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _SolutionCard(item: item),
-                ),
+            exactAsync.when(
+              loading: () => const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _SectionTitle(
+                    title: 'Solutions for this exact question',
+                    subtitle:
+                        'Loading backend results for this exact question.',
+                  ),
+                  SizedBox(height: 10),
+                  _EmptyCard(text: 'Checking live uploads...'),
+                ],
               ),
+              error: (_, __) {
+                final exact = exactLocal;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SectionTitle(
+                      title: 'Solutions for this exact question',
+                      subtitle: exact.isEmpty
+                          ? 'Nothing has been uploaded for this exact question yet. Be the first to help your classmates.'
+                          : '${exact.length} upload${exact.length == 1 ? '' : 's'} found',
+                    ),
+                    const SizedBox(height: 10),
+                    if (exact.isEmpty)
+                      const _EmptyCard(
+                        text:
+                            'No exact match yet. You can upload one now, or check what classmates solved on this same page.',
+                      )
+                    else
+                      ...exact.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _SolutionCard(item: item),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              data: (exact) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _SectionTitle(
+                    title: 'Solutions for this exact question',
+                    subtitle: exact.isEmpty
+                        ? 'Nothing has been uploaded for this exact question yet. Be the first to help your classmates.'
+                        : '${exact.length} upload${exact.length == 1 ? '' : 's'} found',
+                  ),
+                  const SizedBox(height: 10),
+                  if (exact.isEmpty)
+                    const _EmptyCard(
+                      text:
+                          'No exact match yet. You can upload one now, or check what classmates solved on this same page.',
+                    )
+                  else
+                    ...exact.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _SolutionCard(item: item),
+                      ),
+                    ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
-            _SectionTitle(
-              title: 'Other questions solved on this page',
-              subtitle: samePage.isEmpty
-                  ? 'No neighboring questions were uploaded from this page yet.'
-                  : 'Useful fallback when your exact question has no upload yet.',
-            ),
-            const SizedBox(height: 10),
-            if (samePage.isEmpty)
-              _EmptyCard(
-                text:
-                    'No nearby uploads on this page yet. A fresh upload here would really help.',
-              )
-            else
-              ...samePage.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _SolutionCard(item: item),
-                ),
+            samePageAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) {
+                final samePage = samePageLocal;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SectionTitle(
+                      title: 'Other questions solved on this page',
+                      subtitle: samePage.isEmpty
+                          ? 'No neighboring questions were uploaded from this page yet.'
+                          : 'Useful fallback when your exact question has no upload yet.',
+                    ),
+                    const SizedBox(height: 10),
+                    if (samePage.isEmpty)
+                      const _EmptyCard(
+                        text:
+                            'No nearby uploads on this page yet. A fresh upload here would really help.',
+                      )
+                    else
+                      ...samePage.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _SolutionCard(item: item),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              data: (samePage) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _SectionTitle(
+                    title: 'Other questions solved on this page',
+                    subtitle: samePage.isEmpty
+                        ? 'No neighboring questions were uploaded from this page yet.'
+                        : 'Useful fallback when your exact question has no upload yet.',
+                  ),
+                  const SizedBox(height: 10),
+                  if (samePage.isEmpty)
+                    const _EmptyCard(
+                      text:
+                          'No nearby uploads on this page yet. A fresh upload here would really help.',
+                    )
+                  else
+                    ...samePage.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _SolutionCard(item: item),
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
       ),

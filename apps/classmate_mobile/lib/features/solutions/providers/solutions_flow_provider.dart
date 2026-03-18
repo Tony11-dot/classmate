@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/solutions_api.dart';
+import '../data/solutions_live_mapper.dart';
 import '../domain/solutions_models.dart';
 
 final solutionsFlowProvider =
@@ -284,3 +285,64 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     return int.tryParse(value.trim()) ?? 999999;
   }
 }
+
+final solutionsLiveExactProvider = FutureProvider<List<QuestionSolutionCard>>((
+  ref,
+) async {
+  final state = ref.watch(solutionsFlowProvider);
+  final api = ref.watch(solutionsApiProvider);
+
+  final subject = state.selectedSubject?.title.trim() ?? '';
+  final bookTitle = state.selectedBook?.title.trim() ?? '';
+  final pageNumber = int.tryParse(state.pageNumber.trim());
+  final questionNumber = state.questionNumber.trim();
+
+  if (subject.isEmpty ||
+      bookTitle.isEmpty ||
+      pageNumber == null ||
+      questionNumber.isEmpty) {
+    return const <QuestionSolutionCard>[];
+  }
+
+  final raw = await api.fetchSolutions(
+    subject: subject,
+    bookTitle: bookTitle,
+    pageNumber: pageNumber,
+    questionNumber: questionNumber,
+    page: 1,
+    limit: 20,
+  );
+
+  return SolutionsLiveMapper.mapUploads(raw['items'], subjects: state.subjects);
+});
+
+final solutionsLiveSamePageProvider =
+    FutureProvider<List<QuestionSolutionCard>>((ref) async {
+      final state = ref.watch(solutionsFlowProvider);
+      final api = ref.watch(solutionsApiProvider);
+
+      final subject = state.selectedSubject?.title.trim() ?? '';
+      final bookTitle = state.selectedBook?.title.trim() ?? '';
+      final pageNumber = int.tryParse(state.pageNumber.trim());
+      final questionNumber = state.questionNumber.trim();
+
+      if (subject.isEmpty || bookTitle.isEmpty || pageNumber == null) {
+        return const <QuestionSolutionCard>[];
+      }
+
+      final raw = await api.fetchSolutions(
+        subject: subject,
+        bookTitle: bookTitle,
+        pageNumber: pageNumber,
+        page: 1,
+        limit: 50,
+      );
+
+      final all = SolutionsLiveMapper.mapUploads(
+        raw['items'],
+        subjects: state.subjects,
+      );
+      return all
+          .where((e) => e.questionNumber.trim() != questionNumber)
+          .toList(growable: false);
+    });
