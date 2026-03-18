@@ -16,6 +16,8 @@ import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
+import '../features/lifedoc/exams_screen.dart';
+import '../features/lifedoc/exam_detail_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/notifications_screen.dart';
 import '../features/lifedoc/meetings_screen.dart';
@@ -138,6 +140,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/meetings',
             builder: (context, state) => const MeetingsScreen(),
+          ),
+          GoRoute(
+            path: '/exams',
+            builder: (context, state) => const ExamsScreen(),
+          ),
+          GoRoute(
+            path: '/exams/:id',
+            builder: (context, state) =>
+                ExamDetailScreen(examId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: '/announcements',
