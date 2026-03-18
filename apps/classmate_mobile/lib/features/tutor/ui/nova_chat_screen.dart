@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
+import '../../insights/providers/insights_providers.dart';
 
 class NovaChatScreen extends ConsumerStatefulWidget {
   const NovaChatScreen({
@@ -24,6 +25,11 @@ class NovaChatScreen extends ConsumerStatefulWidget {
 }
 
 class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
+  String get _headerTitle {
+    final title = (widget.initialTitle ?? '').trim();
+    return title.isEmpty ? 'NOVA' : title;
+  }
+
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final FocusNode _focusNode = FocusNode();
@@ -50,6 +56,115 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     _scroll.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  Widget _academicBadge() {
+    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
+
+    return unifiedAsync.maybeWhen(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
+        final weakTopic = data.practice.weakTopics.isNotEmpty
+            ? data.practice.weakTopics.first.topicLabel
+            : null;
+        final weakestSubject = data.grades.weakestSubject;
+        final attendance = data.attendance.attendanceRate;
+
+        final parts = <String>[
+          if ((weakTopic ?? '').trim().isNotEmpty) 'Focus: $weakTopic',
+          if ((weakestSubject ?? '').trim().isNotEmpty)
+            'Subject: $weakestSubject',
+          if (attendance != null)
+            'Attendance ${attendance.toStringAsFixed(0)}%',
+        ];
+
+        if (parts.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.secondaryContainer.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outlineVariant.withValues(alpha: 0.28),
+            ),
+          ),
+          child: Row(
+            children: [
+              _academicBadge(),
+              _starterChips(),
+              const Icon(Icons.psychology_alt_rounded, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'NOVA knows your performance • ${parts.join(' • ')}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _starterChips() {
+    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
+
+    return unifiedAsync.maybeWhen(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
+
+        final chips = <String>[
+          if (data.practice.weakTopics.isNotEmpty)
+            'Help me with ${data.practice.weakTopics.first.topicLabel}',
+          if ((data.grades.weakestSubject ?? '').trim().isNotEmpty)
+            'Why am I weak in ${data.grades.weakestSubject}?',
+          if (data.practice.trend?.deltaAccuracy != null)
+            'Analyze my last 7d vs 30d progress',
+          if ((data.grades.bestSubject ?? '').trim().isNotEmpty)
+            'Push me harder in ${data.grades.bestSubject}',
+        ];
+
+        final uniq = <String>[];
+        for (final c in chips) {
+          if (c.trim().isEmpty) continue;
+          if (!uniq.contains(c)) uniq.add(c);
+        }
+
+        if (uniq.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final chip in uniq.take(4))
+                ActionChip(
+                  label: Text(chip),
+                  onPressed: _sending
+                      ? null
+                      : () {
+                          _controller.text = chip;
+                          _onSend();
+                        },
+                ),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
   }
 
   Future<void> _bootstrap() async {
@@ -180,6 +295,36 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
     _sessionId = id;
     ref.invalidate(tutorSessionsProvider);
+  }
+
+  Future<void> _pickImage() async {
+    if (_sending) return;
+
+    setState(() {
+      _messages.add(
+        _Msg(
+          role: 'assistant',
+          content:
+              'Photo input UI is ready. Backend image understanding is the next wired step.',
+        ),
+      );
+    });
+    _scrollToBottom();
+  }
+
+  Future<void> _recordVoice() async {
+    if (_sending) return;
+
+    setState(() {
+      _messages.add(
+        _Msg(
+          role: 'assistant',
+          content:
+              'Voice message UI is ready. Recorder/transcription wiring is the next step.',
+        ),
+      );
+    });
+    _scrollToBottom();
   }
 
   Future<void> _onSend() async {
