@@ -47,6 +47,13 @@ export class SolutionsService {
     }
     if (!files.length) throw new BadRequestException('at least one file required');
 
+    const verification = await this.novaVerify.verifySolution({
+      caption: body.caption?.trim() || undefined,
+      files: files.map((f) => ({
+        mimeType: String(f.mimeType ?? ''),
+      })),
+    });
+
     const book = await this.prisma.solutionBook.upsert({
       where: {
         subject_title: {
@@ -73,7 +80,13 @@ export class SolutionsService {
         uploaderName: body.uploaderName?.trim() || null,
         uploaderInitials: body.uploaderInitials?.trim() || null,
         moderationStatus: 'PENDING',
-        verificationStatus: 'UNCHECKED',
+        verificationStatus:
+          verification.status === 'VERIFIED'
+            ? 'VERIFIED'
+            : verification.status === 'REJECTED'
+              ? 'REJECTED'
+              : 'UNCHECKED',
+        verificationNote: verification.reason ?? null,
         files: {
           create: files.map((f, index) => ({
             kind: String(f.kind ?? 'file'),
