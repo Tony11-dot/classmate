@@ -54,28 +54,6 @@ class InsightsScreen extends ConsumerWidget {
     return Icons.show_chart_rounded;
   }
 
-  String _attendanceRiskText(UnifiedAttendanceSummary attendance) {
-    final rate = attendance.attendanceRate;
-    if (rate == null) {
-      return 'Attendance data is still building. Keep checking in consistently so NOVA can spot real patterns.';
-    }
-    if (rate < 85) {
-      return 'Attendance is in the danger zone. Missing a few more lessons can hit grades hard.';
-    }
-    if (rate < 92) {
-      return 'Attendance is slightly shaky. Tightening this up can protect your momentum.';
-    }
-    return 'Attendance is healthy. Keep the streak stable.';
-  }
-
-  String _gradeRiskText(UnifiedGradesSummary grades) {
-    final weak = (grades.weakestSubject ?? '').trim();
-    if (weak.isEmpty) {
-      return 'No clear weak subject signal yet. More assessments will sharpen the picture.';
-    }
-    return '$weak is the current pressure point. This is the best place to focus targeted recovery work.';
-  }
-
   String _predictiveHeadline(
     UnifiedStudentInsights unified,
     List<dynamic> announcements,
@@ -146,7 +124,6 @@ class InsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
     final aiAsync = ref.watch(aiInsightsSummaryProvider);
-    final serverAsync = ref.watch(serverInsightsProvider);
     final announcements = ref.watch(announcementsProvider);
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
@@ -189,11 +166,6 @@ class InsightsScreen extends ConsumerWidget {
                   child: SizedBox.shrink(),
                 );
               }
-
-              final server = serverAsync.maybeWhen(
-                data: (v) => v,
-                orElse: () => null,
-              );
 
               final predictive = _predictiveCards(unified, announcements);
 
