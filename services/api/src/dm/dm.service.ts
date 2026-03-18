@@ -56,7 +56,7 @@ export class DmService {
     if (blocked) return false;
 
     return parts.every((p) =>
-      [DmParticipantState.ACCEPTED].includes(p.state as DmParticipantState),
+      p.state === DmParticipantState.ACCEPTED,
     );
   }
 
@@ -91,7 +91,7 @@ export class DmService {
     });
 
     return parts.map((p) => {
-      const thread = p.thread;
+      const thread = await this.prisma.dmThread.findUnique({ where: { id: p.threadId }, include: { participants: true } });
       const other =
         thread.type === DmThreadType.DIRECT
           ? thread.participants.find((x) => x.userId !== userId)
