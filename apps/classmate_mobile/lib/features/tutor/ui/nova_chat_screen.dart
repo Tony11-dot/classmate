@@ -534,7 +534,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               tooltip: 'Copy session id',
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: _sessionId!));
-                if (!mounted) return;
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Session id copied')),
                 );
