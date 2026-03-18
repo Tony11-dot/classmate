@@ -1,6 +1,7 @@
 enum SolutionAssetKind { image, pdf }
 
 class SolutionUploadAsset {
+  final UploadState uploadState;
   final String id;
   final String name;
   final SolutionAssetKind kind;
@@ -11,6 +12,7 @@ class SolutionUploadAsset {
     required this.id,
     required this.name,
     required this.kind,
+    this.uploadState = UploadState.queued,
     this.filePath,
     this.remoteUrl,
   });
@@ -220,3 +222,5 @@ class SolutionsFlowState {
     );
   }
 }
+
+enum UploadState { queued, uploading, uploaded, failed }

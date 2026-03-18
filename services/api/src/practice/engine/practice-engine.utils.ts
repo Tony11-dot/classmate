@@ -66,8 +66,8 @@ export function fillOptionsWithSafeFallback(existing: string[], answer: string, 
     `${trimmed} (alternative)`,
     `${trimmed} only`,
     `Not ${trimmed}`,
-    `None of the above`,
-    `All of the above`,
+    `Not enough information`,
+    `A different value`,
     `${trimmed} (approx.)`,
   ];
 

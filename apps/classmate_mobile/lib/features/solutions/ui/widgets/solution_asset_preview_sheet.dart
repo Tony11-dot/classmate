@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../domain/solutions_models.dart';
@@ -7,69 +8,69 @@ class SolutionAssetPreviewSheet extends StatelessWidget {
 
   final SolutionUploadAsset asset;
 
+  bool get _isLocal =>
+      (asset.filePath ?? '').trim().isNotEmpty &&
+      (asset.remoteUrl ?? '').trim().isEmpty;
+
+  bool get _isRemote => (asset.remoteUrl ?? '').trim().isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    Widget preview;
+
+    if (asset.kind == SolutionAssetKind.image) {
+      if (_isLocal) {
+        preview = ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.file(File(asset.filePath!), fit: BoxFit.contain),
+        );
+      } else if (_isRemote) {
+        preview = ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.network(asset.remoteUrl!, fit: BoxFit.contain),
+        );
+      } else {
+        preview = const Text('Image not available');
+      }
+    } else {
+      preview = Column(
+        children: [
+          const Icon(Icons.picture_as_pdf_outlined, size: 64),
+          const SizedBox(height: 12),
+          Text(asset.name),
+          const SizedBox(height: 12),
+          const Text('PDF preview not supported yet'),
+        ],
+      );
+    }
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               asset.name,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              asset.kind == SolutionAssetKind.pdf
-                  ? 'PDF attachment'
-                  : 'Image attachment',
-              style: TextStyle(color: cs.onSurfaceVariant),
+              style: const TextStyle(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.2),
-                ),
+                color: cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Column(
-                children: [
-                  Icon(
-                    asset.kind == SolutionAssetKind.pdf
-                        ? Icons.picture_as_pdf_outlined
-                        : Icons.photo_outlined,
-                    size: 42,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    asset.filePath?.trim().isNotEmpty == true
-                        ? asset.filePath!
-                        : (asset.remoteUrl?.trim().isNotEmpty == true
-                              ? asset.remoteUrl!
-                              : 'Preview source not available yet'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-                  ),
-                ],
-              ),
+              child: preview,
             ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
+              child: FilledButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.check_rounded),
-                label: const Text('Done'),
+                child: const Text('Done'),
               ),
             ),
           ],

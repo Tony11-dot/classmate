@@ -3,7 +3,7 @@ import { PracticeModule } from '../practice.module';
 import { PracticeService } from '../practice.service';
 
 describe('unsupported custom topic policy', () => {
-  it('rejects unknown low-quizzability custom topics instead of returning usable questions', async () => {
+  it('does not return usable questions for unknown low-quizzability custom topics', async () => {
     const mod = await Test.createTestingModule({
       imports: [PracticeModule],
     }).compile();
@@ -27,6 +27,10 @@ describe('unsupported custom topic policy', () => {
 
     expect(res).toBeNull();
     expect(err).toBeTruthy();
-    expect((err?.response?.questions ?? []).length).toBe(0);
+
+    const body =
+      typeof err?.getResponse === 'function' ? err.getResponse() : err?.response;
+
+    expect((body?.questions ?? []).length).toBe(0);
   });
 });
