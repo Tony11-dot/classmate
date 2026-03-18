@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NovaVerifyService } from '../nova/nova.verify.service';
 import type {
   CreateSolutionUploadBody,
   ListSolutionsQuery,
@@ -8,11 +9,12 @@ import type {
 } from './solutions.types';
 
 @Injectable()
-import { NovaVerifyService } from '../nova/nova.verify.service';
 
 export class SolutionsService {
   constructor(
-    private readonly novaVerify: NovaVerifyService,private readonly prisma: PrismaService) {}
+    private readonly novaVerify: NovaVerifyService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   private userIdOf(user: any): string {
     return String(user?.sub ?? user?.id ?? user?.userId ?? '');
