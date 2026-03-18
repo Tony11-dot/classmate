@@ -1,13 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
+import '../solutions/providers/solutions_flow_provider.dart';
 import 'announcements_models.dart';
 
 final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   final unified = ref
       .watch(unifiedStudentInsightsProvider)
       .maybeWhen(data: (v) => v, orElse: () => null);
+  final solutions = ref.watch(solutionsFlowProvider).allSolutions;
 
   final grades = unified?.grades;
   final attendance = unified?.attendance;
@@ -16,7 +17,8 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   final now = DateTime.now();
   final list = <AnnouncementItem>[];
 
-  if ((grades?.average ?? 100) < 70) {
+  final avg = grades?.average;
+  if (avg != null && avg < 70) {
     list.add(
       AnnouncementItem(
         id: 'grade-risk',
@@ -24,27 +26,27 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         body: 'Your average dropped below 70. Immediate action recommended.',
         severity: AnnouncementSeverity.critical,
         source: 'grades',
-        createdAt: now.subtract(const Duration(minutes: 5)),
+        createdAt: now,
       ),
     );
   }
 
-  final weakestSubject = (grades?.weakestSubject ?? '').trim();
-  if (weakestSubject.isNotEmpty) {
+  final weakest = (grades?.weakestSubject ?? '').trim();
+  if (weakest.isNotEmpty) {
     list.add(
       AnnouncementItem(
         id: 'weak-subject',
         title: 'Weak subject detected',
-        body: '$weakestSubject needs attention.',
+        body: '$weakest needs attention.',
         severity: AnnouncementSeverity.warning,
         source: 'grades',
-        createdAt: now.subtract(const Duration(minutes: 20)),
+        createdAt: now.subtract(const Duration(hours: 1)),
       ),
     );
   }
 
-  final attendanceRate = attendance?.attendanceRate;
-  if ((attendanceRate ?? 100) < 85) {
+  final rate = attendance?.attendanceRate;
+  if (rate != null && rate < 85) {
     list.add(
       AnnouncementItem(
         id: 'attendance-risk',
@@ -52,12 +54,13 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         body: 'Your attendance is dropping. This will impact grades.',
         severity: AnnouncementSeverity.critical,
         source: 'attendance',
-        createdAt: now.subtract(const Duration(hours: 1)),
+        createdAt: now.subtract(const Duration(hours: 2)),
       ),
     );
   }
 
-  if ((attendance?.late ?? 0) > 3) {
+  final late = attendance?.late ?? 0;
+  if (late > 3) {
     list.add(
       AnnouncementItem(
         id: 'lateness',
@@ -65,7 +68,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         body: 'You have multiple late arrivals.',
         severity: AnnouncementSeverity.warning,
         source: 'attendance',
-        createdAt: now.subtract(const Duration(hours: 2)),
+        createdAt: now.subtract(const Duration(hours: 3)),
       ),
     );
   }
@@ -80,13 +83,13 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
             '${weak.topicLabel} in ${weak.subject} is dragging your momentum.',
         severity: AnnouncementSeverity.warning,
         source: 'practice',
-        createdAt: now.subtract(const Duration(hours: 3)),
+        createdAt: now.subtract(const Duration(hours: 4)),
       ),
     );
   }
 
   final delta = practice?.trend?.deltaAccuracy;
-  if ((delta ?? 0) <= -6) {
+  if (delta != null && delta <= -6) {
     list.add(
       AnnouncementItem(
         id: 'practice-drop',
@@ -95,7 +98,24 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
             'Your recent practice is below your baseline. Slow down and rebuild.',
         severity: AnnouncementSeverity.warning,
         source: 'practice',
-        createdAt: now.subtract(const Duration(hours: 4)),
+        createdAt: now.subtract(const Duration(hours: 5)),
+      ),
+    );
+  }
+
+  if (solutions.isNotEmpty) {
+    final latest = [...solutions]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final item = latest.first;
+    list.add(
+      AnnouncementItem(
+        id: 'solutions-activity-${item.id}',
+        title: 'Solutions activity is live',
+        body:
+            'Your solution space is active on page ${item.pageNumber}, question ${item.questionNumber}. Check peer work or upload yours.',
+        severity: AnnouncementSeverity.info,
+        source: 'solutions',
+        createdAt: item.createdAt,
       ),
     );
   }

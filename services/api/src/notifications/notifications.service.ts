@@ -1,76 +1,49 @@
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
-import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
-  
   constructor(private readonly prisma: PrismaService) {}
 
-async list(userId: string, q: ListNotificationsDto) {
-    const limit = q.limit ?? 30;
+  private userIdOf(user: any): string {
+    return String(user?.sub ?? user?.id ?? user?.userId ?? '');
+  }
 
-    const where: any = { userId };
-    if (q.state === 'seen') where.seenAt = { not: null };
-    if (q.state === 'unseen') where.seenAt = null;
+  async list(user: any, dto: ListNotificationsDto) {
+    const userId = this.userIdOf(user);
+    const take = Math.min(100, Math.max(1, Number(dto.limit ?? 50)));
+
+    if (!userId) {
+      return { ok: true, items: [] };
+    }
 
     const rows = await this.prisma.notification.findMany({
-      where,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: limit + 1,
-      ...(q.cursor
-        ? {
-            cursor: { id: q.cursor },
-            skip: 1,
-          }
-        : {}),
-    });
-
-    const hasNext = rows.length > limit;
-    const items = hasNext ? rows.slice(0, limit) : rows;
-    const nextCursor = hasNext ? items[items.length - 1]?.id : null;
-
-    return { items, nextCursor };
-  }
-
-  async markSeen(userId: string, ids: string[]) {
-    if (!ids.length) return { ok: true, updated: 0 };
-
-    const now = new Date();
-    const res = await this.prisma.notification.updateMany({
-      where: { userId, id: { in: ids }, seenAt: null },
-      data: { seenAt: now },
-    });
-
-    return { ok: true, updated: res.count };
-  }
-
-  async markAllSeen(userId: string) {
-    const now = new Date();
-    const res = await this.prisma.notification.updateMany({
-      where: { userId, seenAt: null },
-      data: { seenAt: now },
-    });
-    return { ok: true, updated: res.count };
-  }
-
-  async createForUser(userId: string, dto: CreateNotificationDto) {
-    return this.prisma.notification.create({
-      data: {
+      where: {
         userId,
-        type: dto.type,
-        title: dto.title,
-        body: dto.body,
-        data: dto.data as any,
-        severity: dto.severity ?? 'info',
       },
+      orderBy: [{ createdAt: 'desc' }],
+      take,
     });
-  }
 
-  async get(userId: string, id: string) {
-    const n = await this.prisma.notification.findFirst({ where: { id, userId } });
-    if (!n) throw new NotFoundException('Notification not found');
-    return n;
+    const items = rows.map((row: any) => ({
+      id: String(row.id),
+      title: String(row.title ?? row.type ?? 'Notification'),
+      body: String(row.body ?? row.message ?? ''),
+      source: String(row.type ?? 'system').toLowerCase(),
+      createdAt: row.createdAt,
+      isRead: row.seenAt != null || row.readAt != null || row.isRead == true,
+      severity:
+        String(row.type ?? '').toLowerCase().includes('alert')
+          ? 'critical'
+          : String(row.type ?? '').toLowerCase().includes('attendance')
+              ? 'warning'
+              : 'info',
+    }));
+
+    return {
+      ok: true,
+      items,
+    };
   }
 }

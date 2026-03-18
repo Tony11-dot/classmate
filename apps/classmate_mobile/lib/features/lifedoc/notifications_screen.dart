@@ -1,35 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'announcements_models.dart';
-import 'announcements_provider.dart';
-import '../insights/providers/insights_providers.dart';
+import 'notifications_models.dart';
+import 'notifications_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
-  String _timeAgo(DateTime value) {
-    final diff = DateTime.now().difference(value);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${value.day}/${value.month}/${value.year}';
-  }
-
-  String _groupLabel(DateTime value) {
+  String _groupLabel(DateTime date) {
     final now = DateTime.now();
-    final d0 = DateTime(now.year, now.month, now.day);
-    final d1 = DateTime(value.year, value.month, value.day);
-    final diff = d0.difference(d1).inDays;
+    final d = DateTime(date.year, date.month, date.day);
+    final t = DateTime(now.year, now.month, now.day);
+    final diff = t.difference(d).inDays;
     if (diff <= 0) return 'Today';
     if (diff == 1) return 'Yesterday';
-    if (diff < 7) return 'This week';
+    if (diff <= 7) return 'This week';
     return 'Earlier';
   }
 
-  IconData _iconForSource(String source) {
-    switch (source) {
+  String _timeLabel(DateTime date) {
+    final hh = date.hour.toString().padLeft(2, '0');
+    final mm = date.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+
+  IconData _iconFor(String source) {
+    switch (source.trim().toLowerCase()) {
       case 'grades':
         return Icons.grade_rounded;
       case 'attendance':
@@ -43,234 +39,168 @@ class NotificationsScreen extends ConsumerWidget {
     }
   }
 
-  Color _badgeColor(BuildContext context, AnnouncementSeverity severity) {
+  Color _tone(BuildContext context, StudentNotificationSeverity severity) {
     final cs = Theme.of(context).colorScheme;
     switch (severity) {
-      case AnnouncementSeverity.critical:
-        return cs.errorContainer.withValues(alpha: 0.85);
-      case AnnouncementSeverity.warning:
-        return cs.tertiaryContainer.withValues(alpha: 0.85);
-      case AnnouncementSeverity.info:
-        return cs.primaryContainer.withValues(alpha: 0.85);
+      case StudentNotificationSeverity.critical:
+        return cs.errorContainer.withValues(alpha: 0.82);
+      case StudentNotificationSeverity.warning:
+        return cs.tertiaryContainer.withValues(alpha: 0.82);
+      case StudentNotificationSeverity.info:
+        return cs.surfaceContainerHighest.withValues(alpha: 0.82);
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
-    final announcementItems = ref.watch(announcementsProvider);
+    final async = ref.watch(mergedNotificationsProvider);
     final cs = Theme.of(context).colorScheme;
 
-    return unifiedAsync.when(
+    return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text(error.toString())),
-      data: (data) {
-        final derived = <_NotificationItem>[
-          ...announcementItems.map(
-            (a) => _NotificationItem(
-              id: a.id,
-              icon: _iconForSource(a.source),
-              title: a.title,
-              body: a.body,
-              source: a.source,
-              createdAt: a.createdAt,
-              severity: a.severity,
-            ),
-          ),
-          if (data?.grades.latest.isNotEmpty == true)
-            _NotificationItem(
-              id: 'latest-grade',
-              icon: Icons.grade_rounded,
-              title: 'New grade signal',
-              body:
-                  'Latest result: ${data!.grades.latest.first.assessmentTitle} • ${data.grades.latest.first.grade.toStringAsFixed(0)}.',
-              source: 'grades',
-              createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
-              severity: AnnouncementSeverity.info,
-            ),
-          if (data?.attendance.latest.isNotEmpty == true)
-            _NotificationItem(
-              id: 'latest-attendance',
-              icon: Icons.how_to_reg_rounded,
-              title: 'Attendance updated',
-              body:
-                  'Latest status: ${data!.attendance.latest.first.status} on ${data.attendance.latest.first.date}.',
-              source: 'attendance',
-              createdAt: DateTime.now().subtract(const Duration(minutes: 35)),
-              severity: AnnouncementSeverity.info,
-            ),
-          if (data?.practice.weakTopics.isNotEmpty == true)
-            _NotificationItem(
-              id: 'nova-recommendation',
-              icon: Icons.psychology_alt_rounded,
-              title: 'NOVA recommendation',
-              body:
-                  'Weak area detected in ${data!.practice.weakTopics.first.subject}: ${data.practice.weakTopics.first.topicLabel}.',
-              source: 'practice',
-              createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-              severity: AnnouncementSeverity.info,
-            ),
-          if (data?.practice.trend?.deltaAccuracy != null)
-            _NotificationItem(
-              id: 'trend-update',
-              icon: Icons.timeline_rounded,
-              title: 'Trend update',
-              body:
-                  'Your 7d vs 30d practice delta is ${data!.practice.trend!.deltaAccuracy!.toStringAsFixed(1)} points.',
-              source: 'practice',
-              createdAt: DateTime.now().subtract(const Duration(hours: 8)),
-              severity: AnnouncementSeverity.info,
-            ),
-        ];
-
-        final deduped = <String, _NotificationItem>{};
-        for (final item in derived) {
-          deduped[item.id] = item;
-        }
-
-        final items = deduped.values.toList()
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-        final grouped = <String, List<_NotificationItem>>{};
+      data: (items) {
+        final grouped = <String, List<StudentNotificationItem>>{};
         for (final item in items) {
           grouped.putIfAbsent(_groupLabel(item.createdAt), () => []).add(item);
         }
 
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Notifications',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(persistedNotificationsProvider);
+            ref.invalidate(mergedNotificationsProvider);
+            await ref.read(mergedNotificationsProvider.future);
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Notifications',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Full history of academic updates, AI nudges, announcements, and fresh school activity.',
-                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (items.isEmpty)
-              const _EmptyBody(
-                message:
-                    'No notifications yet. Once school or AI signals arrive, the full history will appear here.',
-              )
-            else
-              ...grouped.entries.expand(
-                (entry) => <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8, top: 6),
-                    child: Text(
-                      entry.key,
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your full student history: grades, attendance, practice, solutions, and smart academic updates.',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        height: 1.35,
+                      ),
                     ),
-                  ),
-                  ...entry.value.map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.2),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (items.isEmpty)
+                const _EmptyBody(
+                  message:
+                      'No notifications yet. When school activity or study signals update, they will appear here.',
+                )
+              else
+                ...grouped.entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            entry.key,
+                            style: const TextStyle(fontWeight: FontWeight.w900),
                           ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              radius: 22,
-                              backgroundColor: _badgeColor(
-                                context,
-                                item.severity,
+                        ...entry.value.map(
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: _tone(context, item.severity),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: cs.outlineVariant.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
                               ),
-                              child: Icon(item.icon, size: 20),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
+                                  CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: cs.surface.withValues(
+                                      alpha: 0.9,
+                                    ),
+                                    child: Icon(
+                                      _iconFor(item.source),
+                                      size: 20,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    item.body,
-                                    style: TextStyle(
-                                      color: cs.onSurfaceVariant,
-                                      height: 1.35,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          item.body,
+                                          style: TextStyle(
+                                            color: cs.onSurfaceVariant,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            _MetaPill(
+                                              label: item.source.toUpperCase(),
+                                            ),
+                                            _MetaPill(
+                                              label: _timeLabel(item.createdAt),
+                                            ),
+                                            if (!item.isRead)
+                                              const _MetaPill(label: 'NEW'),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      _MetaPill(
-                                        label: item.source.toUpperCase(),
-                                      ),
-                                      _MetaPill(
-                                        label: _timeAgo(item.createdAt),
-                                      ),
-                                      _MetaPill(
-                                        label: item.severity.name.toUpperCase(),
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-          ],
+                ),
+            ],
+          ),
         );
       },
     );
   }
-}
-
-class _NotificationItem {
-  const _NotificationItem({
-    required this.id,
-    required this.icon,
-    required this.title,
-    required this.body,
-    required this.source,
-    required this.createdAt,
-    required this.severity,
-  });
-
-  final String id;
-  final IconData icon;
-  final String title;
-  final String body;
-  final String source;
-  final DateTime createdAt;
-  final AnnouncementSeverity severity;
 }
 
 class _MetaPill extends StatelessWidget {
@@ -284,16 +214,12 @@ class _MetaPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.8),
+        color: cs.surface.withValues(alpha: 0.88),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: cs.onSurface,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
       ),
     );
   }
