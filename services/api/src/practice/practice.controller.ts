@@ -13,7 +13,7 @@ export class PracticeController {
   }
 
   @Get('progress-summary')
-  getProgressSummary(@Req() req: any) {
+  async getProgressSummary(@Req() req: any) {
     const userId = String(
       req?.user?.sub ??
         req?.user?.id ??
@@ -25,7 +25,7 @@ export class PracticeController {
   }
 
   @Get('insights-summary')
-  getAiInsightsSummary(@Req() req: any) {
+  async getAiInsightsSummary(@Req() req: any) {
     const userId = String(
       req?.user?.sub ??
         req?.user?.id ??

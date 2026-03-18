@@ -1,23 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   PracticeAttemptRecord,
+  PracticeProgressSummary,
   PracticeSessionRecord,
   TopicMasteryRecord,
 } from './practice-session.types';
-
-type StoredSession = PracticeSessionRecord & {
-  id: string;
-  userId: string;
-};
-
-type StoredMastery = TopicMasteryRecord & {
-  subject: string;
-  topicLabel: string;
-  totalAnswered: number;
-  correctAnswered: number;
-  accuracy: number;
-  streak: number;
-};
 
 type CreateSessionInput = {
   userId?: string;
@@ -38,6 +26,21 @@ type RecordAttemptInput = {
   difficulty?: 'easy' | 'medium' | 'hard' | 'olympiad' | 'adaptive';
   responseTimeMs?: number;
   awardedScore?: number;
+  mode?: string;
+  prompt?: string;
+};
+
+type SaveTopicMasteryInput = Partial<TopicMasteryRecord> & {
+  subject?: string;
+  topicLabel?: string;
+  totalAnswered?: number;
+  correctAnswered?: number;
+  accuracy?: number;
+  streak?: number;
+  attempts?: number;
+  correct?: number;
+  userId?: string;
+  lastUpdatedAt?: Date | string;
 };
 
 type TopicSummary = {
@@ -51,118 +54,150 @@ type TopicSummary = {
 
 @Injectable()
 export class PracticePersistenceService {
-  private readonly sessions = new Map<string, StoredSession>();
-  private readonly attemptsBySession = new Map<string, PracticeAttemptRecord[]>();
-  private readonly topicMastery = new Map<string, StoredMastery>();
-  private readonly userSessions = new Map<string, Set<string>>();
+  constructor(private readonly prisma: PrismaService) {}
 
   private safeUserId(userId?: string): string {
     return String(userId ?? 'anonymous');
-  }
-
-  private linkUserSession(userId: string | undefined, sessionId: string): void {
-    const uid = this.safeUserId(userId);
-    const bucket = this.userSessions.get(uid) ?? new Set<string>();
-    bucket.add(sessionId);
-    this.userSessions.set(uid, bucket);
   }
 
   private toTopicKey(subject: string, topicLabel: string): string {
     return `${String(subject ?? '').trim()}::${String(topicLabel ?? '').trim()}`;
   }
 
-  startSession(input: CreateSessionInput): StoredSession {
+  private toAttemptRecord(row: any): PracticeAttemptRecord {
+    return {
+      questionId: String(row.questionId ?? ''),
+      subject: String(row.subject ?? ''),
+      topicLabel: String(row.topicLabel ?? ''),
+      difficulty: String(row.difficulty ?? 'adaptive'),
+      mode: String(row.mode ?? 'adaptive'),
+      isCorrect: Boolean(row.isCorrect),
+      selectedIndex: row.selectedIndex ?? null,
+      correctIndex: row.correctIndex ?? null,
+      answeredAt:
+        row.createdAt instanceof Date
+          ? row.createdAt.toISOString()
+          : new Date().toISOString(),
+    };
+  }
+
+  private async buildSessionRecord(
+    sessionId: string,
+  ): Promise<PracticeSessionRecord | null> {
+    const rows = await this.prisma.practiceAttempt.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!rows.length) return null;
+
+    const first = rows[0];
+    const last = rows[rows.length - 1];
+
+    return {
+      id: String(sessionId),
+      userId: String(first.userId ?? 'anonymous'),
+      subject: String(first.subject ?? ''),
+      topicLabel: String(first.topicLabel ?? ''),
+      mode: String(first.mode ?? 'adaptive'),
+      startedAt:
+        first.createdAt instanceof Date
+          ? first.createdAt.toISOString()
+          : new Date().toISOString(),
+      updatedAt:
+        last.createdAt instanceof Date
+          ? last.createdAt.toISOString()
+          : new Date().toISOString(),
+      attempts: rows.map((row) => this.toAttemptRecord(row)),
+    };
+  }
+
+  async startSession(input: CreateSessionInput): Promise<PracticeSessionRecord> {
     return this.createSession(input);
   }
 
-  createSession(input: CreateSessionInput): StoredSession {
-    const existing = this.sessions.get(input.sessionId);
-    if (existing) {
-      this.linkUserSession(input.userId ?? existing.userId, input.sessionId);
-      return existing;
-    }
+  async createSession(
+    input: CreateSessionInput,
+  ): Promise<PracticeSessionRecord> {
+    const existing = await this.buildSessionRecord(input.sessionId);
+    if (existing) return existing;
 
-    const created = {
-      id: input.sessionId,
-      sessionId: input.sessionId,
+    const now = new Date().toISOString();
+
+    return {
+      id: String(input.sessionId),
       userId: this.safeUserId(input.userId),
-      subject: input.subject,
-      topicLabel: input.topicLabel,
+      subject: String(input.subject ?? ''),
+      topicLabel: String(input.topicLabel ?? ''),
+      mode: 'adaptive',
+      startedAt: now,
+      updatedAt: now,
       attempts: [],
-    } as unknown as StoredSession;
-
-    this.sessions.set(input.sessionId, created);
-    this.attemptsBySession.set(input.sessionId, []);
-    this.linkUserSession(created.userId, input.sessionId);
-    return created;
+    };
   }
 
-  getSession(sessionId: string): StoredSession | null {
-    return this.sessions.get(sessionId) ?? null;
+  async getSession(sessionId: string): Promise<PracticeSessionRecord | null> {
+    return this.buildSessionRecord(sessionId);
   }
 
-  recordAttempt(input: RecordAttemptInput): PracticeAttemptRecord {
-    const session =
-      this.getSession(input.sessionId) ??
-      this.createSession({
-        userId: input.userId,
-        sessionId: input.sessionId,
-        subject: input.subject,
-        topicLabel: input.topicLabel,
-      });
+  async recordAttempt(
+    input: RecordAttemptInput,
+  ): Promise<PracticeAttemptRecord> {
+    const userId = this.safeUserId(input.userId);
 
-    this.linkUserSession(input.userId ?? session.userId, input.sessionId);
+    await this.prisma.practiceAttempt.create({
+      data: {
+        userId,
+        sessionId: String(input.sessionId),
+        subject: String(input.subject ?? ''),
+        topicLabel: String(input.topicLabel ?? ''),
+        mode: String(input.mode ?? 'adaptive'),
+        difficulty: String(input.difficulty ?? 'adaptive'),
+        questionId: String(input.questionId ?? ''),
+        prompt: String(input.prompt ?? input.questionId ?? ''),
+        selectedIndex:
+          typeof input.selectedIndex === 'number' ? input.selectedIndex : null,
+        correctIndex:
+          typeof input.correctIndex === 'number' ? input.correctIndex : -1,
+        isCorrect: Boolean(input.isCorrect),
+        timeTakenMs:
+          typeof input.responseTimeMs === 'number' ? input.responseTimeMs : null,
+        awardedScore:
+          typeof input.awardedScore === 'number' ? input.awardedScore : 0,
+        usedNova: false,
+        source: 'adaptive',
+      },
+    });
 
-    const attempt = {
-      questionId: input.questionId,
+    return {
+      questionId: String(input.questionId ?? ''),
+      subject: String(input.subject ?? ''),
+      topicLabel: String(input.topicLabel ?? ''),
+      difficulty: String(input.difficulty ?? 'adaptive'),
+      mode: String(input.mode ?? 'adaptive'),
       isCorrect: Boolean(input.isCorrect),
       selectedIndex:
-        typeof input.selectedIndex === 'number' ? input.selectedIndex : undefined,
+        typeof input.selectedIndex === 'number' ? input.selectedIndex : null,
       correctIndex:
-        typeof input.correctIndex === 'number' ? input.correctIndex : undefined,
-      difficulty: input.difficulty ?? 'adaptive',
-      responseTimeMs:
-        typeof input.responseTimeMs === 'number' ? input.responseTimeMs : undefined,
-      awardedScore:
-        typeof input.awardedScore === 'number' ? input.awardedScore : 0,
-      subject: input.subject,
-      topicLabel: input.topicLabel,
-      sessionId: input.sessionId,
-    } as unknown as PracticeAttemptRecord;
-
-    const bucket = this.attemptsBySession.get(input.sessionId) ?? [];
-    bucket.push(attempt);
-    this.attemptsBySession.set(input.sessionId, bucket);
-
-    const updatedSession = {
-      ...session,
-      attempts: [...bucket],
-    } as StoredSession;
-
-    this.sessions.set(input.sessionId, updatedSession);
-    return attempt;
+        typeof input.correctIndex === 'number' ? input.correctIndex : null,
+      answeredAt: new Date().toISOString(),
+    };
   }
 
-  listAttemptsBySession(sessionId: string): PracticeAttemptRecord[] {
-    return [...(this.attemptsBySession.get(sessionId) ?? [])];
+  async listAttemptsBySession(sessionId: string): Promise<PracticeAttemptRecord[]> {
+    const rows = await this.prisma.practiceAttempt.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return rows.map((row) => this.toAttemptRecord(row));
   }
 
-  saveTopicMastery(
+  async saveTopicMastery(
     topicKey: string,
-    mastery: Partial<StoredMastery> & {
-      subject?: string;
-      topicLabel?: string;
-      totalAnswered?: number;
-      correctAnswered?: number;
-      accuracy?: number;
-      streak?: number;
-      attempts?: number;
-      correct?: number;
-      userId?: string;
-      lastUpdatedAt?: Date | string;
-    },
-  ): StoredMastery {
-    const prev = this.topicMastery.get(topicKey);
+    mastery: SaveTopicMasteryInput,
+  ): Promise<TopicMasteryRecord> {
+    const prev = await this.getTopicMastery(topicKey);
 
     const totalAnswered = Number(
       mastery.totalAnswered ?? mastery.attempts ?? prev?.totalAnswered ?? 0,
@@ -181,30 +216,50 @@ export class PracticePersistenceService {
 
     const streak = Number(mastery.streak ?? prev?.streak ?? 0);
 
-    const saved = {
-      ...(prev ?? {}),
-      ...(mastery as object),
-      userId: String(
-        mastery.userId ??
-          prev?.userId ??
-          'anonymous',
-      ),
-      subject: String(mastery.subject ?? prev?.subject ?? ''),
-      topicLabel: String(mastery.topicLabel ?? prev?.topicLabel ?? ''),
-      totalAnswered,
-      correctAnswered,
-      accuracy,
-      streak,
-      lastUpdatedAt: (mastery.lastUpdatedAt as any) ?? prev?.lastUpdatedAt ?? new Date(),
-    } as StoredMastery;
+    const subject = String(mastery.subject ?? prev?.subject ?? '');
+    const topicLabel = String(mastery.topicLabel ?? prev?.topicLabel ?? '');
+    const userId = this.safeUserId(mastery.userId ?? prev?.userId);
 
-    this.topicMastery.set(topicKey, saved);
-    return saved;
+    const saved = await this.prisma.practiceSkillProfile.upsert({
+      where: {
+        userId_subject_topicLabel: {
+          userId,
+          subject,
+          topicLabel,
+        },
+      },
+      update: {
+        theta: accuracy,
+        streak,
+        totalSeen: totalAnswered,
+        totalCorrect: correctAnswered,
+      },
+      create: {
+        userId,
+        subject,
+        topicLabel,
+        theta: accuracy,
+        streak,
+        totalSeen: totalAnswered,
+        totalCorrect: correctAnswered,
+      },
+    });
+
+    return {
+      userId: String(saved.userId),
+      subject: String(saved.subject),
+      topicLabel: String(saved.topicLabel),
+      accuracy: Number(saved.theta ?? 0),
+      streak: Number(saved.streak ?? 0),
+      totalAnswered: Number(saved.totalSeen ?? 0),
+      correctAnswered: Number(saved.totalCorrect ?? 0),
+      lastUpdatedAt: saved.updatedAt.toISOString(),
+    };
   }
 
-  getTopicMastery(
-    topicKey: string | { subject?: string; topicLabel?: string },
-  ): StoredMastery | null {
+  async getTopicMastery(
+    topicKey: string | { subject?: string; topicLabel?: string; userId?: string },
+  ): Promise<TopicMasteryRecord | null> {
     const keyStr =
       typeof topicKey === 'string'
         ? topicKey
@@ -213,88 +268,128 @@ export class PracticePersistenceService {
             String(topicKey?.topicLabel ?? ''),
           );
 
-    const existing = this.topicMastery.get(keyStr);
-    if (existing) return existing;
-
     const [subject, topicLabel] = keyStr.split('::');
     if (!subject || !topicLabel) return null;
 
-    let totalAnswered = 0;
-    let correctAnswered = 0;
-    let streak = 0;
+    const userId =
+      typeof topicKey === 'string'
+        ? 'anonymous'
+        : this.safeUserId(topicKey.userId);
 
-    for (const attempts of this.attemptsBySession.values()) {
-      for (const a of attempts as any[]) {
-        if (a.subject === subject && a.topicLabel === topicLabel) {
-          totalAnswered += 1;
-          if (a.isCorrect) {
-            correctAnswered += 1;
-            streak += 1;
-          } else {
-            streak = 0;
-          }
-        }
-      }
-    }
-
-    if (totalAnswered === 0) return null;
-
-    const derived = {
-      userId: 'anonymous',
-      subject,
-      topicLabel,
-      totalAnswered,
-      correctAnswered,
-      accuracy: correctAnswered / totalAnswered,
-      streak,
-      lastUpdatedAt: new Date().toISOString(),
-    } as unknown as StoredMastery;
-
-    this.topicMastery.set(keyStr, derived);
-    return derived;
-  }
-
-  getProgressSummary(userId: string) {
-    const sessionIds = [...(this.userSessions.get(userId) ?? new Set<string>())];
-
-    let totalAttempts = 0;
-    let totalCorrect = 0;
-
-    const topicMap = new Map<string, TopicSummary>();
-
-    for (const sessionId of sessionIds) {
-      const attempts = this.attemptsBySession.get(sessionId) ?? [];
-      totalAttempts += attempts.length;
-
-      for (const attempt of attempts as any[]) {
-        if (attempt?.isCorrect) totalCorrect += 1;
-
-        const subject = String(attempt?.subject ?? '');
-        const topicLabel = String(attempt?.topicLabel ?? '');
-        if (!subject || !topicLabel) continue;
-
-        const key = `${subject}::${topicLabel}`;
-        const row = topicMap.get(key) ?? {
+    const existing = await this.prisma.practiceSkillProfile.findUnique({
+      where: {
+        userId_subject_topicLabel: {
+          userId,
           subject,
           topicLabel,
-          totalAnswered: 0,
-          correctAnswered: 0,
-          accuracy: 0,
-          streak: 0,
-        };
+        },
+      },
+    });
 
-        row.totalAnswered += 1;
-        if (attempt?.isCorrect) {
-          row.correctAnswered += 1;
-          row.streak += 1;
-        } else {
-          row.streak = 0;
-        }
+    if (existing) {
+      return {
+        userId: String(existing.userId),
+        subject: String(existing.subject),
+        topicLabel: String(existing.topicLabel),
+        accuracy: Number(existing.theta ?? 0),
+        streak: Number(existing.streak ?? 0),
+        totalAnswered: Number(existing.totalSeen ?? 0),
+        correctAnswered: Number(existing.totalCorrect ?? 0),
+        lastUpdatedAt: existing.updatedAt.toISOString(),
+      };
+    }
 
-        topicMap.set(key, row);
+    const attempts = await this.prisma.practiceAttempt.findMany({
+      where: {
+        userId,
+        subject,
+        topicLabel,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!attempts.length) return null;
+
+    let streak = 0;
+    let correctAnswered = 0;
+
+    for (const attempt of attempts) {
+      if (attempt.isCorrect) {
+        correctAnswered += 1;
+        streak += 1;
+      } else {
+        streak = 0;
       }
     }
 
+    const totalAnswered = attempts.length;
+    const accuracy =
+      totalAnswered > 0 ? correctAnswered / totalAnswered : 0;
+
+    return {
+      userId,
+      subject,
+      topicLabel,
+      accuracy,
+      streak,
+      totalAnswered,
+      correctAnswered,
+      lastUpdatedAt:
+        attempts[attempts.length - 1].createdAt instanceof Date
+          ? attempts[attempts.length - 1].createdAt.toISOString()
+          : new Date().toISOString(),
+    };
+  }
+
+  async getProgressSummary(userId: string): Promise<PracticeProgressSummary> {
+    const normalizedUserId = this.safeUserId(userId);
+
+    let rows = await this.prisma.practiceAttempt.findMany({
+      where: { userId: normalizedUserId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!rows.length && normalizedUserId !== 'anonymous') {
+      rows = await this.prisma.practiceAttempt.findMany({
+        where: { userId: 'anonymous' },
+        orderBy: { createdAt: 'asc' },
+      });
+    }
+
+    let totalCorrect = 0;
+    const sessionIds = new Set<string>();
+    const topicMap = new Map<string, TopicSummary>();
+
+    for (const row of rows) {
+      if (row.isCorrect) totalCorrect += 1;
+      if (row.sessionId) sessionIds.add(String(row.sessionId));
+
+      const subject = String(row.subject ?? '');
+      const topicLabel = String(row.topicLabel ?? '');
+      if (!subject || !topicLabel) continue;
+
+      const key = `${subject}::${topicLabel}`;
+      const current = topicMap.get(key) ?? {
+        subject,
+        topicLabel,
+        totalAnswered: 0,
+        correctAnswered: 0,
+        accuracy: 0,
+        streak: 0,
+      };
+
+      current.totalAnswered += 1;
+      if (row.isCorrect) {
+        current.correctAnswered += 1;
+        current.streak += 1;
+      } else {
+        current.streak = 0;
+      }
+
+      topicMap.set(key, current);
+    }
+
+    const totalAttempts = rows.length;
     const overallAccuracy =
       totalAttempts > 0 ? totalCorrect / totalAttempts : 0;
 
@@ -306,14 +401,21 @@ export class PracticePersistenceService {
           : 0,
     }));
 
-    const weakTopics = [...topicRows].sort((a, b) => a.accuracy - b.accuracy);
-    const strongestTopics = [...topicRows].sort(
-      (a, b) => b.accuracy - a.accuracy,
-    );
+    const weakTopics = [...topicRows].sort((a, b) => {
+      const byAccuracy = a.accuracy - b.accuracy;
+      if (byAccuracy !== 0) return byAccuracy;
+      return b.totalAnswered - a.totalAnswered;
+    });
+
+    const strongestTopics = [...topicRows].sort((a, b) => {
+      const byAccuracy = b.accuracy - a.accuracy;
+      if (byAccuracy !== 0) return byAccuracy;
+      return b.totalAnswered - a.totalAnswered;
+    });
 
     return {
-      userId,
-      totalSessions: sessionIds.length,
+      userId: normalizedUserId,
+      totalSessions: sessionIds.size,
       totalAttempts,
       totalCorrect,
       overallAccuracy,

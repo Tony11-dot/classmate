@@ -13,11 +13,11 @@ import type {
 @Injectable()
 export class AdaptivePracticeFlowService {
   constructor(
-    private readonly masteryService: MasteryService = new MasteryService(),
-    private readonly evaluator: AttemptEvaluatorService = new AttemptEvaluatorService(),
-    private readonly selector: AdaptiveSelectorService = new AdaptiveSelectorService(),
-    private readonly persistence: PracticePersistenceService = new PracticePersistenceService(),
-    private readonly summary: ProgressSummaryService = new ProgressSummaryService(),
+    private readonly masteryService: MasteryService,
+    private readonly evaluator: AttemptEvaluatorService,
+    private readonly selector: AdaptiveSelectorService,
+    private readonly persistence: PracticePersistenceService,
+    private readonly summary: ProgressSummaryService,
   ) {}
 
   private toTopicKey(subject: string, topicLabel: string): string {
@@ -37,9 +37,7 @@ export class AdaptivePracticeFlowService {
       correct: Number(stored.correctAnswered ?? stored.correct ?? base.correct ?? 0),
       streak: Number(stored.streak ?? base.streak ?? 0),
       accuracy:
-        typeof stored.accuracy === 'number'
-          ? stored.accuracy
-          : base.accuracy,
+        typeof stored.accuracy === 'number' ? stored.accuracy : base.accuracy,
       lastOutcome: (stored as any).lastOutcome ?? base.lastOutcome,
       band: (stored as any).band ?? base.band,
     };
@@ -67,10 +65,12 @@ export class AdaptivePracticeFlowService {
     return 6;
   }
 
-  submitAttempt(input: AdaptiveAttemptInput): AdaptiveAttemptResult {
+  async submitAttempt(
+    input: AdaptiveAttemptInput,
+  ): Promise<AdaptiveAttemptResult> {
     const topicKey = this.toTopicKey(input.subject, input.topicLabel);
 
-    this.persistence.createSession({
+    await this.persistence.createSession({
       sessionId: input.sessionId,
       subject: input.subject,
       topicLabel: input.topicLabel,
@@ -78,11 +78,12 @@ export class AdaptivePracticeFlowService {
     });
 
     const prevStored =
-      this.persistence.getTopicMastery(topicKey) ??
-      this.persistence.getTopicMastery({
+      (await this.persistence.getTopicMastery({
+        userId: 'anonymous',
         subject: input.subject,
         topicLabel: input.topicLabel,
-      });
+      })) ??
+      (await this.persistence.getTopicMastery(topicKey));
 
     const prevMastery = this.toMasteryState({
       subject: input.subject,
@@ -108,7 +109,7 @@ export class AdaptivePracticeFlowService {
       isCorrect: Boolean(evaluated.isCorrect),
     });
 
-    this.persistence.recordAttempt({
+    await this.persistence.recordAttempt({
       userId: 'anonymous',
       sessionId: input.sessionId,
       subject: input.subject,
@@ -120,9 +121,11 @@ export class AdaptivePracticeFlowService {
       difficulty: input.difficulty ?? 'adaptive',
       responseTimeMs: input.responseTimeMs,
       awardedScore,
+      mode: 'adaptive',
+      prompt: String(input.questionId ?? ''),
     });
 
-    const storedMastery = this.persistence.saveTopicMastery(topicKey, {
+    const storedMastery = await this.persistence.saveTopicMastery(topicKey, {
       userId: 'anonymous',
       subject: input.subject,
       topicLabel: input.topicLabel,
@@ -133,11 +136,11 @@ export class AdaptivePracticeFlowService {
     });
 
     const nextChoice = this.pickNextDifficulty(storedMastery);
-    const sessionAttempts = this.persistence.listAttemptsBySession(input.sessionId);
-    const weakAreas =
-      storedMastery.accuracy < 0.6 ? [input.topicLabel] : [];
-    const strengths =
-      storedMastery.accuracy >= 0.8 ? [input.topicLabel] : [];
+    const sessionAttempts = await this.persistence.listAttemptsBySession(
+      input.sessionId,
+    );
+    const weakAreas = storedMastery.accuracy < 0.6 ? [input.topicLabel] : [];
+    const strengths = storedMastery.accuracy >= 0.8 ? [input.topicLabel] : [];
 
     void this.summary;
 
@@ -160,24 +163,25 @@ export class AdaptivePracticeFlowService {
     };
   }
 
-  getProgressSummary(userId: string) {
+  async getProgressSummary(userId: string) {
     return this.persistence.getProgressSummary(userId);
   }
 
-  getSessionSummary(input: {
+  async getSessionSummary(input: {
     sessionId: string;
     subject: string;
     topicLabel: string;
-  }): AdaptiveSessionSummary {
+  }): Promise<AdaptiveSessionSummary> {
     const topicKey = this.toTopicKey(input.subject, input.topicLabel);
-    const attempts = this.persistence.listAttemptsBySession(input.sessionId);
+    const attempts = await this.persistence.listAttemptsBySession(input.sessionId);
     const mastery =
-      this.persistence.getTopicMastery(topicKey) ??
-      this.persistence.getTopicMastery({
+      (await this.persistence.getTopicMastery({
+        userId: 'anonymous',
         subject: input.subject,
         topicLabel: input.topicLabel,
-      }) ??
-      this.persistence.saveTopicMastery(topicKey, {
+      })) ??
+      (await this.persistence.getTopicMastery(topicKey)) ??
+      (await this.persistence.saveTopicMastery(topicKey, {
         userId: 'anonymous',
         subject: input.subject,
         topicLabel: input.topicLabel,
@@ -194,7 +198,7 @@ export class AdaptivePracticeFlowService {
           }
           return streak;
         })(),
-      });
+      }));
 
     const next = this.pickNextDifficulty(mastery);
     const correct = attempts.filter((x: any) => x?.isCorrect).length;

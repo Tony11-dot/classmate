@@ -1175,6 +1175,7 @@ model BagrutQuestion {
 model PracticeAttempt {
   id              String   @id @default(cuid())
   userId          String
+  sessionId       String?
   subject         String
   topicLabel      String
   mode            String
@@ -1185,10 +1186,12 @@ model PracticeAttempt {
   correctIndex    Int
   isCorrect       Boolean
   timeTakenMs     Int?
+  awardedScore    Int      @default(0)
   usedNova        Boolean  @default(false)
   source          String   @default("ai")
   createdAt       DateTime @default(now())
 
+  @@index([userId, sessionId, createdAt])
   @@index([userId, subject, topicLabel, createdAt])
   @@index([userId, createdAt])
 }

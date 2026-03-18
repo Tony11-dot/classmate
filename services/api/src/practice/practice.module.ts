@@ -3,6 +3,7 @@ import { MultiSourceService } from './retrieval/multi-source.service';
 import { RetrievalService } from './retrieval/retrieval.service';
 import { EmbeddingService } from './retrieval/embedding.service';
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../prisma/prisma.module';
 import { PracticeController } from './practice.controller';
 import { PracticeService } from './practice.service';
 import { PracticeEngineRegistry } from './engine/practice-engine.registry';
@@ -46,6 +47,7 @@ import { PhysicsElectricityDeterministicEngine } from './engine/physics-electric
 import { PracticeAiInsightsService } from './practice-ai-insights.service';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [PracticeController],
   providers: [ConfidenceService, MultiSourceService, RetrievalService, EmbeddingService, 
     AdaptivePracticeFlowService,

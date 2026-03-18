@@ -164,26 +164,26 @@ export class PracticeService {
     @Optional()
     private readonly practiceAiInsightsService: PracticeAiInsightsService = new PracticeAiInsightsService(),
   ) {}
-  submitAdaptiveAttempt(
+  async submitAdaptiveAttempt(
     input: AdaptiveAttemptInput,
-  ): AdaptiveAttemptResult {
+  ): Promise<AdaptiveAttemptResult> {
     return this.adaptivePracticeFlowService.submitAttempt(input);
   }
 
-  getAdaptiveSessionSummary(input: {
+  async getAdaptiveSessionSummary(input: {
     sessionId: string;
     subject: string;
     topicLabel: string;
-  }): AdaptiveSessionSummary {
+  }): Promise<AdaptiveSessionSummary> {
     return this.adaptivePracticeFlowService.getSessionSummary(input);
   }
 
-  getProgressSummary(userId: string) {
+  async getProgressSummary(userId: string) {
     return this.adaptivePracticeFlowService.getProgressSummary(userId);
   }
 
   async getAiInsightsSummary(userId: string) {
-    const summary = this.getProgressSummary(userId);
+    const summary = await this.getProgressSummary(userId);
     return this.practiceAiInsightsService.generate(summary as any);
   }
 

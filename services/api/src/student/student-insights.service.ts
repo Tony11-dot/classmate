@@ -183,7 +183,10 @@ export class StudentInsightsService {
       }),
     ]);
 
-    const practice = this.practiceService.getProgressSummary(studentId) as StudentInsightsPracticeSummary;
+    const practice =
+      (await this.practiceService.getProgressSummary(
+        studentId,
+      )) as StudentInsightsPracticeSummary;
 
     return {
       ok: true,
