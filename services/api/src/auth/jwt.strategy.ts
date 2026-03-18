@@ -35,43 +35,46 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     const auth = String((req as any)?.headers?.authorization ?? '');
     const token = auth.replace(/^Bearer\s+/i, '').trim();
 
-    // E2E/dev shortcut: Bearer dev-token-<email>
-    if ((process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKEN === '1') && token.startsWith('dev-token-')) {
+    if (
+      (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKEN === '1') &&
+      token.startsWith('dev-token-')
+    ) {
       const email = token.replace('dev-token-', '').trim().toLowerCase();
+      if (!email) throw new UnauthorizedException('Invalid token');
 
-      // Ensure DB user exists; StudentProfile.userId references User.id (UUID), NOT email.
-      // User.password is required by schema, so create a non-loginable random hash.
-      const random = `dev-token:${email}:${Date.now()}:${Math.random()}`;
-      const passwordHash = await bcrypt.hash(random, 10);
+      const passwordHash = await bcrypt.hash(`dev-token:${email}`, 10);
 
-      const u = await this.prisma.user.upsert({
+      const user = await this.prisma.user.upsert({
         where: { email },
         update: {},
         create: {
           email,
-          name: email.split('@')[0],
+          name: email.split('@')[0] || email,
           password: passwordHash,
         },
-        select: { id: true, email: true },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          displayName: true,
+        },
       });
 
-      const roles = await this.prisma.userRole
-        .findMany({ where: { userId: u.id } })
-        .catch(() => []);
-
       return {
-        sub: u.id,
-        id: u.id,
-        email: u.email,
-        roles: roles.length ? roles.map((r: any) => r.role) : rolesFromEmail(email),
-        ...(actingStudentId ? { actingStudentId } : {}),
-        ...(schoolId ? { schoolId } : {}),
+        sub: user.id,
+        id: user.id,
+        userId: user.id,
+        email: user.email,
+        roles: rolesFromEmail(user.email),
+        name: user.displayName ?? user.name ?? user.email,
+        actingStudentId: actingStudentId ?? null,
+        schoolId: schoolId ?? null,
+        cohortId: null,
+        isDevToken: true,
       };
     }
 
-    // Debug only if explicitly enabled (avoid noisy logs)
     if (process.env.JWT_VALIDATE_DEBUG === '1') {
-      // eslint-disable-next-line no-console
       console.error('JWT_VALIDATE_DEBUG', {
         authHeader: (req as any)?.headers?.authorization,
         tokenLen: String(((req as any)?.headers?.authorization || '')).length,
