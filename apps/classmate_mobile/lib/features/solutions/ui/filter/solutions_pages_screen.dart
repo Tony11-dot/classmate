@@ -1,112 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SolutionsPagesScreen extends StatefulWidget {
+import '../../providers/solutions_flow_provider.dart';
+
+class SolutionsPagesScreen extends ConsumerStatefulWidget {
   const SolutionsPagesScreen({super.key});
 
   @override
-  State<SolutionsPagesScreen> createState() => _SolutionsPagesScreenState();
+  ConsumerState<SolutionsPagesScreen> createState() =>
+      _SolutionsPagesScreenState();
 }
 
-class _SolutionsPagesScreenState extends State<SolutionsPagesScreen> {
-  final TextEditingController _pageCtl = TextEditingController(text: '1');
-  final TextEditingController _questionCtl = TextEditingController(text: '1');
+class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
+  late final TextEditingController _pageController;
+  late final TextEditingController _questionController;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = ref.read(solutionsFlowProvider);
+    _pageController = TextEditingController(text: state.pageNumber);
+    _questionController = TextEditingController(text: state.questionNumber);
+  }
 
   @override
   void dispose() {
-    _pageCtl.dispose();
-    _questionCtl.dispose();
+    _pageController.dispose();
+    _questionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final extra = GoRouterState.of(context).extra;
-    final data = extra is Map
-        ? Map<String, dynamic>.from(extra)
-        : <String, dynamic>{};
-    final subject = (data['subject'] ?? 'Subject').toString();
-    final book = (data['book'] ?? 'Book').toString();
+    final state = ref.watch(solutionsFlowProvider);
+    final notifier = ref.read(solutionsFlowProvider.notifier);
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(book)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              color: cs.surfaceContainerLow.withValues(alpha: 0.88),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.35),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: IconButton(
+                onPressed: () => context.go('/solutions/books'),
+                icon: const Icon(Icons.arrow_back_rounded),
+              ),
+              title: Text(state.selectedBook?.title ?? 'Page and question'),
+              subtitle: const Text(
+                'Jump straight to a page and question number.',
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  subject,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: cs.primary,
-                    fontWeight: FontWeight.w800,
-                  ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _pageController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Page number',
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  book,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                TextField(
-                  controller: _pageCtl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Page',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    filled: true,
-                    fillColor: cs.surface,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: _questionCtl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Question number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    filled: true,
-                    fillColor: cs.surface,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () => context.push(
-                      '/solutions/questions',
-                      extra: <String, dynamic>{
-                        'subject': subject,
-                        'book': book,
-                        'page': _pageCtl.text.trim(),
-                        'question': _questionCtl.text.trim(),
-                      },
-                    ),
-                    icon: const Icon(Icons.check_circle_rounded),
-                    label: const Text('Apply and view solutions'),
-                  ),
-                ),
-              ],
+              ),
+              onChanged: notifier.setPageNumber,
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: _questionController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                labelText: 'Question number',
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: notifier.setQuestionNumber,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () {
+                notifier.selectQuestion(
+                  pageNumber: _pageController.text,
+                  questionNumber: _questionController.text,
+                );
+                context.go('/solutions/questions');
+              },
+              child: const Text('View solutions'),
+            ),
+          ],
+        ),
       ),
     );
   }
