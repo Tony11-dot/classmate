@@ -9,6 +9,7 @@ import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/alerts_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
@@ -136,6 +137,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/alerts',
+            builder: (context, state) => const AlertsScreen(),
           ),
           GoRoute(
             path: '/saved-questions',
