@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/dm_repository.dart';
 
-class CreateGroupScreen extends StatefulWidget {
+class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
 
   @override
-  State<CreateGroupScreen> createState() => _CreateGroupScreenState();
+  ConsumerState<CreateGroupScreen> createState() => _CreateGroupScreenState();
 }
 
-class _CreateGroupScreenState extends State<CreateGroupScreen> {
+class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   final title = TextEditingController();
   final picked = <String>{};
 
@@ -19,6 +21,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final repo = ref.read(dmRepositoryProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Create group')),
       body: ListView(
@@ -49,7 +53,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           }),
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () async {
+              await repo.createGroup(
+                title.text.trim(),
+                picked.toList(growable: false),
+              );
+              if (!mounted) return;
+              Navigator.of(context).pop();
+            },
             child: const Text('Create group'),
           ),
         ],

@@ -1153,9 +1153,8 @@ model WeeklySolverLeaderboard {
   @@map("weekly_solver_leaderboard")
 }
 
-
 model BagrutQuestion {
-  id            String   @id @default(cuid())
+  id            String @id @default(cuid())
   subject       String
   topicLabel    String
   year          Int
@@ -1166,13 +1165,11 @@ model BagrutQuestion {
   promptLatex   String
   solutionLatex String
 
-  difficulty    String
-  points        Int
+  difficulty String
+  points     Int
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 }
-
-
 
 enum SolutionModerationStatus {
   PENDING
@@ -1209,7 +1206,7 @@ model SolutionUpload {
   questionNumber     String
   uploaderName       String?
   uploaderInitials   String?
-  moderationStatus   SolutionModerationStatus  @default(PENDING)
+  moderationStatus   SolutionModerationStatus   @default(PENDING)
   verificationStatus SolutionVerificationStatus @default(UNCHECKED)
   moderationReason   String?
   verificationNote   String?
@@ -1217,8 +1214,8 @@ model SolutionUpload {
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
-  book   SolutionBook        @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  files  SolutionUploadFile[]
+  book  SolutionBook         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  files SolutionUploadFile[]
 
   @@index([userId, createdAt])
   @@index([subject, pageNumber, createdAt])
@@ -1227,15 +1224,15 @@ model SolutionUpload {
 }
 
 model SolutionUploadFile {
-  id         String   @id @default(cuid())
-  uploadId    String
-  kind       String
-  url        String
-  mimeType   String?
-  fileName   String?
-  fileSize   Int?
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  uploadId  String
+  kind      String
+  url       String
+  mimeType  String?
+  fileName  String?
+  fileSize  Int?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   upload SolutionUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
 
@@ -1243,43 +1240,141 @@ model SolutionUploadFile {
 }
 
 model PracticeAttempt {
-  id              String   @id @default(cuid())
-  userId          String
-  sessionId       String?
-  subject         String
-  topicLabel      String
-  mode            String
-  difficulty      String
-  questionId      String
-  prompt          String
-  selectedIndex   Int?
-  correctIndex    Int
-  isCorrect       Boolean
-  timeTakenMs     Int?
-  awardedScore    Int      @default(0)
-  usedNova        Boolean  @default(false)
-  source          String   @default("ai")
-  createdAt       DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String
+  sessionId     String?
+  subject       String
+  topicLabel    String
+  mode          String
+  difficulty    String
+  questionId    String
+  prompt        String
+  selectedIndex Int?
+  correctIndex  Int
+  isCorrect     Boolean
+  timeTakenMs   Int?
+  awardedScore  Int      @default(0)
+  usedNova      Boolean  @default(false)
+  source        String   @default("ai")
+  createdAt     DateTime @default(now())
 
   @@index([userId, sessionId, createdAt])
   @@index([userId, subject, topicLabel, createdAt])
   @@index([userId, createdAt])
 }
 
-
 model PracticeSkillProfile {
-  id               String   @id @default(cuid())
-  userId           String
-  subject          String
-  topicLabel       String
-  theta            Float    @default(0)
-  uncertainty      Float    @default(1)
-  streak           Int      @default(0)
-  totalSeen        Int      @default(0)
-  totalCorrect     Int      @default(0)
-  updatedAt        DateTime @updatedAt
-  createdAt        DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  subject      String
+  topicLabel   String
+  theta        Float    @default(0)
+  uncertainty  Float    @default(1)
+  streak       Int      @default(0)
+  totalSeen    Int      @default(0)
+  totalCorrect Int      @default(0)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
 
   @@unique([userId, subject, topicLabel])
   @@index([userId, subject, updatedAt])
+}
+
+enum DmThreadType {
+  DIRECT
+  GROUP
+}
+
+enum DmParticipantRole {
+  MEMBER
+  ADMIN
+}
+
+enum DmParticipantState {
+  PENDING_INCOMING
+  PENDING_OUTGOING
+  ACCEPTED
+  BLOCKED
+}
+
+enum DmMessageKind {
+  TEXT
+  IMAGE
+  VOICE
+  SYSTEM
+}
+
+enum DmMediaMode {
+  ONCE
+  REPLAY
+  KEEP
+}
+
+model DmThread {
+  id           String          @id @default(cuid())
+  type         DmThreadType    @default(DIRECT)
+  title        String?
+  createdById  String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  participants DmParticipant[]
+  messages     DmMessage[]
+}
+
+model DmParticipant {
+  id         String             @id @default(cuid())
+  threadId   String
+  userId     String
+  role       DmParticipantRole  @default(MEMBER)
+  state      DmParticipantState @default(ACCEPTED)
+  lastSeenAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  thread     DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, userId])
+  @@index([userId, state])
+}
+
+model DmMessage {
+  id            String          @id @default(cuid())
+  threadId      String
+  senderId      String
+  kind          DmMessageKind   @default(TEXT)
+  text          String?
+  mediaUrl      String?
+  mediaMimeType String?
+  mediaMode     DmMediaMode?
+  viewLimit     Int?
+  replayLimit   Int?
+  expiresAt     DateTime?
+  createdAt     DateTime        @default(now())
+  thread        DmThread        @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  views         DmMessageView[]
+  reactions     DmReaction[]
+
+  @@index([threadId, createdAt])
+}
+
+model DmMessageView {
+  id          String    @id @default(cuid())
+  messageId   String
+  viewerId    String
+  viewedAt    DateTime  @default(now())
+  replayCount Int       @default(0)
+  message     DmMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, viewerId])
+}
+
+model DmReaction {
+  id        String    @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime  @default(now())
+  message   DmMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
 }

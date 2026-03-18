@@ -1,126 +1,239 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/env.dart';
+import '../../../core/http/cm_api.dart';
 import '../domain/dm_models.dart';
 
-final dmRepositoryProvider = Provider<DmRepository>(
-  (ref) => const DmRepository(),
-);
+const _devStudentToken = 'dev-token-student@classmate.local';
+
+final dmRepositoryProvider = Provider<DmRepository>((ref) {
+  final session = ref.watch(authSessionProvider);
+  final token = (session.token ?? '').trim();
+  return DmRepository(
+    baseUrl: Env.apiBaseUrl,
+    token: token.isEmpty ? _devStudentToken : token,
+  );
+});
 
 class DmRepository {
-  const DmRepository();
+  const DmRepository({required this.baseUrl, required this.token});
+
+  final String baseUrl;
+  final String token;
+
+  CMApi get _api => CMApi(token: token);
+
+  Uri _uri(String path) {
+    final b = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    return Uri.parse('$b$path');
+  }
+
+  Map<String, String> _headers() {
+    final trimmed = token.trim();
+    final isJwtish = trimmed.split('.').length >= 3;
+    final isDevToken = trimmed.startsWith('dev-token-');
+    final hasToken = trimmed.isNotEmpty && (isJwtish || isDevToken);
+
+    return <String, String>{
+      if (hasToken) 'Authorization': 'Bearer $trimmed',
+      if (!hasToken) ...<String, String>{
+        'x-dev-role': 'STUDENT',
+        'x-dev-user-id': 'dev-student',
+        'x-dev-grade': '10',
+        'x-dev-school-id': 'test-school',
+      },
+    };
+  }
 
   Future<List<DmThread>> listThreads() async {
-    final now = DateTime.now();
-    return <DmThread>[
-      DmThread(
-        id: 't-1',
-        type: DmThreadType.direct,
-        title: 'Ahmad K.',
-        subtitle: 'You: got it',
-        avatarText: 'AK',
-        requestState: DmRequestState.accepted,
-        isGroup: false,
-        isBlocked: false,
-        unreadCount: 2,
-        updatedAt: now.subtract(const Duration(minutes: 8)),
-        participants: const [
-          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
-          DmUserLite(id: 'u-ahmad', name: 'Ahmad K.', avatarText: 'AK'),
-        ],
-      ),
-      DmThread(
-        id: 't-2',
-        type: DmThreadType.direct,
-        title: 'Maya R.',
-        subtitle: 'Message request',
-        avatarText: 'MR',
-        requestState: DmRequestState.pendingIncoming,
-        isGroup: false,
-        isBlocked: false,
-        unreadCount: 1,
-        updatedAt: now.subtract(const Duration(hours: 1)),
-        participants: const [
-          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
-          DmUserLite(id: 'u-maya', name: 'Maya R.', avatarText: 'MR'),
-        ],
-      ),
-      DmThread(
-        id: 'g-1',
-        type: DmThreadType.group,
-        title: 'Math Legends',
-        subtitle: 'Study group',
-        avatarText: 'ML',
-        requestState: DmRequestState.accepted,
-        isGroup: true,
-        isBlocked: false,
-        unreadCount: 0,
-        updatedAt: now.subtract(const Duration(hours: 3)),
-        participants: const [
-          DmUserLite(id: 'u-me', name: 'You', avatarText: 'YO'),
-          DmUserLite(id: 'u-1', name: 'Ahmad K.', avatarText: 'AK'),
-          DmUserLite(id: 'u-2', name: 'Maya R.', avatarText: 'MR'),
-        ],
-      ),
-    ];
+    final raw = await _api.getJson('/dm/threads');
+    final list = raw is Map && raw['items'] is List
+        ? raw['items'] as List
+        : const [];
+
+    return list
+        .whereType<Map>()
+        .map((e) {
+          final m = e.map((k, v) => MapEntry(k.toString(), v));
+          final stateRaw = '${m['requestState'] ?? 'ACCEPTED'}';
+          final state = switch (stateRaw) {
+            'PENDING_INCOMING' => DmRequestState.pendingIncoming,
+            'PENDING_OUTGOING' => DmRequestState.pendingOutgoing,
+            'BLOCKED' => DmRequestState.blocked,
+            'ACCEPTED' => DmRequestState.accepted,
+            _ => DmRequestState.none,
+          };
+
+          return DmThread(
+            id: '${m['id'] ?? ''}',
+            type: m['isGroup'] == true
+                ? DmThreadType.group
+                : DmThreadType.direct,
+            title: '${m['title'] ?? ''}',
+            subtitle: '${m['subtitle'] ?? ''}',
+            avatarText: '${m['title'] ?? 'DM'}'
+                .trim()
+                .split(' ')
+                .take(2)
+                .map((x) => x.isEmpty ? '' : x[0])
+                .join()
+                .toUpperCase(),
+            requestState: state,
+            isGroup: m['isGroup'] == true,
+            isBlocked: m['isBlocked'] == true,
+            unreadCount: int.tryParse('${m['unreadCount'] ?? 0}') ?? 0,
+            updatedAt:
+                DateTime.tryParse('${m['updatedAt'] ?? ''}') ?? DateTime.now(),
+            participants: const [],
+          );
+        })
+        .toList(growable: false);
   }
 
   Future<List<DmMessage>> listMessages(String threadId) async {
-    final now = DateTime.now();
-    return <DmMessage>[
-      DmMessage(
-        id: 'm-1',
-        senderId: 'u-other',
-        senderName: 'Ahmad K.',
-        isMine: false,
-        kind: DmMessageKind.text,
-        text: 'Hey, did you solve question 4?',
-        mediaUrl: null,
-        mediaMode: null,
-        voiceDuration: null,
-        createdAt: now.subtract(const Duration(minutes: 12)),
-        reactions: const ['👍'],
-      ),
-      DmMessage(
-        id: 'm-2',
-        senderId: 'u-me',
-        senderName: 'You',
-        isMine: true,
-        kind: DmMessageKind.image,
-        text: 'Here is my work',
-        mediaUrl: 'demo-image',
-        mediaMode: DmMediaMode.keep,
-        voiceDuration: null,
-        createdAt: now.subtract(const Duration(minutes: 9)),
-        reactions: const ['🔥'],
-      ),
-      DmMessage(
-        id: 'm-3',
-        senderId: 'u-other',
-        senderName: 'Ahmad K.',
-        isMine: false,
-        kind: DmMessageKind.voice,
-        text: '',
-        mediaUrl: 'demo-voice',
-        mediaMode: DmMediaMode.replay,
-        voiceDuration: const Duration(seconds: 11),
-        createdAt: now.subtract(const Duration(minutes: 4)),
-        reactions: const [],
-      ),
-    ];
+    final raw = await _api.getJson('/dm/threads/$threadId/messages');
+    final list = raw is Map && raw['items'] is List
+        ? raw['items'] as List
+        : const [];
+
+    return list
+        .whereType<Map>()
+        .map((e) {
+          final m = e.map((k, v) => MapEntry(k.toString(), v));
+          final kind = switch ('${m['kind'] ?? 'TEXT'}') {
+            'IMAGE' => DmMessageKind.image,
+            'VOICE' => DmMessageKind.voice,
+            'SYSTEM' => DmMessageKind.system,
+            _ => DmMessageKind.text,
+          };
+          final mediaMode = switch ('${m['mediaMode'] ?? ''}') {
+            'ONCE' => DmMediaMode.once,
+            'REPLAY' => DmMediaMode.replay,
+            'KEEP' => DmMediaMode.keep,
+            _ => null,
+          };
+
+          return DmMessage(
+            id: '${m['id'] ?? ''}',
+            senderId: '${m['senderId'] ?? ''}',
+            senderName: m['mine'] == true ? 'You' : 'Student',
+            isMine: m['mine'] == true,
+            kind: kind,
+            text: '${m['text'] ?? ''}',
+            mediaUrl: m['mediaUrl'] == null ? null : '${m['mediaUrl']}',
+            mediaMode: mediaMode,
+            voiceDuration: null,
+            createdAt:
+                DateTime.tryParse('${m['createdAt'] ?? ''}') ?? DateTime.now(),
+            reactions: m['reactions'] is List
+                ? (m['reactions'] as List)
+                      .map((x) => '$x')
+                      .toList(growable: false)
+                : const [],
+          );
+        })
+        .toList(growable: false);
   }
 
-  Future<void> acceptRequest(String threadId) async {}
-  Future<void> blockUser(String threadId) async {}
-  Future<void> unblockUser(String threadId) async {}
-  Future<void> sendText(String threadId, String text) async {}
-  Future<void> sendImage(
-    String threadId,
-    String path,
-    DmMediaMode mode,
-  ) async {}
-  Future<void> sendVoice(
-    String threadId,
-    String path,
-    DmMediaMode mode,
-  ) async {}
-  Future<void> createGroup(String title, List<String> userIds) async {}
+  Future<void> acceptRequest(String threadId) async {
+    await _api.patch(
+      '/dm/threads/$threadId/request',
+      body: {'action': 'accept'},
+    );
+  }
+
+  Future<void> blockUser(String threadId) async {
+    await _api.patch(
+      '/dm/threads/$threadId/request',
+      body: {'action': 'block'},
+    );
+  }
+
+  Future<void> unblockUser(String threadId) async {
+    await _api.patch(
+      '/dm/threads/$threadId/unblock',
+      body: const <String, dynamic>{},
+    );
+  }
+
+  Future<void> sendText(String threadId, String text) async {
+    await _api.postJson(
+      '/dm/threads/$threadId/messages',
+      body: {'kind': 'TEXT', 'text': text},
+    );
+  }
+
+  Future<Map<String, dynamic>> uploadMedia(String path) async {
+    final req = http.MultipartRequest('POST', _uri('/uploads/dm-media'));
+    req.headers.addAll(_headers());
+    req.files.add(await http.MultipartFile.fromPath('file', path));
+    final streamed = await req.send();
+    final body = await streamed.stream.bytesToString();
+    if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
+      throw Exception('upload failed (${streamed.statusCode}): $body');
+    }
+    final decoded = jsonDecode(body);
+    return decoded is Map && decoded['file'] is Map
+        ? Map<String, dynamic>.from(decoded['file'] as Map)
+        : <String, dynamic>{};
+  }
+
+  Future<void> sendImage(String threadId, String path, DmMediaMode mode) async {
+    final file = await uploadMedia(path);
+    await _api.postJson(
+      '/dm/threads/$threadId/messages',
+      body: {
+        'kind': 'IMAGE',
+        'mediaUrl': file['url'],
+        'mediaMimeType': file['mimeType'],
+        'mediaMode': _mode(mode),
+        'text': '',
+      },
+    );
+  }
+
+  Future<void> sendVoice(String threadId, String path, DmMediaMode mode) async {
+    final file = await uploadMedia(path);
+    await _api.postJson(
+      '/dm/threads/$threadId/messages',
+      body: {
+        'kind': 'VOICE',
+        'mediaUrl': file['url'],
+        'mediaMimeType': file['mimeType'],
+        'mediaMode': _mode(mode),
+        'text': '',
+      },
+    );
+  }
+
+  Future<void> createGroup(String title, List<String> userIds) async {
+    await _api.postJson(
+      '/dm/threads',
+      body: {'title': title, 'participantIds': userIds, 'isGroup': true},
+    );
+  }
+
+  Future<void> recordView(String messageId) async {
+    await _api.postJson(
+      '/dm/messages/$messageId/view',
+      body: const <String, dynamic>{},
+    );
+  }
+
+  Future<void> react(String messageId, String emoji) async {
+    await _api.postJson(
+      '/dm/messages/$messageId/react',
+      body: {'emoji': emoji},
+    );
+  }
+
+  String _mode(DmMediaMode mode) => switch (mode) {
+    DmMediaMode.once => 'ONCE',
+    DmMediaMode.replay => 'REPLAY',
+    DmMediaMode.keep => 'KEEP',
+  };
 }

@@ -1,5 +1,3 @@
-enum DmThreadType { direct, group }
-
 enum DmRequestState {
   none,
   pendingIncoming,
@@ -8,23 +6,21 @@ enum DmRequestState {
   blocked,
 }
 
-enum DmMediaMode { once, replay, keep }
+enum DmThreadType { direct, group }
 
 enum DmMessageKind { text, image, voice, system }
 
+enum DmMediaMode { once, replay, keep }
+
 class DmUserLite {
-  final String id;
-  final String name;
+  final String userId;
+  final String fullName;
   final String avatarText;
-  final bool isBlocked;
-  final bool canMessage;
 
   const DmUserLite({
-    required this.id,
-    required this.name,
+    required this.userId,
+    required this.fullName,
     required this.avatarText,
-    this.isBlocked = false,
-    this.canMessage = true,
   });
 }
 

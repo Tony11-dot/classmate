@@ -20,6 +20,8 @@ import { AuthModule } from './auth/auth.module';
 import { TutorModule } from './tutor/tutor.module';
 import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
+import { DmModule } from './dm/dm.module';
+import { DmUploadController } from './uploads/dm-upload.controller';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -65,6 +67,7 @@ const seedControllers = [
     TutorModule,
     StudentModule,
     AdminModule,
+    DmModule,
     TeacherModule,
     ParentModule,
     AnnouncementsModule,
