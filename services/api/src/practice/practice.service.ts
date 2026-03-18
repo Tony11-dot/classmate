@@ -23,6 +23,7 @@ import type {
   AdaptiveAttemptResult,
   AdaptiveSessionSummary,
 } from './adaptive/contracts/adaptive-practice.types';
+import { normalizeQuestionSetShape } from './practice.safety';
 
 type PracticeMode =
   | 'practice'
@@ -482,7 +483,7 @@ export class PracticeService {
       );
 
       if (verified.length === questionCount) {
-        finalQuestions = verified;
+        finalQuestions = normalizeQuestionSetShape(verified as any) as any;
         break;
       }
     }
@@ -491,7 +492,7 @@ export class PracticeService {
       console.log(
         `[practice.generate] verifier_fallback_using_local_valid count=${bestLocalValid.length}`,
       );
-      finalQuestions = bestLocalValid;
+      finalQuestions = normalizeQuestionSetShape(bestLocalValid as any) as any;
     }
 
     if (finalQuestions.length !== questionCount) {
