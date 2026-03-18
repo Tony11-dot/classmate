@@ -160,9 +160,9 @@ export class PracticeService {
     @Optional()
     private readonly symbolicTopicService: SymbolicTopicService = new SymbolicTopicService(),
     @Optional()
-    private readonly adaptivePracticeFlowService: AdaptivePracticeFlowService = new AdaptivePracticeFlowService(),
+    private readonly adaptivePracticeFlowService: AdaptivePracticeFlowService,
     @Optional()
-    private readonly practiceAiInsightsService: PracticeAiInsightsService = new PracticeAiInsightsService(),
+    private readonly practiceAiInsightsService: PracticeAiInsightsService,
   ) {}
   async submitAdaptiveAttempt(
     input: AdaptiveAttemptInput,
