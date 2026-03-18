@@ -14,13 +14,30 @@ import 'providers/insights_providers.dart';
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
 
+  void _openTutorFromInsights(
+    BuildContext context, {
+    required String prompt,
+    String? title,
+    String? subject,
+  }) {
+    context.go(
+      Uri(
+        path: '/tutor',
+        queryParameters: {
+          if (prompt.trim().isNotEmpty) 'prompt': prompt.trim(),
+          if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
+          if ((subject ?? '').trim().isNotEmpty) 'subject': subject!.trim(),
+        },
+      ).toString(),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyAsync = ref.watch(practiceHistoryProvider);
     final analyticsAsync = ref.watch(practiceAnalyticsProvider);
     final serverSummaryAsync = ref.watch(serverInsightsProvider);
     final aiInsightsAsync = ref.watch(aiInsightsSummaryProvider);
-    final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
     final unifiedInsightsAsync = ref.watch(unifiedStudentInsightsProvider);
 
     return RefreshIndicator(
@@ -310,7 +327,18 @@ class InsightsScreen extends ConsumerWidget {
                             title: vm.focusMessageTitle,
                             subtitle: vm.focusMessageBody,
                             buttonLabel: 'Ask NOVA',
-                            onTap: () => context.go('/tutor', extra: null),
+                            onTap: () => _openTutorFromInsights(
+                              context,
+                              prompt: vm.focusMessageBody,
+                              title: vm.focusMessageTitle,
+                              subject: unifiedInsightsAsync.maybeWhen(
+                                data: (u) =>
+                                    u?.practice.weakTopics.isNotEmpty == true
+                                    ? u!.practice.weakTopics.first.subject
+                                    : u?.grades.weakestSubject,
+                                orElse: () => null,
+                              ),
+                            ),
                           ),
                           data: (ai) {
                             if (ai == null) {
@@ -318,7 +346,19 @@ class InsightsScreen extends ConsumerWidget {
                                 title: vm.focusMessageTitle,
                                 subtitle: vm.focusMessageBody,
                                 buttonLabel: 'Ask NOVA',
-                                onTap: () => context.go('/tutor'),
+                                onTap: () => _openTutorFromInsights(
+                                  context,
+                                  prompt: vm.focusMessageBody,
+                                  title: vm.focusMessageTitle,
+                                  subject: unifiedInsightsAsync.maybeWhen(
+                                    data: (u) =>
+                                        u?.practice.weakTopics.isNotEmpty ==
+                                            true
+                                        ? u!.practice.weakTopics.first.subject
+                                        : u?.grades.weakestSubject,
+                                    orElse: () => null,
+                                  ),
+                                ),
                               );
                             }
 
@@ -385,14 +425,22 @@ class InsightsScreen extends ConsumerWidget {
                                     title: 'Send this to NOVA',
                                     subtitle: ai.suggestedPrompt,
                                     buttonLabel: 'Open NOVA',
-                                    onTap: () => context.go(
-                                      Uri(
-                                        path: '/tutor',
-                                        queryParameters: {
-                                          'prompt': ai.suggestedPrompt,
-                                          'title': 'AI Study Coach',
-                                        },
-                                      ).toString(),
+                                    onTap: () => _openTutorFromInsights(
+                                      context,
+                                      prompt: ai.suggestedPrompt,
+                                      title: 'AI Study Coach',
+                                      subject: unifiedInsightsAsync.maybeWhen(
+                                        data: (u) =>
+                                            u?.practice.weakTopics.isNotEmpty ==
+                                                true
+                                            ? u!
+                                                  .practice
+                                                  .weakTopics
+                                                  .first
+                                                  .subject
+                                            : u?.grades.weakestSubject,
+                                        orElse: () => null,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -402,11 +450,11 @@ class InsightsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      if (unifiedAsync.maybeWhen(
+                      if (unifiedInsightsAsync.maybeWhen(
                         data: (value) => value != null,
                         orElse: () => false,
                       ))
-                        unifiedAsync.when(
+                        unifiedInsightsAsync.when(
                           loading: () => const SizedBox.shrink(),
                           error: (error, stackTrace) => const SizedBox.shrink(),
                           data: (unified) {
