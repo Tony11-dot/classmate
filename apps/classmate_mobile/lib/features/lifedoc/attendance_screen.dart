@@ -7,6 +7,29 @@ import '../insights/providers/insights_providers.dart';
 class AttendanceScreen extends ConsumerWidget {
   const AttendanceScreen({super.key});
 
+  String _consistencyLabel(UnifiedAttendanceSummary? attendance) {
+    final rate = attendance?.attendanceRate;
+    if (rate == null) return 'Building signal';
+    if (rate >= 95) return 'Excellent consistency';
+    if (rate >= 88) return 'Mostly steady';
+    if (rate >= 80) return 'Needs tightening';
+    return 'High risk';
+  }
+
+  String _watchFor(UnifiedAttendanceSummary? attendance) {
+    if ((attendance?.late ?? 0) > 0) return 'Repeated lateness';
+    if ((attendance?.absent ?? 0) > 0) return 'Recent absences';
+    return 'No major flags';
+  }
+
+  String _dayTone(List<UnifiedAttendanceInsight> items) {
+    final hasAbsent = items.any((e) => e.status.toUpperCase() == 'ABSENT');
+    final hasLate = items.any((e) => e.status.toUpperCase() == 'LATE');
+    if (hasAbsent) return 'Absence day';
+    if (hasLate) return 'Late signal';
+    return 'Clean day';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(unifiedStudentInsightsProvider);
@@ -34,6 +57,9 @@ class AttendanceScreen extends ConsumerWidget {
                 .add(item);
           }
 
+          final groupedEntries = grouped.entries.toList()
+            ..sort((a, b) => b.key.compareTo(a.key));
+
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(unifiedStudentInsightsProvider);
@@ -46,7 +72,7 @@ class AttendanceScreen extends ConsumerWidget {
                 _HeroCard(
                   title: 'Attendance',
                   subtitle:
-                      'Your recent school presence, grouped by day and kept simple.',
+                      'Your recent school presence, grouped by day with quicker risk and consistency reads.',
                   child: Column(
                     children: [
                       Row(
@@ -90,6 +116,13 @@ class AttendanceScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 14),
+                      _SignalBanner(
+                        icon: Icons.shield_moon_rounded,
+                        title: _consistencyLabel(attendance),
+                        body:
+                            '${_watchFor(attendance)}. Keep showing up consistently because attendance issues can compound into grade pressure fast.',
+                      ),
                     ],
                   ),
                 ),
@@ -102,46 +135,45 @@ class AttendanceScreen extends ConsumerWidget {
                   )
                 else ...[
                   _SectionCard(
+                    title: 'Quick read',
+                    subtitle:
+                        'A fast summary based on the latest attendance records available.',
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _SummaryPill(
+                          label: 'Strongest signal',
+                          value: _consistencyLabel(attendance),
+                        ),
+                        _SummaryPill(
+                          label: 'Watch for',
+                          value: _watchFor(attendance),
+                        ),
+                        _SummaryPill(
+                          label: 'Justified',
+                          value: '${attendance?.justified ?? 0}',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _SectionCard(
                     title: 'Recent days',
                     subtitle:
-                        'Each day groups the lessons we currently have for you, so you can spot absence patterns fast.',
+                        'Grouped by day so you can catch absence or lateness patterns faster.',
                     child: Column(
-                      children: grouped.entries.map((entry) {
+                      children: groupedEntries.map((entry) {
                         final dayItems = entry.value;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 14),
                           child: _AttendanceDayGroup(
                             date: entry.key,
                             items: dayItems,
+                            headline: _dayTone(dayItems),
                           ),
                         );
                       }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _SectionCard(
-                    title: 'Quick read',
-                    subtitle:
-                        'A tiny summary based on the latest records currently available.',
-                    child: _SummaryPills(
-                      pills: [
-                        _SummaryPillData(
-                          label: 'Strongest signal',
-                          value: (attendance?.attendanceRate ?? 0) >= 95
-                              ? 'Excellent consistency'
-                              : (attendance?.attendanceRate ?? 0) >= 85
-                              ? 'Mostly steady'
-                              : 'Needs tightening',
-                        ),
-                        _SummaryPillData(
-                          label: 'Watch for',
-                          value: (attendance?.late ?? 0) > 0
-                              ? 'Repeated lateness'
-                              : (attendance?.absent ?? 0) > 0
-                              ? 'Recent absences'
-                              : 'No major flags',
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -155,10 +187,15 @@ class AttendanceScreen extends ConsumerWidget {
 }
 
 class _AttendanceDayGroup extends StatelessWidget {
-  const _AttendanceDayGroup({required this.date, required this.items});
+  const _AttendanceDayGroup({
+    required this.date,
+    required this.items,
+    required this.headline,
+  });
 
   final String date;
   final List<UnifiedAttendanceInsight> items;
+  final String headline;
 
   Color _tone(BuildContext context, String status) {
     final cs = Theme.of(context).colorScheme;
@@ -185,6 +222,8 @@ class _AttendanceDayGroup extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(date, style: const TextStyle(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 4),
+          Text(headline, style: TextStyle(color: cs.onSurfaceVariant)),
           const SizedBox(height: 10),
           ...items.map(
             (item) => Padding(
@@ -314,26 +353,27 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            cs.primaryContainer.withValues(alpha: 0.9),
-            cs.secondaryContainer.withValues(alpha: 0.72),
+            cs.primaryContainer.withValues(alpha: 0.95),
+            cs.surfaceContainerHigh.withValues(alpha: 0.95),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -364,18 +404,18 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             subtitle,
-            style: TextStyle(color: cs.onSurfaceVariant, height: 1.3),
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
           ),
           const SizedBox(height: 14),
           child,
@@ -402,7 +442,7 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.74),
+        color: cs.surface.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -416,8 +456,87 @@ class _MetricTile extends StatelessWidget {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+        ],
+      ),
+    );
+  }
+}
+
+class _SignalBanner extends StatelessWidget {
+  const _SignalBanner({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  body,
+                  style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryPill extends StatelessWidget {
+  const _SummaryPill({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 140),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+          ),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
         ],
       ),
     );
@@ -432,44 +551,25 @@ class _EmptyStateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SectionCard(
-      title: title,
-      subtitle: subtitle,
-      child: const SizedBox.shrink(),
-    );
-  }
-}
-
-class _SummaryPillData {
-  const _SummaryPillData({required this.label, required this.value});
-
-  final String label;
-  final String value;
-}
-
-class _SummaryPills extends StatelessWidget {
-  const _SummaryPills({required this.pills});
-
-  final List<_SummaryPillData> pills;
-
-  @override
-  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: pills
-          .map(
-            (pill) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text('${pill.label}: ${pill.value}'),
-            ),
-          )
-          .toList(),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+          ),
+        ],
+      ),
     );
   }
 }

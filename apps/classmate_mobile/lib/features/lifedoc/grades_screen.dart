@@ -7,6 +7,31 @@ import '../insights/providers/insights_providers.dart';
 class GradesScreen extends ConsumerWidget {
   const GradesScreen({super.key});
 
+  double? _subjectAverage(List<UnifiedGradeInsight> items) {
+    if (items.isEmpty) return null;
+    final total = items.fold<double>(0, (sum, item) => sum + item.grade);
+    return total / items.length;
+  }
+
+  String _gradeBand(double? value) {
+    if (value == null) return 'No signal yet';
+    if (value >= 90) return 'Excellent';
+    if (value >= 80) return 'Strong';
+    if (value >= 70) return 'Okay';
+    if (value >= 60) return 'Shaky';
+    return 'At risk';
+  }
+
+  String _trendLabel(List<UnifiedGradeInsight> items) {
+    if (items.length < 2) return 'Not enough data';
+    final sorted = [...items]
+      ..sort((a, b) => (b.date ?? '').compareTo(a.date ?? ''));
+    final delta = sorted.first.grade - sorted[1].grade;
+    if (delta >= 5) return 'Rising';
+    if (delta <= -5) return 'Dropping';
+    return 'Stable';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(unifiedStudentInsightsProvider);
@@ -33,6 +58,15 @@ class GradesScreen extends ConsumerWidget {
                 .add(item);
           }
 
+          final subjectCards = bySubject.entries.toList()
+            ..sort((a, b) {
+              final aAvg = _subjectAverage(a.value) ?? -1;
+              final bAvg = _subjectAverage(b.value) ?? -1;
+              return aAvg.compareTo(bAvg);
+            });
+
+          final latest = items.isEmpty ? null : items.first;
+
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(unifiedStudentInsightsProvider);
@@ -45,7 +79,7 @@ class GradesScreen extends ConsumerWidget {
                 _HeroCard(
                   title: 'Grades',
                   subtitle:
-                      'Your recent assessments, grouped by subject and summarized for fast review.',
+                      'A sharper read on your recent assessments, subject pressure points, and score momentum.',
                   child: Column(
                     children: [
                       Row(
@@ -94,6 +128,15 @@ class GradesScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      if (latest != null) ...[
+                        const SizedBox(height: 14),
+                        _SignalBanner(
+                          icon: Icons.bolt_rounded,
+                          title: 'Latest signal',
+                          body:
+                              '${latest.assessmentTitle} in ${latest.subject} landed at ${latest.grade.toStringAsFixed(0)}. ${_gradeBand(latest.grade)} right now.',
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -106,9 +149,40 @@ class GradesScreen extends ConsumerWidget {
                   )
                 else ...[
                   _SectionCard(
+                    title: 'Pressure points',
+                    subtitle:
+                        'The fastest read on what to protect and what to recover.',
+                    child: Column(
+                      children: [
+                        _InsightRow(
+                          icon: Icons.flag_rounded,
+                          label: 'Current weak spot',
+                          value: (grades?.weakestSubject ?? '').trim().isEmpty
+                              ? 'No weakest subject signal yet'
+                              : '${grades!.weakestSubject} needs the first recovery block.',
+                        ),
+                        const SizedBox(height: 10),
+                        _InsightRow(
+                          icon: Icons.workspace_premium_rounded,
+                          label: 'Current strength',
+                          value: (grades?.bestSubject ?? '').trim().isEmpty
+                              ? 'No best subject signal yet'
+                              : '${grades!.bestSubject} is your confidence anchor right now.',
+                        ),
+                        const SizedBox(height: 10),
+                        _InsightRow(
+                          icon: Icons.insights_rounded,
+                          label: 'Band',
+                          value: _gradeBand(grades?.average),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _SectionCard(
                     title: 'Latest assessments',
                     subtitle:
-                        'A quick chronological feed of your most recent grade entries.',
+                        'Most recent recorded grades in chronological order.',
                     child: Column(
                       children: items
                           .map(
@@ -122,17 +196,21 @@ class GradesScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _SectionCard(
-                    title: 'By subject',
+                    title: 'Subject drilldown',
                     subtitle:
-                        'Recent recorded items grouped by subject so weak spots stand out faster.',
+                        'Grouped by subject so trend and pressure stand out faster.',
                     child: Column(
-                      children: bySubject.entries
+                      children: subjectCards
                           .map(
                             (entry) => Padding(
                               padding: const EdgeInsets.only(bottom: 14),
                               child: _SubjectGroup(
                                 subject: entry.key,
                                 items: entry.value,
+                                average: _subjectAverage(entry.value),
+                                trendLabel: _trendLabel(entry.value),
+                                isBest: grades?.bestSubject == entry.key,
+                                isWeak: grades?.weakestSubject == entry.key,
                               ),
                             ),
                           )
@@ -157,6 +235,12 @@ class _GradeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final score = item.grade;
+    final tone = score >= 85
+        ? cs.secondaryContainer
+        : score >= 70
+        ? cs.tertiaryContainer
+        : cs.errorContainer;
 
     return Container(
       width: double.infinity,
@@ -169,6 +253,7 @@ class _GradeTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 21,
+            backgroundColor: tone.withValues(alpha: 0.85),
             child: Text(
               item.grade.toStringAsFixed(0),
               style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
@@ -206,17 +291,25 @@ class _GradeTile extends StatelessWidget {
 }
 
 class _SubjectGroup extends StatelessWidget {
-  const _SubjectGroup({required this.subject, required this.items});
+  const _SubjectGroup({
+    required this.subject,
+    required this.items,
+    required this.average,
+    required this.trendLabel,
+    required this.isBest,
+    required this.isWeak,
+  });
 
   final String subject;
   final List<UnifiedGradeInsight> items;
+  final double? average;
+  final String trendLabel;
+  final bool isBest;
+  final bool isWeak;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final avg = items.isEmpty
-        ? null
-        : items.map((e) => e.grade).reduce((a, b) => a + b) / items.length;
 
     return Container(
       width: double.infinity,
@@ -229,12 +322,25 @@ class _SubjectGroup extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(subject, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                subject,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+              if (isBest) const _Pill(label: 'Best'),
+              if (isWeak) const _Pill(label: 'Needs work'),
+              _Pill(label: trendLabel),
+            ],
+          ),
+          const SizedBox(height: 6),
           Text(
-            avg == null
+            average == null
                 ? 'No average yet'
-                : 'Recent average: ${avg.toStringAsFixed(1)}',
+                : 'Recent average: ${average!.toStringAsFixed(1)}',
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 10),
@@ -329,26 +435,27 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            cs.primaryContainer.withValues(alpha: 0.9),
-            cs.secondaryContainer.withValues(alpha: 0.72),
+            cs.primaryContainer.withValues(alpha: 0.95),
+            cs.surfaceContainerHigh.withValues(alpha: 0.95),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -379,18 +486,18 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             subtitle,
-            style: TextStyle(color: cs.onSurfaceVariant, height: 1.3),
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
           ),
           const SizedBox(height: 14),
           child,
@@ -417,7 +524,7 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.74),
+        color: cs.surface.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -431,9 +538,120 @@ class _MetricTile extends StatelessWidget {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
         ],
+      ),
+    );
+  }
+}
+
+class _SignalBanner extends StatelessWidget {
+  const _SignalBanner({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  body,
+                  style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InsightRow extends StatelessWidget {
+  const _InsightRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18),
+        const SizedBox(width: 10),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+              children: [
+                TextSpan(
+                  text: '$label: ',
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                TextSpan(text: value),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
     );
   }
@@ -447,10 +665,25 @@ class _EmptyStateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SectionCard(
-      title: title,
-      subtitle: subtitle,
-      child: const SizedBox.shrink(),
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+          ),
+        ],
+      ),
     );
   }
 }
