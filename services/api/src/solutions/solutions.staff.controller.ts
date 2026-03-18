@@ -1,30 +1,23 @@
-import { Body, Controller, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
-import { Role } from '@prisma/client';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
+import { SolutionsService } from './solutions.service';
 
 @Controller('solutions/staff')
 @UseGuards(JwtAuthGuard)
 export class SolutionsStaffController {
+  constructor(private readonly solutions: SolutionsService) {}
+
   @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
   @Patch(':id/moderate')
-  moderate(@Param('id') id: string, @Body() body: any) {
-    return {
-      ok: true,
-      id,
-      moderationStatus: body.moderationStatus,
-      moderationReason: body.moderationReason ?? null,
-    };
+  moderate(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.solutions.moderate(req.user, id, body);
   }
 
   @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
   @Patch(':id/verify')
-  verify(@Param('id') id: string, @Body() body: any) {
-    return {
-      ok: true,
-      id,
-      verificationStatus: body.verificationStatus,
-      verificationNote: body.verificationNote ?? null,
-    };
+  verify(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.solutions.verify(req.user, id, body);
   }
 }

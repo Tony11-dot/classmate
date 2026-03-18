@@ -169,6 +169,44 @@ class _SolutionsQuestionsScreenState
     ref.read(solutionsFlowProvider.notifier).setUploadFiles(current);
   }
 
+  void _markUploadState(String id, UploadState next) {
+    final state = ref.read(solutionsFlowProvider);
+    final items = state.uploadFiles
+        .map(
+          (e) => e.id == id
+              ? SolutionUploadAsset(
+                  id: e.id,
+                  name: e.name,
+                  kind: e.kind,
+                  filePath: e.filePath,
+                  remoteUrl: e.remoteUrl,
+                  uploadState: next,
+                )
+              : e,
+        )
+        .toList(growable: false);
+    ref.read(solutionsFlowProvider.notifier).setUploadFiles(items);
+  }
+
+  Future<void> _retryFailedUploads() async {
+    final state = ref.read(solutionsFlowProvider);
+    final repaired = state.uploadFiles
+        .map(
+          (e) => e.uploadState == UploadState.failed
+              ? SolutionUploadAsset(
+                  id: e.id,
+                  name: e.name,
+                  kind: e.kind,
+                  filePath: e.filePath,
+                  remoteUrl: e.remoteUrl,
+                  uploadState: UploadState.queued,
+                )
+              : e,
+        )
+        .toList(growable: false);
+    ref.read(solutionsFlowProvider.notifier).setUploadFiles(repaired);
+  }
+
   Future<void> _submitUpload(BuildContext context) async {
     final state = ref.read(solutionsFlowProvider);
     final api = ref.read(solutionsApiProvider);
@@ -199,7 +237,53 @@ class _SolutionsQuestionsScreenState
       return;
     }
 
-    final files = await api.uploadFilesMultipart(filePaths);
+    final currentFiles = List<SolutionUploadAsset>.from(state.uploadFiles);
+    for (final file in currentFiles) {
+      _markUploadState(file.id, UploadState.uploading);
+    }
+
+    List<Map<String, dynamic>> files;
+    try {
+      files = await api.uploadFilesMultipart(filePaths);
+      final uploaded = ref
+          .read(solutionsFlowProvider)
+          .uploadFiles
+          .map(
+            (e) => SolutionUploadAsset(
+              id: e.id,
+              name: e.name,
+              kind: e.kind,
+              filePath: e.filePath,
+              remoteUrl: e.remoteUrl,
+              uploadState: UploadState.uploaded,
+            ),
+          )
+          .toList(growable: false);
+      ref.read(solutionsFlowProvider.notifier).setUploadFiles(uploaded);
+    } catch (e) {
+      final failed = ref
+          .read(solutionsFlowProvider)
+          .uploadFiles
+          .map(
+            (e2) => SolutionUploadAsset(
+              id: e2.id,
+              name: e2.name,
+              kind: e2.kind,
+              filePath: e2.filePath,
+              remoteUrl: e2.remoteUrl,
+              uploadState: UploadState.failed,
+            ),
+          )
+          .toList(growable: false);
+      ref.read(solutionsFlowProvider.notifier).setUploadFiles(failed);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Upload failed. Retry files and try again.'),
+        ),
+      );
+      return;
+    }
 
     final raw = await api.createSolution(
       subject: subject.title,
@@ -434,6 +518,19 @@ class _SolutionsQuestionsScreenState
                             )
                             .toList(),
                       ),
+                      if (uploadState.uploadFiles.any(
+                        (e) => e.uploadState == UploadState.failed,
+                      )) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: _retryFailedUploads,
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Retry failed files'),
+                          ),
+                        ),
+                      ],
                     ],
                     const SizedBox(height: 18),
                     FilledButton.icon(

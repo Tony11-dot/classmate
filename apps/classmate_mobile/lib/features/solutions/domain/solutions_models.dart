@@ -52,6 +52,9 @@ class QuestionSolutionCard {
   final String questionNumber;
   final String caption;
   final bool verifiedByNova;
+  final String verificationStatus;
+  final String? verificationNote;
+  final String moderationStatus;
   final List<SolutionUploadAsset> assets;
   final DateTime createdAt;
 
@@ -65,6 +68,9 @@ class QuestionSolutionCard {
     required this.questionNumber,
     required this.caption,
     required this.verifiedByNova,
+    required this.verificationStatus,
+    required this.verificationNote,
+    required this.moderationStatus,
     required this.assets,
     required this.createdAt,
   });
