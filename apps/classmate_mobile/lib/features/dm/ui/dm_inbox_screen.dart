@@ -120,7 +120,7 @@ class DmInboxScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: FilledButton.icon(
-                      onPressed: () {},
+                      onPressed: () => context.push('/dms/create-group'),
                       icon: const Icon(Icons.group_add_rounded),
                       label: const Text('Create group'),
                     ),

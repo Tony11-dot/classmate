@@ -99,6 +99,7 @@ class DmThreadScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(meta.title),
         actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.block_rounded)),
           IconButton(
             onPressed: () => context.push('/profile'),
             icon: const Icon(Icons.person_outline_rounded),
