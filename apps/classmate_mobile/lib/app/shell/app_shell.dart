@@ -28,6 +28,8 @@ class AppShell extends ConsumerWidget {
 
   String _pageTitle(String loc) {
     if (loc.startsWith('/classrooms')) return 'Classes';
+    if (loc.startsWith('/dms')) return 'Messages';
+    if (loc.startsWith('/exams')) return 'Exams';
     if (loc.startsWith('/practice')) return 'Practice';
     if (loc.startsWith('/nova')) return 'NOVA';
     if (loc.startsWith('/insights')) return 'Insights';
