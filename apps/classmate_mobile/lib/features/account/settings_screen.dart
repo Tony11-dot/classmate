@@ -107,7 +107,7 @@ class SettingsScreen extends ConsumerWidget {
               Divider(height: 1),
               ListTile(
                 title: Text('Messaging safety'),
-                subtitle: Text('Block/unblock inside DM threads'),
+                subtitle: Text('Block/unblock inside Messages threads'),
                 trailing: Icon(Icons.block_rounded),
               ),
             ],

@@ -1,3 +1,4 @@
+import '../../messages/ui/components/message_reply_preview.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import '../data/dm_repository.dart';
 import '../domain/dm_models.dart';
 import '../providers/dm_providers.dart';
 import 'widgets/dm_media_mode_sheet.dart';
+import '../../messages/ui/components/message_bubble.dart';
 
 class DmThreadScreen extends ConsumerStatefulWidget {
   const DmThreadScreen({super.key, required this.threadId});
@@ -17,6 +19,7 @@ class DmThreadScreen extends ConsumerStatefulWidget {
 
 class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   final composer = TextEditingController();
+  DmMessage? replyingTo;
 
   @override
   Widget build(BuildContext context) {
@@ -155,94 +158,66 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, i) {
                       final message = messages[i];
-                      final content = switch (message.kind) {
-                        DmMessageKind.image => _ImageBubble(message: message),
-                        DmMessageKind.voice => _VoiceBubble(message: message),
-                        _ => Text(message.text),
-                      };
 
-                      return Align(
-                        alignment: message.isMine
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 320),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: message.isMine
-                                ? cs.primaryContainer.withValues(alpha: 0.9)
-                                : cs.surfaceContainerHighest.withValues(
-                                    alpha: 0.75,
+                      final bubble = MessageBubble(
+                        text: message.text,
+                        isMe: message.isMine,
+                        replyText: null,
+                        onReply: () {
+                          setState(() {
+                            replyingTo = message;
+                          });
+                        },
+                        onLongPress: () async {
+                          final action = await showModalBottomSheet<String>(
+                            context: context,
+                            builder: (_) => SafeArea(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    title: const Text('Reply'),
+                                    onTap: () =>
+                                        Navigator.pop(context, 'reply'),
                                   ),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (message.text.isNotEmpty &&
-                                  message.kind != DmMessageKind.text) ...[
-                                Text(message.text),
-                                const SizedBox(height: 8),
-                              ],
-                              content,
-                              if (message.reactions.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 6,
-                                  children: message.reactions
-                                      .map(
-                                        (e) => Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: cs.surface.withValues(
-                                              alpha: 0.9,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              999,
-                                            ),
-                                          ),
-                                          child: Text(e),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ],
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 6,
-                                children: ['👍', '❤️', '🔥', '😂', '😮', '✅']
-                                    .map((emoji) {
-                                      return InkWell(
-                                        onTap: () async {
-                                          await repo.react(message.id, emoji);
-                                          ref.invalidate(
-                                            dmMessagesProvider(widget.threadId),
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 7,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: cs.surface.withValues(
-                                              alpha: 0.88,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              999,
-                                            ),
-                                          ),
-                                          child: Text(emoji),
-                                        ),
-                                      );
-                                    })
-                                    .toList(),
+                                  if (message.isMine)
+                                    ListTile(
+                                      title: const Text('Edit'),
+                                      onTap: () =>
+                                          Navigator.pop(context, 'edit'),
+                                    ),
+                                  if (message.isMine)
+                                    ListTile(
+                                      title: const Text('Delete'),
+                                      onTap: () =>
+                                          Navigator.pop(context, 'delete'),
+                                    ),
+                                  ListTile(
+                                    title: const Text('React'),
+                                    onTap: () =>
+                                        Navigator.pop(context, 'react'),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
+                          );
+
+                          if (action != null) {
+                            await repo.react(message.id, action);
+                            ref.invalidate(dmMessagesProvider(widget.threadId));
+                          }
+                        },
+                      );
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Align(
+                          alignment: message.isMine
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 320),
+                            child: bubble,
                           ),
                         ),
                       );
@@ -250,6 +225,13 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   ),
                 ),
               ),
+              if (replyingTo != null)
+                MessageReplyPreview(
+                  text: replyingTo!.text,
+                  onCancel: () {
+                    setState(() => replyingTo = null);
+                  },
+                ),
               SafeArea(
                 top: false,
                 child: Padding(
@@ -341,95 +323,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class _ImageBubble extends StatelessWidget {
-  const _ImageBubble({required this.message});
-  final DmMessage message;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = switch (message.mediaMode) {
-      DmMediaMode.once => 'View once',
-      DmMediaMode.replay => 'Replay allowed',
-      DmMediaMode.keep => 'Kept in chat',
-      null => 'Media',
-    };
-
-    return Container(
-      width: 220,
-      height: 160,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface,
-      ),
-      child: Stack(
-        children: [
-          const Center(child: Icon(Icons.image_rounded, size: 48)),
-          Positioned(
-            right: 10,
-            bottom: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VoiceBubble extends StatelessWidget {
-  const _VoiceBubble({required this.message});
-  final DmMessage message;
-
-  @override
-  Widget build(BuildContext context) {
-    final mode = switch (message.mediaMode) {
-      DmMediaMode.once => 'once',
-      DmMediaMode.replay => 'replay',
-      DmMediaMode.keep => 'keep',
-      null => 'voice',
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.play_arrow_rounded),
-          const SizedBox(width: 8),
-          Text(
-            message.voiceDuration == null
-                ? 'Voice • --:--'
-                : 'Voice • ${message.voiceDuration!.inSeconds}s',
-          ),
-          const SizedBox(width: 8),
-          Text(
-            mode,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

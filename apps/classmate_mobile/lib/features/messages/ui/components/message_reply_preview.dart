@@ -12,13 +12,22 @@ class MessageReplyPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(8),
-      color: Colors.grey.withOpacity(0.2),
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Row(
         children: [
-          Expanded(child: Text(text, maxLines: 1)),
-          IconButton(icon: const Icon(Icons.close), onPressed: onCancel),
+          Expanded(
+            child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+          IconButton(onPressed: onCancel, icon: const Icon(Icons.close)),
         ],
       ),
     );

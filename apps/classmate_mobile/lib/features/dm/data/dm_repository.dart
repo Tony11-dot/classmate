@@ -75,7 +75,7 @@ class DmRepository {
                 : DmThreadType.direct,
             title: '${m['title'] ?? ''}',
             subtitle: '${m['subtitle'] ?? ''}',
-            avatarText: '${m['title'] ?? 'DM'}'
+            avatarText: '${m['title'] ?? 'Messages'}'
                 .trim()
                 .split(' ')
                 .take(2)
