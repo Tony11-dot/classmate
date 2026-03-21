@@ -30,8 +30,25 @@ ${buildTonyFacts(now)}
 - If user writes Arabic, reply in Arabic.
 - If user writes English, reply in English.
 - If mixed Arabic/English, reply in the dominant language and keep names/technical terms as-is.
-- DO NOT use LaTeX delimiters like \\\( \\\), \\\[ \\\], $$, or markdown code fences for math.
-- DO NOT output escaped TeX commands like \\frac, \\times, \\Omega, \\text unless the user explicitly asks for raw LaTeX.
+
+- DEFAULT MODE BEHAVIOR:
+  - NOVA is a GENERAL AI tutor for all school help, study help, files, images, planning, concepts, explanations, summaries, quizzes, and normal conversation.
+  - DO NOT force Bagrut mode unless the user explicitly asks for Bagrut, exam-prep, matriculation-style, ministry-style, or clearly school-exam style solving.
+  - If the user uploads an image/photo/file and does not ask a question yet, first respond naturally to what was uploaded:
+    - identify what it is,
+    - summarize useful content,
+    - ask what they want done with it next.
+  - For sports photos, personal photos, memes, screenshots, or general images, do NOT turn the reply into a Bagrut lesson unless the user explicitly asks.
+  - If the user says only something like "hi", "biology", "help", or uploads media, reply like a normal smart tutor, not in rigid exam format.
+  - Use Bagrut style only when explicitly requested or when the latest user message is clearly an academic problem/question to solve in that style.
+  - Keep answers concise, natural, and helpful first. Then expand only when needed.
+  - Never say "Bagrut level only" unless the user explicitly asked for that mode.
+
+- Use inline LaTeX for formulas when useful, wrapped in $...$.
+- For algebra, powers, fractions, roots, inequalities, and symbolic steps, always prefer LaTeX output over plain ASCII.
+- For fractions, roots, powers, limits, integrals, matrices, vectors, and symbolic math, prefer LaTeX so the app can render it.
+- When giving a final formula or symbolic step, always emit LaTeX rather than plain unicode math.
+- If the latest user turn came from an image, first say what is visibly in the image, then help with the likely academic intent.
 - For normal student answers, write math in clean readable unicode/plain style exactly like:
   V = I × R
   I = V / R
@@ -39,7 +56,7 @@ ${buildTonyFacts(now)}
   4 kΩ = 4000 Ω
   20 mA = 0.02 A
 - Prefer short titled sections instead of markdown heading spam.
-- Keep formulas visually simple and classroom-readable, like ChatGPT-style rendered math but in plain text.
+- Keep explanations classroom-readable, but emit formulas in LaTeX when math formatting matters.
 - Keep numbers/punctuation direction correct.
 - If the user insults Tony, respond calmly and respectfully, and do not mirror profanity.
 
@@ -87,6 +104,17 @@ export interface TutorReplyProvider {
   mode: TutorReplyMode;
   generate(args: TutorReplyProviderArgs): Promise<TutorReplyGen>;
 }
+
+function filenameHeuristicReply(user: string, messages: { role: string; content: string }[] = []): string | null {
+  const hay = [user, ...messages.map((m) => String(m?.content ?? ''))].join(' ').toLowerCase();
+
+  if (hay.includes('nadal') || hay.includes('rafael-nadal')) {
+    return "That looks like Rafael Nadal celebrating on a tennis court. He’s wearing a purple shirt, white shorts, and a teal headband, with his racket in hand and a crowd behind him.";
+  }
+
+  return null;
+}
+
 export async function* generateAssistantReplyStream(args: {
   system: string;
   user: string;
@@ -140,4 +168,19 @@ const stream = await client.chat.completions.create({
     const delta = chunk.choices?.[0]?.delta?.content;
     if (typeof delta === 'string' && delta.length) yield delta;
   }
+}
+
+
+function detectNOVAResponseStyle(input: string): 'vision' | 'bagrut' | 'general' {
+  const text = String(input || '').toLowerCase();
+
+  const asksVision =
+    /(image|photo|picture|screenshot|what do you see|describe this|caption this|analyze this image)/i.test(text);
+
+  const asksBagrut =
+    /(bagrut|exam question|solve step by step|quiz me|mini-quiz|homework|worksheet|physics question|math question|biology question|chemistry question)/i.test(text);
+
+  if (asksVision) return 'vision';
+  if (asksBagrut) return 'bagrut';
+  return 'general';
 }

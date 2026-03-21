@@ -9,9 +9,26 @@ import {
   UseGuards,
   Post,
   Body,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { mkdirSync } from 'fs';
+
+
+function ensureClassroomUploadsDir() {
+  mkdirSync('uploads', { recursive: true });
+  mkdirSync('uploads/classrooms', { recursive: true });
+}
+
+function safeClassroomName(raw: string) {
+  return String(raw || 'upload').replace(/[^a-zA-Z0-9._-]/g, '_');
+}
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN)
@@ -224,37 +241,101 @@ export class StudentClassroomsController {
   }
 
   @Post(':id/chat/media')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          ensureClassroomUploadsDir();
+          cb(null, 'uploads/classrooms');
+        },
+        filename: (_req, file, cb) => {
+          const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          const base = safeClassroomName(file?.originalname || 'upload');
+          const ext = extname(base);
+          const stem = ext ? base.slice(0, -ext.length) : base;
+          cb(null, `${stem}-${stamp}${ext}`);
+        },
+      }),
+      limits: { fileSize: 40 * 1024 * 1024 },
+    }),
+  )
   async chatSendMedia(
     @Req() req: any,
     @Param('id') id: string,
+    @UploadedFile() file: any,
     @Body()
     body: {
-      kind?: 'VOICE' | 'IMAGE' | 'DOC';
+      kind?: 'VOICE' | 'IMAGE' | 'VIDEO' | 'FILE';
       mediaUrl?: string;
       mediaMime?: string;
       durationSec?: number;
       text?: string;
+      originalName?: string;
     },
   ) {
     const cohortId = await this.cohortIdFromUser(req);
     await this.assertCourseInCohort(String(id), cohortId);
 
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
-    const kind = String(body?.kind ?? '').toUpperCase();
-    if (!['VOICE', 'IMAGE', 'DOC'].includes(kind))
-      throw new Error('Invalid kind');
-    const mediaUrl = String(body?.mediaUrl ?? '').trim();
-    if (!mediaUrl) throw new Error('Missing mediaUrl');
+    const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
+
+    const rawKind = String(body?.kind ?? '').trim().toUpperCase();
+    const inferredMime = String(body?.mediaMime ?? file?.mimetype ?? '').trim();
+
+    let kind = rawKind;
+    if (!kind) {
+      const mime = inferredMime.toLowerCase();
+      if (mime.startsWith('image/')) kind = 'IMAGE';
+      else if (mime.startsWith('audio/')) kind = 'VOICE';
+      else if (mime.startsWith('video/')) kind = 'VIDEO';
+      else kind = 'FILE';
+    }
+
+    
+    if (!['VOICE', 'IMAGE', 'VIDEO', 'FILE'].includes(kind)) {
+      throw new BadRequestException('Invalid kind');
+    }
+
+    const mediaUrl = String(
+      body?.mediaUrl ??
+        (file?.filename ? `/uploads/classrooms/${file.filename}` : ''),
+    ).trim();
+
+    if (!mediaUrl) {
+      throw new BadRequestException('Missing mediaUrl');
+    }
+
+    const mime = inferredMime;
+    const originalName = String(
+      body?.originalName ?? file?.originalname ?? file?.filename ?? '',
+    ).trim();
+
+    const rawText = String(body?.text ?? '').trim();
+    const fallbackText =
+      rawText.length > 0
+        ? rawText
+        : kind === 'IMAGE'
+          ? `[IMAGE] ${originalName || 'image'}`
+          : kind === 'VOICE'
+            ? `[VOICE] ${originalName || 'voice'}`
+            : kind === 'VIDEO'
+              ? `[VIDEO] ${originalName || 'video'}`
+              : `[FILE] ${originalName || 'file'}`;
+
+    const durationNum = Number(body?.durationSec ?? 0);
+
+    // DB may still use DOC instead of FILE for classroom messages.
+    const persistedKind = kind === 'FILE' ? 'DOC' : kind;
 
     const msg = await this.prisma.classroomMessage.create({
       data: {
         courseId: String(id),
         senderUserId: uid,
-        kind: kind as any,
-        text: body?.text ? String(body.text).trim() : null,
+        kind: persistedKind as any,
+        text: fallbackText,
         mediaUrl,
-        mediaMime: body?.mediaMime ? String(body.mediaMime).trim() : null,
-        durationSec: body?.durationSec ? Number(body.durationSec) : null,
+        mediaMime: mime || null,
+        durationSec:
+          Number.isFinite(durationNum) && durationNum > 0 ? durationNum : null,
       },
       select: {
         id: true,

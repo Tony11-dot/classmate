@@ -1,7 +1,31 @@
+import { IsIn, IsOptional, IsString } from 'class-validator';
+
 export class SendDmMessageDto {
-  kind!: 'TEXT' | 'IMAGE' | 'VOICE';
+  @IsOptional()
+  @IsIn(['TEXT', 'IMAGE', 'VOICE', 'VIDEO', 'FILE'])
+  kind?: 'TEXT' | 'IMAGE' | 'VOICE' | 'VIDEO' | 'FILE';
+
+  @IsOptional()
+  @IsString()
   text?: string;
+
+  @IsOptional()
+  @IsString()
   mediaUrl?: string;
+
+  @IsOptional()
+  @IsString()
   mediaMimeType?: string;
-  mediaMode?: 'ONCE' | 'REPLAY' | 'KEEP';
+
+  @IsOptional()
+  @IsString()
+  mediaMode?: string;
+
+  @IsOptional()
+  @IsString()
+  originalName?: string;
+
+  @IsOptional()
+  @IsString()
+  uploadedPath?: string;
 }

@@ -43,7 +43,7 @@ import { E2ESeedController } from './e2e/seed.controller';
 const env = loadEnv();
 
 const serveStatic =
-  env.SERVE_UPLOADS === 'true'
+  env.SERVE_UPLOADS === 'true' || env.NODE_ENV !== 'production'
     ? [
         ServeStaticModule.forRoot({
           rootPath: join(process.cwd(), 'uploads'),
@@ -85,7 +85,9 @@ const seedControllers = [
     NovaModule,
     PracticeModule,
   ],
-  controllers: [MetricsController, ...seedControllers],
+  controllers: [
+    DmUploadController,
+MetricsController, ...seedControllers],
   providers: [
     JsonLogger,
     RequestMetricsInterceptor,
@@ -120,3 +122,4 @@ const seedControllers = [
   ],
 })
 export class AppModule {}
+import { NovaController } from './modules/nova/nova.controller';

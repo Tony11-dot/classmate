@@ -1,11 +1,39 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Sse, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Delete,
+  Param,
+  Post,
+  Query,
+  Req,
+  Sse,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { mkdirSync } from 'fs';
 import { SkipThrottle } from '@nestjs/throttler';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { TutorService } from './tutor.service';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/roles';
 import { Observable } from 'rxjs';
 import type { MessageEvent } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
+import { TutorService } from './tutor.service';
+
+function ensureNovaUploadsDir() {
+  mkdirSync('uploads', { recursive: true });
+  mkdirSync('uploads/nova', { recursive: true });
+}
+
+function safeNovaName(raw: string) {
+  return String(raw || 'upload').replace(/[^a-zA-Z0-9._-]/g, '_');
+}
+
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
@@ -13,7 +41,6 @@ import type { MessageEvent } from '@nestjs/common';
 export class TutorController {
   constructor(private svc: TutorService) {}
 
-  // ---- Learning profile ----
   @Roles(Role.STUDENT, Role.ADMIN)
   @Get('me/profile')
   getMyProfile(@Req() req: any) {
@@ -32,7 +59,6 @@ export class TutorController {
     return this.svc.getMyAcademicContext(req.user);
   }
 
-  // ---- Brain snapshot (read) ----
   @Roles(Role.STUDENT, Role.ADMIN)
   @Get('me/brain')
   getMyBrain(@Req() req: any) {
@@ -44,7 +70,6 @@ export class TutorController {
     return this.svc.rebuildMyBrainSnapshot(req.user);
   }
 
-  // ---- Materials ----
   @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
   @Get('materials')
   listMaterials(
@@ -68,16 +93,13 @@ export class TutorController {
   createMaterial(@Req() req: any, @Body() body: any) {
     return this.svc.createMaterial(req.user, body);
   }
-  // ---- Characters ----
+
   @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
   @Get('characters')
   listCharacters(@Req() req: any, @Query('subject') subject?: string) {
     return this.svc.listCharacters(req.user, { subject });
   }
 
-
-
-  // ---- Sessions ----
   @Roles(Role.STUDENT, Role.ADMIN)
   @Post('sessions')
   createSession(@Req() req: any, @Body() body: any) {
@@ -91,6 +113,7 @@ export class TutorController {
   }
 
   @Roles(Role.STUDENT, Role.ADMIN)
+
   @Get('sessions/:id')
   getSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.getSession(req.user, id);
@@ -98,10 +121,49 @@ export class TutorController {
 
   @Roles(Role.STUDENT, Role.ADMIN)
   @Post('sessions/:id/messages')
-  addMessage(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    return this.svc.addMessage(req.user, id, body);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          ensureNovaUploadsDir();
+          cb(null, 'uploads/nova');
+        },
+        filename: (_req, file, cb) => {
+          const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          const base = safeNovaName(file.originalname || 'upload');
+          const ext = extname(base);
+          const stem = ext ? base.slice(0, -ext.length) : base;
+          cb(null, `${stem}-${stamp}${ext}`);
+        },
+      }),
+      limits: { fileSize: 30 * 1024 * 1024 },
+    }),
+  )
+  addMessage(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: any,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.svc.addMessage(req.user, id, body, file);
   }
+
   @Roles(Role.STUDENT, Role.ADMIN)
+
+  @Delete('sessions/:id')
+  deleteSession(@Req() req: any, @Param('id') id: string) {
+    return this.svc.deleteSession(req.user, String(id));
+  }
+
+  @Post('transcribe')
+  @UseInterceptors(FileInterceptor('file'))
+  async transcribeAudio(
+    @Req() req: any,
+    @UploadedFile() file?: any,
+  ) {
+    return this.svc.transcribeAudio(req.user, file);
+  }
+
   @Post('sessions/:id/reply')
   reply(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.replyToSession(req.user, id, body);
@@ -115,8 +177,9 @@ export class TutorController {
     @Query('displayName') displayName?: string,
     @Query('novaSettings') novaSettings?: string,
   ): Observable<MessageEvent> {
-    return this.svc.replyToSessionStream(req.user, id, { displayName, novaSettings });
+    return this.svc.replyToSessionStream(req.user, id, {
+      displayName,
+      novaSettings,
+    });
   }
-
-
 }

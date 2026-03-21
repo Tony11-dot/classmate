@@ -1,3 +1,5 @@
+import OpenAI from 'openai';
+import { getOpenAIClient } from './providers/openai.provider';
 import { TutorReplyMode, generateAssistantReplyStream } from './tutor.reply.provider';
 import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
@@ -23,10 +25,154 @@ import { basicTutorSafetyCheck } from './tutor.reply.safety';
 import { normalizeQuestion, cacheTtlMs } from './tutor.reply.cache';
 import { hasAnyRole } from '../auth/permissions';
 import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import mammoth from 'mammoth';
 import { StudentInsightsService } from '../student/student-insights.service';
 
 @Injectable()
 export class TutorService {
+
+  private getOpenAIClient() {
+    const key = String(process.env.OPENAI_API_KEY ?? '').trim();
+    if (!key) throw new BadRequestException('OPENAI_API_KEY is missing');
+    return new OpenAI({ apiKey: key });
+  }
+
+  async transcribeAudio(_user: any, file?: any) {
+    if (!file?.path && !file?.buffer) {
+      return { text: '' };
+    }
+
+    try {
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const OpenAI = require('openai');
+
+      const client = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      let tempPath: string | null = null;
+
+      const input =
+        file?.path
+          ? fs.createReadStream(file.path)
+          : (() => {
+              tempPath = path.join(
+                os.tmpdir(),
+                `nova-transcribe-${Date.now()}-${Math.random().toString(36).slice(2)}.m4a`,
+              );
+              fs.writeFileSync(tempPath, file.buffer);
+              return fs.createReadStream(tempPath);
+            })();
+
+      const out = await client.audio.transcriptions.create({
+        file: input,
+        model: process.env.OPENAI_TRANSCRIBE_MODEL || 'gpt-4o-mini-transcribe',
+      });
+
+      if (tempPath) {
+        try {
+          fs.unlinkSync(tempPath);
+        } catch {}
+      }
+
+      const text = String(out?.text ?? '').trim();
+      return { text };
+    } catch (e: any) {
+      const msg = String(e?.message ?? e ?? 'Transcription failed').trim();
+      console.error('[tutor.transcribe] failed', {
+        message: msg,
+        hasPath: !!file?.path,
+        mimetype: file?.mimetype,
+        originalname: file?.originalname,
+        size: file?.size,
+      });
+      throw new BadRequestException(msg || 'Transcription failed');
+    }
+  }
+
+
+
+
+  private sourceValue(sources: any, prefix: string): string {
+    if (!Array.isArray(sources)) return '';
+    for (const raw of sources) {
+      const s = String(raw ?? '');
+      if (s.startsWith(prefix)) return s.slice(prefix.length).trim();
+    }
+    return '';
+  }
+
+  private tutorMessageToModelMessage(m: any) {
+    const role =
+      String(m?.role ?? '').toUpperCase() === 'USER' ? 'USER' : 'ASSISTANT';
+    const rawContent = String(m?.content ?? '').trim();
+    const kind = this.sourceValue(m?.sources, 'kind:').toUpperCase();
+    const originalName = this.sourceValue(m?.sources, 'originalName:');
+    const mimeType = this.sourceValue(m?.sources, 'mimeType:');
+    const uploadedPath = this.sourceValue(m?.sources, 'uploadedPath:');
+    const documentText = this.sourceValue(m?.sources, 'documentText:');
+
+    const attachmentMeta =
+      kind && kind !== 'TEXT'
+        ? [
+            '[Attachment context]',
+            `kind: ${kind}`,
+            ...(originalName ? [`name: ${originalName}`] : []),
+            ...(mimeType ? [`mime: ${mimeType}`] : []),
+            ...(uploadedPath ? [`path: ${uploadedPath}`] : []),
+            ...(documentText ? [`extracted_text:\n${documentText}`] : []),
+          ].join('\n')
+        : '';
+
+    const attachmentBody =
+      rawContent &&
+      !rawContent.startsWith('[IMAGE]') &&
+      !rawContent.startsWith('[FILE]') &&
+      !rawContent.startsWith('[VIDEO]') &&
+      !rawContent.startsWith('[Voice note attached.')
+        ? rawContent
+        : '';
+
+    const content = [attachmentMeta, attachmentBody]
+      .filter((x) => String(x || '').trim().length > 0)
+      .join('\n\n')
+      .trim();
+
+    return {
+      role,
+      content: content || rawContent || (attachmentMeta || '[Empty message]'),
+    };
+  }
+
+  private detectReplyMode(latestUserText: string): 'general' | 'bagrut' {
+    const text = String(latestUserText || '').toLowerCase();
+
+    const bagrutHints = [
+      'bagrut',
+      'בגרות',
+      'matric',
+      'exam prep',
+      'exam-prep',
+      'ministry exam',
+      'solve like exam',
+      'solve step by step for exam',
+      'past paper',
+      'past exam',
+    ];
+
+    for (const hint of bagrutHints) {
+      if (text.includes(hint)) return 'bagrut';
+    }
+
+    return 'general';
+  }
+
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly studentInsightsService: StudentInsightsService,
@@ -508,7 +654,7 @@ export class TutorService {
     return { ok: true, session, messages };
   }
 
-  async addMessage(user: any, sessionId: string, dto: any) {
+  async addMessage(user: any, sessionId: string, dto: any, file?: Express.Multer.File) {
     const studentId = this.requireStudent(user);
     const session = await this.prisma.tutorSession.findFirst({
       where: { id: sessionId, userId: studentId },
@@ -516,20 +662,206 @@ export class TutorService {
     });
     if (!session) throw new ForbiddenException('Not found');
 
-    const role = dto?.role ? String(dto.role) : 'USER';
-    const content = dto?.content ? String(dto.content) : '';
-    if (!content.trim()) throw new BadRequestException('content required');
+    const role = String(dto?.role ?? 'USER').trim().toUpperCase();
+    const kind = String(dto?.kind ?? 'TEXT').trim().toUpperCase();
+    let content = String(dto?.content ?? '').trim();
+
+    const mimeType =
+      String(dto?.mimeType ?? file?.mimetype ?? '').trim() || null;
+    const originalName =
+      String(dto?.originalName ?? file?.originalname ?? '').trim() || null;
+    const uploadedPath =
+      String(
+        (file as any)?.path ??
+          dto?.uploadedPath ??
+          (file as any)?.path ??
+          file?.filename ??
+          file?.originalname ??
+          '',
+      ).trim() || null;
+
+    const hasMedia =
+      Boolean(file) ||
+      Boolean(mimeType) ||
+      Boolean(originalName) ||
+      Boolean(uploadedPath);
+
+    if (kind === 'TEXT' && !content) {
+      throw new BadRequestException('content required for TEXT messages');
+    }
+
+    if (kind !== 'TEXT' && !hasMedia && !content) {
+      throw new BadRequestException('media file or media metadata required');
+    }
+
+    const fileBuffer: Buffer | null =
+      (file as any)?.buffer && Buffer.isBuffer((file as any).buffer)
+        ? ((file as any).buffer as Buffer)
+        : null;
+
+    const absoluteFilePath = (file as any)?.path
+      ? path.resolve(String((file as any).path))
+      : null;
+
+    const tempFilePath =
+      !absoluteFilePath && fileBuffer
+        ? path.join(
+            os.tmpdir(),
+            `classmate-${Date.now()}-${Math.random().toString(36).slice(2)}-${originalName ?? 'upload'}`
+          )
+        : null;
+
+    if (tempFilePath && fileBuffer) {
+      try {
+        fs.writeFileSync(tempFilePath, fileBuffer);
+      } catch {}
+    }
+
+    const effectiveFilePath = absoluteFilePath ?? tempFilePath;
+
+    if (kind === 'VOICE' && !content && effectiveFilePath) {
+      try {
+        const client = getOpenAIClient();
+        const tx = await client.audio.transcriptions.create({
+          file: fs.createReadStream(effectiveFilePath),
+          model: 'gpt-4o-mini-transcribe',
+        } as any);
+
+        const transcript = String((tx as any)?.text ?? '').trim();
+        if (transcript) content = transcript;
+      } catch (e) {
+        // keep fallback text below
+      }
+    }
+
+    async function extractDocumentText() {
+      try {
+        if (!mimeType) return '';
+
+        const buf =
+          fileBuffer ??
+          (effectiveFilePath ? fs.readFileSync(effectiveFilePath) : null);
+
+        if (!buf) return '';
+
+        if (mimeType === 'application/pdf') {
+          try {
+            const { PDFParse } = await import('pdf-parse');
+            const parser = new PDFParse({ data: buf });
+            const out: any = await parser.getText();
+            await parser.destroy?.();
+            return String(out?.text ?? '').trim();
+          } catch (e) {
+            console.error('[NOVA_PDF_PARSE_FAIL]', e);
+            return '';
+          }
+        }
+
+        if (
+          mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ) {
+          const out = await mammoth.extractRawText({ buffer: buf });
+          return String(out?.value ?? '').trim();
+        }
+
+        if (
+          mimeType.startsWith('text/') ||
+          mimeType.includes('json') ||
+          mimeType.includes('javascript') ||
+          mimeType.includes('typescript') ||
+          mimeType.includes('xml') ||
+          mimeType.includes('yaml') ||
+          mimeType.includes('csv')
+        ) {
+          return String(buf.toString('utf8') ?? '').trim();
+        }
+      } catch (e) {}
+      return '';
+    }
+
+    async function describeImage() {
+      try {
+        const buf =
+          fileBuffer ??
+          (effectiveFilePath ? fs.readFileSync(effectiveFilePath) : null);
+        if (!buf) return '';
+        const client = getOpenAIClient();
+        const base64 = buf.toString('base64');
+        const imageUrl = `data:${mimeType ?? 'image/jpeg'};base64,${base64}`;
+        const resp = await client.chat.completions.create({
+          model: process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+          messages: [
+            {
+              role: 'system',
+              content:
+                'Describe the uploaded image for a student. Extract visible text if any. Keep it concise but useful.',
+            },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: 'Describe this image and extract visible text.' },
+                { type: 'image_url', image_url: { url: imageUrl } },
+              ],
+            },
+          ],
+        } as any);
+        return String(resp?.choices?.[0]?.message?.content ?? '').trim();
+      } catch (e) {}
+      return '';
+    }
+
+    if (kind === 'IMAGE' && !content) {
+      const vision = await describeImage();
+      if (vision) {
+        content = vision;
+      }
+    }
+
+    let extractedDocumentText = '';
+
+    if (kind === 'FILE') {
+      const extracted = await extractDocumentText();
+      if (extracted) {
+        extractedDocumentText = extracted.slice(0, 12000);
+        if (!content) {
+          content = extractedDocumentText;
+        }
+      }
+    }
+
+    const normalizedContent = String(content ?? '').trim();
+
+    const safeContent =
+      normalizedContent ||
+      (kind === 'IMAGE'
+        ? `[IMAGE] ${originalName ?? 'image'}`
+        : kind === 'VOICE'
+          ? `[Voice note attached. If transcript is unavailable, ask the user to retry recording or type what they meant.] ${originalName ?? 'voice'}`
+          : kind === 'VIDEO'
+            ? `[VIDEO] ${originalName ?? 'video'}`
+            : `[FILE] ${originalName ?? 'file'}`);
+
+    const sources = [
+      ...(Array.isArray(dto?.sources) ? dto.sources.map(String) : []),
+      `kind:${kind}`,
+      ...(mimeType ? [`mimeType:${mimeType}`] : []),
+      ...(originalName ? [`originalName:${originalName}`] : []),
+      ...(uploadedPath ? [`uploadedPath:${uploadedPath}`] : []),
+      ...(absoluteFilePath ? [`absoluteFilePath:${absoluteFilePath}`] : []),
+      ...(extractedDocumentText
+          ? [`documentText:${extractedDocumentText.slice(0, 4000)}`]
+          : []),
+    ];
 
     const msg = await this.prisma.tutorMessage.create({
       data: {
         sessionId,
-        role: 'USER',
-        content,
-        sources: Array.isArray(dto?.sources) ? dto.sources.map(String) : [],
+        role: role === 'ASSISTANT' ? 'ASSISTANT' : 'USER',
+        content: safeContent,
+        sources,
       } as any,
     });
 
-    // touch updatedAt
     await this.prisma.tutorSession.update({
       where: { id: sessionId },
       data: { updatedAt: new Date() },
@@ -721,6 +1053,34 @@ export class TutorService {
   }
 
 
+
+  async deleteSession(user: any, sessionId: string) {
+    const studentId = String(user?.sub ?? user?.id ?? '').trim();
+    if (!studentId) {
+      throw new Error('Missing user id');
+    }
+
+    const session = await this.prisma.tutorSession.findFirst({
+      where: {
+        id: sessionId,
+        OR: [
+          { userId: studentId },
+          { studentProfile: { userId: studentId } },
+        ],
+      } as any,
+      select: { id: true },
+    });
+
+    if (!session?.id) {
+      throw new Error('Session not found');
+    }
+
+    await this.prisma.tutorMessage.deleteMany({ where: { sessionId } });
+    await this.prisma.tutorSession.delete({ where: { id: sessionId } });
+
+    return { ok: true };
+  }
+
   async replyToSession(user: any, sessionId: string, _body?: any) {
     const session = await this.prisma.tutorSession.findUnique({
       where: { id: sessionId },
@@ -755,6 +1115,7 @@ export class TutorService {
 
     return { ok: true, assistantMessage };
   }
+
 
   replyToSessionStream(user: any, sessionId: string, opts?: { displayName?: string; novaSettings?: string }): Observable<MessageEvent> {
   return new Observable((subscriber) => {
@@ -794,7 +1155,7 @@ const system =
           `- Tony is a CS student and full-stack builder\n` +
           `- He loves AI/ML, physics, and clean Apple-style UI\n` +
           `- He prefers Bagrut-level explanations with mini-quizzes\n\n` +
-          `Answer at Bagrut level only. Friendly, clear, step-by-step. If helpful, end with up to 2 mini-quiz questions.\n` +
+          `Be friendly, clear, accurate, and adaptive to the user's intent. Use tutoring mode only when the user is clearly studying.\n` +
           (assistantLooksLikeQuiz && userLooksLikeAnswer
             ? `\n\n=== MODE ===\nGRADE_ONLY: The user is answering an existing quiz. Grade and correct; do NOT create new quiz questions.`
             : ``);
@@ -809,9 +1170,24 @@ const system =
           orderBy: { createdAt: 'asc' },
           take: 40,
         });
-        const messages = recent.map((m: any) => ({ role: m.role, content: m.content }));
+        const messages = recent.map((m: any) => this.tutorMessageToModelMessage(m));
 
-        for await (const delta of generateAssistantReplyStream({ system, user, messages, displayName: opts?.displayName, novaSettings: opts?.novaSettings })) {
+        const latestUserMessage =
+          [...messages]
+            .reverse()
+            .find((m: any) => String(m?.role ?? '').toUpperCase() === 'USER') ?? null;
+
+        const latestUserText = String(latestUserMessage?.content ?? '').trim();
+        const replyMode = this.detectReplyMode(latestUserText);
+        void replyMode;
+
+        for await (const delta of generateAssistantReplyStream({
+          system,
+          user,
+          messages,
+          displayName: opts?.displayName,
+          novaSettings: opts?.novaSettings,
+          })) {
           if (typeof delta === 'string' && delta.length) {
             acc += delta;
             subscriber.next(({ id: String(++eventId), data: { type: 'chunk', delta } } as any));

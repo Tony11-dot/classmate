@@ -306,13 +306,17 @@ export class DmService {
     }
 
     const kind = String(dto?.kind || 'TEXT').trim().toUpperCase();
-    if (!['TEXT', 'IMAGE', 'VOICE'].includes(kind)) {
+    if (!['TEXT', 'IMAGE', 'VOICE', 'FILE', 'VIDEO'].includes(kind)) {
       throw new BadRequestException('Invalid message kind');
     }
 
     const text = String(dto?.text || '').trim();
     if (kind === 'TEXT' && !text) {
       throw new BadRequestException('text is required for TEXT messages');
+    }
+
+    if (kind !== 'TEXT' && !String(dto?.mediaUrl || '').trim()) {
+      throw new BadRequestException('mediaUrl is required for media messages');
     }
 
     const mediaModeRaw = String(dto?.mediaMode || '').trim().toUpperCase();

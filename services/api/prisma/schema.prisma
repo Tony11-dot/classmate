@@ -1301,7 +1301,8 @@ enum DmMessageKind {
   TEXT
   IMAGE
   VOICE
-  SYSTEM
+  VIDEO
+  FILE
 }
 
 enum DmMediaMode {
