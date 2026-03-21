@@ -181,11 +181,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
-              title: Text(
-                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-                    ? 'Take photo'
-                    : 'Choose photo',
-              ),
+              title: const Text('Take photo'),
               onTap: () => Navigator.pop(
                 context,
                 !kIsWeb && (Platform.isAndroid || Platform.isIOS)
@@ -195,7 +191,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Upload photo'),
+              title: const Text('Choose from gallery'),
               onTap: () => Navigator.pop(context, 'gallery'),
             ),
           ],

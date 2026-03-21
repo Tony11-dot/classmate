@@ -919,11 +919,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
-              title: Text(
-                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-                    ? 'Take photo'
-                    : 'Choose photo',
-              ),
+              title: const Text('Take photo'),
               onTap: () => Navigator.pop(
                 context,
                 !kIsWeb && (Platform.isAndroid || Platform.isIOS)
