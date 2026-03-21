@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,10 +83,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   );
   final Map<String, double> _swipeDxByMessage = <String, double>{};
   final AudioRecorder _recorder = AudioRecorder();
+  final AudioPlayer _draftVoicePlayer = AudioPlayer();
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
   String? _draftVoicePath;
   String? _draftVoiceName;
+  bool _draftVoicePlaying = false;
+  double _draftVoiceSpeed = 1.0;
 
   bool _sending = false;
   void _handleClassroomScroll() {
@@ -328,6 +332,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   @override
   void dispose() {
+    _draftVoicePlayer.dispose();
     _tabs.dispose();
     _chatCtl.removeListener(_onComposerChanged);
     _chatCtl.dispose();
@@ -1046,9 +1051,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
+        await _draftVoicePlayer.stop();
         await repo.sendChatMedia(widget.courseId, voicePath);
         if (mounted) {
           setState(() {
+            _draftVoicePlaying = false;
             _draftVoicePath = null;
             _draftVoiceName = null;
           });
@@ -1100,6 +1107,50 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+  Future<void> _toggleClassroomDraftVoicePlayback() async {
+    final path = (_draftVoicePath ?? '').trim();
+    if (path.isEmpty) {
+      return;
+    }
+
+    try {
+      if (_draftVoicePlaying) {
+        await _draftVoicePlayer.stop();
+        if (mounted) {
+          setState(() => _draftVoicePlaying = false);
+        }
+        return;
+      }
+
+      await _draftVoicePlayer.stop();
+      await _draftVoicePlayer.setFilePath(path);
+      await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      await _draftVoicePlayer.play();
+
+      if (mounted) {
+        setState(() => _draftVoicePlaying = true);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _cycleClassroomDraftVoiceSpeed() async {
+    final next = _draftVoiceSpeed == 1.0
+        ? 1.5
+        : _draftVoiceSpeed == 1.5
+        ? 2.0
+        : 1.0;
+
+    if (mounted) {
+      setState(() => _draftVoiceSpeed = next);
+    }
+
+    if (_draftVoicePlaying) {
+      try {
+        await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      } catch (_) {}
+    }
+  }
+
   Widget _classroomVoiceDraftChip() {
     final name = (_draftVoiceName ?? 'Voice note').trim();
     return Container(
@@ -1113,15 +1164,23 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F2630),
-              borderRadius: BorderRadius.circular(12),
+          GestureDetector(
+            onTap: _toggleClassroomDraftVoicePlayback,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F2630),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                _draftVoicePlaying
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                color: Colors.white70,
+              ),
             ),
-            alignment: Alignment.center,
-            child: const Icon(Icons.mic_rounded, color: Colors.white70),
           ),
           const SizedBox(width: 8),
           ConstrainedBox(
@@ -1134,8 +1193,36 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: () {
+            onTap: _cycleClassroomDraftVoiceSpeed,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                _draftVoiceSpeed == 1.0
+                    ? '1x'
+                    : _draftVoiceSpeed == 1.5
+                    ? '1.5x'
+                    : '2x',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () async {
+              await _draftVoicePlayer.stop();
+              if (!mounted) {
+                return;
+              }
               setState(() {
+                _draftVoicePlaying = false;
                 _draftVoicePath = null;
                 _draftVoiceName = null;
               });

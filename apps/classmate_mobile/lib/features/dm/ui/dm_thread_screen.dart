@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:record/record.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
@@ -27,11 +28,14 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   final _imagePicker = ImagePicker();
   final composer = TextEditingController();
   final AudioRecorder _recorder = AudioRecorder();
+  final AudioPlayer _draftVoicePlayer = AudioPlayer();
 
   bool _sending = false;
   bool _recording = false;
   String? _draftVoicePath;
   String? _draftVoiceName;
+  bool _draftVoicePlaying = false;
+  double _draftVoiceSpeed = 1.0;
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
 
   DmMessage? replyingTo;
@@ -365,6 +369,50 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     );
   }
 
+  Future<void> _toggleDraftVoicePlayback() async {
+    final path = (_draftVoicePath ?? '').trim();
+    if (path.isEmpty) {
+      return;
+    }
+
+    try {
+      if (_draftVoicePlaying) {
+        await _draftVoicePlayer.stop();
+        if (mounted) {
+          setState(() => _draftVoicePlaying = false);
+        }
+        return;
+      }
+
+      await _draftVoicePlayer.stop();
+      await _draftVoicePlayer.setFilePath(path);
+      await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      await _draftVoicePlayer.play();
+
+      if (mounted) {
+        setState(() => _draftVoicePlaying = true);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _cycleDraftVoiceSpeed() async {
+    final next = _draftVoiceSpeed == 1.0
+        ? 1.5
+        : _draftVoiceSpeed == 1.5
+        ? 2.0
+        : 1.0;
+
+    if (mounted) {
+      setState(() => _draftVoiceSpeed = next);
+    }
+
+    if (_draftVoicePlaying) {
+      try {
+        await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      } catch (_) {}
+    }
+  }
+
   Widget _dmVoiceDraftChip() {
     final name = (_draftVoiceName ?? 'Voice note').trim();
     return Container(
@@ -378,15 +426,24 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
+          GestureDetector(
+            onTap: _toggleDraftVoicePlayback,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                _draftVoicePlaying
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
-            alignment: Alignment.center,
-            child: const Icon(Icons.mic_rounded, color: Colors.white, size: 18),
           ),
           const SizedBox(width: 8),
           ConstrainedBox(
@@ -397,12 +454,42 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               style: const TextStyle(color: Colors.white),
             ),
           ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _cycleDraftVoiceSpeed,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                _draftVoiceSpeed == 1.0
+                    ? '1x'
+                    : _draftVoiceSpeed == 1.5
+                    ? '1.5x'
+                    : '2x',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
           const SizedBox(width: 6),
           InkWell(
-            onTap: () => setState(() {
-              _draftVoicePath = null;
-              _draftVoiceName = null;
-            }),
+            onTap: () async {
+              await _draftVoicePlayer.stop();
+              if (!mounted) {
+                return;
+              }
+              setState(() {
+                _draftVoicePlaying = false;
+                _draftVoicePath = null;
+                _draftVoiceName = null;
+              });
+            },
             child: const Icon(
               Icons.close_rounded,
               color: Colors.white70,
@@ -443,6 +530,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
+        await _draftVoicePlayer.stop();
         await repo.sendVoice(widget.threadId, voicePath, DmMediaMode.keep);
       }
 
