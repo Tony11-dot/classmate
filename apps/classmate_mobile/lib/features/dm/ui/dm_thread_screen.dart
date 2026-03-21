@@ -68,19 +68,43 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   }
 
   void _pinDmToBottom({bool jump = false}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || !_chatScrollCtl.hasClients) {
         return;
       }
-      final target = _chatScrollCtl.position.maxScrollExtent;
-      if (jump) {
-        _chatScrollCtl.jumpTo(target);
-      } else {
-        _chatScrollCtl.animateTo(
-          target,
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-        );
+
+      double target() {
+        if (!_chatScrollCtl.hasClients) return 0;
+        return _chatScrollCtl.position.maxScrollExtent;
+      }
+
+      try {
+        if (jump) {
+          _chatScrollCtl.jumpTo(target());
+        } else {
+          await _chatScrollCtl.animateTo(
+            target(),
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          );
+        }
+      } catch (_) {}
+
+      for (final delay in const [16, 32, 64]) {
+        if (!mounted || !_chatScrollCtl.hasClients) {
+          return;
+        }
+        await Future<void>.delayed(Duration(milliseconds: delay));
+        if (!mounted || !_chatScrollCtl.hasClients) {
+          return;
+        }
+        final exact = target();
+        final current = _chatScrollCtl.offset;
+        if ((exact - current).abs() > 0.5) {
+          try {
+            _chatScrollCtl.jumpTo(exact);
+          } catch (_) {}
+        }
       }
     });
   }
@@ -1113,7 +1137,8 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                       heroTag: 'dm-scroll-bottom',
                                       backgroundColor: const Color(0xFF0A84FF),
                                       foregroundColor: Colors.white,
-                                      onPressed: () => _pinDmToBottom(),
+                                      onPressed: () =>
+                                          _pinDmToBottom(jump: true),
                                       child: const Icon(
                                         Icons.keyboard_arrow_down_rounded,
                                       ),
