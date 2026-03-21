@@ -59,7 +59,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   }
 
   void _handleDmScroll() {
-    if (!_chatScrollCtl.hasClients) return;
+    if (!_chatScrollCtl.hasClients) {
+      return;
+    }
     final pos = _chatScrollCtl.position;
     final distance = pos.maxScrollExtent - pos.pixels;
     _showDmScrollToBottom.value = distance > 120;
@@ -67,7 +69,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   void _pinDmToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_chatScrollCtl.hasClients) return;
+      if (!mounted || !_chatScrollCtl.hasClients) {
+        return;
+      }
       final target = _chatScrollCtl.position.maxScrollExtent;
       if (jump) {
         _chatScrollCtl.jumpTo(target);
@@ -140,7 +144,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   Future<void> _showImageSourceSheet(DmRepository repo) async {
     final mode = await _pickMode(context);
-    if (mode == null) return;
+    if (mode == null) {
+      return;
+    }
 
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -173,7 +179,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       ),
     );
 
-    if (action == null) return;
+    if (action == null) {
+      return;
+    }
 
     String? path;
     if (action == 'camera') {
@@ -190,7 +198,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     if (path == null || path.trim().isEmpty) return;
 
     final safePath = path;
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _draftAttachments.add(<String, String>{
         'kind': 'IMAGE',
@@ -202,14 +212,18 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   Future<void> _pickFile(DmRepository repo) async {
     final mode = await _pickMode(context);
-    if (mode == null) return;
+    if (mode == null) {
+      return;
+    }
 
     final picked = await FilePicker.platform.pickFiles(type: FileType.any);
     final path = picked?.files.single.path;
     if (path == null || path.trim().isEmpty) return;
 
     final safePath = path;
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _draftAttachments.add(<String, String>{
         'kind': 'FILE',
@@ -220,11 +234,15 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   }
 
   Future<void> _toggleMic(DmRepository repo) async {
-    if (_sending) return;
+    if (_sending) {
+      return;
+    }
 
     if (_recording) {
       final path = await _recorder.stop();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() => _recording = false);
 
       if (path == null || path.trim().isEmpty) return;
@@ -238,7 +256,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Microphone permission denied')),
       );
@@ -254,7 +274,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       path: filePath,
     );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() => _recording = true);
   }
 
@@ -417,6 +439,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       });
       ref.invalidate(dmMessagesProvider(widget.threadId));
       ref.invalidate(dmThreadsProvider);
+      _pinDmToBottom(jump: true);
       _pinDmToBottom();
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -450,7 +473,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       ),
     );
 
-    if (ok != true) return;
+    if (ok != true) {
+      return;
+    }
 
     final finalText = preserveReplyOnEdit(
       originalRaw: message.text,
@@ -482,7 +507,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       ),
     );
 
-    if (emoji == null) return;
+    if (emoji == null) {
+      return;
+    }
 
     setState(() {
       _localReactions[message.id] = emoji;
@@ -893,7 +920,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                     if (_lastVisibleCount != visible.length) {
                       _lastVisibleCount = visible.length;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _pinDmToBottom(jump: visible.length <= 3);
+                        _pinDmToBottom(jump: true);
                       });
                     }
 
@@ -913,7 +940,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                   14,
                                   18,
                                   14,
-                                  120,
+                                  8,
                                 ),
                                 itemCount: visible.length,
                                 itemBuilder: (context, i) {
