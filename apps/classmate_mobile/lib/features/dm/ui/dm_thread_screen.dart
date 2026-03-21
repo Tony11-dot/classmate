@@ -14,7 +14,6 @@ import '../../chat_core/ui/chat_message_bubble.dart';
 import '../data/dm_repository.dart';
 import '../domain/dm_models.dart';
 import '../providers/dm_providers.dart';
-import 'widgets/dm_media_mode_sheet.dart';
 
 class DmThreadScreen extends ConsumerStatefulWidget {
   const DmThreadScreen({super.key, required this.threadId});
@@ -40,13 +39,12 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   final Set<String> _localDeleted = <String>{};
   final Map<String, String> _localReactions = <String, String>{};
   final Map<String, double> _swipeDxByMessage = <String, double>{};
+  final ScrollController _chatScrollCtl = ScrollController();
+  final ValueNotifier<bool> _showDmScrollToBottom = ValueNotifier<bool>(false);
+  int _lastVisibleCount = -1;
 
-  Future<DmMediaMode?> _pickMode(BuildContext context) {
-    return showModalBottomSheet<DmMediaMode>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => const DmMediaModeSheet(),
-    );
+  Future<DmMediaMode?> _pickMode(BuildContext context) async {
+    return DmMediaMode.keep;
   }
 
   String _uploadsBaseUrl() {
@@ -58,6 +56,71 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     return noSlash.endsWith('/api')
         ? noSlash.substring(0, noSlash.length - 4)
         : noSlash;
+  }
+
+  void _handleDmScroll() {
+    if (!_chatScrollCtl.hasClients) return;
+    final pos = _chatScrollCtl.position;
+    final distance = pos.maxScrollExtent - pos.pixels;
+    _showDmScrollToBottom.value = distance > 120;
+  }
+
+  void _pinDmToBottom({bool jump = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_chatScrollCtl.hasClients) return;
+      final target = _chatScrollCtl.position.maxScrollExtent;
+      if (jump) {
+        _chatScrollCtl.jumpTo(target);
+      } else {
+        _chatScrollCtl.animateTo(
+          target,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _openThreadProfile({required DmThread meta}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(meta.isGroup ? 'Group info' : 'Profile')),
+          body: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ChatAvatar(name: meta.title, size: 84),
+                      const SizedBox(height: 16),
+                      Text(
+                        meta.title.trim().isEmpty
+                            ? (meta.isGroup ? 'Group' : 'Student')
+                            : meta.title.trim(),
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        meta.isGroup ? 'Group chat' : 'Direct chat',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   String _absoluteMediaUrl(String? raw) {
@@ -166,17 +229,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
       if (path == null || path.trim().isEmpty) return;
 
-      final mode = await _pickMode(context);
-      if (mode == null) return;
-
-      setState(() => _sending = true);
-      try {
-        await repo.sendVoice(widget.threadId, path, mode);
-        ref.invalidate(dmMessagesProvider(widget.threadId));
-        ref.invalidate(dmThreadsProvider);
-      } finally {
-        if (mounted) setState(() => _sending = false);
-      }
+      setState(() {
+        _draftVoicePath = path;
+        _draftVoiceName = path.split('/').last;
+      });
       return;
     }
 
@@ -198,9 +254,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       path: filePath,
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     setState(() => _recording = true);
   }
 
@@ -363,6 +417,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       });
       ref.invalidate(dmMessagesProvider(widget.threadId));
       ref.invalidate(dmThreadsProvider);
+      _pinDmToBottom();
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -633,7 +688,16 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _chatScrollCtl.addListener(_handleDmScroll);
+  }
+
+  @override
   void dispose() {
+    _chatScrollCtl.removeListener(_handleDmScroll);
+    _chatScrollCtl.dispose();
+    _showDmScrollToBottom.dispose();
     composer.dispose();
     _recorder.dispose();
     super.dispose();
@@ -726,7 +790,25 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(meta.title),
+            titleSpacing: 0,
+            title: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => _openThreadProfile(meta: meta),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ChatAvatar(name: meta.title, size: 32),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      meta.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             actions: [
               IconButton(
                 onPressed: () async {
@@ -742,10 +824,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                       ? Icons.lock_open_rounded
                       : Icons.block_rounded,
                 ),
-              ),
-              IconButton(
-                onPressed: () => context.push('/profile'),
-                icon: const Icon(Icons.person_outline_rounded),
               ),
             ],
           ),
@@ -812,137 +890,210 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                       );
                     }
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(14, 18, 14, 120),
-                      itemCount: visible.length,
-                      itemBuilder: (context, i) {
-                        final message = visible[i];
-                        final isMine =
-                            message.isMine ||
-                            message.senderName.trim().toLowerCase() == 'you';
-                        final previous = i > 0 ? visible[i - 1] : null;
-                        final groupedWithPrevious =
-                            previous != null &&
-                            (previous.isMine ||
-                                    previous.senderName.trim().toLowerCase() ==
-                                        'you') ==
-                                isMine &&
-                            previous.senderName.trim() ==
-                                message.senderName.trim();
-                        final showAvatar = !groupedWithPrevious;
-                        final showName = !groupedWithPrevious;
-                        final swipeDx = _swipeDxByMessage[message.id] ?? 0.0;
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: showAvatar ? 12 : 4),
-                          child: Row(
-                            mainAxisAlignment: isMine
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              if (!isMine)
-                                SizedBox(
-                                  width: 40,
-                                  child: showAvatar
-                                      ? _ChatAvatar(name: message.senderName)
-                                      : null,
+                    if (_lastVisibleCount != visible.length) {
+                      _lastVisibleCount = visible.length;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _pinDmToBottom(jump: visible.length <= 3);
+                      });
+                    }
+
+                    return ValueListenableBuilder<bool>(
+                      valueListenable: _showDmScrollToBottom,
+                      builder: (_, showScroll, child) {
+                        return Stack(
+                          children: [
+                            NotificationListener<ScrollNotification>(
+                              onNotification: (_) {
+                                _handleDmScroll();
+                                return false;
+                              },
+                              child: ListView.builder(
+                                controller: _chatScrollCtl,
+                                padding: const EdgeInsets.fromLTRB(
+                                  14,
+                                  18,
+                                  14,
+                                  120,
                                 ),
-                              if (!isMine) const SizedBox(width: 10),
-                              Flexible(
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onHorizontalDragUpdate: (details) {
-                                    final next = (swipeDx + details.delta.dx)
-                                        .clamp(0.0, 84.0);
-                                    setState(() {
-                                      _swipeDxByMessage[message.id] = next;
-                                    });
-                                  },
-                                  onHorizontalDragEnd: (_) {
-                                    final current =
-                                        _swipeDxByMessage[message.id] ?? 0.0;
-                                    if (current >= 44) {
-                                      setState(() => replyingTo = message);
-                                    }
-                                    setState(() {
-                                      _swipeDxByMessage.remove(message.id);
-                                    });
-                                  },
-                                  onHorizontalDragCancel: () {
-                                    setState(() {
-                                      _swipeDxByMessage.remove(message.id);
-                                    });
-                                  },
-                                  onLongPress: () =>
-                                      _openBubbleMenu(repo, message),
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      if (swipeDx.abs() > 8)
-                                        Positioned(
-                                          right: 0,
-                                          top: 28,
-                                          child: Opacity(
-                                            opacity: (swipeDx.abs() / 72).clamp(
-                                              0.0,
-                                              1.0,
-                                            ),
-                                            child: Container(
-                                              width: 28,
-                                              height: 28,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(
-                                                  alpha: 0.08,
+                                itemCount: visible.length,
+                                itemBuilder: (context, i) {
+                                  final message = visible[i];
+                                  final isMine =
+                                      message.isMine ||
+                                      message.senderName.trim().toLowerCase() ==
+                                          'you';
+                                  final previous = i > 0
+                                      ? visible[i - 1]
+                                      : null;
+                                  final groupedWithPrevious =
+                                      previous != null &&
+                                      (previous.isMine ||
+                                              previous.senderName
+                                                      .trim()
+                                                      .toLowerCase() ==
+                                                  'you') ==
+                                          isMine &&
+                                      previous.senderName.trim() ==
+                                          message.senderName.trim();
+                                  final showAvatar = !groupedWithPrevious;
+                                  final showName = !groupedWithPrevious;
+                                  final swipeDx =
+                                      _swipeDxByMessage[message.id] ?? 0.0;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: showAvatar ? 12 : 4,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: isMine
+                                          ? MainAxisAlignment.end
+                                          : MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        if (!isMine)
+                                          SizedBox(
+                                            width: 40,
+                                            child: showAvatar
+                                                ? _ChatAvatar(
+                                                    name: message.senderName,
+                                                  )
+                                                : null,
+                                          ),
+                                        if (!isMine) const SizedBox(width: 10),
+                                        Flexible(
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onHorizontalDragUpdate: (details) {
+                                              final next =
+                                                  (swipeDx + details.delta.dx)
+                                                      .clamp(0.0, 84.0);
+                                              setState(() {
+                                                _swipeDxByMessage[message.id] =
+                                                    next;
+                                              });
+                                            },
+                                            onHorizontalDragEnd: (_) {
+                                              final current =
+                                                  _swipeDxByMessage[message
+                                                      .id] ??
+                                                  0.0;
+                                              if (current >= 44) {
+                                                setState(
+                                                  () => replyingTo = message,
+                                                );
+                                              }
+                                              setState(() {
+                                                _swipeDxByMessage.remove(
+                                                  message.id,
+                                                );
+                                              });
+                                            },
+                                            onHorizontalDragCancel: () {
+                                              setState(() {
+                                                _swipeDxByMessage.remove(
+                                                  message.id,
+                                                );
+                                              });
+                                            },
+                                            onLongPress: () =>
+                                                _openBubbleMenu(repo, message),
+                                            child: Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                if (swipeDx.abs() > 8)
+                                                  Positioned(
+                                                    right: 0,
+                                                    top: 28,
+                                                    child: Opacity(
+                                                      opacity:
+                                                          (swipeDx.abs() / 72)
+                                                              .clamp(0.0, 1.0),
+                                                      child: Container(
+                                                        width: 28,
+                                                        height: 28,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withValues(
+                                                                    alpha: 0.08,
+                                                                  ),
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                            ),
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: const Icon(
+                                                          Icons.reply_rounded,
+                                                          size: 16,
+                                                          color: Colors.white70,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                Transform.translate(
+                                                  offset: Offset(swipeDx, 0),
+                                                  child: ChatMessageBubble(
+                                                    contextForNavigation:
+                                                        context,
+                                                    rawText:
+                                                        _localEdits[message
+                                                            .id] ??
+                                                        message.text,
+                                                    mediaUrl: _absoluteMediaUrl(
+                                                      message.mediaUrl,
+                                                    ),
+                                                    isMine: isMine,
+                                                    showName: showName,
+                                                    senderLabel: isMine
+                                                        ? 'You'
+                                                        : message.senderName,
+                                                    timeLabel: _timeLabel(
+                                                      message.createdAt,
+                                                    ),
+                                                    edited: _localEdits
+                                                        .containsKey(
+                                                          message.id,
+                                                        ),
+                                                    reaction:
+                                                        _localReactions[message
+                                                            .id],
+                                                  ),
                                                 ),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                Icons.reply_rounded,
-                                                size: 16,
-                                                color: Colors.white70,
-                                              ),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                      Transform.translate(
-                                        offset: Offset(swipeDx, 0),
-                                        child: ChatMessageBubble(
-                                          contextForNavigation: context,
-                                          rawText:
-                                              _localEdits[message.id] ??
-                                              message.text,
-                                          mediaUrl: _absoluteMediaUrl(
-                                            message.mediaUrl,
+                                        if (isMine) const SizedBox(width: 10),
+                                        if (isMine)
+                                          SizedBox(
+                                            width: 40,
+                                            child: showAvatar
+                                                ? _ChatAvatar(name: 'You')
+                                                : null,
                                           ),
-                                          isMine: isMine,
-                                          showName: showName,
-                                          senderLabel: isMine
-                                              ? 'You'
-                                              : message.senderName,
-                                          timeLabel: _timeLabel(
-                                            message.createdAt,
-                                          ),
-                                          edited: _localEdits.containsKey(
-                                            message.id,
-                                          ),
-                                          reaction: _localReactions[message.id],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                              if (isMine) const SizedBox(width: 10),
-                              if (isMine)
-                                SizedBox(
-                                  width: 40,
-                                  child: showAvatar
-                                      ? _ChatAvatar(name: 'You')
-                                      : null,
-                                ),
-                            ],
-                          ),
+                            ),
+                            Positioned(
+                              right: 16,
+                              bottom: 16,
+                              child: showScroll
+                                  ? FloatingActionButton.small(
+                                      heroTag: 'dm-scroll-bottom',
+                                      backgroundColor: const Color(0xFF0A84FF),
+                                      foregroundColor: Colors.white,
+                                      onPressed: () => _pinDmToBottom(),
+                                      child: const Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ],
                         );
                       },
                     );
@@ -966,9 +1117,10 @@ String _timeLabel(DateTime dt) {
 }
 
 class _ChatAvatar extends StatelessWidget {
-  const _ChatAvatar({required this.name});
+  const _ChatAvatar({required this.name, this.size = 36});
 
   final String name;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -980,11 +1132,24 @@ class _ChatAvatar extends StatelessWidget {
         .map((e) => e[0].toUpperCase())
         .join();
 
+    final palette = <Color>[
+      const Color(0xFF9CCC65),
+      const Color(0xFF4FC3F7),
+      const Color(0xFFFFB74D),
+      const Color(0xFFBA68C8),
+      const Color(0xFFFF8A65),
+      const Color(0xFF4DB6AC),
+      const Color(0xFFA1887F),
+      const Color(0xFF7986CB),
+    ];
+    final seed = name.trim().toLowerCase().runes.fold<int>(0, (a, b) => a + b);
+    final bg = palette[seed % palette.length];
+
     return Container(
-      width: 36,
-      height: 36,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        color: const Color(0xFF232A35),
+        color: bg,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
