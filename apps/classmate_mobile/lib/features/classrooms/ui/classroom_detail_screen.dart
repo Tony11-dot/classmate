@@ -89,7 +89,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   bool _sending = false;
   void _handleClassroomScroll() {
-    if (!_chatScrollCtl.hasClients) return;
+    if (!_chatScrollCtl.hasClients) {
+      return;
+    }
     final pos = _chatScrollCtl.position;
     final distance = pos.maxScrollExtent - pos.pixels;
     _showClassroomScrollToBottom.value = distance > 120;
@@ -97,8 +99,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   void _pinClassroomToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (!_chatScrollCtl.hasClients) return;
+      if (!mounted) {
+        return;
+      }
+      if (!_chatScrollCtl.hasClients) {
+        return;
+      }
       final target = _chatScrollCtl.position.maxScrollExtent;
       _chatScrollCtl.animateTo(
         target,
@@ -112,7 +118,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   String? replyToId;
 
   void _goBackToClassrooms() {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     } else {
@@ -148,7 +156,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }) async {
     final absolute = _absoluteMediaUrl(raw);
     if (absolute.isEmpty) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
@@ -178,7 +188,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (isAudio) {
       final uri = Uri.tryParse(absolute);
       if (uri == null) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Audio unavailable.')));
@@ -204,7 +216,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     final uri = Uri.tryParse(absolute);
     if (uri == null) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
@@ -367,7 +381,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _reactionByMessage = reactions;
       _editedTextByMessage = edits;
@@ -397,9 +413,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   void _scrollToBottom({required bool jump}) {
-    if (!mounted) return;
-    if (!_chatScrollCtl.hasClients) return;
-    if (_chatScrollCtl.positions.length != 1) return;
+    if (!mounted) {
+      return;
+    }
+    if (!_chatScrollCtl.hasClients) {
+      return;
+    }
+    if (_chatScrollCtl.positions.length != 1) {
+      return;
+    }
 
     final target = _chatScrollCtl.position.maxScrollExtent;
     if (jump) {
@@ -415,7 +437,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   void _clearReply() {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _replyToMessageId = null;
       _replyToSender = null;
@@ -640,7 +664,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (action.startsWith('react:')) {
       final emoji = action.substring('react:'.length).trim();
-      if (emoji.isEmpty) return;
+      if (emoji.isEmpty) {
+        return;
+      }
       await _setReaction(messageId, emoji);
       return;
     }
@@ -907,7 +933,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Upload photo'),
+              title: const Text('Choose from gallery'),
               onTap: () => Navigator.pop(context, 'gallery'),
             ),
           ],
@@ -915,7 +941,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       ),
     );
 
-    if (action == null) return;
+    if (action == null) {
+      return;
+    }
 
     String? path;
     if (action == 'camera') {
@@ -944,11 +972,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic();
 
   Future<void> _toggleClassroomMic() async {
-    if (_sending) return;
+    if (_sending) {
+      return;
+    }
 
     if (_recording) {
       final path = await _recorder.stop();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() => _recording = false);
 
       if (path == null || path.trim().isEmpty) return;
@@ -962,7 +994,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Microphone permission denied')),
       );
@@ -978,7 +1012,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       path: filePath,
     );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() => _recording = true);
   }
 
@@ -993,7 +1029,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           )
         : text;
 
-    if (text.isEmpty && _draftAttachments.isEmpty) return;
+    if (text.isEmpty &&
+        _draftAttachments.isEmpty &&
+        (_draftVoicePath ?? '').trim().isEmpty) {
+      return;
+    }
 
     setState(() => _sending = true);
     try {
@@ -1004,18 +1044,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
 
       if (_draftAttachments.isNotEmpty) {
-        setState(() => _draftAttachments.clear());
+        setState(() {
+          _draftAttachments.clear();
+        });
       }
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
         await repo.sendChatMedia(widget.courseId, voicePath);
-      }
-
-      if (voicePath.isNotEmpty) {
-        setState(() {
-          _draftVoicePath = null;
-          _draftVoiceName = null;
-        });
+        if (mounted) {
+          setState(() {
+            _draftVoicePath = null;
+            _draftVoiceName = null;
+          });
+        }
       }
 
       if (text.isNotEmpty) {
@@ -1028,8 +1069,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       ref.invalidate(
         classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
       );
+      _pinClassroomToBottom();
     } finally {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) {
+        setState(() => _sending = false);
+      }
     }
   }
 
