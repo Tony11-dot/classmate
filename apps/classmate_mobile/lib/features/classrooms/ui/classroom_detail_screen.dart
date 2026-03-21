@@ -1,10 +1,22 @@
+// ignore_for_file: unused_element, unused_local_variable, use_build_context_synchronously, annotate_overrides, unnecessary_import
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../common/media/image_viewer_screen.dart';
+import '../../common/media/pdf_viewer_screen.dart';
+import '../../chat_core/utils/chat_reply_codec.dart';
+import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../chat_core/ui/chat_message_actions_sheet.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
@@ -23,12 +35,81 @@ String _classroomSeenKey(String courseId) => 'classroom_last_seen_$courseId';
 
 class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     with SingleTickerProviderStateMixin {
+  ({String replyPrefix, String bodyText}) _splitReplyRaw(String raw) {
+    final v = raw.trim();
+    if (!v.startsWith('↪ ')) {
+      return (replyPrefix: '', bodyText: v);
+    }
+    final dash = v.lastIndexOf(' — ');
+    if (dash == -1) {
+      return (replyPrefix: '', bodyText: v);
+    }
+    return (
+      replyPrefix: v.substring(0, dash + 3).trimRight(),
+      bodyText: v.substring(dash + 3).trim(),
+    );
+  }
+
+  String _editableBodyText(String raw) => _splitReplyRaw(raw).bodyText;
+
+  String _replyPreviewText(String raw) {
+    var v = _editableBodyText(raw);
+
+    v = v.replaceFirst(RegExp(r'^\[IMAGE\]\s*', caseSensitive: false), '');
+    v = v.replaceFirst(RegExp(r'^\[FILE\]\s*', caseSensitive: false), '');
+    v = v.replaceFirst(RegExp(r'^\[VIDEO\]\s*', caseSensitive: false), '');
+    v = v.replaceFirst(RegExp(r'^\[VOICE\]\s*', caseSensitive: false), '');
+
+    if (RegExp(
+      r'\.(jpg|jpeg|png|webp|gif)$',
+      caseSensitive: false,
+    ).hasMatch(v)) {
+      return 'Photo';
+    }
+    if (RegExp(r'\.(m4a|aac|mp3|wav)$', caseSensitive: false).hasMatch(v)) {
+      return 'Voice note';
+    }
+    if (v.isEmpty) return 'Message';
+    return v;
+  }
+
+  final _imagePicker = ImagePicker();
   late final TabController _tabs = TabController(length: 5, vsync: this);
   final TextEditingController _chatCtl = TextEditingController();
   final ScrollController _chatScrollCtl = ScrollController();
+  final ValueNotifier<bool> _showClassroomScrollToBottom = ValueNotifier<bool>(
+    false,
+  );
   final Map<String, double> _swipeDxByMessage = <String, double>{};
+  final AudioRecorder _recorder = AudioRecorder();
+  final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
+  final Set<String> _recentOwnMessageTexts = <String>{};
+  String? _draftVoicePath;
+  String? _draftVoiceName;
 
   bool _sending = false;
+  void _handleClassroomScroll() {
+    if (!_chatScrollCtl.hasClients) return;
+    final pos = _chatScrollCtl.position;
+    final distance = pos.maxScrollExtent - pos.pixels;
+    _showClassroomScrollToBottom.value = distance > 120;
+  }
+
+  void _pinClassroomToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!_chatScrollCtl.hasClients) return;
+      final target = _chatScrollCtl.position.maxScrollExtent;
+      _chatScrollCtl.animateTo(
+        target,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  bool _recording = false;
+  String? replyToId;
 
   void _goBackToClassrooms() {
     if (!mounted) return;
@@ -36,6 +117,166 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       Navigator.of(context).pop();
     } else {
       context.go('/classrooms');
+    }
+  }
+
+  String _uploadsBaseUrl() {
+    final raw = const String.fromEnvironment(
+      'CM_API_BASE_URL',
+      defaultValue: 'http://127.0.0.1:3001/api',
+    ).trim();
+    final noSlash = raw.endsWith('/') ? raw.substring(0, raw.length - 1) : raw;
+    return noSlash.endsWith('/api')
+        ? noSlash.substring(0, noSlash.length - 4)
+        : noSlash;
+  }
+
+  String _absoluteMediaUrl(String raw) {
+    final value = raw.trim();
+    if (value.isEmpty) return '';
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    final base = _uploadsBaseUrl();
+    return value.startsWith('/') ? '$base$value' : '$base/$value';
+  }
+
+  Future<void> _openAttachmentUrl({
+    required String raw,
+    required String label,
+    required String kind,
+  }) async {
+    final absolute = _absoluteMediaUrl(raw);
+    if (absolute.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
+      return;
+    }
+
+    final upperKind = kind.trim().toUpperCase();
+    final lowerLabel = label.trim().toLowerCase();
+    final isImage = upperKind == 'IMAGE';
+    final isPdf = lowerLabel.endsWith('.pdf') || upperKind == 'PDF';
+    final isAudio =
+        upperKind == 'VOICE' ||
+        lowerLabel.endsWith('.m4a') ||
+        lowerLabel.endsWith('.aac') ||
+        lowerLabel.endsWith('.mp3') ||
+        lowerLabel.endsWith('.wav');
+
+    if (isImage) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ImageViewerScreen(url: absolute, label: label),
+        ),
+      );
+      return;
+    }
+
+    if (isAudio) {
+      final uri = Uri.tryParse(absolute);
+      if (uri == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Audio unavailable.')));
+        return;
+      }
+
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    if (isAudio) {
+      return;
+    }
+
+    if (isPdf) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PdfViewerScreen(url: absolute, label: label),
+        ),
+      );
+      return;
+    }
+
+    final uri = Uri.tryParse(absolute);
+    if (uri == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
+      return;
+    }
+
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open attachment.')),
+      );
+    }
+  }
+
+  bool _isImageKind(String kind) => kind == 'IMAGE';
+
+  bool _isFileLikeKind(String kind) =>
+      kind == 'DOC' || kind == 'FILE' || kind == 'VIDEO' || kind == 'VOICE';
+
+  IconData _fileIconForKind(String kind, String text) {
+    final name = text.toLowerCase();
+    if (name.endsWith('.pdf')) return Icons.picture_as_pdf_rounded;
+    if (name.endsWith('.doc') || name.endsWith('.docx')) {
+      return Icons.description_rounded;
+    }
+    if (name.endsWith('.ppt') || name.endsWith('.pptx')) {
+      return Icons.slideshow_rounded;
+    }
+    if (name.endsWith('.xls') ||
+        name.endsWith('.xlsx') ||
+        name.endsWith('.csv')) {
+      return Icons.table_chart_rounded;
+    }
+    if (name.endsWith('.zip') ||
+        name.endsWith('.rar') ||
+        name.endsWith('.7z')) {
+      return Icons.folder_zip_rounded;
+    }
+    if (kind == 'VIDEO' ||
+        name.endsWith('.mp4') ||
+        name.endsWith('.mov') ||
+        name.endsWith('.mkv')) {
+      return Icons.movie_creation_outlined;
+    }
+    if (kind == 'VOICE' ||
+        name.endsWith('.mp3') ||
+        name.endsWith('.m4a') ||
+        name.endsWith('.wav')) {
+      return Icons.audio_file_rounded;
+    }
+    return Icons.insert_drive_file_rounded;
+  }
+
+  String _fileLabelFromMessageText(String text, String kind) {
+    final v = text.trim();
+    if (v.startsWith('[IMAGE] ')) return v.substring(8).trim();
+    if (v.startsWith('[VOICE] ')) return v.substring(8).trim();
+    if (v.startsWith('[VIDEO] ')) return v.substring(8).trim();
+    if (v.startsWith('[FILE] ')) return v.substring(7).trim();
+
+    if (v.isNotEmpty && v != '(empty)') return v;
+
+    switch (kind) {
+      case 'VOICE':
+        return 'Voice message';
+      case 'VIDEO':
+        return 'Video file';
+      case 'DOC':
+      case 'FILE':
+        return 'Attached file';
+      default:
+        return 'Attachment';
     }
   }
 
@@ -77,6 +318,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     _chatCtl.removeListener(_onComposerChanged);
     _chatCtl.dispose();
     _chatScrollCtl.dispose();
+    _recorder.dispose();
     super.dispose();
   }
 
@@ -154,37 +396,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     ref.invalidate(classroomMeetingsProvider(widget.courseId));
   }
 
-  Future<void> _sendChat() async {
-    final value = _chatCtl.text.trim();
-    if (value.isEmpty || _sending) return;
-
-    final senderPrefix = (_replyToSender ?? '').trim();
-    final replyPrefix = (_replyToText ?? '').trim();
-    final outbound = _replyToMessageId == null
-        ? value
-        : '↪ ${senderPrefix.isEmpty ? 'Reply' : senderPrefix}: '
-              '${replyPrefix.isEmpty ? '' : '$replyPrefix — '}$value';
-
-    setState(() => _sending = true);
-    try {
-      final repo = ref.read(classroomsRepoProvider);
-      await repo.sendChatText(widget.courseId, outbound);
-      _chatCtl.clear();
-      _clearReply();
-      await _markChatSeen();
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToBottom(jump: false);
-      });
-    } finally {
-      if (mounted) {
-        setState(() => _sending = false);
-      }
-    }
-  }
-
   void _scrollToBottom({required bool jump}) {
     if (!mounted) return;
     if (!_chatScrollCtl.hasClients) return;
@@ -237,7 +448,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String messageId,
     required String currentText,
   }) async {
-    final ctl = TextEditingController(text: currentText);
+    final ctl = TextEditingController(text: editableBodyText(currentText));
     final next = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -256,7 +467,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 'Edit message',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 12),
               TextField(
                 controller: ctl,
                 autofocus: true,
@@ -273,38 +484,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 12),
               Row(
                 children: [
-                  FilledButton.tonalIcon(
-                    onPressed: _goBackToClassrooms,
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 18,
-                    ),
-                    label: const Text('Back'),
-                    style: FilledButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                    ),
-                  ),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text('Cancel'),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(ctl.text.trim()),
+                      onPressed: () => Navigator.pop(context, ctl.text.trim()),
                       child: const Text('Save'),
                     ),
                   ),
@@ -318,8 +510,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (next == null || next.trim().isEmpty) return;
 
+    final finalText = preserveReplyOnEdit(
+      originalRaw: currentText,
+      updatedBody: next.trim(),
+    );
+
     setState(() {
-      _editedTextByMessage[messageId] = next.trim();
+      _editedTextByMessage[messageId] = finalText;
     });
     await _persistLocalChatState();
   }
@@ -332,146 +529,133 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     setState(() {
       _replyToMessageId = messageId;
       _replyToSender = sender;
-      _replyToText = text;
+      _replyToText = replyPreviewText(text);
     });
+  }
+
+  bool _classroomCanEditMessage({
+    required String messageId,
+    required String text,
+    required String mediaUrl,
+    required String kind,
+  }) {
+    final raw = (_editedTextByMessage[messageId] ?? text).trim().toLowerCase();
+    final media = mediaUrl.trim().toLowerCase();
+    final type = kind.trim().toUpperCase();
+
+    final isImage =
+        type == 'IMAGE' ||
+        raw.startsWith('[image]') ||
+        media.endsWith('.jpg') ||
+        media.endsWith('.jpeg') ||
+        media.endsWith('.png') ||
+        media.endsWith('.webp') ||
+        media.endsWith('.gif');
+
+    final isVoice =
+        type == 'VOICE' ||
+        raw.startsWith('[voice]') ||
+        media.endsWith('.m4a') ||
+        media.endsWith('.aac') ||
+        media.endsWith('.mp3') ||
+        media.endsWith('.wav');
+
+    final isVideo = type == 'VIDEO' || raw.startsWith('[video]');
+
+    final isFileLike =
+        type == 'FILE' ||
+        type == 'DOC' ||
+        type == 'PDF' ||
+        raw.startsWith('[file]') ||
+        media.endsWith('.pdf');
+
+    if (isImage || isVoice || isVideo || isFileLike) {
+      return false;
+    }
+
+    return editableBodyText(raw).trim().isNotEmpty;
+  }
+
+  String _pickKindFromRaw(String text, String mediaUrl) {
+    final raw = text.trim().toLowerCase();
+    final media = mediaUrl.trim().toLowerCase();
+
+    if (raw.startsWith('[image]') ||
+        media.endsWith('.jpg') ||
+        media.endsWith('.jpeg') ||
+        media.endsWith('.png') ||
+        media.endsWith('.webp') ||
+        media.endsWith('.gif')) {
+      return 'IMAGE';
+    }
+
+    if (raw.startsWith('[voice]') ||
+        media.endsWith('.m4a') ||
+        media.endsWith('.aac') ||
+        media.endsWith('.mp3') ||
+        media.endsWith('.wav')) {
+      return 'VOICE';
+    }
+
+    if (raw.startsWith('[video]')) return 'VIDEO';
+    if (raw.startsWith('[file]') || media.endsWith('.pdf')) return 'FILE';
+    return 'TEXT';
   }
 
   Future<void> _openBubbleMenu(
     BuildContext context, {
     required String messageId,
     required String text,
+    required String mediaUrl,
+    required String kind,
     required String senderLabel,
     required bool isMine,
   }) async {
-    await showModalBottomSheet<void>(
+    final action = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) {
-        final reaction = _reactionByMessage[messageId];
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (final emoji in const ['👍', '❤️', '🔥'])
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(999),
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await _setReaction(messageId, emoji);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: reaction == emoji
-                                  ? Theme.of(
-                                      context,
-                                    ).colorScheme.primaryContainer
-                                  : Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outlineVariant
-                                    .withValues(alpha: 0.45),
-                              ),
-                            ),
-                            child: Text(
-                              emoji,
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                ListTile(
-                  leading: const Icon(Icons.reply_rounded),
-                  title: const Text('Reply'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _replyTo(
-                      messageId: messageId,
-                      sender: senderLabel,
-                      text: text,
-                    );
-                  },
-                ),
-                if (isMine)
-                  ListTile(
-                    leading: const Icon(Icons.edit_rounded),
-                    title: const Text('Edit'),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _editMessage(
-                        context,
-                        messageId: messageId,
-                        currentText: text,
-                      );
-                    },
-                  ),
-                if (isMine)
-                  ListTile(
-                    leading: const Icon(Icons.delete_outline_rounded),
-                    title: const Text('Delete'),
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      await _deleteMessage(messageId);
-                    },
-                  ),
-              ],
+      showDragHandle: true,
+      builder: (_) => ChatMessageActionsSheet(
+        canEdit:
+            isMine &&
+            _classroomCanEditMessage(
+              messageId: messageId,
+              text: text,
+              mediaUrl: mediaUrl,
+              kind: kind,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  String _resolveMyUserId(Map<String, String> peopleMap) {
-    final auth = ref.read(authSessionProvider);
-    final displayName = auth.displayName.trim().toLowerCase();
-    final rawToken = (auth.token ?? '').trim();
-
-    final directUuid = RegExp(
-      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
+        canDelete: isMine,
+      ),
     );
 
-    if (directUuid.hasMatch(rawToken)) {
-      return rawToken;
+    if (action == null || action.trim().isEmpty) return;
+
+    if (action == 'reply') {
+      _replyTo(
+        messageId: messageId,
+        sender: senderLabel,
+        text: editableBodyText(text),
+      );
+      return;
     }
 
-    final uuidInToken = RegExp(
-      r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
-    ).firstMatch(rawToken);
-    if (uuidInToken != null) {
-      return uuidInToken.group(0) ?? '';
+    if (action.startsWith('react:')) {
+      final emoji = action.substring('react:'.length).trim();
+      if (emoji.isEmpty) return;
+      await _setReaction(messageId, emoji);
+      return;
     }
 
-    if (displayName.isNotEmpty) {
-      for (final entry in peopleMap.entries) {
-        if (entry.value.trim().toLowerCase() == displayName) {
-          return entry.key;
-        }
-      }
+    if (action == 'edit') {
+      await _editMessage(context, messageId: messageId, currentText: text);
+      return;
     }
 
-    if (peopleMap.length == 1) {
-      return peopleMap.keys.first;
+    if (action == 'delete') {
+      await _deleteMessage(messageId);
+      return;
     }
-
-    return '';
   }
 
-  @override
   Widget build(BuildContext context) {
     final detail = ref.watch(classroomDetailProvider(widget.courseId));
     final people = ref.watch(classroomPeopleProvider(widget.courseId));
@@ -485,96 +669,77 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final meetings = ref.watch(classroomMeetingsProvider(widget.courseId));
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      bottomNavigationBar: _classroomComposer(),
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Column(
-              children: [
-                detail.when(
-                  loading: () => const _HeaderSkeleton(),
-                  error: (e, st) => _TopHeader(
-                    icon: Icons.book_rounded,
-                    subject: 'Classroom',
-                    subtitle: widget.courseId,
-                    onRefresh: _refreshAll,
-                    onBack: _goBackToClassrooms,
-                  ),
-                  data: (m) => _TopHeader(
-                    icon: _subjectIcon((m['subject'] ?? '').toString()),
-                    subject:
-                        ((m['name'] ?? '').toString().trim().isNotEmpty
-                                ? (m['name'] ?? '').toString()
-                                : (m['subject'] ?? 'Classroom').toString())
-                            .trim(),
-                    subtitle:
-                        ((m['subject'] ?? '').toString().trim().isNotEmpty
-                                ? (m['subject'] ?? '').toString()
-                                : widget.courseId)
-                            .trim(),
-                    onRefresh: _refreshAll,
-                    onBack: _goBackToClassrooms,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                _CenteredTabs(controller: _tabs),
-                const SizedBox(height: 2),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabs,
-                    children: [
-                      _chatTab(chat, people),
-                      _listTab(
-                        value: assignments,
-                        emptyTitle: 'No assignments yet',
-                        emptySubtitle:
-                            'This classroom has no assignments right now.',
-                        itemBuilder: (item) => _SimpleCard(
-                          title: _pick(item, 'title', fallback: 'Assignment'),
-                          subtitle: _pick(item, 'body'),
-                          trailing: _friendlyDateTime(_pick(item, 'dueAt')),
-                        ),
-                      ),
-                      _listTab(
-                        value: materials,
-                        emptyTitle: 'No materials yet',
-                        emptySubtitle:
-                            'This classroom has no materials right now.',
-                        itemBuilder: (item) => _SimpleCard(
-                          title: _pick(item, 'title', fallback: 'Material'),
-                          subtitle: _pick(item, 'description'),
-                          trailing: _pick(item, 'mime'),
-                        ),
-                      ),
-                      _listTab(
-                        value: meetings,
-                        emptyTitle: 'No meetings yet',
-                        emptySubtitle:
-                            'This classroom has no meetings right now.',
-                        itemBuilder: (item) => _SimpleCard(
-                          title: _pick(item, 'title', fallback: 'Meeting'),
-                          subtitle: _pick(item, 'link'),
-                          trailing: _friendlyDateTime(_pick(item, 'startsAt')),
-                        ),
-                      ),
-                      _peopleTab(people),
-                    ],
-                  ),
-                ),
-              ],
+            detail.when(
+              loading: () => const _HeaderSkeleton(),
+              error: (e, st) => _TopHeader(
+                icon: Icons.book_rounded,
+                subject: 'Classroom',
+                subtitle: widget.courseId,
+                onRefresh: _refreshAll,
+                onBack: _goBackToClassrooms,
+              ),
+              data: (m) => _TopHeader(
+                icon: _subjectIcon((m['subject'] ?? '').toString()),
+                subject:
+                    ((m['name'] ?? '').toString().trim().isNotEmpty
+                            ? (m['name'] ?? '').toString()
+                            : (m['subject'] ?? 'Classroom').toString())
+                        .trim(),
+                subtitle:
+                    ((m['subject'] ?? '').toString().trim().isNotEmpty
+                            ? (m['subject'] ?? '').toString()
+                            : widget.courseId)
+                        .trim(),
+                onRefresh: _refreshAll,
+                onBack: _goBackToClassrooms,
+              ),
             ),
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 22,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onHorizontalDragEnd: (details) {
-                  final v = details.primaryVelocity ?? 0;
-                  if (v.abs() > 220) {
-                    _goBackToClassrooms();
-                  }
-                },
+            const SizedBox(height: 0),
+            _CenteredTabs(controller: _tabs),
+            const SizedBox(height: 2),
+            Expanded(
+              child: TabBarView(
+                controller: _tabs,
+                children: [
+                  _chatTab(chat, people),
+                  _listTab(
+                    value: assignments,
+                    emptyTitle: 'No assignments yet',
+                    emptySubtitle:
+                        'This classroom has no assignments right now.',
+                    itemBuilder: (item) => _SimpleCard(
+                      title: _pick(item, 'title', fallback: 'Assignment'),
+                      subtitle: _pick(item, 'body'),
+                      trailing: _friendlyDateTime(_pick(item, 'dueAt')),
+                    ),
+                  ),
+                  _listTab(
+                    value: materials,
+                    emptyTitle: 'No materials yet',
+                    emptySubtitle: 'This classroom has no materials right now.',
+                    itemBuilder: (item) => _SimpleCard(
+                      title: _pick(item, 'title', fallback: 'Material'),
+                      subtitle: _pick(item, 'description'),
+                      trailing: _pick(item, 'mime'),
+                    ),
+                  ),
+                  _listTab(
+                    value: meetings,
+                    emptyTitle: 'No meetings yet',
+                    emptySubtitle: 'This classroom has no meetings right now.',
+                    itemBuilder: (item) => _SimpleCard(
+                      title: _pick(item, 'title', fallback: 'Meeting'),
+                      subtitle: _pick(item, 'agenda'),
+                      trailing: _friendlyDateTime(_pick(item, 'startsAt')),
+                    ),
+                  ),
+                  _peopleTab(people),
+                ],
               ),
             ),
           ],
@@ -628,7 +793,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 6),
           itemBuilder: (context, index) {
@@ -649,7 +814,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         Text(
                           name,
                           style: const TextStyle(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
                         ),
@@ -696,7 +861,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 6),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
@@ -705,12 +870,517 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+  Future<void> _pickClassroomFiles() async {
+    final picked = await FilePicker.platform.pickFiles(type: FileType.any);
+    final path = picked?.files.single.path;
+    if (path == null || path.trim().isEmpty) return;
+    setState(() {
+      _draftAttachments.add(<String, String>{
+        'path': path,
+        'name': path.split('/').last,
+        'kind': 'FILE',
+      });
+    });
+  }
+
+  Future<void> _pickClassroomCameraOrUploadImage() async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_rounded),
+              title: Text(
+                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+                    ? 'Take photo'
+                    : 'Choose photo',
+              ),
+              onTap: () => Navigator.pop(
+                context,
+                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+                    ? 'camera'
+                    : 'gallery',
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Upload photo'),
+              onTap: () => Navigator.pop(context, 'gallery'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (action == null) return;
+
+    String? path;
+    if (action == 'camera') {
+      final picked = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 90,
+      );
+      path = picked?.path;
+    } else {
+      final picked = await FilePicker.platform.pickFiles(type: FileType.image);
+      path = picked?.files.single.path;
+    }
+
+    if (path == null || path.trim().isEmpty) return;
+
+    setState(() {
+      _draftAttachments.add(<String, String>{
+        'kind': 'IMAGE',
+        'path': path!,
+        'name': path.split('/').last,
+      });
+    });
+  }
+
+  Future<void> _startVoiceNote() async => _toggleClassroomMic();
+  Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic();
+
+  Future<void> _toggleClassroomMic() async {
+    if (_sending) return;
+
+    if (_recording) {
+      final path = await _recorder.stop();
+      if (!mounted) return;
+      setState(() => _recording = false);
+
+      if (path == null || path.trim().isEmpty) return;
+
+      setState(() {
+        _draftVoicePath = path;
+        _draftVoiceName = path.split('/').last;
+      });
+      return;
+    }
+
+    final hasPermission = await _recorder.hasPermission();
+    if (!hasPermission) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission denied')),
+      );
+      return;
+    }
+
+    final dir = Directory.systemTemp;
+    final filePath =
+        '${dir.path}/classroom-voice-${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    await _recorder.start(
+      const RecordConfig(encoder: AudioEncoder.aacLc),
+      path: filePath,
+    );
+
+    if (!mounted) return;
+    setState(() => _recording = true);
+  }
+
+  Future<void> _sendClassroomChat() async {
+    final repo = ref.read(classroomsRepoProvider);
+    final text = _chatCtl.text.trim();
+    final composedText = _replyToMessageId != null
+        ? composeReplyText(
+            sender: (_replyToSender ?? '').trim(),
+            preview: (_replyToText ?? '').trim(),
+            body: text,
+          )
+        : text;
+
+    if (text.isEmpty && _draftAttachments.isEmpty) return;
+
+    setState(() => _sending = true);
+    try {
+      for (final a in List<Map<String, String>>.from(_draftAttachments)) {
+        final p = (a['path'] ?? '').trim();
+        if (p.isEmpty) continue;
+        await repo.sendChatMedia(widget.courseId, p);
+      }
+
+      if (_draftAttachments.isNotEmpty) {
+        setState(() => _draftAttachments.clear());
+      }
+      final voicePath = (_draftVoicePath ?? '').trim();
+      if (voicePath.isNotEmpty) {
+        await repo.sendChatMedia(widget.courseId, voicePath);
+      }
+
+      if (voicePath.isNotEmpty) {
+        setState(() {
+          _draftVoicePath = null;
+          _draftVoiceName = null;
+        });
+      }
+
+      if (text.isNotEmpty) {
+        _recentOwnMessageTexts.add(composedText.trim());
+        await repo.sendChatText(widget.courseId, composedText);
+        _chatCtl.clear();
+        _clearReply();
+      }
+
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Widget _classroomComposerButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+    Color fill = const Color(0xFF1C232B),
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: onTap == null ? const Color(0xFF121820) : fill,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.22),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _classroomVoiceDraftChip() {
+    final name = (_draftVoiceName ?? 'Voice note').trim();
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D24),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F2630),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Icons.mic_rounded, color: Colors.white70),
+          ),
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              name,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _draftVoicePath = null;
+                _draftVoiceName = null;
+              });
+            },
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _classroomDraftChip(Map<String, String> a) {
+    final path = (a['path'] ?? '').trim();
+    final name = (a['name'] ?? 'file').trim();
+    final isImage = (a['kind'] ?? '').trim() == 'IMAGE';
+
+    final thumb = isImage
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              File(path),
+              width: 52,
+              height: 52,
+              fit: BoxFit.cover,
+            ),
+          )
+        : Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F2630),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.insert_drive_file_outlined,
+              color: Colors.white70,
+            ),
+          );
+
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D24),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          thumb,
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              name,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() => _draftAttachments.remove(a));
+            },
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _classroomComposer() {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF161B22).withValues(alpha: 0.90),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 28,
+                offset: const Offset(0, 6),
+                color: Colors.black.withValues(alpha: 0.28),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_draftAttachments.isNotEmpty ||
+                  (_draftVoicePath ?? '').trim().isNotEmpty)
+                SizedBox(
+                  height: 72,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      ..._draftAttachments.map(_classroomDraftChip),
+                      if ((_draftVoicePath ?? '').trim().isNotEmpty)
+                        _classroomVoiceDraftChip(),
+                    ],
+                  ),
+                ),
+              if (_draftAttachments.isNotEmpty ||
+                  (_draftVoicePath ?? '').trim().isNotEmpty)
+                const SizedBox(height: 8),
+              Row(
+                children: [
+                  _classroomComposerButton(
+                    icon: Icons.camera_alt_rounded,
+                    onTap: _sending || _recording
+                        ? null
+                        : _pickClassroomCameraOrUploadImage,
+                  ),
+                  const SizedBox(width: 8),
+                  _classroomComposerButton(
+                    icon: Icons.attach_file_rounded,
+                    onTap: _sending || _recording ? null : _pickClassroomFiles,
+                  ),
+                  const SizedBox(width: 8),
+                  _classroomComposerButton(
+                    icon: _recording
+                        ? Icons.stop_rounded
+                        : Icons.mic_none_rounded,
+                    onTap: _sending
+                        ? null
+                        : () async {
+                            if (_recording) {
+                              await _stopVoiceNoteAndSend();
+                            } else {
+                              await _startVoiceNote();
+                            }
+                          },
+                    fill: _recording
+                        ? const Color(0xFF8E2E2E)
+                        : const Color(0xFF1C232B),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOutCubic,
+                      constraints: const BoxConstraints(minHeight: 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F141A).withValues(alpha: 0.94),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _chatCtl.text.trim().isNotEmpty
+                              ? const Color(0xFF0A84FF).withValues(alpha: 0.28)
+                              : Colors.white.withValues(alpha: 0.05),
+                        ),
+                        boxShadow: _chatCtl.text.trim().isNotEmpty
+                            ? [
+                                BoxShadow(
+                                  blurRadius: 20,
+                                  spreadRadius: -10,
+                                  color: const Color(
+                                    0xFF0A84FF,
+                                  ).withValues(alpha: 0.34),
+                                ),
+                              ]
+                            : const [],
+                      ),
+                      child: Center(
+                        child: TextField(
+                          controller: _chatCtl,
+                          minLines: 1,
+                          maxLines: 6,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            hintText: 'Message classroom...',
+                            hintStyle: TextStyle(color: Colors.white54),
+                            border: InputBorder.none,
+                          ),
+                          onSubmitted: (_) => _sendClassroomChat(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: _chatCtl.text.trim().isNotEmpty
+                          ? [
+                              BoxShadow(
+                                blurRadius: 26,
+                                spreadRadius: -8,
+                                color: const Color(
+                                  0xFF0A84FF,
+                                ).withValues(alpha: 0.42),
+                              ),
+                            ]
+                          : const [],
+                    ),
+                    child: _classroomComposerButton(
+                      icon: Icons.send_rounded,
+                      onTap: _sending || _recording ? null : _sendClassroomChat,
+                      fill: _chatCtl.text.trim().isNotEmpty
+                          ? const Color(0xFF0A84FF)
+                          : const Color(0xFF143B5C),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _resolveMyUserId(Map<String, String> peopleMap) {
+    final session = ref.read(authSessionProvider);
+    final display = session.displayName.trim().toLowerCase();
+    final token = (session.token ?? '').trim().toLowerCase();
+    final tokenLocal = token.contains('@')
+        ? token.split('@').first.trim().toLowerCase()
+        : token;
+    final tokenLocalClean = tokenLocal.replaceFirst(RegExp(r'^dev-token-'), '');
+
+    for (final entry in peopleMap.entries) {
+      final key = entry.key.trim().toLowerCase();
+      final value = entry.value.trim().toLowerCase();
+
+      if (display.isNotEmpty &&
+          (value == display ||
+              value.contains(display) ||
+              display.contains(value))) {
+        return entry.key.trim();
+      }
+
+      if (token.isNotEmpty && (key == token || value == token)) {
+        return entry.key.trim();
+      }
+
+      if (tokenLocalClean.isNotEmpty &&
+          (value == tokenLocalClean ||
+              value.contains(tokenLocalClean) ||
+              tokenLocalClean.contains(value))) {
+        return entry.key.trim();
+      }
+    }
+
+    return '';
+  }
+
   Widget _chatTab(
     AsyncValue<Map<String, dynamic>> value,
     AsyncValue<Map<String, dynamic>> people,
   ) {
-    final cs = Theme.of(context).colorScheme;
-
     return Column(
       children: [
         Expanded(
@@ -801,328 +1471,378 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 );
               }
 
-              return ListView.builder(
-                controller: _chatScrollCtl,
-                padding: const EdgeInsets.fromLTRB(0, 2, 0, 4),
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final item = filtered[index];
-                  final previous = index > 0 ? filtered[index - 1] : null;
-
-                  final messageId = _pick(item, 'id');
-                  final senderId = _pick(item, 'senderUserId');
-                  final senderName =
-                      (peopleMap[senderId] ?? _shortSender(senderId)).trim();
-                  final createdRaw = _pick(item, 'createdAt');
-                  final createdAt = DateTime.tryParse(createdRaw)?.toLocal();
-                  final reaction = _reactionByMessage[messageId];
-
-                  final originalText = _pick(item, 'text', fallback: '(empty)');
-                  final text = (_editedTextByMessage[messageId] ?? originalText)
-                      .trim();
-
-                  String replySender = '';
-                  String replySnippet = '';
-                  String messageText = text;
-
-                  if (text.startsWith('↪ ')) {
-                    final afterArrow = text.substring(2).trim();
-                    final colon = afterArrow.indexOf(':');
-                    if (colon != -1) {
-                      replySender = afterArrow.substring(0, colon).trim();
-                      final rest = afterArrow.substring(colon + 1).trim();
-                      final dash = rest.lastIndexOf(' — ');
-                      if (dash != -1) {
-                        replySnippet = rest.substring(0, dash).trim();
-                        messageText = rest.substring(dash + 3).trim();
-                      } else {
-                        messageText = rest;
-                      }
-                    }
-                  }
-
-                  final isMine =
-                      myUserId.isNotEmpty && senderId.trim() == myUserId;
-
-                  final previousSender = previous == null
-                      ? ''
-                      : _pick(previous, 'senderUserId');
-                  final previousTime = previous == null
-                      ? null
-                      : DateTime.tryParse(
-                          _pick(previous, 'createdAt'),
-                        )?.toLocal();
-
-                  final groupedWithPrevious =
-                      previous != null &&
-                      previousSender == senderId &&
-                      createdAt != null &&
-                      previousTime != null &&
-                      createdAt.difference(previousTime).inMinutes.abs() <= 4;
-
-                  final showAvatar = !isMine && !groupedWithPrevious;
-                  final showName = !isMine && !groupedWithPrevious;
-                  final swipeDx = _swipeDxByMessage[messageId] ?? 0;
-
-                  final bubble = GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onHorizontalDragUpdate: (details) {
-                      final next = (swipeDx + details.delta.dx).clamp(
-                        0.0,
-                        84.0,
-                      );
-                      if ((_swipeDxByMessage[messageId] ?? 0) != next) {
-                        setState(() {
-                          _swipeDxByMessage[messageId] = next;
-                        });
-                      }
-                    },
-                    onHorizontalDragEnd: (_) {
-                      final current = _swipeDxByMessage[messageId] ?? 0;
-                      if (current >= 56) {
-                        _replyTo(
-                          messageId: messageId,
-                          sender: isMine ? 'You' : senderName,
-                          text: messageText.isEmpty ? '(empty)' : messageText,
-                        );
-                      }
-                      if (_swipeDxByMessage.containsKey(messageId)) {
-                        setState(() {
-                          _swipeDxByMessage.remove(messageId);
-                        });
-                      }
-                    },
-                    onHorizontalDragCancel: () {
-                      if (_swipeDxByMessage.containsKey(messageId)) {
-                        setState(() {
-                          _swipeDxByMessage.remove(messageId);
-                        });
-                      }
-                    },
-                    onLongPress: () => _openBubbleMenu(
-                      context,
-                      messageId: messageId,
-                      text: text,
-                      senderLabel: isMine ? 'You' : senderName,
-                      isMine: isMine,
-                    ),
-                    child: Transform.translate(
-                      offset: Offset(swipeDx, 0),
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween<double>(begin: 0.96, end: 1),
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOutCubic,
-                        builder: (context, scale, child) =>
-                            Transform.scale(scale: scale, child: child),
-                        child: Column(
-                          crossAxisAlignment: isMine
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              constraints: const BoxConstraints(maxWidth: 344),
-                              padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
-                              decoration: BoxDecoration(
-                                color: isMine
-                                    ? cs.primaryContainer
-                                    : cs.surface,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(
-                                    groupedWithPrevious ? 16 : 22,
-                                  ),
-                                  topRight: Radius.circular(
-                                    groupedWithPrevious ? 16 : 22,
-                                  ),
-                                  bottomLeft: Radius.circular(isMine ? 22 : 8),
-                                  bottomRight: Radius.circular(isMine ? 8 : 22),
-                                ),
-                                border: Border.all(
-                                  color: cs.outlineVariant.withValues(
-                                    alpha: 0.35,
-                                  ),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (showName)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: Text(
-                                        senderName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 12,
-                                          color: cs.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  if (replySender.isNotEmpty ||
-                                      replySnippet.isNotEmpty) ...[
-                                    Container(
-                                      width: double.infinity,
-                                      margin: const EdgeInsets.only(bottom: 6),
-                                      padding: const EdgeInsets.fromLTRB(
-                                        10,
-                                        7,
-                                        10,
-                                        7,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            (isMine
-                                                    ? cs.onPrimaryContainer
-                                                    : cs.primaryContainer)
-                                                .withValues(alpha: 0.18),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border(
-                                          left: BorderSide(
-                                            color: isMine
-                                                ? cs.onPrimaryContainer
-                                                : cs.primary,
-                                            width: 3,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            replySender.isEmpty
-                                                ? 'Reply'
-                                                : replySender,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w800,
-                                              color: isMine
-                                                  ? cs.onPrimaryContainer
-                                                  : cs.primary,
-                                            ),
-                                          ),
-                                          if (replySnippet.isNotEmpty) ...[
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              replySnippet,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                height: 1.2,
-                                                color:
-                                                    (isMine
-                                                            ? cs.onPrimaryContainer
-                                                            : cs.onSurfaceVariant)
-                                                        .withValues(
-                                                          alpha: 0.88,
-                                                        ),
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  Text(
-                                    messageText.isEmpty
-                                        ? '(empty)'
-                                        : messageText,
-                                    style: TextStyle(
-                                      height: 1.18,
-                                      color: isMine
-                                          ? cs.onPrimaryContainer
-                                          : cs.onSurface,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (_editedTextByMessage.containsKey(
-                                        messageId,
-                                      )) ...[
-                                        Text(
-                                          'edited',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color:
-                                                (isMine
-                                                        ? cs.onPrimaryContainer
-                                                        : cs.onSurfaceVariant)
-                                                    .withValues(alpha: 0.72),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                      ],
-                                      Text(
-                                        _friendlyTime(createdRaw),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color:
-                                              (isMine
-                                                      ? cs.onPrimaryContainer
-                                                      : cs.onSurfaceVariant)
-                                                  .withValues(alpha: 0.82),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+              if (filtered.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.06),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 28,
+                              spreadRadius: -8,
+                              color: Colors.black.withValues(alpha: 0.24),
                             ),
-                            if (reaction != null) ...[
-                              const SizedBox(height: 2),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: cs.surface,
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(
-                                    color: cs.outlineVariant.withValues(
-                                      alpha: 0.35,
-                                    ),
-                                  ),
-                                ),
-                                child: Text(reaction),
-                              ),
-                            ],
                           ],
                         ),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.forum_outlined,
+                          color: Colors.white70,
+                          size: 24,
+                        ),
                       ),
-                    ),
-                  );
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Start the classroom chat',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Ask a question, send a file, or share an update.',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.56),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
 
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      top: groupedWithPrevious ? 1 : 4,
-                      bottom: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: isMine
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (!isMine)
-                          SizedBox(
-                            width: 18,
-                            child: showAvatar
-                                ? _InitialsAvatar(name: senderName)
-                                : const SizedBox.shrink(),
-                          ),
-                        if (!isMine) const SizedBox(width: 0),
-                        Flexible(child: bubble),
-                        if (isMine) const SizedBox(width: 0),
-                        if (isMine) const SizedBox(width: 4),
-                      ],
-                    ),
+              return ValueListenableBuilder<bool>(
+                valueListenable: _showClassroomScrollToBottom,
+                builder: (context, showScroll, child) {
+                  return Stack(
+                    children: [
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          _handleClassroomScroll();
+                          return false;
+                        },
+                        child: ListView.builder(
+                          controller: _chatScrollCtl,
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final item = filtered[index];
+                            final previous = index > 0
+                                ? filtered[index - 1]
+                                : null;
+
+                            final messageId = _pick(item, 'id');
+                            final senderId =
+                                [
+                                  _pick(item, 'senderUserId'),
+                                  _pick(item, 'senderId'),
+                                  _pick(item, 'userId'),
+                                  _pick(item, 'authorId'),
+                                  _pick(item, 'createdByUserId'),
+                                ].firstWhere(
+                                  (e) => e.trim().isNotEmpty,
+                                  orElse: () => '',
+                                );
+                            final senderName = [
+                              (peopleMap[senderId] ?? '').trim(),
+                              _pick(item, 'senderName').trim(),
+                              _pick(item, 'authorName').trim(),
+                              _pick(item, 'createdByName').trim(),
+                              _shortSender(senderId).trim(),
+                            ].firstWhere((e) => e.isNotEmpty, orElse: () => '');
+                            final createdRaw = _pick(item, 'createdAt');
+                            final createdAt = DateTime.tryParse(
+                              createdRaw,
+                            )?.toLocal();
+                            final reaction = _reactionByMessage[messageId];
+
+                            final originalText = _pick(
+                              item,
+                              'text',
+                              fallback: '(empty)',
+                            );
+                            final text =
+                                (_editedTextByMessage[messageId] ??
+                                        originalText)
+                                    .trim();
+                            final kind = _pick(item, 'kind').toUpperCase();
+                            final mediaUrl = _pick(item, 'mediaUrl');
+
+                            String replySender = '';
+                            String replySnippet = '';
+                            String messageText = text
+                                .replaceFirst(
+                                  RegExp(
+                                    r'^\[IMAGE\]\s*',
+                                    caseSensitive: false,
+                                  ),
+                                  '',
+                                )
+                                .replaceFirst(
+                                  RegExp(r'^\[FILE\]\s*', caseSensitive: false),
+                                  '',
+                                )
+                                .replaceFirst(
+                                  RegExp(
+                                    r'^\[VIDEO\]\s*',
+                                    caseSensitive: false,
+                                  ),
+                                  '',
+                                )
+                                .replaceFirst(
+                                  RegExp(
+                                    r'^\[VOICE\]\s*',
+                                    caseSensitive: false,
+                                  ),
+                                  '',
+                                )
+                                .replaceFirst(
+                                  RegExp(r'^\[FILE\]\s*', caseSensitive: false),
+                                  '',
+                                )
+                                .replaceFirst(
+                                  RegExp(
+                                    r'^\[VIDEO\]\s*',
+                                    caseSensitive: false,
+                                  ),
+                                  '',
+                                )
+                                .trim();
+
+                            if (text.startsWith('↪ ')) {
+                              final afterArrow = text.substring(2).trim();
+                              final colon = afterArrow.indexOf(':');
+                              if (colon != -1) {
+                                replySender = afterArrow
+                                    .substring(0, colon)
+                                    .trim();
+                                final rest = afterArrow
+                                    .substring(colon + 1)
+                                    .trim();
+                                final dash = rest.lastIndexOf(' — ');
+                                if (dash != -1) {
+                                  replySnippet = rest.substring(0, dash).trim();
+                                  messageText = rest.substring(dash + 3).trim();
+                                } else {
+                                  messageText = rest;
+                                }
+                              }
+                            }
+
+                            final session = ref.read(authSessionProvider);
+                            final sessionDisplay = session.displayName
+                                .trim()
+                                .toLowerCase();
+                            final sessionToken = (session.token ?? '')
+                                .trim()
+                                .toLowerCase();
+                            final sessionTokenLocal = sessionToken.contains('@')
+                                ? sessionToken
+                                      .split('@')
+                                      .first
+                                      .trim()
+                                      .toLowerCase()
+                                : sessionToken;
+                            final sessionTokenLocalClean = sessionTokenLocal
+                                .replaceFirst(RegExp(r'^dev-token-'), '');
+
+                            final normalizedText = text.trim();
+                            final normalizedOriginalText = originalText.trim();
+
+                            final isMine =
+                                (myUserId.isNotEmpty &&
+                                    senderId.trim() == myUserId) ||
+                                senderName.trim().toLowerCase() == 'you' ||
+                                (sessionDisplay.isNotEmpty &&
+                                    (senderName.trim().toLowerCase() ==
+                                            sessionDisplay ||
+                                        senderName
+                                            .trim()
+                                            .toLowerCase()
+                                            .contains(sessionDisplay) ||
+                                        sessionDisplay.contains(
+                                          senderName.trim().toLowerCase(),
+                                        ))) ||
+                                (sessionToken.isNotEmpty &&
+                                    senderId.trim().toLowerCase() ==
+                                        sessionToken) ||
+                                (sessionTokenLocalClean.isNotEmpty &&
+                                    (senderName.trim().toLowerCase() ==
+                                            sessionTokenLocalClean ||
+                                        senderName
+                                            .trim()
+                                            .toLowerCase()
+                                            .contains(
+                                              sessionTokenLocalClean,
+                                            ))) ||
+                                _recentOwnMessageTexts.contains(
+                                  normalizedText,
+                                ) ||
+                                _recentOwnMessageTexts.contains(
+                                  normalizedOriginalText,
+                                );
+                            final isVoiceMessage =
+                                kind.trim().toUpperCase() == 'VOICE';
+
+                            final previousSender = previous == null
+                                ? ''
+                                : _pick(previous, 'senderUserId');
+                            final previousTime = previous == null
+                                ? null
+                                : DateTime.tryParse(
+                                    _pick(previous, 'createdAt'),
+                                  )?.toLocal();
+
+                            final groupedWithPrevious =
+                                previous != null &&
+                                previousSender == senderId &&
+                                createdAt != null &&
+                                previousTime != null &&
+                                createdAt
+                                        .difference(previousTime)
+                                        .inMinutes
+                                        .abs() <=
+                                    4;
+
+                            final showAvatar = !groupedWithPrevious;
+                            final showName = !groupedWithPrevious;
+                            final swipeDx = _swipeDxByMessage[messageId] ?? 0;
+
+                            final bubble = GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onHorizontalDragUpdate: (details) {
+                                final next = (swipeDx + details.delta.dx).clamp(
+                                  0.0,
+                                  84.0,
+                                );
+                                if ((_swipeDxByMessage[messageId] ?? 0) !=
+                                    next) {
+                                  setState(() {
+                                    _swipeDxByMessage[messageId] = next;
+                                  });
+                                }
+                              },
+                              onHorizontalDragEnd: (_) {
+                                final current =
+                                    _swipeDxByMessage[messageId] ?? 0;
+                                if (current >= 44) {
+                                  _replyTo(
+                                    messageId: messageId,
+                                    sender: isMine ? 'You' : senderName,
+                                    text: messageText.isEmpty
+                                        ? '(empty)'
+                                        : messageText,
+                                  );
+                                }
+                                if (_swipeDxByMessage.containsKey(messageId)) {
+                                  setState(() {
+                                    _swipeDxByMessage.remove(messageId);
+                                  });
+                                }
+                              },
+                              onHorizontalDragCancel: () {
+                                if (_swipeDxByMessage.containsKey(messageId)) {
+                                  setState(() {
+                                    _swipeDxByMessage.remove(messageId);
+                                  });
+                                }
+                              },
+                              onLongPress: () => _openBubbleMenu(
+                                context,
+                                messageId: messageId,
+                                text: text,
+                                mediaUrl: mediaUrl,
+                                kind: kind,
+                                senderLabel: isMine ? 'You' : senderName,
+                                isMine: isMine,
+                              ),
+                              child: Transform.translate(
+                                offset: Offset(swipeDx, 0),
+                                child: TweenAnimationBuilder<double>(
+                                  tween: Tween<double>(begin: 0.96, end: 1),
+                                  duration: const Duration(milliseconds: 180),
+                                  curve: Curves.easeOutCubic,
+                                  builder: (context, scale, child) =>
+                                      Transform.scale(
+                                        scale: scale,
+                                        child: child,
+                                      ),
+                                  child: ChatMessageBubble(
+                                    contextForNavigation: context,
+                                    rawText:
+                                        _editedTextByMessage[messageId] ?? text,
+                                    mediaUrl: mediaUrl.isEmpty
+                                        ? ''
+                                        : _absoluteMediaUrl(mediaUrl),
+                                    isMine: isMine,
+                                    showName: showName,
+                                    senderLabel: isMine ? 'You' : senderName,
+                                    timeLabel: _friendlyTime(createdRaw),
+                                    edited: _editedTextByMessage.containsKey(
+                                      messageId,
+                                    ),
+                                    reaction: reaction,
+                                    maxWidth: 380,
+                                  ),
+                                ),
+                              ),
+                            );
+
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                top: groupedWithPrevious ? 2 : 5,
+                                bottom: 1,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: isMine
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  if (!isMine)
+                                    SizedBox(
+                                      width: 36,
+                                      child: showAvatar
+                                          ? _InitialsAvatar(name: senderName)
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  if (!isMine) const SizedBox(width: 10),
+                                  Flexible(child: bubble),
+                                  if (isMine) const SizedBox(width: 10),
+                                  if (isMine) const SizedBox(width: 10),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 16,
+                        bottom: 16,
+                        child: showScroll
+                            ? FloatingActionButton.small(
+                                heroTag: 'classroom-scroll-bottom',
+                                backgroundColor: const Color(0xFF0A84FF),
+                                foregroundColor: Colors.white,
+                                onPressed: _pinClassroomToBottom,
+                                child: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
                   );
                 },
               );
@@ -1131,7 +1851,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         ),
         if (_typing && !_sending)
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -1145,9 +1865,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),
         if (_replyToMessageId != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(20),
@@ -1210,61 +1930,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               ),
             ),
           ),
-        Container(
-          padding: const EdgeInsets.fromLTRB(0, 4, 0, 6),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surface.withValues(alpha: 0.96),
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outlineVariant.withValues(alpha: 0.35),
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _chatCtl,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _sendChat(),
-                  decoration: const InputDecoration(
-                    hintText: 'Message classroom...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(22)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(22)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(22)),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    isDense: true,
-                    filled: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              FilledButton(
-                onPressed: _sending ? null : _sendChat,
-                child: _sending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send_rounded),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -1290,12 +1955,12 @@ class _TopHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
         ),
         child: Row(
@@ -1311,7 +1976,7 @@ class _TopHeader extends StatelessWidget {
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
             ),
@@ -1386,12 +2051,12 @@ class _CenteredTabs extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
         ),
         child: TabBar(
@@ -1568,8 +2233,8 @@ class _InitialsAvatar extends StatelessWidget {
         : Colors.black87;
 
     return Container(
-      width: 30,
-      height: 30,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
         color: bg,
         shape: BoxShape.circle,
@@ -1592,7 +2257,7 @@ BoxDecoration _panelDecoration(BuildContext context) {
   final cs = Theme.of(context).colorScheme;
   return BoxDecoration(
     color: cs.surface,
-    borderRadius: BorderRadius.circular(22),
+    borderRadius: BorderRadius.circular(20),
     border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
   );
 }
