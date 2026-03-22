@@ -336,6 +336,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   Widget _dmDraftChip(Map<String, String> a) {
     final path = (a['path'] ?? '').trim();
+    final name = (a['name'] ?? 'file').trim();
     final kind = (a['kind'] ?? '').trim().toUpperCase();
     final isImage = kind == 'IMAGE';
 
@@ -358,6 +359,20 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 width: 36,
                 height: 36,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.white70,
+                    size: 18,
+                  ),
+                ),
               ),
             )
           else
@@ -376,31 +391,12 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               ),
             ),
           const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    _DmDraftWaveBar(h: 10),
-                    SizedBox(width: 3),
-                    _DmDraftWaveBar(h: 16),
-                    SizedBox(width: 3),
-                    _DmDraftWaveBar(h: 12),
-                    SizedBox(width: 3),
-                    _DmDraftWaveBar(h: 18),
-                    SizedBox(width: 3),
-                    _DmDraftWaveBar(h: 9),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _formatDuration(Duration.zero),
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-              ],
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 160),
+            child: Text(
+              name,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white),
             ),
           ),
           const SizedBox(width: 6),

@@ -41,12 +41,20 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
         }
 
         final requests = items
-            .where((e) => e.requestState == DmRequestState.pendingIncoming)
+            .where(
+              (e) =>
+                  e.requestState == DmRequestState.pendingIncoming ||
+                  e.requestState == DmRequestState.pendingOutgoing,
+            )
             .where(matches)
             .toList(growable: false);
 
         final chats = items
-            .where((e) => e.requestState != DmRequestState.pendingIncoming)
+            .where(
+              (e) =>
+                  e.requestState != DmRequestState.pendingIncoming &&
+                  e.requestState != DmRequestState.pendingOutgoing,
+            )
             .where(matches)
             .toList(growable: false);
 
@@ -91,6 +99,9 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                             if (thread.requestState ==
                                 DmRequestState.pendingIncoming)
                               const _MetaPill(label: 'REQUEST'),
+                            if (thread.requestState ==
+                                DmRequestState.pendingOutgoing)
+                              const _MetaPill(label: 'PENDING'),
                             if (thread.isBlocked)
                               const _MetaPill(label: 'BLOCKED'),
                           ],
