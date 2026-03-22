@@ -14,6 +14,28 @@ class DmInboxScreen extends ConsumerStatefulWidget {
 }
 
 class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
+  String? _dmInboxAbsUrl(String? raw) {
+    final value = (raw ?? '').trim();
+    if (value.isEmpty) {
+      return null;
+    }
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    const configured = String.fromEnvironment('CM_API_BASE_URL');
+    final baseRaw = configured.trim();
+    if (baseRaw.isEmpty) {
+      return value;
+    }
+
+    final base = baseRaw.endsWith('/')
+        ? baseRaw.substring(0, baseRaw.length - 1)
+        : baseRaw;
+    final path = value.startsWith('/') ? value : '/$value';
+    return '$base$path';
+  }
+
   final TextEditingController _searchCtl = TextEditingController();
 
   @override
@@ -23,11 +45,17 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
   }
 
   Widget _threadAvatar(DmThread thread) {
-    final avatar = (thread.avatarUrl ?? '').trim();
+    final avatar = (_dmInboxAbsUrl(thread.avatarUrl) ?? '').trim();
     if (avatar.isNotEmpty) {
-      return CircleAvatar(backgroundImage: NetworkImage(avatar));
+      return CircleAvatar(
+        backgroundColor: Colors.white.withValues(alpha: 0.08),
+        backgroundImage: NetworkImage(avatar),
+      );
     }
-    return CircleAvatar(child: Text(thread.avatarText));
+    return CircleAvatar(
+      backgroundColor: Colors.white.withValues(alpha: 0.10),
+      child: Text(thread.avatarText),
+    );
   }
 
   Future<void> _refresh() async {
@@ -47,7 +75,9 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
       error: (e, _) => Center(child: Text('$e')),
       data: (items) {
         bool matches(DmThread e) {
-          if (query.isEmpty) return true;
+          if (query.isEmpty) {
+            return true;
+          }
           return e.title.toLowerCase().contains(query) ||
               e.subtitle.toLowerCase().contains(query) ||
               e.avatarText.toLowerCase().contains(query);

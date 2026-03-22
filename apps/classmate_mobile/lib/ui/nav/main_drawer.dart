@@ -64,7 +64,7 @@ class MainDrawer extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'ClassMate',
@@ -148,6 +148,16 @@ class MainDrawer extends ConsumerWidget {
             ),
             item(
               icon: Icons.bookmark_rounded,
+              title: 'Solutions',
+              onTap: () => context.go('/solutions'),
+            ),
+            _DrawerItem(
+              icon: Icons.quiz_outlined,
+              title: 'Exams',
+              onTap: () => context.go('/exams'),
+            ),
+            _DrawerItem(
+              icon: Icons.bookmark_outline,
               title: 'Saved questions',
               onTap: () => context.go('/saved-questions'),
             ),
@@ -174,5 +184,22 @@ class MainDrawer extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class _DrawerItem extends StatelessWidget {
+  const _DrawerItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(leading: Icon(icon), title: Text(title), onTap: onTap);
   }
 }
