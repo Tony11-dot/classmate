@@ -331,52 +331,61 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     final kind = (a['kind'] ?? '').trim().toUpperCase();
     final isImage = kind == 'IMAGE';
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C23),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isImage)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(
-                File(path),
+    return GestureDetector(
+      onTap: () {
+        if (path.isEmpty) return;
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161C23),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isImage)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(
+                  File(path),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              Container(
                 width: 40,
                 height: 40,
-                fit: BoxFit.cover,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.insert_drive_file_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
-            )
-          else
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.insert_drive_file_rounded,
-                color: Colors.white,
-                size: 18,
+            const SizedBox(width: 6),
+            InkWell(
+              onTap: () => setState(() => _draftAttachments.remove(a)),
+              borderRadius: BorderRadius.circular(999),
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: Icon(
+                  Icons.close_rounded,
+                  color: Colors.white70,
+                  size: 18,
+                ),
               ),
             ),
-          const SizedBox(width: 6),
-          InkWell(
-            onTap: () => setState(() => _draftAttachments.remove(a)),
-            borderRadius: BorderRadius.circular(999),
-            child: const Padding(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -465,12 +474,79 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
+  String _fmtDuration(Duration d) {
+    final total = d.inSeconds;
+    final mm = (total ~/ 60).toString().padLeft(2, '0');
+    final ss = (total % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
   Widget _dmVoiceDraftChip() {
     final totalMs = _draftVoiceDuration.inMilliseconds <= 0
         ? 1
         : _draftVoiceDuration.inMilliseconds;
     final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
     final progress = (posMs / totalMs).clamp(0.0, 1.0);
+
+    Widget seekBar() {
+      return LayoutBuilder(
+        builder: (context, c) {
+          final width = c.maxWidth <= 0 ? 1.0 : c.maxWidth;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragStart: (_) {},
+            onHorizontalDragUpdate: (d) async {
+              final box = context.findRenderObject() as RenderBox?;
+              if (box == null) return;
+              final local = box.globalToLocal(d.globalPosition);
+              final ratio = (local.dx / width).clamp(0.0, 1.0);
+              await _seekDraftVoiceToRatio(ratio);
+            },
+            onTapDown: (d) async {
+              final ratio = (d.localPosition.dx / width).clamp(0.0, 1.0);
+              await _seekDraftVoiceToRatio(ratio);
+            },
+            child: Container(
+              height: 14,
+              alignment: Alignment.center,
+              child: Stack(
+                children: [
+                  Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: (width - 10) * progress,
+                    top: -3,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
@@ -486,8 +562,8 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           GestureDetector(
             onTap: _toggleDraftVoicePlayback,
             child: Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2630),
                 borderRadius: BorderRadius.circular(10),
@@ -503,82 +579,52 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            width: 170,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                seekBar(),
+                const SizedBox(height: 2),
                 Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    _DmDraftWaveBar(h: 8),
-                    SizedBox(width: 2),
-                    _DmDraftWaveBar(h: 12),
-                    SizedBox(width: 2),
-                    _DmDraftWaveBar(h: 9),
-                    SizedBox(width: 2),
-                    _DmDraftWaveBar(h: 14),
-                    SizedBox(width: 2),
-                    _DmDraftWaveBar(h: 7),
+                  children: [
+                    Text(
+                      _fmtDuration(_draftVoicePosition),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _cycleDraftVoiceSpeed,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          _draftVoiceSpeed == 1.0
+                              ? '1x'
+                              : _draftVoiceSpeed == 1.5
+                              ? '1.5x'
+                              : '2x',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onHorizontalDragUpdate: (d) {
-                    final box = context.findRenderObject();
-                    if (box is! RenderBox) return;
-                    final local = box.globalToLocal(d.globalPosition);
-                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
-                    _seekDraftVoiceToRatio(ratio);
-                  },
-                  onTapDown: (d) {
-                    final box = context.findRenderObject();
-                    if (box is! RenderBox) return;
-                    final local = box.globalToLocal(d.globalPosition);
-                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
-                    _seekDraftVoiceToRatio(ratio);
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: Stack(
-                      children: [
-                        Container(height: 4, width: 170, color: Colors.white24),
-                        Container(
-                          height: 4,
-                          width: 170 * progress,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          InkWell(
-            onTap: _cycleDraftVoiceSpeed,
-            borderRadius: BorderRadius.circular(999),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                _draftVoiceSpeed == 1.0
-                    ? '1x'
-                    : _draftVoiceSpeed == 1.5
-                    ? '1.5x'
-                    : '2x',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 4),
@@ -1488,27 +1534,6 @@ class _ComposerButton extends StatelessWidget {
           ],
         ),
         child: Icon(icon, color: Colors.white, size: 20),
-      ),
-    );
-  }
-}
-
-class _DmDraftWaveBar extends StatelessWidget {
-  const _DmDraftWaveBar({required this.h});
-
-  final double h;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        width: 4,
-        height: h,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(999),
-        ),
       ),
     );
   }
