@@ -28,6 +28,17 @@ class DmRepository {
 
   CMApi get _api => CMApi(token: token);
 
+  String? _absUrl(dynamic raw) {
+    final s = (raw ?? '').toString().trim();
+    if (s.isEmpty) return null;
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+    final b = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    if (s.startsWith('/')) return '$b$s';
+    return '$b/$s';
+  }
+
   Uri _uri(String path) {
     final b = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
@@ -160,7 +171,7 @@ class DmRepository {
               userId: userId,
               fullName: fullName.isEmpty ? 'Student' : fullName,
               avatarText: _initials(fullName, fallback: 'ST'),
-              avatarUrl: (avatarUrl?.isNotEmpty == true) ? avatarUrl : null,
+              avatarUrl: _absUrl(avatarUrl),
             );
           })
           .where((u) => u.userId.isNotEmpty)
@@ -222,7 +233,7 @@ class DmRepository {
             isMine: m['mine'] == true,
             kind: kind,
             text: (m['text'] ?? '').toString(),
-            mediaUrl: m['mediaUrl']?.toString(),
+            mediaUrl: _absUrl(m['mediaUrl']),
             mediaMode: mediaMode,
             voiceDuration: m['voiceDuration'] is num
                 ? Duration(seconds: (m['voiceDuration'] as num).toInt())
@@ -289,7 +300,7 @@ class DmRepository {
             userId: (m['userId'] ?? m['id'] ?? '').toString(),
             fullName: fullName.isEmpty ? 'Student' : fullName,
             avatarText: avatarText,
-            avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
+            avatarUrl: _absUrl(avatarUrl),
           );
         })
         .where((u) => u.userId.trim().isNotEmpty)
