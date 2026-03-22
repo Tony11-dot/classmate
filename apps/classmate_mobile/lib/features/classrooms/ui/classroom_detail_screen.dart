@@ -529,14 +529,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('Cancel'),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: FilledButton(
                       onPressed: () => Navigator.pop(context, ctl.text.trim()),
                       child: const Text('Save'),
@@ -746,7 +748,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             const SizedBox(height: 0),
             _CenteredTabs(controller: _tabs),
             const SizedBox(height: 2),
-            Expanded(
+            Flexible(
+              fit: FlexFit.loose,
               child: TabBarView(
                 controller: _tabs,
                 children: [
@@ -851,7 +854,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 children: [
                   _InitialsAvatar(name: name),
                   const SizedBox(width: 2),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1210,7 +1214,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
+          Flexible(
+            fit: FlexFit.loose,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1438,7 +1443,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         : const Color(0xFF1C232B),
                   ),
                   const SizedBox(width: 10),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       curve: Curves.easeOutCubic,
@@ -1556,7 +1562,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   ) {
     return Column(
       children: [
-        Expanded(
+        Flexible(
+          fit: FlexFit.loose,
           child: value.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => _CenteredState(
@@ -2065,7 +2072,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2168,7 +2176,8 @@ class _TopHeader extends StatelessWidget {
               child: Icon(icon, color: cs.primary),
             ),
             const SizedBox(width: 14),
-            Expanded(
+            Flexible(
+              fit: FlexFit.loose,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
