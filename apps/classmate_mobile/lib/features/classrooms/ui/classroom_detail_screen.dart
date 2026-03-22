@@ -1178,8 +1178,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 42,
-        height: 42,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: onTap == null ? const Color(0xFF121820) : fill,
           shape: BoxShape.circle,
@@ -2294,8 +2294,8 @@ class _TopHeader extends StatelessWidget {
             ),
             const SizedBox(width: 2),
             Container(
-              width: 42,
-              height: 42,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(20),
@@ -2415,7 +2415,7 @@ class _TabChipLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(

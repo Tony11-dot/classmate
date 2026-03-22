@@ -77,7 +77,11 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
       backgroundColor: Colors.white.withValues(alpha: 0.08),
       child: Text(
         thread.avatarText,
-        style: const TextStyle(fontWeight: FontWeight.w800),
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+          height: 1.05,
+        ),
       ),
     );
   }
@@ -131,7 +135,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
             borderRadius: BorderRadius.circular(18),
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 10),
+              margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: cs.surface.withValues(alpha: 0.84),
@@ -148,7 +152,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _threadAvatar(thread),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +165,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -170,7 +174,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                 Text(
                                   _fmtInboxTime(thread.updatedAt),
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: Colors.white.withValues(alpha: 0.55),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -191,7 +195,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                 color: Colors.white.withValues(alpha: 0.72),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 6),
                             Wrap(
                               spacing: 6,
                               runSpacing: 6,
@@ -279,7 +283,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _threadAvatar(thread),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +296,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 16,
                                 ),
                               ),
@@ -301,7 +305,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                             Text(
                               _fmtInboxTime(thread.updatedAt),
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 color: Colors.white.withValues(alpha: 0.50),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -347,8 +351,8 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         '${thread.unreadCount}',
                         style: TextStyle(
                           color: cs.onPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -379,7 +383,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       'Requests, direct messages, and study groups in one clean inbox.',
                       style: TextStyle(
@@ -387,7 +391,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         height: 1.35,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _searchCtl,
                       onChanged: (_) => setState(() {}),
@@ -417,7 +421,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     FilledButton.icon(
                       onPressed: () => context.push('/dms/create-group'),
                       icon: const Icon(Icons.group_add_rounded),
@@ -434,7 +438,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                 ),
                 const SizedBox(height: 10),
                 ...incomingRequests.map((e) => requestTile(e, incoming: true)),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
               if (outgoingRequests.isNotEmpty) ...[
                 const Text(
@@ -443,7 +447,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                 ),
                 const SizedBox(height: 10),
                 ...outgoingRequests.map((e) => requestTile(e, incoming: false)),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
               const Text(
                 'Chats',
@@ -455,7 +459,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
                     query.isEmpty
@@ -489,7 +493,7 @@ class _MetaPill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
       ),
     );
   }

@@ -25,37 +25,42 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   @override
   void initState() {
     super.initState();
-    _player.setLoopMode(LoopMode.off);
     _registry.add(this);
 
+    _player.setLoopMode(LoopMode.off);
+
     _player.positionStream.listen((value) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _position = value;
       });
     });
 
     _player.durationStream.listen((value) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _duration = value ?? Duration.zero;
       });
     });
 
-    _player.playerStateStream.listen((state) {
-      if (!mounted) {
-        return;
-      }
+    _player.playerStateStream.listen((state) async {
+      if (!mounted) return;
+
       if (state.processingState == ProcessingState.completed) {
-        _player.seek(Duration.zero);
+        try {
+          await _player.pause();
+          await _player.seek(Duration.zero);
+          await _player.setLoopMode(LoopMode.off);
+        } catch (_) {}
+
+        if (!mounted) return;
         setState(() {
           _position = Duration.zero;
         });
-      } else {
+        return;
+      }
+
+      if (mounted) {
         setState(() {});
       }
     });
@@ -64,27 +69,24 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   bool get _isPlaying => _player.playing;
 
   String get speedLabel {
-    if (_voiceSpeed == 1.0) {
-      return '1x';
-    }
-    if (_voiceSpeed == 1.5) {
-      return '1.5x';
-    }
+    if (_voiceSpeed == 1.0) return '1x';
+    if (_voiceSpeed == 1.5) return '1.5x';
     return '2x';
   }
 
   Future<void> _ensureReady() async {
-    if (_ready) {
-      return;
-    }
+    if (_ready) return;
 
-    setState(() {
-      _loading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+      });
+    }
 
     try {
       await _player.setUrl(widget.url);
       await _player.setSpeed(_voiceSpeed);
+      await _player.setLoopMode(LoopMode.off);
       _ready = true;
     } finally {
       if (mounted) {
@@ -95,18 +97,39 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     }
   }
 
+  Future<void> _stopOthers() async {
+    for (final bubble in List<_ChatAudioBubbleState>.from(_registry)) {
+      if (identical(bubble, this)) continue;
+      try {
+        await bubble._player.pause();
+        await bubble._player.seek(Duration.zero);
+      } catch (_) {}
+      if (bubble.mounted) {
+        bubble.setState(() {
+          bubble._position = Duration.zero;
+        });
+      }
+    }
+  }
+
   Future<void> _togglePlay() async {
     try {
       await _ensureReady();
+
       if (_isPlaying) {
         await _player.pause();
-      } else {
-        if (_duration > Duration.zero &&
-            _position >= _duration - const Duration(milliseconds: 250)) {
-          await _player.seek(Duration.zero);
-        }
-        await _player.play();
+        return;
       }
+
+      await _stopOthers();
+
+      if (_duration > Duration.zero &&
+          _position >= _duration - const Duration(milliseconds: 250)) {
+        await _player.seek(Duration.zero);
+      }
+
+      await _player.setLoopMode(LoopMode.off);
+      await _player.play();
     } catch (_) {}
   }
 
@@ -164,10 +187,10 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       children: [
         Expanded(
           child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Row(
@@ -176,17 +199,17 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   borderRadius: BorderRadius.circular(999),
                   onTap: _loading ? null : _togglePlay,
                   child: Container(
-                    width: 38,
-                    height: 38,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.10),
+                      color: Colors.white.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
                     child: _loading
                         ? const SizedBox(
-                            width: 18,
-                            height: 18,
+                            width: 16,
+                            height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Icon(
@@ -197,83 +220,77 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                           ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          trackHeight: 6,
+                          trackHeight: 2.5,
                           thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 6,
+                            enabledThumbRadius: 4,
                           ),
                           overlayShape: const RoundSliderOverlayShape(
-                            overlayRadius: 12,
+                            overlayRadius: 8,
                           ),
-                          activeTrackColor: Colors.white,
-                          inactiveTrackColor: Colors.white24,
-                          thumbColor: Colors.white,
-                          overlayColor: Colors.white24,
                         ),
                         child: Slider(
                           value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
-                          onChanged: (v) {
-                            setState(() {
-                              final totalMs = _duration.inMilliseconds <= 0
-                                  ? 1
-                                  : _duration.inMilliseconds;
-                              _position = Duration(
-                                milliseconds: (totalMs * v).round(),
-                              );
-                            });
+                          onChanged: (v) async {
+                            await _seekToRatio(v);
                           },
-                          onChangeEnd: _seekToRatio,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Text(
-                            _fmt(_position),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
+                      Transform.translate(
+                        offset: const Offset(0, -4),
+                        child: Row(
+                          children: [
+                            Text(
+                              _fmt(_position),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            _fmt(_duration),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
+                            const Spacer(),
+                            Text(
+                              _fmt(_duration),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
+                InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: _cycleVoiceSpeed,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      speedLabel,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
               ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: _cycleVoiceSpeed,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              speedLabel,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
             ),
           ),
         ),

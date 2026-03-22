@@ -144,7 +144,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         meta.isGroup ? 'Group chat' : 'Direct chat',
                         style: Theme.of(
@@ -849,141 +849,74 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   }
 
   Widget _composerBar(DmThread meta, DmRepository repo) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A2129).withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-                color: Colors.black.withValues(alpha: 0.28),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (replyingTo != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (replyingTo != null)
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Replying to ${replyingTo!.senderName}: ${replyPreviewText(replyingTo!.text)}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => setState(() => replyingTo = null),
-                        icon: const Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_draftAttachments.isNotEmpty ||
-                  (_draftVoicePath ?? '').trim().isNotEmpty)
-                SizedBox(
-                  height: 68,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      ..._draftAttachments.map(_dmDraftChip),
-                      if ((_draftVoicePath ?? '').trim().isNotEmpty)
-                        _dmVoiceDraftChip(),
-                    ],
-                  ),
-                ),
-              if (_draftAttachments.isNotEmpty ||
-                  (_draftVoicePath ?? '').trim().isNotEmpty)
-                const SizedBox(height: 8),
-              Row(
+              child: Row(
                 children: [
-                  _ComposerButton(
-                    icon: Icons.camera_alt_rounded,
-                    onTap: _sending || _recording
-                        ? null
-                        : () => _showImageSourceSheet(repo),
+                  const Icon(
+                    Icons.reply_rounded,
+                    size: 16,
+                    color: Colors.white70,
                   ),
-                  const SizedBox(width: 6),
-                  _ComposerButton(
-                    icon: Icons.attach_file_rounded,
-                    onTap: _sending || _recording
-                        ? null
-                        : () => _pickFile(repo),
-                  ),
-                  const SizedBox(width: 6),
-                  _ComposerButton(
-                    icon: _recording
-                        ? Icons.stop_rounded
-                        : Icons.mic_none_rounded,
-                    onTap: _sending ? null : () => _toggleMic(repo),
-                    fill: _recording
-                        ? const Color(0xFF8E2E2E)
-                        : const Color(0xFF1C232B),
-                  ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 46),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F141A).withValues(alpha: 0.88),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
-                        ),
-                      ),
-                      child: Center(
-                        child: TextField(
-                          controller: composer,
-                          minLines: 1,
-                          maxLines: 6,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: meta.isGroup
-                                ? 'Message group'
-                                : 'Message',
-                            hintStyle: const TextStyle(color: Colors.white54),
-                            border: InputBorder.none,
-                          ),
-                          onSubmitted: (_) => _sendText(repo),
-                        ),
+                    child: Text(
+                      'Replying to ${replyingTo!.senderName}: ${replyPreviewText(replyingTo!.text)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Colors.white70,
+                        height: 1.05,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  _ComposerButton(
-                    icon: Icons.send_rounded,
-                    onTap: _sending || _recording
-                        ? null
-                        : () => _sendText(repo),
-                    fill: const Color(0xFF143B5C),
+                  IconButton(
+                    onPressed: () => setState(() => replyingTo = null),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
-            ],
+            ),
+          if (_draftAttachments.isNotEmpty ||
+              (_draftVoicePath ?? '').trim().isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ..._draftAttachments.map(_dmDraftChip),
+                    if ((_draftVoicePath ?? '').trim().isNotEmpty)
+                      _dmVoiceDraftChip(),
+                  ],
+                ),
+              ),
+            ),
+          ChatComposer(
+            controller: composer,
+            hintText: 'Message',
+            onSend: _sending || _recording ? null : () => _sendText(repo),
+            onCamera: _sending || _recording
+                ? null
+                : () => _showImageSourceSheet(repo),
+            onAttach: _sending || _recording ? null : () => _pickFile(repo),
+            onMic: _sending ? null : () => _toggleMic(repo),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1093,7 +1026,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w900),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         '${meta.title} wants to start a chat with you.',
                         style: TextStyle(
@@ -1101,7 +1034,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                           height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 6),
                       OutlinedButton.icon(
                         onPressed: () => context.push('/profile'),
                         icon: const Icon(Icons.person_outline_rounded),
@@ -1461,13 +1394,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   },
                 ),
               ),
-              ChatComposer(
-                controller: composer,
-                onSend: () => _sendText(repo),
-                onCamera: () => _showImageSourceSheet(repo),
-                onAttach: () => _pickFile(repo),
-                onMic: () => _toggleMic(repo),
-              ),
+              _composerBar(meta, repo),
             ],
           ),
         );
