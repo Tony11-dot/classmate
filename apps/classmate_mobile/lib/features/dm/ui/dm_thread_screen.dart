@@ -908,13 +908,18 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
             ),
           ChatComposer(
             controller: composer,
-            hintText: 'Message',
-            onSend: _sending || _recording ? null : () => _sendText(repo),
+            onSend: () {
+              _sending || _recording ? null : () => _sendText(repo);
+            },
             onCamera: _sending || _recording
                 ? null
                 : () => _showImageSourceSheet(repo),
-            onAttach: _sending || _recording ? null : () => _pickFile(repo),
-            onMic: _sending ? null : () => _toggleMic(repo),
+            onAttach: () {
+              _sending || _recording ? null : () => _pickFile(repo);
+            },
+            onMic: () {
+              _sending ? null : () => _toggleMic(repo);
+            },
           ),
         ],
       ),
@@ -1447,42 +1452,6 @@ class _ChatAvatar extends StatelessWidget {
                 fontSize: size * 0.28,
               ),
             ),
-    );
-  }
-}
-
-class _ComposerButton extends StatelessWidget {
-  const _ComposerButton({
-    required this.icon,
-    required this.onTap,
-    this.fill = const Color(0xFF1C232B),
-  });
-
-  final IconData icon;
-  final VoidCallback? onTap;
-  final Color fill;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: onTap == null ? const Color(0xFF121820) : fill,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              color: Colors.black.withValues(alpha: 0.22),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: Colors.white, size: 20),
-      ),
     );
   }
 }
