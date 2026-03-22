@@ -11,6 +11,9 @@ class ChatAudioBubble extends StatefulWidget {
 }
 
 class _ChatAudioBubbleState extends State<ChatAudioBubble> {
+  static final List<_ChatAudioBubbleState> _registry =
+      <_ChatAudioBubbleState>[];
+
   final AudioPlayer _player = AudioPlayer();
 
   Duration _position = Duration.zero;
@@ -22,6 +25,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   @override
   void initState() {
     super.initState();
+    _player.setLoopMode(LoopMode.off);
+    _registry.add(this);
 
     _player.positionStream.listen((value) {
       if (!mounted) {
@@ -141,6 +146,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
 
   @override
   void dispose() {
+    _registry.remove(this);
     _player.dispose();
     super.dispose();
   }
