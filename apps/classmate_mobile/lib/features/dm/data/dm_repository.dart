@@ -428,31 +428,13 @@ class DmRepository {
       throw Exception('At least one participant is required');
     }
 
-    String? avatarUrl;
-    final avatar = (avatarPath ?? '').trim();
-    if (avatar.isNotEmpty) {
-      try {
-        final uploaded = await uploadMedia(avatar);
-        final url = (uploaded['url'] ?? '').toString().trim();
-        if (url.isNotEmpty) {
-          avatarUrl = url;
-        }
-      } catch (_) {}
-    }
-
+    // backend currently rejects avatarUrl/groupAvatarUrl/avatarMediaUrl on /dm/threads
     await _api.postJson(
       '/dm/threads',
       body: <String, dynamic>{
         'title': cleanedTitle.isEmpty ? 'New group' : cleanedTitle,
         'participantIds': cleanedIds,
         'isGroup': true,
-        ...?(avatarUrl == null
-            ? null
-            : <String, dynamic>{
-                'avatarUrl': avatarUrl,
-                'groupAvatarUrl': avatarUrl,
-                'avatarMediaUrl': avatarUrl,
-              }),
       },
     );
   }

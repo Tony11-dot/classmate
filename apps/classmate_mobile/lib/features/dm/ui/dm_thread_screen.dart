@@ -336,7 +336,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   Widget _dmDraftChip(Map<String, String> a) {
     final path = (a['path'] ?? '').trim();
-    final name = (a['name'] ?? 'file').trim();
     final kind = (a['kind'] ?? '').trim().toUpperCase();
     final isImage = kind == 'IMAGE';
 
@@ -356,29 +355,15 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               borderRadius: BorderRadius.circular(10),
               child: Image.file(
                 File(path),
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(
-                    Icons.broken_image_outlined,
-                    color: Colors.white70,
-                    size: 18,
-                  ),
-                ),
               ),
             )
           else
             Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
@@ -390,22 +375,22 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 size: 18,
               ),
             ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 160),
-            child: Text(
-              name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
+          const SizedBox(width: 10),
+          Text(
+            isImage ? 'Photo' : 'File',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           InkWell(
             onTap: () => setState(() => _draftAttachments.remove(a)),
-            child: const Icon(
-              Icons.close_rounded,
-              color: Colors.white70,
-              size: 18,
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
             ),
           ),
         ],
@@ -537,7 +522,11 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           Flexible(
             fit: FlexFit.loose,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 180, maxWidth: 240),
+              constraints: const BoxConstraints(
+                minWidth: 180,
+                maxWidth: 240,
+                maxHeight: 50,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -556,10 +545,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                       _DmDraftWaveBar(h: 9),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 2),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      trackHeight: 4,
+                      trackHeight: 3,
                       thumbShape: const RoundSliderThumbShape(
                         enabledThumbRadius: 5,
                       ),
@@ -593,7 +582,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                     ),
                   ),
                   Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
                       Text(
                         _formatDuration(_draftVoicePosition),

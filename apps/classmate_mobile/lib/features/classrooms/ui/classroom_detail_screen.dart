@@ -88,9 +88,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
   String? _draftVoicePath;
-  String? _draftVoiceName;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
+  Duration _draftVoicePosition = Duration.zero;
+  Duration _draftVoiceDuration = Duration.zero;
+  bool _draftVoiceReady = false;
+  bool _draftVoiceDragging = false;
 
   bool _sending = false;
   void _handleClassroomScroll() {
@@ -299,6 +302,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
   }
 
+  String _fmtDuration(Duration d) {
+    final total = d.inSeconds;
+    final mm = (total ~/ 60).toString().padLeft(2, '0');
+    final ss = (total % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
   Future<void> _markChatSeen() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
@@ -321,6 +331,46 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   @override
   void initState() {
     super.initState();
+    _draftVoicePlayer.positionStream.listen((value) {
+      if (!mounted || _draftVoiceDragging) {
+        return;
+      }
+      setState(() {
+        _draftVoicePosition = value;
+      });
+    });
+    _draftVoicePlayer.durationStream.listen((value) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _draftVoiceDuration = value ?? Duration.zero;
+      });
+    });
+    _draftVoicePlayer.playerStateStream.listen((state) async {
+      if (state.processingState == ProcessingState.completed) {
+        try {
+          await _draftVoicePlayer.pause();
+          await _draftVoicePlayer.seek(Duration.zero);
+        } catch (_) {}
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _draftVoicePlaying = false;
+          _draftVoicePosition = Duration.zero;
+        });
+        return;
+      }
+      if (!mounted) {
+        return;
+      }
+      if (_draftVoicePlaying != _draftVoicePlayer.playing) {
+        setState(() {
+          _draftVoicePlaying = _draftVoicePlayer.playing;
+        });
+      }
+    });
     _draftVoicePlayer.playerStateStream.listen((state) {
       if (!mounted) {
         return;
@@ -345,6 +395,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   @override
   void dispose() {
+    _draftVoicePlayer.stop();
     _draftVoicePlayer.dispose();
     _tabs.dispose();
     _chatCtl.removeListener(_onComposerChanged);
@@ -941,7 +992,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Take photo'),
+              title: Text(
+                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+                    ? 'Take photo'
+                    : 'Choose image',
+              ),
               onTap: () => Navigator.pop(
                 context,
                 !kIsWeb && (Platform.isAndroid || Platform.isIOS)
@@ -1017,7 +1072,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       setState(() {
         _draftVoicePath = path;
-        _draftVoiceName = path.split('/').last;
+        _draftVoicePlaying = false;
+        _draftVoiceReady = false;
+        _draftVoicePosition = Duration.zero;
+        _draftVoiceDuration = Duration.zero;
       });
       return;
     }
@@ -1086,8 +1144,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         if (mounted) {
           setState(() {
             _draftVoicePlaying = false;
+            _draftVoiceReady = false;
+            _draftVoicePosition = Duration.zero;
+            _draftVoiceDuration = Duration.zero;
             _draftVoicePath = null;
-            _draftVoiceName = null;
           });
         }
       }
@@ -1145,17 +1205,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     try {
       if (_draftVoicePlaying) {
-        await _draftVoicePlayer.stop();
+        await _draftVoicePlayer.pause();
         if (mounted) {
           setState(() => _draftVoicePlaying = false);
         }
         return;
       }
 
-      await _draftVoicePlayer.stop();
-      await _draftVoicePlayer.setFilePath(path);
+      if (!_draftVoiceReady) {
+        await _draftVoicePlayer.setFilePath(path);
+        _draftVoiceReady = true;
+      }
+
       await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
-      await _draftVoicePlayer.seek(Duration.zero);
+
+      if (_draftVoiceDuration > Duration.zero &&
+          _draftVoicePosition >= _draftVoiceDuration) {
+        await _draftVoicePlayer.seek(Duration.zero);
+        if (mounted) {
+          setState(() => _draftVoicePosition = Duration.zero);
+        }
+      }
+
       await _draftVoicePlayer.play();
 
       if (mounted) {
@@ -1182,8 +1253,41 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
   }
 
+  Future<void> _seekClassroomDraftVoiceToRatio(double ratio) async {
+    final totalMs = _draftVoiceDuration.inMilliseconds <= 0
+        ? 1
+        : _draftVoiceDuration.inMilliseconds;
+    final target = Duration(
+      milliseconds: (totalMs * ratio.clamp(0.0, 1.0)).round(),
+    );
+
+    try {
+      if (!_draftVoiceReady) {
+        final path = (_draftVoicePath ?? '').trim();
+        if (path.isEmpty) {
+          return;
+        }
+        await _draftVoicePlayer.setFilePath(path);
+        _draftVoiceReady = true;
+        await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      }
+      await _draftVoicePlayer.seek(target);
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _draftVoicePosition = target;
+      });
+    }
+  }
+
   Widget _classroomVoiceDraftChip() {
-    final name = (_draftVoiceName ?? 'Voice note').trim();
+    final totalMs = _draftVoiceDuration.inMilliseconds <= 0
+        ? 1
+        : _draftVoiceDuration.inMilliseconds;
+    final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
+    final progress = posMs / totalMs;
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.all(6),
@@ -1216,40 +1320,95 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           const SizedBox(width: 8),
           Flexible(
             fit: FlexFit.loose,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    _ClassroomDraftWaveBar(h: 10),
-                    SizedBox(width: 3),
-                    _ClassroomDraftWaveBar(h: 16),
-                    SizedBox(width: 3),
-                    _ClassroomDraftWaveBar(h: 12),
-                    SizedBox(width: 3),
-                    _ClassroomDraftWaveBar(h: 18),
-                    SizedBox(width: 3),
-                    _ClassroomDraftWaveBar(h: 9),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  name,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 180, maxWidth: 240),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      _ClassroomDraftWaveBar(h: 10),
+                      SizedBox(width: 3),
+                      _ClassroomDraftWaveBar(h: 16),
+                      SizedBox(width: 3),
+                      _ClassroomDraftWaveBar(h: 12),
+                      SizedBox(width: 3),
+                      _ClassroomDraftWaveBar(h: 18),
+                      SizedBox(width: 3),
+                      _ClassroomDraftWaveBar(h: 9),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 5,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 10,
+                      ),
+                      activeTrackColor: Colors.white,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: Colors.white,
+                      overlayColor: Colors.white24,
+                    ),
+                    child: Slider(
+                      value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
+                      onChanged: (v) {
+                        final total = _draftVoiceDuration.inMilliseconds <= 0
+                            ? 1
+                            : _draftVoiceDuration.inMilliseconds;
+                        setState(() {
+                          _draftVoiceDragging = true;
+                          _draftVoicePosition = Duration(
+                            milliseconds: (total * v).round(),
+                          );
+                        });
+                      },
+                      onChangeEnd: (v) async {
+                        if (mounted) {
+                          setState(() => _draftVoiceDragging = false);
+                        }
+                        await _seekClassroomDraftVoiceToRatio(v);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _fmtDuration(_draftVoicePosition),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        _fmtDuration(_draftVoiceDuration),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
+          const SizedBox(width: 6),
+          InkWell(
             onTap: _cycleClassroomDraftVoiceSpeed,
+            borderRadius: BorderRadius.circular(999),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
                 _draftVoiceSpeed == 1.0
@@ -1259,38 +1418,32 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     : '2x',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
+          const SizedBox(width: 6),
+          InkWell(
             onTap: () async {
-              await _draftVoicePlayer.stop();
+              try {
+                await _draftVoicePlayer.stop();
+              } catch (_) {}
               if (!mounted) {
                 return;
               }
               setState(() {
                 _draftVoicePlaying = false;
+                _draftVoiceReady = false;
+                _draftVoicePosition = Duration.zero;
+                _draftVoiceDuration = Duration.zero;
                 _draftVoicePath = null;
-                _draftVoiceName = null;
               });
             },
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.close_rounded,
-                size: 16,
-                color: Colors.white,
-              ),
+            child: const Icon(
+              Icons.close_rounded,
+              color: Colors.white70,
+              size: 18,
             ),
           ),
         ],
