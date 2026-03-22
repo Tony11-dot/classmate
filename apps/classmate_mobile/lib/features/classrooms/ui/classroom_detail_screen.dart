@@ -93,7 +93,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Duration _draftVoicePosition = Duration.zero;
   Duration _draftVoiceDuration = Duration.zero;
   bool _draftVoiceReady = false;
-  bool _draftVoiceDragging = false;
 
   bool _sending = false;
   void _handleClassroomScroll() {
@@ -332,7 +331,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   void initState() {
     super.initState();
     _draftVoicePlayer.positionStream.listen((value) {
-      if (!mounted || _draftVoiceDragging) {
+      if (!mounted || false) {
         return;
       }
       setState(() {
@@ -1286,11 +1285,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         ? 1
         : _draftVoiceDuration.inMilliseconds;
     final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
-    final progress = posMs / totalMs;
+    final progress = (posMs / totalMs).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFF171D24),
         borderRadius: BorderRadius.circular(12),
@@ -1302,11 +1301,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           GestureDetector(
             onTap: _toggleClassroomDraftVoicePlayback,
             child: Container(
-              width: 52,
-              height: 52,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2630),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
               child: Icon(
@@ -1314,90 +1313,63 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     ? Icons.pause_rounded
                     : Icons.play_arrow_rounded,
                 color: Colors.white70,
+                size: 20,
               ),
             ),
           ),
           const SizedBox(width: 8),
-          Flexible(
-            fit: FlexFit.loose,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 180, maxWidth: 240),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      _ClassroomDraftWaveBar(h: 10),
-                      SizedBox(width: 3),
-                      _ClassroomDraftWaveBar(h: 16),
-                      SizedBox(width: 3),
-                      _ClassroomDraftWaveBar(h: 12),
-                      SizedBox(width: 3),
-                      _ClassroomDraftWaveBar(h: 18),
-                      SizedBox(width: 3),
-                      _ClassroomDraftWaveBar(h: 9),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 5,
-                      ),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 10,
-                      ),
-                      activeTrackColor: Colors.white,
-                      inactiveTrackColor: Colors.white24,
-                      thumbColor: Colors.white,
-                      overlayColor: Colors.white24,
-                    ),
-                    child: Slider(
-                      value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
-                      onChanged: (v) {
-                        final total = _draftVoiceDuration.inMilliseconds <= 0
-                            ? 1
-                            : _draftVoiceDuration.inMilliseconds;
-                        setState(() {
-                          _draftVoiceDragging = true;
-                          _draftVoicePosition = Duration(
-                            milliseconds: (total * v).round(),
-                          );
-                        });
-                      },
-                      onChangeEnd: (v) async {
-                        if (mounted) {
-                          setState(() => _draftVoiceDragging = false);
-                        }
-                        await _seekClassroomDraftVoiceToRatio(v);
-                      },
+          SizedBox(
+            width: 170,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    _ClassroomDraftWaveBar(h: 8),
+                    SizedBox(width: 2),
+                    _ClassroomDraftWaveBar(h: 12),
+                    SizedBox(width: 2),
+                    _ClassroomDraftWaveBar(h: 9),
+                    SizedBox(width: 2),
+                    _ClassroomDraftWaveBar(h: 14),
+                    SizedBox(width: 2),
+                    _ClassroomDraftWaveBar(h: 7),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onHorizontalDragUpdate: (d) {
+                    final box = context.findRenderObject();
+                    if (box is! RenderBox) return;
+                    final local = box.globalToLocal(d.globalPosition);
+                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
+                    _seekClassroomDraftVoiceToRatio(ratio);
+                  },
+                  onTapDown: (d) {
+                    final box = context.findRenderObject();
+                    if (box is! RenderBox) return;
+                    final local = box.globalToLocal(d.globalPosition);
+                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
+                    _seekClassroomDraftVoiceToRatio(ratio);
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: Stack(
+                      children: [
+                        Container(height: 4, width: 170, color: Colors.white24),
+                        Container(
+                          height: 4,
+                          width: 170 * progress,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _fmtDuration(_draftVoicePosition),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        _fmtDuration(_draftVoiceDuration),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 6),
@@ -1405,9 +1377,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             onTap: _cycleClassroomDraftVoiceSpeed,
             borderRadius: BorderRadius.circular(999),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.10),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -1417,33 +1389,26 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     ? '1.5x'
                     : '2x',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.white70,
+                  fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           InkWell(
-            onTap: () async {
-              try {
-                await _draftVoicePlayer.stop();
-              } catch (_) {}
-              if (!mounted) {
-                return;
-              }
-              setState(() {
-                _draftVoicePlaying = false;
-                _draftVoiceReady = false;
-                _draftVoicePosition = Duration.zero;
-                _draftVoiceDuration = Duration.zero;
-                _draftVoicePath = null;
-              });
-            },
-            child: const Icon(
-              Icons.close_rounded,
-              color: Colors.white70,
-              size: 18,
+            onTap: () => setState(() {
+              _draftVoicePath = null;
+              _draftVoiceReady = false;
+              _draftVoicePlaying = false;
+              _draftVoiceDuration = Duration.zero;
+              _draftVoicePosition = Duration.zero;
+            }),
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
             ),
           ),
         ],
