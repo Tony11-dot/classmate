@@ -28,15 +28,15 @@ class ChatComposer extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.22),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
           child: Row(
             children: [
               _circle(Icons.camera_alt_rounded, onCamera),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               _circle(Icons.attach_file_rounded, onAttach),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               Expanded(
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 40),
@@ -52,17 +52,17 @@ class ChatComposer extends StatelessWidget {
                     controller: controller,
                     minLines: 1,
                     maxLines: 3,
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 14.5),
                     decoration: InputDecoration.collapsed(hintText: hint),
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               _circle(Icons.mic_none_rounded, onMic),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: const Color(0xFF2A6DF4),
                   borderRadius: BorderRadius.circular(21),

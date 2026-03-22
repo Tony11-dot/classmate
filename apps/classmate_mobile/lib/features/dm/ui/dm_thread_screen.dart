@@ -144,7 +144,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         meta.isGroup ? 'Group chat' : 'Direct chat',
                         style: Theme.of(
@@ -346,70 +346,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     setState(() => _recording = true);
   }
 
-  Widget _dmDraftChip(Map<String, String> a) {
-    final path = (a['path'] ?? '').trim();
-    final kind = (a['kind'] ?? '').trim().toUpperCase();
-    final isImage = kind == 'IMAGE';
-
-    return GestureDetector(
-      onTap: () {
-        if (path.isEmpty) return;
-      },
-      child: Container(
-        margin: const EdgeInsets.only(right: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
-        decoration: BoxDecoration(
-          color: const Color(0xFF161C23),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isImage)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.file(
-                  File(path),
-                  width: 36,
-                  height: 36,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.insert_drive_file_rounded,
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-            const SizedBox(width: 6),
-            InkWell(
-              onTap: () => setState(() => _draftAttachments.remove(a)),
-              borderRadius: BorderRadius.circular(999),
-              child: const Padding(
-                padding: EdgeInsets.all(2),
-                child: Icon(
-                  Icons.close_rounded,
-                  color: Colors.white70,
-                  size: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _toggleDraftVoicePlayback() async {
     final path = (_draftVoicePath ?? '').trim();
     if (path.isEmpty) {
@@ -499,172 +435,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     final mm = (total ~/ 60).toString().padLeft(2, '0');
     final ss = (total % 60).toString().padLeft(2, '0');
     return '$mm:$ss';
-  }
-
-  Widget _dmVoiceDraftChip() {
-    final totalMs = _draftVoiceDuration.inMilliseconds <= 0
-        ? 1
-        : _draftVoiceDuration.inMilliseconds;
-    final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
-    final progress = (posMs / totalMs).clamp(0.0, 1.0);
-
-    Widget seekBar() {
-      return LayoutBuilder(
-        builder: (context, c) {
-          final width = c.maxWidth <= 0 ? 1.0 : c.maxWidth;
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onHorizontalDragStart: (_) {},
-            onHorizontalDragUpdate: (d) async {
-              final box = context.findRenderObject() as RenderBox?;
-              if (box == null) return;
-              final local = box.globalToLocal(d.globalPosition);
-              final ratio = (local.dx / width).clamp(0.0, 1.0);
-              await _seekDraftVoiceToRatio(ratio);
-            },
-            onTapDown: (d) async {
-              final ratio = (d.localPosition.dx / width).clamp(0.0, 1.0);
-              await _seekDraftVoiceToRatio(ratio);
-            },
-            child: Container(
-              height: 14,
-              alignment: Alignment.center,
-              child: Stack(
-                children: [
-                  Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: progress,
-                    child: Container(
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: (width - 10) * progress,
-                    top: -3,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(right: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFF171D24),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTap: _toggleDraftVoicePlayback,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1F2630),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                _draftVoicePlaying
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-                color: Colors.white70,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 120, maxWidth: 158),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                seekBar(),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      _fmtDuration(_draftVoicePosition),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10,
-                      ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: _cycleDraftVoiceSpeed,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          _draftVoiceSpeed == 1.0
-                              ? '1x'
-                              : _draftVoiceSpeed == 1.5
-                              ? '1.5x'
-                              : '2x',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          InkWell(
-            onTap: () => setState(() {
-              _draftVoicePath = null;
-              _draftVoiceReady = false;
-              _draftVoicePlaying = false;
-              _draftVoiceDuration = Duration.zero;
-              _draftVoicePosition = Duration.zero;
-            }),
-            borderRadius: BorderRadius.circular(999),
-            child: const Padding(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _sendText(DmRepository repo) async {
@@ -953,7 +723,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w900),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         '${meta.title} wants to start a chat with you.',
                         style: TextStyle(
@@ -961,7 +731,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                           height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       OutlinedButton.icon(
                         onPressed: () => context.push('/profile'),
                         icon: const Icon(Icons.person_outline_rounded),
@@ -1094,7 +864,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 3),
                             Text(
                               'Send a message, photo, file, or voice note.',
                               style: TextStyle(

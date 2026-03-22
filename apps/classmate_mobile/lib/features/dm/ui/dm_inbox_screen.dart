@@ -402,19 +402,19 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         filled: true,
                         fillColor: cs.surface.withValues(alpha: 0.7),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: cs.outlineVariant.withValues(alpha: 0.24),
+                            color: cs.outlineVariant.withValues(alpha: 0.14),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: cs.outlineVariant.withValues(alpha: 0.24),
+                            color: cs.outlineVariant.withValues(alpha: 0.14),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
                             color: cs.primary.withValues(alpha: 0.45),
                           ),
