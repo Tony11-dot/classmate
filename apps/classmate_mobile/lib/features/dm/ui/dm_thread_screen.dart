@@ -191,7 +191,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 context,
                 !kIsWeb && (Platform.isAndroid || Platform.isIOS)
                     ? 'camera'
-                    : 'gallery',
+                    : 'camera_unavailable',
               ),
             ),
             ListTile(
@@ -209,7 +209,19 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
 
     String? path;
-    if (action == 'camera') {
+    if (action == 'camera_unavailable') {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Camera capture is available on mobile builds. On macOS this button cannot open a real camera yet.',
+          ),
+        ),
+      );
+      return;
+    } else if (action == 'camera') {
       final picked = await _imagePicker.pickImage(
         source: ImageSource.camera,
         imageQuality: 90,
@@ -407,6 +419,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       await _draftVoicePlayer.stop();
       await _draftVoicePlayer.setFilePath(path);
       await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      await _draftVoicePlayer.seek(Duration.zero);
       await _draftVoicePlayer.play();
 
       if (mounted) {
@@ -846,6 +859,18 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   @override
   void initState() {
     super.initState();
+    _draftVoicePlayer.playerStateStream.listen((state) {
+      if (!mounted) {
+        return;
+      }
+      final playingNow = state.playing;
+      if (state.processingState == ProcessingState.completed) {
+        _draftVoicePlayer.seek(Duration.zero);
+      }
+      if (_draftVoicePlaying != playingNow) {
+        setState(() => _draftVoicePlaying = playingNow);
+      }
+    });
     _chatScrollCtl.addListener(_handleDmScroll);
   }
 

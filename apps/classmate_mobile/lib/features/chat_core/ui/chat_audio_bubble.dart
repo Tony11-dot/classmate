@@ -46,6 +46,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         return;
       }
       if (state.processingState == ProcessingState.completed) {
+        _player.seek(Duration.zero);
         setState(() {
           _position = Duration.zero;
         });
@@ -95,8 +96,21 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       if (_isPlaying) {
         await _player.pause();
       } else {
+        if (_duration > Duration.zero &&
+            _position >= _duration - const Duration(milliseconds: 250)) {
+          await _player.seek(Duration.zero);
+        }
         await _player.play();
       }
+    } catch (_) {}
+  }
+
+  Future<void> _seekToRatio(double ratio) async {
+    try {
+      await _ensureReady();
+      final clamped = ratio.clamp(0.0, 1.0);
+      final ms = (_duration.inMilliseconds * clamped).round();
+      await _player.seek(Duration(milliseconds: ms));
     } catch (_) {}
   }
 
@@ -182,15 +196,33 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: LinearProgressIndicator(
-                          value: progress.isNaN ? 0 : progress,
-                          minHeight: 6,
-                          backgroundColor: Colors.white.withValues(alpha: 0.10),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 6,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 6,
                           ),
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 12,
+                          ),
+                          activeTrackColor: Colors.white,
+                          inactiveTrackColor: Colors.white24,
+                          thumbColor: Colors.white,
+                          overlayColor: Colors.white24,
+                        ),
+                        child: Slider(
+                          value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
+                          onChanged: (v) {
+                            setState(() {
+                              final totalMs = _duration.inMilliseconds <= 0
+                                  ? 1
+                                  : _duration.inMilliseconds;
+                              _position = Duration(
+                                milliseconds: (totalMs * v).round(),
+                              );
+                            });
+                          },
+                          onChangeEnd: _seekToRatio,
                         ),
                       ),
                       const SizedBox(height: 8),
