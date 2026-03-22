@@ -136,7 +136,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
               margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: cs.surface.withValues(alpha: 0.84),
                 borderRadius: BorderRadius.circular(18),
@@ -271,7 +271,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
               margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: cs.surface.withValues(alpha: 0.74),
                 borderRadius: BorderRadius.circular(18),
@@ -486,7 +486,7 @@ class _MetaPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(999),

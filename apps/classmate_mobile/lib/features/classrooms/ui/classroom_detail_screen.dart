@@ -1348,7 +1348,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
         color: const Color(0xFF171D24),
         borderRadius: BorderRadius.circular(12),
@@ -1360,8 +1360,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           GestureDetector(
             onTap: _toggleClassroomDraftVoicePlayback,
             child: Container(
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2630),
                 borderRadius: BorderRadius.circular(10),
@@ -1378,7 +1378,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),
           const SizedBox(width: 6),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
+            constraints: const BoxConstraints(minWidth: 120, maxWidth: 158),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1452,7 +1452,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFF161C23),
         borderRadius: BorderRadius.circular(14),
@@ -1466,15 +1466,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               borderRadius: BorderRadius.circular(10),
               child: Image.file(
                 File(path),
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 fit: BoxFit.cover,
               ),
             )
           else
             Container(
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
@@ -1506,7 +1506,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
             color: const Color(0xFF161B22).withValues(alpha: 0.90),
             borderRadius: BorderRadius.circular(26),
@@ -2103,7 +2103,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       messageId,
                                     ),
                                     reaction: reaction,
-                                    maxWidth: 380,
+                                    maxWidth: 300,
                                   ),
                                 ),
                               ),
@@ -2192,7 +2192,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 children: [
                   Container(
                     width: 4,
-                    height: 40,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(999),
@@ -2268,7 +2268,7 @@ class _TopHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(16),
@@ -2414,7 +2414,7 @@ class _TabChipLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -2445,7 +2445,7 @@ class _SimpleCard extends StatelessWidget {
       child: Row(
         children: [
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 170),
+            constraints: const BoxConstraints(maxWidth: 145),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -2494,7 +2494,7 @@ class _CenteredState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
+          constraints: const BoxConstraints(maxWidth: 420),
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: cs.surface,

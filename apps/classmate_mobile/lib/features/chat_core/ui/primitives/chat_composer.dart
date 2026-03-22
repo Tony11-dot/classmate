@@ -21,49 +21,59 @@ class ChatComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-        child: Row(
-          children: [
-            _circle(Icons.camera_alt_rounded, onCamera),
-            const SizedBox(width: 5),
-            _circle(Icons.attach_file_rounded, onAttach),
-            const SizedBox(width: 5),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 11,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.22),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          child: Row(
+            children: [
+              _circle(Icons.camera_alt_rounded, onCamera),
+              const SizedBox(width: 6),
+              _circle(Icons.attach_file_rounded, onAttach),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 40),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.42),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: TextField(
+                    controller: controller,
+                    minLines: 1,
+                    maxLines: 3,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration.collapsed(hintText: hint),
+                  ),
                 ),
+              ),
+              const SizedBox(width: 6),
+              _circle(Icons.mic_none_rounded, onMic),
+              const SizedBox(width: 6),
+              Container(
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.35),
+                  color: const Color(0xFF2A6DF4),
                   borderRadius: BorderRadius.circular(21),
                 ),
-                child: TextField(
-                  controller: controller,
-                  minLines: 1,
-                  maxLines: 3,
-                  style: const TextStyle(fontSize: 16, height: 1.15),
-                  decoration: InputDecoration.collapsed(hintText: hint),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, size: 19),
+                  onPressed: onSend,
                 ),
               ),
-            ),
-            const SizedBox(width: 5),
-            _circle(Icons.mic_none_rounded, onMic),
-            const SizedBox(width: 5),
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A6DF4),
-                borderRadius: BorderRadius.circular(21),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, size: 19),
-                onPressed: onSend,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -71,13 +81,17 @@ class ChatComposer extends StatelessWidget {
 
   Widget _circle(IconData icon, VoidCallback onTap) {
     return Container(
-      width: 38,
-      height: 38,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: Colors.white.withValues(alpha: 0.07),
         shape: BoxShape.circle,
       ),
-      child: IconButton(icon: Icon(icon, size: 17), onPressed: onTap),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(icon, size: 17),
+        onPressed: onTap,
+      ),
     );
   }
 }

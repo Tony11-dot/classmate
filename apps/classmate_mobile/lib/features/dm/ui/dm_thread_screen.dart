@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_element
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -125,7 +125,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           body: SafeArea(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
+                constraints: const BoxConstraints(maxWidth: 520),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -371,15 +371,15 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.file(
                   File(path),
-                  width: 40,
-                  height: 40,
+                  width: 36,
+                  height: 36,
                   fit: BoxFit.cover,
                 ),
               )
             else
               Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
@@ -570,7 +570,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
     return Container(
       margin: const EdgeInsets.only(right: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
         color: const Color(0xFF171D24),
         borderRadius: BorderRadius.circular(12),
@@ -582,8 +582,8 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           GestureDetector(
             onTap: _toggleDraftVoicePlayback,
             child: Container(
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2630),
                 borderRadius: BorderRadius.circular(10),
@@ -600,7 +600,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           ),
           const SizedBox(width: 6),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
+            constraints: const BoxConstraints(minWidth: 120, maxWidth: 158),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1172,7 +1172,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                       children: [
                                         if (!isMine)
                                           SizedBox(
-                                            width: 40,
+                                            width: 36,
                                             child: showAvatar
                                                 ? _ChatAvatar(
                                                     name: message.senderName,
@@ -1287,7 +1287,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                         if (isMine) const SizedBox(width: 6),
                                         if (isMine)
                                           SizedBox(
-                                            width: 40,
+                                            width: 36,
                                             child: showAvatar
                                                 ? _ChatAvatar(name: 'You')
                                                 : null,
@@ -1321,7 +1321,25 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   },
                 ),
               ),
-              _composerBar(meta, repo),
+              ChatComposer(
+                controller: composer,
+                onSend: () {
+                  if (_sending || _recording) return;
+                  _sendText(repo);
+                },
+                onCamera: () {
+                  if (_sending || _recording) return;
+                  _showImageSourceSheet(repo);
+                },
+                onAttach: () {
+                  if (_sending || _recording) return;
+                  _pickFile(repo);
+                },
+                onMic: () {
+                  if (_sending) return;
+                  _toggleMic(repo);
+                },
+              ),
             ],
           ),
         );

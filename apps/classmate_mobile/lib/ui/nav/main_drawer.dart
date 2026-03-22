@@ -50,8 +50,8 @@ class MainDrawer extends ConsumerWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       color: cs.primaryContainer.withValues(alpha: 0.75),
