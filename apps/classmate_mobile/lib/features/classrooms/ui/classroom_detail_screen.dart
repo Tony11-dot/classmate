@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../chat_core/ui/primitives/chat_composer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:io';

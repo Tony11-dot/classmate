@@ -35,6 +35,26 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
     return '$base$path';
   }
 
+  String _fmtInboxTime(DateTime dt) {
+    final now = DateTime.now();
+    final sameDay =
+        now.year == dt.year && now.month == dt.month && now.day == dt.day;
+    if (sameDay) {
+      final hh = dt.hour.toString().padLeft(2, '0');
+      final mm = dt.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    }
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday =
+        yesterday.year == dt.year &&
+        yesterday.month == dt.month &&
+        yesterday.day == dt.day;
+    if (isYesterday) {
+      return 'Yesterday';
+    }
+    return '${dt.day}/${dt.month}';
+  }
+
   final TextEditingController _searchCtl = TextEditingController();
 
   @override
@@ -47,13 +67,18 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
     final avatar = (_dmInboxAbsUrl(thread.avatarUrl) ?? '').trim();
     if (avatar.isNotEmpty) {
       return CircleAvatar(
-        backgroundColor: Colors.white.withValues(alpha: 0.08),
+        radius: 22,
         backgroundImage: NetworkImage(avatar),
+        backgroundColor: Colors.white.withValues(alpha: 0.08),
       );
     }
     return CircleAvatar(
-      backgroundColor: Colors.white.withValues(alpha: 0.10),
-      child: Text(thread.avatarText),
+      radius: 22,
+      backgroundColor: Colors.white.withValues(alpha: 0.08),
+      child: Text(
+        thread.avatarText,
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
     );
   }
 
@@ -102,129 +127,156 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
             .toList(growable: false);
 
         Widget requestTile(DmThread thread, {required bool incoming}) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.92),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.24),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    _threadAvatar(thread),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            thread.title,
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            thread.subtitle.isEmpty
-                                ? (incoming
-                                      ? 'This chat needs your approval.'
-                                      : 'Waiting for approval.')
-                                : thread.subtitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (thread.isGroup)
-                                const _MetaPill(label: 'GROUP'),
-                              _MetaPill(
-                                label: incoming
-                                    ? 'INCOMING REQUEST'
-                                    : 'OUTGOING REQUEST',
-                              ),
-                              if (thread.isBlocked)
-                                const _MetaPill(label: 'BLOCKED'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          return InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () => context.push('/dms/${thread.id}'),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.surface.withValues(alpha: 0.84),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: incoming
+                      ? cs.primary.withValues(alpha: 0.28)
+                      : cs.outlineVariant.withValues(alpha: 0.20),
                 ),
-                const SizedBox(height: 12),
-                if (incoming)
+              ),
+              child: Column(
+                children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _threadAvatar(thread),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton(
-                          onPressed: () async {
-                            await repo.acceptRequest(thread.id);
-                            if (!mounted) return;
-                            await _refresh();
-                          },
-                          child: const Text('Accept'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            await repo.declineRequest(thread.id);
-                            if (!mounted) return;
-                            await _refresh();
-                          },
-                          child: const Text('Decline'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        tooltip: 'Block',
-                        onPressed: () async {
-                          await repo.blockUser(thread.id);
-                          if (!mounted) return;
-                          await _refresh();
-                        },
-                        icon: const Icon(Icons.block_rounded),
-                      ),
-                    ],
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => context.push('/dms/${thread.id}'),
-                          child: const Text('Open'),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    thread.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _fmtInboxTime(thread.updatedAt),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white.withValues(alpha: 0.55),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              thread.subtitle.isEmpty
+                                  ? (incoming
+                                        ? 'This chat needs your approval.'
+                                        : 'Waiting for approval.')
+                                  : thread.subtitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withValues(alpha: 0.72),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                if (thread.isGroup)
+                                  const _MetaPill(label: 'GROUP'),
+                                _MetaPill(
+                                  label: incoming ? 'REQUEST' : 'PENDING',
+                                ),
+                                if (thread.isBlocked)
+                                  const _MetaPill(label: 'BLOCKED'),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-              ],
+                  const SizedBox(height: 10),
+                  if (incoming)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () async {
+                              await repo.acceptRequest(thread.id);
+                              if (!mounted) return;
+                              await _refresh();
+                            },
+                            child: const Text('Accept'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              await repo.declineRequest(thread.id);
+                              if (!mounted) return;
+                              await _refresh();
+                            },
+                            child: const Text('Decline'),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          tooltip: 'Block',
+                          onPressed: () async {
+                            await repo.blockUser(thread.id);
+                            if (!mounted) return;
+                            await _refresh();
+                          },
+                          icon: const Icon(Icons.block_rounded),
+                        ),
+                      ],
+                    )
+                  else
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: OutlinedButton(
+                        onPressed: () => context.push('/dms/${thread.id}'),
+                        child: const Text('Open'),
+                      ),
+                    ),
+                ],
+              ),
             ),
           );
         }
 
         Widget chatTile(DmThread thread) {
           return InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: cs.surface.withValues(alpha: 0.92),
-                borderRadius: BorderRadius.circular(20),
+                color: cs.surface.withValues(alpha: 0.74),
+                borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.24),
+                  color: cs.outlineVariant.withValues(alpha: 0.14),
                 ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _threadAvatar(thread),
                   const SizedBox(width: 12),
@@ -232,20 +284,46 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          thread.title,
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                thread.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _fmtInboxTime(thread.updatedAt),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.white.withValues(alpha: 0.50),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         Text(
-                          thread.subtitle,
+                          thread.subtitle.isEmpty
+                              ? 'Start chatting'
+                              : thread.subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.74),
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 7),
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                          spacing: 6,
+                          runSpacing: 6,
                           children: [
                             if (thread.isGroup) const _MetaPill(label: 'GROUP'),
                             if (thread.isBlocked)
@@ -255,17 +333,26 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                       ],
                     ),
                   ),
-                  if (thread.unreadCount > 0)
-                    CircleAvatar(
-                      radius: 12,
+                  if (thread.unreadCount > 0) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 22,
+                      height: 22,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                      ),
                       child: Text(
                         '${thread.unreadCount}',
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: cs.onPrimary,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
+                  ],
                 ],
               ),
             ),

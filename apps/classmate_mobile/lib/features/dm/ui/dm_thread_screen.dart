@@ -12,6 +12,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:record/record.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../chat_core/ui/primitives/chat_composer.dart';
 
 import '../data/dm_repository.dart';
 import '../domain/dm_models.dart';
@@ -1460,7 +1461,13 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   },
                 ),
               ),
-              _composerBar(meta, repo),
+              ChatComposer(
+                controller: composer,
+                onSend: () => _sendText(repo),
+                onCamera: () => _showImageSourceSheet(repo),
+                onAttach: () => _pickFile(repo),
+                onMic: () => _toggleMic(repo),
+              ),
             ],
           ),
         );
