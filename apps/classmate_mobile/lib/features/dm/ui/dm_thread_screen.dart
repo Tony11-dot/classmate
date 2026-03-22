@@ -713,7 +713,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.72),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -775,7 +775,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           appBar: AppBar(
             titleSpacing: 0,
             title: InkWell(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               onTap: () => _openThreadProfile(meta: meta),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

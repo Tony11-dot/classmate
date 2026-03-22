@@ -385,7 +385,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Requests, direct messages, and study groups in one clean inbox.',
+                      'Direct messages, requests, and study groups.',
                       style: TextStyle(
                         color: cs.onSurfaceVariant,
                         height: 1.35,
