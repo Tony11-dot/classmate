@@ -1287,6 +1287,65 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
     final progress = (posMs / totalMs).clamp(0.0, 1.0);
 
+    Widget seekBar() {
+      return LayoutBuilder(
+        builder: (context, c) {
+          final width = c.maxWidth <= 0 ? 1.0 : c.maxWidth;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragUpdate: (d) async {
+              final box = context.findRenderObject() as RenderBox?;
+              if (box == null) return;
+              final local = box.globalToLocal(d.globalPosition);
+              final ratio = (local.dx / width).clamp(0.0, 1.0);
+              await _seekClassroomDraftVoiceToRatio(ratio);
+            },
+            onTapDown: (d) async {
+              final ratio = (d.localPosition.dx / width).clamp(0.0, 1.0);
+              await _seekClassroomDraftVoiceToRatio(ratio);
+            },
+            child: Container(
+              height: 14,
+              alignment: Alignment.center,
+              child: Stack(
+                children: [
+                  Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: (width - 10) * progress,
+                    top: -3,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -1301,8 +1360,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           GestureDetector(
             onTap: _toggleClassroomDraftVoicePlayback,
             child: Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2630),
                 borderRadius: BorderRadius.circular(10),
@@ -1318,82 +1377,52 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            width: 170,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                seekBar(),
+                const SizedBox(height: 2),
                 Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    _ClassroomDraftWaveBar(h: 8),
-                    SizedBox(width: 2),
-                    _ClassroomDraftWaveBar(h: 12),
-                    SizedBox(width: 2),
-                    _ClassroomDraftWaveBar(h: 9),
-                    SizedBox(width: 2),
-                    _ClassroomDraftWaveBar(h: 14),
-                    SizedBox(width: 2),
-                    _ClassroomDraftWaveBar(h: 7),
+                  children: [
+                    Text(
+                      _fmtDuration(_draftVoicePosition),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _cycleClassroomDraftVoiceSpeed,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          _draftVoiceSpeed == 1.0
+                              ? '1x'
+                              : _draftVoiceSpeed == 1.5
+                              ? '1.5x'
+                              : '2x',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onHorizontalDragUpdate: (d) {
-                    final box = context.findRenderObject();
-                    if (box is! RenderBox) return;
-                    final local = box.globalToLocal(d.globalPosition);
-                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
-                    _seekClassroomDraftVoiceToRatio(ratio);
-                  },
-                  onTapDown: (d) {
-                    final box = context.findRenderObject();
-                    if (box is! RenderBox) return;
-                    final local = box.globalToLocal(d.globalPosition);
-                    final ratio = (local.dx / 170).clamp(0.0, 1.0);
-                    _seekClassroomDraftVoiceToRatio(ratio);
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: Stack(
-                      children: [
-                        Container(height: 4, width: 170, color: Colors.white24),
-                        Container(
-                          height: 4,
-                          width: 170 * progress,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          InkWell(
-            onTap: _cycleClassroomDraftVoiceSpeed,
-            borderRadius: BorderRadius.circular(999),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                _draftVoiceSpeed == 1.0
-                    ? '1x'
-                    : _draftVoiceSpeed == 1.5
-                    ? '1.5x'
-                    : '2x',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 4),
@@ -1418,72 +1447,52 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   Widget _classroomDraftChip(Map<String, String> a) {
     final path = (a['path'] ?? '').trim();
-    final name = (a['name'] ?? 'file').trim();
-    final isImage = (a['kind'] ?? '').trim() == 'IMAGE';
-
-    final thumb = isImage
-        ? ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.file(
-              File(path),
-              width: 52,
-              height: 52,
-              fit: BoxFit.cover,
-            ),
-          )
-        : Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F2630),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.insert_drive_file_outlined,
-              color: Colors.white70,
-            ),
-          );
+    final kind = (a['kind'] ?? '').trim().toUpperCase();
+    final isImage = kind == 'IMAGE';
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D24),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF161C23),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          thumb,
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 180),
-            child: Text(
-              name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () {
-              setState(() => _draftAttachments.remove(a));
-            },
-            child: Container(
-              width: 26,
-              height: 26,
+          if (isImage)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                File(path),
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            Container(
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
               child: const Icon(
-                Icons.close_rounded,
-                size: 16,
+                Icons.insert_drive_file_rounded,
                 color: Colors.white,
+                size: 18,
               ),
+            ),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: () => setState(() => _draftAttachments.remove(a)),
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
             ),
           ),
         ],
@@ -2284,8 +2293,8 @@ class _TopHeader extends StatelessWidget {
             ),
             const SizedBox(width: 2),
             Container(
-              width: 48,
-              height: 48,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(20),
@@ -2405,7 +2414,7 @@ class _TabChipLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(

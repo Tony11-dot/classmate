@@ -130,7 +130,11 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _ChatAvatar(name: meta.title, size: 84),
+                      _ChatAvatar(
+                        name: meta.title,
+                        size: 84,
+                        avatarUrl: _absoluteThreadAvatarUrl(meta.avatarUrl),
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         meta.title.trim().isEmpty
@@ -156,6 +160,21 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
         ),
       ),
     );
+  }
+
+  String _absoluteThreadAvatarUrl(String? raw) {
+    final value = (raw ?? '').trim();
+    if (value.isEmpty) return '';
+    if (value.startsWith('file:///uploads/')) {
+      final repaired = value.replaceFirst('file://', '');
+      final base = _uploadsBaseUrl();
+      return repaired.startsWith('/') ? '$base$repaired' : '$base/$repaired';
+    }
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    final base = _uploadsBaseUrl();
+    return value.startsWith('/') ? '$base$value' : '$base/$value';
   }
 
   String _absoluteMediaUrl(String? raw) {
@@ -578,7 +597,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
             child: Column(
@@ -904,14 +923,14 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         ? null
                         : () => _showImageSourceSheet(repo),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   _ComposerButton(
                     icon: Icons.attach_file_rounded,
                     onTap: _sending || _recording
                         ? null
                         : () => _pickFile(repo),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   _ComposerButton(
                     icon: _recording
                         ? Icons.stop_rounded
@@ -921,7 +940,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         ? const Color(0xFF8E2E2E)
                         : const Color(0xFF1C232B),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Container(
                       constraints: const BoxConstraints(minHeight: 46),
@@ -951,7 +970,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   _ComposerButton(
                     icon: Icons.send_rounded,
                     onTap: _sending || _recording
@@ -1100,7 +1119,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               label: const Text('Block'),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: FilledButton.icon(
                               onPressed: () async {
@@ -1131,7 +1150,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ChatAvatar(name: meta.title, size: 32),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Flexible(
                     child: Text(
                       meta.title,
@@ -1295,7 +1314,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                                   )
                                                 : null,
                                           ),
-                                        if (!isMine) const SizedBox(width: 10),
+                                        if (!isMine) const SizedBox(width: 6),
                                         Flexible(
                                           child: GestureDetector(
                                             behavior: HitTestBehavior.opaque,
@@ -1400,7 +1419,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                             ),
                                           ),
                                         ),
-                                        if (isMine) const SizedBox(width: 10),
+                                        if (isMine) const SizedBox(width: 6),
                                         if (isMine)
                                           SizedBox(
                                             width: 40,
@@ -1454,51 +1473,42 @@ String _timeLabel(DateTime dt) {
 }
 
 class _ChatAvatar extends StatelessWidget {
-  const _ChatAvatar({required this.name, this.size = 36});
+  const _ChatAvatar({required this.name, this.size = 40, this.avatarUrl});
 
   final String name;
   final double size;
+  final String? avatarUrl;
 
   @override
   Widget build(BuildContext context) {
-    final initials = name
+    final parts = name
         .trim()
         .split(RegExp(r'\s+'))
         .where((e) => e.isNotEmpty)
-        .take(2)
-        .map((e) => e[0].toUpperCase())
-        .join();
+        .toList();
+    final text = parts.isEmpty
+        ? 'DM'
+        : parts.length == 1
+        ? parts.first
+              .substring(0, parts.first.length >= 2 ? 2 : 1)
+              .toUpperCase()
+        : '${parts.first[0]}${parts.last[0]}'.toUpperCase();
 
-    final palette = <Color>[
-      const Color(0xFF9CCC65),
-      const Color(0xFF4FC3F7),
-      const Color(0xFFFFB74D),
-      const Color(0xFFBA68C8),
-      const Color(0xFFFF8A65),
-      const Color(0xFF4DB6AC),
-      const Color(0xFFA1887F),
-      const Color(0xFF7986CB),
-    ];
-    final seed = name.trim().toLowerCase().runes.fold<int>(0, (a, b) => a + b);
-    final bg = palette[seed % palette.length];
+    final safeAvatar = (avatarUrl ?? '').trim();
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: bg,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initials.isEmpty ? '?' : initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: Colors.white.withValues(alpha: 0.10),
+      backgroundImage: safeAvatar.isNotEmpty ? NetworkImage(safeAvatar) : null,
+      child: safeAvatar.isNotEmpty
+          ? null
+          : Text(
+              text,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: size * 0.28,
+              ),
+            ),
     );
   }
 }
