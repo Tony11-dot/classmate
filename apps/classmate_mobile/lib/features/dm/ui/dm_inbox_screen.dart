@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../domain/dm_models.dart';
 import '../providers/dm_providers.dart';
 
-class DmInboxScreen extends ConsumerWidget {
+class DmInboxScreen extends ConsumerStatefulWidget {
   const DmInboxScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DmInboxScreen> createState() => _DmInboxScreenState();
+}
+
+class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
+  final TextEditingController _searchCtl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final async = ref.watch(dmThreadsProvider);
     final cs = Theme.of(context).colorScheme;
+    final query = _searchCtl.text.trim().toLowerCase();
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (items) {
+        bool matches(DmThread e) {
+          if (query.isEmpty) {
+            return true;
+          }
+          return e.title.toLowerCase().contains(query) ||
+              e.subtitle.toLowerCase().contains(query) ||
+              e.avatarText.toLowerCase().contains(query);
+        }
+
         final requests = items
             .where((e) => e.requestState == DmRequestState.pendingIncoming)
+            .where(matches)
             .toList(growable: false);
+
         final chats = items
             .where((e) => e.requestState != DmRequestState.pendingIncoming)
+            .where(matches)
             .toList(growable: false);
 
         Widget tile(DmThread thread) {
@@ -101,7 +128,7 @@ class DmInboxScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Messagess',
+                    'Messages',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -110,6 +137,36 @@ class DmInboxScreen extends ConsumerWidget {
                   Text(
                     'Requests, direct messages, and study groups in one clean inbox.',
                     style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _searchCtl,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Search messages...',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      isDense: true,
+                      filled: true,
+                      fillColor: cs.surface.withValues(alpha: 0.7),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: cs.outlineVariant.withValues(alpha: 0.24),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: cs.outlineVariant.withValues(alpha: 0.24),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: cs.primary.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   FilledButton.icon(
@@ -132,7 +189,19 @@ class DmInboxScreen extends ConsumerWidget {
             ],
             const Text('Chats', style: TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 10),
-            ...chats.map(tile),
+            if (chats.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  query.isEmpty ? 'No chats yet.' : 'No chats match "$query".',
+                ),
+              )
+            else
+              ...chats.map(tile),
           ],
         );
       },
@@ -142,6 +211,7 @@ class DmInboxScreen extends ConsumerWidget {
 
 class _MetaPill extends StatelessWidget {
   const _MetaPill({required this.label});
+
   final String label;
 
   @override

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -347,12 +348,31 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               ),
             ),
           const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
-            child: Text(
-              name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    _DmDraftWaveBar(h: 10),
+                    SizedBox(width: 3),
+                    _DmDraftWaveBar(h: 16),
+                    SizedBox(width: 3),
+                    _DmDraftWaveBar(h: 12),
+                    SizedBox(width: 3),
+                    _DmDraftWaveBar(h: 18),
+                    SizedBox(width: 3),
+                    _DmDraftWaveBar(h: 9),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 6),
@@ -515,6 +535,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       return;
     }
 
+    HapticFeedback.lightImpact();
     setState(() => _sending = true);
     try {
       for (final a in List<Map<String, String>>.from(_draftAttachments)) {
@@ -1044,6 +1065,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               },
                               child: ListView.builder(
                                 controller: _chatScrollCtl,
+                                cacheExtent: 900,
+                                addAutomaticKeepAlives: false,
+                                addRepaintBoundaries: true,
                                 padding: const EdgeInsets.fromLTRB(
                                   14,
                                   18,
@@ -1333,6 +1357,27 @@ class _ComposerButton extends StatelessWidget {
           ],
         ),
         child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+}
+
+class _DmDraftWaveBar extends StatelessWidget {
+  const _DmDraftWaveBar({required this.h});
+
+  final double h;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        width: 4,
+        height: h,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(999),
+        ),
       ),
     );
   }

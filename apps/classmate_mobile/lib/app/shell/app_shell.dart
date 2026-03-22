@@ -6,6 +6,19 @@ import 'package:go_router/go_router.dart';
 
 import '../../ui/nav/main_drawer.dart';
 
+const _coreBottomNavPaths = <String>{
+  '/schedule',
+  '/classrooms',
+  '/practice',
+  '/insights',
+  '/tutor',
+};
+
+String _routePathOnly(String loc) {
+  final uri = Uri.tryParse(loc);
+  return (uri?.path ?? loc).toLowerCase();
+}
+
 bool _hideTopBarForRoute(String loc) {
   final l = loc.toLowerCase();
   return l.startsWith('/dm/') ||
@@ -52,16 +65,8 @@ class AppShell extends ConsumerWidget {
   }
 
   bool _hideBottomNav(String loc) {
-    final l = loc.toLowerCase();
-    if (l.startsWith('/practice/session')) return true;
-    if (l.startsWith('/classrooms/') && !l.endsWith('/classrooms')) return true;
-    if (l.startsWith('/tutor/')) return true;
-    if (l.startsWith('/nova/')) return true;
-    if (l.startsWith('/dm/')) return true;
-    if (l.startsWith('/dms/')) return true;
-    if (l.startsWith('/messages/')) return true;
-    if (l.contains('/chat')) return true;
-    return false;
+    final path = _routePathOnly(loc);
+    return !_coreBottomNavPaths.contains(path);
   }
 
   @override
