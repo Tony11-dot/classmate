@@ -220,7 +220,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                           ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 5),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -267,14 +267,14 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 5),
                 InkWell(
                   borderRadius: BorderRadius.circular(999),
                   onTap: _cycleVoiceSpeed,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
-                      vertical: 6,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.08),

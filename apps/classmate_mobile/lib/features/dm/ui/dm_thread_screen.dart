@@ -713,10 +713,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.72),
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Message request',
@@ -860,7 +860,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               'Start the conversation',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

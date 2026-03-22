@@ -559,7 +559,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 'Edit message',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 5),
               TextField(
                 controller: ctl,
                 autofocus: true,
@@ -576,7 +576,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 5),
               Row(
                 children: [
                   Flexible(
@@ -892,7 +892,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 6),
+          separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) {
             final item = raw[index];
             final name = _pick(item, 'name', fallback: 'Student');
@@ -907,13 +907,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   Flexible(
                     fit: FlexFit.loose,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           name,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                            fontSize: 13.5,
                           ),
                         ),
                         if (email.trim().isNotEmpty) ...[
@@ -961,7 +961,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 6),
+          separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
         );
       },
@@ -1381,7 +1381,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             constraints: const BoxConstraints(minWidth: 120, maxWidth: 158),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 seekBar(),
                 const SizedBox(height: 2),
@@ -1537,7 +1537,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 ),
               if (_draftAttachments.isNotEmpty ||
                   (_draftVoicePath ?? '').trim().isNotEmpty)
-                const SizedBox(height: 8),
+                const SizedBox(height: 2),
               Row(
                 children: [
                   _classroomComposerButton(
@@ -1812,11 +1812,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         'Start the classroom chat',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 2),
                       Text(
                         'Ask a question, send a file, or share an update.',
                         style: TextStyle(
@@ -2103,7 +2103,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       messageId,
                                     ),
                                     reaction: reaction,
-                                    maxWidth: 300,
+                                    maxWidth: 280,
                                   ),
                                 ),
                               ),
@@ -2188,7 +2188,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 ),
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     width: 4,
@@ -2203,7 +2203,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     fit: FlexFit.loose,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           _replyToSender?.trim().isNotEmpty == true
@@ -2268,7 +2268,7 @@ class _TopHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(14),
@@ -2306,7 +2306,7 @@ class _TopHeader extends StatelessWidget {
             Flexible(
               fit: FlexFit.loose,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     subject.trim().isEmpty ? 'Classroom' : subject.trim(),
@@ -2414,7 +2414,7 @@ class _TabChipLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       child: Text(
         text,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -2447,7 +2447,7 @@ class _SimpleCard extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 145),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(

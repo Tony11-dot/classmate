@@ -25,10 +25,10 @@ class ChatComposer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.22),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(13),
             border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
           child: Row(
@@ -41,18 +41,18 @@ class ChatComposer extends StatelessWidget {
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 40),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                    horizontal: 10,
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.42),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextField(
                     controller: controller,
                     minLines: 1,
                     maxLines: 3,
-                    style: const TextStyle(fontSize: 14.5),
+                    style: const TextStyle(fontSize: 13.5),
                     decoration: InputDecoration.collapsed(hintText: hint),
                   ),
                 ),
@@ -61,8 +61,8 @@ class ChatComposer extends StatelessWidget {
               _circle(Icons.mic_none_rounded, onMic),
               const SizedBox(width: 5),
               Container(
-                width: 40,
-                height: 40,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
                   color: const Color(0xFF2A6DF4),
                   borderRadius: BorderRadius.circular(21),

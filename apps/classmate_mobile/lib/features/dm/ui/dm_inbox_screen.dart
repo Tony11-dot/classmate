@@ -79,7 +79,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
         thread.avatarText,
         style: const TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 14,
+          fontSize: 13,
           height: 1.05,
         ),
       ),
@@ -132,14 +132,14 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
 
         Widget requestTile(DmThread thread, {required bool incoming}) {
           return InkWell(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
               decoration: BoxDecoration(
                 color: cs.surface.withValues(alpha: 0.84),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: incoming
                       ? cs.primary.withValues(alpha: 0.28)
@@ -149,13 +149,13 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
               child: Column(
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       _threadAvatar(thread),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -166,11 +166,11 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 16,
+                                      fontSize: 13.5,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 5),
                                 Text(
                                   _fmtInboxTime(thread.updatedAt),
                                   style: TextStyle(
@@ -195,7 +195,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                 color: Colors.white.withValues(alpha: 0.72),
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 2),
                             Wrap(
                               spacing: 6,
                               runSpacing: 6,
@@ -214,7 +214,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
                   if (incoming)
                     Row(
                       children: [
@@ -228,7 +228,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                             child: const Text('Accept'),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 5),
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () async {
@@ -267,14 +267,14 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
 
         Widget chatTile(DmThread thread) {
           return InkWell(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
             onTap: () => context.push('/dms/${thread.id}'),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
               decoration: BoxDecoration(
                 color: cs.surface.withValues(alpha: 0.74),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: cs.outlineVariant.withValues(alpha: 0.14),
                 ),
@@ -283,10 +283,10 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _threadAvatar(thread),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Row(
                           children: [
@@ -297,11 +297,11 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 16,
+                                  fontSize: 13.5,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 5),
                             Text(
                               _fmtInboxTime(thread.updatedAt),
                               style: TextStyle(
@@ -338,7 +338,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                     ),
                   ),
                   if (thread.unreadCount > 0) ...[
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 5),
                     Container(
                       width: 22,
                       height: 22,
@@ -375,7 +375,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Messages',
@@ -383,7 +383,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 2),
                     Text(
                       'Requests, direct messages, and study groups in one clean inbox.',
                       style: TextStyle(
@@ -391,7 +391,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         height: 1.35,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     TextField(
                       controller: _searchCtl,
                       onChanged: (_) => setState(() {}),
@@ -421,7 +421,7 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     FilledButton.icon(
                       onPressed: () => context.push('/dms/create-group'),
                       icon: const Icon(Icons.group_add_rounded),
@@ -436,30 +436,30 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
                   'Pending requests',
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
                 ...incomingRequests.map((e) => requestTile(e, incoming: true)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
               ],
               if (outgoingRequests.isNotEmpty) ...[
                 const Text(
                   'Awaiting approval',
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
                 ...outgoingRequests.map((e) => requestTile(e, incoming: false)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
               ],
               const Text(
                 'Chats',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               if (chats.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
                     query.isEmpty

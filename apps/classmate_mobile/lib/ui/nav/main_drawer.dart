@@ -61,7 +61,7 @@ class MainDrawer extends ConsumerWidget {
                       color: cs.onPrimaryContainer,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 5),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -179,7 +179,7 @@ class MainDrawer extends ConsumerWidget {
                 await ref.read(authControllerProvider).logout(context);
               },
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 4),
           ],
         ),
       ),
