@@ -34,9 +34,12 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   bool _sending = false;
   bool _recording = false;
   String? _draftVoicePath;
-  String? _draftVoiceName;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
+  Duration _draftVoicePosition = Duration.zero;
+  Duration _draftVoiceDuration = Duration.zero;
+  bool _draftVoiceReady = false;
+  bool _draftVoiceDragging = false;
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
 
   DmMessage? replyingTo;
@@ -186,7 +189,11 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Take photo'),
+              title: Text(
+                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+                    ? 'Take photo'
+                    : 'Choose image',
+              ),
               onTap: () => Navigator.pop(
                 context,
                 !kIsWeb && (Platform.isAndroid || Platform.isIOS)
@@ -286,7 +293,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
       setState(() {
         _draftVoicePath = path;
-        _draftVoiceName = path.split('/').last;
+        _draftVoicePlaying = false;
+        _draftVoiceReady = false;
+        _draftVoicePosition = Duration.zero;
+        _draftVoiceDuration = Duration.zero;
       });
       return;
     }
@@ -317,9 +327,15 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     setState(() => _recording = true);
   }
 
+  String _formatDuration(Duration d) {
+    final total = d.inSeconds;
+    final mm = (total ~/ 60).toString().padLeft(2, '0');
+    final ss = (total % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
   Widget _dmDraftChip(Map<String, String> a) {
     final path = (a['path'] ?? '').trim();
-    final name = (a['name'] ?? 'file').trim();
     final kind = (a['kind'] ?? '').trim().toUpperCase();
     final isImage = kind == 'IMAGE';
 
@@ -380,9 +396,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  name,
+                  _formatDuration(Duration.zero),
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],
             ),
@@ -409,17 +425,28 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
     try {
       if (_draftVoicePlaying) {
-        await _draftVoicePlayer.stop();
+        await _draftVoicePlayer.pause();
         if (mounted) {
           setState(() => _draftVoicePlaying = false);
         }
         return;
       }
 
-      await _draftVoicePlayer.stop();
-      await _draftVoicePlayer.setFilePath(path);
+      if (!_draftVoiceReady) {
+        await _draftVoicePlayer.setFilePath(path);
+        _draftVoiceReady = true;
+      }
+
       await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
-      await _draftVoicePlayer.seek(Duration.zero);
+
+      if (_draftVoiceDuration > Duration.zero &&
+          _draftVoicePosition >= _draftVoiceDuration) {
+        await _draftVoicePlayer.seek(Duration.zero);
+        if (mounted) {
+          setState(() => _draftVoicePosition = Duration.zero);
+        }
+      }
+
       await _draftVoicePlayer.play();
 
       if (mounted) {
@@ -446,14 +473,47 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
+  Future<void> _seekDraftVoiceToRatio(double ratio) async {
+    final totalMs = _draftVoiceDuration.inMilliseconds <= 0
+        ? 1
+        : _draftVoiceDuration.inMilliseconds;
+    final target = Duration(
+      milliseconds: (totalMs * ratio.clamp(0.0, 1.0)).round(),
+    );
+
+    try {
+      if (!_draftVoiceReady) {
+        final path = (_draftVoicePath ?? '').trim();
+        if (path.isEmpty) {
+          return;
+        }
+        await _draftVoicePlayer.setFilePath(path);
+        _draftVoiceReady = true;
+        await _draftVoicePlayer.setSpeed(_draftVoiceSpeed);
+      }
+      await _draftVoicePlayer.seek(target);
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _draftVoicePosition = target;
+      });
+    }
+  }
+
   Widget _dmVoiceDraftChip() {
-    final name = (_draftVoiceName ?? 'Voice note').trim();
+    final totalMs = _draftVoiceDuration.inMilliseconds <= 0
+        ? 1
+        : _draftVoiceDuration.inMilliseconds;
+    final posMs = _draftVoicePosition.inMilliseconds.clamp(0, totalMs);
+    final progress = posMs / totalMs;
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C23),
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFF171D24),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
@@ -462,39 +522,113 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           GestureDetector(
             onTap: _toggleDraftVoicePlayback,
             child: Container(
-              width: 36,
-              height: 36,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+                color: const Color(0xFF1F2630),
+                borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
               child: Icon(
                 _draftVoicePlaying
                     ? Icons.pause_rounded
                     : Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: 18,
+                color: Colors.white70,
               ),
             ),
           ),
           const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
-            child: Text(
-              name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
+          Flexible(
+            fit: FlexFit.loose,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 180, maxWidth: 240),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      _DmDraftWaveBar(h: 10),
+                      SizedBox(width: 3),
+                      _DmDraftWaveBar(h: 16),
+                      SizedBox(width: 3),
+                      _DmDraftWaveBar(h: 12),
+                      SizedBox(width: 3),
+                      _DmDraftWaveBar(h: 18),
+                      SizedBox(width: 3),
+                      _DmDraftWaveBar(h: 9),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 5,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 10,
+                      ),
+                      activeTrackColor: Colors.white,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: Colors.white,
+                      overlayColor: Colors.white24,
+                    ),
+                    child: Slider(
+                      value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
+                      onChanged: (v) {
+                        final total = _draftVoiceDuration.inMilliseconds <= 0
+                            ? 1
+                            : _draftVoiceDuration.inMilliseconds;
+                        setState(() {
+                          _draftVoiceDragging = true;
+                          _draftVoicePosition = Duration(
+                            milliseconds: (total * v).round(),
+                          );
+                        });
+                      },
+                      onChangeEnd: (v) async {
+                        if (mounted) {
+                          setState(() => _draftVoiceDragging = false);
+                        }
+                        await _seekDraftVoiceToRatio(v);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatDuration(_draftVoicePosition),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        _formatDuration(_draftVoiceDuration),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
+          const SizedBox(width: 6),
+          InkWell(
             onTap: _cycleDraftVoiceSpeed,
+            borderRadius: BorderRadius.circular(999),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
                 _draftVoiceSpeed == 1.0
@@ -504,7 +638,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                     : '2x',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -513,14 +646,18 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           const SizedBox(width: 6),
           InkWell(
             onTap: () async {
-              await _draftVoicePlayer.stop();
+              try {
+                await _draftVoicePlayer.stop();
+              } catch (_) {}
               if (!mounted) {
                 return;
               }
               setState(() {
                 _draftVoicePlaying = false;
+                _draftVoiceReady = false;
+                _draftVoicePosition = Duration.zero;
+                _draftVoiceDuration = Duration.zero;
                 _draftVoicePath = null;
-                _draftVoiceName = null;
               });
             },
             child: const Icon(
@@ -577,7 +714,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
         replyingTo = null;
         _draftAttachments.clear();
         _draftVoicePath = null;
-        _draftVoiceName = null;
       });
       ref.invalidate(dmMessagesProvider(widget.threadId));
       ref.invalidate(dmThreadsProvider);
@@ -859,6 +995,46 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   @override
   void initState() {
     super.initState();
+    _draftVoicePlayer.positionStream.listen((value) {
+      if (!mounted || _draftVoiceDragging) {
+        return;
+      }
+      setState(() {
+        _draftVoicePosition = value;
+      });
+    });
+    _draftVoicePlayer.durationStream.listen((value) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _draftVoiceDuration = value ?? Duration.zero;
+      });
+    });
+    _draftVoicePlayer.playerStateStream.listen((state) async {
+      if (state.processingState == ProcessingState.completed) {
+        try {
+          await _draftVoicePlayer.pause();
+          await _draftVoicePlayer.seek(Duration.zero);
+        } catch (_) {}
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _draftVoicePlaying = false;
+          _draftVoicePosition = Duration.zero;
+        });
+        return;
+      }
+      if (!mounted) {
+        return;
+      }
+      if (_draftVoicePlaying != _draftVoicePlayer.playing) {
+        setState(() {
+          _draftVoicePlaying = _draftVoicePlayer.playing;
+        });
+      }
+    });
     _draftVoicePlayer.playerStateStream.listen((state) {
       if (!mounted) {
         return;
