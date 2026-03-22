@@ -71,7 +71,7 @@ class MainDrawer extends ConsumerWidget {
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w900),
                         ),
-                        const SizedBox(height: 1),
+                        const SizedBox(height: 0.5),
                         Text(
                           'Menu',
                           style: Theme.of(context).textTheme.labelMedium

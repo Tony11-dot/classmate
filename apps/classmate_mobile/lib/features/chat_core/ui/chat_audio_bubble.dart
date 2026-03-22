@@ -208,8 +208,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                     alignment: Alignment.center,
                     child: _loading
                         ? const SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: 14,
+                            height: 14,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Icon(

@@ -144,7 +144,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         meta.isGroup ? 'Group chat' : 'Direct chat',
                         style: Theme.of(
@@ -356,8 +356,8 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
         if (path.isEmpty) return;
       },
       child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
         decoration: BoxDecoration(
           color: const Color(0xFF161C23),
           borderRadius: BorderRadius.circular(14),
@@ -569,7 +569,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.only(right: 8),
+      margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFF171D24),
@@ -848,84 +848,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
-  Widget _composerBar(DmThread meta, DmRepository repo) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 6, 10, 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (replyingTo != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.reply_rounded,
-                    size: 16,
-                    color: Colors.white70,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Replying to ${replyingTo!.senderName}: ${replyPreviewText(replyingTo!.text)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: Colors.white70,
-                        height: 1.05,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => setState(() => replyingTo = null),
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
-            ),
-          if (_draftAttachments.isNotEmpty ||
-              (_draftVoicePath ?? '').trim().isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ..._draftAttachments.map(_dmDraftChip),
-                    if ((_draftVoicePath ?? '').trim().isNotEmpty)
-                      _dmVoiceDraftChip(),
-                  ],
-                ),
-              ),
-            ),
-          ChatComposer(
-            controller: composer,
-            onSend: () {
-              _sending || _recording ? null : () => _sendText(repo);
-            },
-            onCamera: _sending || _recording
-                ? null
-                : () => _showImageSourceSheet(repo),
-            onAttach: () {
-              _sending || _recording ? null : () => _pickFile(repo);
-            },
-            onMic: () {
-              _sending ? null : () => _toggleMic(repo);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -1031,7 +953,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w900),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         '${meta.title} wants to start a chat with you.',
                         style: TextStyle(
@@ -1039,7 +961,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                           height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       OutlinedButton.icon(
                         onPressed: () => context.push('/profile'),
                         icon: const Icon(Icons.person_outline_rounded),
@@ -1172,7 +1094,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                             Text(
                               'Send a message, photo, file, or voice note.',
                               style: TextStyle(

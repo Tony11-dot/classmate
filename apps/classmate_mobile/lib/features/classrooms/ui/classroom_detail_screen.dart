@@ -1579,7 +1579,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: const Color(0xFF0F141A).withValues(alpha: 0.94),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: _chatCtl.text.trim().isNotEmpty
                               ? const Color(0xFF0A84FF).withValues(alpha: 0.28)
@@ -2180,7 +2180,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: Theme.of(
                     context,
@@ -2271,7 +2271,7 @@ class _TopHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
         ),
         child: Row(
@@ -2287,7 +2287,7 @@ class _TopHeader extends StatelessWidget {
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
             ),
@@ -2297,7 +2297,7 @@ class _TopHeader extends StatelessWidget {
               height: 38,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: cs.primary),
@@ -2368,7 +2368,7 @@ class _CenteredTabs extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
         ),
         child: TabBar(
@@ -2380,7 +2380,7 @@ class _CenteredTabs extends StatelessWidget {
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
             color: cs.primaryContainer.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
             boxShadow: [
               BoxShadow(
@@ -2571,7 +2571,7 @@ BoxDecoration _panelDecoration(BuildContext context) {
   final cs = Theme.of(context).colorScheme;
   return BoxDecoration(
     color: cs.surface,
-    borderRadius: BorderRadius.circular(20),
+    borderRadius: BorderRadius.circular(16),
     border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
   );
 }
