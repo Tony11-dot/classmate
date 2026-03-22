@@ -586,7 +586,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       child: const Text('Cancel'),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Flexible(
                     fit: FlexFit.loose,
                     child: FilledButton(
@@ -1376,7 +1376,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 150, maxWidth: 190),
             child: Column(
@@ -1546,12 +1546,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         ? null
                         : _pickClassroomCameraOrUploadImage,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   _classroomComposerButton(
                     icon: Icons.attach_file_rounded,
                     onTap: _sending || _recording ? null : _pickClassroomFiles,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   _classroomComposerButton(
                     icon: _recording
                         ? Icons.stop_rounded
@@ -1569,7 +1569,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         ? const Color(0xFF8E2E2E)
                         : const Color(0xFF1C232B),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Flexible(
                     fit: FlexFit.loose,
                     child: AnimatedContainer(
@@ -1604,7 +1604,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           maxLines: 6,
                           style: const TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
-                            hintText: 'Message classroom...',
+                            hintText: 'Message',
                             hintStyle: TextStyle(color: Colors.white54),
                             border: InputBorder.none,
                           ),
@@ -1613,7 +1613,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOutCubic,
@@ -2127,10 +2127,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                           ? _InitialsAvatar(name: senderName)
                                           : const SizedBox.shrink(),
                                     ),
-                                  if (!isMine) const SizedBox(width: 10),
+                                  if (!isMine) const SizedBox(width: 6),
                                   Flexible(child: bubble),
-                                  if (isMine) const SizedBox(width: 10),
-                                  if (isMine) const SizedBox(width: 10),
+                                  if (isMine) const SizedBox(width: 6),
+                                  if (isMine) const SizedBox(width: 6),
                                 ],
                               ),
                             );
@@ -2198,7 +2198,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Flexible(
                     fit: FlexFit.loose,
                     child: Column(

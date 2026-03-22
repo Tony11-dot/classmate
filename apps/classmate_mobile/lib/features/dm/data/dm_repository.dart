@@ -126,23 +126,12 @@ class DmRepository {
             avatarText: avatarTextRaw.isNotEmpty
                 ? avatarTextRaw
                 : _initials(title, fallback: 'DM'),
-            avatarUrl:
-                ((m['avatarUrl'] ??
-                        m['groupAvatarUrl'] ??
-                        m['photoUrl'] ??
-                        m['profileImageUrl'] ??
-                        '')
-                    .toString()
-                    .trim()
-                    .isEmpty)
-                ? null
-                : (m['avatarUrl'] ??
-                          m['groupAvatarUrl'] ??
-                          m['photoUrl'] ??
-                          m['profileImageUrl'] ??
-                          '')
-                      .toString()
-                      .trim(),
+            avatarUrl: _absUrl(
+              m['avatarUrl'] ??
+                  m['groupAvatarUrl'] ??
+                  m['photoUrl'] ??
+                  m['profileImageUrl'],
+            ),
             requestState: _requestStateFromRaw(stateRaw),
             isGroup: m['isGroup'] == true,
             isBlocked: m['isBlocked'] == true,

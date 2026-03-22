@@ -23,15 +23,14 @@ class _DmInboxScreenState extends ConsumerState<DmInboxScreen> {
       return value;
     }
 
-    const configured = String.fromEnvironment('CM_API_BASE_URL');
-    final baseRaw = configured.trim();
-    if (baseRaw.isEmpty) {
-      return value;
-    }
-
-    final base = baseRaw.endsWith('/')
-        ? baseRaw.substring(0, baseRaw.length - 1)
-        : baseRaw;
+    const configured = String.fromEnvironment(
+      'CM_API_BASE_URL',
+      defaultValue: 'http://127.0.0.1:3001',
+    );
+    final rawBase = configured.trim();
+    final base = rawBase.endsWith('/')
+        ? rawBase.substring(0, rawBase.length - 1)
+        : rawBase;
     final path = value.startsWith('/') ? value : '/$value';
     return '$base$path';
   }

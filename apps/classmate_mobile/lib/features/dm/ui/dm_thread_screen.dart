@@ -1149,7 +1149,11 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _ChatAvatar(name: meta.title, size: 32),
+                  _ChatAvatar(
+                    name: meta.title,
+                    size: 32,
+                    avatarUrl: _absoluteThreadAvatarUrl(meta.avatarUrl),
+                  ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
