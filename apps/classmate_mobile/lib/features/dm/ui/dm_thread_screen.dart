@@ -527,6 +527,27 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
+  Future<void> _forwardMessageLocal(DmMessage message) async {
+    final text = editableBodyText(message.text).trim();
+    if (text.isEmpty) return;
+
+    final prefix = 'Forwarded\n';
+    final payload = '$prefix$text';
+    final current = composer.text.trim();
+
+    composer.text = current.isEmpty ? payload : '$current\n\n$payload';
+    composer.selection = TextSelection.fromPosition(
+      TextPosition(offset: composer.text.length),
+    );
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Forwarded to composer')));
+    }
+  }
+
   Future<void> _editMessage(DmMessage message) async {
     final ctl = TextEditingController(
       text: editableBodyText(_localEdits[message.id] ?? message.text),
@@ -719,10 +740,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
         setState(() => _localDeleted.add(message.id));
         return;
       case 'forward':
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Forward flow next pass')));
+        await _forwardMessageLocal(message);
         return;
     }
   }
