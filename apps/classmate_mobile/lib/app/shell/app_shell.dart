@@ -114,23 +114,23 @@ class _LiquidTelegramNav extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
           child: Container(
-            height: 82,
+            height: 78,
             decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.74),
-              borderRadius: BorderRadius.circular(32),
+              color: cs.surface.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(
                 color: cs.outlineVariant.withValues(alpha: 0.22),
               ),
               boxShadow: [
                 BoxShadow(
-                  blurRadius: 28,
-                  offset: const Offset(0, 12),
+                  blurRadius: 22,
+                  offset: const Offset(0, 10),
                   color: Colors.black.withValues(alpha: 0.10),
                 ),
               ],
@@ -138,8 +138,9 @@ class _LiquidTelegramNav extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final segment = constraints.maxWidth / items.length;
-                final blobWidth = segment - 28;
-                final left = segment * index + 6;
+                final blobWidth = segment - 20;
+                final horizontalInset = (segment - blobWidth) / 2;
+                final left = (segment * index) + horizontalInset;
 
                 return Stack(
                   alignment: Alignment.center,
@@ -148,13 +149,13 @@ class _LiquidTelegramNav extends StatelessWidget {
                       duration: const Duration(milliseconds: 380),
                       curve: Curves.easeOutExpo,
                       left: left,
-                      top: 8,
+                      top: 14,
                       width: blobWidth,
-                      height: 66,
+                      height: 48,
                       child: IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(26),
+                            borderRadius: BorderRadius.circular(24),
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -183,10 +184,10 @@ class _LiquidTelegramNav extends StatelessWidget {
                         for (var i = 0; i < items.length; i++)
                           Expanded(
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(26),
+                              borderRadius: BorderRadius.circular(24),
                               onTap: () => onTap(i),
                               child: SizedBox(
-                                height: 82,
+                                height: 78,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -194,7 +195,7 @@ class _LiquidTelegramNav extends StatelessWidget {
                                       duration: const Duration(
                                         milliseconds: 220,
                                       ),
-                                      scale: i == index ? 1.08 : 1.0,
+                                      scale: i == index ? 1.04 : 1.0,
                                       child: Icon(
                                         i == index
                                             ? items[i].selectedIcon
@@ -204,17 +205,17 @@ class _LiquidTelegramNav extends StatelessWidget {
                                             : cs.onSurfaceVariant,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 0),
                                     Text(
                                       items[i].label,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .labelMedium
+                                          .labelSmall
                                           ?.copyWith(
                                             fontWeight: i == index
-                                                ? FontWeight.w800
+                                                ? FontWeight.w700
                                                 : FontWeight.w600,
                                             color: i == index
                                                 ? cs.primary

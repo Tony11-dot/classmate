@@ -4,15 +4,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../chat_core/ui/primitives/chat_composer.dart';
+import '../../chat_core/ui/chat_media_preview_screen.dart';
+import '../../chat_core/ui/chat_camera_capture_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:record/record.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
-import '../../chat_core/ui/primitives/chat_composer.dart';
 
 import '../data/dm_repository.dart';
 import '../domain/dm_models.dart';
@@ -27,7 +28,6 @@ class DmThreadScreen extends ConsumerStatefulWidget {
 }
 
 class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
-  final _imagePicker = ImagePicker();
   final composer = TextEditingController();
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _draftVoicePlayer = AudioPlayer();
@@ -248,29 +248,44 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       );
       return;
     } else if (action == 'camera') {
-      final picked = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 90,
+      if (!mounted) return;
+      final camera = await Navigator.of(context).push<ChatCameraCaptureResult>(
+        MaterialPageRoute(
+          builder: (_) => const ChatCameraCaptureScreen(title: 'Camera'),
+        ),
       );
-      path = picked?.path;
+      if (camera == null || camera.paths.isEmpty) return;
+      path = camera.paths.first;
     } else {
       final picked = await FilePicker.platform.pickFiles(type: FileType.image);
       path = picked?.files.single.path;
     }
 
-    if (path == null || path.trim().isEmpty) return;
+    if (path == null || path.trim().isEmpty || !mounted) return;
 
     final safePath = path;
-    if (!mounted) {
-      return;
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialPaths: [safePath], title: 'Preview'),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() => _sending = true);
+    try {
+      for (final safePath in result.paths) {
+        await repo.sendImage(widget.threadId, safePath, DmMediaMode.keep);
+      }
+      if (result.caption.trim().isNotEmpty) {
+        await repo.sendText(widget.threadId, result.caption.trim());
+      }
+      ref.invalidate(dmMessagesProvider(widget.threadId));
+      ref.invalidate(dmThreadsProvider);
+      _pinDmToBottom(jump: true);
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
-    setState(() {
-      _draftAttachments.add(<String, String>{
-        'kind': 'IMAGE',
-        'path': safePath,
-        'name': safePath.split('/').last,
-      });
-    });
   }
 
   Future<void> _pickFile(DmRepository repo) async {
@@ -281,19 +296,31 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
     final picked = await FilePicker.platform.pickFiles(type: FileType.any);
     final path = picked?.files.single.path;
-    if (path == null || path.trim().isEmpty) return;
+    if (path == null || path.trim().isEmpty || !mounted) return;
 
     final safePath = path;
-    if (!mounted) {
-      return;
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialPaths: [safePath], title: 'Preview'),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() => _sending = true);
+    try {
+      for (final pth in result.paths) {
+        await repo.sendFile(widget.threadId, pth, DmMediaMode.keep);
+      }
+      if (result.caption.trim().isNotEmpty) {
+        await repo.sendText(widget.threadId, result.caption.trim());
+      }
+      ref.invalidate(dmMessagesProvider(widget.threadId));
+      ref.invalidate(dmThreadsProvider);
+      _pinDmToBottom(jump: true);
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
-    setState(() {
-      _draftAttachments.add(<String, String>{
-        'kind': 'FILE',
-        'path': safePath,
-        'name': safePath.split('/').last,
-      });
-    });
   }
 
   Future<void> _toggleMic(DmRepository repo) async {
@@ -437,6 +464,16 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     return '$mm:$ss';
   }
 
+  Future<void> _seekDraftVoice(double value) async {
+    if (!_draftVoiceReady || _draftVoiceDuration == Duration.zero) return;
+    final ms = (_draftVoiceDuration.inMilliseconds * value).round();
+    await _draftVoicePlayer.seek(Duration(milliseconds: ms));
+    if (!mounted) return;
+    setState(() {
+      _draftVoicePosition = Duration(milliseconds: ms);
+    });
+  }
+
   Future<void> _sendText(DmRepository repo) async {
     final text = composer.text.trim();
     final composedText = replyingTo != null
@@ -534,6 +571,487 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     ref.invalidate(dmThreadsProvider);
   }
 
+  Future<void> _confirmBlockToggle(DmRepository repo, bool blocked) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(blocked ? 'Unblock user?' : 'Block user?'),
+        content: Text(
+          blocked
+              ? 'They will be able to message you again.'
+              : 'You will stop receiving messages from this user.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(blocked ? 'Unblock' : 'Block'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+    if (blocked) {
+      await repo.unblockUser(widget.threadId);
+    } else {
+      await repo.blockUser(widget.threadId);
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(blocked ? 'User unblocked' : 'User blocked')),
+    );
+    ref.invalidate(dmThreadsProvider);
+  }
+
+  Future<void> _openWhatsAppStyleMenu(
+    DmRepository repo,
+    DmMessage message,
+  ) async {
+    final chosen = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final e in const ['❤️', '👍', '😂', '😮', '😢', '🙏'])
+                      InkWell(
+                        borderRadius: BorderRadius.circular(999),
+                        onTap: () => Navigator.pop(context, 'react:$e'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          child: Text(e, style: const TextStyle(fontSize: 26)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _waAction(
+                      Icons.reply_rounded,
+                      'Reply',
+                      () => Navigator.pop(context, 'reply'),
+                    ),
+                    _waAction(
+                      Icons.copy_rounded,
+                      'Copy',
+                      () => Navigator.pop(context, 'copy'),
+                    ),
+                    if (message.isMine)
+                      _waAction(
+                        Icons.edit_outlined,
+                        'Edit',
+                        () => Navigator.pop(context, 'edit'),
+                      ),
+                    if (message.isMine)
+                      _waAction(
+                        Icons.delete_outline_rounded,
+                        'Delete',
+                        () => Navigator.pop(context, 'delete'),
+                      ),
+                    _waAction(
+                      Icons.forward_to_inbox_rounded,
+                      'Forward',
+                      () => Navigator.pop(context, 'forward'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (chosen == null) return;
+    if (chosen.startsWith('react:')) {
+      await _pickReaction(repo, message);
+      return;
+    }
+    switch (chosen) {
+      case 'reply':
+        setState(() => replyingTo = message);
+        return;
+      case 'copy':
+        await Clipboard.setData(
+          ClipboardData(text: editableBodyText(message.text)),
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Copied')));
+        return;
+      case 'edit':
+        await _editMessage(message);
+        return;
+      case 'delete':
+        setState(() => _localDeleted.add(message.id));
+        return;
+      case 'forward':
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Forward flow next pass')));
+        return;
+    }
+  }
+
+  Widget _waAction(IconData icon, String label, VoidCallback onTap) {
+    return ListTile(leading: Icon(icon), title: Text(label), onTap: onTap);
+  }
+
+  Future<void> _showWaMessageActionsAt(
+    DmRepository repo,
+    DmMessage message,
+  ) async {
+    final overlay = Overlay.of(context);
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.black.withValues(alpha: 0.30),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => entry.remove(),
+                child: const SizedBox.expand(),
+              ),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final e in const [
+                            '❤️',
+                            '👍',
+                            '😂',
+                            '😮',
+                            '😢',
+                            '🙏',
+                          ])
+                            InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () async {
+                                entry.remove();
+                                setState(() => _localReactions[message.id] = e);
+                                try {
+                                  await repo.react(message.id, e);
+                                  ref.invalidate(
+                                    dmMessagesProvider(widget.threadId),
+                                  );
+                                } catch (_) {}
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  e,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _waTopAction(
+                            context,
+                            icon: Icons.reply_rounded,
+                            label: 'Reply',
+                            onTap: () {
+                              entry.remove();
+                              setState(() => replyingTo = message);
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.copy_rounded,
+                            label: 'Copy',
+                            onTap: () async {
+                              entry.remove();
+                              await Clipboard.setData(
+                                ClipboardData(
+                                  text: editableBodyText(message.text),
+                                ),
+                              );
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Copied')),
+                              );
+                            },
+                          ),
+                          if (message.isMine)
+                            _waTopAction(
+                              context,
+                              icon: Icons.edit_rounded,
+                              label: 'Edit',
+                              onTap: () async {
+                                entry.remove();
+                                await _editMessage(message);
+                              },
+                            ),
+                          if (message.isMine)
+                            _waTopAction(
+                              context,
+                              icon: Icons.delete_outline_rounded,
+                              label: 'Delete',
+                              onTap: () {
+                                entry.remove();
+                                setState(() => _localDeleted.add(message.id));
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
+  Future<void> _showWaMessageActionsLegacy(
+    DmRepository repo,
+    DmMessage message,
+    Offset globalPosition,
+  ) async {
+    final overlay = Overlay.of(context);
+    final box = overlay.context.findRenderObject() as RenderBox;
+    final local = box.globalToLocal(globalPosition);
+
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.black.withValues(alpha: 0.22),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => entry.remove(),
+                child: const SizedBox.expand(),
+              ),
+            ),
+            Positioned(
+              left: (local.dx - 150).clamp(12, box.size.width - 312),
+              top: (local.dy - 118).clamp(18, box.size.height - 190),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 300),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final e in const [
+                            '❤️',
+                            '👍',
+                            '😂',
+                            '😮',
+                            '😢',
+                            '🙏',
+                          ])
+                            InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () async {
+                                entry.remove();
+                                setState(() => _localReactions[message.id] = e);
+                                try {
+                                  await repo.react(message.id, e);
+                                  ref.invalidate(
+                                    dmMessagesProvider(widget.threadId),
+                                  );
+                                  ref.invalidate(dmThreadsProvider);
+                                } catch (_) {}
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  e,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _waTopAction(
+                            context,
+                            icon: Icons.reply_rounded,
+                            label: 'Reply',
+                            onTap: () {
+                              entry.remove();
+                              setState(() => replyingTo = message);
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.copy_rounded,
+                            label: 'Copy',
+                            onTap: () async {
+                              entry.remove();
+                              await Clipboard.setData(
+                                ClipboardData(
+                                  text: editableBodyText(message.text),
+                                ),
+                              );
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Copied')),
+                              );
+                            },
+                          ),
+                          if (message.isMine)
+                            _waTopAction(
+                              context,
+                              icon: Icons.edit_rounded,
+                              label: 'Edit',
+                              onTap: () async {
+                                entry.remove();
+                                await _editMessage(message);
+                              },
+                            ),
+                          if (message.isMine)
+                            _waTopAction(
+                              context,
+                              icon: Icons.delete_outline_rounded,
+                              label: 'Delete',
+                              onTap: () {
+                                entry.remove();
+                                setState(() => _localDeleted.add(message.id));
+                                ref.invalidate(
+                                  dmMessagesProvider(widget.threadId),
+                                );
+                                ref.invalidate(dmThreadsProvider);
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
+  Widget _waTopAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20),
+            const SizedBox(height: 4),
+            Text(label, style: Theme.of(context).textTheme.labelSmall),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickReaction(DmRepository repo, DmMessage message) async {
     final emoji = await showModalBottomSheet<String>(
       context: context,
@@ -551,9 +1069,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       ),
     );
 
-    if (emoji == null) {
-      return;
-    }
+    if (emoji == null) return;
 
     setState(() {
       _localReactions[message.id] = emoji;
@@ -562,60 +1078,244 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     try {
       await repo.react(message.id, emoji);
       ref.invalidate(dmMessagesProvider(widget.threadId));
+      ref.invalidate(dmThreadsProvider);
     } catch (_) {}
   }
 
-  Future<void> _openBubbleMenu(DmRepository repo, DmMessage message) async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+  Widget _dmVoiceDraftChip() {
+    Widget seekBar() {
+      final totalMs = _draftVoiceDuration.inMilliseconds;
+      final posMs = _draftVoicePosition.inMilliseconds.clamp(
+        0,
+        totalMs <= 0 ? 0 : totalMs,
+      );
+      final ratio = totalMs <= 0 ? 0.0 : posMs / totalMs.toDouble();
+
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (details) async {
+          if (!_draftVoiceReady || _draftVoiceDuration == Duration.zero) return;
+          final box = context.findRenderObject();
+          if (box is! RenderBox) return;
+          final local = box.globalToLocal(details.globalPosition);
+          final width = box.size.width <= 0 ? 1.0 : box.size.width;
+          final next = (local.dx / width).clamp(0.0, 1.0);
+          await _seekDraftVoiceToRatio(next);
+        },
+        child: SizedBox(
+          height: 22,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: ratio,
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment(-1 + (ratio * 2), 0),
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D24),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: _toggleDraftVoicePlayback,
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                _draftVoicePlaying
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                color: Colors.white70,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 120, maxWidth: 158),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                seekBar(),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Text(
+                      _fmtDuration(_draftVoicePosition),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _cycleDraftVoiceSpeed,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          _draftVoiceSpeed == 1.0
+                              ? '1x'
+                              : _draftVoiceSpeed == 1.5
+                              ? '1.5x'
+                              : '2x',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: () => setState(() {
+              _draftVoicePath = null;
+              _draftVoiceReady = false;
+              _draftVoicePlaying = false;
+              _draftVoiceDuration = Duration.zero;
+              _draftVoicePosition = Duration.zero;
+            }),
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, color: Colors.white70, size: 18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dmAttachmentChip(Map<String, String> a) {
+    final kind = (a['kind'] ?? '').trim().toUpperCase();
+    final name = (a['name'] ?? a['path'] ?? 'Attachment').trim();
+    final isImage = kind == 'IMAGE';
+
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D24),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
+              size: 16,
+              color: Colors.white70,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 160),
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: () => setState(() => _draftAttachments.remove(a)),
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dmDraftBar() {
+    if (_draftAttachments.isEmpty && (_draftVoicePath ?? '').trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
           children: [
-            ListTile(
-              leading: const Icon(Icons.reply_rounded),
-              title: const Text('Reply'),
-              onTap: () => Navigator.pop(context, 'reply'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.emoji_emotions_outlined),
-              title: const Text('React'),
-              onTap: () => Navigator.pop(context, 'react'),
-            ),
-            if (message.isMine)
-              ListTile(
-                leading: const Icon(Icons.edit_outlined),
-                title: const Text('Edit'),
-                onTap: () => Navigator.pop(context, 'edit'),
-              ),
-            if (message.isMine)
-              ListTile(
-                leading: const Icon(Icons.delete_outline_rounded),
-                title: const Text('Delete'),
-                onTap: () => Navigator.pop(context, 'delete'),
-              ),
+            for (final a in _draftAttachments) _dmAttachmentChip(a),
+            if ((_draftVoicePath ?? '').trim().isNotEmpty) _dmVoiceDraftChip(),
           ],
         ),
       ),
     );
-
-    if (action == 'reply') {
-      setState(() => replyingTo = message);
-      return;
-    }
-    if (action == 'react') {
-      await _pickReaction(repo, message);
-      return;
-    }
-    if (action == 'edit') {
-      await _editMessage(message);
-      return;
-    }
-    if (action == 'delete') {
-      setState(() => _localDeleted.add(message.id));
-      return;
-    }
   }
 
   @override
@@ -706,10 +1406,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           return Scaffold(
             appBar: AppBar(title: Text(meta.title)),
             body: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.72),
@@ -750,7 +1450,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               label: const Text('Block'),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: FilledButton.icon(
                               onPressed: () async {
@@ -782,10 +1482,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                 children: [
                   _ChatAvatar(
                     name: meta.title,
-                    size: 32,
+                    size: 22,
                     avatarUrl: _absoluteThreadAvatarUrl(meta.avatarUrl),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 3),
                   Flexible(
                     child: Text(
                       meta.title,
@@ -799,12 +1499,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
             actions: [
               IconButton(
                 onPressed: () async {
-                  if (meta.isBlocked) {
-                    await repo.unblockUser(widget.threadId);
-                  } else {
-                    await repo.blockUser(widget.threadId);
-                  }
-                  ref.invalidate(dmThreadsProvider);
+                  await _confirmBlockToggle(repo, meta.isBlocked);
                 },
                 icon: Icon(
                   meta.isBlocked
@@ -852,7 +1547,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               child: const Icon(
                                 Icons.chat_bubble_outline_rounded,
                                 color: Colors.white70,
-                                size: 24,
+                                size: 22,
                               ),
                             ),
                             const SizedBox(height: 14),
@@ -899,12 +1594,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                 cacheExtent: 900,
                                 addAutomaticKeepAlives: false,
                                 addRepaintBoundaries: true,
-                                padding: const EdgeInsets.fromLTRB(
-                                  14,
-                                  18,
-                                  14,
-                                  8,
-                                ),
+                                padding: const EdgeInsets.fromLTRB(6, 10, 6, 6),
                                 itemCount: visible.length,
                                 itemBuilder: (context, i) {
                                   final message = visible[i];
@@ -912,27 +1602,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                       message.isMine ||
                                       message.senderName.trim().toLowerCase() ==
                                           'you';
-                                  final previous = i > 0
-                                      ? visible[i - 1]
-                                      : null;
-                                  final groupedWithPrevious =
-                                      previous != null &&
-                                      (previous.isMine ||
-                                              previous.senderName
-                                                      .trim()
-                                                      .toLowerCase() ==
-                                                  'you') ==
-                                          isMine &&
-                                      previous.senderName.trim() ==
-                                          message.senderName.trim();
-                                  final showAvatar = !groupedWithPrevious;
-                                  final showName = !groupedWithPrevious;
                                   final swipeDx =
                                       _swipeDxByMessage[message.id] ?? 0.0;
                                   return Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: showAvatar ? 12 : 4,
-                                    ),
+                                    padding: const EdgeInsets.only(bottom: 1),
                                     child: Row(
                                       mainAxisAlignment: isMine
                                           ? MainAxisAlignment.end
@@ -940,16 +1613,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       children: [
-                                        if (!isMine)
-                                          SizedBox(
-                                            width: 36,
-                                            child: showAvatar
-                                                ? _ChatAvatar(
-                                                    name: message.senderName,
-                                                  )
-                                                : null,
-                                          ),
-                                        if (!isMine) const SizedBox(width: 6),
                                         Flexible(
                                           child: GestureDetector(
                                             behavior: HitTestBehavior.opaque,
@@ -986,7 +1649,10 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                               });
                                             },
                                             onLongPress: () =>
-                                                _openBubbleMenu(repo, message),
+                                                _showWaMessageActionsAt(
+                                                  repo,
+                                                  message,
+                                                ),
                                             child: Stack(
                                               clipBehavior: Clip.none,
                                               children: [
@@ -1034,9 +1700,9 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                                       message.mediaUrl,
                                                     ),
                                                     isMine: isMine,
-                                                    showName: showName,
+                                                    showName: false,
                                                     senderLabel: isMine
-                                                        ? 'You'
+                                                        ? ''
                                                         : message.senderName,
                                                     timeLabel: _timeLabel(
                                                       message.createdAt,
@@ -1054,14 +1720,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                             ),
                                           ),
                                         ),
-                                        if (isMine) const SizedBox(width: 6),
-                                        if (isMine)
-                                          SizedBox(
-                                            width: 36,
-                                            child: showAvatar
-                                                ? _ChatAvatar(name: 'You')
-                                                : null,
-                                          ),
+                                        if (isMine) const SizedBox(width: 3),
                                       ],
                                     ),
                                   );
@@ -1069,13 +1728,17 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                               ),
                             ),
                             Positioned(
-                              right: 16,
-                              bottom: 16,
+                              right: 12,
+                              bottom: 12,
                               child: showScroll
                                   ? FloatingActionButton.small(
                                       heroTag: 'dm-scroll-bottom',
-                                      backgroundColor: const Color(0xFF0A84FF),
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      foregroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimary,
                                       onPressed: () =>
                                           _pinDmToBottom(jump: true),
                                       child: const Icon(
@@ -1091,24 +1754,32 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   },
                 ),
               ),
-              ChatComposer(
-                controller: composer,
-                onSend: () {
-                  if (_sending || _recording) return;
-                  _sendText(repo);
-                },
-                onCamera: () {
-                  if (_sending || _recording) return;
-                  _showImageSourceSheet(repo);
-                },
-                onAttach: () {
-                  if (_sending || _recording) return;
-                  _pickFile(repo);
-                },
-                onMic: () {
-                  if (_sending) return;
-                  _toggleMic(repo);
-                },
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _dmDraftBar(),
+                  ChatComposer(
+                    controller: composer,
+                    hintText: 'Message',
+                    sendEnabled: composer.text.trim().isNotEmpty,
+                    onSend: () {
+                      if (_sending || _recording) return;
+                      _sendText(repo);
+                    },
+                    onAttach: () {
+                      if (_sending || _recording) return;
+                      _pickFile(repo);
+                    },
+                    onCamera: () {
+                      if (_sending || _recording) return;
+                      _showImageSourceSheet(repo);
+                    },
+                    onMic: () {
+                      if (_sending) return;
+                      _toggleMic(repo);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

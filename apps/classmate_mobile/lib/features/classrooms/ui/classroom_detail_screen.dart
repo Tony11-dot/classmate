@@ -766,7 +766,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: _classroomComposer(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [_classroomComposer()],
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -1683,6 +1686,204 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     return '';
   }
 
+  Future<void> _showClassroomWaActionsAt(
+    Map<String, dynamic> item,
+    Offset globalPosition,
+  ) async {
+    final overlay = Overlay.of(context);
+    final box = overlay.context.findRenderObject() as RenderBox;
+    final local = box.globalToLocal(globalPosition);
+    final id = _pick(item, 'id');
+
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.black.withValues(alpha: 0.22),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => entry.remove(),
+                child: const SizedBox.expand(),
+              ),
+            ),
+            Positioned(
+              left: (local.dx - 138).clamp(8.0, box.size.width - 286.0),
+              top: (local.dy - 92).clamp(8.0, box.size.height - 164.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 280),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final e in const [
+                            '❤️',
+                            '👍',
+                            '😂',
+                            '😮',
+                            '😢',
+                            '🙏',
+                          ])
+                            InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () {
+                                entry.remove();
+                                setState(() => _reactionByMessage[id] = e);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  e,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _waTopAction(
+                            context,
+                            icon: Icons.reply_rounded,
+                            label: 'Reply',
+                            onTap: () {
+                              entry.remove();
+                              _replyTo(
+                                messageId: _pick(item, 'id'),
+                                sender:
+                                    (_pick(item, 'senderName').trim().isNotEmpty
+                                    ? _pick(item, 'senderName').trim()
+                                    : (_pick(item, 'sender').trim().isNotEmpty
+                                          ? _pick(item, 'sender').trim()
+                                          : 'Unknown')),
+                                text: (_pick(item, 'text').trim().isNotEmpty
+                                    ? _pick(item, 'text').trim()
+                                    : (_pick(item, 'content').trim().isNotEmpty
+                                          ? _pick(item, 'content').trim()
+                                          : (_pick(
+                                                  item,
+                                                  'message',
+                                                ).trim().isNotEmpty
+                                                ? _pick(item, 'message').trim()
+                                                : 'Message'))),
+                              );
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.copy_rounded,
+                            label: 'Copy',
+                            onTap: () async {
+                              entry.remove();
+                              await Clipboard.setData(
+                                ClipboardData(
+                                  text: (_pick(item, 'text').trim().isNotEmpty
+                                      ? _pick(item, 'text').trim()
+                                      : (_pick(
+                                              item,
+                                              'content',
+                                            ).trim().isNotEmpty
+                                            ? _pick(item, 'content').trim()
+                                            : (_pick(
+                                                    item,
+                                                    'message',
+                                                  ).trim().isNotEmpty
+                                                  ? _pick(
+                                                      item,
+                                                      'message',
+                                                    ).trim()
+                                                  : ''))),
+                                ),
+                              );
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Copied')),
+                              );
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.delete_outline_rounded,
+                            label: 'Delete',
+                            onTap: () {
+                              entry.remove();
+                              setState(() => _deletedMessageIds.add(id));
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
+  Widget _waTopAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _chatTab(
     AsyncValue<Map<String, dynamic>> value,
     AsyncValue<Map<String, dynamic>> people,
@@ -2068,15 +2269,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   });
                                 }
                               },
-                              onLongPress: () => _openBubbleMenu(
-                                context,
-                                messageId: messageId,
-                                text: text,
-                                mediaUrl: mediaUrl,
-                                kind: kind,
-                                senderLabel: isMine ? 'You' : senderName,
-                                isMine: isMine,
-                              ),
+                              onLongPressStart: (d) =>
+                                  _showClassroomWaActionsAt(<String, dynamic>{
+                                    'id': messageId,
+                                    'text': text,
+                                    'mediaUrl': mediaUrl,
+                                    'kind': kind,
+                                    'senderName': senderName,
+                                    'sender': senderName,
+                                    'isMine': isMine,
+                                  }, d.globalPosition),
                               child: Transform.translate(
                                 offset: Offset(swipeDx, 0),
                                 child: TweenAnimationBuilder<double>(

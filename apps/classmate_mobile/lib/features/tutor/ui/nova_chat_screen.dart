@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../chat_core/ui/primitives/nova_composer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +11,7 @@ import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
+import '../../chat_core/ui/chat_media_preview_screen.dart';
 
 import '../data/tutor_repository.dart';
 import '../providers/tutor_repository_provider.dart';
@@ -127,6 +129,7 @@ class NovaChatScreen extends ConsumerStatefulWidget {
 class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
+  final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
   final AudioRecorder _recorder = AudioRecorder();
 
   final List<_Msg> _messages = <_Msg>[];
@@ -145,6 +148,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   @override
   void initState() {
     super.initState();
+    _scroll.addListener(() {
+      if (!_scroll.hasClients) return;
+      final show =
+          _scroll.position.pixels < (_scroll.position.maxScrollExtent - 100);
+      if (_showScrollToBottom.value != show) _showScrollToBottom.value = show;
+    });
     _sessionId = widget.sessionId;
     _headerTitle = (widget.initialTitle ?? '').trim().isEmpty
         ? 'Untitled chat'
@@ -277,14 +286,29 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       );
       final path = picked?.path;
       if (path == null || path.trim().isEmpty) return;
+      if (!mounted) return;
+      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+        MaterialPageRoute(
+          builder: (_) =>
+              ChatMediaPreviewScreen(initialPaths: [path], title: 'Preview'),
+        ),
+      );
+      if (result == null || !mounted) return;
       setState(() {
-        _draftAttachments.add(
-          _DraftAttachment(
-            path: path,
-            name: path.split('/').last,
-            kind: 'IMAGE',
-          ),
-        );
+        for (final p in result.paths) {
+          _draftAttachments.add(
+            _DraftAttachment(path: p, name: p.split('/').last, kind: 'IMAGE'),
+          );
+        }
+        if (result.caption.trim().isNotEmpty) {
+          final current = _controller.text.trim();
+          _controller.text = current.isEmpty
+              ? result.caption.trim()
+              : '$current\n${result.caption.trim()}';
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length),
+          );
+        }
       });
       return;
     }
@@ -300,14 +324,38 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     );
     if (picked == null) return;
 
-    setState(() {
-      for (final f in picked.files) {
-        if ((f.path ?? '').trim().isEmpty) continue;
-        _draftAttachments.add(
-          _DraftAttachment(path: f.path!, name: f.name, kind: 'IMAGE'),
-        );
+    final initial = picked.files
+        .map((f) => f.path ?? '')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    if (initial.isEmpty) return;
+
+    if (!mounted) return;
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    final sessionId = _sessionId;
+    if (sessionId == null || sessionId.trim().isEmpty) return;
+
+    setState(() => _sending = true);
+    try {
+      for (final p in result.paths) {
+        await _repo.sendImage(sessionId: sessionId, path: p);
       }
-    });
+      if (result.caption.trim().isNotEmpty) {
+        _controller.text = result.caption.trim();
+        await _send();
+      } else {
+        setState(() {});
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   Future<void> _pickFiles() async {
@@ -318,14 +366,47 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     );
     if (picked == null) return;
 
-    setState(() {
-      for (final f in picked.files) {
-        if ((f.path ?? '').trim().isEmpty) continue;
-        _draftAttachments.add(
-          _DraftAttachment(path: f.path!, name: f.name, kind: 'FILE'),
-        );
+    final initial = picked.files
+        .map((f) => f.path ?? '')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    if (initial.isEmpty) return;
+
+    if (!mounted) return;
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    final sessionId = _sessionId;
+    if (sessionId == null || sessionId.trim().isEmpty) return;
+
+    setState(() => _sending = true);
+    try {
+      for (final p in result.paths) {
+        await _repo.sendFile(sessionId: sessionId, path: p);
       }
-    });
+      if (result.caption.trim().isNotEmpty) {
+        _controller.text = result.caption.trim();
+        await _send();
+      }
+      if (mounted) {
+        setState(() {});
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_scroll.hasClients) return;
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent + 120,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   Future<void> _toggleMic() async {
@@ -734,19 +815,23 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   Widget _fileAttachmentCard(_Msg m) {
     final mine = m.isUser;
     final label = _fileLabelFor(m);
-    final accent = mine ? const Color(0xFF143B5C) : const Color(0xFF262D35);
+    final accent = mine
+        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.22)
+        : Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(15),
         onTap: () => _openAttachment(m),
         child: Container(
           constraints: const BoxConstraints(maxWidth: 340),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: accent,
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(15),
             border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
           child: Row(
@@ -773,12 +858,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13.5,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         height: 1.25,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1),
                     Text(
                       m.kind.toUpperCase() == 'PDF'
                           ? 'PDF'
@@ -824,26 +909,31 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             children: [
               if (hasPreview) preview,
               if (isFileLike) _fileAttachmentCard(m),
-              if (hasPreview && hasText) const SizedBox(height: 2),
-              if (isFileLike && hasText) const SizedBox(height: 2),
+              if (hasPreview && hasText) const SizedBox(height: 1),
+              if (isFileLike && hasText) const SizedBox(height: 1),
               if (hasText)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
+                    horizontal: 16,
+                    vertical: 13,
                   ),
                   decoration: BoxDecoration(
                     color: mine
-                        ? const Color(0xFF143B5C)
-                        : const Color(0xFF262D35),
-                    borderRadius: BorderRadius.circular(13),
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.22)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.72),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
                     m.content,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: mine
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : Theme.of(context).colorScheme.onSurface,
                       height: 1.45,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -854,96 +944,54 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     );
   }
 
-  Widget _composerButton({
-    required IconData icon,
-    required VoidCallback? onTap,
-    Color fill = const Color(0xFF1C232B),
-    Color iconColor = Colors.white,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: onTap == null ? const Color(0xFF121820) : fill,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-              color: Colors.black.withValues(alpha: 0.22),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: iconColor, size: 20),
-      ),
-    );
-  }
-
   Widget _draftChip(_DraftAttachment a) {
-    final thumb = a.isImage
-        ? ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.file(
-              File(a.path),
-              width: 52,
-              height: 52,
-              fit: BoxFit.cover,
-            ),
-          )
-        : Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F2630),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.insert_drive_file_outlined,
-              color: Colors.white70,
-            ),
-          );
-
+    final isImage = a.isImage;
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFF171D24),
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          thumb,
-          const SizedBox(width: 5),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 180),
-            child: Text(
-              a.name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
+              size: 16,
+              color: Colors.white70,
             ),
           ),
-          const SizedBox(width: 5),
-          GestureDetector(
-            onTap: () => _removeDraftAttachment(a),
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.close_rounded,
-                size: 16,
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 160),
+            child: Text(
+              a.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
                 color: Colors.white,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
               ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: () => _removeDraftAttachment(a),
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close_rounded, size: 16, color: Colors.white70),
             ),
           ),
         ],
@@ -952,104 +1000,39 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _composer() {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A2129).withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-                color: Colors.black.withValues(alpha: 0.28),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_draftAttachments.isNotEmpty)
-                SizedBox(
-                  height: 72,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: _draftAttachments.map(_draftChip).toList(),
-                  ),
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _controller,
+      builder: (context, value, child) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_draftAttachments.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+              child: SizedBox(
+                height: 72,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _draftAttachments
+                      .map((a) => _draftChip(a))
+                      .toList(),
                 ),
-              if (_draftAttachments.isNotEmpty) const SizedBox(height: 2),
-              Row(
-                children: [
-                  _composerButton(
-                    icon: Icons.camera_alt_rounded,
-                    onTap: _sending || _recording
-                        ? null
-                        : _pickCameraOrUploadImage,
-                  ),
-                  const SizedBox(width: 5),
-                  _composerButton(
-                    icon: Icons.attach_file_rounded,
-                    onTap: _sending || _recording ? null : _pickFiles,
-                  ),
-                  const SizedBox(width: 5),
-                  _composerButton(
-                    icon: _recording
-                        ? Icons.stop_rounded
-                        : Icons.mic_none_rounded,
-                    onTap: _sending ? null : _toggleMic,
-                    fill: _recording
-                        ? const Color(0xFF8E2E2E)
-                        : const Color(0xFF1C232B),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 46),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F141A).withValues(alpha: 0.88),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
-                        ),
-                      ),
-                      child: Center(
-                        child: TextField(
-                          controller: _controller,
-                          minLines: 1,
-                          maxLines: 6,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) =>
-                              _sending || _recording ? null : _send(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
-                          decoration: const InputDecoration(
-                            hintText: 'Ask NOVA anything...',
-                            hintStyle: TextStyle(color: Colors.white54),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  _composerButton(
-                    icon: Icons.arrow_upward_rounded,
-                    onTap: _sending || _recording ? null : _send,
-                    fill: const Color(0xFF9EC8F0),
-                    iconColor: const Color(0xFF0B2238),
-                  ),
-                ],
               ),
-            ],
+            ),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _controller,
+            builder: (context, value, child) => NovaComposer(
+              controller: _controller,
+              enabled: !_sending,
+              isStreaming: false,
+              isRecording: _recording,
+              hintText: 'Message NOVA',
+              onSend: _send,
+              onAttach: _pickFiles,
+              onCamera: _pickCameraOrUploadImage,
+              onMic: _toggleMic,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1058,23 +1041,58 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   Widget build(BuildContext context) {
     final body = _loadingHistory
         ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
-        : ListView.builder(
-            controller: _scroll,
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            itemCount: _messages.length,
-            itemBuilder: (context, index) => _bubble(_messages[index]),
+        : ValueListenableBuilder<bool>(
+            valueListenable: _showScrollToBottom,
+            builder: (context, showScroll, child) {
+              return Stack(
+                children: [
+                  ListView.builder(
+                    controller: _scroll,
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) => _bubble(_messages[index]),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: showScroll
+                        ? FloatingActionButton.small(
+                            heroTag: 'nova-scroll-bottom',
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimary,
+                            onPressed: () {
+                              if (!_scroll.hasClients) return;
+                              _scroll.animateTo(
+                                _scroll.position.maxScrollExtent + 120,
+                                duration: const Duration(milliseconds: 240),
+                                curve: Curves.easeOut,
+                              );
+                            },
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              );
+            },
           );
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050A0F),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF050A0F),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         title: Column(
           children: [
             Text(_headerTitle),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               _recording
                   ? 'Recording… tap mic again to transcribe'
