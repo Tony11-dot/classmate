@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ChatCameraCaptureResult {
@@ -25,19 +26,24 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
   final List<String> _shots = [];
 
   Future<void> _capture() async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      final picked = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 92,
+    String? path;
+
+    if (Platform.isMacOS) {
+      final picked = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
       );
-      final path = picked?.path;
-      if (!mounted || path == null || path.trim().isEmpty) return;
-      setState(() => _shots.add(path));
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      path = picked?.files.single.path;
+    } else {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 90,
+      );
+      path = picked?.path;
     }
+
+    if (path == null || path.trim().isEmpty || !mounted) return;
+    setState(() => _shots.add(path!));
   }
 
   Future<void> _pickFromGallery() async {
@@ -46,11 +52,12 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
     try {
       final picked = await _picker.pickMultiImage(imageQuality: 92);
       if (!mounted || picked.isEmpty) return;
-      setState(() {
-        for (final x in picked) {
-          if (x.path.trim().isNotEmpty) _shots.add(x.path);
-        }
-      });
+      final paths = picked
+          .map((x) => x.path)
+          .where((p) => p.trim().isNotEmpty)
+          .toList(growable: false);
+      if (paths.isEmpty) return;
+      Navigator.of(context).pop(ChatCameraCaptureResult(paths: paths));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

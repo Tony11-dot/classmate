@@ -3,15 +3,15 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import '../../chat_core/ui/primitives/nova_composer.dart';
+import '../../chat_core/ui/chat_composer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
+import '../../chat_core/ui/chat_camera_capture_screen.dart';
 
 import '../data/tutor_repository.dart';
 import '../providers/tutor_repository_provider.dart';
@@ -140,6 +140,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   bool _loadingHistory = false;
   bool _sending = false;
   bool _recording = false;
+  bool _voiceLocked = false;
+  bool _voicePaused = false;
+  bool _voiceCancelled = false;
+  double _holdDx = 0;
+  double _holdDy = 0;
   String? _recordingPath;
   StreamSubscription<Map<String, dynamic>>? _replySub;
 
@@ -248,116 +253,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     return path.startsWith('/') ? '$base$path' : '$base/$path';
   }
 
-  Future<void> _pickCameraOrUploadImage() async {
-    if (_sending || _recording) return;
-
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Take photo'),
-              onTap: () => Navigator.pop(context, 'camera'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Upload photo'),
-              onTap: () => Navigator.pop(context, 'gallery'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (action == null) return;
-
-    if (action == 'camera') {
-      if (!(Platform.isAndroid || Platform.isIOS)) {
-        await _pickImages();
-        return;
-      }
-      final picked = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        imageQuality: 90,
-      );
-      final path = picked?.path;
-      if (path == null || path.trim().isEmpty) return;
-      if (!mounted) return;
-      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-        MaterialPageRoute(
-          builder: (_) =>
-              ChatMediaPreviewScreen(initialPaths: [path], title: 'Preview'),
-        ),
-      );
-      if (result == null || !mounted) return;
-      setState(() {
-        for (final p in result.paths) {
-          _draftAttachments.add(
-            _DraftAttachment(path: p, name: p.split('/').last, kind: 'IMAGE'),
-          );
-        }
-        if (result.caption.trim().isNotEmpty) {
-          final current = _controller.text.trim();
-          _controller.text = current.isEmpty
-              ? result.caption.trim()
-              : '$current\n${result.caption.trim()}';
-          _controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: _controller.text.length),
-          );
-        }
-      });
-      return;
-    }
-
-    await _pickImages();
-  }
-
-  Future<void> _pickImages() async {
-    if (_sending || _recording) return;
-    final picked = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.image,
-    );
-    if (picked == null) return;
-
-    final initial = picked.files
-        .map((f) => f.path ?? '')
-        .where((p) => p.trim().isNotEmpty)
-        .toList();
-    if (initial.isEmpty) return;
-
-    if (!mounted) return;
-    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
-      ),
-    );
-    if (result == null || !mounted) return;
-
-    final sessionId = _sessionId;
-    if (sessionId == null || sessionId.trim().isEmpty) return;
-
-    setState(() => _sending = true);
-    try {
-      for (final p in result.paths) {
-        await _repo.sendImage(sessionId: sessionId, path: p);
-      }
-      if (result.caption.trim().isNotEmpty) {
-        _controller.text = result.caption.trim();
-        await _send();
-      } else {
-        setState(() {});
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
   Future<void> _pickFiles() async {
     if (_sending || _recording) return;
     final picked = await FilePicker.platform.pickFiles(
@@ -407,6 +302,153 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     } finally {
       if (mounted) setState(() => _sending = false);
     }
+  }
+
+  Future<void> _openDirectCamera() async {
+    final camera = await Navigator.of(context).push<ChatCameraCaptureResult>(
+      MaterialPageRoute(
+        builder: (_) => const ChatCameraCaptureScreen(title: 'Camera'),
+      ),
+    );
+    if (camera == null || camera.paths.isEmpty || !mounted) return;
+
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: camera.paths,
+          title: 'Preview',
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() {
+      for (final path in result.paths) {
+        _draftAttachments.add(
+          _DraftAttachment(
+            path: path,
+            name: path.split('/').last,
+            kind: 'FILE',
+          ),
+        );
+      }
+      if (result.caption.trim().isNotEmpty) {
+        final current = _controller.text.trim();
+        _controller.text = current.isEmpty
+            ? result.caption.trim()
+            : '$current\n${result.caption.trim()}';
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      }
+    });
+  }
+
+  Future<void> _micHoldStart(LongPressStartDetails d) async {
+    if (_sending || _recording) return;
+    _holdDx = 0;
+    _holdDy = 0;
+    _voiceLocked = false;
+    _voiceCancelled = false;
+    await _toggleMic();
+  }
+
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    if (!_recording) return;
+    setState(() {
+      _holdDx = d.offsetFromOrigin.dx;
+      _holdDy = d.offsetFromOrigin.dy;
+      if (_holdDx < -88) _voiceCancelled = true;
+      if (_holdDy < -88) _voiceLocked = true;
+    });
+  }
+
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    if (!_recording) return;
+    if (_voiceCancelled) {
+      await _cancelVoiceDraft();
+      return;
+    }
+    if (_voiceLocked) {
+      if (mounted) setState(() {});
+      return;
+    }
+    await _toggleMic();
+  }
+
+  Future<void> _micHoldCancel() async {
+    if (!_recording) return;
+    if (_voiceLocked) return;
+    await _cancelVoiceDraft();
+  }
+
+  Future<void> _pauseVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.pause();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = true);
+  }
+
+  Future<void> _resumeVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.resume();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = false);
+  }
+
+  Future<void> _cancelVoiceDraft() async {
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+    });
+  }
+
+  Widget _recordHud() {
+    if (!_recording) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final locked = _voiceLocked;
+    final cancelling = _voiceCancelled;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            cancelling
+                ? Icons.delete_outline_rounded
+                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cancelling
+                  ? 'Release to cancel'
+                  : (locked
+                        ? 'Recording locked • tap mic to finish'
+                        : 'Hold to record • slide left to cancel • slide up to lock'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _toggleMic() async {
@@ -1018,9 +1060,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 ),
               ),
             ),
+          _recordHud(),
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
-            builder: (context, value, child) => NovaComposer(
+            builder: (context, value, child) => ChatComposer(
               controller: _controller,
               enabled: !_sending,
               isStreaming: false,
@@ -1028,8 +1071,24 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               hintText: 'Message NOVA',
               onSend: _send,
               onAttach: _pickFiles,
-              onCamera: _pickCameraOrUploadImage,
-              onMic: _toggleMic,
+              onCamera: _openDirectCamera,
+              onMic: () async {
+                if (_recording && _voiceLocked) {
+                  await _toggleMic();
+                  return;
+                }
+                await _toggleMic();
+              },
+              onMicHoldStart: _micHoldStart,
+              onMicHoldMove: _micHoldMove,
+              onMicHoldEnd: _micHoldEnd,
+              onMicHoldCancel: _micHoldCancel,
+
+              isVoiceLocked: _voiceLocked,
+              isVoicePaused: _voicePaused,
+              onTrashRecording: _cancelVoiceDraft,
+              onPauseRecording: _pauseVoiceRecord,
+              onResumeRecording: _resumeVoiceRecord,
             ),
           ),
         ],

@@ -48,7 +48,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   @override
   void initState() {
     super.initState();
-    _paths = widget.initialPaths.where((e) => e.trim().isNotEmpty).toList();
+    _paths = List<String>.from(
+      widget.initialPaths.where((e) => e.trim().isNotEmpty),
+    );
     _quarterTurns = List<int>.filled(_paths.length, 0);
     _pageCtl = PageController();
     _captionCtl = TextEditingController();
@@ -216,18 +218,28 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   void _removeCurrent() {
     if (_paths.isEmpty) return;
+
     setState(() {
-      _paths.removeAt(_index);
-      _quarterTurns.removeAt(_index);
+      final idx = _index.clamp(0, _paths.length - 1);
+      _paths = List<String>.from(_paths)..removeAt(idx);
+      if (_quarterTurns.length > idx) {
+        _quarterTurns = List<int>.from(_quarterTurns)..removeAt(idx);
+      }
+
       if (_paths.isEmpty) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(
+          ChatMediaPreviewResult(
+            paths: const [],
+            caption: _captionCtl.text.trim(),
+          ),
+        );
         return;
       }
+
       if (_index >= _paths.length) {
         _index = _paths.length - 1;
       }
     });
-    _syncVideo();
   }
 
   @override
@@ -254,7 +266,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                 ? null
                 : () async {
                     setState(() {
-                      _paths.removeAt(_index);
+                      _paths = List<String>.from(_paths)..removeAt(_index);
                       if (_paths.isNotEmpty && _index >= _paths.length) {
                         _index = _paths.length - 1;
                       }

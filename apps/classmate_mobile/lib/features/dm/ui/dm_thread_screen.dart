@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../chat_core/ui/primitives/chat_composer.dart';
+import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_camera_capture_screen.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +34,11 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
 
   bool _sending = false;
   bool _recording = false;
+  bool _voiceLocked = false;
+  bool _voicePaused = false;
+  bool _voiceCancelled = false;
+  double _holdDx = 0;
+  double _holdDy = 0;
   String? _draftVoicePath;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
@@ -45,6 +50,7 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
   DmMessage? replyingTo;
   final Map<String, String> _localEdits = <String, String>{};
   final Set<String> _localDeleted = <String>{};
+  final Set<String> _selectedMessageIds = <String>{};
   final Map<String, String> _localReactions = <String, String>{};
   final Map<String, double> _swipeDxByMessage = <String, double>{};
   final ScrollController _chatScrollCtl = ScrollController();
@@ -323,6 +329,182 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
+  Future<void> _openDirectCamera() async {
+    if (!mounted) return;
+
+    final camera = await Navigator.of(context).push<ChatCameraCaptureResult>(
+      MaterialPageRoute(
+        builder: (_) => const ChatCameraCaptureScreen(title: 'Camera'),
+      ),
+    );
+    if (camera == null || camera.paths.isEmpty || !mounted) return;
+
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: camera.paths,
+          title: 'Preview',
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() {
+      for (final path in result.paths) {
+        _draftAttachments.add(<String, String>{
+          'path': path,
+          'name': path.split('/').last,
+          'kind': 'FILE',
+        });
+      }
+      if (result.caption.trim().isNotEmpty) {
+        final current = composer.text.trim();
+        composer.text = current.isEmpty
+            ? result.caption.trim()
+            : '$current\n${result.caption.trim()}';
+        composer.selection = TextSelection.fromPosition(
+          TextPosition(offset: composer.text.length),
+        );
+      }
+    });
+  }
+
+  Future<void> _forwardMessageLocal(DmMessage message) async {
+    final text = editableBodyText(message.text).trim();
+    if (text.isEmpty) return;
+
+    final payload = 'Forwarded message\n$text';
+    final current = composer.text.trim();
+    composer.text = current.isEmpty ? payload : '$current\n\n$payload';
+    composer.selection = TextSelection.fromPosition(
+      TextPosition(offset: composer.text.length),
+    );
+
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Forwarded to composer')));
+  }
+
+  Future<void> _micHoldStart(LongPressStartDetails d) async {
+    if (_sending || _recording) return;
+    _holdDx = 0;
+    _holdDy = 0;
+    _voiceLocked = false;
+    _voiceCancelled = false;
+    await _toggleMic(ref.read(dmRepositoryProvider));
+  }
+
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    if (!_recording) return;
+    setState(() {
+      _holdDx = d.offsetFromOrigin.dx;
+      _holdDy = d.offsetFromOrigin.dy;
+      if (_holdDx < -88) _voiceCancelled = true;
+      if (_holdDy < -88) _voiceLocked = true;
+    });
+  }
+
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    if (!_recording) return;
+    if (_voiceCancelled) {
+      await _cancelVoiceDraft();
+      return;
+    }
+    if (_voiceLocked) {
+      if (mounted) setState(() {});
+      return;
+    }
+    await _toggleMic(ref.read(dmRepositoryProvider));
+  }
+
+  Future<void> _micHoldCancel() async {
+    if (!_recording) return;
+    if (_voiceLocked) return;
+    await _cancelVoiceDraft();
+  }
+
+  Future<void> _pauseVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.pause();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = true);
+  }
+
+  Future<void> _resumeVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.resume();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = false);
+  }
+
+  Future<void> _cancelVoiceDraft() async {
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    try {
+      final p = (_draftVoicePath ?? '').trim();
+      if (p.isNotEmpty) {
+        final f = File(p);
+        if (await f.exists()) {
+          await f.delete();
+        }
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+      _draftVoicePath = null;
+    });
+  }
+
+  Widget _recordHud() {
+    if (!_recording) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final locked = _voiceLocked;
+    final cancelling = _voiceCancelled;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            cancelling
+                ? Icons.delete_outline_rounded
+                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cancelling
+                  ? 'Release to cancel'
+                  : (locked
+                        ? 'Recording locked • tap mic/stop to finish'
+                        : 'Hold to record • slide left to cancel • slide up to lock'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _toggleMic(DmRepository repo) async {
     if (_sending) {
       return;
@@ -527,27 +709,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     }
   }
 
-  Future<void> _forwardMessageLocal(DmMessage message) async {
-    final text = editableBodyText(message.text).trim();
-    if (text.isEmpty) return;
-
-    final prefix = 'Forwarded\n';
-    final payload = '$prefix$text';
-    final current = composer.text.trim();
-
-    composer.text = current.isEmpty ? payload : '$current\n\n$payload';
-    composer.selection = TextSelection.fromPosition(
-      TextPosition(offset: composer.text.length),
-    );
-
-    if (mounted) {
-      setState(() {});
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Forwarded to composer')));
-    }
-  }
-
   Future<void> _editMessage(DmMessage message) async {
     final ctl = TextEditingController(
       text: editableBodyText(_localEdits[message.id] ?? message.text),
@@ -560,15 +721,19 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
           controller: ctl,
           minLines: 1,
           maxLines: 6,
-          decoration: const InputDecoration(hintText: 'Edit message...'),
+          decoration: const InputDecoration(),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) Navigator.pop(context, false);
+            },
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) Navigator.pop(context, true);
+            },
             child: const Text('Save'),
           ),
         ],
@@ -604,11 +769,15 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) Navigator.pop(context, false);
+            },
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) Navigator.pop(context, true);
+            },
             child: Text(blocked ? 'Unblock' : 'Block'),
           ),
         ],
@@ -749,141 +918,222 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
     return ListTile(leading: Icon(icon), title: Text(label), onTap: onTap);
   }
 
+  IconData _statusIconForMessage(DmMessage message) {
+    final t = (message.text).toLowerCase();
+    if (t.contains('[failed]')) return Icons.error_outline_rounded;
+    if (t.contains('[read]')) return Icons.done_all_rounded;
+    if (t.contains('[delivered]')) return Icons.done_all_rounded;
+    return Icons.done_rounded;
+  }
+
+  Color _statusColorForMessage(BuildContext context, DmMessage message) {
+    final t = (message.text).toLowerCase();
+    if (t.contains('[failed]')) return Theme.of(context).colorScheme.error;
+    if (t.contains('[read]')) return const Color(0xFF34B7F1);
+    if (t.contains('[delivered]')) {
+      return Theme.of(context).colorScheme.onSurfaceVariant;
+    }
+    return Theme.of(context).colorScheme.onSurfaceVariant;
+  }
+
   Future<void> _showWaMessageActionsAt(
     DmRepository repo,
     DmMessage message,
+    Offset globalPosition,
   ) async {
     final overlay = Overlay.of(context);
+    final box = overlay.context.findRenderObject() as RenderBox;
+    final local = box.globalToLocal(globalPosition);
+
+    const menuWidth = 188.0;
+    const menuHeight = 354.0;
+
     late final OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => Material(
-        color: Colors.black.withValues(alpha: 0.30),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () => entry.remove(),
-                child: const SizedBox.expand(),
+      builder: (context) {
+        final left = local.dx.clamp(10.0, box.size.width - menuWidth - 10.0);
+        double top = local.dy + 26;
+        if (top > box.size.height - menuHeight - 10) {
+          top = local.dy - menuHeight - 14;
+        }
+        top = top.clamp(10.0, box.size.height - menuHeight - 10.0);
+
+        return Material(
+          color: Colors.black.withValues(alpha: 0.12),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => entry.remove(),
+                  child: const SizedBox.expand(),
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
+              Positioned(
+                left: left,
+                top: top,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints.tightFor(width: menuWidth),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant
+                                .withValues(alpha: 0.18),
+                          ),
+                        ),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 2,
+                          runSpacing: 2,
+                          children: [
+                            for (final e in const [
+                              '❤️',
+                              '👍',
+                              '😂',
+                              '😮',
+                              '😢',
+                              '🙏',
+                            ])
+                              InkWell(
+                                borderRadius: BorderRadius.circular(999),
+                                onTap: () async {
+                                  entry.remove();
+                                  setState(
+                                    () => _localReactions[message.id] = e,
+                                  );
+                                  try {
+                                    await repo.react(message.id, e);
+                                    ref.invalidate(
+                                      dmMessagesProvider(widget.threadId),
+                                    );
+                                    ref.invalidate(dmThreadsProvider);
+                                  } catch (_) {}
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 5,
+                                  ),
+                                  child: Text(
+                                    e,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final e in const [
-                            '❤️',
-                            '👍',
-                            '😂',
-                            '😮',
-                            '😢',
-                            '🙏',
-                          ])
-                            InkWell(
-                              borderRadius: BorderRadius.circular(999),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant
+                                .withValues(alpha: 0.18),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _waMenuTile(
+                              context,
+                              icon: Icons.reply_rounded,
+                              label: 'Reply',
+                              onTap: () {
+                                entry.remove();
+                                setState(() => replyingTo = message);
+                              },
+                            ),
+                            _waMenuTile(
+                              context,
+                              icon: Icons.copy_rounded,
+                              label: 'Copy',
                               onTap: () async {
                                 entry.remove();
-                                setState(() => _localReactions[message.id] = e);
-                                try {
-                                  await repo.react(message.id, e);
+                                await Clipboard.setData(
+                                  ClipboardData(
+                                    text: editableBodyText(message.text),
+                                  ),
+                                );
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Copied')),
+                                );
+                              },
+                            ),
+                            if (message.isMine)
+                              _waMenuTile(
+                                context,
+                                icon: Icons.edit_rounded,
+                                label: 'Edit',
+                                onTap: () async {
+                                  entry.remove();
+                                  await _editMessage(message);
+                                },
+                              ),
+                            _waMenuTile(
+                              context,
+                              icon: Icons.forward_rounded,
+                              label: 'Forward',
+                              onTap: () async {
+                                entry.remove();
+                                await _forwardMessageLocal(message);
+                              },
+                            ),
+                            _waMenuTile(
+                              context,
+                              icon: Icons.checklist_rounded,
+                              label: _selectedMessageIds.contains(message.id)
+                                  ? 'Unselect'
+                                  : 'Select',
+                              onTap: () {
+                                entry.remove();
+                                setState(() {
+                                  if (_selectedMessageIds.contains(
+                                    message.id,
+                                  )) {
+                                    _selectedMessageIds.remove(message.id);
+                                  } else {
+                                    _selectedMessageIds.add(message.id);
+                                  }
+                                });
+                              },
+                            ),
+                            if (message.isMine)
+                              _waMenuTile(
+                                context,
+                                icon: Icons.delete_outline_rounded,
+                                label: 'Delete',
+                                onTap: () {
+                                  entry.remove();
+                                  setState(() => _localDeleted.add(message.id));
                                   ref.invalidate(
                                     dmMessagesProvider(widget.threadId),
                                   );
-                                } catch (_) {}
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
-                                ),
-                                child: Text(
-                                  e,
-                                  style: const TextStyle(fontSize: 24),
-                                ),
+                                  ref.invalidate(dmThreadsProvider);
+                                },
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _waTopAction(
-                            context,
-                            icon: Icons.reply_rounded,
-                            label: 'Reply',
-                            onTap: () {
-                              entry.remove();
-                              setState(() => replyingTo = message);
-                            },
-                          ),
-                          _waTopAction(
-                            context,
-                            icon: Icons.copy_rounded,
-                            label: 'Copy',
-                            onTap: () async {
-                              entry.remove();
-                              await Clipboard.setData(
-                                ClipboardData(
-                                  text: editableBodyText(message.text),
-                                ),
-                              );
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Copied')),
-                              );
-                            },
-                          ),
-                          if (message.isMine)
-                            _waTopAction(
-                              context,
-                              icon: Icons.edit_rounded,
-                              label: 'Edit',
-                              onTap: () async {
-                                entry.remove();
-                                await _editMessage(message);
-                              },
-                            ),
-                          if (message.isMine)
-                            _waTopAction(
-                              context,
-                              icon: Icons.delete_outline_rounded,
-                              label: 'Delete',
-                              onTap: () {
-                                entry.remove();
-                                setState(() => _localDeleted.add(message.id));
-                              },
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
     overlay.insert(entry);
   }
@@ -1045,6 +1295,35 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
       ),
     );
     overlay.insert(entry);
+  }
+
+  Widget _waMenuTile(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _waTopAction(
@@ -1666,15 +1945,45 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                                                 );
                                               });
                                             },
-                                            onLongPress: () =>
+                                            onLongPressStart: (d) =>
                                                 _showWaMessageActionsAt(
                                                   repo,
                                                   message,
+                                                  d.globalPosition,
                                                 ),
                                             child: Stack(
                                               clipBehavior: Clip.none,
                                               children: [
-                                                if (swipeDx.abs() > 8)
+                                                if (_selectedMessageIds
+                                                    .isNotEmpty)
+                                                  Positioned(
+                                                    left: -28,
+                                                    right: null,
+                                                    top: 10,
+                                                    child: Icon(
+                                                      _selectedMessageIds
+                                                              .contains(
+                                                                message.id,
+                                                              )
+                                                          ? Icons
+                                                                .check_circle_rounded
+                                                          : Icons
+                                                                .radio_button_unchecked_rounded,
+                                                      size: 22,
+                                                      color:
+                                                          _selectedMessageIds
+                                                              .contains(
+                                                                message.id,
+                                                              )
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .primary
+                                                          : Theme.of(context)
+                                                                .colorScheme
+                                                                .outline,
+                                                    ),
+                                                  ),
+                                                if (swipeDx.abs() > 10)
                                                   Positioned(
                                                     right: 0,
                                                     top: 28,
@@ -1778,8 +2087,6 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                   _dmDraftBar(),
                   ChatComposer(
                     controller: composer,
-                    hintText: 'Message',
-                    sendEnabled: composer.text.trim().isNotEmpty,
                     onSend: () {
                       if (_sending || _recording) return;
                       _sendText(repo);
@@ -1788,14 +2095,25 @@ class _DmThreadScreenState extends ConsumerState<DmThreadScreen> {
                       if (_sending || _recording) return;
                       _pickFile(repo);
                     },
-                    onCamera: () {
-                      if (_sending || _recording) return;
-                      _showImageSourceSheet(repo);
-                    },
+                    onCamera: _openDirectCamera,
                     onMic: () {
                       if (_sending) return;
+                      if (_recording && _voiceLocked) {
+                        _toggleMic(repo);
+                        return;
+                      }
                       _toggleMic(repo);
                     },
+                    onMicHoldStart: _micHoldStart,
+                    onMicHoldMove: _micHoldMove,
+                    onMicHoldEnd: _micHoldEnd,
+                    onMicHoldCancel: _micHoldCancel,
+                    isRecording: _recording,
+                    isVoiceLocked: _voiceLocked,
+                    isVoicePaused: _voicePaused,
+                    onTrashRecording: _cancelVoiceDraft,
+                    onPauseRecording: _pauseVoiceRecord,
+                    onResumeRecording: _resumeVoiceRecord,
                   ),
                 ],
               ),

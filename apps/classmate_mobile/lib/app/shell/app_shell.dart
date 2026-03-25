@@ -149,9 +149,9 @@ class _LiquidTelegramNav extends StatelessWidget {
                       duration: const Duration(milliseconds: 380),
                       curve: Curves.easeOutExpo,
                       left: left,
-                      top: 14,
+                      top: 7,
                       width: blobWidth,
-                      height: 48,
+                      height: 60,
                       child: IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(

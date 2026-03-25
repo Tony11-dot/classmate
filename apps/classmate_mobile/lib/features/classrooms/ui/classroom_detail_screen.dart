@@ -122,6 +122,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   bool _recording = false;
+  bool _voiceLocked = false;
+  bool _voiceCancelled = false;
+  double _holdDx = 0;
+  double _holdDy = 0;
   String? replyToId;
 
   void _goBackToClassrooms() {
@@ -779,7 +783,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 icon: Icons.book_rounded,
                 subject: 'Classroom',
                 subtitle: widget.courseId,
-                onRefresh: _refreshAll,
+                onRefresh: () async {
+                  _refreshAll();
+                },
                 onBack: _goBackToClassrooms,
               ),
               data: (m) => _TopHeader(
@@ -794,7 +800,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             ? (m['subject'] ?? '').toString()
                             : widget.courseId)
                         .trim(),
-                onRefresh: _refreshAll,
+                onRefresh: () async {
+                  _refreshAll();
+                },
                 onBack: _goBackToClassrooms,
               ),
             ),
@@ -806,7 +814,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               child: TabBarView(
                 controller: _tabs,
                 children: [
-                  _chatTab(chat, people),
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      _refreshAll();
+                    },
+                    child: _chatTab(chat, people),
+                  ),
                   _listTab(
                     value: assignments,
                     emptyTitle: 'No assignments yet',
@@ -1057,6 +1070,105 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   Future<void> _startVoiceNote() async => _toggleClassroomMic();
   Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic();
+
+  Future<void> _micHoldStart(LongPressStartDetails d) async {
+    if (_sending || _recording) return;
+    _holdDx = 0;
+    _holdDy = 0;
+    _voiceLocked = false;
+    _voiceCancelled = false;
+    await _toggleClassroomMic();
+  }
+
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    if (!_recording) return;
+    setState(() {
+      _holdDx = d.offsetFromOrigin.dx;
+      _holdDy = d.offsetFromOrigin.dy;
+      if (_holdDx < -88) _voiceCancelled = true;
+      if (_holdDy < -88) _voiceLocked = true;
+    });
+  }
+
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    if (!_recording) return;
+    if (_voiceCancelled) {
+      await _cancelVoiceDraft();
+      return;
+    }
+    if (_voiceLocked) {
+      if (mounted) setState(() {});
+      return;
+    }
+    await _toggleClassroomMic();
+  }
+
+  Future<void> _micHoldCancel() async {
+    if (!_recording) return;
+    if (_voiceLocked) return;
+    await _cancelVoiceDraft();
+  }
+
+  Future<void> _cancelVoiceDraft() async {
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    try {
+      final p = (_draftVoicePath ?? '').trim();
+      if (p.isNotEmpty) {
+        final f = File(p);
+        if (await f.exists()) {
+          await f.delete();
+        }
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+      _draftVoicePath = null;
+    });
+  }
+
+  Widget _recordHud() {
+    if (!_recording) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final locked = _voiceLocked;
+    final cancelling = _voiceCancelled;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            cancelling
+                ? Icons.delete_outline_rounded
+                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cancelling
+                  ? 'Release to cancel'
+                  : (locked
+                        ? 'Recording locked • tap mic/stop to finish'
+                        : 'Hold to record • slide left to cancel • slide up to lock'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _toggleClassroomMic() async {
     if (_sending) {
@@ -1525,6 +1637,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              _recordHud(),
               if (_draftAttachments.isNotEmpty ||
                   (_draftVoicePath ?? '').trim().isNotEmpty)
                 SizedBox(
@@ -1831,6 +1944,41 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Copied')),
                               );
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.edit_rounded,
+                            label: 'Edit',
+                            onTap: () async {
+                              entry.remove();
+                              await _editMessage(
+                                context,
+                                messageId: _pick(item, 'id'),
+                                currentText:
+                                    _pick(item, 'text').trim().isNotEmpty
+                                    ? _pick(item, 'text')
+                                    : _pick(item, 'message'),
+                              );
+                            },
+                          ),
+                          _waTopAction(
+                            context,
+                            icon: Icons.forward_rounded,
+                            label: 'Forward',
+                            onTap: () {
+                              entry.remove();
+                              final text = _pick(item, 'text').trim().isNotEmpty
+                                  ? _pick(item, 'text').trim()
+                                  : _pick(item, 'message').trim();
+                              final current = _chatCtl.text.trim();
+                              _chatCtl.text = current.isEmpty
+                                  ? 'Forwarded\n$text'
+                                  : '$current\n\nForwarded\n$text';
+                              _chatCtl.selection = TextSelection.fromPosition(
+                                TextPosition(offset: _chatCtl.text.length),
+                              );
+                              if (mounted) setState(() {});
                             },
                           ),
                           _waTopAction(
@@ -2468,54 +2616,33 @@ class _TopHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
         ),
         child: Row(
           children: [
-            FilledButton.tonalIcon(
+            IconButton(
               onPressed: onBack,
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-              label: const Text('Back'),
-              style: FilledButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
+              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+              tooltip: 'Back',
             ),
-            const SizedBox(width: 2),
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: cs.primary),
-            ),
-            const SizedBox(width: 14),
-            Flexible(
-              fit: FlexFit.loose,
+            const SizedBox(width: 4),
+            Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     subject.trim().isEmpty ? 'Classroom' : subject.trim(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -2523,18 +2650,12 @@ class _TopHeader extends StatelessWidget {
                     subtitle.trim().isEmpty ? ' ' : subtitle.trim(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 2),
-            IconButton(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded),
-              tooltip: 'Refresh',
             ),
           ],
         ),
