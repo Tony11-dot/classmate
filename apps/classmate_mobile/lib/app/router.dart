@@ -9,9 +9,6 @@ import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
-import '../features/dm/ui/dm_inbox_screen.dart';
-import '../features/dm/ui/dm_thread_screen.dart';
-import '../features/dm/ui/create_group_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
@@ -157,19 +154,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
-          ),
-          GoRoute(
-            path: '/dms',
-            builder: (context, state) => const DmInboxScreen(),
-          ),
-          GoRoute(
-            path: '/dms/create-group',
-            builder: (context, state) => const CreateGroupScreen(),
-          ),
-          GoRoute(
-            path: '/dms/:id',
-            builder: (context, state) =>
-                DmThreadScreen(threadId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: '/saved-questions',

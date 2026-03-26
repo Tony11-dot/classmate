@@ -21,9 +21,7 @@ String _routePathOnly(String loc) {
 
 bool _hideTopBarForRoute(String loc) {
   final l = loc.toLowerCase();
-  return l.startsWith('/dm/') ||
-      l.startsWith('/dms/') ||
-      l.startsWith('/messages/') ||
+  return l.startsWith('/messages/') ||
       l.startsWith('/tutor/chat/') ||
       l.startsWith('/nova/chat/') ||
       (l.startsWith('/classrooms/') && !l.endsWith('/classrooms'));
@@ -53,8 +51,6 @@ class AppShell extends ConsumerWidget {
 
   String _pageTitle(String loc) {
     if (loc.startsWith('/classrooms')) return 'Classes';
-    if (loc.startsWith('/dms')) return 'Messages';
-    if (loc.startsWith('/dm')) return 'Messages';
     if (loc.startsWith('/messages')) return 'Messages';
     if (loc.startsWith('/practice')) return 'Practice';
     if (loc.startsWith('/insights')) return 'Insights';
