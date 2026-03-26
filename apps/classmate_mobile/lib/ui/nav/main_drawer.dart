@@ -141,11 +141,7 @@ class MainDrawer extends ConsumerWidget {
               title: 'Notifications',
               onTap: () => context.go('/notifications'),
             ),
-            item(
-              icon: Icons.forum_rounded,
-              title: 'Messages',
-              onTap: () => context.go('/dms'),
-            ),
+            item(icon: Icons.forum_rounded, title: 'Messages'),
             item(
               icon: Icons.bookmark_rounded,
               title: 'Solutions',
