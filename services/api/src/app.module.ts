@@ -58,6 +58,7 @@ const seedControllers = [
 
 @Module({
   imports: [
+    MessagesModule,
     ...serveStatic,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
     HealthModule,
@@ -121,3 +122,4 @@ MetricsController, ...seedControllers],
 })
 export class AppModule {}
 import { NovaController } from './modules/nova/nova.controller';
+import { MessagesModule } from './messages/messages.module';
