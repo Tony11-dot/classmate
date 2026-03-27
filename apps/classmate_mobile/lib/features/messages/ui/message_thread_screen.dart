@@ -323,6 +323,30 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     ref.invalidate(messagesInboxProvider);
   }
 
+  String _kindInfoLabel(MessageItem row) {
+    final kind = row.kind.trim().toUpperCase();
+    switch (kind) {
+      case 'IMAGE':
+        return 'Photo';
+      case 'VOICE':
+        return 'Voice note';
+      case 'VIDEO':
+        return 'Video';
+      case 'FILE':
+        return 'File';
+      case 'TEXT':
+      default:
+        return 'Message';
+    }
+  }
+
+  String _fmtDuration(int seconds) {
+    final total = seconds < 0 ? 0 : seconds;
+    final mm = (total ~/ 60).toString().padLeft(2, '0');
+    final ss = (total % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
   Future<void> _showMessageInfo(MessageItem row) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -331,13 +355,21 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         info: ChatMessageInfo(
           title: 'Message info',
           sentAt: row.timeLabel,
-          deliveredAt: row.deliveredAt,
-          seenAt: row.seenAt,
-          delivered: row.delivered,
-          seen: row.seen,
+          deliveredAt: row.isMine ? row.deliveredAt : '',
+          seenAt: row.isMine ? row.seenAt : '',
+          delivered: row.isMine ? row.delivered : false,
+          seen: row.isMine ? row.seen : false,
           edited: row.edited,
           forwarded: row.forwarded,
           deleteState: row.deleteState,
+          isMine: row.isMine,
+          messageType: _kindInfoLabel(row),
+          voiceDuration:
+              row.kind.trim().toUpperCase() == 'VOICE' &&
+                  row.voiceDurationSeconds != null &&
+                  row.voiceDurationSeconds! > 0
+              ? _fmtDuration(row.voiceDurationSeconds!)
+              : '',
         ),
       ),
     );
@@ -997,28 +1029,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     BuildContext modalContext,
     MessageItem row,
   ) async {
-    await showModalBottomSheet<void>(
-      context: modalContext,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            const ListTile(title: Text('Message info')),
-            ListTile(title: const Text('Sent'), subtitle: Text(row.timeLabel)),
-            ListTile(
-              title: const Text('Delivered'),
-              subtitle: Text(row.timeLabel),
-            ),
-            ListTile(
-              title: const Text('Seen'),
-              subtitle: Text(row.isMine ? row.timeLabel : '—'),
-            ),
-            ListTile(title: const Text('Type'), subtitle: Text(row.kind)),
-          ],
-        ),
-      ),
-    );
+    Navigator.of(modalContext).pop();
+    await _showMessageInfo(row);
   }
 
   String _avatarText(MessageThreadDetail detail) {

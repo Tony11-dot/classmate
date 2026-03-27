@@ -8,6 +8,9 @@ class ChatMessageInfo {
   final bool edited;
   final bool forwarded;
   final String deleteState;
+  final bool isMine;
+  final String messageType;
+  final String voiceDuration;
 
   const ChatMessageInfo({
     required this.title,
@@ -19,5 +22,8 @@ class ChatMessageInfo {
     this.edited = false,
     this.forwarded = false,
     this.deleteState = '',
+    this.isMine = false,
+    this.messageType = '',
+    this.voiceDuration = '',
   });
 }

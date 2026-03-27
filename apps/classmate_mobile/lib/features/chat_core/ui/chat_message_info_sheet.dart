@@ -35,6 +35,7 @@ class ChatMessageInfoSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -61,18 +62,28 @@ class ChatMessageInfoSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             _row(context, 'Sent', info.sentAt),
-            _row(
-              context,
-              'Delivered',
-              info.delivered
-                  ? (info.deliveredAt.isEmpty ? 'Yes' : info.deliveredAt)
-                  : 'No',
-            ),
-            _row(
-              context,
-              'Seen',
-              info.seen ? (info.seenAt.isEmpty ? 'Yes' : info.seenAt) : 'No',
-            ),
+            if (info.isMine)
+              _row(
+                context,
+                'Delivered',
+                info.delivered
+                    ? (info.deliveredAt.isEmpty
+                          ? 'Delivered'
+                          : info.deliveredAt)
+                    : 'Pending',
+              ),
+            if (info.isMine)
+              _row(
+                context,
+                'Seen',
+                info.seen
+                    ? (info.seenAt.isEmpty ? 'Seen' : info.seenAt)
+                    : 'Not seen',
+              ),
+            if (info.messageType.trim().isNotEmpty)
+              _row(context, 'Type', info.messageType),
+            if (info.voiceDuration.trim().isNotEmpty)
+              _row(context, 'Duration', info.voiceDuration),
             _row(context, 'Edited', info.edited ? 'Yes' : 'No'),
             _row(context, 'Forwarded', info.forwarded ? 'Yes' : 'No'),
             _row(context, 'Delete state', info.deleteState),
