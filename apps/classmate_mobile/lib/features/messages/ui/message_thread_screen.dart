@@ -24,6 +24,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
   int? _replyIndex;
   List<MessageItem> _localMessages = const [];
+  final Map<String, String> _reactionByMessageId = <String, String>{};
 
   @override
   void dispose() {
@@ -63,9 +64,32 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           error: (error, stackTrace) =>
               Center(child: Text('Failed to load thread: $error')),
           data: (detail) {
-            final rows = _localMessages.isEmpty
-                ? detail.messages
-                : <MessageItem>[...detail.messages, ..._localMessages];
+            final rows = <MessageItem>[
+              ...detail.messages.map(
+                (message) => MessageItem(
+                  id: message.id,
+                  senderId: message.senderId,
+                  senderName: message.senderName,
+                  text: message.text,
+                  timeLabel: message.timeLabel,
+                  isMine: message.isMine,
+                  reaction: _reactionByMessageId[message.id] ?? message.reaction,
+                  isPinned: message.isPinned,
+                ),
+              ),
+              ..._localMessages.map(
+                (message) => MessageItem(
+                  id: message.id,
+                  senderId: message.senderId,
+                  senderName: message.senderName,
+                  text: message.text,
+                  timeLabel: message.timeLabel,
+                  isMine: message.isMine,
+                  reaction: _reactionByMessageId[message.id] ?? message.reaction,
+                  isPinned: message.isPinned,
+                ),
+              ),
+            ];
             final replyingText =
                 _replyIndex == null ? '' : rows[_replyIndex!].text;
 
@@ -166,17 +190,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     selected.substring('react:'.length).trim();
                                 if (reaction.isEmpty) return;
                                 setState(() {
-                                  rows[index] = MessageItem(
-                                    id: row.id,
-                                    senderId: row.senderId,
-                                    senderName: row.senderName,
-                                    text: row.text,
-                                    timeLabel: row.timeLabel,
-                                    isMine: row.isMine,
-                                    reaction: reaction,
-                                    isPinned: row.isPinned,
-                                  );
-                                  _localMessages = rows.skip(detail.messages.length).toList();
+                                  _reactionByMessageId[row.id] = reaction;
                                 });
                                 return;
                               }
