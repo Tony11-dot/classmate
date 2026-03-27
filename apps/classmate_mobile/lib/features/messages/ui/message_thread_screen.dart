@@ -1422,6 +1422,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     timeLabel: row.timeLabel,
                                     edited: row.edited,
                                     reaction: row.reaction,
+                                    forwarded: row.forwarded,
                                     delivered: row.delivered,
                                     seen: row.seen,
                                     deleteState: row.deleteState,

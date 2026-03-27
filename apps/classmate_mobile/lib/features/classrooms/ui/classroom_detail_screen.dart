@@ -2899,6 +2899,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         edited: _editedTextByMessage
                                             .containsKey(messageId),
                                         reaction: reaction,
+                                        forwarded: false,
                                         deleteState: 'VISIBLE',
                                         maxWidth: 280,
                                       ),

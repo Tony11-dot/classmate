@@ -319,6 +319,7 @@ export class StudentClassroomsController {
           text: source.text ?? null,
           mediaUrl: source.mediaUrl ?? null,
           mediaMimeType: source.mediaMime ?? null,
+          forwardedFromId: source.id,
         },
       });
 

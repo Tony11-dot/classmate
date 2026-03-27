@@ -18,6 +18,7 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    required this.forwarded,
     this.delivered = false,
     this.seen = false,
     required this.deleteState,
@@ -38,6 +39,7 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final bool forwarded;
   final bool delivered;
   final bool seen;
   final String deleteState;
@@ -189,6 +191,54 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
+                ],
+                if (forwarded) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.forward_rounded,
+                          size: 13,
+                          color: Colors.white.withValues(alpha: 0.68),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Forwarded',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.68),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (forwarded) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.forward_rounded,
+                          size: 13,
+                          color: Colors.white.withValues(alpha: 0.68),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Forwarded',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.68),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
                 if (resolvedReplySender.isNotEmpty ||
                     resolvedReplySnippet.isNotEmpty ||
