@@ -185,9 +185,173 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 
+  Future<List<String>?> _showForwardPicker(
+    List<MessageThreadSummary> targets,
+  ) async {
+    final searchController = TextEditingController();
+    final selected = <String>{};
+
+    try {
+      return await showModalBottomSheet<List<String>>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (sheetContext) {
+          var query = '';
+
+          return StatefulBuilder(
+            builder: (sheetContext, setSheetState) {
+              final filtered = targets.where((t) {
+                final q = query.trim().toLowerCase();
+                if (q.isEmpty) return true;
+                return t.title.toLowerCase().contains(q) ||
+                    t.subtitle.toLowerCase().contains(q);
+              }).toList();
+
+              return SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+                  ),
+                  child: SizedBox(
+                    height: 520,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Forward to',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            if (selected.isNotEmpty)
+                              FilledButton(
+                                onPressed: () => Navigator.of(
+                                  sheetContext,
+                                ).pop(selected.toList()),
+                                child: Text('Send (${selected.length})'),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            setSheetState(() {
+                              query = value;
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Search chats',
+                            prefixIcon: Icon(Icons.search_rounded),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: filtered.isEmpty
+                              ? const Center(
+                                  child: Text('No chats match your search'),
+                                )
+                              : ListView.separated(
+                                  itemCount: filtered.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 4),
+                                  itemBuilder: (context, index) {
+                                    final item = filtered[index];
+                                    final checked = selected.contains(item.id);
+
+                                    return CheckboxListTile(
+                                      value: checked,
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                      contentPadding: EdgeInsets.zero,
+                                      secondary: CircleAvatar(
+                                        child: Text(
+                                          item.initials.isEmpty
+                                              ? '?'
+                                              : item.initials,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        item.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      subtitle: Text(
+                                        item.subtitle,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      onChanged: (_) {
+                                        setSheetState(() {
+                                          if (checked) {
+                                            selected.remove(item.id);
+                                          } else {
+                                            selected.add(item.id);
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      searchController.dispose();
+    }
+  }
+
   Future<void> _forwardStub(MessageItem row) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Forward target picker is next phase')),
+    final repo = ref.read(messagesRepositoryProvider);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final inbox = await repo.fetchInbox();
+    if (!mounted) return;
+
+    final targets = inbox.where((t) => t.id != widget.threadId).toList();
+
+    if (targets.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No other chats to forward to yet')),
+      );
+      return;
+    }
+
+    final selectedIds = await _showForwardPicker(targets);
+    if (!mounted || selectedIds == null || selectedIds.isEmpty) return;
+
+    await repo.forwardMessage(
+      fromThreadId: widget.threadId,
+      messageId: row.id,
+      targetThreadIds: selectedIds,
+    );
+
+    if (!mounted) return;
+    await _refreshThread();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          selectedIds.length == 1
+              ? 'Message forwarded'
+              : 'Message forwarded to ${selectedIds.length} chats',
+        ),
+      ),
     );
   }
 
