@@ -1891,206 +1891,136 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     Map<String, dynamic> item,
     Offset globalPosition,
   ) async {
-    final overlay = Overlay.of(context);
-    final box = overlay.context.findRenderObject() as RenderBox;
-    final local = box.globalToLocal(globalPosition);
-    final id = _pick(item, 'id');
+    final _ = globalPosition;
+    final messageId = _pick(item, 'id');
+    final text = (_pick(item, 'text').trim().isNotEmpty
+            ? _pick(item, 'text').trim()
+            : (_pick(item, 'content').trim().isNotEmpty
+                ? _pick(item, 'content').trim()
+                : (_pick(item, 'message').trim().isNotEmpty
+                    ? _pick(item, 'message').trim()
+                    : '')))
+        .trim();
+    final mediaUrl = _pick(item, 'mediaUrl').trim();
+    final kind = _pick(item, 'kind').trim();
+    final senderLabel = (_pick(item, 'senderName').trim().isNotEmpty
+            ? _pick(item, 'senderName').trim()
+            : (_pick(item, 'sender').trim().isNotEmpty
+                ? _pick(item, 'sender').trim()
+                : 'Unknown'))
+        .trim();
+    final isMine = (_pick(item, 'isMine').trim().toLowerCase() == 'true');
+    final edited = (_pick(item, 'edited').trim().toLowerCase() == 'true');
+    final timeLabel = _pick(item, 'timeLabel').trim();
 
-    late final OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (context) => Material(
-        color: Colors.black.withValues(alpha: 0.22),
-        child: Stack(
+    final canEdit =
+        isMine &&
+        _classroomCanEditMessage(
+          messageId: messageId,
+          text: text,
+          mediaUrl: mediaUrl,
+          kind: kind,
+        );
+
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () => entry.remove(),
-                child: const SizedBox.expand(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final e in const ['❤️', '👍', '😂', '😮', '😢', '🙏'])
+                    InkWell(
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => Navigator.of(context).pop('react:$e'),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                        child: Text(
+                          e,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-            Positioned(
-              left: (local.dx - 138).clamp(8.0, box.size.width - 286.0),
-              top: (local.dy - 92).clamp(8.0, box.size.height - 164.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 280),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final e in const [
-                            '❤️',
-                            '👍',
-                            '😂',
-                            '😮',
-                            '😢',
-                            '🙏',
-                          ])
-                            InkWell(
-                              borderRadius: BorderRadius.circular(999),
-                              onTap: () async {
-                                entry.remove();
-                                await _setReaction(id, e);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
-                                ),
-                                child: Text(
-                                  e,
-                                  style: const TextStyle(fontSize: 24),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outlineVariant.withValues(alpha: 0.18),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _waTopAction(
-                            context,
-                            icon: Icons.reply_rounded,
-                            label: 'Reply',
-                            onTap: () {
-                              entry.remove();
-                              _replyTo(
-                                messageId: _pick(item, 'id'),
-                                sender:
-                                    (_pick(item, 'senderName').trim().isNotEmpty
-                                    ? _pick(item, 'senderName').trim()
-                                    : (_pick(item, 'sender').trim().isNotEmpty
-                                          ? _pick(item, 'sender').trim()
-                                          : 'Unknown')),
-                                text: (_pick(item, 'text').trim().isNotEmpty
-                                    ? _pick(item, 'text').trim()
-                                    : (_pick(item, 'content').trim().isNotEmpty
-                                          ? _pick(item, 'content').trim()
-                                          : (_pick(
-                                                  item,
-                                                  'message',
-                                                ).trim().isNotEmpty
-                                                ? _pick(item, 'message').trim()
-                                                : 'Message'))),
-                              );
-                            },
-                          ),
-                          _waTopAction(
-                            context,
-                            icon: Icons.copy_rounded,
-                            label: 'Copy',
-                            onTap: () async {
-                              entry.remove();
-                              await Clipboard.setData(
-                                ClipboardData(
-                                  text: (_pick(item, 'text').trim().isNotEmpty
-                                      ? _pick(item, 'text').trim()
-                                      : (_pick(
-                                              item,
-                                              'content',
-                                            ).trim().isNotEmpty
-                                            ? _pick(item, 'content').trim()
-                                            : (_pick(
-                                                    item,
-                                                    'message',
-                                                  ).trim().isNotEmpty
-                                                  ? _pick(
-                                                      item,
-                                                      'message',
-                                                    ).trim()
-                                                  : ''))),
-                                ),
-                              );
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Copied')),
-                              );
-                            },
-                          ),
-                          _waTopAction(
-                            context,
-                            icon: Icons.edit_rounded,
-                            label: 'Edit',
-                            onTap: () async {
-                              entry.remove();
-                              await _editMessage(
-                                context,
-                                messageId: _pick(item, 'id'),
-                                currentText:
-                                    _pick(item, 'text').trim().isNotEmpty
-                                    ? _pick(item, 'text')
-                                    : _pick(item, 'message'),
-                              );
-                            },
-                          ),
-                          _waTopAction(
-                            context,
-                            icon: Icons.forward_rounded,
-                            label: 'Forward',
-                            onTap: () {
-                              entry.remove();
-                              final text = _pick(item, 'text').trim().isNotEmpty
-                                  ? _pick(item, 'text').trim()
-                                  : _pick(item, 'message').trim();
-                              final current = _chatCtl.text.trim();
-                              _chatCtl.text = current.isEmpty
-                                  ? 'Forwarded\n$text'
-                                  : '$current\n\nForwarded\n$text';
-                              _chatCtl.selection = TextSelection.fromPosition(
-                                TextPosition(offset: _chatCtl.text.length),
-                              );
-                              if (mounted) setState(() {});
-                            },
-                          ),
-                          _waTopAction(
-                            context,
-                            icon: Icons.delete_outline_rounded,
-                            label: 'Delete',
-                            onTap: () {
-                              entry.remove();
-                              setState(() => _deletedMessageIds.add(id));
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            ChatMessageActionsSheet(
+              canEdit: canEdit,
+              canDelete: isMine,
+              canViewInfo: isMine,
+              canPin: true,
+              canForward: true,
             ),
           ],
         ),
       ),
     );
-    overlay.insert(entry);
+
+    if (action == null || action.trim().isEmpty) return;
+
+    if (action.startsWith('react:')) {
+      final emoji = action.substring('react:'.length).trim();
+      if (emoji.isNotEmpty) {
+        await _setReaction(messageId, emoji);
+      }
+      return;
+    }
+
+    if (action == 'reply') {
+      _replyTo(
+        messageId: messageId,
+        sender: senderLabel,
+        text: editableBodyText(text),
+      );
+      return;
+    }
+
+    if (action == 'forward') {
+      await _forwardPlaceholder(
+        messageId: messageId,
+        text: text,
+        mediaUrl: mediaUrl,
+      );
+      return;
+    }
+
+    if (action == 'pin') {
+      await _togglePinMessage(messageId);
+      return;
+    }
+
+    if (action == 'info') {
+      await _showMessageInfo(
+        title: 'Message info',
+        edited: edited,
+        sentAt: timeLabel,
+        deliveredAt: timeLabel,
+        seenAt: isMine ? timeLabel : '',
+        deleteState: 'Visible',
+      );
+      return;
+    }
+
+    if (action == 'edit') {
+      await _editMessage(context, messageId: messageId, currentText: text);
+      return;
+    }
+
+    if (action == 'delete') {
+      await _deleteMessage(messageId);
+      return;
+    }
   }
+
 
   Widget _waTopAction(
     BuildContext context, {
@@ -2526,7 +2456,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     'kind': kind,
                                     'senderName': senderName,
                                     'sender': senderName,
-                                    'isMine': isMine,
+                                    'isMine': '$isMine',
+                                    'edited':
+                                        '${_editedTextByMessage.containsKey(messageId)}',
+                                    'timeLabel': _friendlyTime(createdRaw),
                                   }, d.globalPosition),
                               child: Transform.translate(
                                 offset: Offset(swipeDx, 0),
