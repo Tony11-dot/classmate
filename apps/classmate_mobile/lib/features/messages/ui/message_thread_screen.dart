@@ -24,7 +24,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
   final Map<String, String> _reactionByMessageId = <String, String>{};
   int? _replyIndex;
-  List<MessageItem> _localMessages = const [];
+  final List<MessageItem> _localMessages = <MessageItem>[];
 
   @override
   void dispose() {

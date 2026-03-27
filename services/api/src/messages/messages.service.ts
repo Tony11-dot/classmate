@@ -366,7 +366,7 @@ export class MessagesService {
     });
 
     const items = await Promise.all(participants.map((p) => this.threadToSummary(p)));
-    items.sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
+    items.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
     return { items };
   }
 
