@@ -47,7 +47,7 @@ export class MessagesService {
     const parts = name
       .split(' ')
       .map((v) => v.trim())
-      .where((v) => v.length > 0)
+      .filter((v) => v.length > 0)
       .slice(0, 2);
     if (!parts.length) return '??';
     return parts.map((v) => v[0]!.toUpperCase()).join();
