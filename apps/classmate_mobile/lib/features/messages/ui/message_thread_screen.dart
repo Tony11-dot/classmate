@@ -213,6 +213,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (action == 'delete') {
       // ignore: use_build_context_synchronously
       final localContext = context;
+      // ignore: use_build_context_synchronously
       final deleteForEveryone = await showModalBottomSheet<String>(
         context: localContext,
         showDragHandle: true,

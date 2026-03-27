@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
@@ -65,24 +73,23 @@ export class MessagesController {
     return this.service.markThreadRead(req.user, body);
   }
 
-  @Post('messages/edit')
+  @Post('edit')
   edit(@Req() req: any, @Body() body: EditMessageDto) {
     return this.service.editMessage(req.user, body);
   }
 
-  @Post('messages/pin')
+  @Post('pin/toggle')
   pin(@Req() req: any, @Body() body: TogglePinMessageDto) {
     return this.service.togglePin(req.user, body);
   }
 
-  @Post('messages/delete')
+  @Post('delete')
   deleteMessage(@Req() req: any, @Body() body: DeleteMessageDto) {
     return this.service.deleteMessage(req.user, body);
   }
 
-  @Post('messages/forward')
+  @Post('forward')
   forward(@Req() req: any, @Body() body: ForwardMessageDto) {
     return this.service.forwardMessage(req.user, body);
   }
-
 }
