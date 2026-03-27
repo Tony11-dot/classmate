@@ -555,9 +555,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Forward target picker next: $label'),
-      ),
+      SnackBar(content: Text('Forward target picker next: $label')),
     );
   }
 
@@ -1893,22 +1891,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   ) async {
     final _ = globalPosition;
     final messageId = _pick(item, 'id');
-    final text = (_pick(item, 'text').trim().isNotEmpty
-            ? _pick(item, 'text').trim()
-            : (_pick(item, 'content').trim().isNotEmpty
-                ? _pick(item, 'content').trim()
-                : (_pick(item, 'message').trim().isNotEmpty
-                    ? _pick(item, 'message').trim()
-                    : '')))
-        .trim();
+    final text =
+        (_pick(item, 'text').trim().isNotEmpty
+                ? _pick(item, 'text').trim()
+                : (_pick(item, 'content').trim().isNotEmpty
+                      ? _pick(item, 'content').trim()
+                      : (_pick(item, 'message').trim().isNotEmpty
+                            ? _pick(item, 'message').trim()
+                            : '')))
+            .trim();
     final mediaUrl = _pick(item, 'mediaUrl').trim();
     final kind = _pick(item, 'kind').trim();
-    final senderLabel = (_pick(item, 'senderName').trim().isNotEmpty
-            ? _pick(item, 'senderName').trim()
-            : (_pick(item, 'sender').trim().isNotEmpty
-                ? _pick(item, 'sender').trim()
-                : 'Unknown'))
-        .trim();
+    final senderLabel =
+        (_pick(item, 'senderName').trim().isNotEmpty
+                ? _pick(item, 'senderName').trim()
+                : (_pick(item, 'sender').trim().isNotEmpty
+                      ? _pick(item, 'sender').trim()
+                      : 'Unknown'))
+            .trim();
     final isMine = (_pick(item, 'isMine').trim().toLowerCase() == 'true');
     final edited = (_pick(item, 'edited').trim().toLowerCase() == 'true');
     final timeLabel = _pick(item, 'timeLabel').trim();
@@ -1944,10 +1944,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           horizontal: 8,
                           vertical: 6,
                         ),
-                        child: Text(
-                          e,
-                          style: const TextStyle(fontSize: 24),
-                        ),
+                        child: Text(e, style: const TextStyle(fontSize: 24)),
                       ),
                     ),
                 ],
@@ -2020,7 +2017,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
   }
-
 
   Widget _waTopAction(
     BuildContext context, {
@@ -2448,19 +2444,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   });
                                 }
                               },
-                              onLongPressStart: (d) =>
-                                  _showClassroomWaActionsAt(<String, dynamic>{
-                                    'id': messageId,
-                                    'text': text,
-                                    'mediaUrl': mediaUrl,
-                                    'kind': kind,
-                                    'senderName': senderName,
-                                    'sender': senderName,
-                                    'isMine': '$isMine',
-                                    'edited':
-                                        '${_editedTextByMessage.containsKey(messageId)}',
-                                    'timeLabel': _friendlyTime(createdRaw),
-                                  }, d.globalPosition),
+                              onLongPressStart: (d) => _showClassroomWaActionsAt(<
+                                String,
+                                dynamic
+                              >{
+                                'id': messageId,
+                                'text': text,
+                                'mediaUrl': mediaUrl,
+                                'kind': kind,
+                                'senderName': senderName,
+                                'sender': senderName,
+                                'isMine': '$isMine',
+                                'edited':
+                                    '${_editedTextByMessage.containsKey(messageId)}',
+                                'timeLabel': _friendlyTime(createdRaw),
+                              }, d.globalPosition),
                               child: Transform.translate(
                                 offset: Offset(swipeDx, 0),
                                 child: TweenAnimationBuilder<double>(
@@ -2490,9 +2488,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               Icon(
                                                 Icons.push_pin_rounded,
                                                 size: 12,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
@@ -2511,17 +2509,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       ChatMessageBubble(
                                         contextForNavigation: context,
                                         rawText:
-                                            _editedTextByMessage[messageId] ?? text,
+                                            _editedTextByMessage[messageId] ??
+                                            text,
                                         mediaUrl: mediaUrl.isEmpty
                                             ? ''
                                             : _absoluteMediaUrl(mediaUrl),
                                         isMine: isMine,
                                         showName: showName,
-                                        senderLabel: isMine ? 'You' : senderName,
+                                        senderLabel: isMine
+                                            ? 'You'
+                                            : senderName,
                                         timeLabel: _friendlyTime(createdRaw),
-                                        edited: _editedTextByMessage.containsKey(
-                                          messageId,
-                                        ),
+                                        edited: _editedTextByMessage
+                                            .containsKey(messageId),
                                         reaction: reaction,
                                         maxWidth: 280,
                                       ),
