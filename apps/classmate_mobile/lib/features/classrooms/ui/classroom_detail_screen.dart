@@ -19,6 +19,8 @@ import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_message_info_sheet.dart';
+import '../../chat_core/models/chat_message_info.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
@@ -619,6 +621,32 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await _persistLocalChatState();
   }
 
+  Future<void> _showMessageInfo({
+    required String title,
+    required bool edited,
+    bool forwarded = false,
+    String sentAt = '',
+    String deliveredAt = '',
+    String seenAt = '',
+    String deleteState = '',
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: false,
+      builder: (_) => ChatMessageInfoSheet(
+        info: ChatMessageInfo(
+          title: title,
+          sentAt: sentAt,
+          deliveredAt: deliveredAt,
+          seenAt: seenAt,
+          edited: edited,
+          forwarded: forwarded,
+          deleteState: deleteState,
+        ),
+      ),
+    );
+  }
+
   void _replyTo({
     required String messageId,
     required String sender,
@@ -708,6 +736,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String kind,
     required String senderLabel,
     required bool isMine,
+    required bool edited,
+    required String timeLabel,
   }) async {
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -722,10 +752,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               kind: kind,
             ),
         canDelete: isMine,
+        canViewInfo: isMine,
+        canPin: true,
+        canForward: true,
       ),
     );
 
     if (action == null || action.trim().isEmpty) return;
+
+    if (action == 'info') {
+      await _showMessageInfo(
+        title: 'Message info',
+        edited: edited,
+        sentAt: timeLabel,
+        deliveredAt: timeLabel,
+        seenAt: isMine ? timeLabel : '',
+        deleteState: 'Visible',
+      );
+      return;
+    }
 
     if (action == 'reply') {
       _replyTo(
