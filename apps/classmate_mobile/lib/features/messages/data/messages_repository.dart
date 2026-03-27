@@ -435,7 +435,19 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     required String text,
   }) async {
-    return;
+    final response = await _client
+        .post(
+          _uri('/messages/edit'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'threadId': threadId,
+            'messageId': messageId,
+            'text': text,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.editMessage', response);
   }
 
   @override
@@ -444,7 +456,19 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     String mode = 'deleteForMe',
   }) async {
-    return;
+    final response = await _client
+        .post(
+          _uri('/messages/delete'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'threadId': threadId,
+            'messageId': messageId,
+            'mode': mode,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.deleteMessage', response);
   }
 
   @override
@@ -453,7 +477,19 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     required List<String> targetThreadIds,
   }) async {
-    return;
+    final response = await _client
+        .post(
+          _uri('/messages/forward'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'fromThreadId': fromThreadId,
+            'messageId': messageId,
+            'targetThreadIds': targetThreadIds,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.forwardMessage', response);
   }
 
   @override
@@ -461,7 +497,18 @@ class ApiMessagesRepository implements MessagesRepository {
     required String threadId,
     required String messageId,
   }) async {
-    return;
+    final response = await _client
+        .post(
+          _uri('/messages/pin/toggle'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'threadId': threadId,
+            'messageId': messageId,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.togglePin', response);
   }
 
   @override
