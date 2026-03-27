@@ -30,7 +30,7 @@ class MessagesInboxScreen extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () {},
-                    icon: const Icon(Icons.edit_square_rounded),
+                    icon: const Icon(Icons.edit_rounded),
                   ),
                 ],
               ),
@@ -52,7 +52,7 @@ class MessagesInboxScreen extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, separatorIndex) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final item = items[index];
                   final id = item.$1;
@@ -71,7 +71,13 @@ class MessagesInboxScreen extends StatelessWidget {
                     },
                     leading: CircleAvatar(
                       child: Text(
-                        isGroup ? 'MG' : title.split(' ').take(2).map((e) => e[0]).join(),
+                        isGroup
+                            ? 'MG'
+                            : title
+                                .split(' ')
+                                .take(2)
+                                .map((e) => e[0])
+                                .join(),
                       ),
                     ),
                     title: Row(
@@ -85,14 +91,22 @@ class MessagesInboxScreen extends StatelessWidget {
                         ),
                         if (isGroup)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(999),
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                             ),
                             child: const Text(
                               'Group',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                       ],
