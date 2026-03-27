@@ -265,7 +265,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }) async {
     final response = await _client
         .post(
-          _uri('/messages/direct-request'),
+          _uri('/messages/requests/direct'),
           headers: await _headers(),
           body: jsonEncode(<String, dynamic>{
             'recipientUserId': recipientUserId,
@@ -314,7 +314,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }) async {
     final response = await _client
         .post(
-          _uri('/messages/groups'),
+          _uri('/messages/threads/group'),
           headers: await _headers(),
           body: jsonEncode(<String, dynamic>{
             'title': title,

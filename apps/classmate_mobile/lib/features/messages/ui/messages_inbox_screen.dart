@@ -50,7 +50,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: TextField(
                 controller: _searchCtl,
                 onChanged: (_) => setState(() {}),
@@ -78,9 +78,26 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         item.subtitle.toLowerCase().contains(query);
                   }).toList();
 
+                  final requests = filtered
+                      .where((item) => item.requestState.name.startsWith('pending'))
+                      .toList();
+
+                  final chats = filtered
+                      .where((item) => !item.requestState.name.startsWith('pending'))
+                      .toList();
+
                   if (filtered.isEmpty) {
-                    return const Center(
-                      child: Text('No messages found'),
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        ref.invalidate(messagesInboxProvider);
+                        await ref.read(messagesInboxProvider.future);
+                      },
+                      child: ListView(
+                        children: const [
+                          SizedBox(height: 180),
+                          Center(child: Text('No messages found')),
+                        ],
+                      ),
                     );
                   }
 
@@ -89,14 +106,25 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                       ref.invalidate(messagesInboxProvider);
                       await ref.read(messagesInboxProvider.future);
                     },
-                    child: ListView.separated(
-                      itemCount: filtered.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final item = filtered[index];
-                        return _InboxTile(item: item);
-                      },
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
+                      children: [
+                        if (requests.isNotEmpty) ...[
+                          const _SectionHeader(
+                            title: 'Requests',
+                            subtitle: 'Pending approvals',
+                          ),
+                          ...requests.map((item) => _InboxRow(item: item)),
+                          const SizedBox(height: 8),
+                        ],
+                        if (chats.isNotEmpty) ...[
+                          _SectionHeader(
+                            title: requests.isEmpty ? 'Chats' : 'All chats',
+                            subtitle: '${chats.length} conversation${chats.length == 1 ? '' : 's'}',
+                          ),
+                          ...chats.map((item) => _InboxRow(item: item)),
+                        ],
+                      ],
                     ),
                   );
                 },
@@ -109,69 +137,210 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   }
 }
 
-class _InboxTile extends StatelessWidget {
-  const _InboxTile({required this.item});
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 10, 6, 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+          ),
+          Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InboxRow extends StatelessWidget {
+  const _InboxRow({required this.item});
 
   final MessageThreadSummary item;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final isRequest = item.requestState.name.startsWith('pending');
-    return ListTile(
-      onTap: () {
-        if (isRequest) {
-          context.go('/messages/request/${item.id}');
-        } else {
-          context.go('/messages/${item.id}');
-        }
-      },
-      leading: CircleAvatar(
-        backgroundImage:
-            item.isGroup && (item.groupAvatarUrl ?? '').trim().isNotEmpty
-                ? NetworkImage(item.groupAvatarUrl!.trim())
-                : null,
-        child: item.isGroup && (item.groupAvatarUrl ?? '').trim().isNotEmpty
-            ? null
-            : Text(item.initials),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              item.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    final showUnread = item.unreadCount > 0;
+    final trailingText = item.lastMessageAt.trim();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: scheme.surface.withValues(alpha: 0.0),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            if (isRequest) {
+              context.go('/messages/request/${item.id}');
+            } else {
+              context.go('/messages/${item.id}');
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: scheme.surfaceContainerLowest,
+              border: Border.all(
+                color: scheme.outlineVariant.withValues(alpha: 0.18),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundImage:
+                      item.isGroup && (item.groupAvatarUrl ?? '').trim().isNotEmpty
+                          ? NetworkImage(item.groupAvatarUrl!.trim())
+                          : null,
+                  child: item.isGroup && (item.groupAvatarUrl ?? '').trim().isNotEmpty
+                      ? null
+                      : Text(
+                          item.initials,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: item.isUnread || isRequest
+                                        ? FontWeight.w800
+                                        : FontWeight.w700,
+                                  ),
+                            ),
+                          ),
+                          if (item.isGroup) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(999),
+                                color: scheme.surfaceContainerHighest,
+                              ),
+                              child: const Text(
+                                'Group',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.subtitle.replaceAll('\n', '  '),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: item.isUnread ? FontWeight.w600 : FontWeight.w400,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      trailingText,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: (showUnread || isRequest)
+                                ? scheme.primary
+                                : scheme.onSurfaceVariant,
+                            fontWeight: (showUnread || isRequest)
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (isRequest)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: scheme.primary,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          item.requestState.name == 'pendingIncoming'
+                              ? 'Review'
+                              : 'Pending',
+                          style: TextStyle(
+                            color: scheme.onPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      )
+                    else if (showUnread)
+                      Container(
+                        constraints: const BoxConstraints(minWidth: 22),
+                        height: 22,
+                        padding: const EdgeInsets.symmetric(horizontal: 7),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: scheme.primary,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '${item.unreadCount}',
+                          style: TextStyle(
+                            color: scheme.onPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(height: 22),
+                  ],
+                ),
+              ],
             ),
           ),
-          if (item.isGroup)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(999),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              ),
-              child: const Text(
-                'Group',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-              ),
-            ),
-        ],
+        ),
       ),
-      subtitle: Text(
-        item.subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: isRequest
-          ? Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                shape: BoxShape.circle,
-              ),
-            )
-          : Text(item.lastMessageAt),
     );
   }
 }
