@@ -240,6 +240,104 @@ export class StudentClassroomsController {
     return { ok: true, item: msg };
   }
 
+
+  @Post(':id/chat/forward')
+  async chatForward(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { messageId?: string; targetThreadIds?: string[] },
+  ) {
+    const cohortId = await this.cohortIdFromUser(req);
+    await this.assertCourseInCohort(String(id), cohortId);
+
+    const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
+    const messageId = String(body?.messageId ?? '').trim();
+    const targetThreadIds = Array.from(
+      new Set(
+        (Array.isArray(body?.targetThreadIds) ? body.targetThreadIds : [])
+          .map((v) => String(v ?? '').trim())
+          .filter((v) => v.length > 0),
+      ),
+    );
+
+    if (!uid) throw new BadRequestException('Missing user id');
+    if (!messageId) throw new BadRequestException('Missing messageId');
+    if (!targetThreadIds.length) {
+      throw new BadRequestException('Missing targetThreadIds');
+    }
+
+    const source = await this.prisma.classroomMessage.findFirst({
+      where: {
+        id: messageId,
+        courseId: String(id),
+      },
+      select: {
+        id: true,
+        kind: true,
+        text: true,
+        mediaUrl: true,
+        mediaMime: true,
+        durationSec: true,
+      },
+    });
+
+    if (!source) {
+      throw new BadRequestException('Classroom message not found');
+    }
+
+    for (const targetThreadId of targetThreadIds) {
+      const participant = await this.prisma.dmParticipant.findUnique({
+        where: {
+          threadId_userId: {
+            threadId: targetThreadId,
+            userId: uid,
+          },
+        },
+        include: {
+          thread: {
+            select: {
+              id: true,
+              type: true,
+            },
+          },
+        },
+      });
+
+      if (!participant) {
+        throw new BadRequestException('Invalid target thread');
+      }
+
+      if (String(participant.state) !== 'ACCEPTED') {
+        throw new BadRequestException('Cannot forward into a non-approved thread');
+      }
+
+      await this.prisma.dmMessage.create({
+        data: {
+          threadId: targetThreadId,
+          senderId: uid,
+          kind: String(source.kind ?? 'TEXT') as any,
+          text: source.text ?? null,
+          mediaUrl: source.mediaUrl ?? null,
+          mediaMimeType: source.mediaMime ?? null,
+        },
+      });
+
+      await this.prisma.dmParticipant.update({
+        where: {
+          threadId_userId: {
+            threadId: targetThreadId,
+            userId: uid,
+          },
+        },
+        data: {
+          lastSeenAt: new Date(),
+        },
+      });
+    }
+
+    return { ok: true, forwardedCount: targetThreadIds.length };
+  }
+
   @Post(':id/chat/media')
   @UseInterceptors(
     FileInterceptor('file', {
