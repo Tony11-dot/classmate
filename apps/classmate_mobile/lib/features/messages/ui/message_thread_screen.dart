@@ -60,6 +60,39 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return _localMessages;
   }
 
+
+  Future<void> _openMessageInfoSheet(
+    BuildContext modalContext,
+    MessageItem row,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: modalContext,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const ListTile(title: Text('Message info')),
+            ListTile(
+              title: const Text('Sent'),
+              subtitle: Text(row.timeLabel),
+            ),
+            ListTile(
+              title: const Text('Delivered'),
+              subtitle: Text(row.timeLabel),
+            ),
+            ListTile(
+              title: const Text('Seen'),
+              subtitle: Text(
+                row.isMine ? row.timeLabel : '—',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final thread = ref.watch(messageThreadProvider(widget.threadId));
@@ -214,34 +247,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               }
 
                               if (selected == 'info') {
-                                if (!mounted) return;
                                 final modalContext = context;
-                                await showModalBottomSheet<void>(
-                                  context: modalContext,
-                                  showDragHandle: true,
-                                  builder: (_) => SafeArea(
-                                    child: ListView(
-                                      shrinkWrap: true,
-                                      children: [
-                                        const ListTile(title: Text('Message info')),
-                                        ListTile(
-                                          title: const Text('Sent'),
-                                          subtitle: Text(row.timeLabel),
-                                        ),
-                                        ListTile(
-                                          title: const Text('Delivered'),
-                                          subtitle: Text(row.timeLabel),
-                                        ),
-                                        ListTile(
-                                          title: const Text('Seen'),
-                                          subtitle: Text(
-                                            row.isMine ? row.timeLabel : '—',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
+                                if (!mounted) return;
+                                await _openMessageInfoSheet(modalContext, row);
                               }
                             },
                             child: Column(
