@@ -7,6 +7,8 @@ import { CreateDirectRequestDto } from './dto/create-direct-request.dto';
 import { ApproveMessageRequestDto } from './dto/approve-message-request.dto';
 import { BlockMessageRequestDto } from './dto/block-message-request.dto';
 import { CreateGroupThreadDto } from './dto/create-group-thread.dto';
+import { SendMessageDto } from './dto/send-message.dto';
+import { MarkThreadReadDto } from './dto/mark-thread-read.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.SECRETARY)
@@ -47,5 +49,15 @@ export class MessagesController {
   @Post('threads/group')
   createGroup(@Req() req: any, @Body() body: CreateGroupThreadDto) {
     return this.service.createGroup(req.user, body);
+  }
+
+  @Post('send')
+  send(@Req() req: any, @Body() body: SendMessageDto) {
+    return this.service.sendMessage(req.user, body);
+  }
+
+  @Post('read')
+  markRead(@Req() req: any, @Body() body: MarkThreadReadDto) {
+    return this.service.markThreadRead(req.user, body);
   }
 }

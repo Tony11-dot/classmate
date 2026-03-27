@@ -1,16 +1,27 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class SendMessageDto {
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(191)
   threadId!: string;
 
-  @IsString()
   @IsOptional()
-  @MaxLength(8000)
+  @IsString()
+  @MaxLength(4000)
   text?: string;
 
-  @IsString()
   @IsOptional()
-  replyToMessageId?: string;
+  @IsString()
+  @IsIn(['TEXT', 'IMAGE', 'VOICE', 'VIDEO', 'FILE'])
+  kind?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  mediaUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  mediaMimeType?: string;
 }

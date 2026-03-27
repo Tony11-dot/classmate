@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsString, MaxLength } from 'class-validator';
 
 export class MarkThreadReadDto {
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(191)
   threadId!: string;
 }
