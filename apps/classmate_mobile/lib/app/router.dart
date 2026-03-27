@@ -18,6 +18,9 @@ import '../features/lifedoc/exam_detail_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/notifications_screen.dart';
 import '../features/lifedoc/meetings_screen.dart';
+import '../features/messages/ui/messages_inbox_screen.dart';
+import '../features/messages/ui/message_thread_screen.dart';
+import '../features/messages/ui/message_request_screen.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -87,6 +90,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
+          GoRoute(
+            path: '/messages',
+            builder: (context, state) => const MessagesInboxScreen(),
+            routes: [
+              GoRoute(
+                path: 'request/:id',
+                builder: (context, state) => MessageRequestScreen(
+                  threadId: state.pathParameters['id']!,
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => MessageThreadScreen(
+                  threadId: state.pathParameters['id']!,
+                ),
+              ),
+            ],
+          ),
           GoRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
