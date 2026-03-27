@@ -73,6 +73,10 @@ class MessageItem {
   final bool edited;
   final bool forwarded;
   final String deleteState;
+  final bool delivered;
+  final bool seen;
+  final String deliveredAt;
+  final String seenAt;
   final String kind;
   final String? mediaUrl;
   final String? replyToMessageId;
@@ -90,6 +94,10 @@ class MessageItem {
     this.edited = false,
     this.forwarded = false,
     this.deleteState = 'VISIBLE',
+    this.delivered = false,
+    this.seen = false,
+    this.deliveredAt = '',
+    this.seenAt = '',
     this.kind = 'TEXT',
     this.mediaUrl,
     this.replyToMessageId,

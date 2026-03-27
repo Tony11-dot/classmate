@@ -100,6 +100,58 @@ export class MessagesService {
     }
   }
 
+  private deliveryStateForMessage(
+    message: { senderId: string; createdAt: Date },
+    thread: {
+      type: DmThreadType;
+      participants: Array<{ userId: string; lastSeenAt?: Date | null }>;
+    },
+    viewerId: string,
+  ) {
+    if (message.senderId !== viewerId) {
+      return {
+        delivered: false,
+        seen: false,
+        deliveredAt: '',
+        seenAt: '',
+      };
+    }
+
+    const others = thread.participants.filter((p) => p.userId !== viewerId);
+    if (!others.length) {
+      return {
+        delivered: false,
+        seen: false,
+        deliveredAt: '',
+        seenAt: '',
+      };
+    }
+
+    const deliveredToAll = others.every((p) => !!p.lastSeenAt);
+    const seenToAll = others.every(
+      (p) =>
+        !!p.lastSeenAt && new Date(String(p.lastSeenAt)) >= message.createdAt,
+    );
+
+    const deliveredAtSource = others
+      .map((p) => p.lastSeenAt)
+      .filter((v): v is Date => v instanceof Date)
+      .sort((a, b) => a.getTime() - b.getTime())[0];
+
+    const seenAtSource = others
+      .map((p) => p.lastSeenAt)
+      .filter((v): v is Date => v instanceof Date)
+      .filter((v) => v.getTime() >= message.createdAt.getTime())
+      .sort((a, b) => a.getTime() - b.getTime())[0];
+
+    return {
+      delivered: deliveredToAll,
+      seen: seenToAll,
+      deliveredAt: deliveredAtSource ? this.formatTime(deliveredAtSource) : '',
+      seenAt: seenAtSource ? this.formatTime(seenAtSource) : '',
+    };
+  }
+
   private viewerRequestState(
     thread: {
       type: DmThreadType;
@@ -384,6 +436,7 @@ export class MessagesService {
         const replied = m.replyToMessageId
           ? byId.get(m.replyToMessageId)
           : null;
+        const delivery = this.deliveryStateForMessage(m, thread, viewerId);
         return {
           id: m.id,
           senderId: m.senderId,
@@ -399,6 +452,10 @@ export class MessagesService {
           edited: !!m.editedAt,
           forwarded: !!m.forwardedFromId,
           deleteState: String(m.deleteMode ?? 'VISIBLE'),
+          delivered: delivery.delivered,
+          seen: delivery.seen,
+          deliveredAt: delivery.deliveredAt,
+          seenAt: delivery.seenAt,
           kind: String(m.kind),
           mediaUrl: m.mediaUrl ?? null,
           replyToMessageId: m.replyToMessageId ?? null,
@@ -771,6 +828,10 @@ export class MessagesService {
         edited: !!created.editedAt,
         forwarded: !!created.forwardedFromId,
         deleteState: String(created.deleteMode ?? 'VISIBLE'),
+        delivered: false,
+        seen: false,
+        deliveredAt: '',
+        seenAt: '',
         kind: String(created.kind),
         mediaUrl: created.mediaUrl ?? null,
         replyToMessageId: created.replyToMessageId ?? null,

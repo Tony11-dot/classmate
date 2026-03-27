@@ -18,6 +18,8 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    this.delivered = false,
+    this.seen = false,
     required this.deleteState,
     this.replySender,
     this.replySnippet,
@@ -33,6 +35,8 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final bool delivered;
+  final bool seen;
   final String deleteState;
   final String? replySender;
   final String? replySnippet;
@@ -46,6 +50,32 @@ class ChatMessageBubble extends StatelessWidget {
 
   bool _isPdfByUrl(String v) =>
       RegExp(r'\.pdf$', caseSensitive: false).hasMatch(v);
+
+  Widget _buildChecks() {
+    if (!isMine) return const SizedBox.shrink();
+
+    if (seen) {
+      return Icon(
+        Icons.done_all_rounded,
+        size: 15,
+        color: Colors.lightBlueAccent.shade100,
+      );
+    }
+
+    if (delivered) {
+      return Icon(
+        Icons.done_all_rounded,
+        size: 15,
+        color: Colors.white.withValues(alpha: 0.72),
+      );
+    }
+
+    return Icon(
+      Icons.done_rounded,
+      size: 15,
+      color: Colors.white.withValues(alpha: 0.72),
+    );
+  }
 
   Future<void> _openAttachment(
     BuildContext context,
@@ -323,6 +353,8 @@ class ChatMessageBubble extends StatelessWidget {
                         fontSize: 11,
                       ),
                     ),
+                    if (isMine) const SizedBox(width: 6),
+                    if (isMine) _buildChecks(),
                   ],
                 ),
               ],

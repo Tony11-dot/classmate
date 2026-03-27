@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/chat_message_info.dart';
 
 class ChatMessageInfoSheet extends StatelessWidget {
-  const ChatMessageInfoSheet({
-    super.key,
-    required this.info,
-  });
+  const ChatMessageInfoSheet({super.key, required this.info});
 
   final ChatMessageInfo info;
 
@@ -21,17 +18,14 @@ class ChatMessageInfoSheet extends StatelessWidget {
             width: 96,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),
@@ -67,8 +61,18 @@ class ChatMessageInfoSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             _row(context, 'Sent', info.sentAt),
-            _row(context, 'Delivered', info.deliveredAt),
-            _row(context, 'Seen', info.seenAt),
+            _row(
+              context,
+              'Delivered',
+              info.delivered
+                  ? (info.deliveredAt.isEmpty ? 'Yes' : info.deliveredAt)
+                  : 'No',
+            ),
+            _row(
+              context,
+              'Seen',
+              info.seen ? (info.seenAt.isEmpty ? 'Yes' : info.seenAt) : 'No',
+            ),
             _row(context, 'Edited', info.edited ? 'Yes' : 'No'),
             _row(context, 'Forwarded', info.forwarded ? 'Yes' : 'No'),
             _row(context, 'Delete state', info.deleteState),
