@@ -329,4 +329,46 @@ class ClassroomsRepository {
 
     return Map<String, dynamic>.from(j);
   }
+
+
+  Future<void> sendChatMedia(
+    String courseId,
+    String filePath, {
+    String? messageId,
+    String? text,
+    String? mimeType,
+    String? fileName,
+  }) async {
+    final path = filePath.trim();
+    if (path.isEmpty) {
+      throw ArgumentError('filePath cannot be empty');
+    }
+
+    final uri = _uri('/student/classrooms/$courseId/chat/media');
+    final req = http.MultipartRequest('POST', uri);
+    req.headers.addAll(await _headers());
+
+    if ((messageId ?? '').trim().isNotEmpty) {
+      req.fields['messageId'] = messageId!.trim();
+    }
+    if ((text ?? '').trim().isNotEmpty) {
+      req.fields['text'] = text!.trim();
+    }
+    if ((mimeType ?? '').trim().isNotEmpty) {
+      req.fields['mimeType'] = mimeType!.trim();
+    }
+
+    final resolvedName = (fileName ?? '').trim().isNotEmpty
+        ? fileName!.trim()
+        : path.split('/').last;
+    req.files.add(await http.MultipartFile.fromPath('file', path, filename: resolvedName));
+
+    final streamed = await req.send().timeout(_timeout);
+    final res = await http.Response.fromStream(streamed);
+    if (!_ok(res)) {
+      _fail('classrooms.sendChatMedia', res);
+    }
+  }
+
+
 }

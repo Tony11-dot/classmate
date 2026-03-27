@@ -258,3 +258,103 @@ class TutorRepository {
     }
   }
 }
+
+extension TutorRepositoryCompat on TutorRepository {
+  Future<Map<String, dynamic>> sendMessage({
+    required String sessionId,
+    required String text,
+  }) {
+    return postMessage(sessionId: sessionId, text: text);
+  }
+
+  Future<Map<String, dynamic>> sendImage({
+    required String sessionId,
+    required String path,
+    String? text,
+  }) async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/sessions/$sessionId/upload');
+
+    final req = http.MultipartRequest('POST', uri);
+    req.headers.addAll(headers);
+    req.fields['kind'] = 'IMAGE';
+    if ((text ?? '').trim().isNotEmpty) {
+      req.fields['text'] = text!.trim();
+    }
+    req.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        path,
+        filename: path.split('/').last,
+      ),
+    );
+
+    final streamed = await req.send().timeout(TutorRepository._timeout);
+    final res = await http.Response.fromStream(streamed);
+    if (!_isOk(res)) {
+      _fail('sendImage', res);
+    }
+    return (json.decode(res.body) as Map<String, dynamic>);
+  }
+
+  Future<Map<String, dynamic>> sendFile({
+    required String sessionId,
+    required String path,
+    String? text,
+  }) async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/sessions/$sessionId/upload');
+
+    final req = http.MultipartRequest('POST', uri);
+    req.headers.addAll(headers);
+    req.fields['kind'] = 'FILE';
+    if ((text ?? '').trim().isNotEmpty) {
+      req.fields['text'] = text!.trim();
+    }
+    req.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        path,
+        filename: path.split('/').last,
+      ),
+    );
+
+    final streamed = await req.send().timeout(TutorRepository._timeout);
+    final res = await http.Response.fromStream(streamed);
+    if (!_isOk(res)) {
+      _fail('sendFile', res);
+    }
+    return (json.decode(res.body) as Map<String, dynamic>);
+  }
+
+  Future<String> transcribeAudio({
+    required String path,
+  }) async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/transcribe');
+
+    final req = http.MultipartRequest('POST', uri);
+    req.headers.addAll(headers);
+    req.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        path,
+        filename: path.split('/').last,
+      ),
+    );
+
+    final streamed = await req.send().timeout(TutorRepository._timeout);
+    final res = await http.Response.fromStream(streamed);
+    if (!_isOk(res)) {
+      _fail('transcribeAudio', res);
+    }
+
+    if (res.body.trim().isEmpty) return '';
+    final body = json.decode(res.body);
+    if (body is Map<String, dynamic>) {
+      final text = body['text'] ?? body['transcript'] ?? body['content'];
+      return text?.toString().trim() ?? '';
+    }
+    return '';
+  }
+}
