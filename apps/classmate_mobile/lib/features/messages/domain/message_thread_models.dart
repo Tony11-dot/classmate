@@ -44,3 +44,45 @@ class MessageParticipant {
     this.isBlocked = false,
   });
 }
+
+class MessageItem {
+  final String id;
+  final String senderId;
+  final String senderName;
+  final String text;
+  final String timeLabel;
+  final bool isMine;
+  final String? reaction;
+  final bool isPinned;
+
+  const MessageItem({
+    required this.id,
+    required this.senderId,
+    required this.senderName,
+    required this.text,
+    required this.timeLabel,
+    required this.isMine,
+    this.reaction,
+    this.isPinned = false,
+  });
+}
+
+class MessageThreadDetail {
+  final String id;
+  final String title;
+  final String subtitle;
+  final bool isGroup;
+  final ChatRequestState requestState;
+  final List<MessageParticipant> participants;
+  final List<MessageItem> messages;
+
+  const MessageThreadDetail({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.isGroup,
+    required this.requestState,
+    required this.participants,
+    required this.messages,
+  });
+}
