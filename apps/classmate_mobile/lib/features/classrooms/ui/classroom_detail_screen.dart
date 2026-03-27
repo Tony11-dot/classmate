@@ -89,6 +89,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final AudioPlayer _draftVoicePlayer = AudioPlayer();
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
+  final Set<String> _pinnedMessageIds = <String>{};
   String? _draftVoicePath;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
@@ -532,6 +533,34 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await _persistLocalChatState();
   }
 
+  Future<void> _togglePinMessage(String messageId) async {
+    setState(() {
+      if (_pinnedMessageIds.contains(messageId)) {
+        _pinnedMessageIds.remove(messageId);
+      } else {
+        _pinnedMessageIds.add(messageId);
+      }
+    });
+    await _persistLocalChatState();
+  }
+
+  Future<void> _forwardPlaceholder({
+    required String messageId,
+    required String text,
+    required String mediaUrl,
+  }) async {
+    final label = editableBodyText(text).trim().isNotEmpty
+        ? editableBodyText(text).trim()
+        : (mediaUrl.trim().isNotEmpty ? mediaUrl.split('/').last : 'Message');
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Forward target picker next: $label'),
+      ),
+    );
+  }
+
   Future<void> _deleteMessage(String messageId) async {
     setState(() {
       _deletedMessageIds.add(messageId);
@@ -777,6 +806,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         messageId: messageId,
         sender: senderLabel,
         text: editableBodyText(text),
+      );
+      return;
+    }
+
+    if (action == 'pin') {
+      await _togglePinMessage(messageId);
+      return;
+    }
+
+    if (action == 'forward') {
+      await _forwardPlaceholder(
+        messageId: messageId,
+        text: text,
+        mediaUrl: mediaUrl,
       );
       return;
     }
@@ -1901,9 +1944,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           ])
                             InkWell(
                               borderRadius: BorderRadius.circular(999),
-                              onTap: () {
+                              onTap: () async {
                                 entry.remove();
-                                setState(() => _reactionByMessage[id] = e);
+                                await _setReaction(id, e);
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -2496,22 +2539,60 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         scale: scale,
                                         child: child,
                                       ),
-                                  child: ChatMessageBubble(
-                                    contextForNavigation: context,
-                                    rawText:
-                                        _editedTextByMessage[messageId] ?? text,
-                                    mediaUrl: mediaUrl.isEmpty
-                                        ? ''
-                                        : _absoluteMediaUrl(mediaUrl),
-                                    isMine: isMine,
-                                    showName: showName,
-                                    senderLabel: isMine ? 'You' : senderName,
-                                    timeLabel: _friendlyTime(createdRaw),
-                                    edited: _editedTextByMessage.containsKey(
-                                      messageId,
-                                    ),
-                                    reaction: reaction,
-                                    maxWidth: 280,
+                                  child: Column(
+                                    crossAxisAlignment: isMine
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                    children: [
+                                      if (_pinnedMessageIds.contains(messageId))
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 4,
+                                            left: 6,
+                                            right: 6,
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.push_pin_rounded,
+                                                size: 12,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Pinned',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ChatMessageBubble(
+                                        contextForNavigation: context,
+                                        rawText:
+                                            _editedTextByMessage[messageId] ?? text,
+                                        mediaUrl: mediaUrl.isEmpty
+                                            ? ''
+                                            : _absoluteMediaUrl(mediaUrl),
+                                        isMine: isMine,
+                                        showName: showName,
+                                        senderLabel: isMine ? 'You' : senderName,
+                                        timeLabel: _friendlyTime(createdRaw),
+                                        edited: _editedTextByMessage.containsKey(
+                                          messageId,
+                                        ),
+                                        reaction: reaction,
+                                        maxWidth: 280,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
