@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../chat_core/ui/chat_composer.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'components/message_bubble.dart';
-import 'components/message_input.dart';
 import 'components/message_reply_preview.dart';
 import 'components/message_reaction_bar.dart';
 
@@ -22,9 +22,9 @@ class MessageThreadScreen extends ConsumerStatefulWidget {
 
 class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
+  final Map<String, String> _reactionByMessageId = <String, String>{};
   int? _replyIndex;
   List<MessageItem> _localMessages = const [];
-  final Map<String, String> _reactionByMessageId = <String, String>{};
 
   @override
   void dispose() {
@@ -90,6 +90,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 ),
               ),
             ];
+
             final replyingText =
                 _replyIndex == null ? '' : rows[_replyIndex!].text;
 
@@ -109,10 +110,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                           detail.isGroup
                               ? detail.title
                                   .split(' ')
+                                  .where((v) => v.trim().isNotEmpty)
                                   .take(2)
                                   .map((e) => e[0])
                                   .join()
-                              : detail.participants.last.initials,
+                              : detail.participants
+                                  .where((p) => p.displayName != 'You')
+                                  .first
+                                  .initials,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -162,13 +167,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                       ListTile(
                                         leading: const Icon(Icons.reply_rounded),
                                         title: const Text('Reply'),
-                                        onTap: () => Navigator.of(sheetContext)
-                                            .pop('reply'),
+                                        onTap: () =>
+                                            Navigator.of(sheetContext).pop('reply'),
                                       ),
                                       ListTile(
-                                        leading: const Icon(
-                                          Icons.info_outline_rounded,
-                                        ),
+                                        leading:
+                                            const Icon(Icons.info_outline_rounded),
                                         title: const Text('Message info'),
                                         onTap: () =>
                                             Navigator.of(sheetContext).pop('info'),
@@ -196,17 +200,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               }
 
                               if (selected == 'info') {
-                                if (!context.mounted) return;
-                                showModalBottomSheet<void>(
+                                await showModalBottomSheet<void>(
                                   context: context,
                                   showDragHandle: true,
-                                  builder: (sheetContext) => SafeArea(
+                                  builder: (_) => SafeArea(
                                     child: ListView(
                                       shrinkWrap: true,
                                       children: [
-                                        const ListTile(
-                                          title: Text('Message info'),
-                                        ),
+                                        const ListTile(title: Text('Message info')),
                                         ListTile(
                                           title: const Text('Sent'),
                                           subtitle: Text(row.timeLabel),
@@ -268,8 +269,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Text(row.text),
                                         const SizedBox(height: 6),
@@ -310,12 +310,23 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       setState(() => _replyIndex = null);
                     },
                   ),
-                MessageInput(
+                ChatComposer(
                   controller: _controller,
+                  replyingTo: _replyIndex == null
+                      ? null
+                      : (
+                          senderName: rows[_replyIndex!].isMine
+                              ? 'You'
+                              : rows[_replyIndex!].senderName,
+                          text: rows[_replyIndex!].text,
+                        ),
+                  onCancelReply: () {
+                    setState(() => _replyIndex = null);
+                  },
                   onSend: _send,
-                  onPickImage: () {},
-                  onPickFile: () {},
-                  onRecord: () {},
+                  onCamera: () {},
+                  onAttach: () {},
+                  onMic: () {},
                 ),
               ],
             );
