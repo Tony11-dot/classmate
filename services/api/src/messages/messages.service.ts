@@ -1088,14 +1088,27 @@ export class MessagesService {
         );
       }
 
+      const sourceText = String(source.text ?? '').trim();
+      const sourceMime = String(source.mediaMimeType ?? '').trim().toLowerCase();
+      const taggedDuration = sourceText.match(/\[duration:(\d+)\]/i);
+      const duration =
+        taggedDuration && Number(taggedDuration[1] ?? 0) > 0
+          ? Number(taggedDuration[1])
+          : 0;
+
+      const forwardedText =
+        String(source.kind) === 'VOICE' && duration > 0
+          ? (sourceText || `[VOICE] Voice message [duration:${duration}]`)
+          : source.text;
+
       await this.prisma.dmMessage.create({
         data: {
           threadId: targetThreadId,
           senderId: userId,
           kind: source.kind,
-          text: source.text,
+          text: forwardedText,
           mediaUrl: source.mediaUrl,
-          mediaMimeType: source.mediaMimeType,
+          mediaMimeType: sourceMime || source.mediaMimeType,
           forwardedFromId: source.id,
         },
       });
