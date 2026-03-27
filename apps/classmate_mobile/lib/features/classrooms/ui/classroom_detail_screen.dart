@@ -2426,10 +2426,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             final bubble = GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onHorizontalDragUpdate: (details) {
-                                final next = (swipeDx + details.delta.dx).clamp(
-                                  0.0,
-                                  84.0,
-                                );
+                                final current =
+                                    _swipeDxByMessage[messageId] ?? 0;
+                                final rawNext = current + details.delta.dx;
+                                final next = isMine
+                                    ? rawNext.clamp(-84.0, 84.0)
+                                    : rawNext.clamp(0.0, 84.0);
                                 if ((_swipeDxByMessage[messageId] ?? 0) !=
                                     next) {
                                   setState(() {
@@ -2437,10 +2439,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   });
                                 }
                               },
-                              onHorizontalDragEnd: (_) {
+                              onHorizontalDragEnd: (_) async {
                                 final current =
                                     _swipeDxByMessage[messageId] ?? 0;
-                                if (current >= 44) {
+                                if (current <= -44 && isMine) {
+                                  await _showMessageInfo(
+                                    title: 'Message info',
+                                    edited: _editedTextByMessage.containsKey(
+                                      messageId,
+                                    ),
+                                    sentAt: _friendlyTime(createdRaw),
+                                    deliveredAt: _friendlyTime(createdRaw),
+                                    seenAt: _friendlyTime(createdRaw),
+                                    deleteState: 'Visible',
+                                  );
+                                } else if (current >= 44) {
                                   _replyTo(
                                     messageId: messageId,
                                     sender: isMine ? 'You' : senderName,
