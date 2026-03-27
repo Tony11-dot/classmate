@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -19,7 +20,276 @@ import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'components/message_reply_preview.dart';
-import 'components/message_reaction_bar.dart';
+
+class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
+  const _ForwardTargetPickerSheet({required this.currentThreadId});
+
+  final String currentThreadId;
+
+  @override
+  ConsumerState<_ForwardTargetPickerSheet> createState() =>
+      _ForwardTargetPickerSheetState();
+}
+
+class _ForwardTargetPickerSheetState
+    extends ConsumerState<_ForwardTargetPickerSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  String _query = '';
+  final Set<String> _selected = <String>{};
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<MessageThreadSummary> _filtered(List<MessageThreadSummary> items) {
+    final q = _query.trim().toLowerCase();
+    final filtered = items
+        .where((item) => item.id != widget.currentThreadId)
+        .where((item) {
+          if (q.isEmpty) return true;
+          return item.title.toLowerCase().contains(q) ||
+              item.subtitle.toLowerCase().contains(q);
+        })
+        .toList();
+
+    filtered.sort((a, b) {
+      final aPicked = _selected.contains(a.id) ? 1 : 0;
+      final bPicked = _selected.contains(b.id) ? 1 : 0;
+      if (aPicked != bPicked) return bPicked.compareTo(aPicked);
+      return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+    });
+
+    return filtered;
+  }
+
+  void _toggle(String id) {
+    setState(() {
+      if (_selected.contains(id)) {
+        _selected.remove(id);
+      } else {
+        _selected.add(id);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final inbox = ref.watch(messagesInboxProvider);
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _searchController,
+              autofocus: true,
+              onChanged: (value) {
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 120), () {
+                  if (!mounted) return;
+                  setState(() => _query = value);
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search chats',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: _searchController.text.trim().isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _query = '');
+                        },
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: inbox.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) =>
+                    Center(child: Text('Failed to load chats: $error')),
+                data: (items) {
+                  final filtered = _filtered(items);
+
+                  if (filtered.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text('No chats found'),
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: filtered.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 4),
+                    itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      final selected = _selected.contains(item.id);
+
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: _submitting ? null : () => _toggle(item.id),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.10)
+                                : Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withValues(alpha: 0.55),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: selected
+                                  ? Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.28)
+                                  : Theme.of(context).colorScheme.outlineVariant
+                                        .withValues(alpha: 0.16),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(child: Text(item.initials)),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            item.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleSmall
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                        ),
+                                        if (item.isGroup)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
+                                            ),
+                                            child: Text(
+                                              'Group',
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.labelSmall,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.subtitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                selected
+                                    ? Icons.check_circle_rounded
+                                    : Icons.circle_outlined,
+                                color: selected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _submitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _submitting || _selected.isEmpty
+                        ? null
+                        : () async {
+                            setState(() => _submitting = true);
+                            Navigator.of(context).pop(_selected.toList());
+                          },
+                    child: Text(
+                      _selected.isEmpty
+                          ? 'Forward'
+                          : 'Forward (${_selected.length})',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class MessageThreadScreen extends ConsumerStatefulWidget {
   const MessageThreadScreen({super.key, required this.threadId});
@@ -205,9 +475,36 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 
-  Future<void> _forwardStub(MessageItem row) async {
+  Future<void> _forwardMessage(MessageItem row) async {
+    final targets = await showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) =>
+          _ForwardTargetPickerSheet(currentThreadId: widget.threadId),
+    );
+
+    if (!mounted || targets == null || targets.isEmpty) return;
+
+    await ref
+        .read(messagesRepositoryProvider)
+        .forwardMessage(
+          fromThreadId: widget.threadId,
+          messageId: row.id,
+          targetThreadIds: targets,
+        );
+
+    await _refreshThread();
+
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Forward target picker is next phase')),
+      SnackBar(
+        content: Text(
+          targets.length == 1
+              ? 'Forwarded'
+              : 'Forwarded to ${targets.length} chats',
+        ),
+      ),
     );
   }
 
@@ -245,7 +542,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     }
 
     if (action == 'forward') {
-      await _forwardStub(row);
+      await _forwardMessage(row);
       return;
     }
 
@@ -971,38 +1268,15 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                   await showModalBottomSheet<String>(
                                     context: navigator.context,
                                     showDragHandle: true,
-                                    builder: (sheetContext) => SafeArea(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          MessageReactionBar(
-                                            onReact: (reaction) {
-                                              Navigator.of(
-                                                sheetContext,
-                                              ).pop('react:$reaction');
-                                            },
-                                          ),
-                                          const SizedBox(height: 8),
-                                          ListTile(
-                                            leading: const Icon(
-                                              Icons.reply_rounded,
-                                            ),
-                                            title: const Text('Reply'),
-                                            onTap: () => Navigator.of(
-                                              sheetContext,
-                                            ).pop('reply'),
-                                          ),
-                                          ListTile(
-                                            leading: const Icon(
-                                              Icons.info_outline_rounded,
-                                            ),
-                                            title: const Text('Message info'),
-                                            onTap: () => Navigator.of(
-                                              sheetContext,
-                                            ).pop('info'),
-                                          ),
-                                        ],
-                                      ),
+                                    builder: (_) => ChatMessageActionsSheet(
+                                      canEdit:
+                                          row.isMine &&
+                                          (row.mediaUrl == null ||
+                                              row.mediaUrl!.trim().isEmpty),
+                                      canDelete: row.isMine,
+                                      canViewInfo: true,
+                                      canPin: detail.isGroup || row.isMine,
+                                      canForward: true,
                                     ),
                                   );
 
@@ -1011,6 +1285,35 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               if (selected == 'reply') {
                                 setState(() => _replyIndex = index);
                                 return;
+                              }
+
+                              if (selected == 'forward') {
+                                await _forwardMessage(row);
+                                return;
+                              }
+
+                              if (selected == 'pin') {
+                                await _togglePin(row);
+                                return;
+                              }
+
+                              if (selected == 'edit') {
+                                await _editMessage(row);
+                                return;
+                              }
+
+                              if (selected == 'delete') {
+                                final deleteMode = await _showDeleteModeSheet();
+                                if (!mounted || deleteMode == null) return;
+
+                                if (deleteMode == 'everyone') {
+                                  await _deleteForEveryone(row);
+                                  return;
+                                }
+                                if (deleteMode == 'me') {
+                                  await _deleteForMe(row);
+                                  return;
+                                }
                               }
 
                               if (selected.startsWith('react:')) {
