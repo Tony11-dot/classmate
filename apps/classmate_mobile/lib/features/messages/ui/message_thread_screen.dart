@@ -955,25 +955,28 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                       ],
                                     ),
                                   ),
-                                ChatMessageBubble(
-                                  contextForNavigation: context,
-                                  rawText: row.text,
-                                  mediaUrl: row.mediaUrl ?? '',
-                                  isMine: row.isMine,
-                                  showName:
-                                      detail.isGroup &&
-                                      startsGroup &&
-                                      !row.isMine,
-                                  senderLabel: row.senderName,
-                                  timeLabel: row.timeLabel,
-                                  edited: row.edited,
-                                  reaction:
-                                      _reactionByMessageId[row.id] ??
-                                      row.reaction,
-                                  replySender: row.replyPreview?.senderName,
-                                  replySnippet: row.replyPreview?.text,
-                                  maxWidth: 340,
-                                ),
+                                if (row.deleteState.toUpperCase() !=
+                                    'DELETED_FOR_ME')
+                                  ChatMessageBubble(
+                                    contextForNavigation: context,
+                                    rawText: row.text,
+                                    mediaUrl: row.mediaUrl ?? '',
+                                    isMine: row.isMine,
+                                    showName:
+                                        detail.isGroup &&
+                                        startsGroup &&
+                                        !row.isMine,
+                                    senderLabel: row.senderName,
+                                    timeLabel: row.timeLabel,
+                                    edited: row.edited,
+                                    reaction:
+                                        _reactionByMessageId[row.id] ??
+                                        row.reaction,
+                                    deleteState: row.deleteState,
+                                    replySender: row.replyPreview?.senderName,
+                                    replySnippet: row.replyPreview?.text,
+                                    maxWidth: 340,
+                                  ),
                               ],
                             ),
                           ),

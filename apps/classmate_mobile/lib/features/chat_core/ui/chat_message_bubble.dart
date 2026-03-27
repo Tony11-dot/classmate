@@ -18,6 +18,7 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    required this.deleteState,
     this.replySender,
     this.replySnippet,
     this.maxWidth = 380,
@@ -32,6 +33,7 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final String deleteState;
   final String? replySender;
   final String? replySnippet;
   final double maxWidth;
@@ -77,6 +79,10 @@ class ChatMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final deleteMode = deleteState.trim().toUpperCase();
+    final isDeletedForEveryone = deleteMode == 'DELETED_FOR_EVERYONE';
+    final isDeletedForMe = deleteMode == 'DELETED_FOR_ME';
+
     final parts = splitReplyRaw(rawText);
     final inlineReplyPrefix = parts.replyPrefix.trim();
     final body = parts.bodyText.trim();
@@ -94,8 +100,9 @@ class ChatMessageBubble extends StatelessWidget {
         resolvedReplySnippet = afterArrow;
       }
       if (resolvedReplySnippet.endsWith('—')) {
-        resolvedReplySnippet =
-            resolvedReplySnippet.substring(0, resolvedReplySnippet.length - 1).trimRight();
+        resolvedReplySnippet = resolvedReplySnippet
+            .substring(0, resolvedReplySnippet.length - 1)
+            .trimRight();
       }
     }
 
@@ -107,6 +114,10 @@ class ChatMessageBubble extends StatelessWidget {
     final isVoice = hasMedia && _isVoiceByUrl(lowerUrl);
     final isPdf = hasMedia && _isPdfByUrl(lowerUrl);
     final isFileLike = hasMedia && !isImage && !isVoice;
+
+    if (isDeletedForMe) {
+      return const SizedBox.shrink();
+    }
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
@@ -143,7 +154,9 @@ class ChatMessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                 ],
-                if (resolvedReplySender.isNotEmpty || resolvedReplySnippet.isNotEmpty || inlineReplyPrefix.isNotEmpty) ...[
+                if (resolvedReplySender.isNotEmpty ||
+                    resolvedReplySnippet.isNotEmpty ||
+                    inlineReplyPrefix.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -159,7 +172,9 @@ class ChatMessageBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          resolvedReplySender.isEmpty ? 'Reply' : resolvedReplySender,
+                          resolvedReplySender.isEmpty
+                              ? 'Reply'
+                              : resolvedReplySender,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -170,7 +185,9 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          resolvedReplySnippet.isEmpty ? 'Message' : resolvedReplySnippet,
+                          resolvedReplySnippet.isEmpty
+                              ? 'Message'
+                              : resolvedReplySnippet,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -182,7 +199,26 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                 ],
-                if (isImage) ...[
+                if (isDeletedForEveryone) ...[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.block_rounded,
+                        size: 16,
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'This message was deleted',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else if (isImage) ...[
                   GestureDetector(
                     onTap: () => _openAttachment(
                       contextForNavigation,
