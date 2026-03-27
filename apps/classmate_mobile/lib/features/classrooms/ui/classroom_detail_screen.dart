@@ -814,15 +814,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await _persistLocalChatState();
   }
 
-  Future<List<String>?> _showForwardTargetPickerForClassroom() {
-    return showModalBottomSheet<List<String>>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const _ClassroomForwardTargetPickerSheet(),
-    );
-  }
-
   Future<List<String>?> _showClassroomForwardTargetPicker() {
     return showModalBottomSheet<List<String>>(
       context: context,
@@ -1102,7 +1093,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'forward') {
-      final targetThreadIds = await _showForwardTargetPickerForClassroom();
+      final targetThreadIds = await _showClassroomForwardTargetPicker();
       if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
         return;
       }
@@ -2288,7 +2279,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'forward') {
-      final targetThreadIds = await _showForwardTargetPickerForClassroom();
+      final targetThreadIds = await _showClassroomForwardTargetPicker();
       if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
         return;
       }
