@@ -578,6 +578,62 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
   }
 
+  String _classroomKindInfoLabel(String kind) {
+    switch (kind.trim().toUpperCase()) {
+      case 'IMAGE':
+        return 'Photo';
+      case 'VOICE':
+        return 'Voice note';
+      case 'VIDEO':
+        return 'Video';
+      case 'DOC':
+      case 'FILE':
+        return 'File';
+      case 'TEXT':
+      default:
+        return 'Message';
+    }
+  }
+
+  String _fmtInfoDurationSeconds(int? seconds) {
+    final value = seconds ?? 0;
+    if (value <= 0) return '';
+    final mm = (value ~/ 60).toString().padLeft(2, '0');
+    final ss = (value % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
+  Future<void> _showClassroomMessageInfo({
+    required String sentAt,
+    required bool isMine,
+    required bool edited,
+    required bool forwarded,
+    required String deleteState,
+    required String kind,
+    int? voiceDurationSeconds,
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => ChatMessageInfoSheet(
+        info: ChatMessageInfo(
+          title: 'Message info',
+          sentAt: sentAt,
+          deliveredAt: '',
+          seenAt: '',
+          delivered: false,
+          seen: false,
+          edited: edited,
+          forwarded: forwarded,
+          deleteState: deleteState,
+          isMine: false,
+          messageType: _classroomKindInfoLabel(kind),
+          voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
+        ),
+      ),
+    );
+  }
+
   String _fmtDuration(Duration d) {
     final total = d.inSeconds;
     final mm = (total ~/ 60).toString().padLeft(2, '0');
@@ -1067,13 +1123,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (action == null || action.trim().isEmpty) return;
 
     if (action == 'info') {
-      await _showMessageInfo(
-        title: 'Message info',
-        edited: edited,
+      await _showClassroomMessageInfo(
         sentAt: timeLabel,
-        deliveredAt: timeLabel,
-        seenAt: isMine ? timeLabel : '',
-        deleteState: 'Visible',
+        isMine: isMine,
+        edited: edited,
+        forwarded: false,
+        deleteState: 'VISIBLE',
+        kind: kind,
       );
       return;
     }
@@ -2311,13 +2367,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'info') {
-      await _showMessageInfo(
-        title: 'Message info',
-        edited: edited,
+      await _showClassroomMessageInfo(
         sentAt: timeLabel,
-        deliveredAt: timeLabel,
-        seenAt: isMine ? timeLabel : '',
-        deleteState: 'Visible',
+        isMine: isMine,
+        edited: edited,
+        forwarded: false,
+        deleteState: 'VISIBLE',
+        kind: kind,
       );
       return;
     }
@@ -2550,6 +2606,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               _shortSender(senderId).trim(),
                             ].firstWhere((e) => e.isNotEmpty, orElse: () => '');
                             final createdRaw = _pick(item, 'createdAt');
+                            final durationSecRaw = _pick(item, 'durationSec');
+                            final durationSec =
+                                int.tryParse(durationSecRaw.trim()) ?? 0;
                             final createdAt = DateTime.tryParse(
                               createdRaw,
                             )?.toLocal();
@@ -2727,15 +2786,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 final current =
                                     _swipeDxByMessage[messageId] ?? 0;
                                 if (current <= -44 && isMine) {
-                                  await _showMessageInfo(
-                                    title: 'Message info',
+                                  await _showClassroomMessageInfo(
+                                    sentAt: _friendlyTime(createdRaw),
+                                    isMine: isMine,
                                     edited: _editedTextByMessage.containsKey(
                                       messageId,
                                     ),
-                                    sentAt: _friendlyTime(createdRaw),
-                                    deliveredAt: _friendlyTime(createdRaw),
-                                    seenAt: _friendlyTime(createdRaw),
-                                    deleteState: 'Visible',
+                                    forwarded: false,
+                                    deleteState: 'VISIBLE',
+                                    kind: kind,
+                                    voiceDurationSeconds: durationSec,
                                   );
                                 } else if (current >= 44) {
                                   _replyTo(
@@ -2773,6 +2833,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 'edited':
                                     '${_editedTextByMessage.containsKey(messageId)}',
                                 'timeLabel': _friendlyTime(createdRaw),
+                                'durationSec': durationSec,
                               }, d.globalPosition),
                               child: Transform.translate(
                                 offset: Offset(swipeDx, 0),
