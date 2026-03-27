@@ -112,3 +112,15 @@ class MessageThreadDetail {
     this.canSend = true,
   });
 }
+
+class MessageDraftAttachment {
+  final String path;
+  final String name;
+  final String kind;
+
+  const MessageDraftAttachment({
+    required this.path,
+    required this.name,
+    required this.kind,
+  });
+}

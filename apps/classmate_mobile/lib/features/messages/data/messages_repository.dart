@@ -10,26 +10,18 @@ import '../domain/message_thread_models.dart';
 abstract class MessagesRepository {
   Future<List<MessageThreadSummary>> fetchInbox();
 
-  Future<MessageThreadDetail> fetchThread({
-    required String threadId,
-  });
+  Future<MessageThreadDetail> fetchThread({required String threadId});
 
-  Future<MessageThreadDetail> fetchRequest({
-    required String threadId,
-  });
+  Future<MessageThreadDetail> fetchRequest({required String threadId});
 
   Future<void> createDirectRequest({
     required String recipientUserId,
     required String firstMessage,
   });
 
-  Future<void> approveRequest({
-    required String threadId,
-  });
+  Future<void> approveRequest({required String threadId});
 
-  Future<void> blockRequest({
-    required String threadId,
-  });
+  Future<void> blockRequest({required String threadId});
 
   Future<void> createGroup({
     required String title,
@@ -40,27 +32,31 @@ abstract class MessagesRepository {
     required String threadId,
     required String text,
     String? replyToMessageId,
+    String? kind,
+    String? mediaUrl,
+    String? mediaMimeType,
   });
 
-  Future<void> markThreadRead({
-    required String threadId,
+  Future<Map<String, dynamic>> uploadDmMedia(
+    String filePath, {
+    String? fileName,
+    String? mimeType,
   });
+
+  Future<void> markThreadRead({required String threadId});
 }
 
 class ApiMessagesRepository implements MessagesRepository {
-  ApiMessagesRepository({
-    http.Client? client,
-    String? baseUrl,
-    String? token,
-  }) : _client = client ?? http.Client(),
-       _baseUrl =
-           (baseUrl ??
-                   const String.fromEnvironment(
-                     'CM_API_BASE_URL',
-                     defaultValue: 'http://127.0.0.1:3001/api',
-                   ))
-               .replaceAll(RegExp(r'/$'), ''),
-       _token = (token ?? '').trim();
+  ApiMessagesRepository({http.Client? client, String? baseUrl, String? token})
+    : _client = client ?? http.Client(),
+      _baseUrl =
+          (baseUrl ??
+                  const String.fromEnvironment(
+                    'CM_API_BASE_URL',
+                    defaultValue: 'http://127.0.0.1:3001/api',
+                  ))
+              .replaceAll(RegExp(r'/$'), ''),
+      _token = (token ?? '').trim();
 
   final http.Client _client;
   final String _baseUrl;
@@ -253,9 +249,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<MessageThreadDetail> fetchThread({
-    required String threadId,
-  }) async {
+  Future<MessageThreadDetail> fetchThread({required String threadId}) async {
     final response = await _client
         .get(_uri('/messages/threads/$threadId'), headers: await _headers())
         .timeout(_timeout);
@@ -267,9 +261,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<MessageThreadDetail> fetchRequest({
-    required String threadId,
-  }) async {
+  Future<MessageThreadDetail> fetchRequest({required String threadId}) async {
     final response = await _client
         .get(_uri('/messages/requests/$threadId'), headers: await _headers())
         .timeout(_timeout);
@@ -300,9 +292,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> approveRequest({
-    required String threadId,
-  }) async {
+  Future<void> approveRequest({required String threadId}) async {
     final response = await _client
         .post(
           _uri('/messages/requests/approve'),
@@ -315,9 +305,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> blockRequest({
-    required String threadId,
-  }) async {
+  Future<void> blockRequest({required String threadId}) async {
     final response = await _client
         .post(
           _uri('/messages/requests/block'),
@@ -353,6 +341,9 @@ class ApiMessagesRepository implements MessagesRepository {
     required String threadId,
     required String text,
     String? replyToMessageId,
+    String? kind,
+    String? mediaUrl,
+    String? mediaMimeType,
   }) async {
     final response = await _client
         .post(
@@ -361,6 +352,11 @@ class ApiMessagesRepository implements MessagesRepository {
           body: jsonEncode(<String, dynamic>{
             'threadId': threadId,
             'text': text,
+            if ((kind ?? '').trim().isNotEmpty) 'kind': kind!.trim(),
+            if ((mediaUrl ?? '').trim().isNotEmpty)
+              'mediaUrl': mediaUrl!.trim(),
+            if ((mediaMimeType ?? '').trim().isNotEmpty)
+              'mediaMimeType': mediaMimeType!.trim(),
             if ((replyToMessageId ?? '').trim().isNotEmpty)
               'replyToMessageId': replyToMessageId!.trim(),
           }),
@@ -371,9 +367,47 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> markThreadRead({
-    required String threadId,
+  Future<Map<String, dynamic>> uploadDmMedia(
+    String filePath, {
+    String? fileName,
+    String? mimeType,
   }) async {
+    final path = filePath.trim();
+    if (path.isEmpty) {
+      throw ArgumentError('filePath cannot be empty');
+    }
+
+    final req = http.MultipartRequest('POST', _uri('/uploads/dm-media'));
+    req.headers.addAll(await _headers());
+
+    if ((mimeType ?? '').trim().isNotEmpty) {
+      req.fields['mimeType'] = mimeType!.trim();
+    }
+
+    final resolvedName = (fileName ?? '').trim().isNotEmpty
+        ? fileName!.trim()
+        : path.split('/').last;
+
+    req.files.add(
+      await http.MultipartFile.fromPath('file', path, filename: resolvedName),
+    );
+
+    final streamed = await req.send().timeout(_timeout);
+    final response = await http.Response.fromStream(streamed);
+
+    if (!_ok(response)) _fail('messages.uploadDmMedia', response);
+
+    final body = response.body.trim();
+    if (body.isEmpty) return <String, dynamic>{'ok': true};
+
+    final decoded = jsonDecode(body);
+    if (decoded is Map<String, dynamic>) return decoded;
+    if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    return <String, dynamic>{'ok': true};
+  }
+
+  @override
+  Future<void> markThreadRead({required String threadId}) async {
     final response = await _client
         .post(
           _uri('/messages/read'),
