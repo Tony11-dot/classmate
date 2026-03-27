@@ -231,6 +231,36 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
+  Future<Map<String, dynamic>> forwardChatMessage(
+    String courseId, {
+    required String messageId,
+    required List<String> targetThreadIds,
+  }) async {
+    final uri = _uri('/student/classrooms/$courseId/chat/forward');
+    final res = await _client
+        .post(
+          uri,
+          headers: {...(await _headers()), 'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'messageId': messageId,
+            'targetThreadIds': targetThreadIds,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(res)) {
+      _fail('classrooms.forwardChatMessage', res);
+    }
+
+    if (res.body.trim().isEmpty) {
+      return <String, dynamic>{'ok': true};
+    }
+
+    final j = jsonDecode(res.body);
+    if (j is! Map) return <String, dynamic>{'ok': true};
+    return Map<String, dynamic>.from(j);
+  }
+
   Future<Map<String, dynamic>> meetings(String courseId) async {
     final uri = _uri('/student/classrooms/$courseId/meetings');
 
@@ -330,7 +360,6 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
-
   Future<void> sendChatMedia(
     String courseId,
     String filePath, {
@@ -361,7 +390,9 @@ class ClassroomsRepository {
     final resolvedName = (fileName ?? '').trim().isNotEmpty
         ? fileName!.trim()
         : path.split('/').last;
-    req.files.add(await http.MultipartFile.fromPath('file', path, filename: resolvedName));
+    req.files.add(
+      await http.MultipartFile.fromPath('file', path, filename: resolvedName),
+    );
 
     final streamed = await req.send().timeout(_timeout);
     final res = await http.Response.fromStream(streamed);
@@ -369,6 +400,4 @@ class ClassroomsRepository {
       _fail('classrooms.sendChatMedia', res);
     }
   }
-
-
 }

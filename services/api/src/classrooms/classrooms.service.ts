@@ -23,6 +23,74 @@ function timesForPeriod(period: number): { startTime: string; endTime: string } 
 
 @Injectable()
 export class ClassroomsService {
+  async forwardClassroomChatMessage(user: any, courseId: string, body: any) {
+    const viewerId = String(user?.sub ?? user?.id ?? '').trim();
+    const messageId = String(body?.messageId ?? '').trim();
+    const targetThreadIds = Array.from(
+      new Set(
+        (Array.isArray(body?.targetThreadIds) ? body.targetThreadIds : [])
+          .map((v: any) => String(v ?? '').trim())
+          .filter(Boolean),
+      ),
+    );
+
+    if (!viewerId) throw new Error('Missing authenticated user');
+    if (!courseId) throw new Error('courseId is required');
+    if (!messageId) throw new Error('messageId is required');
+    if (!targetThreadIds.length) throw new Error('targetThreadIds is required');
+
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true, teacherId: true, cohortId: true, title: true, name: true },
+    });
+    if (!course) throw new Error('Course not found');
+
+    const isTeacher = String(course.teacherId ?? '') === viewerId;
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { courseId, studentId: viewerId },
+      select: { id: true },
+    });
+
+    const hasAccess = isTeacher || !!enrollment;
+    if (!hasAccess) throw new Error('No access to this classroom');
+
+    const source = await this.prisma.classroomChatMessage?.findFirst?.({
+      where: { id: messageId, courseId },
+    });
+
+    if (!source) throw new Error('Classroom message not found');
+
+    for (const threadId of targetThreadIds) {
+      const participant = await this.prisma.dmParticipant.findUnique({
+        where: { threadId_userId: { threadId, userId: viewerId } },
+        include: { thread: true },
+      });
+      if (!participant) throw new Error('No access to target thread');
+      if (String(participant.state) !== 'ACCEPTED') {
+        throw new Error('Cannot forward into a non-approved thread');
+      }
+
+      await this.prisma.dmMessage.create({
+        data: {
+          threadId,
+          senderId: viewerId,
+          kind: String(source.kind ?? 'TEXT') as any,
+          text: source.text ?? null,
+          mediaUrl: source.mediaUrl ?? null,
+          mediaMimeType: source.mediaMimeType ?? null,
+        },
+      });
+
+      await this.prisma.dmParticipant.update({
+        where: { threadId_userId: { threadId, userId: viewerId } },
+        data: { lastSeenAt: new Date() },
+      });
+    }
+
+    return { ok: true, forwardedCount: targetThreadIds.length };
+  }
+
+
   constructor(private readonly prisma: PrismaService) {}
 
   private async cohortIdForStudentUserId(userId: string): Promise<string> {

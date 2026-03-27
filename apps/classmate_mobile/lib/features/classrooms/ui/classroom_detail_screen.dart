@@ -544,6 +544,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await _persistLocalChatState();
   }
 
+  Future<List<String>?> _showForwardTargetPickerForClassroom() {
+    return showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) =>
+          const _ForwardTargetPickerSheet(currentThreadId: '__classroom__'),
+    );
+  }
+
   Future<void> _forwardPlaceholder({
     required String messageId,
     required String text,
@@ -814,10 +824,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'forward') {
-      await _forwardPlaceholder(
-        messageId: messageId,
-        text: text,
-        mediaUrl: mediaUrl,
+      final targetThreadIds = await _showForwardTargetPickerForClassroom();
+      if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
+        return;
+      }
+
+      await ref
+          .read(classroomsRepoProvider)
+          .forwardChatMessage(
+            widget.courseId,
+            messageId: messageId,
+            targetThreadIds: targetThreadIds,
+          );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            targetThreadIds.length == 1
+                ? 'Forwarded'
+                : 'Forwarded to ${targetThreadIds.length} chats',
+          ),
+        ),
       );
       return;
     }
@@ -1982,10 +2010,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'forward') {
-      await _forwardPlaceholder(
-        messageId: messageId,
-        text: text,
-        mediaUrl: mediaUrl,
+      final targetThreadIds = await _showForwardTargetPickerForClassroom();
+      if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
+        return;
+      }
+
+      await ref
+          .read(classroomsRepoProvider)
+          .forwardChatMessage(
+            widget.courseId,
+            messageId: messageId,
+            targetThreadIds: targetThreadIds,
+          );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            targetThreadIds.length == 1
+                ? 'Forwarded'
+                : 'Forwarded to ${targetThreadIds.length} chats',
+          ),
+        ),
       );
       return;
     }
