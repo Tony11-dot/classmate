@@ -21,6 +21,7 @@ import { EditMessageDto } from './dto/edit-message.dto';
 import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
 import { DeleteMessageDto } from './dto/delete-message.dto';
 import { ForwardMessageDto } from './dto/forward-message.dto';
+import { ReactMessageDto } from './dto/react-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.SECRETARY)
@@ -91,5 +92,10 @@ export class MessagesController {
   @Post('forward')
   forward(@Req() req: any, @Body() body: ForwardMessageDto) {
     return this.service.forwardMessage(req.user, body);
+  }
+
+  @Post('react')
+  react(@Req() req: any, @Body() body: ReactMessageDto) {
+    return this.service.reactMessage(req.user, body);
   }
 }

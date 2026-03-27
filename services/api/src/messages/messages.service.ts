@@ -21,6 +21,7 @@ import { EditMessageDto } from './dto/edit-message.dto';
 import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
 import { DeleteMessageDto } from './dto/delete-message.dto';
 import { ForwardMessageDto } from './dto/forward-message.dto';
+import { ReactMessageDto } from './dto/react-message.dto';
 
 type AppUser = {
   id?: string;
@@ -28,7 +29,9 @@ type AppUser = {
   userId?: string;
 };
 
-type ThreadWithRelations = Awaited<ReturnType<MessagesService['loadThreadOrThrow']>>;
+type ThreadWithRelations = Awaited<
+  ReturnType<MessagesService['loadThreadOrThrow']>
+>;
 
 @Injectable()
 export class MessagesService {
@@ -53,7 +56,12 @@ export class MessagesService {
     return user;
   }
 
-  private displayNameOf(user: { name?: string | null; displayName?: string | null } | null | undefined) {
+  private displayNameOf(
+    user:
+      | { name?: string | null; displayName?: string | null }
+      | null
+      | undefined,
+  ) {
     return String(user?.displayName ?? user?.name ?? '').trim() || 'Unknown';
   }
 
@@ -134,8 +142,14 @@ export class MessagesService {
   }
 
   private async userMapForIds(userIds: string[]) {
-    const ids = Array.from(new Set(userIds.map((v) => String(v).trim()).filter((v) => v.length > 0)));
-    if (!ids.length) return new Map<string, { id: string; name: string; displayName: string | null }>();
+    const ids = Array.from(
+      new Set(userIds.map((v) => String(v).trim()).filter((v) => v.length > 0)),
+    );
+    if (!ids.length)
+      return new Map<
+        string,
+        { id: string; name: string; displayName: string | null }
+      >();
 
     const rows = await this.prisma.user.findMany({
       where: { id: { in: ids } },
@@ -169,7 +183,11 @@ export class MessagesService {
     return participant;
   }
 
-  private async loadMessageOrThrow(threadId: string, messageId: string, userId: string) {
+  private async loadMessageOrThrow(
+    threadId: string,
+    messageId: string,
+    userId: string,
+  ) {
     await this.loadParticipantOrThrow(threadId, userId);
 
     const message = await this.prisma.dmMessage.findFirst({
@@ -211,41 +229,44 @@ export class MessagesService {
     return thread;
   }
 
-  private async threadToSummary(
-    participant: {
-      thread: {
+  private async threadToSummary(participant: {
+    thread: {
+      id: string;
+      type: DmThreadType;
+      title: string | null;
+      updatedAt: Date;
+      createdAt: Date;
+      participants: Array<{
+        userId: string;
+        role: DmParticipantRole;
+        state: DmParticipantState;
+      }>;
+      messages: Array<{
         id: string;
-        type: DmThreadType;
-        title: string | null;
-        updatedAt: Date;
+        senderId: string;
+        text: string | null;
+        kind: DmMessageKind;
         createdAt: Date;
-        participants: Array<{
-          userId: string;
-          role: DmParticipantRole;
-          state: DmParticipantState;
-        }>;
-        messages: Array<{
-          id: string;
-          senderId: string;
-          text: string | null;
-          kind: DmMessageKind;
-          createdAt: Date;
-        }>;
-      };
-      userId: string;
-      state: DmParticipantState;
-      lastSeenAt: Date | null;
-    },
-  ) {
+      }>;
+    };
+    userId: string;
+    state: DmParticipantState;
+    lastSeenAt: Date | null;
+  }) {
     const thread = participant.thread;
     const viewerId = participant.userId;
     const otherIds = thread.participants
       .filter((p) => p.userId !== viewerId)
       .map((p) => p.userId);
 
-    const users = await this.userMapForIds([...thread.participants.map((p) => p.userId), ...thread.messages.map((m) => m.senderId)]);
+    const users = await this.userMapForIds([
+      ...thread.participants.map((p) => p.userId),
+      ...thread.messages.map((m) => m.senderId),
+    ]);
     const counterpart = otherIds.length ? users.get(otherIds[0]) : null;
-    const latestMessage = thread.messages.length ? thread.messages[thread.messages.length - 1] : null;
+    const latestMessage = thread.messages.length
+      ? thread.messages[thread.messages.length - 1]
+      : null;
 
     const title =
       thread.type === DmThreadType.GROUP
@@ -257,7 +278,9 @@ export class MessagesService {
           const body = String(latestMessage.text ?? '').trim();
           if (body) {
             if (thread.type === DmThreadType.GROUP) {
-              const senderName = this.displayNameOf(users.get(latestMessage.senderId));
+              const senderName = this.displayNameOf(
+                users.get(latestMessage.senderId),
+              );
               return `${senderName}: ${body}`;
             }
             return body;
@@ -265,22 +288,25 @@ export class MessagesService {
 
           const label = this.kindLabel(latestMessage.kind);
           if (thread.type === DmThreadType.GROUP) {
-            const senderName = this.displayNameOf(users.get(latestMessage.senderId));
+            const senderName = this.displayNameOf(
+              users.get(latestMessage.senderId),
+            );
             return `${senderName}: ${label}`;
           }
           return label;
         })()
       : participant.state === DmParticipantState.PENDING_INCOMING
-      ? 'Sent you a message request'
-      : participant.state === DmParticipantState.PENDING_OUTGOING
-      ? 'Waiting for approval'
-      : 'No messages yet';
+        ? 'Sent you a message request'
+        : participant.state === DmParticipantState.PENDING_OUTGOING
+          ? 'Waiting for approval'
+          : 'No messages yet';
 
     const unreadCount =
       participant.lastSeenAt == null
         ? thread.messages.filter((m) => m.senderId !== viewerId).length
         : thread.messages.filter(
-            (m) => m.senderId !== viewerId && m.createdAt > participant.lastSeenAt!,
+            (m) =>
+              m.senderId !== viewerId && m.createdAt > participant.lastSeenAt!,
           ).length;
 
     return {
@@ -291,7 +317,9 @@ export class MessagesService {
       isGroup: thread.type === DmThreadType.GROUP,
       isUnread: unreadCount > 0,
       unreadCount,
-      lastMessageAt: this.formatTime(latestMessage?.createdAt ?? thread.updatedAt ?? thread.createdAt),
+      lastMessageAt: this.formatTime(
+        latestMessage?.createdAt ?? thread.updatedAt ?? thread.createdAt,
+      ),
       requestState: this.viewerRequestState(thread, viewerId),
       initials:
         thread.type === DmThreadType.GROUP
@@ -353,7 +381,9 @@ export class MessagesService {
         };
       }),
       messages: thread.messages.map((m) => {
-        const replied = m.replyToMessageId ? byId.get(m.replyToMessageId) : null;
+        const replied = m.replyToMessageId
+          ? byId.get(m.replyToMessageId)
+          : null;
         return {
           id: m.id,
           senderId: m.senderId,
@@ -411,7 +441,9 @@ export class MessagesService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const items = await Promise.all(participants.map((p) => this.threadToSummary(p)));
+    const items = await Promise.all(
+      participants.map((p) => this.threadToSummary(p)),
+    );
     items.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
     return { items };
   }
@@ -473,7 +505,11 @@ export class MessagesService {
 
     const exact = existing.find((thread) => {
       const ids = thread.participants.map((p) => p.userId).sort();
-      return ids.length === 2 && ids[0] === [userId, recipientUserId].sort()[0] && ids[1] === [userId, recipientUserId].sort()[1];
+      return (
+        ids.length === 2 &&
+        ids[0] === [userId, recipientUserId].sort()[0] &&
+        ids[1] === [userId, recipientUserId].sort()[1]
+      );
     });
 
     if (exact) {
@@ -519,10 +555,17 @@ export class MessagesService {
     }
 
     const thread = await this.loadThreadOrThrow(threadId, userId);
-    const viewerParticipant = thread.participants.find((p) => p.userId === userId);
+    const viewerParticipant = thread.participants.find(
+      (p) => p.userId === userId,
+    );
 
-    if (!viewerParticipant || viewerParticipant.state !== DmParticipantState.PENDING_INCOMING) {
-      throw new ForbiddenException('Only the receiver can approve this request');
+    if (
+      !viewerParticipant ||
+      viewerParticipant.state !== DmParticipantState.PENDING_INCOMING
+    ) {
+      throw new ForbiddenException(
+        'Only the receiver can approve this request',
+      );
     }
 
     await this.prisma.dmParticipant.updateMany({
@@ -541,9 +584,14 @@ export class MessagesService {
     }
 
     const thread = await this.loadThreadOrThrow(threadId, userId);
-    const viewerParticipant = thread.participants.find((p) => p.userId === userId);
+    const viewerParticipant = thread.participants.find(
+      (p) => p.userId === userId,
+    );
 
-    if (!viewerParticipant || viewerParticipant.state !== DmParticipantState.PENDING_INCOMING) {
+    if (
+      !viewerParticipant ||
+      viewerParticipant.state !== DmParticipantState.PENDING_INCOMING
+    ) {
       throw new ForbiddenException('Only the receiver can block this request');
     }
 
@@ -629,7 +677,9 @@ export class MessagesService {
     const text = String(dto.text ?? '').trim();
     const mediaUrl = String(dto.mediaUrl ?? '').trim();
     const mediaMimeType = String(dto.mediaMimeType ?? '').trim();
-    const rawKind = String(dto.kind ?? '').trim().toUpperCase();
+    const rawKind = String(dto.kind ?? '')
+      .trim()
+      .toUpperCase();
     const kind = (rawKind || (mediaUrl ? 'FILE' : 'TEXT')) as DmMessageKind;
     const replyToMessageId = String((dto as any).replyToMessageId ?? '').trim();
 
@@ -728,7 +778,6 @@ export class MessagesService {
     };
   }
 
-
   async editMessage(user: AppUser, dto: EditMessageDto) {
     const userId = this.viewerId(user);
     const threadId = String(dto.threadId ?? '').trim();
@@ -736,7 +785,9 @@ export class MessagesService {
     const text = String(dto.text ?? '').trim();
 
     if (!threadId || !messageId || !text) {
-      throw new BadRequestException('threadId, messageId, and text are required');
+      throw new BadRequestException(
+        'threadId, messageId, and text are required',
+      );
     }
 
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
@@ -772,8 +823,13 @@ export class MessagesService {
     const participant = await this.loadParticipantOrThrow(threadId, userId);
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
 
-    if (participant.thread.type !== DmThreadType.GROUP && message.senderId !== userId) {
-      throw new ForbiddenException('Only your own direct-message messages can be pinned');
+    if (
+      participant.thread.type !== DmThreadType.GROUP &&
+      message.senderId !== userId
+    ) {
+      throw new ForbiddenException(
+        'Only your own direct-message messages can be pinned',
+      );
     }
 
     const updated = await this.prisma.dmMessage.update({
@@ -817,7 +873,9 @@ export class MessagesService {
     }
 
     if (message.senderId !== userId) {
-      throw new ForbiddenException('Only the sender can delete this message for self in this phase');
+      throw new ForbiddenException(
+        'Only the sender can delete this message for self in this phase',
+      );
     }
 
     await this.prisma.dmMessage.update({
@@ -831,22 +889,113 @@ export class MessagesService {
     return { ok: true };
   }
 
+  async reactMessage(user: AppUser, dto: ReactMessageDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+    const emoji = String(dto.emoji ?? '').trim();
+
+    if (!threadId || !messageId) {
+      throw new BadRequestException('threadId and messageId are required');
+    }
+
+    await this.loadParticipantOrThrow(threadId, userId);
+    await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    const existing = await this.prisma.dmReaction.findFirst({
+      where: {
+        messageId,
+        userId,
+      },
+      select: {
+        id: true,
+        emoji: true,
+      },
+    });
+
+    if (!emoji) {
+      if (existing) {
+        await this.prisma.dmReaction.delete({
+          where: {
+            id: existing.id,
+          },
+        });
+      }
+      return { ok: true, reaction: null };
+    }
+
+    if (existing) {
+      if (existing.emoji === emoji) {
+        await this.prisma.dmReaction.delete({
+          where: {
+            id: existing.id,
+          },
+        });
+        return { ok: true, reaction: null };
+      }
+
+      const updated = await this.prisma.dmReaction.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          emoji,
+        },
+        select: {
+          emoji: true,
+        },
+      });
+
+      return { ok: true, reaction: updated.emoji };
+    }
+
+    const created = await this.prisma.dmReaction.create({
+      data: {
+        messageId,
+        userId,
+        emoji,
+      },
+      select: {
+        emoji: true,
+      },
+    });
+
+    return { ok: true, reaction: created.emoji };
+  }
+
   async forwardMessage(user: AppUser, dto: ForwardMessageDto) {
     const userId = this.viewerId(user);
     const fromThreadId = String(dto.fromThreadId ?? '').trim();
     const messageId = String(dto.messageId ?? '').trim();
-    const targetThreadIds = Array.from(new Set((dto.targetThreadIds ?? []).map((v) => String(v ?? '').trim()).filter(Boolean)));
+    const targetThreadIds = Array.from(
+      new Set(
+        (dto.targetThreadIds ?? [])
+          .map((v) => String(v ?? '').trim())
+          .filter(Boolean),
+      ),
+    );
 
     if (!fromThreadId || !messageId || !targetThreadIds.length) {
-      throw new BadRequestException('fromThreadId, messageId, and targetThreadIds are required');
+      throw new BadRequestException(
+        'fromThreadId, messageId, and targetThreadIds are required',
+      );
     }
 
-    const source = await this.loadMessageOrThrow(fromThreadId, messageId, userId);
+    const source = await this.loadMessageOrThrow(
+      fromThreadId,
+      messageId,
+      userId,
+    );
 
     for (const targetThreadId of targetThreadIds) {
-      const participant = await this.loadParticipantOrThrow(targetThreadId, userId);
+      const participant = await this.loadParticipantOrThrow(
+        targetThreadId,
+        userId,
+      );
       if (participant.state !== DmParticipantState.ACCEPTED) {
-        throw new ForbiddenException('Cannot forward into a non-approved thread');
+        throw new ForbiddenException(
+          'Cannot forward into a non-approved thread',
+        );
       }
 
       await this.prisma.dmMessage.create({
@@ -876,7 +1025,6 @@ export class MessagesService {
 
     return { ok: true };
   }
-
 
   async markThreadRead(user: AppUser, dto: MarkThreadReadDto) {
     const userId = this.viewerId(user);

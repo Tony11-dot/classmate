@@ -34,7 +34,6 @@ class MessageThreadScreen extends ConsumerStatefulWidget {
 class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final Map<String, String> _reactionByMessageId = <String, String>{};
   final Set<String> _pinnedMessageIds = <String>{};
   final AudioRecorder _recorder = AudioRecorder();
   final ImagePicker _imagePicker = ImagePicker();
@@ -157,6 +156,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           threadId: widget.threadId,
           messageId: row.id,
           mode: 'deleteForEveryone',
+        );
+    await _refreshThread();
+  }
+
+  Future<void> _reactToMessage(MessageItem row, String? emoji) async {
+    await ref
+        .read(messagesRepositoryProvider)
+        .reactMessage(
+          threadId: widget.threadId,
+          messageId: row.id,
+          emoji: (emoji ?? '').trim().isEmpty ? null : emoji!.trim(),
         );
     await _refreshThread();
   }
@@ -997,10 +1007,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 final reaction = selected
                                     .substring('react:'.length)
                                     .trim();
-                                if (reaction.isEmpty) return;
-                                setState(() {
-                                  _reactionByMessageId[row.id] = reaction;
-                                });
+                                await _reactToMessage(
+                                  row,
+                                  reaction.isEmpty ? null : reaction,
+                                );
                                 return;
                               }
 
@@ -1086,9 +1096,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     senderLabel: row.senderName,
                                     timeLabel: row.timeLabel,
                                     edited: row.edited,
-                                    reaction:
-                                        _reactionByMessageId[row.id] ??
-                                        row.reaction,
+                                    reaction: row.reaction,
                                     deleteState: row.deleteState,
                                     replySender: row.replyPreview?.senderName,
                                     replySnippet: row.replyPreview?.text,

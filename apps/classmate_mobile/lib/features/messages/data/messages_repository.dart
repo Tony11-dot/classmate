@@ -63,6 +63,12 @@ abstract class MessagesRepository {
     required List<String> targetThreadIds,
   });
 
+  Future<void> reactMessage({
+    required String threadId,
+    required String messageId,
+    String? emoji,
+  });
+
   Future<void> markThreadRead({required String threadId});
 }
 
@@ -509,6 +515,27 @@ class ApiMessagesRepository implements MessagesRepository {
         .timeout(_timeout);
 
     if (!_ok(response)) _fail('messages.togglePin', response);
+  }
+
+  @override
+  Future<void> reactMessage({
+    required String threadId,
+    required String messageId,
+    String? emoji,
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/react'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'threadId': threadId,
+            'messageId': messageId,
+            if ((emoji ?? '').trim().isNotEmpty) 'emoji': emoji!.trim(),
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.reactMessage', response);
   }
 
   @override
