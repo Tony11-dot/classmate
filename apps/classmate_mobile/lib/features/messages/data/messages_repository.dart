@@ -43,6 +43,26 @@ abstract class MessagesRepository {
     String? mimeType,
   });
 
+  Future<void> editMessage({
+    required String threadId,
+    required String messageId,
+    required String text,
+  });
+
+  Future<void> togglePin({required String threadId, required String messageId});
+
+  Future<void> deleteMessage({
+    required String threadId,
+    required String messageId,
+    String mode = 'deleteForMe',
+  });
+
+  Future<void> forwardMessage({
+    required String fromThreadId,
+    required String messageId,
+    required List<String> targetThreadIds,
+  });
+
   Future<void> markThreadRead({required String threadId});
 }
 
@@ -199,6 +219,9 @@ class ApiMessagesRepository implements MessagesRepository {
           ? null
           : (json['reaction'] ?? '').toString().trim(),
       isPinned: (json['isPinned'] ?? false) == true,
+      edited: (json['edited'] ?? false) == true,
+      forwarded: (json['forwarded'] ?? false) == true,
+      deleteState: (json['deleteState'] ?? 'VISIBLE').toString(),
       kind: (json['kind'] ?? 'TEXT').toString(),
       mediaUrl: rawMedia.isEmpty ? null : rawMedia,
       replyToMessageId: rawReply.isEmpty ? null : rawReply,

@@ -45,6 +45,203 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   double _holdDy = 0;
   String? _recordingPath;
 
+  Future<void> _refreshThread() async {
+    ref.invalidate(messageThreadProvider(widget.threadId));
+    ref.invalidate(messagesInboxProvider);
+  }
+
+  Future<void> _showMessageInfo(MessageItem row) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => ChatMessageInfoSheet(
+        info: ChatMessageInfo(
+          title: 'Message info',
+          sentAt: row.timeLabel,
+          deliveredAt: row.timeLabel,
+          seenAt: row.isMine ? row.timeLabel : '',
+          edited: row.edited,
+          forwarded: row.forwarded,
+          deleteState: row.deleteState,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editMessage(MessageItem row) async {
+    final ctl = TextEditingController(text: row.text);
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: ctl,
+              minLines: 1,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                labelText: 'Edit message',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(sheetContext).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(sheetContext).pop(true),
+                    child: const Text('Save'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (ok != true) return;
+
+    await ref
+        .read(messagesRepositoryProvider)
+        .editMessage(
+          threadId: widget.threadId,
+          messageId: row.id,
+          text: ctl.text.trim(),
+        );
+    await _refreshThread();
+  }
+
+  Future<void> _togglePin(MessageItem row) async {
+    await ref
+        .read(messagesRepositoryProvider)
+        .togglePin(threadId: widget.threadId, messageId: row.id);
+    await _refreshThread();
+  }
+
+  Future<void> _deleteForMe(MessageItem row) async {
+    await ref
+        .read(messagesRepositoryProvider)
+        .deleteMessage(
+          threadId: widget.threadId,
+          messageId: row.id,
+          mode: 'deleteForMe',
+        );
+    await _refreshThread();
+  }
+
+  Future<void> _deleteForEveryone(MessageItem row) async {
+    await ref
+        .read(messagesRepositoryProvider)
+        .deleteMessage(
+          threadId: widget.threadId,
+          messageId: row.id,
+          mode: 'deleteForEveryone',
+        );
+    await _refreshThread();
+  }
+
+  Future<void> _forwardStub(MessageItem row) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Forward target picker is next phase')),
+    );
+  }
+
+  Future<void> _openBubbleMenu(MessageItem row, {required bool canPin}) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => ChatMessageActionsSheet(
+        canEdit:
+            row.isMine &&
+            (row.mediaUrl == null || row.mediaUrl!.trim().isEmpty),
+        canDelete: row.isMine,
+        canViewInfo: true,
+        canPin: canPin,
+        canForward: true,
+      ),
+    );
+
+    if (action == null || action.trim().isEmpty) return;
+
+    if (action == 'reply') {
+      setState(() => _replyIndex = rowIndexById(row.id));
+      return;
+    }
+
+    if (action == 'info') {
+      await _showMessageInfo(row);
+      return;
+    }
+
+    if (action == 'pin') {
+      await _togglePin(row);
+      return;
+    }
+
+    if (action == 'forward') {
+      await _forwardStub(row);
+      return;
+    }
+
+    if (action == 'edit') {
+      await _editMessage(row);
+      return;
+    }
+
+    if (action == 'delete') {
+      final deleteForEveryone = await showModalBottomSheet<String>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheetContext) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.delete_outline_rounded),
+                title: const Text('Delete for me'),
+                onTap: () => Navigator.of(sheetContext).pop('me'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_forever_rounded),
+                title: const Text('Delete for everyone'),
+                onTap: () => Navigator.of(sheetContext).pop('everyone'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (deleteForEveryone == 'everyone') {
+        await _deleteForEveryone(row);
+        return;
+      }
+      if (deleteForEveryone == 'me') {
+        await _deleteForMe(row);
+      }
+    }
+  }
+
+  int rowIndexById(String id) => _lastRows.indexWhere((e) => e.id == id);
+
+  List<MessageItem> _lastRows = const [];
+
   @override
   void dispose() {
     _controller.dispose();
@@ -590,6 +787,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             });
 
             final rows = detail.messages;
+            _lastRows = rows;
             final replyingText = _replyIndex == null
                 ? ''
                 : rows[_replyIndex!].text;
@@ -715,7 +913,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                   ? CrossAxisAlignment.end
                                   : CrossAxisAlignment.start,
                               children: [
-                                if (row.isPinned)
+                                if (row.isPinned ||
+                                    _pinnedMessageIds.contains(row.id))
                                   Padding(
                                     padding: const EdgeInsets.only(
                                       top: 2,
@@ -757,7 +956,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                       !row.isMine,
                                   senderLabel: row.senderName,
                                   timeLabel: row.timeLabel,
-                                  edited: false,
+                                  edited: row.edited,
                                   reaction:
                                       _reactionByMessageId[row.id] ??
                                       row.reaction,

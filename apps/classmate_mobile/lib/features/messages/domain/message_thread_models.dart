@@ -70,6 +70,9 @@ class MessageItem {
   final bool isMine;
   final String? reaction;
   final bool isPinned;
+  final bool edited;
+  final bool forwarded;
+  final String deleteState;
   final String kind;
   final String? mediaUrl;
   final String? replyToMessageId;
@@ -84,6 +87,9 @@ class MessageItem {
     required this.isMine,
     this.reaction,
     this.isPinned = false,
+    this.edited = false,
+    this.forwarded = false,
+    this.deleteState = 'VISIBLE',
     this.kind = 'TEXT',
     this.mediaUrl,
     this.replyToMessageId,
