@@ -4,7 +4,7 @@ import '../data/messages_repository.dart';
 import '../domain/message_thread_models.dart';
 
 final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
-  return const DemoMessagesRepository();
+  return ApiMessagesRepository();
 });
 
 final messagesInboxProvider = FutureProvider<List<MessageThreadSummary>>((ref) {

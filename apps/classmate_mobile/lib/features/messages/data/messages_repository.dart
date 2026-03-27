@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../domain/message_thread_models.dart';
@@ -32,178 +37,282 @@ abstract class MessagesRepository {
   });
 }
 
-class DemoMessagesRepository implements MessagesRepository {
-  const DemoMessagesRepository();
+class ApiMessagesRepository implements MessagesRepository {
+  ApiMessagesRepository({
+    http.Client? client,
+    String? baseUrl,
+    String? token,
+  }) : _client = client ?? http.Client(),
+       _baseUrl =
+           (baseUrl ??
+                   const String.fromEnvironment(
+                     'CM_API_BASE_URL',
+                     defaultValue: 'http://127.0.0.1:3001/api',
+                   ))
+               .replaceAll(RegExp(r'/$'), ''),
+       _token = (token ?? '').trim();
+
+  final http.Client _client;
+  final String _baseUrl;
+  final String _token;
+
+  static const _timeout = Duration(seconds: 15);
+  static const _devStudentToken = 'dev-token-student@classmate.local';
+
+  Future<String> _readToken() async {
+    if (_token.isNotEmpty && _token != 'SIM_TOKEN') return _token;
+
+    final prefs = await SharedPreferences.getInstance();
+    const candidates = <String>[
+      'auth_token_v2',
+      'auth_token',
+      'token',
+      'jwt',
+      'access_token',
+      'accessToken',
+      'cm_token',
+    ];
+
+    for (final key in candidates) {
+      final value = prefs.getString(key)?.trim() ?? '';
+      if (value.isNotEmpty && value != 'SIM_TOKEN') return value;
+    }
+
+    return _devStudentToken;
+  }
+
+  Uri _uri(String path) {
+    final clean = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$_baseUrl$clean');
+  }
+
+  Future<Map<String, String>> _headers() async {
+    final token = await _readToken();
+    return <String, String>{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+  bool _ok(http.Response response) =>
+      response.statusCode >= 200 && response.statusCode < 300;
+
+  Never _fail(String label, http.Response response) {
+    throw Exception(
+      '$label failed (${response.statusCode}): ${response.body.isEmpty ? 'empty body' : response.body}',
+    );
+  }
+
+  ChatThreadType _threadType(String raw) {
+    switch (raw.trim().toUpperCase()) {
+      case 'GROUP':
+        return ChatThreadType.group;
+      case 'CLASSROOM':
+        return ChatThreadType.classroom;
+      case 'NOVA':
+        return ChatThreadType.nova;
+      case 'DIRECT':
+      default:
+        return ChatThreadType.direct;
+    }
+  }
+
+  ChatRequestState _requestState(String raw) {
+    switch (raw.trim().toUpperCase()) {
+      case 'PENDING_INCOMING':
+        return ChatRequestState.pendingIncoming;
+      case 'PENDING_OUTGOING':
+        return ChatRequestState.pendingOutgoing;
+      case 'APPROVED':
+        return ChatRequestState.approved;
+      case 'BLOCKED':
+        return ChatRequestState.blocked;
+      case 'NONE':
+      default:
+        return ChatRequestState.none;
+    }
+  }
+
+  MessageThreadSummary _summaryFromJson(Map<String, dynamic> json) {
+    return MessageThreadSummary(
+      id: (json['id'] ?? '').toString(),
+      type: _threadType((json['type'] ?? '').toString()),
+      title: (json['title'] ?? '').toString(),
+      subtitle: (json['subtitle'] ?? '').toString(),
+      isGroup: (json['isGroup'] ?? false) == true,
+      isUnread: (json['isUnread'] ?? false) == true,
+      unreadCount: (json['unreadCount'] ?? 0) is int
+          ? (json['unreadCount'] ?? 0) as int
+          : int.tryParse((json['unreadCount'] ?? '0').toString()) ?? 0,
+      lastMessageAt: (json['lastMessageAt'] ?? '').toString(),
+      requestState: _requestState((json['requestState'] ?? '').toString()),
+      initials: (json['initials'] ?? '').toString(),
+      groupAvatarUrl: (json['groupAvatarUrl'] ?? '').toString().trim().isEmpty
+          ? null
+          : (json['groupAvatarUrl'] ?? '').toString().trim(),
+    );
+  }
+
+  MessageParticipant _participantFromJson(Map<String, dynamic> json) {
+    return MessageParticipant(
+      userId: (json['userId'] ?? '').toString(),
+      displayName: (json['displayName'] ?? '').toString(),
+      initials: (json['initials'] ?? '').toString(),
+      isAdmin: (json['isAdmin'] ?? false) == true,
+      isBlocked: (json['isBlocked'] ?? false) == true,
+    );
+  }
+
+  MessageItem _messageFromJson(Map<String, dynamic> json) {
+    return MessageItem(
+      id: (json['id'] ?? '').toString(),
+      senderId: (json['senderId'] ?? '').toString(),
+      senderName: (json['senderName'] ?? '').toString(),
+      text: (json['text'] ?? '').toString(),
+      timeLabel: (json['timeLabel'] ?? '').toString(),
+      isMine: (json['isMine'] ?? false) == true,
+      reaction: (json['reaction'] ?? '').toString().trim().isEmpty
+          ? null
+          : (json['reaction'] ?? '').toString().trim(),
+      isPinned: (json['isPinned'] ?? false) == true,
+    );
+  }
+
+  MessageThreadDetail _detailFromJson(Map<String, dynamic> json) {
+    final participantsRaw = (json['participants'] is List)
+        ? json['participants'] as List
+        : const [];
+    final messagesRaw = (json['messages'] is List)
+        ? json['messages'] as List
+        : const [];
+
+    return MessageThreadDetail(
+      id: (json['id'] ?? '').toString(),
+      title: (json['title'] ?? '').toString(),
+      subtitle: (json['subtitle'] ?? '').toString(),
+      isGroup: (json['isGroup'] ?? false) == true,
+      requestState: _requestState((json['requestState'] ?? '').toString()),
+      participants: participantsRaw
+          .whereType<Map>()
+          .map((item) => _participantFromJson(Map<String, dynamic>.from(item)))
+          .toList(),
+      messages: messagesRaw
+          .whereType<Map>()
+          .map((item) => _messageFromJson(Map<String, dynamic>.from(item)))
+          .toList(),
+    );
+  }
 
   @override
   Future<List<MessageThreadSummary>> fetchInbox() async {
-    return const [
-      MessageThreadSummary(
-        id: 'rachel-req',
-        type: ChatThreadType.direct,
-        title: 'Rachel Haddad',
-        subtitle: 'Sent you a message request',
-        isGroup: false,
-        isUnread: true,
-        unreadCount: 1,
-        lastMessageAt: '2:10 PM',
-        requestState: ChatRequestState.pendingIncoming,
-        initials: 'RH',
-      ),
-      MessageThreadSummary(
-        id: 'omar-thread',
-        type: ChatThreadType.direct,
-        title: 'Omar Nassar',
-        subtitle: 'Can you send the physics file?',
-        isGroup: false,
-        isUnread: false,
-        unreadCount: 0,
-        lastMessageAt: '2:14 PM',
-        requestState: ChatRequestState.approved,
-        initials: 'ON',
-      ),
-      MessageThreadSummary(
-        id: 'math-group',
-        type: ChatThreadType.group,
-        title: 'Math Study Group',
-        subtitle: 'Tony: I uploaded the sheet',
-        isGroup: true,
-        isUnread: false,
-        unreadCount: 0,
-        lastMessageAt: '1:42 PM',
-        requestState: ChatRequestState.none,
-        initials: 'MG',
-        groupAvatarUrl: null,
-      ),
-    ];
+    final response = await _client
+        .get(_uri('/messages/inbox'), headers: await _headers())
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.fetchInbox', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final items = (body['items'] is List) ? body['items'] as List : const [];
+    return items
+        .whereType<Map>()
+        .map((item) => _summaryFromJson(Map<String, dynamic>.from(item)))
+        .toList();
   }
 
   @override
   Future<MessageThreadDetail> fetchThread({
     required String threadId,
   }) async {
-    switch (threadId) {
-      case 'math-group':
-        return const MessageThreadDetail(
-          id: 'math-group',
-          title: 'Math Study Group',
-          subtitle: '6 members',
-          isGroup: true,
-          requestState: ChatRequestState.none,
-          participants: [
-            MessageParticipant(userId: 'u1', displayName: 'Tony Aboud', initials: 'TA'),
-            MessageParticipant(userId: 'u2', displayName: 'Omar Nassar', initials: 'ON'),
-            MessageParticipant(userId: 'u3', displayName: 'Rachel Haddad', initials: 'RH'),
-          ],
-          messages: [
-            MessageItem(
-              id: 'm1',
-              senderId: 'u2',
-              senderName: 'Omar Nassar',
-              text: 'Did anyone solve question 4?',
-              timeLabel: '1:40 PM',
-              isMine: false,
-            ),
-            MessageItem(
-              id: 'm2',
-              senderId: 'u1',
-              senderName: 'Tony Aboud',
-              text: 'Yes, I uploaded the sheet',
-              timeLabel: '1:42 PM',
-              isMine: true,
-              reaction: '👍',
-              isPinned: true,
-            ),
-          ],
-        );
-      case 'omar-thread':
-      default:
-        return const MessageThreadDetail(
-          id: 'omar-thread',
-          title: 'Omar Nassar',
-          subtitle: 'online',
-          isGroup: false,
-          requestState: ChatRequestState.approved,
-          participants: [
-            MessageParticipant(userId: 'u1', displayName: 'Tony Aboud', initials: 'TA'),
-            MessageParticipant(userId: 'u2', displayName: 'Omar Nassar', initials: 'ON'),
-          ],
-          messages: [
-            MessageItem(
-              id: 'm1',
-              senderId: 'u2',
-              senderName: 'Omar Nassar',
-              text: 'Hey Tony, can you send the notes?',
-              timeLabel: '2:11 PM',
-              isMine: false,
-            ),
-            MessageItem(
-              id: 'm2',
-              senderId: 'u1',
-              senderName: 'Tony Aboud',
-              text: 'Yes, I’ll send them here.',
-              timeLabel: '2:12 PM',
-              isMine: true,
-              reaction: '👍',
-            ),
-            MessageItem(
-              id: 'm3',
-              senderId: 'u2',
-              senderName: 'Omar Nassar',
-              text: 'Perfect',
-              timeLabel: '2:13 PM',
-              isMine: false,
-            ),
-          ],
-        );
-    }
+    final response = await _client
+        .get(_uri('/messages/threads/$threadId'), headers: await _headers())
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.fetchThread', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return _detailFromJson(Map<String, dynamic>.from(body['thread'] as Map));
   }
 
   @override
   Future<MessageThreadDetail> fetchRequest({
     required String threadId,
   }) async {
-    return const MessageThreadDetail(
-      id: 'rachel-req',
-      title: 'Rachel Haddad',
-      subtitle: 'Message request',
-      isGroup: false,
-      requestState: ChatRequestState.pendingIncoming,
-      participants: [
-        MessageParticipant(userId: 'u3', displayName: 'Rachel Haddad', initials: 'RH'),
-      ],
-      messages: [
-        MessageItem(
-          id: 'r1',
-          senderId: 'u3',
-          senderName: 'Rachel Haddad',
-          text: 'Hey, can we talk about the assignment?',
-          timeLabel: '2:10 PM',
-          isMine: false,
-        ),
-      ],
-    );
+    final response = await _client
+        .get(_uri('/messages/requests/$threadId'), headers: await _headers())
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.fetchRequest', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return _detailFromJson(Map<String, dynamic>.from(body['request'] as Map));
   }
 
   @override
   Future<void> createDirectRequest({
     required String recipientUserId,
     required String firstMessage,
-  }) async {}
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/direct-request'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'recipientUserId': recipientUserId,
+            'firstMessage': firstMessage,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.createDirectRequest', response);
+  }
 
   @override
   Future<void> approveRequest({
     required String threadId,
-  }) async {}
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/requests/approve'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.approveRequest', response);
+  }
 
   @override
   Future<void> blockRequest({
     required String threadId,
-  }) async {}
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/requests/block'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.blockRequest', response);
+  }
 
   @override
   Future<void> createGroup({
     required String title,
     required List<String> memberIds,
-  }) async {}
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/groups'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'title': title,
+            'memberIds': memberIds,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.createGroup', response);
+  }
 }
