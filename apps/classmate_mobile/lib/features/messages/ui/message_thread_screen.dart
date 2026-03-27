@@ -252,6 +252,22 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
   List<MessageItem> _lastRows = const [];
 
+  List<MessageItem> _pinnedRows(List<MessageItem> rows) {
+    return rows
+        .where(
+          (row) =>
+              row.deleteState.toUpperCase() != 'DELETED_FOR_ME' &&
+              (row.isPinned || _pinnedMessageIds.contains(row.id)),
+        )
+        .toList();
+  }
+
+  void _jumpToMessage(String messageId) {
+    final index = _lastRows.indexWhere((row) => row.id == messageId);
+    if (index < 0) return;
+    _pinToBottom();
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -829,6 +845,83 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     detail.requestState == ChatRequestState.pendingOutgoing ||
                     detail.requestState == ChatRequestState.pendingIncoming)
                   _pendingBanner(context, detail),
+                if (_pinnedRows(rows).isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _pinnedRows(rows).map((pinned) {
+                          final snippet =
+                              (pinned.text.trim().isNotEmpty
+                                      ? pinned.text.trim()
+                                      : (pinned.kind == 'IMAGE'
+                                            ? 'Photo'
+                                            : pinned.kind == 'VOICE'
+                                            ? 'Voice note'
+                                            : pinned.kind == 'VIDEO'
+                                            ? 'Video'
+                                            : pinned.kind == 'FILE'
+                                            ? 'File'
+                                            : 'Message'))
+                                  .replaceAll('\n', ' ');
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(999),
+                            onTap: () => _jumpToMessage(pinned.id),
+                            child: Container(
+                              constraints: const BoxConstraints(maxWidth: 220),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.18),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.push_pin_rounded,
+                                    size: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      snippet,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
@@ -928,31 +1021,55 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                   Padding(
                                     padding: const EdgeInsets.only(
                                       top: 2,
-                                      bottom: 4,
+                                      bottom: 6,
                                       left: 8,
                                       right: 8,
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.push_pin_rounded,
-                                          size: 12,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.10),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Pinned',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelSmall
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                        border: Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withValues(alpha: 0.18),
                                         ),
-                                      ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.push_pin_rounded,
+                                            size: 12,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'Pinned',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelSmall
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 if (row.deleteState.toUpperCase() !=
