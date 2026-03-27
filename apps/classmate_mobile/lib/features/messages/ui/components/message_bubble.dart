@@ -27,10 +27,10 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChatBubble(
-      child: child,
       isMe: isMine,
       isFirst: startsGroup,
       isLast: endsGroup,
+      child: child,
     );
   }
 }
