@@ -1347,6 +1347,13 @@ enum DmMediaMode {
   KEEP
 }
 
+enum DmMessageDeleteMode {
+  VISIBLE
+  DELETED_FOR_ME
+  DELETED_FOR_EVERYONE
+  MODERATOR_REMOVED
+}
+
 model DmThread {
   id           String          @id @default(cuid())
   type         DmThreadType    @default(DIRECT)
@@ -1374,27 +1381,35 @@ model DmParticipant {
 }
 
 model DmMessage {
-  id            String          @id @default(cuid())
-  threadId      String
-  senderId      String
-  kind          DmMessageKind   @default(TEXT)
-  text          String?
-  mediaUrl      String?
-  mediaMimeType String?
+  id               String              @id @default(cuid())
+  threadId         String
+  senderId         String
+  kind             DmMessageKind       @default(TEXT)
+  text             String?
+  mediaUrl         String?
+  mediaMimeType    String?
   replyToMessageId String?
-  mediaMode     DmMediaMode?
-  viewLimit     Int?
-  replayLimit   Int?
-  expiresAt     DateTime?
-  createdAt     DateTime        @default(now())
-  thread        DmThread        @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  views         DmMessageView[]
-  reactions     DmReaction[]
-  replyTo          DmMessage?  @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
-  replies          DmMessage[] @relation("DmMessageReply")
+  mediaMode        DmMediaMode?
+  viewLimit        Int?
+  replayLimit      Int?
+  expiresAt        DateTime?
+  isPinned         Boolean             @default(false)
+  editedAt         DateTime?
+  deletedAt        DateTime?
+  deleteMode       DmMessageDeleteMode @default(VISIBLE)
+  forwardedFromId  String?
+  createdAt        DateTime            @default(now())
+  thread           DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  views            DmMessageView[]
+  reactions        DmReaction[]
+  replyTo          DmMessage?          @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
+  replies          DmMessage[]         @relation("DmMessageReply")
+  forwardedFrom    DmMessage?          @relation("DmMessageForward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
+  forwardedCopies  DmMessage[]         @relation("DmMessageForward")
 
   @@index([threadId, createdAt])
   @@index([replyToMessageId])
+  @@index([forwardedFromId])
 }
 
 model DmMessageView {

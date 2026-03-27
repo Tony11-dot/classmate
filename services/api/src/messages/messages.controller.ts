@@ -9,6 +9,10 @@ import { BlockMessageRequestDto } from './dto/block-message-request.dto';
 import { CreateGroupThreadDto } from './dto/create-group-thread.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MarkThreadReadDto } from './dto/mark-thread-read.dto';
+import { EditMessageDto } from './dto/edit-message.dto';
+import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
+import { DeleteMessageDto } from './dto/delete-message.dto';
+import { ForwardMessageDto } from './dto/forward-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.SECRETARY)
@@ -60,4 +64,25 @@ export class MessagesController {
   markRead(@Req() req: any, @Body() body: MarkThreadReadDto) {
     return this.service.markThreadRead(req.user, body);
   }
+
+  @Post('messages/edit')
+  edit(@Req() req: any, @Body() body: EditMessageDto) {
+    return this.service.editMessage(req.user, body);
+  }
+
+  @Post('messages/pin')
+  pin(@Req() req: any, @Body() body: TogglePinMessageDto) {
+    return this.service.togglePin(req.user, body);
+  }
+
+  @Post('messages/delete')
+  deleteMessage(@Req() req: any, @Body() body: DeleteMessageDto) {
+    return this.service.deleteMessage(req.user, body);
+  }
+
+  @Post('messages/forward')
+  forward(@Req() req: any, @Body() body: ForwardMessageDto) {
+    return this.service.forwardMessage(req.user, body);
+  }
+
 }

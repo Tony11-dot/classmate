@@ -17,6 +17,10 @@ import { BlockMessageRequestDto } from './dto/block-message-request.dto';
 import { CreateGroupThreadDto } from './dto/create-group-thread.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MarkThreadReadDto } from './dto/mark-thread-read.dto';
+import { EditMessageDto } from './dto/edit-message.dto';
+import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
+import { DeleteMessageDto } from './dto/delete-message.dto';
+import { ForwardMessageDto } from './dto/forward-message.dto';
 
 type AppUser = {
   id?: string;
@@ -163,6 +167,20 @@ export class MessagesService {
     }
 
     return participant;
+  }
+
+  private async loadMessageOrThrow(threadId: string, messageId: string, userId: string) {
+    await this.loadParticipantOrThrow(threadId, userId);
+
+    const message = await this.prisma.dmMessage.findFirst({
+      where: { id: messageId, threadId },
+    });
+
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    return message;
   }
 
   private async loadThreadOrThrow(threadId: string, userId: string) {
@@ -347,7 +365,10 @@ export class MessagesService {
             Array.isArray(m.reactions) && m.reactions.length
               ? String(m.reactions[0]?.emoji ?? '').trim() || null
               : null,
-          isPinned: false,
+          isPinned: !!m.isPinned,
+          edited: !!m.editedAt,
+          forwarded: !!m.forwardedFromId,
+          deleteState: String(m.deleteMode ?? 'VISIBLE'),
           kind: String(m.kind),
           mediaUrl: m.mediaUrl ?? null,
           replyToMessageId: m.replyToMessageId ?? null,
@@ -696,13 +717,166 @@ export class MessagesService {
           Array.isArray(created.reactions) && created.reactions.length
             ? String(created.reactions[0]?.emoji ?? '').trim() || null
             : null,
-        isPinned: false,
+        isPinned: !!created.isPinned,
+        edited: !!created.editedAt,
+        forwarded: !!created.forwardedFromId,
+        deleteState: String(created.deleteMode ?? 'VISIBLE'),
         kind: String(created.kind),
         mediaUrl: created.mediaUrl ?? null,
         replyToMessageId: created.replyToMessageId ?? null,
       },
     };
   }
+
+
+  async editMessage(user: AppUser, dto: EditMessageDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+    const text = String(dto.text ?? '').trim();
+
+    if (!threadId || !messageId || !text) {
+      throw new BadRequestException('threadId, messageId, and text are required');
+    }
+
+    const message = await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    if (message.senderId !== userId) {
+      throw new ForbiddenException('Only the sender can edit this message');
+    }
+
+    if (message.mediaUrl) {
+      throw new BadRequestException('Editing media messages is not supported');
+    }
+
+    await this.prisma.dmMessage.update({
+      where: { id: messageId },
+      data: {
+        text,
+        editedAt: new Date(),
+      },
+    });
+
+    return { ok: true };
+  }
+
+  async togglePin(user: AppUser, dto: TogglePinMessageDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+
+    if (!threadId || !messageId) {
+      throw new BadRequestException('threadId and messageId are required');
+    }
+
+    const participant = await this.loadParticipantOrThrow(threadId, userId);
+    const message = await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    if (participant.thread.type !== DmThreadType.GROUP && message.senderId !== userId) {
+      throw new ForbiddenException('Only your own direct-message messages can be pinned');
+    }
+
+    const updated = await this.prisma.dmMessage.update({
+      where: { id: messageId },
+      data: { isPinned: !message.isPinned },
+      select: { isPinned: true },
+    });
+
+    return { ok: true, isPinned: updated.isPinned };
+  }
+
+  async deleteMessage(user: AppUser, dto: DeleteMessageDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+    const mode = String(dto.mode ?? 'deleteForMe').trim();
+
+    if (!threadId || !messageId) {
+      throw new BadRequestException('threadId and messageId are required');
+    }
+
+    const message = await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    if (mode === 'deleteForEveryone') {
+      if (message.senderId !== userId) {
+        throw new ForbiddenException('Only the sender can delete for everyone');
+      }
+
+      await this.prisma.dmMessage.update({
+        where: { id: messageId },
+        data: {
+          text: 'This message was deleted',
+          mediaUrl: null,
+          mediaMimeType: null,
+          deletedAt: new Date(),
+          deleteMode: 'DELETED_FOR_EVERYONE',
+        },
+      });
+
+      return { ok: true };
+    }
+
+    if (message.senderId !== userId) {
+      throw new ForbiddenException('Only the sender can delete this message for self in this phase');
+    }
+
+    await this.prisma.dmMessage.update({
+      where: { id: messageId },
+      data: {
+        deletedAt: new Date(),
+        deleteMode: 'DELETED_FOR_ME',
+      },
+    });
+
+    return { ok: true };
+  }
+
+  async forwardMessage(user: AppUser, dto: ForwardMessageDto) {
+    const userId = this.viewerId(user);
+    const fromThreadId = String(dto.fromThreadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+    const targetThreadIds = Array.from(new Set((dto.targetThreadIds ?? []).map((v) => String(v ?? '').trim()).filter(Boolean)));
+
+    if (!fromThreadId || !messageId || !targetThreadIds.length) {
+      throw new BadRequestException('fromThreadId, messageId, and targetThreadIds are required');
+    }
+
+    const source = await this.loadMessageOrThrow(fromThreadId, messageId, userId);
+
+    for (const targetThreadId of targetThreadIds) {
+      const participant = await this.loadParticipantOrThrow(targetThreadId, userId);
+      if (participant.state !== DmParticipantState.ACCEPTED) {
+        throw new ForbiddenException('Cannot forward into a non-approved thread');
+      }
+
+      await this.prisma.dmMessage.create({
+        data: {
+          threadId: targetThreadId,
+          senderId: userId,
+          kind: source.kind,
+          text: source.text,
+          mediaUrl: source.mediaUrl,
+          mediaMimeType: source.mediaMimeType,
+          forwardedFromId: source.id,
+        },
+      });
+
+      await this.prisma.dmParticipant.update({
+        where: {
+          threadId_userId: {
+            threadId: targetThreadId,
+            userId,
+          },
+        },
+        data: {
+          lastSeenAt: new Date(),
+        },
+      });
+    }
+
+    return { ok: true };
+  }
+
 
   async markThreadRead(user: AppUser, dto: MarkThreadReadDto) {
     const userId = this.viewerId(user);
