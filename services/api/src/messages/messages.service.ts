@@ -4,471 +4,502 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateDirectRequestDto } from './dto/create-direct-request.dto';
 import { ApproveMessageRequestDto } from './dto/approve-message-request.dto';
 import { BlockMessageRequestDto } from './dto/block-message-request.dto';
+import { CreateDirectRequestDto } from './dto/create-direct-request.dto';
 import { CreateGroupThreadDto } from './dto/create-group-thread.dto';
-
-type AppUser = {
-  id?: string;
-  sub?: string;
-  userId?: string;
-};
+import { MarkThreadReadDto } from './dto/mark-thread-read.dto';
+import { SendMessageDto } from './dto/send-message.dto';
 
 @Injectable()
 export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private viewerId(user: AppUser): string {
-    const id = String(user?.sub ?? user?.id ?? user?.userId ?? '').trim();
-    if (!id) {
-      throw new BadRequestException('Missing authenticated user');
-    }
-    return id;
+  private initials(name: string) {
+    return String(name || '')
+      .trim()
+      .split(/\s+/)
+      .filter((v) => v.length > 0)
+      .slice(0, 2)
+      .map((v) => v[0]!.toUpperCase())
+      .join('');
   }
 
-  private async requireUser(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  private async userOrThrow(userId: string) {
+    const row = await this.prisma.user.findUnique({
+      where: { id: String(userId) },
       select: { id: true, name: true, displayName: true },
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+    if (!row) throw new NotFoundException('User not found');
+    return row;
   }
 
-  private displayNameOf(user: { name?: string | null; displayName?: string | null }) {
-    return String(user.displayName ?? user.name ?? '').trim() || 'Unknown';
-  }
-
-  private initialsOf(name: string) {
-    const parts = name
-      .split(' ')
-      .map((v) => v.trim())
-      .filter((v) => v.length > 0)
-      .slice(0, 2);
-    if (!parts.length) return '??';
-    return parts.map((v) => v[0]!.toUpperCase()).join();
-  }
-
-  private async requireMembership(threadId: string, userId: string) {
-    const membership = await this.prisma.messageThreadMember.findUnique({
+  private async participantOrThrow(threadId: string, userId: string) {
+    const participant = await this.prisma.dmParticipant.findUnique({
       where: {
         threadId_userId: {
-          threadId,
-          userId,
+          threadId: String(threadId),
+          userId: String(userId),
         },
       },
       include: {
-        user: {
+        thread: true,
+      },
+    });
+    if (!participant) throw new ForbiddenException('Not a participant in this thread');
+    return participant;
+  }
+
+  private mapRequestState(thread: any, participant: any) {
+    const status = String(thread?.requestState ?? '').toUpperCase();
+    const createdByUserId = String(thread?.createdByUserId ?? '');
+
+    if (status === 'BLOCKED') return 'BLOCKED';
+    if (status === 'APPROVED') return 'APPROVED';
+    if (status === 'PENDING') {
+      return createdByUserId === String(participant?.userId ?? '')
+        ? 'PENDING_OUTGOING'
+        : 'PENDING_INCOMING';
+    }
+    return 'NONE';
+  }
+
+  private mapThreadType(raw: any) {
+    const value = String(raw ?? '').toUpperCase();
+    if (value === 'GROUP') return 'GROUP';
+    return 'DIRECT';
+  }
+
+  private async visibleMessages(threadId: string) {
+    return this.prisma.dmMessage.findMany({
+      where: { threadId: String(threadId) },
+      orderBy: [{ createdAt: 'asc' }],
+      include: {
+        sender: {
           select: {
             id: true,
             name: true,
             displayName: true,
           },
         },
-        thread: true,
       },
     });
-
-    if (!membership) {
-      throw new ForbiddenException('No access to this thread');
-    }
-
-    if (membership.isBlocked) {
-      throw new ForbiddenException('Thread is blocked');
-    }
-
-    return membership;
   }
 
-  private async threadToSummary(thread: any, viewerId: string) {
-    const viewerMembership = (thread.members ?? []).find(
-      (m: any) => String(m.userId) === viewerId,
-    );
-    const otherMembers = (thread.members ?? []).filter(
-      (m: any) => String(m.userId) !== viewerId,
-    );
-    const counterpart = otherMembers[0]?.user;
-    const title =
-      thread.type === 'GROUP'
-        ? String(thread.title ?? 'Group').trim() || 'Group'
-        : this.displayNameOf(counterpart ?? {});
+  async getInbox(userId: string) {
+    await this.userOrThrow(userId);
 
-    const initials =
-      thread.type === 'GROUP'
-        ? this.initialsOf(title)
-        : this.initialsOf(this.displayNameOf(counterpart ?? {}));
+    const rows = await this.prisma.dmParticipant.findMany({
+      where: { userId: String(userId), isHidden: false },
+      include: {
+        thread: {
+          include: {
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                  },
+                },
+              },
+            },
+            messages: {
+              orderBy: [{ createdAt: 'desc' }],
+              take: 1,
+              include: {
+                sender: {
+                  select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ updatedAt: 'desc' }],
+    });
 
-    const subtitleSource = thread.messages?.[0];
-    const subtitle = subtitleSource
-      ? String(subtitleSource.text ?? '').trim() || this.kindLabel(subtitleSource.kind)
-      : thread.requestState === 'PENDING_INCOMING'
-      ? 'Sent you a message request'
-      : 'No messages yet';
+    const items = rows.map((participant) => {
+      const thread = participant.thread;
+      const others = thread.participants.filter((p) => p.userId !== userId);
+      const other = others[0]?.user;
+      const lastMessage = thread.messages[0] ?? null;
 
-    const unreadCount = 0;
-    const lastMessageAt = thread.lastMessageAt
-      ? new Date(thread.lastMessageAt).toLocaleTimeString('en-US', {
+      const title =
+        this.mapThreadType(thread.type) === 'GROUP'
+          ? String(thread.title ?? 'Group')
+          : String(other?.displayName || other?.name || 'Unknown');
+
+      const initials =
+        this.mapThreadType(thread.type) === 'GROUP'
+          ? this.initials(String(thread.title ?? 'Group'))
+          : this.initials(String(other?.displayName || other?.name || 'Unknown'));
+
+      const subtitle =
+        thread.requestState === 'PENDING' && String(thread.createdByUserId) !== String(userId)
+          ? 'Sent you a message request'
+          : lastMessage
+          ? (() => {
+              const senderName =
+                String(
+                  lastMessage.sender?.displayName ||
+                    lastMessage.sender?.name ||
+                    '',
+                ).trim();
+              const text = String(lastMessage.text ?? '').trim();
+              if (this.mapThreadType(thread.type) === 'GROUP' && senderName) {
+                return `${senderName}: ${text || 'Attachment'}`;
+              }
+              return text || 'Attachment';
+            })()
+          : 'No messages yet';
+
+      const unreadCount = Number(participant.unreadCount ?? 0);
+
+      return {
+        id: thread.id,
+        type: this.mapThreadType(thread.type),
+        title,
+        subtitle,
+        isGroup: this.mapThreadType(thread.type) === 'GROUP',
+        isUnread: unreadCount > 0,
+        unreadCount,
+        lastMessageAt: lastMessage
+          ? new Date(lastMessage.createdAt).toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: '2-digit',
+            })
+          : '',
+        requestState: this.mapRequestState(thread, participant),
+        initials,
+        groupAvatarUrl: null,
+      };
+    });
+
+    return { ok: true, items, viewerUserId: userId };
+  }
+
+  async getThread(userId: string, threadId: string) {
+    const participant = await this.participantOrThrow(threadId, userId);
+    const thread = await this.prisma.dmThread.findUnique({
+      where: { id: String(threadId) },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!thread) throw new NotFoundException('Thread not found');
+    if (thread.requestState === 'PENDING') {
+      throw new BadRequestException('Thread is still a request');
+    }
+
+    const messages = await this.visibleMessages(threadId);
+    const other = thread.participants.find((p) => p.userId !== userId)?.user;
+
+    const payload = {
+      id: thread.id,
+      title:
+        this.mapThreadType(thread.type) === 'GROUP'
+          ? String(thread.title ?? 'Group')
+          : String(other?.displayName || other?.name || 'Unknown'),
+      subtitle:
+        this.mapThreadType(thread.type) === 'GROUP'
+          ? `${thread.participants.length} members`
+          : 'Direct chat',
+      isGroup: this.mapThreadType(thread.type) === 'GROUP',
+      requestState: this.mapRequestState(thread, participant),
+      participants: thread.participants.map((p) => ({
+        userId: p.user.id,
+        displayName: String(p.user.displayName || p.user.name || 'Unknown'),
+        initials: this.initials(String(p.user.displayName || p.user.name || 'Unknown')),
+        isAdmin: Boolean(p.isAdmin),
+        isBlocked: false,
+      })),
+      messages: messages.map((m) => ({
+        id: m.id,
+        senderId: m.senderId,
+        senderName: String(m.sender?.displayName || m.sender?.name || 'Unknown'),
+        text: String(m.text ?? ''),
+        timeLabel: new Date(m.createdAt).toLocaleTimeString('en-US', {
           hour: 'numeric',
           minute: '2-digit',
-        })
-      : '';
-
-    return {
-      id: thread.id,
-      type: String(thread.type).toLowerCase(),
-      title,
-      subtitle,
-      isGroup: String(thread.type) === 'GROUP',
-      isUnread: unreadCount > 0,
-      unreadCount,
-      lastMessageAt,
-      requestState: this.requestStateForViewer(thread, viewerId),
-      initials,
-      groupAvatarUrl: thread.groupAvatarUrl ?? null,
-      canSend: this.canViewerSend(thread, viewerId),
-    };
-  }
-
-  private requestStateForViewer(thread: any, viewerId: string) {
-    const state = String(thread.requestState ?? 'NONE');
-    if (state === 'PENDING_INCOMING' && String(thread.requestTargetUserId ?? '') === viewerId) {
-      return 'pendingIncoming';
-    }
-    if (state === 'PENDING_INCOMING') {
-      return 'pendingOutgoing';
-    }
-    if (state === 'APPROVED') return 'approved';
-    if (state === 'BLOCKED') return 'blocked';
-    return 'none';
-  }
-
-  private canViewerSend(thread: any, viewerId: string) {
-    const state = this.requestStateForViewer(thread, viewerId);
-    return state === 'approved' || state === 'none';
-  }
-
-  private kindLabel(kind: unknown) {
-    switch (String(kind ?? 'TEXT')) {
-      case 'IMAGE':
-        return 'Photo';
-      case 'VOICE':
-        return 'Voice note';
-      case 'FILE':
-        return 'File';
-      case 'SYSTEM':
-        return 'System';
-      default:
-        return 'Message';
-    }
-  }
-
-  private async messageToClient(message: any, viewerId: string) {
-    const senderName = this.displayNameOf(message.sender ?? {});
-    return {
-      id: message.id,
-      senderId: message.senderId,
-      senderName,
-      text: String(message.text ?? '').trim(),
-      timeLabel: new Date(message.createdAt).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      }),
-      isMine: String(message.senderId) === viewerId,
-      reaction:
-        Array.isArray(message.reactions) && message.reactions.length
-          ? String(message.reactions[0]?.emoji ?? '').trim() || null
-          : null,
-      isPinned: false,
-      kind: String(message.kind ?? 'TEXT'),
-      mediaUrl: message.mediaUrl ?? null,
-      replyToMessageId: message.replyToMessageId ?? null,
-    };
-  }
-
-  async fetchInbox(user: AppUser) {
-    const viewerId = this.viewerId(user);
-
-    const threads = await this.prisma.messageThread.findMany({
-      where: {
-        members: {
-          some: {
-            userId: viewerId,
-            isArchived: false,
-          },
-        },
-      },
-      include: {
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                displayName: true,
-              },
-            },
-          },
-        },
-        messages: {
-          take: 1,
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-      orderBy: [
-        { lastMessageAt: 'desc' },
-        { createdAt: 'desc' },
-      ],
-    });
-
-    return {
-      items: await Promise.all(threads.map((t) => this.threadToSummary(t, viewerId))),
-    };
-  }
-
-  async fetchThread(user: AppUser, threadId: string) {
-    const viewerId = this.viewerId(user);
-    await this.requireMembership(threadId, viewerId);
-
-    const thread = await this.prisma.messageThread.findUnique({
-      where: { id: threadId },
-      include: {
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                displayName: true,
-              },
-            },
-          },
-        },
-        messages: {
-          orderBy: { createdAt: 'asc' },
-          include: {
-            sender: {
-              select: {
-                id: true,
-                name: true,
-                displayName: true,
-              },
-            },
-            reactions: true,
-          },
-        },
-      },
-    });
-
-    if (!thread) {
-      throw new NotFoundException('Thread not found');
-    }
-
-    const otherMembers = thread.members.filter((m) => String(m.userId) !== viewerId);
-    const counterpart = otherMembers[0]?.user;
-    const title =
-      thread.type === 'GROUP'
-        ? String(thread.title ?? 'Group').trim() || 'Group'
-        : this.displayNameOf(counterpart ?? {});
-
-    return {
-      id: thread.id,
-      title,
-      subtitle:
-        thread.type === 'GROUP'
-          ? `${thread.members.length} members`
-          : 'Direct message',
-      isGroup: String(thread.type) === 'GROUP',
-      requestState: this.requestStateForViewer(thread, viewerId),
-      participants: thread.members.map((m) => ({
-        userId: m.userId,
-        displayName: this.displayNameOf(m.user),
-        initials: this.initialsOf(this.displayNameOf(m.user)),
-        isAdmin: String(m.role).toUpperCase() === 'ADMIN',
-        isBlocked: !!m.isBlocked,
+        }),
+        isMine: String(m.senderId) === String(userId),
+        reaction: null,
+        isPinned: Boolean(m.isPinned),
       })),
-      messages: await Promise.all(
-        thread.messages.map((message) => this.messageToClient(message, viewerId)),
-      ),
-      canSend: this.canViewerSend(thread, viewerId),
+    };
+
+    return { ok: true, thread: payload, viewerUserId: userId };
+  }
+
+  async getRequest(userId: string, threadId: string) {
+    const participant = await this.participantOrThrow(threadId, userId);
+    const thread = await this.prisma.dmThread.findUnique({
+      where: { id: String(threadId) },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!thread) throw new NotFoundException('Request not found');
+    if (thread.requestState !== 'PENDING') {
+      throw new BadRequestException('Request no longer pending');
+    }
+
+    const messages = await this.visibleMessages(threadId);
+    const other = thread.participants.find((p) => p.userId !== userId)?.user;
+
+    return {
+      ok: true,
+      request: {
+        id: thread.id,
+        title: String(other?.displayName || other?.name || 'Unknown'),
+        subtitle: 'Message request',
+        isGroup: false,
+        requestState: this.mapRequestState(thread, participant),
+        participants: thread.participants.map((p) => ({
+          userId: p.user.id,
+          displayName: String(p.user.displayName || p.user.name || 'Unknown'),
+          initials: this.initials(String(p.user.displayName || p.user.name || 'Unknown')),
+          isAdmin: Boolean(p.isAdmin),
+          isBlocked: false,
+        })),
+        messages: messages.map((m) => ({
+          id: m.id,
+          senderId: m.senderId,
+          senderName: String(m.sender?.displayName || m.sender?.name || 'Unknown'),
+          text: String(m.text ?? ''),
+          timeLabel: new Date(m.createdAt).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+          }),
+          isMine: String(m.senderId) === String(userId),
+        })),
+      },
+      viewerUserId: userId,
     };
   }
 
-  async fetchRequest(user: AppUser, threadId: string) {
-    const detail = await this.fetchThread(user, threadId);
-    if (!String(detail.requestState).startsWith('pending')) {
-      throw new BadRequestException('Thread is not a pending request');
-    }
-    return detail;
-  }
-
-  async createDirectRequest(user: AppUser, dto: CreateDirectRequestDto) {
-    const creatorId = this.viewerId(user);
-    const targetId = String(dto.recipientUserId ?? '').trim();
-    const firstMessage = String(dto.firstMessage ?? '').trim();
-
-    if (!targetId) {
-      throw new BadRequestException('recipientUserId is required');
-    }
-    if (!firstMessage) {
-      throw new BadRequestException('firstMessage is required');
-    }
-    if (creatorId === targetId) {
+  async createDirectRequest(userId: string, dto: CreateDirectRequestDto) {
+    if (String(userId) === String(dto.recipientUserId)) {
       throw new BadRequestException('Cannot message yourself');
     }
 
-    await this.requireUser(creatorId);
-    await this.requireUser(targetId);
+    await this.userOrThrow(userId);
+    await this.userOrThrow(dto.recipientUserId);
 
-    const existing = await this.prisma.messageThread.findFirst({
+    const existing = await this.prisma.dmThread.findFirst({
       where: {
         type: 'DIRECT',
-        members: {
-          every: {
-            userId: {
-              in: [creatorId, targetId],
+        participants: {
+          some: { userId: String(userId) },
+        },
+        AND: [
+          {
+            participants: {
+              some: { userId: String(dto.recipientUserId) },
             },
           },
-        },
+        ],
       },
       include: {
-        members: true,
+        participants: true,
       },
     });
 
-    if (existing && existing.members.length === 2) {
-      return this.fetchThread(user, existing.id);
+    if (existing && existing.participants.length === 2) {
+      return {
+        ok: true,
+        threadId: existing.id,
+        requestState: existing.requestState === 'PENDING' ? 'PENDING_OUTGOING' : 'APPROVED',
+      };
     }
 
-    const thread = await this.prisma.messageThread.create({
+    const thread = await this.prisma.dmThread.create({
       data: {
         type: 'DIRECT',
-        createdByUserId: creatorId,
-        requestState: 'PENDING_INCOMING',
-        requestTargetUserId: targetId,
-        lastMessageAt: new Date(),
-        members: {
+        requestState: 'PENDING',
+        createdByUserId: String(userId),
+        participants: {
           create: [
-            { userId: creatorId, role: 'MEMBER' },
-            { userId: targetId, role: 'MEMBER' },
+            { userId: String(userId), isAdmin: false, unreadCount: 0 },
+            { userId: String(dto.recipientUserId), isAdmin: false, unreadCount: 1 },
           ],
         },
         messages: {
           create: {
-            senderId: creatorId,
+            senderId: String(userId),
             kind: 'TEXT',
-            text: firstMessage,
+            text: String(dto.firstMessage).trim(),
           },
         },
       },
     });
 
-    return this.fetchThread(user, thread.id);
+    return {
+      ok: true,
+      threadId: thread.id,
+      requestState: 'PENDING_OUTGOING',
+    };
   }
 
-  async approveRequest(user: AppUser, dto: ApproveMessageRequestDto) {
-    const viewerId = this.viewerId(user);
-    const threadId = String(dto.threadId ?? '').trim();
-    if (!threadId) throw new BadRequestException('threadId is required');
+  async approveRequest(userId: string, dto: ApproveMessageRequestDto) {
+    await this.participantOrThrow(dto.threadId, userId);
 
-    const membership = await this.requireMembership(threadId, viewerId);
-    const thread = membership.thread;
-
-    if (String(thread.requestTargetUserId ?? '') !== viewerId) {
-      throw new ForbiddenException('Only the receiver can approve this request');
-    }
-
-    await this.prisma.messageThread.update({
-      where: { id: threadId },
-      data: {
-        requestState: 'APPROVED',
-        requestDecisionById: viewerId,
-        requestDecisionAt: new Date(),
-      },
+    const updated = await this.prisma.dmThread.update({
+      where: { id: String(dto.threadId) },
+      data: { requestState: 'APPROVED' },
     });
 
-    return { ok: true };
+    return {
+      ok: true,
+      threadId: updated.id,
+      requestState: 'APPROVED',
+      actedByUserId: userId,
+    };
   }
 
-  async blockRequest(user: AppUser, dto: BlockMessageRequestDto) {
-    const viewerId = this.viewerId(user);
-    const threadId = String(dto.threadId ?? '').trim();
-    if (!threadId) throw new BadRequestException('threadId is required');
+  async blockRequest(userId: string, dto: BlockMessageRequestDto) {
+    await this.participantOrThrow(dto.threadId, userId);
 
-    const membership = await this.requireMembership(threadId, viewerId);
-    const thread = membership.thread;
+    const updated = await this.prisma.dmThread.update({
+      where: { id: String(dto.threadId) },
+      data: { requestState: 'BLOCKED' },
+    });
 
-    if (String(thread.requestTargetUserId ?? '') !== viewerId) {
-      throw new ForbiddenException('Only the receiver can block this request');
-    }
-
-    await this.prisma.$transaction([
-      this.prisma.messageThread.update({
-        where: { id: threadId },
-        data: {
-          requestState: 'BLOCKED',
-          requestDecisionById: viewerId,
-          requestDecisionAt: new Date(),
-        },
-      }),
-      this.prisma.messageThreadMember.update({
-        where: {
-          threadId_userId: {
-            threadId,
-            userId: viewerId,
-          },
-        },
-        data: {
-          isBlocked: true,
-        },
-      }),
-    ]);
-
-    return { ok: true };
+    return {
+      ok: true,
+      threadId: updated.id,
+      requestState: 'BLOCKED',
+      actedByUserId: userId,
+    };
   }
 
-  async createGroup(user: AppUser, dto: CreateGroupThreadDto) {
-    const creatorId = this.viewerId(user);
-    const title = String(dto.title ?? '').trim();
-    const memberIds = Array.from(
-      new Set(
-        (dto.memberIds ?? [])
-          .map((v) => String(v ?? '').trim())
-          .filter((v) => v.length > 0 && v !== creatorId),
-      ),
+  async createGroup(userId: string, dto: CreateGroupThreadDto) {
+    await this.userOrThrow(userId);
+
+    const uniqueMemberIds = Array.from(
+      new Set([String(userId), ...dto.memberIds.map((v) => String(v))]),
     );
 
-    if (!title) throw new BadRequestException('title is required');
-    if (memberIds.length < 1) {
-      throw new BadRequestException('At least one member is required');
-    }
-
-    await this.requireUser(creatorId);
-    for (const memberId of memberIds) {
-      await this.requireUser(memberId);
-    }
-
-    const thread = await this.prisma.messageThread.create({
+    const thread = await this.prisma.dmThread.create({
       data: {
         type: 'GROUP',
-        title,
-        createdByUserId: creatorId,
-        requestState: 'NONE',
-        members: {
-          create: [
-            { userId: creatorId, role: 'ADMIN' },
-            ...memberIds.map((userId) => ({
-              userId,
-              role: 'MEMBER',
-            })),
-          ],
+        title: String(dto.title).trim(),
+        requestState: 'APPROVED',
+        createdByUserId: String(userId),
+        participants: {
+          create: uniqueMemberIds.map((memberId) => ({
+            userId: memberId,
+            isAdmin: memberId === String(userId),
+            unreadCount: 0,
+          })),
         },
       },
     });
 
-    return this.fetchThread(user, thread.id);
+    return {
+      ok: true,
+      threadId: thread.id,
+      title: thread.title,
+      memberIds: uniqueMemberIds,
+      createdByUserId: userId,
+    };
+  }
+
+  async sendMessage(userId: string, dto: SendMessageDto) {
+    const participant = await this.participantOrThrow(dto.threadId, userId);
+    if (participant.thread.requestState === 'BLOCKED') {
+      throw new ForbiddenException('Thread is blocked');
+    }
+
+    const text = String(dto.text ?? '').trim();
+    if (!text) throw new BadRequestException('text is required');
+
+    const message = await this.prisma.dmMessage.create({
+      data: {
+        threadId: String(dto.threadId),
+        senderId: String(userId),
+        kind: 'TEXT',
+        text,
+        replyToMessageId: dto.replyToMessageId?.trim() || null,
+      },
+    });
+
+    await this.prisma.dmParticipant.updateMany({
+      where: {
+        threadId: String(dto.threadId),
+        userId: { not: String(userId) },
+      },
+      data: {
+        unreadCount: { increment: 1 },
+      },
+    });
+
+    await this.prisma.dmParticipant.updateMany({
+      where: {
+        threadId: String(dto.threadId),
+        userId: String(userId),
+      },
+      data: {
+        unreadCount: 0,
+      },
+    });
+
+    await this.prisma.dmThread.update({
+      where: { id: String(dto.threadId) },
+      data: {
+        updatedAt: new Date(),
+        requestState:
+          participant.thread.requestState === 'PENDING' ? 'APPROVED' : undefined,
+      },
+    });
+
+    return { ok: true, messageId: message.id, threadId: dto.threadId };
+  }
+
+  async markThreadRead(userId: string, dto: MarkThreadReadDto) {
+    await this.participantOrThrow(dto.threadId, userId);
+
+    await this.prisma.dmParticipant.update({
+      where: {
+        threadId_userId: {
+          threadId: String(dto.threadId),
+          userId: String(userId),
+        },
+      },
+      data: {
+        unreadCount: 0,
+        lastReadAt: new Date(),
+      },
+    });
+
+    return { ok: true, threadId: dto.threadId };
   }
 }
