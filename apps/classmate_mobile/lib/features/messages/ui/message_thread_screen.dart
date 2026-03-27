@@ -161,6 +161,30 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await _refreshThread();
   }
 
+  Future<String?> _showDeleteModeSheet() {
+    return showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete_outline_rounded),
+              title: const Text('Delete for me'),
+              onTap: () => Navigator.of(sheetContext).pop('me'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_forever_rounded),
+              title: const Text('Delete for everyone'),
+              onTap: () => Navigator.of(sheetContext).pop('everyone'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _forwardStub(MessageItem row) async {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Forward target picker is next phase')),
@@ -211,30 +235,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     }
 
     if (action == 'delete') {
-      // ignore: use_build_context_synchronously
-      final localContext = context;
-      // ignore: use_build_context_synchronously
-      final deleteForEveryone = await showModalBottomSheet<String>(
-        context: localContext,
-        showDragHandle: true,
-        builder: (sheetContext) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.delete_outline_rounded),
-                title: const Text('Delete for me'),
-                onTap: () => Navigator.of(sheetContext).pop('me'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_forever_rounded),
-                title: const Text('Delete for everyone'),
-                onTap: () => Navigator.of(sheetContext).pop('everyone'),
-              ),
-            ],
-          ),
-        ),
-      );
+      final deleteForEveryone = await _showDeleteModeSheet();
+      if (!mounted || deleteForEveryone == null) return;
 
       if (deleteForEveryone == 'everyone') {
         await _deleteForEveryone(row);
