@@ -311,14 +311,35 @@ export class StudentClassroomsController {
         throw new BadRequestException('Cannot forward into a non-approved thread');
       }
 
+      const sourceKind = String(source.kind ?? 'TEXT').trim().toUpperCase();
+      const sourceText = String(source.text ?? '').trim();
+      const sourceMediaMime = String(source.mediaMime ?? '').trim();
+      const sourceDuration =
+        Number.isFinite(Number(source.durationSec ?? 0)) &&
+        Number(source.durationSec ?? 0) > 0
+          ? Number(source.durationSec)
+          : 0;
+
+      const forwardedText =
+        sourceKind === 'VOICE'
+          ? (() => {
+              const tagged = /\[duration:\d+\]/i.test(sourceText);
+              if (tagged) return sourceText;
+              if (sourceText) return `${sourceText} [duration:${sourceDuration}]`;
+              return sourceDuration > 0
+                ? `[VOICE] Voice message [duration:${sourceDuration}]`
+                : '[VOICE] Voice message';
+            })()
+          : sourceText || null;
+
       await this.prisma.dmMessage.create({
         data: {
           threadId: targetThreadId,
           senderId: uid,
-          kind: String(source.kind ?? 'TEXT') as any,
-          text: source.text ?? null,
+          kind: sourceKind as any,
+          text: forwardedText,
           mediaUrl: source.mediaUrl ?? null,
-          mediaMimeType: source.mediaMime ?? null,
+          mediaMimeType: sourceMediaMime || null,
           forwardedFromId: source.id,
         },
       });
