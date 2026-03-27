@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
 
 class MessageReactionBar extends StatelessWidget {
-  final Function(String) onReact;
+  const MessageReactionBar({
+    super.key,
+    required this.onReact,
+  });
 
-  const MessageReactionBar({super.key, required this.onReact});
+  final ValueChanged<String> onReact;
 
   @override
   Widget build(BuildContext context) {
-    final reactions = ["🔥", "😂", "👍", "❤️", "👏", "😭"];
+    const reactions = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: reactions.map((r) {
-        return GestureDetector(
-          onTap: () => onReact(r),
-          child: Text(r, style: const TextStyle(fontSize: 20)),
-        );
-      }).toList(),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final reaction in reactions)
+          InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: () => onReact(reaction),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Text(
+                reaction,
+                style: const TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
