@@ -214,8 +214,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               }
 
                               if (selected == 'info') {
+                                if (!mounted) return;
+                                final modalContext = context;
                                 await showModalBottomSheet<void>(
-                                  context: context,
+                                  context: modalContext,
                                   showDragHandle: true,
                                   builder: (_) => SafeArea(
                                     child: ListView(
