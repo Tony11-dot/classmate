@@ -33,6 +33,28 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       ).trim();
 
     if (isDev && devBypassEnabled && devUser) {
+      const devRolesRaw =
+        String(
+          req?.headers?.['x-dev-roles'] ??
+            req?.headers?.['X-DEV-ROLES'] ??
+            req?.headers?.['x-dev-role'] ??
+            req?.headers?.['X-DEV-ROLE'] ??
+            '',
+        ).trim();
+
+      const devRoles = devRolesRaw
+        .split(',')
+        .map((v) => v.trim().toUpperCase())
+        .filter((v) => v.length > 0);
+
+      req.user = {
+        ...(req.user ?? {}),
+        id: devUser,
+        sub: devUser,
+        userId: devUser,
+        roles: devRoles,
+      };
+
       return true;
     }
 

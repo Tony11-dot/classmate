@@ -195,9 +195,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               setState(() => _replyIndex = index);
                             },
                             onLongPress: () async {
+                              final navigator = Navigator.of(context);
                               final selected =
                                   await showModalBottomSheet<String>(
-                                context: context,
+                                context: navigator.context,
                                 showDragHandle: true,
                                 builder: (sheetContext) => SafeArea(
                                   child: Column(
@@ -248,7 +249,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
                               if (selected == 'info') {
                                 if (!mounted) return;
-                                await _openMessageInfoSheet(context, row);
+                                await _openMessageInfoSheet(navigator.context, row);
                               }
                             },
                             child: Column(
