@@ -430,6 +430,41 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
+  Future<void> editMessage({
+    required String threadId,
+    required String messageId,
+    required String text,
+  }) async {
+    return;
+  }
+
+  @override
+  Future<void> deleteMessage({
+    required String threadId,
+    required String messageId,
+    String mode = 'deleteForMe',
+  }) async {
+    return;
+  }
+
+  @override
+  Future<void> forwardMessage({
+    required String fromThreadId,
+    required String messageId,
+    required List<String> targetThreadIds,
+  }) async {
+    return;
+  }
+
+  @override
+  Future<void> togglePin({
+    required String threadId,
+    required String messageId,
+  }) async {
+    return;
+  }
+
+  @override
   Future<void> markThreadRead({required String threadId}) async {
     final response = await _client
         .post(

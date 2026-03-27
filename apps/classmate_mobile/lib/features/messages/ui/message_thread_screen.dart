@@ -12,6 +12,9 @@ import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../chat_core/models/chat_message_info.dart';
+import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_message_info_sheet.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
@@ -32,6 +35,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Map<String, String> _reactionByMessageId = <String, String>{};
+  final Set<String> _pinnedMessageIds = <String>{};
   final AudioRecorder _recorder = AudioRecorder();
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -163,6 +167,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 
+  // ignore: unused_element
   Future<void> _openBubbleMenu(MessageItem row, {required bool canPin}) async {
     final action = await showModalBottomSheet<String>(
       context: context,
