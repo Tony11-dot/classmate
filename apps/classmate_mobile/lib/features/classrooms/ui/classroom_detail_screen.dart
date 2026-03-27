@@ -2523,6 +2523,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         edited: _editedTextByMessage
                                             .containsKey(messageId),
                                         reaction: reaction,
+                                        deleteState: row.deleteState,
                                         maxWidth: 280,
                                       ),
                                     ],
