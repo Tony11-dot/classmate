@@ -67,6 +67,12 @@ model User {
 
   studentTemplateBinds StudentScheduleTemplate[]
   solutionReposts      SolutionRepost[]
+
+  messageThreadMemberships MessageThreadMember[]
+  sentMessages             Message[]
+  messageReactions         MessageReaction[]
+  messageRequestDecisions  MessageThread[]       @relation("MessageRequestDecisionUser")
+  messageThreads           MessageThread[]
 }
 
 model UserRole {
@@ -172,6 +178,34 @@ model StudentMajor {
   @@index([majorId])
 }
 
+enum MessageThreadType {
+  DIRECT
+  GROUP
+}
+
+enum MessageRequestState {
+  NONE
+  PENDING_INCOMING
+  PENDING_OUTGOING
+  APPROVED
+  BLOCKED
+}
+
+enum MessageKind {
+  TEXT
+  IMAGE
+  FILE
+  VOICE
+  SYSTEM
+}
+
+enum MessageDeleteMode {
+  NONE
+  DELETE_FOR_ME
+  DELETE_FOR_EVERYONE
+  MODERATOR_REMOVED
+}
+
 model Course {
   id        String  @id @default(uuid())
   name      String
@@ -196,6 +230,8 @@ model Course {
   assignments ClassroomAssignment[]
   materials   ClassroomMaterial[]
   meetings    ClassroomMeeting[]
+
+  messageThreads MessageThread[]
 
   @@index([teacherId])
   @@index([cohortId])
@@ -1378,4 +1414,95 @@ model DmReaction {
 
   @@unique([messageId, userId, emoji])
   @@index([messageId])
+}
+
+model MessageThread {
+  id                  String              @id @default(uuid())
+  type                MessageThreadType
+  title               String?
+  createdByUserId     String
+  requestState        MessageRequestState @default(NONE)
+  requestTargetUserId String?
+  requestDecisionById String?
+  requestDecisionAt   DateTime?
+  lastMessageAt       DateTime?
+  classroomCourseId   String?
+  groupAvatarUrl      String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  createdBy         User                  @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  requestDecisionBy User?                 @relation("MessageRequestDecisionUser", fields: [requestDecisionById], references: [id], onDelete: SetNull)
+  classroomCourse   Course?               @relation(fields: [classroomCourseId], references: [id], onDelete: SetNull)
+  members           MessageThreadMember[]
+  messages          Message[]
+
+  @@index([createdByUserId])
+  @@index([requestTargetUserId])
+  @@index([requestState])
+  @@index([lastMessageAt])
+  @@index([classroomCourseId])
+}
+
+model MessageThreadMember {
+  id                String    @id @default(uuid())
+  threadId          String
+  userId            String
+  role              String    @default("MEMBER")
+  joinedAt          DateTime  @default(now())
+  lastReadMessageId String?
+  lastReadAt        DateTime?
+  isArchived        Boolean   @default(false)
+  isMuted           Boolean   @default(false)
+  isBlocked         Boolean   @default(false)
+
+  thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, userId])
+  @@index([userId])
+  @@index([threadId, lastReadAt])
+}
+
+model Message {
+  id                String            @id @default(uuid())
+  threadId          String
+  senderId          String
+  kind              MessageKind       @default(TEXT)
+  text              String            @default("")
+  mediaUrl          String?
+  mediaMime         String?
+  originalFileName  String?
+  replyToMessageId  String?
+  forwardedFromId   String?
+  editedAt          DateTime?
+  deleteMode        MessageDeleteMode @default(NONE)
+  deletedForUserIds String[]          @default([])
+  createdAt         DateTime          @default(now())
+
+  thread          MessageThread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender          User              @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo         Message?          @relation("MessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
+  replies         Message[]         @relation("MessageReply")
+  forwardedFrom   Message?          @relation("MessageForward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
+  forwardedCopies Message[]         @relation("MessageForward")
+  reactions       MessageReaction[]
+
+  @@index([threadId, createdAt])
+  @@index([senderId, createdAt])
+  @@index([replyToMessageId])
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([userId, createdAt])
 }
