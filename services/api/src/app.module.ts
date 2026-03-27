@@ -37,8 +37,8 @@ import { BagrutModule } from './bagrut/bagrut.module';
 import { PracticeAdaptiveModule } from './practice_adaptive/practice_adaptive.module';
 import { NovaModule } from './nova/nova.module';
 import { PracticeModule } from './practice/practice.module';
-import { MessagesModule } from './messages/messages.module';
 import { E2ESeedController } from './e2e/seed.controller';
+import { MessagesModule } from './messages/messages.module';
 
 const env = loadEnv();
 
