@@ -35,6 +35,16 @@ abstract class MessagesRepository {
     required String title,
     required List<String> memberIds,
   });
+
+  Future<void> sendMessage({
+    required String threadId,
+    required String text,
+    String? replyToMessageId,
+  });
+
+  Future<void> markThreadRead({
+    required String threadId,
+  });
 }
 
 class ApiMessagesRepository implements MessagesRepository {
@@ -314,5 +324,42 @@ class ApiMessagesRepository implements MessagesRepository {
         .timeout(_timeout);
 
     if (!_ok(response)) _fail('messages.createGroup', response);
+  }
+
+  @override
+  Future<void> sendMessage({
+    required String threadId,
+    required String text,
+    String? replyToMessageId,
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/send'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{
+            'threadId': threadId,
+            'text': text,
+            if ((replyToMessageId ?? '').trim().isNotEmpty)
+              'replyToMessageId': replyToMessageId!.trim(),
+          }),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.sendMessage', response);
+  }
+
+  @override
+  Future<void> markThreadRead({
+    required String threadId,
+  }) async {
+    final response = await _client
+        .post(
+          _uri('/messages/read'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.markThreadRead', response);
   }
 }

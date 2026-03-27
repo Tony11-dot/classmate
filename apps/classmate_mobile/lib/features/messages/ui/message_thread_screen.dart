@@ -32,25 +32,32 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     super.dispose();
   }
 
-  void _send() {
+  Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
+    final replyToMessageId =
+        _replyIndex == null ? null : _localRows()[_replyIndex!].id;
+
+    await ref.read(messagesRepositoryProvider).sendMessage(
+      threadId: widget.threadId,
+      text: text,
+      replyToMessageId: replyToMessageId,
+    );
+
+    if (!mounted) return;
+
+    _controller.clear();
     setState(() {
-      _localMessages = [
-        ..._localMessages,
-        MessageItem(
-          id: 'local-${DateTime.now().millisecondsSinceEpoch}',
-          senderId: 'me',
-          senderName: 'You',
-          text: text,
-          timeLabel: 'Now',
-          isMine: true,
-        ),
-      ];
-      _controller.clear();
       _replyIndex = null;
     });
+
+    ref.invalidate(messageThreadProvider(widget.threadId));
+    ref.invalidate(messagesInboxProvider);
+  }
+
+  List<MessageItem> _localRows() {
+    return _localMessages;
   }
 
   @override
@@ -64,6 +71,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           error: (error, stackTrace) =>
               Center(child: Text('Failed to load thread: $error')),
           data: (detail) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(messagesRepositoryProvider).markThreadRead(
+                threadId: widget.threadId,
+              );
+              ref.invalidate(messagesInboxProvider);
+            });
+
             final rows = <MessageItem>[
               ...detail.messages.map(
                 (message) => MessageItem(
