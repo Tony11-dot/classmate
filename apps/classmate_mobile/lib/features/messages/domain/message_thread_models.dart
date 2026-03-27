@@ -54,6 +54,9 @@ class MessageItem {
   final bool isMine;
   final String? reaction;
   final bool isPinned;
+  final String kind;
+  final String? mediaUrl;
+  final String? replyToMessageId;
 
   const MessageItem({
     required this.id,
@@ -64,6 +67,9 @@ class MessageItem {
     required this.isMine,
     this.reaction,
     this.isPinned = false,
+    this.kind = 'TEXT',
+    this.mediaUrl,
+    this.replyToMessageId,
   });
 }
 
@@ -75,6 +81,7 @@ class MessageThreadDetail {
   final ChatRequestState requestState;
   final List<MessageParticipant> participants;
   final List<MessageItem> messages;
+  final bool canSend;
 
   const MessageThreadDetail({
     required this.id,
@@ -84,5 +91,6 @@ class MessageThreadDetail {
     required this.requestState,
     required this.participants,
     required this.messages,
+    this.canSend = true,
   });
 }

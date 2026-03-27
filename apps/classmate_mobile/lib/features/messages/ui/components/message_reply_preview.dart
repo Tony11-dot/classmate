@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../chat_core/utils/chat_reply_codec.dart';
+
 class MessageReplyPreview extends StatelessWidget {
   const MessageReplyPreview({
     super.key,
@@ -16,6 +18,7 @@ class MessageReplyPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final resolvedSender = (sender ?? '').trim();
+    final preview = replyPreviewText(text);
 
     return Container(
       width: double.infinity,
@@ -53,7 +56,7 @@ class MessageReplyPreview extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  text,
+                  preview,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

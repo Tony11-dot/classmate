@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/ui/chat_composer.dart';
+import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
-import 'components/message_bubble.dart';
 import 'components/message_reply_preview.dart';
 import 'components/message_reaction_bar.dart';
 
@@ -22,22 +24,24 @@ class MessageThreadScreen extends ConsumerStatefulWidget {
 
 class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   final Map<String, String> _reactionByMessageId = <String, String>{};
   int? _replyIndex;
-  final List<MessageItem> _localMessages = <MessageItem>[];
 
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _send() async {
+  Future<void> _send(MessageThreadDetail detail) async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || !detail.canSend) return;
 
+    final rows = detail.messages;
     final replyToMessageId =
-        _replyIndex == null ? null : _localRows()[_replyIndex!].id;
+        _replyIndex == null ? null : rows[_replyIndex!].id;
 
     await ref.read(messagesRepositoryProvider).sendMessage(
       threadId: widget.threadId,
@@ -54,12 +58,19 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
     ref.invalidate(messageThreadProvider(widget.threadId));
     ref.invalidate(messagesInboxProvider);
+    _pinToBottom();
   }
 
-  List<MessageItem> _localRows() {
-    return _localMessages;
+  void _pinToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+      );
+    });
   }
-
 
   Future<void> _openMessageInfoSheet(
     BuildContext modalContext,
@@ -83,14 +94,105 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             ),
             ListTile(
               title: const Text('Seen'),
-              subtitle: Text(
-                row.isMine ? row.timeLabel : '—',
-              ),
+              subtitle: Text(row.isMine ? row.timeLabel : '—'),
+            ),
+            ListTile(
+              title: const Text('Type'),
+              subtitle: Text(row.kind),
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _avatarText(MessageThreadDetail detail) {
+    if (detail.isGroup) {
+      final parts = detail.title
+          .split(' ')
+          .where((v) => v.trim().isNotEmpty)
+          .take(2)
+          .map((e) => e[0].toUpperCase())
+          .join();
+      return parts.isEmpty ? 'G' : parts;
+    }
+
+    final others = detail.participants.where((p) {
+      final lower = p.displayName.trim().toLowerCase();
+      return lower != 'you';
+    }).toList();
+
+    if (others.isNotEmpty && others.first.initials.trim().isNotEmpty) {
+      return others.first.initials.trim().toUpperCase();
+    }
+
+    return detail.title.isNotEmpty ? detail.title[0].toUpperCase() : '?';
+  }
+
+  Widget _pendingBanner(BuildContext context, MessageThreadDetail detail) {
+    final scheme = Theme.of(context).colorScheme;
+    final isOutgoing =
+        detail.requestState == ChatRequestState.pendingOutgoing;
+    final title = isOutgoing ? 'Waiting for approval' : 'Message request';
+    final subtitle = isOutgoing
+        ? 'You can send more once the other person approves this chat.'
+        : 'Review the request to start chatting.';
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: scheme.outlineVariant.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isOutgoing ? Icons.hourglass_top_rounded : Icons.mark_chat_unread_rounded,
+            color: scheme.primary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _startsGroup(List<MessageItem> rows, int index) {
+    if (index == 0) return true;
+    final prev = rows[index - 1];
+    final cur = rows[index];
+    return prev.senderId != cur.senderId;
+  }
+
+  bool _endsGroup(List<MessageItem> rows, int index) {
+    if (index == rows.length - 1) return true;
+    final next = rows[index + 1];
+    final cur = rows[index];
+    return next.senderId != cur.senderId;
   }
 
   @override
@@ -106,38 +208,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           data: (detail) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ref.read(messagesRepositoryProvider).markThreadRead(
-                threadId: widget.threadId,
-              );
+                    threadId: widget.threadId,
+                  );
               ref.invalidate(messagesInboxProvider);
             });
 
-            final rows = <MessageItem>[
-              ...detail.messages.map(
-                (message) => MessageItem(
-                  id: message.id,
-                  senderId: message.senderId,
-                  senderName: message.senderName,
-                  text: message.text,
-                  timeLabel: message.timeLabel,
-                  isMine: message.isMine,
-                  reaction: _reactionByMessageId[message.id] ?? message.reaction,
-                  isPinned: message.isPinned,
-                ),
-              ),
-              ..._localMessages.map(
-                (message) => MessageItem(
-                  id: message.id,
-                  senderId: message.senderId,
-                  senderName: message.senderName,
-                  text: message.text,
-                  timeLabel: message.timeLabel,
-                  isMine: message.isMine,
-                  reaction: _reactionByMessageId[message.id] ?? message.reaction,
-                  isPinned: message.isPinned,
-                ),
-              ),
-            ];
-
+            final rows = detail.messages;
             final replyingText =
                 _replyIndex == null ? '' : rows[_replyIndex!].text;
 
@@ -153,19 +229,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         icon: const Icon(Icons.arrow_back_rounded),
                       ),
                       CircleAvatar(
-                        child: Text(
-                          detail.isGroup
-                              ? detail.title
-                                  .split(' ')
-                                  .where((v) => v.trim().isNotEmpty)
-                                  .take(2)
-                                  .map((e) => e[0])
-                                  .join()
-                              : detail.participants
-                                  .where((p) => p.displayName != 'You')
-                                  .first
-                                  .initials,
-                        ),
+                        child: Text(_avatarText(detail)),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -178,18 +242,29 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     ],
                   ),
                 ),
+                if (!detail.canSend ||
+                    detail.requestState == ChatRequestState.pendingOutgoing ||
+                    detail.requestState == ChatRequestState.pendingIncoming)
+                  _pendingBanner(context, detail),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                     itemCount: rows.length,
                     itemBuilder: (context, index) {
                       final row = rows[index];
+                      final startsGroup = _startsGroup(rows, index);
+                      final endsGroup = _endsGroup(rows, index);
+
                       return Align(
                         alignment: row.isMine
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 3),
+                          padding: EdgeInsets.only(
+                            top: startsGroup ? 8 : 2,
+                            bottom: endsGroup ? 4 : 2,
+                          ),
                           child: GestureDetector(
                             onHorizontalDragEnd: (_) {
                               setState(() => _replyIndex = index);
@@ -248,7 +323,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               }
 
                               if (selected == 'info') {
-                                if (!mounted) return;
                                 await _openMessageInfoSheet(navigator.context, row);
                               }
                             },
@@ -288,34 +362,18 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                       ],
                                     ),
                                   ),
-                                MessageBubble(
+                                ChatMessageBubble(
+                                  contextForNavigation: context,
+                                  rawText: row.text,
+                                  mediaUrl: row.mediaUrl ?? '',
                                   isMine: row.isMine,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(row.text),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          row.timeLabel,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelSmall,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  showName: detail.isGroup && startsGroup && !row.isMine,
+                                  senderLabel: row.senderName,
+                                  timeLabel: row.timeLabel,
+                                  edited: false,
+                                  reaction: _reactionByMessageId[row.id] ?? row.reaction,
+                                  maxWidth: 340,
                                 ),
-                                if ((row.reaction ?? '').trim().isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 4,
-                                      left: 8,
-                                      right: 8,
-                                    ),
-                                    child: Text(row.reaction!),
-                                  ),
                               ],
                             ),
                           ),
@@ -342,15 +400,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                           senderName: rows[_replyIndex!].isMine
                               ? 'You'
                               : rows[_replyIndex!].senderName,
-                          text: rows[_replyIndex!].text,
+                          text: replyPreviewText(rows[_replyIndex!].text),
                         ),
                   onCancelReply: () {
                     setState(() => _replyIndex = null);
                   },
-                  onSend: _send,
+                  onSend: () => _send(detail),
                   onCamera: () {},
                   onAttach: () {},
                   onMic: () {},
+                  enabled: detail.canSend,
+                  hintText: detail.canSend ? 'Message' : 'Waiting for approval',
                 ),
               ],
             );

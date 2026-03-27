@@ -175,6 +175,9 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   MessageItem _messageFromJson(Map<String, dynamic> json) {
+    final rawMedia = (json['mediaUrl'] ?? '').toString().trim();
+    final rawReply = (json['replyToMessageId'] ?? '').toString().trim();
+
     return MessageItem(
       id: (json['id'] ?? '').toString(),
       senderId: (json['senderId'] ?? '').toString(),
@@ -186,6 +189,9 @@ class ApiMessagesRepository implements MessagesRepository {
           ? null
           : (json['reaction'] ?? '').toString().trim(),
       isPinned: (json['isPinned'] ?? false) == true,
+      kind: (json['kind'] ?? 'TEXT').toString(),
+      mediaUrl: rawMedia.isEmpty ? null : rawMedia,
+      replyToMessageId: rawReply.isEmpty ? null : rawReply,
     );
   }
 
@@ -211,6 +217,7 @@ class ApiMessagesRepository implements MessagesRepository {
           .whereType<Map>()
           .map((item) => _messageFromJson(Map<String, dynamic>.from(item)))
           .toList(),
+      canSend: (json['canSend'] ?? true) == true,
     );
   }
 

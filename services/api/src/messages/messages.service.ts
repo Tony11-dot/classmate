@@ -335,7 +335,7 @@ export class MessagesService {
         isPinned: false,
         kind: String(m.kind),
         mediaUrl: m.mediaUrl ?? null,
-        replyToMessageId: null,
+        replyToMessageId: m.replyToMessageId ?? null,
       })),
       canSend: this.canViewerSend(thread, viewerId),
     };
@@ -585,6 +585,7 @@ export class MessagesService {
     const mediaMimeType = String(dto.mediaMimeType ?? '').trim();
     const rawKind = String(dto.kind ?? '').trim().toUpperCase();
     const kind = (rawKind || (mediaUrl ? 'FILE' : 'TEXT')) as DmMessageKind;
+    const replyToMessageId = String((dto as any).replyToMessageId ?? '').trim();
 
     if (!threadId) {
       throw new BadRequestException('threadId is required');
@@ -602,6 +603,17 @@ export class MessagesService {
       throw new BadRequestException('text or mediaUrl is required');
     }
 
+    if (replyToMessageId) {
+      const replied = await this.prisma.dmMessage.findUnique({
+        where: { id: replyToMessageId },
+        select: { id: true, threadId: true },
+      });
+
+      if (!replied || replied.threadId !== threadId) {
+        throw new BadRequestException('replyToMessageId is invalid');
+      }
+    }
+
     const created = await this.prisma.dmMessage.create({
       data: {
         threadId,
@@ -610,6 +622,7 @@ export class MessagesService {
         text: text || null,
         mediaUrl: mediaUrl || null,
         mediaMimeType: mediaMimeType || null,
+        replyToMessageId: replyToMessageId || null,
       },
       include: {
         reactions: {
@@ -661,7 +674,7 @@ export class MessagesService {
         isPinned: false,
         kind: String(created.kind),
         mediaUrl: created.mediaUrl ?? null,
-        replyToMessageId: null,
+        replyToMessageId: created.replyToMessageId ?? null,
       },
     };
   }

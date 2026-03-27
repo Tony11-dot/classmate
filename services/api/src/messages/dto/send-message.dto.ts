@@ -24,4 +24,9 @@ export class SendMessageDto {
   @IsString()
   @MaxLength(255)
   mediaMimeType?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  replyToMessageId?: string;
 }

@@ -26,11 +26,18 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChatBubble(
+    final bubble = ChatBubble(
       isMe: isMine,
       isFirst: startsGroup,
       isLast: endsGroup,
       child: child,
+    );
+
+    if (maxWidth == null) return bubble;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth!),
+      child: bubble,
     );
   }
 }

@@ -1381,6 +1381,7 @@ model DmMessage {
   text          String?
   mediaUrl      String?
   mediaMimeType String?
+  replyToMessageId String?
   mediaMode     DmMediaMode?
   viewLimit     Int?
   replayLimit   Int?
@@ -1389,8 +1390,11 @@ model DmMessage {
   thread        DmThread        @relation(fields: [threadId], references: [id], onDelete: Cascade)
   views         DmMessageView[]
   reactions     DmReaction[]
+  replyTo          DmMessage?  @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
+  replies          DmMessage[] @relation("DmMessageReply")
 
   @@index([threadId, createdAt])
+  @@index([replyToMessageId])
 }
 
 model DmMessageView {
