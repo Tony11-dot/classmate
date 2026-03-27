@@ -21,6 +21,9 @@ class ChatMessageBubble extends StatelessWidget {
     this.delivered = false,
     this.seen = false,
     required this.deleteState,
+    this.voiceDurationSeconds,
+    this.voiceUnread = false,
+    this.onVoicePlayed,
     this.replySender,
     this.replySnippet,
     this.maxWidth = 380,
@@ -38,6 +41,9 @@ class ChatMessageBubble extends StatelessWidget {
   final bool delivered;
   final bool seen;
   final String deleteState;
+  final int? voiceDurationSeconds;
+  final bool voiceUnread;
+  final VoidCallback? onVoicePlayed;
   final String? replySender;
   final String? replySnippet;
   final double maxWidth;
@@ -277,7 +283,12 @@ class ChatMessageBubble extends StatelessWidget {
                     Text(body, style: const TextStyle(color: Colors.white)),
                   ],
                 ] else if (isVoice) ...[
-                  ChatAudioBubble(url: mediaUrl),
+                  ChatAudioBubble(
+                    url: mediaUrl,
+                    durationSeconds: voiceDurationSeconds,
+                    isUnread: voiceUnread,
+                    onPlayed: onVoicePlayed,
+                  ),
                   if (body.isNotEmpty && !lowerBody.startsWith('[voice]')) ...[
                     const SizedBox(height: 8),
                     Text(body, style: const TextStyle(color: Colors.white)),

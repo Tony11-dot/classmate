@@ -173,6 +173,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await _refreshThread();
   }
 
+  Future<void> _markVoicePlayed(MessageItem row) async {
+    if (row.isMine || row.voicePlayed) return;
+    await ref
+        .read(messagesRepositoryProvider)
+        .markThreadRead(threadId: widget.threadId);
+    await _refreshThread();
+  }
+
   Future<String?> _showDeleteModeSheet() {
     return showModalBottomSheet<String>(
       context: context,
@@ -1102,6 +1110,16 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     delivered: row.delivered,
                                     seen: row.seen,
                                     deleteState: row.deleteState,
+                                    voiceDurationSeconds:
+                                        row.voiceDurationSeconds,
+                                    voiceUnread:
+                                        !row.isMine &&
+                                        row.kind.toUpperCase() == 'VOICE' &&
+                                        !row.voicePlayed,
+                                    onVoicePlayed:
+                                        row.kind.toUpperCase() == 'VOICE'
+                                        ? () => _markVoicePlayed(row)
+                                        : null,
                                     replySender: row.replyPreview?.senderName,
                                     replySnippet: row.replyPreview?.text,
                                     maxWidth: 340,

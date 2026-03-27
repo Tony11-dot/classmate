@@ -234,6 +234,20 @@ class ApiMessagesRepository implements MessagesRepository {
       seenAt: (json['seenAt'] ?? '').toString(),
       kind: (json['kind'] ?? 'TEXT').toString(),
       mediaUrl: rawMedia.isEmpty ? null : rawMedia,
+      mediaMimeType: (json['mediaMimeType'] ?? '').toString().trim().isEmpty
+          ? null
+          : (json['mediaMimeType'] ?? '').toString().trim(),
+      voiceDurationSeconds: (json['voiceDurationSeconds'] ?? 0) is int
+          ? (((json['voiceDurationSeconds'] ?? 0) as int) <= 0
+                ? null
+                : (json['voiceDurationSeconds'] as int))
+          : (() {
+              final parsed = int.tryParse(
+                (json['voiceDurationSeconds'] ?? '').toString().trim(),
+              );
+              return (parsed == null || parsed <= 0) ? null : parsed;
+            })(),
+      voicePlayed: (json['voicePlayed'] ?? false) == true,
       replyToMessageId: rawReply.isEmpty ? null : rawReply,
       replyPreview: _replyPreviewFromJson(json['replyPreview']),
     );

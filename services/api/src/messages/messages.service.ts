@@ -100,6 +100,25 @@ export class MessagesService {
     }
   }
 
+  private voiceDurationSeconds(message: {
+    mediaMimeType?: string | null;
+    text?: string | null;
+  }) {
+    const text = String(message?.text ?? '').trim();
+    const mime = String(message?.mediaMimeType ?? '')
+      .trim()
+      .toLowerCase();
+
+    const tagged = text.match(/\[duration:(\d+)\]/i);
+    if (tagged) {
+      const parsed = Number(tagged[1] ?? 0);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    if (mime.startsWith('audio/')) return null;
+    return null;
+  }
+
   private deliveryStateForMessage(
     message: { senderId: string; createdAt: Date },
     thread: {
@@ -458,6 +477,10 @@ export class MessagesService {
           seenAt: delivery.seenAt,
           kind: String(m.kind),
           mediaUrl: m.mediaUrl ?? null,
+          mediaMimeType: m.mediaMimeType ?? null,
+          voiceDurationSeconds:
+            String(m.kind) === 'VOICE' ? this.voiceDurationSeconds(m) : null,
+          voicePlayed: false,
           replyToMessageId: m.replyToMessageId ?? null,
           replyPreview: replied
             ? {
@@ -834,6 +857,12 @@ export class MessagesService {
         seenAt: '',
         kind: String(created.kind),
         mediaUrl: created.mediaUrl ?? null,
+        mediaMimeType: created.mediaMimeType ?? null,
+        voiceDurationSeconds:
+          String(created.kind) === 'VOICE'
+            ? this.voiceDurationSeconds(created)
+            : null,
+        voicePlayed: false,
         replyToMessageId: created.replyToMessageId ?? null,
       },
     };

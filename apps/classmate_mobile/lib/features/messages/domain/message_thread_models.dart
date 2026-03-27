@@ -79,6 +79,9 @@ class MessageItem {
   final String seenAt;
   final String kind;
   final String? mediaUrl;
+  final String? mediaMimeType;
+  final int? voiceDurationSeconds;
+  final bool voicePlayed;
   final String? replyToMessageId;
   final MessageReplyRef? replyPreview;
 
@@ -100,6 +103,9 @@ class MessageItem {
     this.seenAt = '',
     this.kind = 'TEXT',
     this.mediaUrl,
+    this.mediaMimeType,
+    this.voiceDurationSeconds,
+    this.voicePlayed = false,
     this.replyToMessageId,
     this.replyPreview,
   });

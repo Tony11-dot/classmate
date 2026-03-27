@@ -1,10 +1,21 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
 class ChatAudioBubble extends StatefulWidget {
-  const ChatAudioBubble({super.key, required this.url});
+  const ChatAudioBubble({
+    super.key,
+    required this.url,
+    this.durationSeconds,
+    this.isUnread = false,
+    this.onPlayed,
+  });
 
   final String url;
+  final int? durationSeconds;
+  final bool isUnread;
+  final VoidCallback? onPlayed;
 
   @override
   State<ChatAudioBubble> createState() => _ChatAudioBubbleState();
@@ -20,6 +31,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   Duration _duration = Duration.zero;
   bool _loading = false;
   bool _ready = false;
+  bool _playedOnce = false;
   double _voiceSpeed = 1.0;
 
   @override
@@ -39,12 +51,17 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     _player.durationStream.listen((value) {
       if (!mounted) return;
       setState(() {
-        _duration = value ?? Duration.zero;
+        _duration = value ?? _fallbackDuration;
       });
     });
 
     _player.playerStateStream.listen((state) async {
       if (!mounted) return;
+
+      if (state.playing && !_playedOnce) {
+        _playedOnce = true;
+        widget.onPlayed?.call();
+      }
 
       if (state.processingState == ProcessingState.completed) {
         try {
@@ -65,6 +82,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       }
     });
   }
+
+  Duration get _fallbackDuration =>
+      Duration(seconds: math.max(0, widget.durationSeconds ?? 0));
 
   bool get _isPlaying => _player.playing;
 
@@ -88,6 +108,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       await _player.setSpeed(_voiceSpeed);
       await _player.setLoopMode(LoopMode.off);
       _ready = true;
+      if (_duration == Duration.zero && _fallbackDuration > Duration.zero) {
+        _duration = _fallbackDuration;
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -167,6 +190,26 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     return '$mm:$ss';
   }
 
+  Widget _waveBar(BuildContext context, int index, double progress) {
+    final active = index / 20.0 <= progress;
+    final baseHeights = <double>[6, 10, 14, 18, 12, 8, 16, 11, 15, 9];
+    final h = baseHeights[index % baseHeights.length];
+    final scheme = Theme.of(context).colorScheme;
+    final color = active
+        ? scheme.primary
+        : Colors.white.withValues(alpha: widget.isUnread ? 0.78 : 0.40);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 140),
+      width: 3,
+      height: h,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(999),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _registry.remove(this);
@@ -176,11 +219,15 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
 
   @override
   Widget build(BuildContext context) {
-    final totalMs = _duration.inMilliseconds <= 0
+    final resolvedDuration = _duration > Duration.zero
+        ? _duration
+        : _fallbackDuration;
+    final totalMs = resolvedDuration.inMilliseconds <= 0
         ? 1
-        : _duration.inMilliseconds;
+        : resolvedDuration.inMilliseconds;
     final posMs = _position.inMilliseconds.clamp(0, totalMs);
     final progress = posMs / totalMs;
+    final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -189,9 +236,15 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: Colors.white.withValues(alpha: unreadDot ? 0.12 : 0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              border: Border.all(
+                color: unreadDot
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.45)
+                    : Colors.white.withValues(alpha: 0.05),
+              ),
             ),
             child: Row(
               children: [
@@ -220,54 +273,79 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                           ),
                   ),
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(width: 8),
+                if (unreadDot)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          trackHeight: 2.5,
-                          thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 4,
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (details) {
+                          final box = context.findRenderObject() as RenderBox?;
+                          if (box == null) return;
+                          final local = box.globalToLocal(
+                            details.globalPosition,
+                          );
+                          final ratio = (local.dx / math.max(1, box.size.width))
+                              .clamp(0.0, 1.0);
+                          _seekToRatio(ratio);
+                        },
+                        child: SizedBox(
+                          height: 22,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: List.generate(
+                              28,
+                              (index) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                ),
+                                child: _waveBar(context, index, progress),
+                              ),
+                            ),
                           ),
-                          overlayShape: const RoundSliderOverlayShape(
-                            overlayRadius: 8,
-                          ),
-                        ),
-                        child: Slider(
-                          value: progress.isNaN ? 0 : progress.clamp(0.0, 1.0),
-                          onChanged: (v) async {
-                            await _seekToRatio(v);
-                          },
                         ),
                       ),
-                      Transform.translate(
-                        offset: const Offset(0, -4),
-                        child: Row(
-                          children: [
-                            Text(
-                              _fmt(_position),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                              ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Text(
+                            _fmt(_position),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.70),
+                              fontSize: 10,
+                              fontWeight: unreadDot
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                             ),
-                            const Spacer(),
-                            Text(
-                              _fmt(_duration),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                              ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            _fmt(resolvedDuration),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.70),
+                              fontSize: 10,
+                              fontWeight: unreadDot
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(width: 8),
                 InkWell(
                   borderRadius: BorderRadius.circular(999),
                   onTap: _cycleVoiceSpeed,
