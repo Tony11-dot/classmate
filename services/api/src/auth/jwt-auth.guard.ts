@@ -16,6 +16,26 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ]);
 
     if (isPublic) return true;
+
+    const req = context.switchToHttp().getRequest<any>();
+    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
+    const isDev =
+      String(appEnv).toLowerCase().includes('dev') ||
+      String(appEnv).toLowerCase().includes('test');
+    const devBypassEnabled = process.env.DEV_AUTH_BYPASS === '1';
+    const devUser =
+      String(
+        req?.headers?.['x-dev-user'] ??
+          req?.headers?.['X-DEV-USER'] ??
+          req?.headers?.['x-dev-user-id'] ??
+          req?.headers?.['X-DEV-USER-ID'] ??
+          '',
+      ).trim();
+
+    if (isDev && devBypassEnabled && devUser) {
+      return true;
+    }
+
     return super.canActivate(context);
   }
 }

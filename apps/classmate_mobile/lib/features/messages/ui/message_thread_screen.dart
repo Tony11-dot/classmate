@@ -247,9 +247,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               }
 
                               if (selected == 'info') {
-                                final modalContext = context;
                                 if (!mounted) return;
-                                await _openMessageInfoSheet(modalContext, row);
+                                await _openMessageInfoSheet(context, row);
                               }
                             },
                             child: Column(
