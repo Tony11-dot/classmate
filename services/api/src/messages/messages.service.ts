@@ -290,6 +290,19 @@ export class MessagesService {
       ...thread.messages.map((m) => m.senderId),
     ]);
 
+    const byId = new Map(thread.messages.map((m) => [m.id, m] as const));
+
+    const previewFor = (message: any) => {
+      const kind = String(message?.kind ?? 'TEXT').toUpperCase();
+      const text = String(message?.text ?? '').trim();
+      if (text) return text;
+      if (kind == 'IMAGE') return 'Photo';
+      if (kind == 'VOICE') return 'Voice note';
+      if (kind == 'VIDEO') return 'Video';
+      if (kind == 'FILE') return 'Attachment';
+      return 'Message';
+    };
+
     const otherIds = thread.participants
       .filter((p) => p.userId !== viewerId)
       .map((p) => p.userId);
@@ -321,22 +334,34 @@ export class MessagesService {
           isBlocked: p.state === DmParticipantState.BLOCKED,
         };
       }),
-      messages: thread.messages.map((m) => ({
-        id: m.id,
-        senderId: m.senderId,
-        senderName: this.displayNameOf(users.get(m.senderId)),
-        text: String(m.text ?? '').trim(),
-        timeLabel: this.formatTime(m.createdAt),
-        isMine: m.senderId === viewerId,
-        reaction:
-          Array.isArray(m.reactions) && m.reactions.length
-            ? String(m.reactions[0]?.emoji ?? '').trim() || null
+      messages: thread.messages.map((m) => {
+        const replied = m.replyToMessageId ? byId.get(m.replyToMessageId) : null;
+        return {
+          id: m.id,
+          senderId: m.senderId,
+          senderName: this.displayNameOf(users.get(m.senderId)),
+          text: String(m.text ?? '').trim(),
+          timeLabel: this.formatTime(m.createdAt),
+          isMine: m.senderId === viewerId,
+          reaction:
+            Array.isArray(m.reactions) && m.reactions.length
+              ? String(m.reactions[0]?.emoji ?? '').trim() || null
+              : null,
+          isPinned: false,
+          kind: String(m.kind),
+          mediaUrl: m.mediaUrl ?? null,
+          replyToMessageId: m.replyToMessageId ?? null,
+          replyPreview: replied
+            ? {
+                id: replied.id,
+                senderName: this.displayNameOf(users.get(replied.senderId)),
+                text: previewFor(replied),
+                kind: String(replied.kind),
+                mediaUrl: replied.mediaUrl ?? null,
+              }
             : null,
-        isPinned: false,
-        kind: String(m.kind),
-        mediaUrl: m.mediaUrl ?? null,
-        replyToMessageId: m.replyToMessageId ?? null,
-      })),
+        };
+      }),
       canSend: this.canViewerSend(thread, viewerId),
     };
   }

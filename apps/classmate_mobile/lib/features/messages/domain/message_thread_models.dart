@@ -45,6 +45,22 @@ class MessageParticipant {
   });
 }
 
+class MessageReplyRef {
+  final String id;
+  final String senderName;
+  final String text;
+  final String kind;
+  final String? mediaUrl;
+
+  const MessageReplyRef({
+    required this.id,
+    required this.senderName,
+    required this.text,
+    required this.kind,
+    this.mediaUrl,
+  });
+}
+
 class MessageItem {
   final String id;
   final String senderId;
@@ -57,6 +73,7 @@ class MessageItem {
   final String kind;
   final String? mediaUrl;
   final String? replyToMessageId;
+  final MessageReplyRef? replyPreview;
 
   const MessageItem({
     required this.id,
@@ -70,6 +87,7 @@ class MessageItem {
     this.kind = 'TEXT',
     this.mediaUrl,
     this.replyToMessageId,
+    this.replyPreview,
   });
 }
 

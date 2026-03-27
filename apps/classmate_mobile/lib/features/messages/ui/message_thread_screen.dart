@@ -372,6 +372,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                   timeLabel: row.timeLabel,
                                   edited: false,
                                   reaction: _reactionByMessageId[row.id] ?? row.reaction,
+                                  replySender: row.replyPreview?.senderName,
+                                  replySnippet: row.replyPreview?.text,
                                   maxWidth: 340,
                                 ),
                               ],

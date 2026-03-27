@@ -174,6 +174,20 @@ class ApiMessagesRepository implements MessagesRepository {
     );
   }
 
+  MessageReplyRef? _replyPreviewFromJson(dynamic value) {
+    if (value is! Map) return null;
+    final json = Map<String, dynamic>.from(value);
+    return MessageReplyRef(
+      id: (json['id'] ?? '').toString(),
+      senderName: (json['senderName'] ?? '').toString(),
+      text: (json['text'] ?? '').toString(),
+      kind: (json['kind'] ?? 'TEXT').toString(),
+      mediaUrl: (json['mediaUrl'] ?? '').toString().trim().isEmpty
+          ? null
+          : (json['mediaUrl'] ?? '').toString().trim(),
+    );
+  }
+
   MessageItem _messageFromJson(Map<String, dynamic> json) {
     final rawMedia = (json['mediaUrl'] ?? '').toString().trim();
     final rawReply = (json['replyToMessageId'] ?? '').toString().trim();
@@ -192,6 +206,7 @@ class ApiMessagesRepository implements MessagesRepository {
       kind: (json['kind'] ?? 'TEXT').toString(),
       mediaUrl: rawMedia.isEmpty ? null : rawMedia,
       replyToMessageId: rawReply.isEmpty ? null : rawReply,
+      replyPreview: _replyPreviewFromJson(json['replyPreview']),
     );
   }
 

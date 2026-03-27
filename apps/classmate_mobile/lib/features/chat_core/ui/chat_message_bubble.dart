@@ -18,6 +18,8 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    this.replySender,
+    this.replySnippet,
     this.maxWidth = 380,
   });
 
@@ -30,6 +32,8 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final String? replySender;
+  final String? replySnippet;
   final double maxWidth;
 
   bool _isImageByUrl(String v) =>
@@ -74,33 +78,24 @@ class ChatMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = splitReplyRaw(rawText);
-    final replyPrefix = parts.replyPrefix.trim();
+    final inlineReplyPrefix = parts.replyPrefix.trim();
     final body = parts.bodyText.trim();
 
-    String replySender = '';
-    String replySnippet = '';
-    if (replyPrefix.startsWith('↪ ')) {
-      final afterArrow = replyPrefix.substring(2).trim();
+    var resolvedReplySender = (replySender ?? '').trim();
+    var resolvedReplySnippet = (replySnippet ?? '').trim();
+
+    if (resolvedReplySender.isEmpty && inlineReplyPrefix.startsWith('↪ ')) {
+      final afterArrow = inlineReplyPrefix.substring(2).trim();
       final colon = afterArrow.indexOf(':');
       if (colon != -1) {
-        replySender = afterArrow.substring(0, colon).trim();
-        replySnippet = afterArrow.substring(colon + 1).trim();
+        resolvedReplySender = afterArrow.substring(0, colon).trim();
+        resolvedReplySnippet = afterArrow.substring(colon + 1).trim();
       } else {
-        replySnippet = afterArrow;
+        resolvedReplySnippet = afterArrow;
       }
-
-      if (replySnippet.endsWith('—')) {
-        replySnippet = replySnippet
-            .substring(0, replySnippet.length - 1)
-            .trimRight();
-      }
-
-      if (replySnippet.toLowerCase() == 'photo') {
-        replySnippet = 'Photo';
-      } else if (replySnippet.toLowerCase() == 'voice note') {
-        replySnippet = 'Voice note';
-      } else if (replySnippet.toLowerCase() == 'attachment') {
-        replySnippet = 'Attachment';
+      if (resolvedReplySnippet.endsWith('—')) {
+        resolvedReplySnippet =
+            resolvedReplySnippet.substring(0, resolvedReplySnippet.length - 1).trimRight();
       }
     }
 
@@ -148,7 +143,7 @@ class ChatMessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                 ],
-                if (replyPrefix.isNotEmpty) ...[
+                if (resolvedReplySender.isNotEmpty || resolvedReplySnippet.isNotEmpty || inlineReplyPrefix.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -164,7 +159,7 @@ class ChatMessageBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          replySender.isEmpty ? 'Reply' : replySender,
+                          resolvedReplySender.isEmpty ? 'Reply' : resolvedReplySender,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -175,7 +170,7 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          replySnippet.isEmpty ? 'Message' : replySnippet,
+                          resolvedReplySnippet.isEmpty ? 'Message' : resolvedReplySnippet,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
