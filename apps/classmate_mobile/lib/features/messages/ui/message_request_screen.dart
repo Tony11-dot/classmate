@@ -16,6 +16,7 @@ class MessageRequestScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final request = ref.watch(messageRequestProvider(threadId));
+    final repo = ref.read(messagesRepositoryProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Message request')),
@@ -38,14 +39,18 @@ class MessageRequestScreen extends ConsumerWidget {
             children: [
               MessageRequestBanner(
                 data: data,
-                onApprove: () {
+                onApprove: () async {
+                  await repo.approveRequest(threadId: detail.id);
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Approve flow wiring next')),
+                    const SnackBar(content: Text('Request approved')),
                   );
                 },
-                onBlock: () {
+                onBlock: () async {
+                  await repo.blockRequest(threadId: detail.id);
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Block flow wiring next')),
+                    const SnackBar(content: Text('Request blocked')),
                   );
                 },
               ),
