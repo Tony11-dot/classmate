@@ -5,7 +5,7 @@ class ImageViewerScreen extends StatelessWidget {
   final String? heroTag;
   final String? title;
 
-  const ImageViewerScreen({
+  ImageViewerScreen({
     super.key,
     String? imageUrl,
     String? url,
@@ -25,7 +25,7 @@ class ImageViewerScreen extends StatelessWidget {
         child: Image.network(
           imageUrl,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) =>
+          errorBuilder: (_, error, stackTrace) =>
               const Center(child: Text('Unable to load image')),
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
