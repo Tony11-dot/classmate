@@ -24,6 +24,7 @@ import '../../messages/providers/messages_repository_provider.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
 import '../../chat_core/ui/chat_message_info_sheet.dart';
+import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
@@ -1999,6 +2000,32 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+
+  Widget _classroomComposerTopContent() {
+    final hasDrafts =
+        _draftAttachments.isNotEmpty || (_draftVoicePath ?? '').trim().isNotEmpty;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _recordHud(),
+        if (hasDrafts)
+          SizedBox(
+            height: 72,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                ..._draftAttachments.map(_classroomDraftChip),
+                if ((_draftVoicePath ?? '').trim().isNotEmpty)
+                  _classroomVoiceDraftChip(),
+              ],
+            ),
+          ),
+        if (hasDrafts) const SizedBox(height: 2),
+      ],
+    );
+  }
+
   Widget _classroomDraftChip(Map<String, String> a) {
     final path = (a['path'] ?? '').trim();
     final kind = (a['kind'] ?? '').trim().toUpperCase();
@@ -2055,151 +2082,51 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Widget _classroomComposer() {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161B22).withValues(alpha: 0.90),
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 28,
-                offset: const Offset(0, 6),
-                color: Colors.black.withValues(alpha: 0.28),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _recordHud(),
-              if (_draftAttachments.isNotEmpty ||
-                  (_draftVoicePath ?? '').trim().isNotEmpty)
-                SizedBox(
-                  height: 72,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      ..._draftAttachments.map(_classroomDraftChip),
-                      if ((_draftVoicePath ?? '').trim().isNotEmpty)
-                        _classroomVoiceDraftChip(),
-                    ],
-                  ),
-                ),
-              if (_draftAttachments.isNotEmpty ||
-                  (_draftVoicePath ?? '').trim().isNotEmpty)
-                const SizedBox(height: 2),
-              Row(
-                children: [
-                  _classroomComposerButton(
-                    icon: Icons.camera_alt_rounded,
-                    onTap: _sending || _recording
-                        ? null
-                        : _pickClassroomCameraOrUploadImage,
-                  ),
-                  const SizedBox(width: 6),
-                  _classroomComposerButton(
-                    icon: Icons.attach_file_rounded,
-                    onTap: _sending || _recording ? null : _pickClassroomFiles,
-                  ),
-                  const SizedBox(width: 6),
-                  _classroomComposerButton(
-                    icon: _recording
-                        ? Icons.stop_rounded
-                        : Icons.mic_none_rounded,
-                    onTap: _sending
-                        ? null
-                        : () async {
-                            if (_recording) {
-                              await _stopVoiceNoteAndSend();
-                            } else {
-                              await _startVoiceNote();
-                            }
-                          },
-                    fill: _recording
-                        ? const Color(0xFF8E2E2E)
-                        : const Color(0xFF1C232B),
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      curve: Curves.easeOutCubic,
-                      constraints: const BoxConstraints(minHeight: 42),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F141A).withValues(alpha: 0.94),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: _chatCtl.text.trim().isNotEmpty
-                              ? const Color(0xFF0A84FF).withValues(alpha: 0.28)
-                              : Colors.white.withValues(alpha: 0.05),
-                        ),
-                        boxShadow: _chatCtl.text.trim().isNotEmpty
-                            ? [
-                                BoxShadow(
-                                  blurRadius: 20,
-                                  spreadRadius: -10,
-                                  color: const Color(
-                                    0xFF0A84FF,
-                                  ).withValues(alpha: 0.34),
-                                ),
-                              ]
-                            : const [],
-                      ),
-                      child: Center(
-                        child: TextField(
-                          controller: _chatCtl,
-                          minLines: 1,
-                          maxLines: 6,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            hintText: 'Message',
-                            hintStyle: TextStyle(color: Colors.white54),
-                            border: InputBorder.none,
-                          ),
-                          onSubmitted: (_) => _sendClassroomChat(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    curve: Curves.easeOutCubic,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: _chatCtl.text.trim().isNotEmpty
-                          ? [
-                              BoxShadow(
-                                blurRadius: 26,
-                                spreadRadius: -8,
-                                color: const Color(
-                                  0xFF0A84FF,
-                                ).withValues(alpha: 0.42),
-                              ),
-                            ]
-                          : const [],
-                    ),
-                    child: _classroomComposerButton(
-                      icon: Icons.send_rounded,
-                      onTap: _sending || _recording ? null : _sendClassroomChat,
-                      fill: _chatCtl.text.trim().isNotEmpty
-                          ? const Color(0xFF0A84FF)
-                          : const Color(0xFF143B5C),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ChatComposer(
+      controller: _chatCtl,
+      topContent: _classroomComposerTopContent(),
+      enabled: !_sending,
+      isStreaming: false,
+      isRecording: _recording,
+      isVoiceLocked: _voiceLocked,
+      isVoicePaused: false,
+      hintText: 'Message',
+      onSend: _sending || _recording ? () {} : _sendClassroomChat,
+      onCamera: _sending || _recording
+          ? () {}
+          : _pickClassroomCameraOrUploadImage,
+      onAttach: _sending || _recording ? () {} : _pickClassroomFiles,
+      onMic: () async {
+        if (_sending) return;
+        if (_recording) {
+          await _stopVoiceNoteAndSend();
+        } else {
+          await _startVoiceNote();
+        }
+      },
+      onMicHoldStart: _micHoldStart,
+      onMicHoldMove: _micHoldMove,
+      onMicHoldEnd: _micHoldEnd,
+      onMicHoldCancel: _micHoldCancel,
+      onTrashRecording: _cancelVoiceDraft,
+      showCamera: true,
+      showAttach: true,
+      showMic: true,
+      replyingTo: _replyToMessageId == null
+          ? null
+          : (
+              senderName: _replyToSender?.trim().isNotEmpty == true
+                  ? _replyToSender!.trim()
+                  : 'Replying',
+              text: (_replyToText ?? '').trim(),
+            ),
+      onCancelReply: () {
+        setState(() {
+          _replyToMessageId = null;
+          _replyToSender = null;
+          _replyToText = null;
+        });
+      },
     );
   }
 

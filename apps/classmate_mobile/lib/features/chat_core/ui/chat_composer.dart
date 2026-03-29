@@ -28,6 +28,10 @@ class ChatComposer extends StatelessWidget {
     this.hint,
     this.hintText,
     this.forceMicOnlyTap = false,
+    this.showCamera = true,
+    this.showAttach = true,
+    this.showMic = true,
+    this.topContent,
   });
 
   final TextEditingController controller;
@@ -55,6 +59,10 @@ class ChatComposer extends StatelessWidget {
   final bool isVoiceLocked;
   final bool isVoicePaused;
   final bool forceMicOnlyTap;
+  final bool showCamera;
+  final bool showAttach;
+  final bool showMic;
+  final Widget? topContent;
 
   final String? hint;
   final String? hintText;
@@ -71,6 +79,7 @@ class ChatComposer extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          ...?(topContent != null ? <Widget>[topContent!] : null),
           if (replyingTo != null) _replyPreview(context),
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
@@ -170,7 +179,11 @@ class ChatComposer extends StatelessWidget {
   Widget _idle(BuildContext context, bool hasText) {
     final scheme = Theme.of(context).colorScheme;
     final canSend = enabled && hasText && !isStreaming && !isRecording;
-    final showLeftTools = !hasText && !isStreaming && !isRecording;
+    final showLeftTools =
+        !hasText &&
+        !isStreaming &&
+        !isRecording &&
+        (showCamera || showAttach);
 
     return _shell(
       context,
@@ -181,7 +194,9 @@ class ChatComposer extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 160),
             curve: Curves.easeOutCubic,
-            width: showLeftTools ? 92 : 0,
+            width: showLeftTools
+                ? ((showCamera && showAttach) ? 92 : 44)
+                : 0,
             child: ClipRect(
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 120),
@@ -191,18 +206,20 @@ class ChatComposer extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _circleBtn(
-                        context,
-                        icon: Icons.camera_alt_rounded,
-                        onTap: enabled ? onCamera : null,
-                      ),
-                      const SizedBox(width: 4),
-                      _circleBtn(
-                        context,
-                        icon: Icons.attach_file_rounded,
-                        onTap: enabled ? onAttach : null,
-                      ),
-                      const SizedBox(width: 4),
+                      if (showCamera)
+                        _circleBtn(
+                          context,
+                          icon: Icons.camera_alt_rounded,
+                          onTap: enabled ? onCamera : null,
+                        ),
+                      if (showCamera && showAttach) const SizedBox(width: 4),
+                      if (showAttach)
+                        _circleBtn(
+                          context,
+                          icon: Icons.attach_file_rounded,
+                          onTap: enabled ? onAttach : null,
+                        ),
+                      if (showLeftTools) const SizedBox(width: 4),
                     ],
                   ),
                 ),
@@ -264,27 +281,35 @@ class ChatComposer extends StatelessWidget {
                           active: true,
                           onTap: onSend,
                         )
-                      : GestureDetector(
-                          key: const ValueKey('mic_btn'),
-                          behavior: HitTestBehavior.opaque,
-                          onLongPressStart: enabled && !forceMicOnlyTap
-                              ? onMicHoldStart
-                              : null,
-                          onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                              ? onMicHoldMove
-                              : null,
-                          onLongPressEnd: enabled && !forceMicOnlyTap
-                              ? onMicHoldEnd
-                              : null,
-                          onLongPressCancel: enabled && !forceMicOnlyTap
-                              ? onMicHoldCancel
-                              : null,
-                          child: _circleBtn(
-                            context,
-                            icon: Icons.mic_none_rounded,
-                            onTap: forceMicOnlyTap && enabled ? onMic : null,
-                          ),
-                        ),
+                      : showMic
+                          ? GestureDetector(
+                              key: const ValueKey('mic_btn'),
+                              behavior: HitTestBehavior.opaque,
+                              onLongPressStart: enabled && !forceMicOnlyTap
+                                  ? onMicHoldStart
+                                  : null,
+                              onLongPressMoveUpdate: enabled && !forceMicOnlyTap
+                                  ? onMicHoldMove
+                                  : null,
+                              onLongPressEnd: enabled && !forceMicOnlyTap
+                                  ? onMicHoldEnd
+                                  : null,
+                              onLongPressCancel: enabled && !forceMicOnlyTap
+                                  ? onMicHoldCancel
+                                  : null,
+                              child: _circleBtn(
+                                context,
+                                icon: Icons.mic_none_rounded,
+                                onTap: forceMicOnlyTap && enabled ? onMic : null,
+                              ),
+                            )
+                          : _sendBtn(
+                              context,
+                              key: const ValueKey('disabled_send_btn'),
+                              icon: Icons.send_rounded,
+                              active: false,
+                              onTap: null,
+                            ),
             ),
           ),
         ],
