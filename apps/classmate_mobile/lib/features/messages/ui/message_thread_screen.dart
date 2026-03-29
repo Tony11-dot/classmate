@@ -348,6 +348,87 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return '$mm:$ss';
   }
 
+  Future<void> _showThreadInfo(MessageThreadDetail detail) async {
+    final participantCount = detail.participants.length;
+    final conversationType = detail.isGroup ? 'Group' : 'Direct message';
+    final subtitle = detail.subtitle.trim().isEmpty ? '—' : detail.subtitle.trim();
+    final sendState = detail.canSend ? 'Can send messages' : 'Waiting for approval';
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 28,
+                  child: Text(
+                    _avatarText(detail),
+                    style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Center(
+                child: Text(
+                  detail.title.trim().isEmpty ? 'Conversation' : detail.title.trim(),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              _infoRow(sheetContext, 'Type', conversationType),
+              _infoRow(sheetContext, 'Subtitle', subtitle),
+              _infoRow(
+                sheetContext,
+                'People',
+                detail.isGroup ? '$participantCount participants' : '$participantCount person',
+              ),
+              _infoRow(sheetContext, 'Status', sendState),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(BuildContext context, String label, String value) {
+    final text = value.trim().isEmpty ? '—' : value.trim();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 88,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _showMessageInfo(MessageItem row) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -1159,13 +1240,46 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         onPressed: () => Navigator.of(context).maybePop(),
                         icon: const Icon(Icons.arrow_back_rounded),
                       ),
-                      CircleAvatar(child: Text(_avatarText(detail))),
-                      const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          detail.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => _showThreadInfo(detail),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              children: [
+                                CircleAvatar(child: Text(_avatarText(detail))),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        detail.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (detail.subtitle.trim().isNotEmpty)
+                                        Text(
+                                          detail.subtitle.trim(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],
