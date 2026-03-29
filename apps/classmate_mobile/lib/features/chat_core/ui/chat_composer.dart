@@ -300,7 +300,7 @@ class ChatComposer extends StatelessWidget {
                               child: _circleBtn(
                                 context,
                                 icon: Icons.mic_none_rounded,
-                                onTap: forceMicOnlyTap && enabled ? onMic : null,
+                                onTap: enabled ? onMic : null,
                               ),
                             )
                           : _sendBtn(

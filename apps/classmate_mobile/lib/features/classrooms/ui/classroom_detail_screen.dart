@@ -1156,24 +1156,35 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return;
       }
 
-      await ref
-          .read(classroomsRepoProvider)
-          .forwardChatMessage(
-            widget.courseId,
-            messageId: messageId,
-            targetThreadIds: targetThreadIds,
-          );
+      try {
+        await ref
+            .read(classroomsRepoProvider)
+            .forwardChatMessage(
+              widget.courseId,
+              messageId: messageId,
+              targetThreadIds: targetThreadIds,
+            );
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            targetThreadIds.length == 1
-                ? 'Forwarded'
-                : 'Forwarded to ${targetThreadIds.length} chats',
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              targetThreadIds.length == 1
+                  ? 'Forwarded'
+                  : 'Forwarded to ${targetThreadIds.length} chats',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        if (!mounted) return;
+        final text = e.toString();
+        final message = text.contains('Cannot forward into a non-approved thread')
+            ? 'Cannot forward into a request chat until it is approved'
+            : 'Could not forward this message';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
       return;
     }
 
@@ -2174,24 +2185,35 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return;
       }
 
-      await ref
-          .read(classroomsRepoProvider)
-          .forwardChatMessage(
-            widget.courseId,
-            messageId: messageId,
-            targetThreadIds: targetThreadIds,
-          );
+      try {
+        await ref
+            .read(classroomsRepoProvider)
+            .forwardChatMessage(
+              widget.courseId,
+              messageId: messageId,
+              targetThreadIds: targetThreadIds,
+            );
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            targetThreadIds.length == 1
-                ? 'Forwarded'
-                : 'Forwarded to ${targetThreadIds.length} chats',
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              targetThreadIds.length == 1
+                  ? 'Forwarded'
+                  : 'Forwarded to ${targetThreadIds.length} chats',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        if (!mounted) return;
+        final text = e.toString();
+        final message = text.contains('Cannot forward into a non-approved thread')
+            ? 'Cannot forward into a request chat until it is approved'
+            : 'Could not forward this message';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
       return;
     }
 
