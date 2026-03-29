@@ -24,6 +24,7 @@ import '../../messages/providers/messages_repository_provider.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
 import '../../chat_core/ui/chat_message_info_sheet.dart';
+import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../../core/auth/auth_session.dart';
@@ -1438,73 +1439,35 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Future<void> _pickClassroomCameraOrUploadImage() async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded),
-              title: Text(
-                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-                    ? 'Take photo'
-                    : 'Choose image',
-              ),
-              onTap: () => Navigator.pop(
-                context,
-                !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-                    ? 'camera'
-                    : 'camera_unavailable',
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
-              onTap: () => Navigator.pop(context, 'gallery'),
-            ),
-          ],
+    if (_sending || _recording) return;
+
+    final shot = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 92,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (shot == null || !mounted) return;
+
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: [shot.path],
+          title: 'Preview',
         ),
       ),
     );
+    if (result == null || !mounted) return;
 
-    if (action == null) {
-      return;
-    }
-
-    String? path;
-    if (action == 'camera_unavailable') {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Camera capture is available on mobile builds. On macOS this button cannot open a real camera yet.',
-          ),
-        ),
-      );
-      return;
-    } else if (action == 'camera') {
-      final picked = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 90,
-      );
-      path = picked?.path;
-    } else {
-      final picked = await FilePicker.platform.pickFiles(type: FileType.image);
-      path = picked?.files.single.path;
-    }
-
-    if (path == null || path.trim().isEmpty) return;
-
+    final paths = result.paths.isNotEmpty ? result.paths : [shot.path];
     setState(() {
-      _draftAttachments.add(<String, String>{
-        'kind': 'IMAGE',
-        'path': path!,
-        'name': path.split('/').last,
-      });
+      for (final path in paths) {
+        if (path.trim().isEmpty) continue;
+        _draftAttachments.add(<String, String>{
+          'kind': 'IMAGE',
+          'path': path,
+          'name': path.split('/').last,
+        });
+      }
     });
   }
 
@@ -1573,42 +1536,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
   }
 
-  Widget _recordHud() {
-    if (!_recording) return const SizedBox.shrink();
-    final cs = Theme.of(context).colorScheme;
-    final locked = _voiceLocked;
-    final cancelling = _voiceCancelled;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            cancelling
-                ? Icons.delete_outline_rounded
-                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              cancelling
-                  ? 'Release to cancel'
-                  : (locked
-                        ? 'Recording locked • tap mic/stop to finish'
-                        : 'Hold to record • slide left to cancel • slide up to lock'),
-              style: Theme.of(context).textTheme.bodyMedium,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _recordHud() => const SizedBox.shrink();
 
   Future<void> _toggleClassroomMic() async {
     if (_sending) {
@@ -2100,9 +2028,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         if (_sending) return;
         if (_recording) {
           await _stopVoiceNoteAndSend();
-        } else {
-          await _startVoiceNote();
+          return;
         }
+        setState(() {
+          _voiceLocked = true;
+          _voiceCancelled = false;
+          _holdDx = 0;
+          _holdDy = 0;
+        });
+        await _startVoiceNote();
       },
       onMicHoldStart: _micHoldStart,
       onMicHoldMove: _micHoldMove,
@@ -2112,6 +2046,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       showCamera: true,
       showAttach: true,
       showMic: true,
+      forceMicOnlyTap: true,
       replyingTo: _replyToMessageId == null
           ? null
           : (
@@ -2205,40 +2140,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final e in const ['❤️', '👍', '😂', '😮', '😢', '🙏'])
-                    InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () => Navigator.of(context).pop('react:$e'),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                        child: Text(e, style: const TextStyle(fontSize: 24)),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            ChatMessageActionsSheet(
-              canEdit: canEdit,
-              canDelete: isMine,
-              canViewInfo: isMine,
-              canPin: true,
-              canForward: true,
-            ),
-          ],
-        ),
+      builder: (_) => ChatMessageActionsSheet(
+        canEdit: canEdit,
+        canDelete: isMine,
+        canViewInfo: isMine,
+        canPin: true,
+        canForward: true,
       ),
     );
 

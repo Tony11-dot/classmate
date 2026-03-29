@@ -559,42 +559,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     });
   }
 
-  Widget _recordHud() {
-    if (!_recording) return const SizedBox.shrink();
-    final cs = Theme.of(context).colorScheme;
-    final locked = _voiceLocked;
-    final cancelling = _voiceCancelled;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            cancelling
-                ? Icons.delete_outline_rounded
-                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              cancelling
-                  ? 'Release to cancel'
-                  : (locked
-                        ? 'Recording locked • tap mic to finish'
-                        : 'Hold to record • slide left to cancel • slide up to lock'),
-              style: Theme.of(context).textTheme.bodyMedium,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _recordHud() => const SizedBox.shrink();
 
   Future<void> _toggleMic() async {
     if (_sending) return;
@@ -1224,10 +1189,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       onAttach: _pickFiles,
       onCamera: _openDirectCamera,
       onMic: () async {
-        if (_recording && _voiceLocked) {
+        if (_recording) {
           await _toggleMic();
           return;
         }
+        setState(() {
+          _voiceLocked = true;
+          _voiceCancelled = false;
+          _holdDx = 0;
+          _holdDy = 0;
+        });
         await _toggleMic();
       },
       onMicHoldStart: _micHoldStart,
@@ -1240,6 +1211,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       showCamera: true,
       showAttach: true,
       showMic: true,
+      forceMicOnlyTap: true,
     );
   }
 

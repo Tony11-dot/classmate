@@ -165,16 +165,16 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            padding: const EdgeInsets.fromLTRB(12, 9, 12, 8),
             decoration: BoxDecoration(
               color: isMine
                   ? const Color(0xFF0A84FF).withValues(alpha: 0.16)
                   : const Color(0xFF171B22).withValues(alpha: 0.94),
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(22),
-                topRight: const Radius.circular(22),
-                bottomLeft: Radius.circular(isMine ? 22 : 8),
-                bottomRight: Radius.circular(isMine ? 8 : 22),
+                topLeft: const Radius.circular(18),
+                topRight: const Radius.circular(18),
+                bottomLeft: Radius.circular(isMine ? 18 : 6),
+                bottomRight: Radius.circular(isMine ? 6 : 18),
               ),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -194,7 +194,7 @@ class ChatMessageBubble extends StatelessWidget {
                 ],
                 if (forwarded) ...[
                   Container(
-                    margin: const EdgeInsets.only(bottom: 8),
+                    margin: const EdgeInsets.only(bottom: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -221,11 +221,11 @@ class ChatMessageBubble extends StatelessWidget {
                     inlineReplyPrefix.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                    margin: const EdgeInsets.only(bottom: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.05),
                       ),
@@ -305,7 +305,7 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                   if (body.isNotEmpty && !lowerBody.startsWith('[image]')) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(body, style: const TextStyle(color: Colors.white)),
                   ],
                 ] else if (isVoice) ...[
@@ -316,7 +316,7 @@ class ChatMessageBubble extends StatelessWidget {
                     onPlayed: onVoicePlayed,
                   ),
                   if (body.isNotEmpty && !lowerBody.startsWith('[voice]')) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(body, style: const TextStyle(color: Colors.white)),
                   ],
                 ] else if (isPdf || isFileLike) ...[
@@ -339,8 +339,8 @@ class ChatMessageBubble extends StatelessWidget {
                       child: Row(
                         children: [
                           Container(
-                            width: 38,
-                            height: 38,
+                            width: 34,
+                            height: 34,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(12),
@@ -369,7 +369,7 @@ class ChatMessageBubble extends StatelessWidget {
                 ] else if (body.isNotEmpty) ...[
                   Text(body, style: const TextStyle(color: Colors.white)),
                 ],
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

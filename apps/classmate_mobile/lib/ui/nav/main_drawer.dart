@@ -96,11 +96,6 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/classrooms'),
             ),
             item(
-              icon: Icons.chat_bubble_rounded,
-              title: 'Messages',
-              onTap: () => context.go('/messages'),
-            ),
-            item(
               icon: Icons.auto_awesome_rounded,
               title: 'Practice',
               onTap: () => context.go('/practice'),
@@ -116,6 +111,11 @@ class MainDrawer extends ConsumerWidget {
               onTap: () => context.go('/tutor'),
             ),
             section('School tools'),
+            item(
+              icon: Icons.chat_bubble_rounded,
+              title: 'Messages',
+              onTap: () => context.go('/messages'),
+            ),
             item(
               icon: Icons.how_to_reg_rounded,
               title: 'Attendance',
