@@ -191,40 +191,34 @@ class ChatComposer extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          AnimatedContainer(
+          AnimatedSwitcher(
             duration: const Duration(milliseconds: 160),
-            curve: Curves.easeOutCubic,
-            width: showLeftTools
-                ? ((showCamera && showAttach) ? 92 : 44)
-                : 0,
-            child: ClipRect(
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 120),
-                opacity: showLeftTools ? 1 : 0,
-                child: IgnorePointer(
-                  ignoring: !showLeftTools,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (showCamera)
-                        _circleBtn(
-                          context,
-                          icon: Icons.camera_alt_rounded,
-                          onTap: enabled ? onCamera : null,
-                        ),
-                      if (showCamera && showAttach) const SizedBox(width: 4),
-                      if (showAttach)
-                        _circleBtn(
-                          context,
-                          icon: Icons.attach_file_rounded,
-                          onTap: enabled ? onAttach : null,
-                        ),
-                      if (showLeftTools) const SizedBox(width: 4),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeOutCubic,
+            child: showLeftTools
+                ? Padding(
+                    key: const ValueKey('left_tools'),
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (showCamera)
+                          _circleBtn(
+                            context,
+                            icon: Icons.camera_alt_rounded,
+                            onTap: enabled ? onCamera : null,
+                          ),
+                        if (showCamera && showAttach) const SizedBox(width: 4),
+                        if (showAttach)
+                          _circleBtn(
+                            context,
+                            icon: Icons.attach_file_rounded,
+                            onTap: enabled ? onAttach : null,
+                          ),
+                      ],
+                    ),
+                  )
+                : const SizedBox(key: ValueKey('left_tools_empty')),
           ),
           Expanded(
             child: AnimatedContainer(
