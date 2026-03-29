@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../messages/ui/components/message_reaction_bar.dart';
 
 class ChatMessageActionsSheet extends StatelessWidget {
   const ChatMessageActionsSheet({
@@ -22,15 +23,20 @@ class ChatMessageActionsSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: MessageReactionBar(
+                onReact: (emoji) =>
+                    Navigator.of(context).pop('react:$emoji'),
+              ),
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.reply_rounded),
             title: const Text('Reply'),
             onTap: () => Navigator.of(context).pop('reply'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.emoji_emotions_outlined),
-            title: const Text('React'),
-            onTap: () => Navigator.of(context).pop('react'),
           ),
           if (canForward)
             ListTile(
