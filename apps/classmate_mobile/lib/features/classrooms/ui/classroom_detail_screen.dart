@@ -9,6 +9,7 @@ import 'package:record/record.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:mime/mime.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1452,29 +1453,90 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _pickClassroomCameraOrUploadImage() async {
     if (_sending || _recording) return;
 
-    final shot = await _imagePicker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 92,
-      preferredCameraDevice: CameraDevice.rear,
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_back_rounded),
+              title: const Text('Take photo'),
+              onTap: () => Navigator.of(context).pop('photo'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam_rounded),
+              title: const Text('Record video'),
+              onTap: () => Navigator.of(context).pop('video'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.of(context).pop('gallery'),
+            ),
+          ],
+        ),
+      ),
     );
-    if (shot == null || !mounted) return;
+
+    if (!mounted || action == null) return;
+
+    List<String> initialPaths = const [];
+
+    if (action == 'photo') {
+      final shot = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 92,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      if (shot == null || !mounted) return;
+      initialPaths = [shot.path];
+    } else if (action == 'video') {
+      final shot = await _imagePicker.pickVideo(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+        maxDuration: const Duration(minutes: 2),
+      );
+      if (shot == null || !mounted) return;
+      initialPaths = [shot.path];
+    } else if (action == 'gallery') {
+      final picked = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.media,
+      );
+      if (picked == null || !mounted) return;
+      initialPaths = picked.files
+          .map((e) => e.path ?? '')
+          .where((e) => e.trim().isNotEmpty)
+          .toList();
+      if (initialPaths.isEmpty) return;
+    }
 
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) => ChatMediaPreviewScreen(
-          initialPaths: [shot.path],
+          initialPaths: initialPaths,
           title: 'Preview',
         ),
       ),
     );
     if (result == null || !mounted) return;
 
-    final paths = result.paths.isNotEmpty ? result.paths : [shot.path];
+    final paths = result.paths.isNotEmpty ? result.paths : initialPaths;
     setState(() {
       for (final path in paths) {
         if (path.trim().isEmpty) continue;
+        final lower = path.toLowerCase();
+        final kind = lower.endsWith('.mp4') ||
+                lower.endsWith('.mov') ||
+                lower.endsWith('.m4v') ||
+                lower.endsWith('.avi') ||
+                lower.endsWith('.webm')
+            ? 'VIDEO'
+            : 'IMAGE';
         _draftAttachments.add(<String, String>{
-          'kind': 'IMAGE',
+          'kind': kind,
           'path': path,
           'name': path.split('/').last,
         });
@@ -1633,7 +1695,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
         await _draftVoicePlayer.stop();
-        await repo.sendChatMedia(widget.courseId, voicePath);
+        await repo.sendChatMedia(
+          widget.courseId,
+          voicePath,
+          mimeType: lookupMimeType(voicePath) ?? 'audio/mp4',
+        );
         if (mounted) {
           setState(() {
             _draftVoicePlaying = false;
