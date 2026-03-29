@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +13,9 @@ import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_camera_capture_screen.dart';
+import '../../../common/widgets/cm_code_block.dart';
+import '../../../ui/math/math_view.dart';
+import 'chatgpt_chat_components.dart';
 
 import '../data/tutor_repository.dart';
 import '../providers/tutor_repository_provider.dart';
@@ -253,6 +257,135 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     return path.startsWith('/') ? '$base$path' : '$base/$path';
   }
 
+  bool _isVideoPath(String path) {
+    final v = path.trim().toLowerCase();
+    return v.endsWith('.mp4') ||
+        v.endsWith('.mov') ||
+        v.endsWith('.mkv') ||
+        v.endsWith('.webm') ||
+        v.endsWith('.avi');
+  }
+
+  bool _isAudioPath(String path) {
+    final v = path.trim().toLowerCase();
+    return v.endsWith('.m4a') ||
+        v.endsWith('.aac') ||
+        v.endsWith('.mp3') ||
+        v.endsWith('.wav') ||
+        v.endsWith('.ogg');
+  }
+
+  String _draftKindForPath(String path) {
+    final v = path.trim().toLowerCase();
+    if (v.endsWith('.jpg') ||
+        v.endsWith('.jpeg') ||
+        v.endsWith('.png') ||
+        v.endsWith('.webp') ||
+        v.endsWith('.gif')) {
+      return 'IMAGE';
+    }
+    if (v.endsWith('.pdf')) return 'PDF';
+    return 'FILE';
+  }
+
+  List<_RichBlock> _richBlocks(String raw) {
+    final text = raw.replaceAll('\r\n', '\n');
+    final out = <_RichBlock>[];
+    final fence = RegExp(r'```([\w+-]*)\n([\s\S]*?)```', multiLine: true);
+    var last = 0;
+    for (final m in fence.allMatches(text)) {
+      if (m.start > last) {
+        final plain = text.substring(last, m.start).trim();
+        if (plain.isNotEmpty) out.add(_RichBlock.text(plain));
+      }
+      final lang = (m.group(1) ?? '').trim();
+      final code = (m.group(2) ?? '').trimRight();
+      out.add(_RichBlock.code(code, lang));
+      last = m.end;
+    }
+    if (last < text.length) {
+      final plain = text.substring(last).trim();
+      if (plain.isNotEmpty) out.add(_RichBlock.text(plain));
+    }
+    if (out.isEmpty && text.trim().isNotEmpty) {
+      out.add(_RichBlock.text(text.trim()));
+    }
+    return out;
+  }
+
+  Future<void> _showNovaMessageActions(_Msg m) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.copy_all_rounded),
+              title: const Text('Copy'),
+              onTap: () => Navigator.of(sheetContext).pop('copy'),
+            ),
+            if (m.isUser && m.content.trim().isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: const Text('Edit message'),
+                onTap: () => Navigator.of(sheetContext).pop('edit'),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted || action == null) return;
+
+    if (action == 'copy') {
+      final text = m.content.trim().isEmpty
+          ? ((m.fileName ?? '').trim().isEmpty ? 'Attachment' : m.fileName!.trim())
+          : m.content.trim();
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Copied')),
+      );
+      return;
+    }
+
+    if (action == 'edit') {
+      final text = m.content.trim();
+      if (text.isEmpty) return;
+      _controller.text = text;
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Loaded into composer')),
+      );
+    }
+  }
+
+  Widget _assistantRichContent(String text) {
+    final blocks = _richBlocks(text);
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < blocks.length; i++) ...[
+          if (blocks[i].isCode)
+            CMCodeBlock(blocks[i].value)
+          else
+            MathView(
+              blocks[i].value,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
+            ),
+          if (i != blocks.length - 1) const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+
   Future<void> _pickFiles() async {
     if (_sending || _recording) return;
     final picked = await FilePicker.platform.pickFiles(
@@ -266,6 +399,17 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         .where((p) => p.trim().isNotEmpty)
         .toList();
     if (initial.isEmpty) return;
+
+    final unsupported = initial.where((p) => _isVideoPath(p) || _isAudioPath(p)).toList();
+    if (unsupported.isNotEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('NOVA supports images, documents, and text. Video and audio files are not supported here.'),
+        ),
+      );
+      return;
+    }
 
     if (!mounted) return;
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
@@ -328,7 +472,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           _DraftAttachment(
             path: path,
             name: path.split('/').last,
-            kind: 'FILE',
+            kind: _draftKindForPath(path),
           ),
         );
       }
@@ -842,7 +986,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       case 'VOICE':
         return m.fileName?.trim().isNotEmpty == true
             ? m.fileName!.trim()
-            : 'Voice message';
+            : 'Audio file';
       case 'VIDEO':
         return m.fileName?.trim().isNotEmpty == true
             ? m.fileName!.trim()
@@ -938,48 +1082,50 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         !m.content.startsWith('[VIDEO]') &&
         !m.content.startsWith('[Voice note attached.');
 
+    final body = Column(
+      crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        if (hasPreview) preview,
+        if (isFileLike) _fileAttachmentCard(m),
+        if (hasPreview && hasText) const SizedBox(height: 10),
+        if (isFileLike && hasText) const SizedBox(height: 10),
+        if (hasText)
+          mine
+              ? Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 13,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Text(
+                    m.content,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      height: 1.45,
+                      fontSize: 14,
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: _assistantRichContent(m.content),
+                ),
+      ],
+    );
+
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: Column(
-            crossAxisAlignment: mine
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            children: [
-              if (hasPreview) preview,
-              if (isFileLike) _fileAttachmentCard(m),
-              if (hasPreview && hasText) const SizedBox(height: 1),
-              if (isFileLike && hasText) const SizedBox(height: 1),
-              if (hasText)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    color: mine
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.22)
-                        : Theme.of(context).colorScheme.surfaceContainerHighest
-                              .withValues(alpha: 0.72),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Text(
-                    m.content,
-                    style: TextStyle(
-                      color: mine
-                          ? Theme.of(context).colorScheme.onPrimaryContainer
-                          : Theme.of(context).colorScheme.onSurface,
-                      height: 1.45,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-            ],
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onLongPress: () => _showNovaMessageActions(m),
+            child: body,
           ),
         ),
       ),
@@ -1105,9 +1251,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
-                  ListView.builder(
+                  ChatGptMessageList(
                     controller: _scroll,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) => _bubble(_messages[index]),
                   ),
@@ -1172,4 +1317,17 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       ),
     );
   }
+}
+
+
+class _RichBlock {
+  const _RichBlock.text(this.value)
+      : isCode = false,
+        language = '';
+
+  const _RichBlock.code(this.value, this.language) : isCode = true;
+
+  final String value;
+  final bool isCode;
+  final String language;
 }
