@@ -305,6 +305,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Set<String> _pinnedMessageIds = <String>{};
+  final Map<String, double> _swipeDxByMessage = <String, double>{};
   final AudioRecorder _recorder = AudioRecorder();
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -1260,6 +1261,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       final row = rows[index];
                       final startsGroup = _startsGroup(rows, index);
                       final endsGroup = _endsGroup(rows, index);
+                      final swipeDx = _swipeDxByMessage[row.id] ?? 0.0;
 
                       return Align(
                         alignment: row.isMine
@@ -1271,8 +1273,36 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                             bottom: endsGroup ? 4 : 2,
                           ),
                           child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onHorizontalDragUpdate: (details) {
+                              final current = _swipeDxByMessage[row.id] ?? 0.0;
+                              final next = (current + details.delta.dx).clamp(
+                                0.0,
+                                84.0,
+                              );
+                              if ((_swipeDxByMessage[row.id] ?? 0.0) != next) {
+                                setState(() {
+                                  _swipeDxByMessage[row.id] = next;
+                                });
+                              }
+                            },
                             onHorizontalDragEnd: (_) {
-                              setState(() => _replyIndex = index);
+                              final current = _swipeDxByMessage[row.id] ?? 0.0;
+                              if (current >= 44) {
+                                setState(() => _replyIndex = index);
+                              }
+                              if (_swipeDxByMessage.containsKey(row.id)) {
+                                setState(() {
+                                  _swipeDxByMessage.remove(row.id);
+                                });
+                              }
+                            },
+                            onHorizontalDragCancel: () {
+                              if (_swipeDxByMessage.containsKey(row.id)) {
+                                setState(() {
+                                  _swipeDxByMessage.remove(row.id);
+                                });
+                              }
                             },
                             onLongPress: () async {
                               final navigator = Navigator.of(context);
@@ -1346,11 +1376,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 );
                               }
                             },
-                            child: Column(
-                              crossAxisAlignment: row.isMine
-                                  ? CrossAxisAlignment.end
-                                  : CrossAxisAlignment.start,
-                              children: [
+                            child: Transform.translate(
+                              offset: Offset(swipeDx, 0),
+                              child: Column(
+                                crossAxisAlignment: row.isMine
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
                                 if (row.isPinned ||
                                     _pinnedMessageIds.contains(row.id))
                                   Padding(
@@ -1440,7 +1472,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     replySnippet: row.replyPreview?.text,
                                     maxWidth: 340,
                                   ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
