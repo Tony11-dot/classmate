@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
@@ -128,6 +130,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
+  final AudioRecorder _recorder = AudioRecorder();
 
   final List<_Msg> _messages = <_Msg>[];
   final List<_DraftAttachment> _draftAttachments = <_DraftAttachment>[];
@@ -136,6 +139,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   String _headerTitle = 'Untitled chat';
   bool _loadingHistory = false;
   bool _sending = false;
+  bool _recording = false;
+  bool _voiceLocked = false;
+  bool _voicePaused = false;
+  bool _voiceCancelled = false;
+  double _holdDx = 0;
+  double _holdDy = 0;
+  String? _recordingPath;
   StreamSubscription<Map<String, dynamic>>? _replySub;
 
   TutorRepository get _repo => ref.read(tutorRepositoryProvider);
@@ -169,6 +179,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     _replySub?.cancel();
     _controller.dispose();
     _scroll.dispose();
+    _recorder.dispose();
     super.dispose();
   }
 
@@ -243,7 +254,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Future<void> _pickFiles() async {
-    if (_sending) return;
+    if (_sending || _recording) return;
     final picked = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.any,
@@ -330,6 +341,200 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           TextPosition(offset: _controller.text.length),
         );
       }
+    });
+  }
+
+  Future<void> _micHoldStart(LongPressStartDetails d) async {
+    if (_sending || _recording) return;
+    _holdDx = 0;
+    _holdDy = 0;
+    _voiceLocked = false;
+    _voiceCancelled = false;
+    await _toggleMic();
+  }
+
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    if (!_recording) return;
+    setState(() {
+      _holdDx = d.offsetFromOrigin.dx;
+      _holdDy = d.offsetFromOrigin.dy;
+      if (_holdDx < -88) _voiceCancelled = true;
+      if (_holdDy < -88) _voiceLocked = true;
+    });
+  }
+
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    if (!_recording) return;
+    if (_voiceCancelled) {
+      await _cancelVoiceDraft();
+      return;
+    }
+    if (_voiceLocked) {
+      if (mounted) setState(() {});
+      return;
+    }
+    await _toggleMic();
+  }
+
+  Future<void> _micHoldCancel() async {
+    if (!_recording) return;
+    if (_voiceLocked) return;
+    await _cancelVoiceDraft();
+  }
+
+  Future<void> _pauseVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.pause();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = true);
+  }
+
+  Future<void> _resumeVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.resume();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _voicePaused = false);
+  }
+
+  Future<void> _cancelVoiceDraft() async {
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+    });
+  }
+
+  Widget _recordHud() {
+    if (!_recording) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final locked = _voiceLocked;
+    final cancelling = _voiceCancelled;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            cancelling
+                ? Icons.delete_outline_rounded
+                : (locked ? Icons.lock_rounded : Icons.mic_rounded),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cancelling
+                  ? 'Release to cancel'
+                  : (locked
+                        ? 'Recording locked • tap mic to finish'
+                        : 'Hold to record • slide left to cancel • slide up to lock'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _toggleMic() async {
+    if (_sending) return;
+
+    if (_recording) {
+      final stoppedPath = await _recorder.stop();
+      _recordingPath = stoppedPath;
+
+      if (!mounted) return;
+      setState(() => _recording = false);
+
+      final path = (stoppedPath ?? '').trim();
+      if (path.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No audio captured.')));
+        return;
+      }
+
+      setState(() => _sending = true);
+      try {
+        final transcript = await _repo.transcribeAudio(path: path);
+        if (!mounted) return;
+
+        final clean = transcript.trim();
+        if (clean.isNotEmpty) {
+          setState(() {
+            final current = _controller.text.trim();
+            _controller.text = current.isEmpty ? clean : '$current $clean';
+            _controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: _controller.text.length),
+            );
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Transcription failed. Please try again.'),
+            ),
+          );
+        }
+      } catch (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transcription failed. Please try again.'),
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _sending = false);
+        }
+        if (_recordingPath != null && _recordingPath!.trim().isNotEmpty) {
+          final f = File(_recordingPath!);
+          if (await f.exists()) {
+            try {
+              await f.delete();
+            } catch (_) {
+              // best-effort cleanup
+            }
+          }
+          _recordingPath = null;
+        }
+      }
+      return;
+    }
+
+    final hasPermission = await _recorder.hasPermission();
+    if (!hasPermission) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission is required.')),
+      );
+      return;
+    }
+
+    final dir = await getTemporaryDirectory();
+    final path =
+        '${dir.path}/nova-${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    await _recorder.start(const RecordConfig(), path: path);
+
+    if (!mounted) return;
+    setState(() {
+      _recording = true;
+      _recordingPath = path;
     });
   }
 
@@ -855,18 +1060,35 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 ),
               ),
             ),
+          _recordHud(),
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
             builder: (context, value, child) => ChatComposer(
               controller: _controller,
               enabled: !_sending,
               isStreaming: false,
+              isRecording: _recording,
               hintText: 'Message NOVA',
               onSend: _send,
               onAttach: _pickFiles,
               onCamera: _openDirectCamera,
-              onMic: () {},
-              showMic: false,
+              onMic: () async {
+                if (_recording && _voiceLocked) {
+                  await _toggleMic();
+                  return;
+                }
+                await _toggleMic();
+              },
+              onMicHoldStart: _micHoldStart,
+              onMicHoldMove: _micHoldMove,
+              onMicHoldEnd: _micHoldEnd,
+              onMicHoldCancel: _micHoldCancel,
+
+              isVoiceLocked: _voiceLocked,
+              isVoicePaused: _voicePaused,
+              onTrashRecording: _cancelVoiceDraft,
+              onPauseRecording: _pauseVoiceRecord,
+              onResumeRecording: _resumeVoiceRecord,
             ),
           ),
         ],
@@ -931,7 +1153,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             Text(_headerTitle),
             const SizedBox(height: 1),
             Text(
-              _sending ? 'Working…' : 'Ready',
+              _recording
+                  ? 'Recording… tap mic again to transcribe'
+                  : (_sending ? 'Working…' : 'Ready'),
               style: const TextStyle(fontSize: 12, color: Colors.white70),
             ),
           ],

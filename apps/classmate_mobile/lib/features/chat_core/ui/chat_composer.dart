@@ -28,7 +28,6 @@ class ChatComposer extends StatelessWidget {
     this.hint,
     this.hintText,
     this.forceMicOnlyTap = false,
-    this.showMic = true,
   });
 
   final TextEditingController controller;
@@ -56,7 +55,6 @@ class ChatComposer extends StatelessWidget {
   final bool isVoiceLocked;
   final bool isVoicePaused;
   final bool forceMicOnlyTap;
-  final bool showMic;
 
   final String? hint;
   final String? hintText;
@@ -85,13 +83,11 @@ class ChatComposer extends StatelessWidget {
                   duration: const Duration(milliseconds: 220),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeOutCubic,
-                  child: !showMic
-                      ? _idle(context, hasText)
-                      : isRecording && !isVoiceLocked
-                          ? _holding(context)
-                          : isRecording && isVoiceLocked
-                              ? _locked(context)
-                              : _idle(context, hasText),
+                  child: isRecording && !isVoiceLocked
+                      ? _holding(context)
+                      : isRecording && isVoiceLocked
+                          ? _locked(context)
+                          : _idle(context, hasText),
                 );
               },
             ),
@@ -268,33 +264,27 @@ class ChatComposer extends StatelessWidget {
                           active: true,
                           onTap: onSend,
                         )
-                      : showMic
-                          ? GestureDetector(
-                              key: const ValueKey('mic_btn'),
-                              behavior: HitTestBehavior.opaque,
-                              onLongPressStart: enabled && !forceMicOnlyTap
-                                  ? onMicHoldStart
-                                  : null,
-                              onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                                  ? onMicHoldMove
-                                  : null,
-                              onLongPressEnd: enabled && !forceMicOnlyTap
-                                  ? onMicHoldEnd
-                                  : null,
-                              onLongPressCancel: enabled && !forceMicOnlyTap
-                                  ? onMicHoldCancel
-                                  : null,
-                              child: _circleBtn(
-                                context,
-                                icon: Icons.mic_none_rounded,
-                                onTap: forceMicOnlyTap && enabled ? onMic : null,
-                              ),
-                            )
-                          : _circleBtn(
-                              context,
-                              icon: Icons.add_rounded,
-                              onTap: null,
-                            ),
+                      : GestureDetector(
+                          key: const ValueKey('mic_btn'),
+                          behavior: HitTestBehavior.opaque,
+                          onLongPressStart: enabled && !forceMicOnlyTap
+                              ? onMicHoldStart
+                              : null,
+                          onLongPressMoveUpdate: enabled && !forceMicOnlyTap
+                              ? onMicHoldMove
+                              : null,
+                          onLongPressEnd: enabled && !forceMicOnlyTap
+                              ? onMicHoldEnd
+                              : null,
+                          onLongPressCancel: enabled && !forceMicOnlyTap
+                              ? onMicHoldCancel
+                              : null,
+                          child: _circleBtn(
+                            context,
+                            icon: Icons.mic_none_rounded,
+                            onTap: forceMicOnlyTap && enabled ? onMic : null,
+                          ),
+                        ),
             ),
           ),
         ],
