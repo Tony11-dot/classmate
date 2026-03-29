@@ -19,7 +19,6 @@ import '../../chat_core/ui/chat_message_info_sheet.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
-import 'components/message_reply_preview.dart';
 
 class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ForwardTargetPickerSheet({required this.currentThreadId});
@@ -348,6 +347,34 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return '$mm:$ss';
   }
 
+
+  Widget _threadMemberTile(BuildContext context, MessageParticipant p) {
+    final school = p.schoolName.trim().isEmpty ? '—' : p.schoolName.trim();
+    final grade = p.gradeLabel.trim().isEmpty ? '—' : p.gradeLabel.trim();
+
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      title: Text(
+        p.displayName.trim().isEmpty ? 'Student' : p.displayName.trim(),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+      ),
+      subtitle: Text(
+        (school == '—' && grade == '—')
+            ? 'Student info unavailable'
+            : '$school • $grade',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      children: [
+        _infoRow(context, 'School', school),
+        _infoRow(context, 'Grade', grade),
+      ],
+    );
+  }
+
   Future<void> _showThreadInfo(MessageThreadDetail detail) async {
     final participantCount = detail.participants.length;
     final conversationType = detail.isGroup ? 'Group' : 'Direct message';
@@ -357,8 +384,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -387,13 +415,27 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
               ),
               const SizedBox(height: 18),
               _infoRow(sheetContext, 'Type', conversationType),
-              _infoRow(sheetContext, 'Subtitle', subtitle),
+              if (!detail.isGroup)
+                _infoRow(sheetContext, 'School / grade', subtitle)
+              else
+                _infoRow(sheetContext, 'Group', subtitle),
               _infoRow(
                 sheetContext,
                 'People',
                 detail.isGroup ? '$participantCount participants' : '$participantCount person',
               ),
               _infoRow(sheetContext, 'Status', sendState),
+              if (detail.isGroup && detail.participants.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Students',
+                  style: Theme.of(sheetContext).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                ...detail.participants.map((p) => _threadMemberTile(sheetContext, p)),
+              ],
             ],
           ),
         ),
@@ -1304,9 +1346,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
             final rows = detail.messages;
             _lastRows = rows;
-            final replyingText = _replyIndex == null
-                ? ''
-                : rows[_replyIndex!].text;
 
             return Column(
               children: [
@@ -1674,16 +1713,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     },
                   ),
                 ),
-                if (_replyIndex != null)
-                  MessageReplyPreview(
-                    sender: rows[_replyIndex!].isMine
-                        ? 'You'
-                        : rows[_replyIndex!].senderName,
-                    text: replyingText,
-                    onCancel: () {
-                      setState(() => _replyIndex = null);
-                    },
-                  ),
                 _recordHud(),
                 ChatComposer(
                   controller: _controller,
