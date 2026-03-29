@@ -35,6 +35,8 @@ class MessageParticipant {
   final String initials;
   final bool isAdmin;
   final bool isBlocked;
+  final String schoolName;
+  final String gradeLabel;
 
   const MessageParticipant({
     required this.userId,
@@ -42,6 +44,8 @@ class MessageParticipant {
     required this.initials,
     this.isAdmin = false,
     this.isBlocked = false,
+    this.schoolName = '',
+    this.gradeLabel = '',
   });
 }
 

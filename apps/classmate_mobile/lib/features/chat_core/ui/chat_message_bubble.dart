@@ -27,6 +27,8 @@ class ChatMessageBubble extends StatelessWidget {
     this.onVoicePlayed,
     this.replySender,
     this.replySnippet,
+    this.mediaMimeType,
+    this.messageKind = 'TEXT',
     this.maxWidth = 380,
   });
 
@@ -48,6 +50,8 @@ class ChatMessageBubble extends StatelessWidget {
   final VoidCallback? onVoicePlayed;
   final String? replySender;
   final String? replySnippet;
+  final String? mediaMimeType;
+  final String messageKind;
   final double maxWidth;
 
   bool _isImageByUrl(String v) =>
@@ -55,6 +59,17 @@ class ChatMessageBubble extends StatelessWidget {
 
   bool _isVoiceByUrl(String v) =>
       RegExp(r'\.(m4a|aac|mp3|wav)$', caseSensitive: false).hasMatch(v);
+
+  bool _isVoiceByMeta(String kind, String mime) {
+    final k = kind.trim().toUpperCase();
+    final m = mime.trim().toLowerCase();
+    return k == 'VOICE' ||
+        m.startsWith('audio/') ||
+        m.contains('mpeg') ||
+        m.contains('mp4') ||
+        m.contains('aac') ||
+        m.contains('wav');
+  }
 
   bool _isPdfByUrl(String v) =>
       RegExp(r'\.pdf$', caseSensitive: false).hasMatch(v);
@@ -149,7 +164,10 @@ class ChatMessageBubble extends StatelessWidget {
     final hasMedia = mediaUrl.trim().isNotEmpty;
 
     final isImage = hasMedia && _isImageByUrl(lowerUrl);
-    final isVoice = hasMedia && _isVoiceByUrl(lowerUrl);
+    final isVoice =
+        hasMedia &&
+        (_isVoiceByUrl(lowerUrl) ||
+            _isVoiceByMeta(messageKind, (mediaMimeType ?? '').trim()));
     final isPdf = hasMedia && _isPdfByUrl(lowerUrl);
     final isFileLike = hasMedia && !isImage && !isVoice;
 
@@ -165,16 +183,16 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 9, 12, 8),
+            padding: const EdgeInsets.fromLTRB(10, 7, 10, 6),
             decoration: BoxDecoration(
               color: isMine
                   ? const Color(0xFF0A84FF).withValues(alpha: 0.16)
                   : const Color(0xFF171B22).withValues(alpha: 0.94),
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: Radius.circular(isMine ? 18 : 6),
-                bottomRight: Radius.circular(isMine ? 6 : 18),
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
+                bottomLeft: Radius.circular(isMine ? 16 : 5),
+                bottomRight: Radius.circular(isMine ? 5 : 16),
               ),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -190,7 +208,7 @@ class ChatMessageBubble extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                 ],
                 if (forwarded) ...[
                   Container(
@@ -221,11 +239,11 @@ class ChatMessageBubble extends StatelessWidget {
                     inlineReplyPrefix.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                    padding: const EdgeInsets.fromLTRB(7, 5, 7, 5),
                     margin: const EdgeInsets.only(bottom: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.05),
                       ),
@@ -305,7 +323,7 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                   if (body.isNotEmpty && !lowerBody.startsWith('[image]')) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(body, style: const TextStyle(color: Colors.white)),
                   ],
                 ] else if (isVoice) ...[
@@ -316,7 +334,7 @@ class ChatMessageBubble extends StatelessWidget {
                     onPlayed: onVoicePlayed,
                   ),
                   if (body.isNotEmpty && !lowerBody.startsWith('[voice]')) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(body, style: const TextStyle(color: Colors.white)),
                   ],
                 ] else if (isPdf || isFileLike) ...[
@@ -343,7 +361,7 @@ class ChatMessageBubble extends StatelessWidget {
                             height: 34,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             alignment: Alignment.center,
                             child: Icon(
@@ -369,7 +387,7 @@ class ChatMessageBubble extends StatelessWidget {
                 ] else if (body.isNotEmpty) ...[
                   Text(body, style: const TextStyle(color: Colors.white)),
                 ],
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

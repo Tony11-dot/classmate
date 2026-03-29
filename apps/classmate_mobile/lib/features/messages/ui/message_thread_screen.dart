@@ -1702,6 +1702,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                         : null,
                                     replySender: row.replyPreview?.senderName,
                                     replySnippet: row.replyPreview?.text,
+                                    mediaMimeType: row.mediaMimeType,
+                                    messageKind: row.kind,
                                     maxWidth: 340,
                                   ),
                                 ],
