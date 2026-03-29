@@ -31,6 +31,7 @@ class ChatComposer extends StatelessWidget {
     this.showCamera = true,
     this.showAttach = true,
     this.showMic = true,
+    this.hasDraft = false,
     this.topContent,
   });
 
@@ -62,6 +63,7 @@ class ChatComposer extends StatelessWidget {
   final bool showCamera;
   final bool showAttach;
   final bool showMic;
+  final bool hasDraft;
   final Widget? topContent;
 
   final String? hint;
@@ -178,9 +180,10 @@ class ChatComposer extends StatelessWidget {
 
   Widget _idle(BuildContext context, bool hasText) {
     final scheme = Theme.of(context).colorScheme;
-    final canSend = enabled && hasText && !isStreaming && !isRecording;
+    final canSend = enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
     final showLeftTools =
         !hasText &&
+        !hasDraft &&
         !isStreaming &&
         !isRecording &&
         (showCamera || showAttach);

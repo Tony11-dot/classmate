@@ -2123,7 +2123,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       showCamera: true,
       showAttach: true,
       showMic: true,
-      forceMicOnlyTap: true,
+      forceMicOnlyTap: false,
+      hasDraft: _draftAttachments.isNotEmpty || (_draftVoicePath ?? '').trim().isNotEmpty,
       replyingTo: _replyToMessageId == null
           ? null
           : (

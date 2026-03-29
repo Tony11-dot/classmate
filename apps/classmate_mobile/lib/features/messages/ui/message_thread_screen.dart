@@ -1759,7 +1759,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   hintText: detail.canSend
                       ? (_sending ? 'Sending…' : 'Message')
                       : 'Waiting for approval',
-                  forceMicOnlyTap: true,
+                  forceMicOnlyTap: false,
                 ),
               ],
             );

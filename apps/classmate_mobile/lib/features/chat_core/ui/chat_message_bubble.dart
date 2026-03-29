@@ -74,6 +74,20 @@ class ChatMessageBubble extends StatelessWidget {
   bool _isPdfByUrl(String v) =>
       RegExp(r'\.pdf$', caseSensitive: false).hasMatch(v);
 
+  String _resolveMediaUrl(String raw) {
+    final value = raw.trim();
+    if (value.isEmpty) return '';
+    final uri = Uri.tryParse(value);
+    if (uri != null && uri.hasScheme) return value;
+
+    const base = String.fromEnvironment('CM_API_BASE_URL');
+    final normalizedBase = base.trim().replaceAll(RegExp(r'/+$'), '');
+    if (normalizedBase.isEmpty) return value;
+
+    final normalizedPath = value.startsWith('/') ? value : '/$value';
+    return '$normalizedBase$normalizedPath';
+  }
+
   Widget _buildChecks() {
     if (!isMine) return const SizedBox.shrink();
 
@@ -160,8 +174,9 @@ class ChatMessageBubble extends StatelessWidget {
     }
 
     final lowerBody = body.toLowerCase();
-    final lowerUrl = mediaUrl.toLowerCase();
-    final hasMedia = mediaUrl.trim().isNotEmpty;
+    final resolvedMediaUrl = _resolveMediaUrl(mediaUrl);
+    final lowerUrl = resolvedMediaUrl.toLowerCase();
+    final hasMedia = resolvedMediaUrl.trim().isNotEmpty;
 
     final isImage = hasMedia && _isImageByUrl(lowerUrl);
     final isVoice =
@@ -328,7 +343,7 @@ class ChatMessageBubble extends StatelessWidget {
                   ],
                 ] else if (isVoice) ...[
                   ChatAudioBubble(
-                    url: mediaUrl,
+                    url: resolvedMediaUrl,
                     durationSeconds: voiceDurationSeconds,
                     isUnread: voiceUnread,
                     onPlayed: onVoicePlayed,
