@@ -279,25 +279,31 @@ class ChatComposer extends StatelessWidget {
                           onTap: onSend,
                         )
                       : showMic
-                          ? GestureDetector(
-                              key: const ValueKey('mic_btn'),
-                              behavior: HitTestBehavior.opaque,
-                              onLongPressStart: enabled && !forceMicOnlyTap
-                                  ? onMicHoldStart
-                                  : null,
-                              onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                                  ? onMicHoldMove
-                                  : null,
-                              onLongPressEnd: enabled && !forceMicOnlyTap
-                                  ? onMicHoldEnd
-                                  : null,
-                              onLongPressCancel: enabled && !forceMicOnlyTap
-                                  ? onMicHoldCancel
-                                  : null,
-                              child: _circleBtn(
-                                context,
-                                icon: Icons.mic_none_rounded,
-                                onTap: enabled ? onMic : null,
+                          ? SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: GestureDetector(
+                                key: const ValueKey('mic_btn'),
+                                behavior: HitTestBehavior.translucent,
+                                onLongPressStart: enabled && !forceMicOnlyTap
+                                    ? onMicHoldStart
+                                    : null,
+                                onLongPressMoveUpdate: enabled && !forceMicOnlyTap
+                                    ? onMicHoldMove
+                                    : null,
+                                onLongPressEnd: enabled && !forceMicOnlyTap
+                                    ? onMicHoldEnd
+                                    : null,
+                                onLongPressCancel: enabled && !forceMicOnlyTap
+                                    ? onMicHoldCancel
+                                    : null,
+                                child: Center(
+                                  child: _circleBtn(
+                                    context,
+                                    icon: Icons.mic_none_rounded,
+                                    onTap: enabled ? onMic : null,
+                                  ),
+                                ),
                               ),
                             )
                           : _sendBtn(

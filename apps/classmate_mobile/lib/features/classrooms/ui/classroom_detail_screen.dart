@@ -1681,10 +1681,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     HapticFeedback.lightImpact();
     setState(() => _sending = true);
     try {
+      var sentAnyMedia = false;
+
       for (final a in List<Map<String, String>>.from(_draftAttachments)) {
         final p = (a['path'] ?? '').trim();
         if (p.isEmpty) continue;
         await repo.sendChatMedia(widget.courseId, p);
+        sentAnyMedia = true;
       }
 
       if (_draftAttachments.isNotEmpty) {
@@ -1692,6 +1695,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           _draftAttachments.clear();
         });
       }
+
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
         await _draftVoicePlayer.stop();
@@ -1700,6 +1704,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           voicePath,
           mimeType: lookupMimeType(voicePath) ?? 'audio/mp4',
         );
+        sentAnyMedia = true;
         if (mounted) {
           setState(() {
             _draftVoicePlaying = false;
@@ -1715,6 +1720,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _recentOwnMessageTexts.add(composedText.trim());
         await repo.sendChatText(widget.courseId, composedText);
         _chatCtl.clear();
+      }
+
+      if (text.isNotEmpty || sentAnyMedia) {
         _clearReply();
       }
 
@@ -2893,74 +2901,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
-              ),
-            ),
-          ),
-        if (_replyToMessageId != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withValues(alpha: 0.35),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 4,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          _replyToSender?.trim().isNotEmpty == true
-                              ? _replyToSender!.trim()
-                              : 'Replying',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          (_replyToText ?? '').trim(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                                height: 1.2,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _clearReply,
-                    icon: const Icon(Icons.close_rounded),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
               ),
             ),
           ),
