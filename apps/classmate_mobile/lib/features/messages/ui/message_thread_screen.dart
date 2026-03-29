@@ -589,38 +589,154 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 
-  Future<void> _forwardMessage(MessageItem row) async {
-    final targets = await showModalBottomSheet<List<String>>(
+
+  Future<List<String>?> _showForwardTargetPicker() async {
+    final inbox = await ref.read(messagesInboxProvider.future);
+
+    final candidates = inbox.where((item) {
+      if (item.id == widget.threadId) return false;
+      final state = item.requestState.name.toLowerCase();
+      return !state.startsWith('pending');
+    }).toList();
+
+    if (!mounted) return null;
+
+    if (candidates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No approved chats available')),
+      );
+      return null;
+    }
+
+    final selected = <String>{};
+
+    return showModalBottomSheet<List<String>>(
       context: context,
-      isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) =>
-          _ForwardTargetPickerSheet(currentThreadId: widget.threadId),
-    );
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: StatefulBuilder(
+            builder: (sheetContext, setSheetState) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Forward to',
+                        style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: candidates.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 4),
+                        itemBuilder: (_, index) {
+                          final item = candidates[index];
+                          final checked = selected.contains(item.id);
 
-    if (!mounted || targets == null || targets.isEmpty) return;
-
-    await ref
-        .read(messagesRepositoryProvider)
-        .forwardMessage(
-          fromThreadId: widget.threadId,
-          messageId: row.id,
-          targetThreadIds: targets,
+                          return CheckboxListTile(
+                            value: checked,
+                            onChanged: (value) {
+                              setSheetState(() {
+                                if (value == true) {
+                                  selected.add(item.id);
+                                } else {
+                                  selected.remove(item.id);
+                                }
+                              });
+                            },
+                            secondary: CircleAvatar(
+                              child: Text(item.initials),
+                            ),
+                            title: Text(
+                              item.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              item.subtitle.trim().isEmpty
+                                  ? (item.isGroup ? 'Group' : 'Direct message')
+                                  : item.subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: selected.isEmpty
+                            ? null
+                            : () => Navigator.of(sheetContext).pop(selected.toList()),
+                        child: Text(
+                          selected.length == 1
+                              ? 'Forward'
+                              : 'Forward to ${selected.length} chats',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
-
-    await _refreshThread();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          targets.length == 1
-              ? 'Forwarded'
-              : 'Forwarded to ${targets.length} chats',
-        ),
-      ),
+      },
     );
   }
+
+
+  Future<void> _forwardMessage(MessageItem row) async {
+    final targetThreadIds = await _showForwardTargetPicker();
+    if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) return;
+
+    try {
+      await ref
+          .read(messagesRepositoryProvider)
+          .forwardMessage(
+            fromThreadId: widget.threadId,
+            messageId: row.id,
+            targetThreadIds: targetThreadIds,
+          );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            targetThreadIds.length == 1
+                ? 'Forwarded'
+                : 'Forwarded to ${targetThreadIds.length} chats',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final text = e.toString();
+      final message = text.contains('Cannot forward into a non-approved thread')
+          ? 'Cannot forward into a request chat until it is approved'
+          : 'Could not forward this message';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
 
   // ignore: unused_element
   Future<void> _openBubbleMenu(MessageItem row, {required bool canPin}) async {
