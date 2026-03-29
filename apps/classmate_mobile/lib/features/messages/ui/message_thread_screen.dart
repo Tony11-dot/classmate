@@ -377,9 +377,22 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
   Future<void> _showThreadInfo(MessageThreadDetail detail) async {
     final participantCount = detail.participants.length;
-    final conversationType = detail.isGroup ? 'Group' : 'Direct message';
     final subtitle = detail.subtitle.trim().isEmpty ? '—' : detail.subtitle.trim();
-    final sendState = detail.canSend ? 'Can send messages' : 'Waiting for approval';
+
+    String school = '—';
+    String grade = '—';
+
+    if (!detail.isGroup) {
+      final parts = subtitle.split('/');
+      if (parts.length >= 2) {
+        school = parts.first.trim().isEmpty ? '—' : parts.first.trim();
+        grade = parts.sublist(1).join('/').trim().isEmpty
+            ? '—'
+            : parts.sublist(1).join('/').trim();
+      } else {
+        school = subtitle;
+      }
+    }
 
     await showModalBottomSheet<void>(
       context: context,
@@ -413,28 +426,44 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              _infoRow(sheetContext, 'Type', conversationType),
-              if (!detail.isGroup)
-                _infoRow(sheetContext, 'School / grade', subtitle)
-              else
-                _infoRow(sheetContext, 'Group', subtitle),
-              _infoRow(
-                sheetContext,
-                'People',
-                detail.isGroup ? '$participantCount participants' : '$participantCount person',
-              ),
-              _infoRow(sheetContext, 'Status', sendState),
-              if (detail.isGroup && detail.participants.isNotEmpty) ...[
+              if (detail.isGroup) ...[
                 const SizedBox(height: 8),
-                Text(
-                  'Students',
-                  style: Theme.of(sheetContext).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Theme.of(sheetContext)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      'Group',
+                      style: Theme.of(sheetContext).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                ...detail.participants.map((p) => _threadMemberTile(sheetContext, p)),
+              ],
+              const SizedBox(height: 18),
+              if (!detail.isGroup) ...[
+                _infoRow(sheetContext, 'School', school),
+                _infoRow(sheetContext, 'Grade', grade),
+              ] else ...[
+                _infoRow(sheetContext, 'Participants', '$participantCount'),
+                if (detail.participants.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Students',
+                    style: Theme.of(sheetContext).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...detail.participants.map((p) => _threadMemberTile(sheetContext, p)),
+                ],
               ],
             ],
           ),
@@ -1031,26 +1060,94 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Future<void> _openCamera(MessageThreadDetail detail) async {
     if (_sending || _recording || !detail.canSend) return;
 
-    final shot = await _imagePicker.pickImage(source: ImageSource.camera);
-    if (!mounted || shot == null || shot.path.trim().isEmpty) return;
-
-    final preview = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) => ChatMediaPreviewScreen(
-          initialPaths: <String>[shot.path],
-          title: 'Send photo',
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_back_rounded),
+              title: const Text('Take photo'),
+              onTap: () => Navigator.of(context).pop('photo'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam_rounded),
+              title: const Text('Record video'),
+              onTap: () => Navigator.of(context).pop('video'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.of(context).pop('gallery'),
+            ),
+          ],
         ),
       ),
     );
 
-    if (!mounted || preview == null || preview.paths.isEmpty) return;
+    if (!mounted || action == null) return;
 
-    for (final path in preview.paths) {
-      final mime = lookupMimeType(path) ?? 'image/jpeg';
+    List<String> initialPaths = <String>[];
+
+    if (action == 'photo') {
+      final shot = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 92,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      if (!mounted || shot == null || shot.path.trim().isEmpty) return;
+      initialPaths = <String>[shot.path];
+    } else if (action == 'video') {
+      final shot = await _imagePicker.pickVideo(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+        maxDuration: const Duration(minutes: 2),
+      );
+      if (!mounted || shot == null || shot.path.trim().isEmpty) return;
+      initialPaths = <String>[shot.path];
+    } else if (action == 'gallery') {
+      final picked = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.media,
+      );
+      if (!mounted || picked == null || picked.files.isEmpty) return;
+      initialPaths = picked.files
+          .map((e) => e.path ?? '')
+          .where((e) => e.trim().isNotEmpty)
+          .toList();
+      if (initialPaths.isEmpty) return;
+    } else {
+      return;
+    }
+
+    final preview = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: initialPaths,
+          title: 'Preview',
+        ),
+      ),
+    );
+
+    if (!mounted || preview == null) return;
+
+    final paths = preview.paths.isNotEmpty ? preview.paths : initialPaths;
+    if (paths.isEmpty) return;
+
+    for (final path in paths) {
+      final mime = lookupMimeType(path) ??
+          (path.toLowerCase().endsWith('.mp4') ||
+                  path.toLowerCase().endsWith('.mov') ||
+                  path.toLowerCase().endsWith('.m4v')
+              ? 'video/mp4'
+              : 'image/jpeg');
+
       await _sendMediaFile(
         detail,
         path,
-        kind: 'IMAGE',
+        kind: _kindForPath(path, mimeType: mime),
         caption: preview.caption,
         fileName: path.split('/').last,
         mimeType: mime,
