@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../chat_core/ui/chat_composer.dart';
+import '../../chat_core/ui/chat_message_bubble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
@@ -1091,23 +1092,21 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         if (isFileLike && hasText) const SizedBox(height: 10),
         if (hasText)
           mine
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Text(
-                    m.content,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      height: 1.45,
-                      fontSize: 14,
-                    ),
-                  ),
+              ? ChatMessageBubble(
+                  contextForNavigation: context,
+                  rawText: m.content,
+                  mediaUrl: '',
+                  isMine: true,
+                  showName: false,
+                  senderLabel: 'You',
+                  timeLabel: '',
+                  edited: false,
+                  reaction: null,
+                  forwarded: false,
+                  delivered: false,
+                  seen: false,
+                  deleteState: 'VISIBLE',
+                  maxWidth: 340,
                 )
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -1129,6 +1128,30 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _novaComposerTopContent() {
+    if (_draftAttachments.isEmpty && !_recording) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_draftAttachments.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+            child: SizedBox(
+              height: 72,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: _draftAttachments.map((a) => _draftChip(a)).toList(),
+              ),
+            ),
+          ),
+        if (_recording) _recordHud(),
+      ],
     );
   }
 
@@ -1188,57 +1211,35 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _composer() {
-    return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: _controller,
-      builder: (context, value, child) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_draftAttachments.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
-              child: SizedBox(
-                height: 72,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: _draftAttachments
-                      .map((a) => _draftChip(a))
-                      .toList(),
-                ),
-              ),
-            ),
-          _recordHud(),
-          ValueListenableBuilder<TextEditingValue>(
-            valueListenable: _controller,
-            builder: (context, value, child) => ChatComposer(
-              controller: _controller,
-              enabled: !_sending,
-              isStreaming: false,
-              isRecording: _recording,
-              hintText: 'Message NOVA',
-              onSend: _send,
-              onAttach: _pickFiles,
-              onCamera: _openDirectCamera,
-              onMic: () async {
-                if (_recording && _voiceLocked) {
-                  await _toggleMic();
-                  return;
-                }
-                await _toggleMic();
-              },
-              onMicHoldStart: _micHoldStart,
-              onMicHoldMove: _micHoldMove,
-              onMicHoldEnd: _micHoldEnd,
-              onMicHoldCancel: _micHoldCancel,
-
-              isVoiceLocked: _voiceLocked,
-              isVoicePaused: _voicePaused,
-              onTrashRecording: _cancelVoiceDraft,
-              onPauseRecording: _pauseVoiceRecord,
-              onResumeRecording: _resumeVoiceRecord,
-            ),
-          ),
-        ],
-      ),
+    return ChatComposer(
+      controller: _controller,
+      topContent: _novaComposerTopContent(),
+      enabled: !_sending,
+      isStreaming: false,
+      isRecording: _recording,
+      isVoiceLocked: _voiceLocked,
+      isVoicePaused: _voicePaused,
+      hintText: 'Message NOVA',
+      onSend: _send,
+      onAttach: _pickFiles,
+      onCamera: _openDirectCamera,
+      onMic: () async {
+        if (_recording && _voiceLocked) {
+          await _toggleMic();
+          return;
+        }
+        await _toggleMic();
+      },
+      onMicHoldStart: _micHoldStart,
+      onMicHoldMove: _micHoldMove,
+      onMicHoldEnd: _micHoldEnd,
+      onMicHoldCancel: _micHoldCancel,
+      onTrashRecording: _cancelVoiceDraft,
+      onPauseRecording: _pauseVoiceRecord,
+      onResumeRecording: _resumeVoiceRecord,
+      showCamera: true,
+      showAttach: true,
+      showMic: true,
     );
   }
 
