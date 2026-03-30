@@ -1806,9 +1806,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (!mounted) {
       return;
     }
+    final keepLocked = _voiceLocked;
     setState(() {
       _recording = true;
-      _voiceLocked = false;
+      _voiceLocked = keepLocked;
       _voicePaused = false;
       _voiceCancelled = false;
       _holdDx = 0;
@@ -1861,6 +1862,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           mimeType: lookupMimeType(voicePath) ?? 'audio/mp4',
         );
         sentAnyMedia = true;
+        if (mounted) {
+          setState(() {
+            _draftVoicePlaying = false;
+            _draftVoiceReady = false;
+            _draftVoicePosition = Duration.zero;
+            _draftVoiceDuration = Duration.zero;
+            _draftVoicePath = null;
+            _voicePaused = false;
+            _recordElapsed = Duration.zero;
+          });
+        }
         if (mounted) {
           setState(() {
             _draftVoicePlaying = false;
@@ -2286,13 +2298,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           await _stopVoiceNoteAndSend();
           return;
         }
+        await _startVoiceNote();
+        if (!mounted) return;
         setState(() {
           _voiceLocked = true;
+          _voicePaused = false;
           _voiceCancelled = false;
+          _holdStartGlobal = null;
           _holdDx = 0;
           _holdDy = 0;
         });
-        await _startVoiceNote();
       },
       onMicHoldStart: _micHoldStart,
       onMicHoldMove: _micHoldMove,
