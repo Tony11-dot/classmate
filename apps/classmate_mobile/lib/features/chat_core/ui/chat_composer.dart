@@ -32,6 +32,7 @@ class ChatComposer extends StatelessWidget {
     this.showAttach = true,
     this.showMic = true,
     this.hasDraft = false,
+    this.recordingElapsed = Duration.zero,
     this.topContent,
   });
 
@@ -64,10 +65,18 @@ class ChatComposer extends StatelessWidget {
   final bool showAttach;
   final bool showMic;
   final bool hasDraft;
+  final Duration recordingElapsed;
   final Widget? topContent;
 
   final String? hint;
   final String? hintText;
+
+  String _fmtElapsed(Duration d) {
+    final total = d.inSeconds < 0 ? 0 : d.inSeconds;
+    final mm = (total ~/ 60).toString().padLeft(2, '0');
+    final ss = (total % 60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
 
   String get _resolvedHint {
     final v = (hintText ?? hint ?? 'Message').trim();
@@ -348,10 +357,28 @@ class ChatComposer extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.mic_rounded,
-                        size: 18,
-                        color: scheme.primary,
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.85, end: 1.0),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeInOut,
+                        builder: (context, value, child) => Transform.scale(
+                          scale: value,
+                          child: child,
+                        ),
+                        onEnd: () {},
+                        child: Icon(
+                          Icons.mic_rounded,
+                          size: 18,
+                          color: scheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _fmtElapsed(recordingElapsed),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: scheme.primary,
+                            ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -418,14 +445,31 @@ class ChatComposer extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      isVoicePaused ? 'Recording paused' : 'Recording locked',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isVoicePaused ? 'Recording paused' : 'Recording locked',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _fmtElapsed(recordingElapsed),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: scheme.primary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 4),
