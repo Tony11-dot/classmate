@@ -91,7 +91,19 @@ class ChatMessageBubble extends StatelessWidget {
       return true;
     }
 
-    return body.trim().isEmpty;
+    final normalizedBody = body.trim();
+    if (normalizedBody.isEmpty) return true;
+
+    final parsed = Uri.tryParse(resolvedMediaUrl);
+    final fileName =
+        (parsed != null && parsed.pathSegments.isNotEmpty)
+            ? Uri.decodeComponent(parsed.pathSegments.last.trim())
+            : '';
+
+    if (fileName.isEmpty) return false;
+
+    return normalizedBody == fileName ||
+        normalizedBody == fileName.replaceAll('_', ' ');
   }
 
   String _resolveMediaUrl(String raw) {

@@ -1617,6 +1617,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (!mounted) return;
     setState(() {
+      _draftAttachments.clear();
       _draftVoicePlaying = false;
       _draftVoiceReady = false;
       _draftVoicePosition = Duration.zero;
@@ -1697,8 +1698,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     final path = await _recorder.stop();
     _stopRecordTicker();
-    if (!mounted) return;
 
+    final resolved = (path ?? '').trim();
+
+    if (!mounted) return;
     setState(() {
       _recording = false;
       _voiceLocked = false;
@@ -1708,9 +1711,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDy = 0;
       _holdStartGlobal = null;
       _recordElapsed = Duration.zero;
+      _draftVoicePath = null;
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
     });
 
-    await _sendRecordedClassroomVoice((path ?? '').trim());
+    if (resolved.isEmpty) return;
+    await _sendRecordedClassroomVoice(resolved);
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1792,11 +1801,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (_recording) {
       final path = await _recorder.stop();
       _stopRecordTicker();
+
+      final resolved = (path ?? '').trim();
+      final sendNow = _voiceLocked;
+
       if (!mounted) {
         return;
       }
 
-      final sendNow = _voiceLocked;
       setState(() {
         _recording = false;
         _voiceLocked = false;
@@ -1806,9 +1818,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _holdDy = 0;
         _holdStartGlobal = null;
         _recordElapsed = Duration.zero;
+        _draftVoicePath = null;
+        _draftVoicePlaying = false;
+        _draftVoiceReady = false;
+        _draftVoicePosition = Duration.zero;
+        _draftVoiceDuration = Duration.zero;
       });
 
-      final resolved = (path ?? '').trim();
       if (resolved.isEmpty) return;
 
       if (sendNow) {
