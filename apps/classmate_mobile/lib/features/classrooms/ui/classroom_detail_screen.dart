@@ -1597,6 +1597,36 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
   }
 
+  Future<void> _sendRecordedClassroomVoice(String path) async {
+    final resolved = path.trim();
+    if (resolved.isEmpty) return;
+
+    final repo = ref.read(classroomsRepoProvider);
+    await repo.sendChatMedia(
+      widget.courseId,
+      resolved,
+      mimeType: lookupMimeType(resolved) ?? 'audio/mp4',
+    );
+
+    try {
+      final f = File(resolved);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    } catch (_) {}
+
+    if (!mounted) return;
+    setState(() {
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
+      _draftVoicePath = null;
+      _voicePaused = false;
+      _recordElapsed = Duration.zero;
+    });
+  }
+
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
     _holdStartGlobal = d.globalPosition;
@@ -1665,12 +1695,22 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    await _toggleClassroomMic();
+    final path = await _recorder.stop();
+    _stopRecordTicker();
+    if (!mounted) return;
 
-    final voicePath = (_draftVoicePath ?? '').trim();
-    if (voicePath.isNotEmpty) {
-      await _sendClassroomChat();
-    }
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+      _holdStartGlobal = null;
+      _recordElapsed = Duration.zero;
+    });
+
+    await _sendRecordedClassroomVoice((path ?? '').trim());
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1755,12 +1795,29 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       if (!mounted) {
         return;
       }
-      setState(() => _recording = false);
 
-      if (path == null || path.trim().isEmpty) return;
+      final sendNow = _voiceLocked;
+      setState(() {
+        _recording = false;
+        _voiceLocked = false;
+        _voicePaused = false;
+        _voiceCancelled = false;
+        _holdDx = 0;
+        _holdDy = 0;
+        _holdStartGlobal = null;
+        _recordElapsed = Duration.zero;
+      });
+
+      final resolved = (path ?? '').trim();
+      if (resolved.isEmpty) return;
+
+      if (sendNow) {
+        await _sendRecordedClassroomVoice(resolved);
+        return;
+      }
 
       setState(() {
-        _draftVoicePath = path;
+        _draftVoicePath = resolved;
         _draftVoicePlaying = false;
         _draftVoiceReady = false;
         _draftVoicePosition = Duration.zero;
