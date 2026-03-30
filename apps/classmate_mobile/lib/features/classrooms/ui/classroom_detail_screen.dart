@@ -1779,7 +1779,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Widget _recordHud() => const SizedBox.shrink();
 
   Future<void> _toggleClassroomMic() async {
-    if (_sending) return;
+    if (_sending) {
+      return;
+    }
 
     if (_recording) {
       final stoppedPath = await _recorder.stop();
@@ -1800,12 +1802,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       _draftVoicePath = path;
 
-      if (_voiceLocked) {
+      final sendNow = _voiceLocked;
+      if (sendNow) {
         await _sendRecordedClassroomVoice(path);
         return;
       }
 
-      await _sendClassroomChat();
+      if (mounted) {
+        setState(() {
+          _draftVoicePlaying = false;
+          _draftVoiceReady = false;
+          _draftVoicePosition = Duration.zero;
+          _draftVoiceDuration = Duration.zero;
+          _voicePaused = false;
+        });
+      }
       return;
     }
 

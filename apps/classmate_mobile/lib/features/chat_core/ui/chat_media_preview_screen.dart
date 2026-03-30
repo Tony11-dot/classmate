@@ -36,6 +36,17 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   VideoPlayerController? _videoCtl;
   String? _videoPath;
 
+  String _fmt(Duration d) {
+    final total = d.inSeconds < 0 ? 0 : d.inSeconds;
+    final hh = total ~/ 3600;
+    final mm = (total % 3600) ~/ 60;
+    final ss = total % 60;
+    if (hh > 0) {
+      return '${hh.toString().padLeft(2, '0')}:${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}';
+    }
+    return '${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}';
+  }
+
   bool _isVideo(String path) {
     final lower = path.toLowerCase();
     return lower.endsWith('.mp4') ||
@@ -147,40 +158,131 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         return const Center(child: CircularProgressIndicator());
       }
 
-      return Stack(
-        alignment: Alignment.center,
-        children: [
-          AspectRatio(
-            aspectRatio: _videoCtl!.value.aspectRatio == 0
-                ? 1
-                : _videoCtl!.value.aspectRatio,
-            child: VideoPlayer(_videoCtl!),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.36),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: () async {
-                if (_videoCtl == null) return;
-                if (_videoCtl!.value.isPlaying) {
-                  await _videoCtl!.pause();
-                } else {
-                  await _videoCtl!.play();
-                }
-                if (mounted) setState(() {});
-              },
-              icon: Icon(
-                (_videoCtl?.value.isPlaying ?? false)
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: 34,
+      final c = _videoCtl!;
+      final pos = c.value.position;
+      final dur = c.value.duration;
+      final maxMs =
+          dur.inMilliseconds <= 0 ? 1.0 : dur.inMilliseconds.toDouble();
+      final liveMs =
+          pos.inMilliseconds.clamp(0, dur.inMilliseconds).toDouble();
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: c.value.aspectRatio == 0
+                      ? 16 / 9
+                      : c.value.aspectRatio,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      color: Colors.black,
+                      child: VideoPlayer(c),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 3,
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 7,
+                ),
+                overlayShape: const RoundSliderOverlayShape(
+                  overlayRadius: 14,
+                ),
+              ),
+              child: Slider(
+                value: liveMs.clamp(0.0, maxMs),
+                min: 0,
+                max: maxMs,
+                onChanged: (v) async {
+                  await c.seekTo(Duration(milliseconds: v.round()));
+                  if (mounted) setState(() {});
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Row(
+                children: [
+                  Text(
+                    _fmt(pos),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const Spacer(),
+                  Text(
+                    _fmt(dur),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    final back = pos - const Duration(seconds: 10);
+                    await c.seekTo(back.isNegative ? Duration.zero : back);
+                    if (mounted) setState(() {});
+                  },
+                  icon: const Icon(
+                    Icons.replay_10_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.10),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  child: IconButton(
+                    onPressed: () async {
+                      if (c.value.isPlaying) {
+                        await c.pause();
+                      } else {
+                        await c.play();
+                      }
+                      if (mounted) setState(() {});
+                    },
+                    icon: Icon(
+                      c.value.isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: () async {
+                    final next = pos + const Duration(seconds: 10);
+                    await c.seekTo(next > dur ? dur : next);
+                    if (mounted) setState(() {});
+                  },
+                  icon: const Icon(
+                    Icons.forward_10_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       );
     }
 
@@ -287,6 +389,14 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         child: Column(
           children: [
             Expanded(child: _buildMainPreview()),
+            if (_paths.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  'Page ${_index + 1} / ${_paths.length}',
+                  style: const TextStyle(color: Colors.white54),
+                ),
+              ),
             if (_paths.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
