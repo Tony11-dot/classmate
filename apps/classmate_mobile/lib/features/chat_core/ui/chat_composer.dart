@@ -17,6 +17,9 @@ class ChatComposer extends StatelessWidget {
     this.onMicHoldMove,
     this.onMicHoldEnd,
     this.onMicHoldCancel,
+    this.onActiveHoldMove,
+    this.onActiveHoldRelease,
+    this.onActiveHoldCancel,
     this.onTrashRecording,
     this.onPauseRecording,
     this.onResumeRecording,
@@ -33,6 +36,8 @@ class ChatComposer extends StatelessWidget {
     this.showMic = true,
     this.hasDraft = false,
     this.recordingElapsed = Duration.zero,
+    this.activeHoldDx = 0,
+    this.activeHoldDy = 0,
     this.topContent,
   });
 
@@ -50,6 +55,9 @@ class ChatComposer extends StatelessWidget {
   final GestureLongPressMoveUpdateCallback? onMicHoldMove;
   final GestureLongPressEndCallback? onMicHoldEnd;
   final VoidCallback? onMicHoldCancel;
+  final ValueChanged<Offset>? onActiveHoldMove;
+  final VoidCallback? onActiveHoldRelease;
+  final VoidCallback? onActiveHoldCancel;
 
   final VoidCallback? onTrashRecording;
   final VoidCallback? onPauseRecording;
@@ -66,6 +74,8 @@ class ChatComposer extends StatelessWidget {
   final bool showMic;
   final bool hasDraft;
   final Duration recordingElapsed;
+  final double activeHoldDx;
+  final double activeHoldDy;
   final Widget? topContent;
 
   final String? hint;
@@ -332,80 +342,102 @@ class ChatComposer extends StatelessWidget {
   Widget _holding(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Stack(
-      key: const ValueKey('holding'),
-      clipBehavior: Clip.none,
-      children: [
-        _shell(
-          context,
-          child: Row(
-            children: [
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 46),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 9,
-                  ),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.78),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(
-                      color: scheme.outlineVariant.withValues(alpha: 0.16),
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerMove: (e) => onActiveHoldMove?.call(e.position),
+      onPointerUp: (_) => onActiveHoldRelease?.call(),
+      onPointerCancel: (_) => onActiveHoldCancel?.call(),
+      child: Stack(
+        key: const ValueKey('holding'),
+        clipBehavior: Clip.none,
+        children: [
+          _shell(
+            context,
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 46),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 9,
+                    ),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHighest.withValues(alpha: 0.78),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: scheme.outlineVariant.withValues(alpha: 0.16),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.88, end: 1.04),
+                          duration: const Duration(milliseconds: 680),
+                          curve: Curves.easeInOut,
+                          builder: (context, value, child) => Transform.scale(
+                            scale: value,
+                            child: child,
+                          ),
+                          child: Icon(
+                            Icons.mic_rounded,
+                            size: 18,
+                            color: scheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          _fmtElapsed(recordingElapsed),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: scheme.primary,
+                              ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Slide left to cancel',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style:
+                                    Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Slide up to lock',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style:
+                                    Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: scheme.onSurfaceVariant,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.85, end: 1.0),
-                        duration: const Duration(milliseconds: 700),
-                        curve: Curves.easeInOut,
-                        builder: (context, value, child) => Transform.scale(
-                          scale: value,
-                          child: child,
-                        ),
-                        onEnd: () {},
-                        child: Icon(
-                          Icons.mic_rounded,
-                          size: 18,
-                          color: scheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _fmtElapsed(recordingElapsed),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: scheme.primary,
-                            ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Slide left to cancel',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              const SizedBox(width: 56),
-            ],
+                const SizedBox(width: 56),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          right: 8,
-          bottom: 8,
-          child: _holdingLockRail(context),
-        ),
-      ],
+          Positioned(
+            right: 8,
+            bottom: 8,
+            child: _holdingLockRail(context),
+          ),
+        ],
+      ),
     );
   }
 

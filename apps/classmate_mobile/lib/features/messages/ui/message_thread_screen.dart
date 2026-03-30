@@ -314,9 +314,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   bool _voiceLocked = false;
   bool _voicePaused = false;
   bool _voiceCancelled = false;
+  String? _recordingPath;
+  Timer? _recordTicker;
+  Duration _recordElapsed = Duration.zero;
+  Offset? _holdStartGlobal;
   double _holdDx = 0;
   double _holdDy = 0;
-  String? _recordingPath;
 
   Future<void> _refreshThread() async {
     ref.invalidate(messageThreadProvider(widget.threadId));
@@ -632,7 +635,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (row.isMine || row.voicePlayed) return;
     await ref
         .read(messagesRepositoryProvider)
-        .markThreadRead(threadId: widget.threadId);
+        .markThreadRead(threadId: widget.threadId).catchError((_) {});
+      if (!mounted) return;
     await _refreshThread();
   }
 
@@ -1157,6 +1161,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
+    _holdStartGlobal = d.globalPosition;
     _holdDx = 0;
     _holdDy = 0;
     _voiceLocked = false;
@@ -1165,32 +1170,63 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await _toggleMic(null);
   }
 
-  void _micHoldMove(LongPressMoveUpdateDetails d) {
-    if (!_recording) return;
+  void _updateActiveHold(Offset globalPosition) {
+    if (!_recording || _holdStartGlobal == null) return;
+    final dx = globalPosition.dx - _holdStartGlobal!.dx;
+    final dy = globalPosition.dy - _holdStartGlobal!.dy;
     setState(() {
-      _holdDx = d.offsetFromOrigin.dx;
-      _holdDy = d.offsetFromOrigin.dy;
-      if (_holdDx < -88) _voiceCancelled = true;
-      if (_holdDy < -88) _voiceLocked = true;
+      _holdDx = dx;
+      _holdDy = dy;
+      _voiceCancelled = dx <= -56;
+      _voiceLocked = dy <= -44;
     });
   }
 
-  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    _updateActiveHold(d.globalPosition);
+  }
+
+  Future<void> _finishActiveHold() async {
+    _holdStartGlobal = null;
     if (!_recording) return;
     if (_voiceCancelled) {
       await _cancelVoiceDraft();
       return;
     }
     if (_voiceLocked) {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          _voicePaused = false;
+        });
+      }
       return;
     }
     await _toggleMic(null);
   }
 
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    await _finishActiveHold();
+  }
+
   Future<void> _micHoldCancel() async {
+    _holdStartGlobal = null;
     if (!_recording || _voiceLocked) return;
     await _cancelVoiceDraft();
+  }
+
+  void _startRecordTicker() {
+    _recordTicker?.cancel();
+    _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted || !_recording || _voicePaused) return;
+      setState(() {
+        _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1);
+      });
+    });
+  }
+
+  void _stopRecordTicker() {
+    _recordTicker?.cancel();
+    _recordTicker = null;
   }
 
   Future<void> _pauseVoiceRecord() async {
@@ -1224,15 +1260,19 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       } catch (_) {}
     }
 
+    _stopRecordTicker();
     if (!mounted) return;
     setState(() {
       _recording = false;
       _voiceLocked = false;
       _voicePaused = false;
       _voiceCancelled = false;
+      _holdStartGlobal = null;
       _holdDx = 0;
       _holdDy = 0;
       _recordingPath = null;
+      _holdStartGlobal = null;
+      _recordElapsed = Duration.zero;
     });
   }
 
@@ -1244,6 +1284,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (_recording) {
       final stoppedPath = await _recorder.stop();
 
+      _stopRecordTicker();
       if (!mounted) return;
       setState(() {
         _recording = false;
@@ -1281,6 +1322,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           _holdDx = 0;
           _holdDy = 0;
           _recordingPath = null;
+          _recordElapsed = Duration.zero;
         });
       }
 
@@ -1305,12 +1347,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       path: path,
     );
 
+    _startRecordTicker();
     if (!mounted) return;
     setState(() {
       _recording = true;
       _recordingPath = path;
       _voicePaused = false;
       _voiceCancelled = false;
+      _recordElapsed = Duration.zero;
     });
   }
 
@@ -1438,7 +1482,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
               try {
                 await ref
                     .read(messagesRepositoryProvider)
-                    .markThreadRead(threadId: widget.threadId);
+                    .markThreadRead(threadId: widget.threadId).catchError((_) {});
+      if (!mounted) return;
               } catch (_) {}
               ref.invalidate(messagesInboxProvider);
             });
@@ -1848,6 +1893,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   onMicHoldMove: _micHoldMove,
                   onMicHoldEnd: _micHoldEnd,
                   onMicHoldCancel: _micHoldCancel,
+                  onActiveHoldMove: _updateActiveHold,
+                  onActiveHoldRelease: _finishActiveHold,
+                  onActiveHoldCancel: _micHoldCancel,
                   onTrashRecording: _cancelVoiceDraft,
                   onPauseRecording: _pauseVoiceRecord,
                   onResumeRecording: _resumeVoiceRecord,
@@ -1855,6 +1903,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   isRecording: _recording,
                   isVoiceLocked: _voiceLocked,
                   isVoicePaused: _voicePaused,
+                  recordingElapsed: _recordElapsed,
                   hintText: detail.canSend
                       ? (_sending ? 'Sending…' : 'Message')
                       : 'Waiting for approval',

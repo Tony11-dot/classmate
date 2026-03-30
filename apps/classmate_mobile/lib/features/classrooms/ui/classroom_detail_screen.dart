@@ -366,6 +366,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   String? _draftVoicePath;
   Timer? _recordTicker;
   Duration _recordElapsed = Duration.zero;
+  Offset? _holdStartGlobal;
+  double _holdDx = 0;
+  double _holdDy = 0;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
   Duration _draftVoicePosition = Duration.zero;
@@ -401,9 +404,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   bool _recording = false;
   bool _voiceLocked = false;
+  bool _voicePaused = false;
   bool _voiceCancelled = false;
-  double _holdDx = 0;
-  double _holdDy = 0;
   String? replyToId;
 
   void _goBackToClassrooms() {
@@ -1551,46 +1553,63 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
+    _holdStartGlobal = d.globalPosition;
     _holdDx = 0;
     _holdDy = 0;
     _voiceLocked = false;
+    _voicePaused = false;
     _voiceCancelled = false;
     await _toggleClassroomMic();
   }
 
-  void _micHoldMove(LongPressMoveUpdateDetails d) {
-    if (!_recording) return;
+  void _updateActiveHold(Offset globalPosition) {
+    if (!_recording || _holdStartGlobal == null) return;
+    final dx = globalPosition.dx - _holdStartGlobal!.dx;
+    final dy = globalPosition.dy - _holdStartGlobal!.dy;
     setState(() {
-      _holdDx = d.offsetFromOrigin.dx;
-      _holdDy = d.offsetFromOrigin.dy;
-      if (_holdDx <= -56) _voiceCancelled = true;
-      if (_holdDy <= -44) _voiceLocked = true;
+      _holdDx = dx;
+      _holdDy = dy;
+      _voiceCancelled = dx <= -56;
+      _voiceLocked = dy <= -44;
     });
   }
 
-  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+  void _micHoldMove(LongPressMoveUpdateDetails d) {
+    _updateActiveHold(d.globalPosition);
+  }
+
+  Future<void> _finishActiveHold() async {
+    _holdStartGlobal = null;
     if (!_recording) return;
     if (_voiceCancelled) {
       await _cancelVoiceDraft();
       return;
     }
     if (_voiceLocked) {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          _voicePaused = false;
+        });
+      }
       return;
     }
     await _toggleClassroomMic();
   }
 
+  Future<void> _micHoldEnd(LongPressEndDetails d) async {
+    await _finishActiveHold();
+  }
+
   Future<void> _micHoldCancel() async {
-    if (!_recording) return;
-    if (_voiceLocked) return;
+    _holdStartGlobal = null;
+    if (!_recording || _voiceLocked) return;
     await _cancelVoiceDraft();
   }
 
   void _startRecordTicker() {
     _recordTicker?.cancel();
     _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted || !_recording) return;
+      if (!mounted || !_recording || _voicePaused) return;
       setState(() {
         _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1);
       });
@@ -1600,6 +1619,22 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   void _stopRecordTicker() {
     _recordTicker?.cancel();
     _recordTicker = null;
+  }
+
+  Future<void> _pauseVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.pause();
+    } catch (_) {}
+    if (mounted) setState(() => _voicePaused = true);
+  }
+
+  Future<void> _resumeVoiceRecord() async {
+    if (!_recording || !_voiceLocked) return;
+    try {
+      await _recorder.resume();
+    } catch (_) {}
+    if (mounted) setState(() => _voicePaused = false);
   }
 
   Future<void> _cancelVoiceDraft() async {
@@ -1624,6 +1659,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDx = 0;
       _holdDy = 0;
       _draftVoicePath = null;
+      _holdStartGlobal = null;
+      _voicePaused = false;
       _recordElapsed = Duration.zero;
     });
   }
@@ -1651,6 +1688,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _draftVoiceReady = false;
         _draftVoicePosition = Duration.zero;
         _draftVoiceDuration = Duration.zero;
+        _voicePaused = false;
       });
       return;
     }
@@ -1681,6 +1719,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
     setState(() {
       _recording = true;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
       _recordElapsed = Duration.zero;
     });
   }
@@ -1736,6 +1779,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             _draftVoicePosition = Duration.zero;
             _draftVoiceDuration = Duration.zero;
             _draftVoicePath = null;
+            _voicePaused = false;
             _recordElapsed = Duration.zero;
           });
         }
@@ -1749,6 +1793,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       if (text.isNotEmpty || sentAnyMedia) {
         _clearReply();
+      }
+
+      if (mounted) {
+        setState(() {
+          _holdDx = 0;
+          _holdDy = 0;
+          _voiceLocked = false;
+          _voiceCancelled = false;
+        });
       }
 
       ref.invalidate(
@@ -2127,7 +2180,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       isStreaming: false,
       isRecording: _recording,
       isVoiceLocked: _voiceLocked,
-      isVoicePaused: false,
+      isVoicePaused: _voicePaused,
       recordingElapsed: _recordElapsed,
       hintText: 'Message',
       onSend: _sending || _recording ? () {} : _sendClassroomChat,
@@ -2153,7 +2206,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       onMicHoldMove: _micHoldMove,
       onMicHoldEnd: _micHoldEnd,
       onMicHoldCancel: _micHoldCancel,
+      onActiveHoldMove: _updateActiveHold,
+      onActiveHoldRelease: _finishActiveHold,
+      onActiveHoldCancel: _micHoldCancel,
       onTrashRecording: _cancelVoiceDraft,
+      onPauseRecording: _pauseVoiceRecord,
+      onResumeRecording: _resumeVoiceRecord,
       showCamera: true,
       showAttach: true,
       showMic: true,
