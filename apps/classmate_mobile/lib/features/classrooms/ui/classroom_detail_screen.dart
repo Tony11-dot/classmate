@@ -1787,12 +1787,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       final stoppedPath = await _recorder.stop();
 
       _stopRecordTicker();
+      final path = (stoppedPath ?? '').trim();
+
       if (!mounted) return;
       setState(() {
         _recording = false;
+        _voicePaused = false;
+        _voiceCancelled = false;
+        _holdDx = 0;
+        _holdDy = 0;
       });
 
-      final path = (stoppedPath ?? _draftVoicePath ?? '').trim();
       if (path.isEmpty) {
         ScaffoldMessenger.of(
           context,
@@ -1800,14 +1805,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return;
       }
 
-      _draftVoicePath = path;
-
       final sendNow = _voiceLocked;
       if (sendNow) {
         await _sendRecordedClassroomVoice(path);
         return;
       }
 
+      _draftVoicePath = path;
       if (mounted) {
         setState(() {
           _draftVoicePlaying = false;
@@ -1855,7 +1859,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDx = 0;
       _holdDy = 0;
       _recordElapsed = Duration.zero;
-      _draftVoicePath = filePath;
+      _draftVoicePath = null;
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
     });
   }
 
@@ -1919,17 +1927,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         if (mounted) {
           setState(() {
             _draftAttachments.clear();
-            _draftVoicePlaying = false;
-            _draftVoiceReady = false;
-            _draftVoicePosition = Duration.zero;
-            _draftVoiceDuration = Duration.zero;
-            _draftVoicePath = null;
-            _voicePaused = false;
-            _recordElapsed = Duration.zero;
-          });
-        }
-        if (mounted) {
-          setState(() {
             _draftVoicePlaying = false;
             _draftVoiceReady = false;
             _draftVoicePosition = Duration.zero;

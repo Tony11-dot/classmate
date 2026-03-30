@@ -109,6 +109,14 @@ class ChatMessageBubble extends StatelessWidget {
   }) {
     if (!hasMedia) return false;
 
+    final upperKind = kind.trim().toUpperCase();
+    if (upperKind == 'IMAGE' ||
+        upperKind == 'VIDEO' ||
+        upperKind == 'VOICE' ||
+        upperKind == 'FILE') {
+      return true;
+    }
+
     final normalizedBody = body.trim();
     if (normalizedBody.isEmpty) return true;
 
@@ -117,6 +125,8 @@ class ChatMessageBubble extends StatelessWidget {
         (parsed != null && parsed.pathSegments.isNotEmpty)
             ? Uri.decodeComponent(parsed.pathSegments.last.trim())
             : '';
+
+    if (fileName.isEmpty) return false;
 
     final stem = fileName.contains('.')
         ? fileName.substring(0, fileName.lastIndexOf('.'))
@@ -129,16 +139,7 @@ class ChatMessageBubble extends StatelessWidget {
       stem.replaceAll('_', ' '),
     }..removeWhere((e) => e.trim().isEmpty);
 
-    if (candidates.contains(normalizedBody)) {
-      return true;
-    }
-
-    final upperKind = kind.trim().toUpperCase();
-    return (upperKind == 'IMAGE' ||
-            upperKind == 'VIDEO' ||
-            upperKind == 'VOICE' ||
-            upperKind == 'FILE') &&
-        candidates.any((e) => normalizedBody.toLowerCase() == e.toLowerCase());
+    return candidates.any((e) => normalizedBody.toLowerCase() == e.toLowerCase());
   }
 
   String _resolveMediaUrl(String raw) {

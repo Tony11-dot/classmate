@@ -101,6 +101,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     final ctl = VideoPlayerController.file(File(currentPath));
     await ctl.initialize();
     await ctl.setLooping(true);
+    ctl.addListener(() {
+      if (mounted) setState(() {});
+    });
 
     _videoCtl = ctl;
     _videoPath = currentPath;
@@ -400,26 +403,93 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
             if (_paths.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
-                child: Row(
-                  children: [
-                    FilledButton.tonalIcon(
-                      onPressed: () => _rotateCurrent(-1),
-                      icon: const Icon(Icons.rotate_left_rounded),
-                      label: const Text('Rotate'),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                  child: ExpansionTile(
+                    collapsedBackgroundColor: const Color(0xFF151A20),
+                    backgroundColor: const Color(0xFF151A20),
+                    collapsedShape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.06),
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton.tonalIcon(
-                      onPressed: () => _rotateCurrent(1),
-                      icon: const Icon(Icons.rotate_right_rounded),
-                      label: const Text('Rotate'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.06),
+                      ),
                     ),
-                    const Spacer(),
-                    FilledButton.tonalIcon(
-                      onPressed: _removeCurrent,
-                      icon: const Icon(Icons.delete_outline_rounded),
-                      label: const Text('Remove'),
+                    leading: const Icon(Icons.tune_rounded, color: Colors.white),
+                    title: const Text(
+                      'Editing tools',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ],
+                    subtitle: Text(
+                      _isVideo(_paths[_index])
+                          ? 'Preview tools'
+                          : 'Rotate or remove this item',
+                      style: const TextStyle(color: Colors.white54),
+                    ),
+                    childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                    children: [
+                      if (!_isVideo(_paths[_index]))
+                        ListTile(
+                          leading: const Icon(
+                            Icons.rotate_left_rounded,
+                            color: Colors.white,
+                          ),
+                          title: const Text(
+                            'Rotate left',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onTap: () => _rotateCurrent(-1),
+                        ),
+                      if (!_isVideo(_paths[_index]))
+                        ListTile(
+                          leading: const Icon(
+                            Icons.rotate_right_rounded,
+                            color: Colors.white,
+                          ),
+                          title: const Text(
+                            'Rotate right',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onTap: () => _rotateCurrent(1),
+                        ),
+                      if (!_isVideo(_paths[_index]))
+                        ListTile(
+                          leading: const Icon(
+                            Icons.refresh_rounded,
+                            color: Colors.white,
+                          ),
+                          title: const Text(
+                            'Reset rotation',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _quarterTurns[_index] = 0;
+                            });
+                          },
+                        ),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: Colors.redAccent,
+                        ),
+                        title: const Text(
+                          'Remove current item',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: _removeCurrent,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             if (_paths.length > 1)
