@@ -346,14 +346,14 @@ class ChatComposer extends StatelessWidget {
     final cancelActive = activeHoldDx <= -56;
     final lockActive = activeHoldDy <= -44;
 
-    return GestureDetector(
+    return Listener(
       key: const ValueKey('holding_pan_surface'),
       behavior: HitTestBehavior.translucent,
-      onPanUpdate: enabled
-          ? (d) => onActiveHoldMove?.call(d.globalPosition)
+      onPointerMove: enabled
+          ? (e) => onActiveHoldMove?.call(e.position)
           : null,
-      onPanEnd: enabled ? (_) => onActiveHoldRelease?.call() : null,
-      onPanCancel: enabled ? onActiveHoldCancel : null,
+      onPointerUp: enabled ? (_) => onActiveHoldRelease?.call() : null,
+      onPointerCancel: enabled ? (_) => onActiveHoldCancel?.call() : null,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
