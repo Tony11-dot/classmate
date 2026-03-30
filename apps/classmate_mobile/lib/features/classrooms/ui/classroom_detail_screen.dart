@@ -1700,8 +1700,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     _stopRecordTicker();
 
     final resolved = (path ?? '').trim();
-
     if (!mounted) return;
+
     setState(() {
       _recording = false;
       _voiceLocked = false;
@@ -1711,15 +1711,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDy = 0;
       _holdStartGlobal = null;
       _recordElapsed = Duration.zero;
-      _draftVoicePath = null;
       _draftVoicePlaying = false;
       _draftVoiceReady = false;
       _draftVoicePosition = Duration.zero;
       _draftVoiceDuration = Duration.zero;
+      _draftVoicePath = resolved.isEmpty ? null : resolved;
     });
 
     if (resolved.isEmpty) return;
-    await _sendRecordedClassroomVoice(resolved);
+    await _sendClassroomChat();
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
