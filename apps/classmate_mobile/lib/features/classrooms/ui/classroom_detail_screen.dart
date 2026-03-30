@@ -1451,6 +1451,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         'name': path.split('/').last,
         'kind': 'FILE',
       });
+    await _sendClassroomChat();
     });
   }
 
@@ -1544,6 +1545,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           'path': path,
           'name': path.split('/').last,
         });
+    await _sendClassroomChat();
       }
     });
   }
@@ -1698,36 +1700,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    final stoppedPath = await _recorder.stop();
-    _stopRecordTicker();
-
-    final path = (stoppedPath ?? '').trim();
-
-    if (!mounted) return;
-    setState(() {
-      _recording = false;
-      _voiceLocked = false;
-      _voicePaused = false;
-      _voiceCancelled = false;
-      _holdDx = 0;
-      _holdDy = 0;
-      _holdStartGlobal = null;
-      _recordElapsed = Duration.zero;
-      _draftVoicePath = null;
-      _draftVoicePlaying = false;
-      _draftVoiceReady = false;
-      _draftVoicePosition = Duration.zero;
-      _draftVoiceDuration = Duration.zero;
-    });
-
-    if (path.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No audio captured.')));
-      return;
-    }
-
-    await _sendRecordedClassroomVoice(path);
+    await _toggleClassroomMic();
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1821,10 +1794,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       if (!mounted) return;
       setState(() {
         _recording = false;
+        _voiceLocked = false;
         _voicePaused = false;
         _voiceCancelled = false;
         _holdDx = 0;
         _holdDy = 0;
+        _holdStartGlobal = null;
+        _draftVoicePath = null;
+        _draftVoicePlaying = false;
+        _draftVoiceReady = false;
+        _draftVoicePosition = Duration.zero;
+        _draftVoiceDuration = Duration.zero;
+        _recordElapsed = Duration.zero;
       });
 
       if (path.isEmpty) {
@@ -1834,22 +1815,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         return;
       }
 
-      final sendNow = _voiceLocked;
-      if (sendNow) {
-        await _sendRecordedClassroomVoice(path);
-        return;
-      }
-
-      _draftVoicePath = path;
-      if (mounted) {
-        setState(() {
-          _draftVoicePlaying = false;
-          _draftVoiceReady = false;
-          _draftVoicePosition = Duration.zero;
-          _draftVoiceDuration = Duration.zero;
-          _voicePaused = false;
-        });
-      }
+      await _sendRecordedClassroomVoice(path);
       return;
     }
 
@@ -1881,8 +1847,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     _startRecordTicker();
     if (!mounted) return;
+    final keepLocked = _voiceLocked;
     setState(() {
       _recording = true;
+      _voiceLocked = keepLocked;
       _voicePaused = false;
       _voiceCancelled = false;
       _holdDx = 0;
