@@ -1172,13 +1172,32 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
   void _updateActiveHold(Offset globalPosition) {
     if (!_recording || _holdStartGlobal == null) return;
+
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
+
+    final willCancel = dx <= -56;
+    final willLock = dy <= -44;
+
+    // 🔥 LIVE CANCEL (WHILE HOLDING)
+    if (willCancel && !_voiceCancelled) {
+      _voiceCancelled = true;
+      _cancelVoiceDraft();
+      return;
+    }
+
+    // 🔥 LIVE LOCK (WHILE HOLDING)
+    if (willLock && !_voiceLocked) {
+      setState(() {
+        _voiceLocked = true;
+        _voicePaused = false;
+      });
+      return;
+    }
+
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
-      _voiceCancelled = dx <= -56;
-      _voiceLocked = dy <= -44;
     });
   }
 
@@ -1189,10 +1208,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Future<void> _finishActiveHold() async {
     _holdStartGlobal = null;
     if (!_recording) return;
+
     if (_voiceCancelled) {
       await _cancelVoiceDraft();
       return;
     }
+
     if (_voiceLocked) {
       if (mounted) {
         setState(() {
@@ -1201,6 +1222,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       }
       return;
     }
+
     await _toggleMic(null);
   }
 
@@ -1896,6 +1918,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   onActiveHoldMove: _updateActiveHold,
                   onActiveHoldRelease: _finishActiveHold,
                   onActiveHoldCancel: _micHoldCancel,
+                  activeHoldDx: _holdDx,
+                  activeHoldDy: _holdDy,
                   onTrashRecording: _cancelVoiceDraft,
                   onPauseRecording: _pauseVoiceRecord,
                   onResumeRecording: _resumeVoiceRecord,

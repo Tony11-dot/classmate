@@ -1581,10 +1581,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _finishActiveHold() async {
     _holdStartGlobal = null;
     if (!_recording) return;
+
     if (_voiceCancelled) {
       await _cancelVoiceDraft();
       return;
     }
+
     if (_voiceLocked) {
       if (mounted) {
         setState(() {
@@ -1593,6 +1595,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
       return;
     }
+
     await _toggleClassroomMic();
   }
 
@@ -2118,13 +2121,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Widget _classroomDraftChip(Map<String, String> a) {
-    final path = (a['path'] ?? '').trim();
     final kind = (a['kind'] ?? '').trim().toUpperCase();
-    final isImage = kind == 'IMAGE';
+    final icon = switch (kind) {
+      'VIDEO' => Icons.videocam_rounded,
+      'IMAGE' => Icons.photo_rounded,
+      _ => Icons.insert_drive_file_rounded,
+    };
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFF161C23),
         borderRadius: BorderRadius.circular(14),
@@ -2133,32 +2139,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (isImage)
-            ClipRRect(
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
-              child: Image.file(
-                File(path),
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.insert_drive_file_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
             ),
-          const SizedBox(width: 6),
+            alignment: Alignment.center,
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 8),
           InkWell(
             onTap: () => setState(() => _draftAttachments.remove(a)),
             borderRadius: BorderRadius.circular(999),
@@ -2209,6 +2204,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       onActiveHoldMove: _updateActiveHold,
       onActiveHoldRelease: _finishActiveHold,
       onActiveHoldCancel: _micHoldCancel,
+      activeHoldDx: _holdDx,
+      activeHoldDy: _holdDy,
       onTrashRecording: _cancelVoiceDraft,
       onPauseRecording: _pauseVoiceRecord,
       onResumeRecording: _resumeVoiceRecord,

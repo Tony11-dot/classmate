@@ -341,10 +341,14 @@ class ChatComposer extends StatelessWidget {
 
   Widget _holding(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final cancelProgress = ((-activeHoldDx) / 72).clamp(0.0, 1.0);
+    final lockProgress = ((-activeHoldDy) / 60).clamp(0.0, 1.0);
+    final cancelActive = cancelProgress >= 0.92;
+    final lockActive = lockProgress >= 0.92;
 
     return Listener(
       behavior: HitTestBehavior.translucent,
-      onPointerMove: (e) => onActiveHoldMove?.call(e.position),
+      onPointerMove: (event) => onActiveHoldMove?.call(event.position),
       onPointerUp: (_) => onActiveHoldRelease?.call(),
       onPointerCancel: (_) => onActiveHoldCancel?.call(),
       child: Stack(
@@ -367,23 +371,24 @@ class ChatComposer extends StatelessWidget {
                       color: scheme.surfaceContainerHighest.withValues(alpha: 0.78),
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                        color: scheme.outlineVariant.withValues(alpha: 0.16),
+                        color: (cancelActive ? Colors.redAccent : scheme.outlineVariant)
+                            .withValues(alpha: 0.22),
                       ),
                     ),
                     child: Row(
                       children: [
                         TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0.88, end: 1.04),
-                          duration: const Duration(milliseconds: 680),
+                          tween: Tween(begin: 0.88, end: 1.08),
+                          duration: const Duration(milliseconds: 650),
                           curve: Curves.easeInOut,
                           builder: (context, value, child) => Transform.scale(
                             scale: value,
                             child: child,
                           ),
                           child: Icon(
-                            Icons.mic_rounded,
+                            cancelActive ? Icons.delete_outline_rounded : Icons.mic_rounded,
                             size: 18,
-                            color: scheme.primary,
+                            color: cancelActive ? Colors.redAccent : scheme.primary,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -391,36 +396,22 @@ class ChatComposer extends StatelessWidget {
                           _fmtElapsed(recordingElapsed),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: scheme.primary,
+                                color: cancelActive ? Colors.redAccent : scheme.primary,
                               ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Slide left to cancel',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style:
-                                    Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Slide up to lock',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style:
-                                    Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: scheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                              ),
-                            ],
+                          child: AnimatedSlide(
+                            duration: const Duration(milliseconds: 90),
+                            offset: Offset(-cancelProgress * 0.16, 0),
+                            child: Text(
+                              cancelActive ? 'Release to cancel' : 'Slide left to cancel',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
                           ),
                         ),
                       ],
@@ -434,7 +425,14 @@ class ChatComposer extends StatelessWidget {
           Positioned(
             right: 8,
             bottom: 8,
-            child: _holdingLockRail(context),
+            child: Transform.translate(
+              offset: Offset(0, -lockProgress * 22),
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 90),
+                scale: lockActive ? 1.08 : 1.0,
+                child: _holdingLockRail(context, active: lockActive),
+              ),
+            ),
           ),
         ],
       ),
@@ -559,7 +557,7 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  Widget _holdingLockRail(BuildContext context) {
+  Widget _holdingLockRail(BuildContext context, {bool active = false}) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: 46,
@@ -585,7 +583,7 @@ class ChatComposer extends StatelessWidget {
           Icon(
             Icons.lock_rounded,
             size: 20,
-            color: scheme.onSurfaceVariant,
+            color: active ? scheme.primary : scheme.onSurfaceVariant,
           ),
           Container(
             width: 16,
