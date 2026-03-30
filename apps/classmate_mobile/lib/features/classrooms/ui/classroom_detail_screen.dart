@@ -1602,10 +1602,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (resolved.isEmpty) return;
 
     final repo = ref.read(classroomsRepoProvider);
+    await _draftVoicePlayer.stop();
     await repo.sendChatMedia(
       widget.courseId,
       resolved,
       mimeType: lookupMimeType(resolved) ?? 'audio/mp4',
+      fileName: '',
+      text: '',
     );
 
     try {
@@ -1617,7 +1620,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (!mounted) return;
     setState(() {
-      _draftAttachments.clear();
       _draftVoicePlaying = false;
       _draftVoiceReady = false;
       _draftVoicePosition = Duration.zero;
@@ -1696,30 +1698,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    final path = await _recorder.stop();
-    _stopRecordTicker();
-
-    final resolved = (path ?? '').trim();
-    if (!mounted) return;
-
-    setState(() {
-      _recording = false;
-      _voiceLocked = false;
-      _voicePaused = false;
-      _voiceCancelled = false;
-      _holdDx = 0;
-      _holdDy = 0;
-      _holdStartGlobal = null;
-      _recordElapsed = Duration.zero;
-      _draftVoicePlaying = false;
-      _draftVoiceReady = false;
-      _draftVoicePosition = Duration.zero;
-      _draftVoiceDuration = Duration.zero;
-      _draftVoicePath = resolved.isEmpty ? null : resolved;
-    });
-
-    if (resolved.isEmpty) return;
-    await _sendClassroomChat();
+    await _toggleClassroomMic(sendImmediately: true);
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1793,7 +1772,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   Widget _recordHud() => const SizedBox.shrink();
 
-  Future<void> _toggleClassroomMic() async {
+  Future<void> _toggleClassroomMic({bool sendImmediately = false}) async {
     if (_sending) {
       return;
     }
@@ -1803,7 +1782,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _stopRecordTicker();
 
       final resolved = (path ?? '').trim();
-      final sendNow = _voiceLocked;
+      final sendNow = sendImmediately || _voiceLocked;
 
       if (!mounted) {
         return;
