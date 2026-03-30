@@ -1434,10 +1434,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           error: (error, stackTrace) =>
               Center(child: Text('Failed to load thread: $error')),
           data: (detail) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ref
-                  .read(messagesRepositoryProvider)
-                  .markThreadRead(threadId: widget.threadId);
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              try {
+                await ref
+                    .read(messagesRepositoryProvider)
+                    .markThreadRead(threadId: widget.threadId);
+              } catch (_) {}
               ref.invalidate(messagesInboxProvider);
             });
 

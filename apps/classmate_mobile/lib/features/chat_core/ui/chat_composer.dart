@@ -280,11 +280,11 @@ class ChatComposer extends StatelessWidget {
                         )
                       : showMic
                           ? SizedBox(
-                              width: 48,
-                              height: 48,
+                              width: 56,
+                              height: 56,
                               child: GestureDetector(
                                 key: const ValueKey('mic_btn'),
-                                behavior: HitTestBehavior.translucent,
+                                behavior: HitTestBehavior.opaque,
                                 onLongPressStart: enabled && !forceMicOnlyTap
                                     ? onMicHoldStart
                                     : null,
