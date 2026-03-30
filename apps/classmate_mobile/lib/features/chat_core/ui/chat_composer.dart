@@ -105,31 +105,33 @@ class ChatComposer extends StatelessWidget {
           if (replyingTo != null) _replyPreview(context),
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
-            child: ValueListenableBuilder<TextEditingValue>(
-              valueListenable: controller,
-              builder: (context, value, _) {
-                final hasText = value.text.trim().isNotEmpty;
-                return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeOutCubic,
-                  child: isRecording
-                      ? (isVoiceLocked
-                          ? _locked(context)
-                          : Stack(
-                              key: const ValueKey('holding_overlay'),
-                              children: [
-                                _idle(context, hasText),
-                                Positioned.fill(
-                                  child: IgnorePointer(
-                                    child: _holding(context),
-                                  ),
-                                ),
-                              ],
-                            ))
-                      : _idle(context, hasText),
-                );
-              },
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerMove: enabled && isRecording && !isVoiceLocked
+                  ? (e) => onActiveHoldMove?.call(e.position)
+                  : null,
+              onPointerUp: enabled && isRecording && !isVoiceLocked
+                  ? (_) => onActiveHoldRelease?.call()
+                  : null,
+              onPointerCancel: enabled && isRecording && !isVoiceLocked
+                  ? (_) => onActiveHoldCancel?.call()
+                  : null,
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (context, value, _) {
+                  final hasText = value.text.trim().isNotEmpty;
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    child: isRecording && !isVoiceLocked
+                        ? _holding(context)
+                        : isRecording && isVoiceLocked
+                            ? _locked(context)
+                            : _idle(context, hasText),
+                  );
+                },
+              ),
             ),
           ),
         ],

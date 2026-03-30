@@ -1861,6 +1861,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         });
       }
 
+      if (_draftAttachments.isNotEmpty && mounted) {
+        setState(() {
+          _draftAttachments.clear();
+        });
+      }
+
       final voicePath = (_draftVoicePath ?? '').trim();
       if (voicePath.isNotEmpty) {
         await _draftVoicePlayer.stop();
@@ -1872,6 +1878,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         sentAnyMedia = true;
         if (mounted) {
           setState(() {
+            _draftAttachments.clear();
             _draftVoicePlaying = false;
             _draftVoiceReady = false;
             _draftVoicePosition = Duration.zero;
