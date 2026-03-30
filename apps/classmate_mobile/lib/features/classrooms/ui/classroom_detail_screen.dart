@@ -1698,7 +1698,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    await _toggleClassroomMic(sendImmediately: true);
+    await _toggleClassroomMic();
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1746,90 +1746,75 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     try {
       await _recorder.stop();
     } catch (_) {}
-    try {
-      final p = (_draftVoicePath ?? '').trim();
-      if (p.isNotEmpty) {
-        final f = File(p);
-        if (await f.exists()) {
-          await f.delete();
+
+    final path = (_draftVoicePath ?? '').trim();
+    if (path.isNotEmpty) {
+      try {
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
+
     _stopRecordTicker();
     if (!mounted) return;
     setState(() {
       _recording = false;
       _voiceLocked = false;
+      _voicePaused = false;
       _voiceCancelled = false;
+      _holdStartGlobal = null;
       _holdDx = 0;
       _holdDy = 0;
       _draftVoicePath = null;
-      _holdStartGlobal = null;
-      _voicePaused = false;
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
       _recordElapsed = Duration.zero;
     });
   }
 
   Widget _recordHud() => const SizedBox.shrink();
 
-  Future<void> _toggleClassroomMic({bool sendImmediately = false}) async {
-    if (_sending) {
-      return;
-    }
+  Future<void> _toggleClassroomMic() async {
+    if (_sending) return;
 
     if (_recording) {
-      final path = await _recorder.stop();
+      final stoppedPath = await _recorder.stop();
+
       _stopRecordTicker();
-
-      final resolved = (path ?? '').trim();
-      final sendNow = sendImmediately || _voiceLocked;
-
-      if (!mounted) {
-        return;
-      }
-
+      if (!mounted) return;
       setState(() {
         _recording = false;
-        _voiceLocked = false;
-        _voicePaused = false;
-        _voiceCancelled = false;
-        _holdDx = 0;
-        _holdDy = 0;
-        _holdStartGlobal = null;
-        _recordElapsed = Duration.zero;
-        _draftVoicePath = null;
-        _draftVoicePlaying = false;
-        _draftVoiceReady = false;
-        _draftVoicePosition = Duration.zero;
-        _draftVoiceDuration = Duration.zero;
       });
 
-      if (resolved.isEmpty) return;
-
-      if (sendNow) {
-        await _sendRecordedClassroomVoice(resolved);
+      final path = (stoppedPath ?? _draftVoicePath ?? '').trim();
+      if (path.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No audio captured.')));
         return;
       }
 
-      setState(() {
-        _draftVoicePath = resolved;
-        _draftVoicePlaying = false;
-        _draftVoiceReady = false;
-        _draftVoicePosition = Duration.zero;
-        _draftVoiceDuration = Duration.zero;
-        _voicePaused = false;
-      });
+      _draftVoicePath = path;
+
+      if (_voiceLocked) {
+        await _sendRecordedClassroomVoice(path);
+        return;
+      }
+
+      await _sendClassroomChat();
       return;
     }
 
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission denied')),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Microphone permission denied')));
       return;
     }
 
@@ -1837,24 +1822,29 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final filePath =
         '${dir.path}/classroom-voice-${DateTime.now().millisecondsSinceEpoch}.m4a';
 
-    await _recorder.start(
-      const RecordConfig(encoder: AudioEncoder.aacLc),
-      path: filePath,
-    );
-
-    _startRecordTicker();
-    if (!mounted) {
+    try {
+      await _recorder.start(
+        const RecordConfig(encoder: AudioEncoder.aacLc),
+        path: filePath,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e')),
+      );
       return;
     }
-    final keepLocked = _voiceLocked;
+
+    _startRecordTicker();
+    if (!mounted) return;
     setState(() {
       _recording = true;
-      _voiceLocked = keepLocked;
       _voicePaused = false;
       _voiceCancelled = false;
       _holdDx = 0;
       _holdDy = 0;
       _recordElapsed = Duration.zero;
+      _draftVoicePath = filePath;
     });
   }
 
