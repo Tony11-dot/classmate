@@ -33,7 +33,6 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   late List<bool> _mirrored;
   int _index = 0;
 
-  bool _toolsExpanded = true;
 
   VideoPlayerController? _videoCtl;
   String? _videoPath;
@@ -183,11 +182,11 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..rotateZ((_quarterTurns[i] % 4) * (math.pi / 2))
-        ..scale(_mirrored[i] ? -1.0 : 1.0, 1.0),
+        ..multiply(Matrix4.diagonal3Values(_mirrored[i] ? -1.0 : 1.0, 1.0, 1.0)),
       child: Image.file(
         File(itemPath),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (context, error, stackTrace) => Container(
           color: Colors.black12,
           alignment: Alignment.center,
           child: const Icon(Icons.broken_image_outlined),
@@ -205,11 +204,11 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
           alignment: Alignment.center,
           transform: Matrix4.identity()
             ..rotateZ((_quarterTurns[_index] % 4) * (math.pi / 2))
-            ..scale(_mirrored[_index] ? -1.0 : 1.0, 1.0),
+            ..multiply(Matrix4.diagonal3Values(_mirrored[_index] ? -1.0 : 1.0, 1.0, 1.0)),
           child: Image.file(
             File(currentPath),
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => const Center(
+            errorBuilder: (context, error, stackTrace) => const Center(
               child: Icon(
                 Icons.broken_image_outlined,
                 color: Colors.white70,
@@ -357,8 +356,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: ExpansionTile(
-        initiallyExpanded: _toolsExpanded,
-        onExpansionChanged: (v) => setState(() => _toolsExpanded = v),
+        initiallyExpanded: false,
         collapsedIconColor: Colors.white70,
         iconColor: Colors.white,
         title: const Text(
@@ -390,6 +388,11 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   onPressed: _mirrorCurrent,
                   icon: const Icon(Icons.flip_rounded),
                   label: const Text('Mirror'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () => _rotateCurrent(2),
+                  icon: const Icon(Icons.rotate_90_degrees_ccw_rounded),
+                  label: const Text('Rotate 180'),
                 ),
                 FilledButton.tonalIcon(
                   onPressed: _resetCurrentEdits,
@@ -447,7 +450,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                   scrollDirection: Axis.horizontal,
                   itemCount: _paths.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
                   itemBuilder: (context, i) {
                     final itemPath = _paths[i];
                     final active = i == _index;
