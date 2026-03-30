@@ -1551,6 +1551,52 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _startVoiceNote() async => _toggleClassroomMic();
   Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic();
 
+  Future<void> _stopVoiceNoteAndSendNow() async {
+    if (!_recording) return;
+
+    final path = await _recorder.stop();
+    _stopRecordTicker();
+    if (!mounted) return;
+
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdStartGlobal = null;
+      _holdDx = 0;
+      _holdDy = 0;
+    });
+
+    final resolved = (path ?? '').trim();
+    if (resolved.isEmpty) return;
+
+    final repo = ref.read(classroomsRepoProvider);
+    await repo.sendChatMedia(
+      widget.courseId,
+      resolved,
+      mimeType: lookupMimeType(resolved) ?? 'audio/mp4',
+    );
+
+    try {
+      final f = File(resolved);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    } catch (_) {}
+
+    if (!mounted) return;
+    setState(() {
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
+      _draftVoicePath = null;
+      _voicePaused = false;
+      _recordElapsed = Duration.zero;
+    });
+  }
+
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
     _holdStartGlobal = d.globalPosition;
@@ -1564,13 +1610,36 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   void _updateActiveHold(Offset globalPosition) {
     if (!_recording || _holdStartGlobal == null) return;
+
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
+
+    final willCancel = dx <= -56;
+    final willLock = dy <= -44;
+
+    if (willCancel && !_voiceCancelled) {
+      setState(() {
+        _holdDx = dx;
+        _holdDy = dy;
+        _voiceCancelled = true;
+      });
+      _cancelVoiceDraft();
+      return;
+    }
+
+    if (willLock && !_voiceLocked) {
+      setState(() {
+        _holdDx = dx;
+        _holdDy = dy;
+        _voiceLocked = true;
+        _voicePaused = false;
+      });
+      return;
+    }
+
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
-      _voiceCancelled = dx <= -56;
-      _voiceLocked = dy <= -44;
     });
   }
 
@@ -1596,7 +1665,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    await _toggleClassroomMic();
+    final path = await _recorder.stop();
+    _stopRecordTicker();
+    if (!mounted) return;
+
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _holdDx = 0;
+      _holdDy = 0;
+      _holdStartGlobal = null;
+    });
+
+    final resolved = (path ?? '').trim();
+    if (resolved.isEmpty) return;
+
+    _draftVoicePath = resolved;
+    await _sendClassroomChat();
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1775,6 +1861,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           mimeType: lookupMimeType(voicePath) ?? 'audio/mp4',
         );
         sentAnyMedia = true;
+        if (mounted) {
+          setState(() {
+            _draftVoicePlaying = false;
+            _draftVoiceReady = false;
+            _draftVoicePosition = Duration.zero;
+            _draftVoiceDuration = Duration.zero;
+            _draftVoicePath = null;
+            _voicePaused = false;
+            _recordElapsed = Duration.zero;
+          });
+        }
         if (mounted) {
           setState(() {
             _draftVoicePlaying = false;

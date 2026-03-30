@@ -1159,7 +1159,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     }
   }
 
-  Future<void> _micHoldStart(LongPressStartDetails d) async {
+  Future<void> _micHoldStart(
+    MessageThreadDetail detail,
+    LongPressStartDetails d,
+  ) async {
     if (_sending || _recording) return;
     _holdStartGlobal = d.globalPosition;
     _holdDx = 0;
@@ -1167,7 +1170,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     _voiceLocked = false;
     _voicePaused = false;
     _voiceCancelled = false;
-    await _toggleMic(null);
+    await _toggleMic(detail);
   }
 
   void _updateActiveHold(Offset globalPosition) {
@@ -1205,7 +1208,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     _updateActiveHold(d.globalPosition);
   }
 
-  Future<void> _finishActiveHold() async {
+  Future<void> _finishActiveHold(MessageThreadDetail detail) async {
     _holdStartGlobal = null;
     if (!_recording) return;
 
@@ -1223,11 +1226,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       return;
     }
 
-    await _toggleMic(null);
+    await _toggleMic(detail);
   }
 
-  Future<void> _micHoldEnd(LongPressEndDetails d) async {
-    await _finishActiveHold();
+  Future<void> _micHoldEnd(
+    MessageThreadDetail detail,
+    LongPressEndDetails d,
+  ) async {
+    await _finishActiveHold(detail);
   }
 
   Future<void> _micHoldCancel() async {
@@ -1911,12 +1917,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     });
                     await _toggleMic(detail);
                   },
-                  onMicHoldStart: _micHoldStart,
+                  onMicHoldStart: (d) => _micHoldStart(detail, d),
                   onMicHoldMove: _micHoldMove,
-                  onMicHoldEnd: _micHoldEnd,
+                  onMicHoldEnd: (d) => _micHoldEnd(detail, d),
                   onMicHoldCancel: _micHoldCancel,
                   onActiveHoldMove: _updateActiveHold,
-                  onActiveHoldRelease: _finishActiveHold,
+                  onActiveHoldRelease: () async => _finishActiveHold(detail),
                   onActiveHoldCancel: _micHoldCancel,
                   activeHoldDx: _holdDx,
                   activeHoldDy: _holdDy,
