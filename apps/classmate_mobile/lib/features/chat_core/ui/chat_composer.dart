@@ -113,11 +113,21 @@ class ChatComposer extends StatelessWidget {
                   duration: const Duration(milliseconds: 220),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeOutCubic,
-                  child: isRecording && !isVoiceLocked
-                      ? _holding(context)
-                      : isRecording && isVoiceLocked
+                  child: isRecording
+                      ? (isVoiceLocked
                           ? _locked(context)
-                          : _idle(context, hasText),
+                          : Stack(
+                              key: const ValueKey('holding_overlay'),
+                              children: [
+                                _idle(context, hasText),
+                                Positioned.fill(
+                                  child: IgnorePointer(
+                                    child: _holding(context),
+                                  ),
+                                ),
+                              ],
+                            ))
+                      : _idle(context, hasText),
                 );
               },
             ),
@@ -346,151 +356,143 @@ class ChatComposer extends StatelessWidget {
     final cancelActive = activeHoldDx <= -56;
     final lockActive = activeHoldDy <= -44;
 
-    return Listener(
+    return Stack(
       key: const ValueKey('holding_pan_surface'),
-      behavior: HitTestBehavior.translucent,
-      onPointerMove: enabled
-          ? (e) => onActiveHoldMove?.call(e.position)
-          : null,
-      onPointerUp: enabled ? (_) => onActiveHoldRelease?.call() : null,
-      onPointerCancel: enabled ? (_) => onActiveHoldCancel?.call() : null,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          _shell(
-            context,
-            key: const ValueKey('holding'),
-            child: Row(
-              children: [
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    constraints: const BoxConstraints(minHeight: 46),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 9,
+      clipBehavior: Clip.none,
+      children: [
+        _shell(
+          context,
+          key: const ValueKey('holding'),
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 46),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest.withValues(
+                      alpha: 0.78,
                     ),
-                    decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHighest.withValues(
-                        alpha: 0.78,
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                        color: (cancelActive
-                                ? scheme.error
-                                : scheme.outlineVariant)
-                            .withValues(alpha: 0.18),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0.88, end: 1.02),
-                          duration: const Duration(milliseconds: 700),
-                          curve: Curves.easeInOut,
-                          builder: (context, value, child) =>
-                              Transform.scale(scale: value, child: child),
-                          child: Icon(
-                            cancelActive
-                                ? Icons.delete_outline_rounded
-                                : Icons.mic_rounded,
-                            size: 18,
-                            color: cancelActive
-                                ? scheme.error
-                                : scheme.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          _fmtElapsed(recordingElapsed),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: cancelActive
-                                    ? scheme.error
-                                    : scheme.primary,
-                              ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            cancelActive
-                                ? 'Release to cancel'
-                                : 'Slide left to cancel',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      ],
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: (cancelActive
+                              ? scheme.error
+                              : scheme.outlineVariant)
+                          .withValues(alpha: 0.18),
                     ),
                   ),
+                  child: Row(
+                    children: [
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.88, end: 1.02),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeInOut,
+                        builder: (context, value, child) =>
+                            Transform.scale(scale: value, child: child),
+                        child: Icon(
+                          cancelActive
+                              ? Icons.delete_outline_rounded
+                              : Icons.mic_rounded,
+                          size: 18,
+                          color: cancelActive
+                              ? scheme.error
+                              : scheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _fmtElapsed(recordingElapsed),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: cancelActive
+                                  ? scheme.error
+                                  : scheme.primary,
+                            ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          cancelActive
+                              ? 'Release to cancel'
+                              : 'Slide left to cancel',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 56),
-              ],
-            ),
+              ),
+              const SizedBox(width: 56),
+            ],
           ),
-          Positioned(
-            right: 8,
-            bottom: 8,
-            child: AnimatedScale(
-              scale: lockActive ? 1.06 : 1,
-              duration: const Duration(milliseconds: 120),
-              child: Container(
-                width: 46,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: scheme.surface.withValues(alpha: 0.92),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: (lockActive
-                            ? scheme.primary
-                            : scheme.outlineVariant)
-                        .withValues(alpha: 0.20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 16,
-                      spreadRadius: -6,
-                      offset: const Offset(0, 8),
-                      color: Colors.black.withValues(alpha: 0.22),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      lockActive ? Icons.lock : Icons.lock_open_rounded,
-                      size: 20,
-                      color: lockActive
+        ),
+        Positioned(
+          right: 8,
+          bottom: 8,
+          child: AnimatedScale(
+            scale: lockActive ? 1.06 : 1,
+            duration: const Duration(milliseconds: 120),
+            child: Container(
+              width: 46,
+              height: 96,
+              decoration: BoxDecoration(
+                color: scheme.surface.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: (lockActive
                           ? scheme.primary
-                          : scheme.onSurfaceVariant,
-                    ),
-                    Container(
-                      width: 16,
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: scheme.outlineVariant,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                    Text(
-                      lockActive ? 'Release' : 'Lock',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: lockActive
-                                ? scheme.primary
-                                : scheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ],
+                          : scheme.outlineVariant)
+                      .withValues(alpha: 0.20),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 16,
+                    spreadRadius: -6,
+                    offset: const Offset(0, 8),
+                    color: Colors.black.withValues(alpha: 0.22),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Icon(
+                    lockActive ? Icons.lock : Icons.lock_open_rounded,
+                    size: 20,
+                    color: lockActive
+                        ? scheme.primary
+                        : scheme.onSurfaceVariant,
+                  ),
+                  Container(
+                    width: 16,
+                    height: 2,
+                    decoration: BoxDecoration(
+                      color: scheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  Text(
+                    lockActive ? 'Release' : 'Lock',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: lockActive
+                              ? scheme.primary
+                              : scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

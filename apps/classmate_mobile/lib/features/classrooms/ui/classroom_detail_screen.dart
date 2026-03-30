@@ -1814,6 +1814,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _voiceCancelled = false;
       _holdDx = 0;
       _holdDy = 0;
+      _holdStartGlobal = null;
       _recordElapsed = Duration.zero;
     });
   }
@@ -1847,9 +1848,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         sentAnyMedia = true;
       }
 
-      if (_draftAttachments.isNotEmpty) {
+      if (mounted) {
         setState(() {
           _draftAttachments.clear();
+          _draftVoicePlaying = false;
+          _draftVoiceReady = false;
+          _draftVoicePosition = Duration.zero;
+          _draftVoiceDuration = Duration.zero;
+          _draftVoicePath = null;
+          _voicePaused = false;
+          _recordElapsed = Duration.zero;
         });
       }
 
