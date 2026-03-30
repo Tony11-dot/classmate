@@ -55,6 +55,7 @@ class ChatComposer extends StatelessWidget {
   final GestureLongPressMoveUpdateCallback? onMicHoldMove;
   final GestureLongPressEndCallback? onMicHoldEnd;
   final VoidCallback? onMicHoldCancel;
+
   final ValueChanged<Offset>? onActiveHoldMove;
   final VoidCallback? onActiveHoldRelease;
   final VoidCallback? onActiveHoldCancel;
@@ -108,7 +109,6 @@ class ChatComposer extends StatelessWidget {
               valueListenable: controller,
               builder: (context, value, _) {
                 final hasText = value.text.trim().isNotEmpty;
-
                 return AnimatedSwitcher(
                   duration: const Duration(milliseconds: 220),
                   switchInCurve: Curves.easeOutCubic,
@@ -199,7 +199,8 @@ class ChatComposer extends StatelessWidget {
 
   Widget _idle(BuildContext context, bool hasText) {
     final scheme = Theme.of(context).colorScheme;
-    final canSend = enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
+    final canSend =
+        enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
     final showLeftTools =
         !hasText &&
         !hasDraft &&
@@ -307,9 +308,10 @@ class ChatComposer extends StatelessWidget {
                                 onLongPressStart: enabled && !forceMicOnlyTap
                                     ? onMicHoldStart
                                     : null,
-                                onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                                    ? onMicHoldMove
-                                    : null,
+                                onLongPressMoveUpdate:
+                                    enabled && !forceMicOnlyTap
+                                        ? onMicHoldMove
+                                        : null,
                                 onLongPressEnd: enabled && !forceMicOnlyTap
                                     ? onMicHoldEnd
                                     : null,
@@ -341,22 +343,23 @@ class ChatComposer extends StatelessWidget {
 
   Widget _holding(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final cancelProgress = ((-activeHoldDx) / 72).clamp(0.0, 1.0);
-    final lockProgress = ((-activeHoldDy) / 60).clamp(0.0, 1.0);
-    final cancelActive = cancelProgress >= 0.92;
-    final lockActive = lockProgress >= 0.92;
+    final cancelActive = activeHoldDx <= -56;
+    final lockActive = activeHoldDy <= -44;
 
-    return Listener(
+    return GestureDetector(
+      key: const ValueKey('holding_pan_surface'),
       behavior: HitTestBehavior.translucent,
-      onPointerMove: (event) => onActiveHoldMove?.call(event.position),
-      onPointerUp: (_) => onActiveHoldRelease?.call(),
-      onPointerCancel: (_) => onActiveHoldCancel?.call(),
+      onPanUpdate: enabled
+          ? (d) => onActiveHoldMove?.call(d.globalPosition)
+          : null,
+      onPanEnd: enabled ? (_) => onActiveHoldRelease?.call() : null,
+      onPanCancel: enabled ? onActiveHoldCancel : null,
       child: Stack(
-        key: const ValueKey('holding'),
         clipBehavior: Clip.none,
         children: [
           _shell(
             context,
+            key: const ValueKey('holding'),
             child: Row(
               children: [
                 const SizedBox(width: 10),
@@ -368,27 +371,33 @@ class ChatComposer extends StatelessWidget {
                       vertical: 9,
                     ),
                     decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHighest.withValues(alpha: 0.78),
+                      color: scheme.surfaceContainerHighest.withValues(
+                        alpha: 0.78,
+                      ),
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                        color: (cancelActive ? Colors.redAccent : scheme.outlineVariant)
-                            .withValues(alpha: 0.22),
+                        color: (cancelActive
+                                ? scheme.error
+                                : scheme.outlineVariant)
+                            .withValues(alpha: 0.18),
                       ),
                     ),
                     child: Row(
                       children: [
                         TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0.88, end: 1.08),
-                          duration: const Duration(milliseconds: 650),
+                          tween: Tween(begin: 0.88, end: 1.02),
+                          duration: const Duration(milliseconds: 700),
                           curve: Curves.easeInOut,
-                          builder: (context, value, child) => Transform.scale(
-                            scale: value,
-                            child: child,
-                          ),
+                          builder: (context, value, child) =>
+                              Transform.scale(scale: value, child: child),
                           child: Icon(
-                            cancelActive ? Icons.delete_outline_rounded : Icons.mic_rounded,
+                            cancelActive
+                                ? Icons.delete_outline_rounded
+                                : Icons.mic_rounded,
                             size: 18,
-                            color: cancelActive ? Colors.redAccent : scheme.primary,
+                            color: cancelActive
+                                ? scheme.error
+                                : scheme.primary,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -396,22 +405,21 @@ class ChatComposer extends StatelessWidget {
                           _fmtElapsed(recordingElapsed),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: cancelActive ? Colors.redAccent : scheme.primary,
+                                color: cancelActive
+                                    ? scheme.error
+                                    : scheme.primary,
                               ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: AnimatedSlide(
-                            duration: const Duration(milliseconds: 90),
-                            offset: Offset(-cancelProgress * 0.16, 0),
-                            child: Text(
-                              cancelActive ? 'Release to cancel' : 'Slide left to cancel',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
+                          child: Text(
+                            cancelActive
+                                ? 'Release to cancel'
+                                : 'Slide left to cancel',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -425,12 +433,59 @@ class ChatComposer extends StatelessWidget {
           Positioned(
             right: 8,
             bottom: 8,
-            child: Transform.translate(
-              offset: Offset(0, -lockProgress * 22),
-              child: AnimatedScale(
-                duration: const Duration(milliseconds: 90),
-                scale: lockActive ? 1.08 : 1.0,
-                child: _holdingLockRail(context, active: lockActive),
+            child: AnimatedScale(
+              scale: lockActive ? 1.06 : 1,
+              duration: const Duration(milliseconds: 120),
+              child: Container(
+                width: 46,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: scheme.surface.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: (lockActive
+                            ? scheme.primary
+                            : scheme.outlineVariant)
+                        .withValues(alpha: 0.20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 16,
+                      spreadRadius: -6,
+                      offset: const Offset(0, 8),
+                      color: Colors.black.withValues(alpha: 0.22),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      lockActive ? Icons.lock : Icons.lock_open_rounded,
+                      size: 20,
+                      color: lockActive
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
+                    ),
+                    Container(
+                      width: 16,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        color: scheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    Text(
+                      lockActive ? 'Release' : 'Lock',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: lockActive
+                                ? scheme.primary
+                                : scheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -480,24 +535,24 @@ class ChatComposer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isVoicePaused ? 'Recording paused' : 'Recording locked',
+                          isVoicePaused
+                              ? 'Recording paused'
+                              : 'Recording locked',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           _fmtElapsed(recordingElapsed),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: scheme.primary,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
                         ),
                       ],
                     ),
@@ -557,52 +612,6 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  Widget _holdingLockRail(BuildContext context, {bool active = false}) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: 46,
-      height: 96,
-      decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 16,
-            spreadRadius: -6,
-            offset: const Offset(0, 8),
-            color: Colors.black.withValues(alpha: 0.22),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Icon(
-            Icons.lock_rounded,
-            size: 20,
-            color: active ? scheme.primary : scheme.onSurfaceVariant,
-          ),
-          Container(
-            width: 16,
-            height: 2,
-            decoration: BoxDecoration(
-              color: scheme.outlineVariant,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          Icon(
-            Icons.keyboard_arrow_up_rounded,
-            size: 22,
-            color: scheme.primary,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _circleBtn(
     BuildContext context, {
     required IconData icon,
@@ -610,22 +619,22 @@ class ChatComposer extends StatelessWidget {
     bool compact = false,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final size = compact ? 30.0 : 40.0;
-    return AnimatedScale(
-      duration: const Duration(milliseconds: 160),
-      scale: onTap == null ? 0.98 : 1,
-      child: Material(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.78),
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Icon(icon, size: compact ? 18 : 20),
+    final size = compact ? 34.0 : 40.0;
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: onTap == null ? 0.04 : 0.08),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.14),
           ),
         ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: compact ? 18 : 20),
       ),
     );
   }
@@ -638,28 +647,28 @@ class ChatComposer extends StatelessWidget {
     required VoidCallback? onTap,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    return AnimatedScale(
+    return InkWell(
       key: key,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutBack,
-      scale: active ? 1 : 0.98,
-      child: Material(
-        color: active
-            ? scheme.primary
-            : scheme.surfaceContainerHighest.withValues(alpha: 0.78),
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: active ? onTap : null,
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Icon(
-              icon,
-              size: 20,
-              color: active ? scheme.onPrimary : scheme.onSurfaceVariant,
-            ),
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: active
+              ? scheme.primary.withValues(alpha: 0.18)
+              : Colors.white.withValues(alpha: 0.05),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: active
+                ? scheme.primary.withValues(alpha: 0.28)
+                : scheme.outlineVariant.withValues(alpha: 0.14),
           ),
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          color: active ? scheme.primary : scheme.onSurfaceVariant,
         ),
       ),
     );
