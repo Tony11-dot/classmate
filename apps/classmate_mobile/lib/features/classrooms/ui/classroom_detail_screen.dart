@@ -1442,16 +1442,36 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Future<void> _pickClassroomFiles() async {
+    if (_sending || _recording) return;
+
     final picked = await FilePicker.platform.pickFiles(type: FileType.any);
     final path = picked?.files.single.path;
     if (path == null || path.trim().isEmpty) return;
-    setState(() {
-      _draftAttachments.add(<String, String>{
-        'path': path,
-        'name': path.split('/').last,
-        'kind': 'FILE',
-      });
-    });
+
+    final repo = ref.read(classroomsRepoProvider);
+    final resolved = path.trim();
+    final mime = lookupMimeType(resolved) ?? 'application/octet-stream';
+
+    HapticFeedback.lightImpact();
+    if (mounted) setState(() => _sending = true);
+    try {
+      await repo.sendChatMedia(
+        widget.courseId,
+        resolved,
+        mimeType: mime,
+        fileName: resolved.split('/').last,
+      );
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
+      _pinClassroomToBottom();
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   Future<void> _pickClassroomCameraOrUploadImage() async {
@@ -1528,24 +1548,54 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (result == null || !mounted) return;
 
     final paths = result.paths.isNotEmpty ? result.paths : initialPaths;
-    setState(() {
-      for (final path in paths) {
-        if (path.trim().isEmpty) continue;
-        final lower = path.toLowerCase();
-        final kind = lower.endsWith('.mp4') ||
-                lower.endsWith('.mov') ||
-                lower.endsWith('.m4v') ||
-                lower.endsWith('.avi') ||
-                lower.endsWith('.webm')
-            ? 'VIDEO'
-            : 'IMAGE';
-        _draftAttachments.add(<String, String>{
-          'kind': kind,
-          'path': path,
-          'name': path.split('/').last,
+    if (paths.isEmpty) return;
+
+    final repo = ref.read(classroomsRepoProvider);
+    final caption = result.caption.trim();
+
+    HapticFeedback.lightImpact();
+    if (mounted) setState(() => _sending = true);
+    try {
+      for (final raw in paths) {
+        final path = raw.trim();
+        if (path.isEmpty) continue;
+        final mime = lookupMimeType(path) ??
+            (path.toLowerCase().endsWith('.mp4') ||
+                    path.toLowerCase().endsWith('.mov') ||
+                    path.toLowerCase().endsWith('.m4v') ||
+                    path.toLowerCase().endsWith('.avi') ||
+                    path.toLowerCase().endsWith('.webm')
+                ? 'video/mp4'
+                : 'image/jpeg');
+
+        await repo.sendChatMedia(
+          widget.courseId,
+          path,
+          mimeType: mime,
+          fileName: path.split('/').last,
+          text: caption.isEmpty ? null : caption,
+        );
+      }
+
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
+      _pinClassroomToBottom();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _draftAttachments.clear();
+          _draftVoicePath = null;
+          _draftVoicePlaying = false;
+          _draftVoiceReady = false;
+          _draftVoicePosition = Duration.zero;
+          _draftVoiceDuration = Duration.zero;
+          _voicePaused = false;
+          _recordElapsed = Duration.zero;
+          _sending = false;
         });
       }
-    });
+    }
   }
 
   Future<void> _startVoiceNote() async => _toggleClassroomMic();
@@ -1602,13 +1652,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (resolved.isEmpty) return;
 
     final repo = ref.read(classroomsRepoProvider);
-    await _draftVoicePlayer.stop();
     await repo.sendChatMedia(
       widget.courseId,
       resolved,
       mimeType: lookupMimeType(resolved) ?? 'audio/mp4',
-      fileName: '',
-      text: '',
+      fileName: resolved.split('/').last,
     );
 
     try {
@@ -1618,8 +1666,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     } catch (_) {}
 
+    ref.invalidate(
+      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+    );
+    _pinClassroomToBottom();
+
     if (!mounted) return;
     setState(() {
+      _draftAttachments.clear();
       _draftVoicePlaying = false;
       _draftVoiceReady = false;
       _draftVoicePosition = Duration.zero;
@@ -1627,6 +1681,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _draftVoicePath = null;
       _voicePaused = false;
       _recordElapsed = Duration.zero;
+      _holdDx = 0;
+      _holdDy = 0;
+      _voiceLocked = false;
+      _voiceCancelled = false;
     });
   }
 
@@ -1854,6 +1912,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDx = 0;
       _holdDy = 0;
       _recordElapsed = Duration.zero;
+      _voiceLocked = sendNow;
       _draftVoicePath = null;
       _draftVoicePlaying = false;
       _draftVoiceReady = false;

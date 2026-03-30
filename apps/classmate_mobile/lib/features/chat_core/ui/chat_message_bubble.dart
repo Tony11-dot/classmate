@@ -110,6 +110,19 @@ class ChatMessageBubble extends StatelessWidget {
   }) {
     if (!hasMedia) return false;
 
+    final upperKind = kind.trim().toUpperCase();
+    final lowerMime = mime.trim().toLowerCase();
+
+    if (upperKind == 'IMAGE' ||
+        upperKind == 'VIDEO' ||
+        upperKind == 'VOICE' ||
+        upperKind == 'FILE' ||
+        lowerMime.startsWith('image/') ||
+        lowerMime.startsWith('video/') ||
+        lowerMime.startsWith('audio/')) {
+      return true;
+    }
+
     final normalizedBody = body.trim();
     if (normalizedBody.isEmpty) return true;
 
@@ -134,8 +147,6 @@ class ChatMessageBubble extends StatelessWidget {
       return true;
     }
 
-    final upperKind = kind.trim().toUpperCase();
-    final lowerMime = mime.trim().toLowerCase();
     final looksLikeFileName = RegExp(
       r'^[^\\/]+\.(jpg|jpeg|png|webp|gif|mp4|mov|m4v|webm|m4a|aac|mp3|wav|pdf|doc|docx|xls|xlsx|ppt|pptx)$',
       caseSensitive: false,
