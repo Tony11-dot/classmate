@@ -1814,7 +1814,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _voiceCancelled = false;
       _holdDx = 0;
       _holdDy = 0;
-      _holdStartGlobal = null;
       _recordElapsed = Duration.zero;
     });
   }
