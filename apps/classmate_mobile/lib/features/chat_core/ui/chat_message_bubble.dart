@@ -234,7 +234,7 @@ class ChatMessageBubble extends StatelessWidget {
       return;
     }
 
-    if (_isPdfByUrl(url)) {
+    if (_isPdfByUrl(url) || mime.trim().toLowerCase().contains('pdf')) {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => PdfViewerScreen(url: url, label: label),
