@@ -364,6 +364,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final Set<String> _recentOwnMessageTexts = <String>{};
   final Set<String> _pinnedMessageIds = <String>{};
   String? _draftVoicePath;
+  Timer? _recordTicker;
+  Duration _recordElapsed = Duration.zero;
   bool _draftVoicePlaying = false;
   double _draftVoiceSpeed = 1.0;
   Duration _draftVoicePosition = Duration.zero;
@@ -1561,8 +1563,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     setState(() {
       _holdDx = d.offsetFromOrigin.dx;
       _holdDy = d.offsetFromOrigin.dy;
-      if (_holdDx < -88) _voiceCancelled = true;
-      if (_holdDy < -88) _voiceLocked = true;
+      if (_holdDx <= -56) _voiceCancelled = true;
+      if (_holdDy <= -44) _voiceLocked = true;
     });
   }
 
@@ -1585,6 +1587,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await _cancelVoiceDraft();
   }
 
+  void _startRecordTicker() {
+    _recordTicker?.cancel();
+    _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted || !_recording) return;
+      setState(() {
+        _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1);
+      });
+    });
+  }
+
+  void _stopRecordTicker() {
+    _recordTicker?.cancel();
+    _recordTicker = null;
+  }
+
   Future<void> _cancelVoiceDraft() async {
     try {
       await _recorder.stop();
@@ -1598,6 +1615,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
       }
     } catch (_) {}
+    _stopRecordTicker();
     if (!mounted) return;
     setState(() {
       _recording = false;
@@ -1606,6 +1624,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _holdDx = 0;
       _holdDy = 0;
       _draftVoicePath = null;
+      _recordElapsed = Duration.zero;
     });
   }
 
@@ -1618,6 +1637,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     if (_recording) {
       final path = await _recorder.stop();
+      _stopRecordTicker();
       if (!mounted) {
         return;
       }
@@ -1655,10 +1675,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       path: filePath,
     );
 
+    _startRecordTicker();
     if (!mounted) {
       return;
     }
-    setState(() => _recording = true);
+    setState(() {
+      _recording = true;
+      _recordElapsed = Duration.zero;
+    });
   }
 
   Future<void> _sendClassroomChat() async {
@@ -1712,6 +1736,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             _draftVoicePosition = Duration.zero;
             _draftVoiceDuration = Duration.zero;
             _draftVoicePath = null;
+            _recordElapsed = Duration.zero;
           });
         }
       }
@@ -2103,6 +2128,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       isRecording: _recording,
       isVoiceLocked: _voiceLocked,
       isVoicePaused: false,
+      recordingElapsed: _recordElapsed,
       hintText: 'Message',
       onSend: _sending || _recording ? () {} : _sendClassroomChat,
       onCamera: _sending || _recording
