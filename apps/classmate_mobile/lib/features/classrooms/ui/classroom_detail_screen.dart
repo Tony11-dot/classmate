@@ -1451,7 +1451,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         'name': path.split('/').last,
         'kind': 'FILE',
       });
-    await _sendClassroomChat();
     });
   }
 
@@ -1545,13 +1544,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           'path': path,
           'name': path.split('/').last,
         });
-    await _sendClassroomChat();
       }
     });
   }
 
   Future<void> _startVoiceNote() async => _toggleClassroomMic();
-  Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic();
+  Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic(sendNow: true);
 
   Future<void> _stopVoiceNoteAndSendNow() async {
     if (!_recording) return;
@@ -1780,7 +1778,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   Widget _recordHud() => const SizedBox.shrink();
 
-  Future<void> _toggleClassroomMic() async {
+  Future<void> _toggleClassroomMic({bool sendNow = false}) async {
     if (_sending) {
       return;
     }

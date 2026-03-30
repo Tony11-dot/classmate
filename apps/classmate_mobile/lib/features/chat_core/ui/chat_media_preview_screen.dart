@@ -26,12 +26,14 @@ class ChatMediaPreviewScreen extends StatefulWidget {
 }
 
 class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
-  late final PageController _pageCtl;
   late final TextEditingController _captionCtl;
 
   late List<String> _paths;
   late List<int> _quarterTurns;
+  late List<bool> _mirrored;
   int _index = 0;
+
+  bool _toolsExpanded = true;
 
   VideoPlayerController? _videoCtl;
   String? _videoPath;
@@ -63,7 +65,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       widget.initialPaths.where((e) => e.trim().isNotEmpty),
     );
     _quarterTurns = List<int>.filled(_paths.length, 0);
-    _pageCtl = PageController();
+    _mirrored = List<bool>.filled(_paths.length, false);
     _captionCtl = TextEditingController();
     _syncVideo();
   }
@@ -110,7 +112,61 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     if (mounted) setState(() {});
   }
 
-  Widget _buildThumb(String itemPath) {
+  void _rotateCurrent(int delta) {
+    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    setState(() {
+      _quarterTurns[_index] = (_quarterTurns[_index] + delta) % 4;
+      if (_quarterTurns[_index] < 0) {
+        _quarterTurns[_index] += 4;
+      }
+    });
+  }
+
+  void _mirrorCurrent() {
+    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    setState(() {
+      _mirrored[_index] = !_mirrored[_index];
+    });
+  }
+
+  void _resetCurrentEdits() {
+    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    setState(() {
+      _quarterTurns[_index] = 0;
+      _mirrored[_index] = false;
+    });
+  }
+
+  Future<void> _removeCurrent() async {
+    if (_paths.isEmpty) return;
+
+    setState(() {
+      final idx = _index.clamp(0, _paths.length - 1);
+      _paths = List<String>.from(_paths)..removeAt(idx);
+      _quarterTurns = List<int>.from(_quarterTurns)..removeAt(idx);
+      _mirrored = List<bool>.from(_mirrored)..removeAt(idx);
+
+      if (_paths.isNotEmpty && _index >= _paths.length) {
+        _index = _paths.length - 1;
+      }
+    });
+
+    if (_paths.isEmpty) {
+      if (mounted) {
+        Navigator.of(context).pop(
+          ChatMediaPreviewResult(
+            paths: const [],
+            caption: _captionCtl.text.trim(),
+          ),
+        );
+      }
+      return;
+    }
+
+    await _syncVideo();
+  }
+
+  Widget _buildThumb(String itemPath, int i) {
     if (_isVideo(itemPath)) {
       return Container(
         color: Colors.black,
@@ -123,23 +179,154 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       );
     }
 
-    final thumbIndex = _paths.indexOf(itemPath);
-    final turns = thumbIndex >= 0 && thumbIndex < _quarterTurns.length
-        ? _quarterTurns[thumbIndex]
-        : 0;
-
-    return Transform.rotate(
-      angle: (turns % 4) * (math.pi / 2),
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..rotateZ((_quarterTurns[i] % 4) * (math.pi / 2))
+        ..scale(_mirrored[i] ? -1.0 : 1.0, 1.0),
       child: Image.file(
         File(itemPath),
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.black12,
-            alignment: Alignment.center,
-            child: const Icon(Icons.broken_image_outlined),
-          );
-        },
+        errorBuilder: (_, __, ___) => Container(
+          color: Colors.black12,
+          alignment: Alignment.center,
+          child: const Icon(Icons.broken_image_outlined),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagePreview(String currentPath) {
+    return InteractiveViewer(
+      minScale: 0.8,
+      maxScale: 4,
+      child: Center(
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..rotateZ((_quarterTurns[_index] % 4) * (math.pi / 2))
+            ..scale(_mirrored[_index] ? -1.0 : 1.0, 1.0),
+          child: Image.file(
+            File(currentPath),
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                color: Colors.white70,
+                size: 40,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoPreview() {
+    if (_videoCtl == null || !_videoCtl!.value.isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final c = _videoCtl!;
+    final pos = c.value.position;
+    final dur = c.value.duration;
+    final maxMs = dur.inMilliseconds <= 0 ? 1.0 : dur.inMilliseconds.toDouble();
+    final liveMs = pos.inMilliseconds.clamp(0, dur.inMilliseconds).toDouble();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    color: Colors.black,
+                    child: VideoPlayer(c),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 3,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+            ),
+            child: Slider(
+              value: liveMs.clamp(0.0, maxMs),
+              min: 0,
+              max: maxMs,
+              onChanged: (v) async {
+                await c.seekTo(Duration(milliseconds: v.round()));
+                if (mounted) setState(() {});
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              children: [
+                Text(_fmt(pos), style: const TextStyle(color: Colors.white70)),
+                const Spacer(),
+                Text(_fmt(dur), style: const TextStyle(color: Colors.white70)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () async {
+                  final back = pos - const Duration(seconds: 10);
+                  await c.seekTo(back.isNegative ? Duration.zero : back);
+                  if (mounted) setState(() {});
+                },
+                icon: const Icon(Icons.replay_10_rounded, color: Colors.white),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                ),
+                child: IconButton(
+                  onPressed: () async {
+                    if (c.value.isPlaying) {
+                      await c.pause();
+                    } else {
+                      await c.play();
+                    }
+                    if (mounted) setState(() {});
+                  },
+                  icon: Icon(
+                    c.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                onPressed: () async {
+                  final next = pos + const Duration(seconds: 10);
+                  await c.seekTo(next > dur ? dur : next);
+                  if (mounted) setState(() {});
+                },
+                icon: const Icon(Icons.forward_10_rounded, color: Colors.white),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -155,202 +342,76 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     }
 
     final currentPath = _paths[_index];
+    return _isVideo(currentPath) ? _buildVideoPreview() : _buildImagePreview(currentPath);
+  }
 
-    if (_isVideo(currentPath)) {
-      if (_videoCtl == null || !_videoCtl!.value.isInitialized) {
-        return const Center(child: CircularProgressIndicator());
-      }
+  Widget _buildToolsTray() {
+    if (_paths.isEmpty) return const SizedBox.shrink();
+    final isVideo = _isVideo(_paths[_index]);
 
-      final c = _videoCtl!;
-      final pos = c.value.position;
-      final dur = c.value.duration;
-      final maxMs =
-          dur.inMilliseconds <= 0 ? 1.0 : dur.inMilliseconds.toDouble();
-      final liveMs =
-          pos.inMilliseconds.clamp(0, dur.inMilliseconds).toDouble();
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: c.value.aspectRatio == 0
-                      ? 16 / 9
-                      : c.value.aspectRatio,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      color: Colors.black,
-                      child: VideoPlayer(c),
-                    ),
-                  ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF151A20),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: ExpansionTile(
+        initiallyExpanded: _toolsExpanded,
+        onExpansionChanged: (v) => setState(() => _toolsExpanded = v),
+        collapsedIconColor: Colors.white70,
+        iconColor: Colors.white,
+        title: const Text(
+          'Edit media',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          isVideo ? 'Playback tools' : 'Rotate, mirror, reset, remove',
+          style: const TextStyle(color: Colors.white60),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (!isVideo) ...[
+                FilledButton.tonalIcon(
+                  onPressed: () => _rotateCurrent(-1),
+                  icon: const Icon(Icons.rotate_left_rounded),
+                  label: const Text('Rotate left'),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 3,
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 7,
+                FilledButton.tonalIcon(
+                  onPressed: () => _rotateCurrent(1),
+                  icon: const Icon(Icons.rotate_right_rounded),
+                  label: const Text('Rotate right'),
                 ),
-                overlayShape: const RoundSliderOverlayShape(
-                  overlayRadius: 14,
+                FilledButton.tonalIcon(
+                  onPressed: _mirrorCurrent,
+                  icon: const Icon(Icons.flip_rounded),
+                  label: const Text('Mirror'),
                 ),
-              ),
-              child: Slider(
-                value: liveMs.clamp(0.0, maxMs),
-                min: 0,
-                max: maxMs,
-                onChanged: (v) async {
-                  await c.seekTo(Duration(milliseconds: v.round()));
-                  if (mounted) setState(() {});
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Row(
-                children: [
-                  Text(
-                    _fmt(pos),
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const Spacer(),
-                  Text(
-                    _fmt(dur),
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () async {
-                    final back = pos - const Duration(seconds: 10);
-                    await c.seekTo(back.isNegative ? Duration.zero : back);
-                    if (mounted) setState(() {});
-                  },
-                  icon: const Icon(
-                    Icons.replay_10_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.10),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: IconButton(
-                    onPressed: () async {
-                      if (c.value.isPlaying) {
-                        await c.pause();
-                      } else {
-                        await c.play();
-                      }
-                      if (mounted) setState(() {});
-                    },
-                    icon: Icon(
-                      c.value.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                IconButton(
-                  onPressed: () async {
-                    final next = pos + const Duration(seconds: 10);
-                    await c.seekTo(next > dur ? dur : next);
-                    if (mounted) setState(() {});
-                  },
-                  icon: const Icon(
-                    Icons.forward_10_rounded,
-                    color: Colors.white,
-                  ),
+                FilledButton.tonalIcon(
+                  onPressed: _resetCurrentEdits,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Reset'),
                 ),
               ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return InteractiveViewer(
-      minScale: 0.8,
-      maxScale: 4,
-      child: Transform.rotate(
-        angle: (_quarterTurns[_index] % 4) * (math.pi / 2),
-        child: Image.file(
-          File(currentPath),
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Center(
-              child: Icon(
-                Icons.broken_image_outlined,
-                color: Colors.white70,
-                size: 40,
+              FilledButton.tonalIcon(
+                onPressed: _removeCurrent,
+                icon: const Icon(Icons.delete_outline_rounded),
+                label: const Text('Remove'),
               ),
-            );
-          },
-        ),
+            ],
+          ),
+        ],
       ),
     );
-  }
-
-  void _rotateCurrent(int delta) {
-    if (_paths.isEmpty) return;
-    setState(() {
-      _quarterTurns[_index] = (_quarterTurns[_index] + delta) % 4;
-      if (_quarterTurns[_index] < 0) {
-        _quarterTurns[_index] += 4;
-      }
-    });
-  }
-
-  void _removeCurrent() {
-    if (_paths.isEmpty) return;
-
-    setState(() {
-      final idx = _index.clamp(0, _paths.length - 1);
-      _paths = List<String>.from(_paths)..removeAt(idx);
-      if (_quarterTurns.length > idx) {
-        _quarterTurns = List<int>.from(_quarterTurns)..removeAt(idx);
-      }
-
-      if (_paths.isEmpty) {
-        Navigator.of(context).pop(
-          ChatMediaPreviewResult(
-            paths: const [],
-            caption: _captionCtl.text.trim(),
-          ),
-        );
-        return;
-      }
-
-      if (_index >= _paths.length) {
-        _index = _paths.length - 1;
-      }
-    });
   }
 
   @override
   void dispose() {
     _videoCtl?.dispose();
-    _pageCtl.dispose();
     _captionCtl.dispose();
     super.dispose();
   }
@@ -365,28 +426,6 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(widget.title),
-        actions: [
-          IconButton(
-            onPressed: _paths.isEmpty
-                ? null
-                : () async {
-                    setState(() {
-                      _paths = List<String>.from(_paths)..removeAt(_index);
-                      if (_paths.isNotEmpty && _index >= _paths.length) {
-                        _index = _paths.length - 1;
-                      }
-                    });
-
-                    if (_paths.isEmpty) {
-                      if (mounted) Navigator.of(context).pop();
-                      return;
-                    }
-
-                    await _syncVideo();
-                  },
-            icon: const Icon(Icons.delete_outline_rounded),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -400,98 +439,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   style: const TextStyle(color: Colors.white54),
                 ),
               ),
-            if (_paths.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                  ),
-                  child: ExpansionTile(
-                    collapsedBackgroundColor: const Color(0xFF151A20),
-                    backgroundColor: const Color(0xFF151A20),
-                    collapsedShape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.06),
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.06),
-                      ),
-                    ),
-                    leading: const Icon(Icons.tune_rounded, color: Colors.white),
-                    title: const Text(
-                      'Editing tools',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Text(
-                      _isVideo(_paths[_index])
-                          ? 'Preview tools'
-                          : 'Rotate or remove this item',
-                      style: const TextStyle(color: Colors.white54),
-                    ),
-                    childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                    children: [
-                      if (!_isVideo(_paths[_index]))
-                        ListTile(
-                          leading: const Icon(
-                            Icons.rotate_left_rounded,
-                            color: Colors.white,
-                          ),
-                          title: const Text(
-                            'Rotate left',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onTap: () => _rotateCurrent(-1),
-                        ),
-                      if (!_isVideo(_paths[_index]))
-                        ListTile(
-                          leading: const Icon(
-                            Icons.rotate_right_rounded,
-                            color: Colors.white,
-                          ),
-                          title: const Text(
-                            'Rotate right',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onTap: () => _rotateCurrent(1),
-                        ),
-                      if (!_isVideo(_paths[_index]))
-                        ListTile(
-                          leading: const Icon(
-                            Icons.refresh_rounded,
-                            color: Colors.white,
-                          ),
-                          title: const Text(
-                            'Reset rotation',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _quarterTurns[_index] = 0;
-                            });
-                          },
-                        ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.delete_outline_rounded,
-                          color: Colors.redAccent,
-                        ),
-                        title: const Text(
-                          'Remove current item',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onTap: _removeCurrent,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            _buildToolsTray(),
             if (_paths.length > 1)
               SizedBox(
                 height: 82,
@@ -499,8 +447,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                   scrollDirection: Axis.horizontal,
                   itemCount: _paths.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 8),
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
                   itemBuilder: (context, i) {
                     final itemPath = _paths[i];
                     final active = i == _index;
@@ -521,7 +468,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                             width: active ? 2 : 1,
                           ),
                         ),
-                        child: _buildThumb(itemPath),
+                        child: _buildThumb(itemPath, i),
                       ),
                     );
                   },
@@ -538,9 +485,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF151A20),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.06),
-                        ),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                       ),
                       child: TextField(
                         controller: _captionCtl,
