@@ -1698,7 +1698,36 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    await _toggleClassroomMic();
+    final stoppedPath = await _recorder.stop();
+    _stopRecordTicker();
+
+    final path = (stoppedPath ?? '').trim();
+
+    if (!mounted) return;
+    setState(() {
+      _recording = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdDx = 0;
+      _holdDy = 0;
+      _holdStartGlobal = null;
+      _recordElapsed = Duration.zero;
+      _draftVoicePath = null;
+      _draftVoicePlaying = false;
+      _draftVoiceReady = false;
+      _draftVoicePosition = Duration.zero;
+      _draftVoiceDuration = Duration.zero;
+    });
+
+    if (path.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No audio captured.')));
+      return;
+    }
+
+    await _sendRecordedClassroomVoice(path);
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
@@ -1903,7 +1932,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           _draftVoiceReady = false;
           _draftVoicePosition = Duration.zero;
           _draftVoiceDuration = Duration.zero;
-          _draftVoicePath = null;
           _voicePaused = false;
           _recordElapsed = Duration.zero;
         });
