@@ -1682,7 +1682,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                             onHorizontalDragUpdate: (details) {
                               final current = _swipeDxByMessage[row.id] ?? 0.0;
                               final next = (current + details.delta.dx).clamp(
-                                0.0,
+                                -72.0,
                                 84.0,
                               );
                               if ((_swipeDxByMessage[row.id] ?? 0.0) != next) {

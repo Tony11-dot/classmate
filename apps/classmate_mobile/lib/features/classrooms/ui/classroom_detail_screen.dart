@@ -3061,7 +3061,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 final rawNext = current + details.delta.dx;
                                 final next = isMine
                                     ? rawNext.clamp(-84.0, 84.0)
-                                    : rawNext.clamp(0.0, 84.0);
+                                    : rawNext.clamp(-72.0, 84.0);
                                 if ((_swipeDxByMessage[messageId] ?? 0) !=
                                     next) {
                                   setState(() {
