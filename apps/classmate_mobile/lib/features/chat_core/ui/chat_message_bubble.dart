@@ -131,7 +131,7 @@ class ChatMessageBubble extends StatelessWidget {
 
   bool _looksLikeFileName(String value) {
     return RegExp(
-      r'^[^\\/]+\.(jpg|jpeg|png|webp|gif|mp4|mov|m4v|webm|m4a|aac|mp3|wav|pdf|doc|docx|xls|xlsx|ppt|pptx)$',
+      r'^[^\/]+\.(jpg|jpeg|png|webp|gif|heic|heif|mp4|mov|m4v|webm|m4a|aac|mp3|wav|pdf|doc|docx|xls|xlsx|ppt|pptx)$',
       caseSensitive: false,
     ).hasMatch(value.trim());
   }
@@ -168,17 +168,12 @@ class ChatMessageBubble extends StatelessWidget {
       stem.replaceAll('_', ' '),
     }..removeWhere((e) => e.trim().isEmpty);
 
-    if (candidates.any((e) => lowerBody == e.trim().toLowerCase())) {
+    if (candidates.any((e) => e.trim().toLowerCase() == lowerBody)) {
       return true;
     }
 
     final upperKind = kind.trim().toUpperCase();
     final lowerMime = mime.trim().toLowerCase();
-    final looksLikeFileName = RegExp(
-      r'^[^\/]+\.(jpg|jpeg|png|webp|gif|mp4|mov|m4v|webm|m4a|aac|mp3|wav|pdf|doc|docx|xls|xlsx|ppt|pptx)$',
-      caseSensitive: false,
-    ).hasMatch(normalizedBody);
-
     final isMediaish = upperKind == 'IMAGE' ||
         upperKind == 'VIDEO' ||
         upperKind == 'VOICE' ||
@@ -199,7 +194,7 @@ class ChatMessageBubble extends StatelessWidget {
         lowerMime.contains('spreadsheet') ||
         lowerMime.contains('presentation');
 
-    return isMediaish && looksLikeFileName;
+    return isMediaish && _looksLikeFileName(normalizedBody);
   }
 
 
