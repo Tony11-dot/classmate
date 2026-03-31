@@ -400,8 +400,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: false,
       showDragHandle: true,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -1682,7 +1684,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                             onHorizontalDragUpdate: (details) {
                               final current = _swipeDxByMessage[row.id] ?? 0.0;
                               final next = (current + details.delta.dx).clamp(
-                                -72.0,
+                                -84.0,
                                 84.0,
                               );
                               if ((_swipeDxByMessage[row.id] ?? 0.0) != next) {
@@ -1700,17 +1702,18 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 });
                               }
 
-                              if (current < 44 || !mounted) return;
-
-                              if (detail.isGroup) {
+                              if (current >= 44) {
                                 setState(() => _replyIndex = index);
                                 return;
                               }
 
-                              await _openMessageInfoSheet(
-                                Navigator.of(context).context,
-                                row,
-                              );
+                              if (current <= -44) {
+                                await _openMessageInfoSheet(
+                                  Navigator.of(context).context,
+                                  row,
+                                );
+                                return;
+                              }
                             },
                             onHorizontalDragCancel: () {
                               if (_swipeDxByMessage.containsKey(row.id)) {
