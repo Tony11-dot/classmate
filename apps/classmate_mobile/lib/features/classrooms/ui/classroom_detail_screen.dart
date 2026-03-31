@@ -1441,16 +1441,56 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+  String _normalizePickedMime(String path) {
+    final lower = path.trim().toLowerCase();
+    final guessed = (lookupMimeType(path) ?? '').trim();
+    if (guessed.isNotEmpty) {
+      if (lower.endsWith('.heic') || lower.endsWith('.heif')) {
+        return 'image/heic';
+      }
+      return guessed;
+    }
+    if (lower.endsWith('.heic') || lower.endsWith('.heif')) return 'image/heic';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    if (lower.endsWith('.mp4')) return 'video/mp4';
+    if (lower.endsWith('.mov')) return 'video/quicktime';
+    if (lower.endsWith('.m4v')) return 'video/x-m4v';
+    if (lower.endsWith('.webm')) return 'video/webm';
+    if (lower.endsWith('.m4a')) return 'audio/mp4';
+    if (lower.endsWith('.aac')) return 'audio/aac';
+    if (lower.endsWith('.mp3')) return 'audio/mpeg';
+    if (lower.endsWith('.wav')) return 'audio/wav';
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    return '';
+  }
 
   Future<void> _pickClassroomFiles() async {
     if (_sending || _recording) return;
 
-    final picked = await FilePicker.platform.pickFiles(type: FileType.any);
-    final path = picked?.files.single.path;
-    if (path == null || path.trim().isEmpty) return;
+    final picked = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: [
+        'jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif',
+        'mp4', 'mov', 'm4v', 'webm',
+        'm4a', 'aac', 'mp3', 'wav',
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip',
+      ],
+    );
 
-    await _sendClassroomPickedMedia([path.trim()]);
+    final paths = (picked?.files ?? const [])
+        .map((e) => e.path ?? '')
+        .where((e) => e.trim().isNotEmpty)
+        .map((e) => e.trim())
+        .toList();
+    if (paths.isEmpty) return;
+
+    await _sendClassroomPickedMedia(paths);
   }
+
 
 
   Future<void> _pickClassroomCameraOrUploadImage() async {
@@ -1564,34 +1604,33 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     try {
       for (var i = 0; i < clean.length; i++) {
         final path = clean[i];
-        final mime = lookupMimeType(path) ?? '';
-        final lower = path.toLowerCase();
-        final isImage = mime.startsWith('image/') ||
-            lower.endsWith('.jpg') ||
-            lower.endsWith('.jpeg') ||
-            lower.endsWith('.png') ||
-            lower.endsWith('.webp') ||
-            lower.endsWith('.gif') ||
-            lower.endsWith('.heic') ||
-            lower.endsWith('.heif');
-        final isVideo = mime.startsWith('video/') ||
-            lower.endsWith('.mp4') ||
-            lower.endsWith('.mov') ||
-            lower.endsWith('.m4v') ||
-            lower.endsWith('.avi') ||
-            lower.endsWith('.webm');
-        final isAudio = mime.startsWith('audio/') ||
-            lower.endsWith('.m4a') ||
-            lower.endsWith('.aac') ||
-            lower.endsWith('.mp3') ||
-            lower.endsWith('.wav');
-        final shouldSendFileName = !(isImage || isVideo || isAudio);
+        final mime = _normalizePickedMime(path);
+        final lowerPath = path.trim().toLowerCase();
+        final inlineMedia =
+            mime.startsWith('image/') ||
+            mime.startsWith('video/') ||
+            mime.startsWith('audio/') ||
+            lowerPath.endsWith('.jpg') ||
+            lowerPath.endsWith('.jpeg') ||
+            lowerPath.endsWith('.png') ||
+            lowerPath.endsWith('.webp') ||
+            lowerPath.endsWith('.gif') ||
+            lowerPath.endsWith('.heic') ||
+            lowerPath.endsWith('.heif') ||
+            lowerPath.endsWith('.mp4') ||
+            lowerPath.endsWith('.mov') ||
+            lowerPath.endsWith('.m4v') ||
+            lowerPath.endsWith('.webm') ||
+            lowerPath.endsWith('.m4a') ||
+            lowerPath.endsWith('.aac') ||
+            lowerPath.endsWith('.mp3') ||
+            lowerPath.endsWith('.wav');
 
         await repo.sendChatMedia(
           widget.courseId,
           path,
           mimeType: mime.isEmpty ? null : mime,
-          fileName: shouldSendFileName ? path.split('/').last : null,
+          fileName: inlineMedia ? null : path.split('/').last,
           text: i == 0 && caption.trim().isNotEmpty ? caption.trim() : null,
         );
       }
