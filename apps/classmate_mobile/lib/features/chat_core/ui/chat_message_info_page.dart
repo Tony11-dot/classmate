@@ -25,10 +25,6 @@ class ChatMessageInfoPage extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final previewTitleText = previewTitle.trim();
-    final previewBodyText = previewBody.trim().isEmpty ? '(empty)' : previewBody.trim();
-    final previewMetaText = previewMeta.trim();
-
     String statusLabel() {
       final deleteState = info.deleteState.trim().toUpperCase();
       if (deleteState.isNotEmpty && deleteState != 'VISIBLE') {
@@ -140,168 +136,255 @@ class ChatMessageInfoPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Message info'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 20),
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.36),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.22),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: SafeArea(
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final maxPreviewHeight = constraints.maxHeight * 0.48;
+
+            return Column(
               children: [
-                Align(
-                  alignment: info.isMine
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 280),
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                      decoration: BoxDecoration(
-                        color: info.isMine
-                            ? scheme.primaryContainer
-                            : scheme.surface,
-                        borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(15),
-                          topRight: const Radius.circular(15),
-                          bottomLeft: Radius.circular(info.isMine ? 15 : 5),
-                          bottomRight: Radius.circular(info.isMine ? 5 : 15),
-                        ),
-                        border: Border.all(
-                          color: scheme.outlineVariant.withValues(alpha: 0.16),
-                        ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.18),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: scheme.outlineVariant.withValues(alpha: 0.22),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (previewTitleText.isNotEmpty && !info.isMine)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5),
-                              child: Text(
-                                previewTitleText,
-                                style: text.labelMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: scheme.primary,
-                                ),
-                              ),
-                            ),
-                          Text(
-                            previewBodyText,
-                            style: text.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: info.isMine
-                                  ? scheme.onPrimaryContainer
-                                  : scheme.onSurface,
-                            ),
-                          ),
-                          if (previewMetaText.isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                previewMetaText,
-                                style: text.bodySmall?.copyWith(
-                                  color: (info.isMine
-                                          ? scheme.onPrimaryContainer
-                                          : scheme.onSurfaceVariant)
-                                      .withValues(alpha: 0.82),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                    ),
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: maxPreviewHeight,
+                    ),
+                    child: Align(
+                      alignment: info.isMine
+                          ? Alignment.topRight
+                          : Alignment.topLeft,
+                      child: _ThreadPreviewBubble(
+                        isMine: info.isMine,
+                        senderLabel: previewTitle.trim(),
+                        body: previewBody.trim(),
+                        meta: previewMeta.trim(),
                       ),
                     ),
                   ),
                 ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 20),
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest.withValues(alpha: 0.42),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: scheme.outlineVariant.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            factRow(Icons.schedule_rounded, 'Status', statusLabel()),
+                            const SizedBox(height: 14),
+                            factRow(Icons.access_time_rounded, 'Status time', statusTime()),
+                            const SizedBox(height: 14),
+                            factRow(Icons.send_rounded, 'Sent at', info.sentAt.trim()),
+                            if (info.deliveredAt.trim().isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              factRow(
+                                Icons.done_rounded,
+                                'Delivered at',
+                                info.deliveredAt.trim(),
+                              ),
+                            ],
+                            if (info.seenAt.trim().isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              factRow(
+                                Icons.done_all_rounded,
+                                'Seen at',
+                                info.seenAt.trim(),
+                              ),
+                            ],
+                            const SizedBox(height: 14),
+                            factRow(
+                              Icons.category_rounded,
+                              'Message type',
+                              info.messageType.trim().isEmpty
+                                  ? 'Text'
+                                  : info.messageType.trim(),
+                            ),
+                            const SizedBox(height: 14),
+                            factRow(
+                              Icons.edit_rounded,
+                              'Edited',
+                              info.edited ? 'Yes' : 'No',
+                            ),
+                            const SizedBox(height: 14),
+                            factRow(
+                              Icons.forward_rounded,
+                              'Forwarded',
+                              info.forwarded ? 'Yes' : 'No',
+                            ),
+                            if (info.voiceDuration.trim().isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              factRow(
+                                Icons.mic_rounded,
+                                'Voice duration',
+                                info.voiceDuration.trim(),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (seenByNames.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        peopleCard(
+                          'Seen by',
+                          seenByNames,
+                          icon: Icons.visibility_rounded,
+                        ),
+                      ],
+                      if (deliveredToNames.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        peopleCard(
+                          'Delivered to',
+                          deliveredToNames,
+                          icon: Icons.mark_email_read_rounded,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
-            ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ThreadPreviewBubble extends StatefulWidget {
+  const _ThreadPreviewBubble({
+    required this.isMine,
+    required this.senderLabel,
+    required this.body,
+    required this.meta,
+  });
+
+  final bool isMine;
+  final String senderLabel;
+  final String body;
+  final String meta;
+
+  @override
+  State<_ThreadPreviewBubble> createState() => _ThreadPreviewBubbleState();
+}
+
+class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
+  bool _expanded = false;
+
+  bool get _shouldOfferExpand {
+    final text = widget.body.trim();
+    if (text.isEmpty) return false;
+    if (text.length > 220) return true;
+    if ('\n'.allMatches(text).length >= 5) return true;
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+
+    final bodyText = widget.body.trim().isEmpty ? '(empty)' : widget.body.trim();
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 280),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+        decoration: BoxDecoration(
+          color: widget.isMine ? scheme.primaryContainer : scheme.surface,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(15),
+            topRight: const Radius.circular(15),
+            bottomLeft: Radius.circular(widget.isMine ? 15 : 5),
+            bottomRight: Radius.circular(widget.isMine ? 5 : 15),
           ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.42),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.22),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.senderLabel.isNotEmpty && !widget.isMine)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Text(
+                  widget.senderLabel,
+                  style: text.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: scheme.primary,
+                  ),
+                ),
+              ),
+            Text(
+              bodyText,
+              maxLines: _expanded ? null : 7,
+              overflow: _expanded ? TextOverflow.visible : TextOverflow.fade,
+              style: text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: widget.isMine
+                    ? scheme.onPrimaryContainer
+                    : scheme.onSurface,
+                height: 1.25,
               ),
             ),
-            child: Column(
-              children: [
-                factRow(Icons.schedule_rounded, 'Status', statusLabel()),
-                const SizedBox(height: 14),
-                factRow(Icons.access_time_rounded, 'Status time', statusTime()),
-                const SizedBox(height: 14),
-                factRow(Icons.send_rounded, 'Sent at', info.sentAt.trim()),
-                if (info.deliveredAt.trim().isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  factRow(
-                    Icons.done_rounded,
-                    'Delivered at',
-                    info.deliveredAt.trim(),
+            if (_shouldOfferExpand) ...[
+              const SizedBox(height: 6),
+              InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                  child: Text(
+                    _expanded ? 'Read less' : 'Read more',
+                    style: text.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: scheme.primary,
+                    ),
                   ),
-                ],
-                if (info.seenAt.trim().isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  factRow(
-                    Icons.done_all_rounded,
-                    'Seen at',
-                    info.seenAt.trim(),
+                ),
+              ),
+            ],
+            if (widget.meta.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  widget.meta,
+                  style: text.bodySmall?.copyWith(
+                    color: (widget.isMine
+                            ? scheme.onPrimaryContainer
+                            : scheme.onSurfaceVariant)
+                        .withValues(alpha: 0.82),
                   ),
-                ],
-                const SizedBox(height: 14),
-                factRow(
-                  Icons.category_rounded,
-                  'Message type',
-                  info.messageType.trim().isEmpty ? 'Text' : info.messageType.trim(),
                 ),
-                const SizedBox(height: 14),
-                factRow(
-                  Icons.edit_rounded,
-                  'Edited',
-                  info.edited ? 'Yes' : 'No',
-                ),
-                const SizedBox(height: 14),
-                factRow(
-                  Icons.forward_rounded,
-                  'Forwarded',
-                  info.forwarded ? 'Yes' : 'No',
-                ),
-                if (info.voiceDuration.trim().isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  factRow(
-                    Icons.mic_rounded,
-                    'Voice duration',
-                    info.voiceDuration.trim(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (seenByNames.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            peopleCard(
-              'Seen by',
-              seenByNames,
-              icon: Icons.visibility_rounded,
-            ),
+              ),
+            ],
           ],
-          if (deliveredToNames.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            peopleCard(
-              'Delivered to',
-              deliveredToNames,
-              icon: Icons.mark_email_read_rounded,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
