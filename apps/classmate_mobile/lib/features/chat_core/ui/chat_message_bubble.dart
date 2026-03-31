@@ -57,7 +57,7 @@ class ChatMessageBubble extends StatelessWidget {
   final double maxWidth;
 
   bool _isImageByUrl(String v) =>
-      RegExp(r'\.(jpg|jpeg|png|webp|gif)(\?|$)', caseSensitive: false)
+      RegExp(r'\.(jpg|jpeg|png|webp|gif|heic|heif)(\?|$)', caseSensitive: false)
           .hasMatch(v);
 
   bool _isVoiceByUrl(String v) =>
@@ -78,7 +78,9 @@ class ChatMessageBubble extends StatelessWidget {
         m.contains('jpg') ||
         m.contains('png') ||
         m.contains('webp') ||
-        m.contains('gif');
+        m.contains('gif') ||
+        m.contains('heic') ||
+        m.contains('heif');
   }
 
   bool _isVoiceByMeta(String kind, String mime) {
