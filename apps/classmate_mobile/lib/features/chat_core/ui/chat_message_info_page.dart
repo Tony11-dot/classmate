@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/chat_message_info.dart';
 
+import '../models/chat_message_info.dart';
 
 class ChatMessageInfoPage extends StatelessWidget {
   const ChatMessageInfoPage({
@@ -25,8 +25,13 @@ class ChatMessageInfoPage extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
+    final previewTitleText = previewTitle.trim();
+    final previewBodyText = previewBody.trim().isEmpty ? '(empty)' : previewBody.trim();
+    final previewMetaText = previewMeta.trim();
+
     String statusLabel() {
-      if (info.deleteState.trim().toUpperCase() != 'VISIBLE') {
+      final deleteState = info.deleteState.trim().toUpperCase();
+      if (deleteState.isNotEmpty && deleteState != 'VISIBLE') {
         return info.deleteState.trim();
       }
       if (info.seen) return 'Seen';
@@ -61,7 +66,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  value.isEmpty ? '—' : value,
+                  value.trim().isEmpty ? '—' : value.trim(),
                   style: text.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -141,39 +146,80 @@ class ChatMessageInfoPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.50),
-              borderRadius: BorderRadius.circular(20),
+              color: scheme.surfaceContainerHighest.withValues(alpha: 0.36),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.25),
+                color: scheme.outlineVariant.withValues(alpha: 0.22),
               ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (previewTitle.trim().isNotEmpty)
-                  Text(
-                    previewTitle.trim(),
-                    style: text.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: scheme.primary,
+                Align(
+                  alignment: info.isMine
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      decoration: BoxDecoration(
+                        color: info.isMine
+                            ? scheme.primaryContainer
+                            : scheme.surface,
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(15),
+                          topRight: const Radius.circular(15),
+                          bottomLeft: Radius.circular(info.isMine ? 15 : 5),
+                          bottomRight: Radius.circular(info.isMine ? 5 : 15),
+                        ),
+                        border: Border.all(
+                          color: scheme.outlineVariant.withValues(alpha: 0.16),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (previewTitleText.isNotEmpty && !info.isMine)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Text(
+                                previewTitleText,
+                                style: text.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: scheme.primary,
+                                ),
+                              ),
+                            ),
+                          Text(
+                            previewBodyText,
+                            style: text.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: info.isMine
+                                  ? scheme.onPrimaryContainer
+                                  : scheme.onSurface,
+                            ),
+                          ),
+                          if (previewMetaText.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                previewMetaText,
+                                style: text.bodySmall?.copyWith(
+                                  color: (info.isMine
+                                          ? scheme.onPrimaryContainer
+                                          : scheme.onSurfaceVariant)
+                                      .withValues(alpha: 0.82),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                if (previewTitle.trim().isNotEmpty) const SizedBox(height: 6),
-                Text(
-                  previewBody.trim().isEmpty ? '(empty)' : previewBody.trim(),
-                  style: text.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (previewMeta.trim().isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    previewMeta.trim(),
-                    style: text.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -193,11 +239,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                 const SizedBox(height: 14),
                 factRow(Icons.access_time_rounded, 'Status time', statusTime()),
                 const SizedBox(height: 14),
-                factRow(
-                  Icons.send_rounded,
-                  'Sent at',
-                  info.sentAt.trim(),
-                ),
+                factRow(Icons.send_rounded, 'Sent at', info.sentAt.trim()),
                 if (info.deliveredAt.trim().isNotEmpty) ...[
                   const SizedBox(height: 14),
                   factRow(
@@ -218,7 +260,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                 factRow(
                   Icons.category_rounded,
                   'Message type',
-                  info.messageType.trim(),
+                  info.messageType.trim().isEmpty ? 'Text' : info.messageType.trim(),
                 ),
                 const SizedBox(height: 14),
                 factRow(
