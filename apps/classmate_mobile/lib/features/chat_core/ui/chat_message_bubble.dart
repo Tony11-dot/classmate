@@ -31,7 +31,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.replySnippet,
     this.mediaMimeType,
     this.messageKind = 'TEXT',
-    this.maxWidth = 380,
+    this.maxWidth = 280,
   });
 
   final BuildContext contextForNavigation;
@@ -389,16 +389,16 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 6),
+            padding: const EdgeInsets.fromLTRB(9, 6, 9, 5),
             decoration: BoxDecoration(
               color: isMine
                   ? const Color(0xFF0A84FF).withValues(alpha: 0.16)
                   : const Color(0xFF171B22).withValues(alpha: 0.94),
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(16),
-                topRight: const Radius.circular(16),
-                bottomLeft: Radius.circular(isMine ? 16 : 5),
-                bottomRight: Radius.circular(isMine ? 5 : 16),
+                topLeft: const Radius.circular(15),
+                topRight: const Radius.circular(15),
+                bottomLeft: Radius.circular(isMine ? 15 : 5),
+                bottomRight: Radius.circular(isMine ? 5 : 15),
               ),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -514,7 +514,7 @@ class ChatMessageBubble extends StatelessWidget {
                       mime: resolvedMime,
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(15),
                       child: Image.network(
                         resolvedMediaUrl,
                         fit: BoxFit.cover,
@@ -573,10 +573,10 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(15),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.05),
                         ),
@@ -707,7 +707,7 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
     return GestureDetector(
       onTap: widget.onTap,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(15),
         child: Container(
           constraints: const BoxConstraints(minHeight: 180, maxHeight: 260),
           width: double.infinity,
