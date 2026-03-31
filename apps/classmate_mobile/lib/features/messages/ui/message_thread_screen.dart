@@ -16,10 +16,10 @@ import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
-import '../../chat_core/ui/chat_message_info_sheet.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../chat_core/ui/chat_message_info_page.dart';
 
 class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ForwardTargetPickerSheet({required this.currentThreadId});
@@ -510,7 +510,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (_) => ChatMessageInfoSheet(
+      builder: (_) => ChatMessageInfoPage(
         info: ChatMessageInfo(
           title: 'Message info',
           sentAt: row.timeLabel,
