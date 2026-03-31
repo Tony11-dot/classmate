@@ -9,6 +9,7 @@ class ChatMessageActionsSheet extends StatelessWidget {
     this.canViewInfo = false,
     this.canPin = false,
     this.canForward = true,
+    this.canCopy = false,
   });
 
   final bool canEdit;
@@ -16,6 +17,7 @@ class ChatMessageActionsSheet extends StatelessWidget {
   final bool canViewInfo;
   final bool canPin;
   final bool canForward;
+  final bool canCopy;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,12 @@ class ChatMessageActionsSheet extends StatelessWidget {
                 title: const Text('Reply'),
                 onTap: () => Navigator.of(context).pop('reply'),
               ),
+              if (canCopy)
+                ListTile(
+                  leading: const Icon(Icons.copy_rounded),
+                  title: const Text('Copy'),
+                  onTap: () => Navigator.of(context).pop('copy'),
+                ),
               if (canForward)
                 ListTile(
                   leading: const Icon(Icons.forward_rounded),
