@@ -622,23 +622,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     String previewMeta = '',
     int? voiceDurationSeconds,
   }) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => ChatMessageInfoPage(
-        info: ChatMessageInfo(
-          title: 'Message info',
-          sentAt: sentAt,
-          deliveredAt: '',
-          seenAt: '',
-          delivered: false,
-          seen: false,
-          edited: edited,
-          forwarded: forwarded,
-          deleteState: deleteState,
-          isMine: false,
-          messageType: _classroomKindInfoLabel(kind),
-          voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ChatMessageInfoPage(
+          info: ChatMessageInfo(
+            title: 'Message info',
+            sentAt: sentAt,
+            deliveredAt: '',
+            seenAt: '',
+            delivered: false,
+            seen: false,
+            edited: edited,
+            forwarded: forwarded,
+            deleteState: deleteState,
+            isMine: isMine,
+            messageType: _classroomKindInfoLabel(kind),
+            voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
+          ),
+          previewTitle: previewTitle,
+          previewBody: previewBody,
+          previewMeta: previewMeta,
+          seenByNames: const <String>[],
+          deliveredToNames: const <String>[],
         ),
       ),
     );

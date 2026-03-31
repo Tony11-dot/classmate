@@ -507,28 +507,45 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   }
 
   Future<void> _showMessageInfo(MessageItem row) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => ChatMessageInfoPage(
-        info: ChatMessageInfo(
-          title: 'Message info',
-          sentAt: row.timeLabel,
-          deliveredAt: row.isMine ? row.deliveredAt : '',
-          seenAt: row.isMine ? row.seenAt : '',
-          delivered: row.isMine ? row.delivered : false,
-          seen: row.isMine ? row.seen : false,
-          edited: row.edited,
-          forwarded: row.forwarded,
-          deleteState: row.deleteState,
-          isMine: row.isMine,
-          messageType: _kindInfoLabel(row),
-          voiceDuration:
-              row.kind.trim().toUpperCase() == 'VOICE' &&
-                  row.voiceDurationSeconds != null &&
-                  row.voiceDurationSeconds! > 0
-              ? _fmtDuration(row.voiceDurationSeconds!)
-              : '',
+    final previewBody = row.text.trim().isEmpty
+        ? (row.kind.trim().toUpperCase() == 'IMAGE'
+            ? 'Photo'
+            : row.kind.trim().toUpperCase() == 'VIDEO'
+                ? 'Video'
+                : row.kind.trim().toUpperCase() == 'VOICE'
+                    ? 'Voice note'
+                    : row.kind.trim().toUpperCase() == 'FILE'
+                        ? 'File'
+                        : '(empty)')
+        : row.text.trim();
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ChatMessageInfoPage(
+          info: ChatMessageInfo(
+            title: 'Message info',
+            sentAt: row.timeLabel,
+            deliveredAt: row.isMine ? row.deliveredAt : '',
+            seenAt: row.isMine ? row.seenAt : '',
+            delivered: row.isMine ? row.delivered : false,
+            seen: row.isMine ? row.seen : false,
+            edited: row.edited,
+            forwarded: row.forwarded,
+            deleteState: row.deleteState,
+            isMine: row.isMine,
+            messageType: _kindInfoLabel(row),
+            voiceDuration:
+                row.kind.trim().toUpperCase() == 'VOICE' &&
+                    row.voiceDurationSeconds != null &&
+                    row.voiceDurationSeconds! > 0
+                ? _fmtDuration(row.voiceDurationSeconds!)
+                : '',
+          ),
+          previewTitle: row.isMine ? 'You' : row.senderName,
+          previewBody: previewBody,
+          previewMeta: row.timeLabel,
+          seenByNames: const <String>[],
+          deliveredToNames: const <String>[],
         ),
       ),
     );
