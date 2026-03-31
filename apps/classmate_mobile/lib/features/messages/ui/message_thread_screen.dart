@@ -1659,7 +1659,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
                     itemCount: rows.length,
                     itemBuilder: (context, index) {
                       final row = rows[index];
@@ -1876,7 +1876,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     replySnippet: row.replyPreview?.text,
                                     mediaMimeType: row.mediaMimeType,
                                     messageKind: row.kind,
-                                    maxWidth: 340,
+                                    maxWidth: 280,
                                   ),
                                 ],
                               ),
