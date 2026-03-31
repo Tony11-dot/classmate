@@ -24,10 +24,10 @@ import '../../messages/domain/message_thread_models.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
-import '../../chat_core/ui/chat_message_info_sheet.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
+import '../../chat_core/ui/chat_message_info_page.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
@@ -617,12 +617,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required bool forwarded,
     required String deleteState,
     required String kind,
+    required String previewTitle,
+    required String previewBody,
+    String previewMeta = '',
     int? voiceDurationSeconds,
   }) async {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (_) => ChatMessageInfoSheet(
+      builder: (_) => ChatMessageInfoPage(
         info: ChatMessageInfo(
           title: 'Message info',
           sentAt: sentAt,
@@ -1002,7 +1005,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: false,
-      builder: (_) => ChatMessageInfoSheet(
+      builder: (_) => ChatMessageInfoPage(
         info: ChatMessageInfo(
           title: title,
           sentAt: sentAt,
@@ -1137,6 +1140,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         forwarded: false,
         deleteState: 'VISIBLE',
         kind: kind,
+        previewTitle: isMine ? 'You' : senderLabel,
+        previewBody: editableBodyText(text).trim().isEmpty
+            ? (kind.trim().toUpperCase() == 'IMAGE'
+                ? 'Photo'
+                : kind.trim().toUpperCase() == 'VIDEO'
+                    ? 'Video'
+                    : kind.trim().toUpperCase() == 'VOICE'
+                        ? 'Voice note'
+                        : kind.trim().toUpperCase() == 'FILE'
+                            ? 'File'
+                            : '(empty)')
+            : editableBodyText(text),
+        previewMeta: timeLabel,
       );
       return;
     }
@@ -2661,6 +2677,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         forwarded: false,
         deleteState: 'VISIBLE',
         kind: kind,
+        previewTitle: isMine ? 'You' : senderLabel,
+        previewBody: editableBodyText(text).trim().isEmpty
+            ? (kind.trim().toUpperCase() == 'IMAGE'
+                ? 'Photo'
+                : kind.trim().toUpperCase() == 'VIDEO'
+                    ? 'Video'
+                    : kind.trim().toUpperCase() == 'VOICE'
+                        ? 'Voice note'
+                        : kind.trim().toUpperCase() == 'FILE'
+                            ? 'File'
+                            : '(empty)')
+            : editableBodyText(text),
+        previewMeta: timeLabel,
       );
       return;
     }
@@ -3059,9 +3088,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 final current =
                                     _swipeDxByMessage[messageId] ?? 0;
                                 final rawNext = current + details.delta.dx;
-                                final next = isMine
-                                    ? rawNext.clamp(-84.0, 84.0)
-                                    : rawNext.clamp(-72.0, 84.0);
+                                final next = rawNext.clamp(-24.0, 56.0);
                                 if ((_swipeDxByMessage[messageId] ?? 0) !=
                                     next) {
                                   setState(() {
@@ -3072,7 +3099,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               onHorizontalDragEnd: (_) async {
                                 final current =
                                     _swipeDxByMessage[messageId] ?? 0;
-                                if (current <= -44 && isMine) {
+                                if (current <= -16) {
                                   await _showClassroomMessageInfo(
                                     sentAt: _friendlyTime(createdRaw),
                                     isMine: isMine,
@@ -3082,9 +3109,22 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     forwarded: false,
                                     deleteState: 'VISIBLE',
                                     kind: kind,
+                                    previewTitle: isMine ? 'You' : senderName,
+                                    previewBody: messageText.isEmpty
+                                        ? (kind.trim().toUpperCase() == 'IMAGE'
+                                            ? 'Photo'
+                                            : kind.trim().toUpperCase() == 'VIDEO'
+                                                ? 'Video'
+                                                : kind.trim().toUpperCase() == 'VOICE'
+                                                    ? 'Voice note'
+                                                    : kind.trim().toUpperCase() == 'FILE'
+                                                        ? 'File'
+                                                        : '(empty)')
+                                        : messageText,
+                                    previewMeta: _friendlyTime(createdRaw),
                                     voiceDurationSeconds: durationSec,
                                   );
-                                } else if (current >= 44) {
+                                } else if (current >= 34) {
                                   _replyTo(
                                     messageId: messageId,
                                     sender: isMine ? 'You' : senderName,
