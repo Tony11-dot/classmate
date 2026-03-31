@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
@@ -1690,16 +1691,26 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 });
                               }
                             },
-                            onHorizontalDragEnd: (_) {
+                            onHorizontalDragEnd: (_) async {
                               final current = _swipeDxByMessage[row.id] ?? 0.0;
-                              if (current >= 44) {
-                                setState(() => _replyIndex = index);
-                              }
+
                               if (_swipeDxByMessage.containsKey(row.id)) {
                                 setState(() {
                                   _swipeDxByMessage.remove(row.id);
                                 });
                               }
+
+                              if (current < 44 || !mounted) return;
+
+                              if (detail.isGroup) {
+                                setState(() => _replyIndex = index);
+                                return;
+                              }
+
+                              await _openMessageInfoSheet(
+                                Navigator.of(context).context,
+                                row,
+                              );
                             },
                             onHorizontalDragCancel: () {
                               if (_swipeDxByMessage.containsKey(row.id)) {
@@ -1723,6 +1734,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                       canViewInfo: true,
                                       canPin: detail.isGroup || row.isMine,
                                       canForward: true,
+                                      canCopy: (row.mediaUrl == null ||
+                                              row.mediaUrl!.trim().isEmpty) &&
+                                          row.text.trim().isNotEmpty,
                                     ),
                                   );
 
@@ -1730,6 +1744,23 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
                               if (selected == 'reply') {
                                 setState(() => _replyIndex = index);
+                                return;
+                              }
+
+                              if (selected == 'copy') {
+                                final text = row.text.trim();
+                                if (text.isNotEmpty) {
+                                  final messenger = ScaffoldMessenger.of(
+                                    navigator.context,
+                                  );
+                                  await Clipboard.setData(
+                                    ClipboardData(text: text),
+                                  );
+                                  if (!mounted) return;
+                                  messenger.showSnackBar(
+                                    const SnackBar(content: Text('Copied')),
+                                  );
+                                }
                                 return;
                               }
 
@@ -1780,8 +1811,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 );
                               }
                             },
-                            child: Transform.translate(
-                              offset: Offset(swipeDx, 0),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 160),
+                              curve: Curves.easeOutCubic,
+                              transform: Matrix4.translationValues(swipeDx, 0, 0),
                               child: Column(
                                 crossAxisAlignment: row.isMine
                                     ? CrossAxisAlignment.end
