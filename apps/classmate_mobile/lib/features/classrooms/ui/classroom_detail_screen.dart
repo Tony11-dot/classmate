@@ -1441,6 +1441,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+
   Future<void> _pickClassroomFiles() async {
     if (_sending || _recording) return;
 
@@ -1448,31 +1449,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final path = picked?.files.single.path;
     if (path == null || path.trim().isEmpty) return;
 
-    final repo = ref.read(classroomsRepoProvider);
-    final resolved = path.trim();
-    final mime = lookupMimeType(resolved) ?? 'application/octet-stream';
-
-    HapticFeedback.lightImpact();
-    if (mounted) setState(() => _sending = true);
-    try {
-      await repo.sendChatMedia(
-        widget.courseId,
-        resolved,
-        mimeType: mime,
-        fileName: resolved.split('/').last,
-      );
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      _pinClassroomToBottom();
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
+    await _sendClassroomPickedMedia([path.trim()]);
   }
+
 
   Future<void> _pickClassroomCameraOrUploadImage() async {
     if (_sending || _recording) return;
@@ -1514,16 +1493,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         imageQuality: 92,
         preferredCameraDevice: CameraDevice.rear,
       );
-      if (shot == null || !mounted) return;
-      initialPaths = [shot.path];
+      if (shot == null || !mounted || shot.path.trim().isEmpty) return;
+      initialPaths = [shot.path.trim()];
     } else if (action == 'video') {
       final shot = await _imagePicker.pickVideo(
         source: ImageSource.camera,
         preferredCameraDevice: CameraDevice.rear,
         maxDuration: const Duration(minutes: 2),
       );
-      if (shot == null || !mounted) return;
-      initialPaths = [shot.path];
+      if (shot == null || !mounted || shot.path.trim().isEmpty) return;
+      initialPaths = [shot.path.trim()];
     } else if (action == 'gallery') {
       final picked = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -1533,8 +1512,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       initialPaths = picked.files
           .map((e) => e.path ?? '')
           .where((e) => e.trim().isNotEmpty)
+          .map((e) => e.trim())
           .toList();
       if (initialPaths.isEmpty) return;
+    } else {
+      return;
     }
 
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
@@ -1545,38 +1527,76 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         ),
       ),
     );
-    if (result == null || !mounted) return;
+    if (!mounted || result == null) return;
 
     final paths = result.paths.isNotEmpty ? result.paths : initialPaths;
     if (paths.isEmpty) return;
 
+    await _sendClassroomPickedMedia(
+      paths.where((e) => e.trim().isNotEmpty).map((e) => e.trim()).toList(),
+      caption: result.caption.trim(),
+    );
+  }
+
+
+  Future<void> _sendClassroomPickedMedia(
+    List<String> paths, {
+    String caption = '',
+  }) async {
+    final clean = paths.where((e) => e.trim().isNotEmpty).map((e) => e.trim()).toList();
+    if (clean.isEmpty) return;
+
     final repo = ref.read(classroomsRepoProvider);
-    final caption = result.caption.trim();
 
     HapticFeedback.lightImpact();
-    if (mounted) setState(() => _sending = true);
+    if (mounted) {
+      setState(() {
+        _sending = true;
+        _draftAttachments.clear();
+        _draftVoicePath = null;
+        _draftVoicePlaying = false;
+        _draftVoiceReady = false;
+        _draftVoicePosition = Duration.zero;
+        _draftVoiceDuration = Duration.zero;
+      });
+    }
+
     try {
-      for (final raw in paths) {
-        final path = raw.trim();
-        if (path.isEmpty) continue;
-        final mime = lookupMimeType(path) ??
-            (path.toLowerCase().endsWith('.mp4') ||
-                    path.toLowerCase().endsWith('.mov') ||
-                    path.toLowerCase().endsWith('.m4v') ||
-                    path.toLowerCase().endsWith('.avi') ||
-                    path.toLowerCase().endsWith('.webm')
-                ? 'video/mp4'
-                : 'image/jpeg');
+      for (var i = 0; i < clean.length; i++) {
+        final path = clean[i];
+        final mime = lookupMimeType(path) ?? '';
+        final lower = path.toLowerCase();
+        final isImage = mime.startsWith('image/') ||
+            lower.endsWith('.jpg') ||
+            lower.endsWith('.jpeg') ||
+            lower.endsWith('.png') ||
+            lower.endsWith('.webp') ||
+            lower.endsWith('.gif') ||
+            lower.endsWith('.heic') ||
+            lower.endsWith('.heif');
+        final isVideo = mime.startsWith('video/') ||
+            lower.endsWith('.mp4') ||
+            lower.endsWith('.mov') ||
+            lower.endsWith('.m4v') ||
+            lower.endsWith('.avi') ||
+            lower.endsWith('.webm');
+        final isAudio = mime.startsWith('audio/') ||
+            lower.endsWith('.m4a') ||
+            lower.endsWith('.aac') ||
+            lower.endsWith('.mp3') ||
+            lower.endsWith('.wav');
+        final shouldSendFileName = !(isImage || isVideo || isAudio);
 
         await repo.sendChatMedia(
           widget.courseId,
           path,
-          mimeType: mime,
-          fileName: path.split('/').last,
-          text: caption.isEmpty ? null : caption,
+          mimeType: mime.isEmpty ? null : mime,
+          fileName: shouldSendFileName ? path.split('/').last : null,
+          text: i == 0 && caption.trim().isNotEmpty ? caption.trim() : null,
         );
       }
 
+      _clearReply();
       ref.invalidate(
         classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
       );
@@ -1584,6 +1604,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     } finally {
       if (mounted) {
         setState(() {
+          _sending = false;
           _draftAttachments.clear();
           _draftVoicePath = null;
           _draftVoicePlaying = false;
@@ -1592,7 +1613,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           _draftVoiceDuration = Duration.zero;
           _voicePaused = false;
           _recordElapsed = Duration.zero;
-          _sending = false;
         });
       }
     }
@@ -1656,7 +1676,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       widget.courseId,
       resolved,
       mimeType: lookupMimeType(resolved) ?? 'audio/mp4',
-      fileName: resolved.split('/').last,
     );
 
     try {
@@ -1756,7 +1775,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    await _toggleClassroomMic();
+    await _toggleClassroomMic(sendNow: true);
   }
 
   Future<void> _micHoldEnd(LongPressEndDetails d) async {
