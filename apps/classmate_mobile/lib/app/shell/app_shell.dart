@@ -20,11 +20,12 @@ String _routePathOnly(String loc) {
 }
 
 bool _hideTopBarForRoute(String loc) {
-  final l = loc.toLowerCase();
+  final l = _routePathOnly(loc);
   return l.startsWith('/messages/') ||
+      l.startsWith('/messages/request/') ||
       l.startsWith('/tutor/chat/') ||
       l.startsWith('/nova/chat/') ||
-      (l.startsWith('/classrooms/') && !l.endsWith('/classrooms'));
+      (l.startsWith('/classrooms/') && l != '/classrooms');
 }
 
 class AppShell extends ConsumerWidget {
@@ -67,7 +68,7 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = GoRouterState.of(context).uri.toString();
+    final loc = GoRouterState.of(context).matchedLocation;
     final idx = _indexFor(loc);
     final hideBottomNav = _hideBottomNav(loc);
     final hideTopBar = _hideTopBarForRoute(loc);
