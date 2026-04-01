@@ -30,8 +30,6 @@ import '../features/solutions/ui/filter/solutions_books_screen.dart';
 import '../features/solutions/ui/filter/solutions_pages_screen.dart';
 import '../features/solutions/ui/filter/solutions_questions_screen.dart';
 import '../features/solutions/ui/filter/solutions_subject_screen.dart';
-import '../features/chat_core/ui/chat_message_info_model.dart';
-import '../features/chat_core/ui/chat_message_info_page.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
 
@@ -108,24 +106,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MessageThreadScreen(
           threadId: state.pathParameters['id']!,
         ),
-        routes: [
-          GoRoute(
-            path: 'info',
-            name: 'dm_info',
-            builder: (context, state) {
-              final args = state.extra as ChatMessageInfoRouteArgs;
-              return ChatMessageInfoPage(
-                info: args.info,
-                previewTitle: args.previewTitle,
-                previewBody: args.previewBody,
-                previewMeta: args.previewMeta,
-                previewBubbleBuilder: args.previewBubbleBuilder,
-                seenByNames: args.seenByNames,
-                deliveredToNames: args.deliveredToNames,
-              );
-            },
-          ),
-        ],
       ),
 
       ShellRoute(
