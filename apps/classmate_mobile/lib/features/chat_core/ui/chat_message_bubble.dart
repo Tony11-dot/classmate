@@ -31,7 +31,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.replySnippet,
     this.mediaMimeType,
     this.messageKind = 'TEXT',
-    this.maxWidth = 280,
+    this.maxWidth = 252,
   });
 
   final BuildContext contextForNavigation;
@@ -389,7 +389,7 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(9, 6, 9, 5),
+            padding: const EdgeInsets.fromLTRB(8, 5, 8, 4),
             decoration: BoxDecoration(
               color: isMine
                   ? const Color(0xFF0A84FF).withValues(alpha: 0.16)
@@ -515,16 +515,25 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: Image.network(
-                        resolvedMediaUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 180,
-                          alignment: Alignment.center,
-                          color: Colors.white.withValues(alpha: 0.06),
-                          child: const Icon(
-                            Icons.broken_image_outlined,
-                            color: Colors.white70,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: 96,
+                          maxHeight: 220,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Image.network(
+                            resolvedMediaUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              height: 160,
+                              alignment: Alignment.center,
+                              color: Colors.white.withValues(alpha: 0.06),
+                              child: const Icon(
+                                Icons.broken_image_outlined,
+                                color: Colors.white70,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -616,7 +625,7 @@ class ChatMessageBubble extends StatelessWidget {
                 ] else if (showRealUserCaption) ...[
                   Text(body, style: const TextStyle(color: Colors.white)),
                 ],
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -709,7 +718,7 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 180, maxHeight: 260),
+          constraints: const BoxConstraints(minHeight: 120, maxHeight: 220),
           width: double.infinity,
           color: Colors.white.withValues(alpha: 0.06),
           child: Stack(

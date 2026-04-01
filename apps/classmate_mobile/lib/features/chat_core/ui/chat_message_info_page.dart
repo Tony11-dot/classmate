@@ -184,12 +184,12 @@ class ChatMessageInfoPage extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxPreviewHeight = (constraints.maxHeight * 0.32).clamp(120.0, 220.0);
+                  final maxPreviewHeight = (constraints.maxHeight * 0.28).clamp(110.0, 200.0);
 
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
                             maxHeight: maxPreviewHeight,

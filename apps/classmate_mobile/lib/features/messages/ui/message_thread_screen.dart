@@ -554,13 +554,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         replySnippet: row.replyPreview?.text,
         mediaMimeType: row.mediaMimeType,
         messageKind: row.kind,
-        maxWidth: 236,
+        maxWidth: 228,
       ),
       seenByNames: const <String>[],
       deliveredToNames: const <String>[],
     );
 
-    await context.push('/messages/${widget.threadId}/info', extra: infoArgs);
+    await context.push('info', extra: infoArgs);
   }
 
   Future<void> _editMessage(MessageItem row) async {
