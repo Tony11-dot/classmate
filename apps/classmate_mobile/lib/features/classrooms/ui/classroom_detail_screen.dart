@@ -622,7 +622,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String previewBody,
     String previewMeta = '',
     String previewMediaUrl = '',
-    Widget? previewBubble,
+    WidgetBuilder? previewBubbleBuilder,
     int? voiceDurationSeconds,
   }) async {
     if (!mounted) return;
@@ -648,7 +648,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           previewTitle: previewTitle,
           previewBody: previewBody,
           previewMeta: previewMeta,
-          previewBubble: previewBubble,
+          previewBubbleBuilder: previewBubbleBuilder,
           seenByNames: const <String>[],
           deliveredToNames: const <String>[],
         ),
@@ -1166,8 +1166,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             : editableBodyText(text),
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
-        previewBubble: ChatMessageBubble(
-          contextForNavigation: context,
+        previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+          contextForNavigation: infoContext,
           rawText: editableBodyText(text),
           mediaUrl: mediaUrl,
           isMine: isMine,
@@ -2727,8 +2727,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             : editableBodyText(text),
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
-        previewBubble: ChatMessageBubble(
-          contextForNavigation: context,
+        previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+          contextForNavigation: infoContext,
           rawText: editableBodyText(text),
           mediaUrl: mediaUrl,
           isMine: isMine,
@@ -3183,8 +3183,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         : messageText,
                                     previewMeta: _friendlyTime(createdRaw),
                                     previewMediaUrl: mediaUrl,
-                                    previewBubble: ChatMessageBubble(
-                                      contextForNavigation: context,
+                                    previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+                                      contextForNavigation: infoContext,
                                       rawText: messageText,
                                       mediaUrl: mediaUrl,
                                       isMine: isMine,

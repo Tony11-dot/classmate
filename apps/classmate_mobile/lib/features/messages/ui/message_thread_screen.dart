@@ -510,30 +510,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Future<void> _showMessageInfo(MessageItem row) async {
     if (!mounted) return;
 
-    final previewBubble = ChatMessageBubble(
-      contextForNavigation: context,
-      rawText: row.text,
-      mediaUrl: row.mediaUrl ?? '',
-      isMine: row.isMine,
-      showName: false,
-      senderLabel: row.senderName,
-      timeLabel: row.timeLabel,
-      edited: row.edited,
-      reaction: row.reaction,
-      forwarded: row.forwarded,
-      delivered: row.delivered,
-      seen: row.seen,
-      deleteState: row.deleteState,
-      voiceDurationSeconds: row.voiceDurationSeconds,
-      voiceUnread: false,
-      onVoicePlayed: null,
-      replySender: row.replyPreview?.senderName,
-      replySnippet: row.replyPreview?.text,
-      mediaMimeType: row.mediaMimeType,
-      messageKind: row.kind,
-      maxWidth: 280,
-    );
-
     final nav = Navigator.of(context);
 
     await nav.push(
@@ -561,7 +537,29 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           previewTitle: row.isMine ? 'You' : row.senderName,
           previewBody: row.text.trim(),
           previewMeta: row.timeLabel,
-          previewBubble: previewBubble,
+          previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+            contextForNavigation: infoContext,
+            rawText: row.text,
+            mediaUrl: row.mediaUrl ?? '',
+            isMine: row.isMine,
+            showName: false,
+            senderLabel: row.senderName,
+            timeLabel: row.timeLabel,
+            edited: row.edited,
+            reaction: row.reaction,
+            forwarded: row.forwarded,
+            delivered: row.delivered,
+            seen: row.seen,
+            deleteState: row.deleteState,
+            voiceDurationSeconds: row.voiceDurationSeconds,
+            voiceUnread: false,
+            onVoicePlayed: null,
+            replySender: row.replyPreview?.senderName,
+            replySnippet: row.replyPreview?.text,
+            mediaMimeType: row.mediaMimeType,
+            messageKind: row.kind,
+            maxWidth: 280,
+          ),
           seenByNames: const <String>[],
           deliveredToNames: const <String>[],
         ),
