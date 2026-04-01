@@ -13,14 +13,14 @@ import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
-import '../features/lifedoc/exams_screen.dart';
 import '../features/lifedoc/exam_detail_screen.dart';
+import '../features/lifedoc/exams_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
-import '../features/lifedoc/notifications_screen.dart';
 import '../features/lifedoc/meetings_screen.dart';
-import '../features/messages/ui/messages_inbox_screen.dart';
-import '../features/messages/ui/message_thread_screen.dart';
+import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
+import '../features/messages/ui/message_thread_screen.dart';
+import '../features/messages/ui/messages_inbox_screen.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -60,15 +60,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     initialLocation: '/schedule',
     routes: [
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
 
-      // fullscreen focus route
       GoRoute(
         path: '/practice/session',
         builder: (context, state) => const PracticeSessionScreen(),
       ),
 
-      // solutions filter flow
       GoRoute(
         path: '/solutions/subjects',
         builder: (context, state) => const SolutionsSubjectScreen(),
@@ -86,7 +87,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SolutionsQuestionsScreen(),
       ),
 
-      // fullscreen DM routes (outside shell chrome)
+      GoRoute(
+        path: '/messages',
+        builder: (context, state) =>
+            const AppShell(child: MessagesInboxScreen()),
+      ),
       GoRoute(
         path: '/messages/request/:id',
         builder: (context, state) => MessageRequestScreen(
@@ -100,14 +105,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // shell routes with top + bottom bars
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          GoRoute(
-            path: '/messages',
-            builder: (context, state) => const MessagesInboxScreen(),
-          ),
           GoRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),

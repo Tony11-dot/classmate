@@ -189,7 +189,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
                             maxHeight: maxPreviewHeight,
