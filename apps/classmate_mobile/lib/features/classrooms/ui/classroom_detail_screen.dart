@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
@@ -624,52 +625,34 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     Widget? previewBubble,
     int? voiceDurationSeconds,
   }) async {
-    await showGeneralDialog<void>(
-      context: context,
-      useRootNavigator: false,
-      barrierDismissible: true,
-      barrierLabel: 'Message info',
-      barrierColor: Colors.black.withValues(alpha: 0.14),
-      transitionDuration: const Duration(milliseconds: 220),
-      pageBuilder: (_, __, ___) => ChatMessageInfoPage(
-        info: ChatMessageInfo(
-          title: 'Message info',
-          sentAt: sentAt,
-          deliveredAt: '',
-          seenAt: '',
-          delivered: false,
-          seen: false,
-          edited: edited,
-          forwarded: forwarded,
-          deleteState: deleteState,
-          isMine: isMine,
-          messageType: _classroomKindInfoLabel(kind),
-          voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
-        ),
-        previewTitle: previewTitle,
-        previewBody: previewBody,
-        previewMeta: previewMeta,
-        seenByNames: const <String>[],
-        deliveredToNames: const <String>[],
-        previewBubble: previewBubble,
-      ),
-      transitionBuilder: (_, animation, __, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.035, 0),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
+    if (!mounted) return;
+    final nav = Navigator.of(context);
+
+    await nav.push(
+      CupertinoPageRoute<void>(
+        builder: (_) => ChatMessageInfoPage(
+          info: ChatMessageInfo(
+            title: 'Message info',
+            sentAt: sentAt,
+            deliveredAt: '',
+            seenAt: '',
+            delivered: false,
+            seen: false,
+            edited: edited,
+            forwarded: forwarded,
+            deleteState: deleteState,
+            isMine: isMine,
+            messageType: _classroomKindInfoLabel(kind),
+            voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
           ),
-        );
-      },
+          previewTitle: previewTitle,
+          previewBody: previewBody,
+          previewMeta: previewMeta,
+          previewBubble: previewBubble,
+          seenByNames: const <String>[],
+          deliveredToNames: const <String>[],
+        ),
+      ),
     );
   }
 
