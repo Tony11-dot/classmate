@@ -21,6 +21,8 @@ import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
 import '../features/messages/ui/message_thread_screen.dart';
 import '../features/messages/ui/messages_inbox_screen.dart';
+import '../features/chat_core/ui/chat_message_info_model.dart';
+import '../features/chat_core/ui/chat_message_info_page.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -103,6 +105,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MessageThreadScreen(
           threadId: state.pathParameters['id']!,
         ),
+        routes: [
+          GoRoute(
+            path: 'info',
+            builder: (context, state) {
+              final args = state.extra as ChatMessageInfoRouteArgs;
+              return ChatMessageInfoPage(
+                info: args.info,
+                previewTitle: args.previewTitle,
+                previewBody: args.previewBody,
+                previewMeta: args.previewMeta,
+                previewBubble: args.previewBubble,
+                previewBubbleBuilder: args.previewBubbleBuilder,
+                seenByNames: args.seenByNames,
+                deliveredToNames: args.deliveredToNames,
+              );
+            },
+          ),
+        ],
       ),
 
       ShellRoute(
