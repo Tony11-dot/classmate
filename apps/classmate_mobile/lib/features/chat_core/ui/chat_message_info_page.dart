@@ -184,7 +184,7 @@ class ChatMessageInfoPage extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxPreviewHeight = constraints.maxHeight * 0.48;
+                  final maxPreviewHeight = (constraints.maxHeight * 0.48).clamp(180.0, 320.0);
 
                   return Column(
                     children: [

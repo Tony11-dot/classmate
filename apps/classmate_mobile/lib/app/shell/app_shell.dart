@@ -75,7 +75,7 @@ class AppShell extends ConsumerWidget {
 
     return Scaffold(
       extendBody: true,
-      drawerEnableOpenDragGesture: true,
+      drawerEnableOpenDragGesture: !hideTopBar,
       drawer: hideTopBar ? null : const MainDrawer(),
       appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
       body: child,

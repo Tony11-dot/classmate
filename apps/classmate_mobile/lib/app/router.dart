@@ -86,6 +86,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SolutionsQuestionsScreen(),
       ),
 
+      // fullscreen DM routes (outside shell chrome)
+      GoRoute(
+        path: '/messages/request/:id',
+        builder: (context, state) => MessageRequestScreen(
+          threadId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/messages/:id',
+        builder: (context, state) => MessageThreadScreen(
+          threadId: state.pathParameters['id']!,
+        ),
+      ),
+
       // shell routes with top + bottom bars
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
@@ -93,20 +107,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/messages',
             builder: (context, state) => const MessagesInboxScreen(),
-            routes: [
-              GoRoute(
-                path: 'request/:id',
-                builder: (context, state) => MessageRequestScreen(
-                  threadId: state.pathParameters['id']!,
-                ),
-              ),
-              GoRoute(
-                path: ':id',
-                builder: (context, state) => MessageThreadScreen(
-                  threadId: state.pathParameters['id']!,
-                ),
-              ),
-            ],
           ),
           GoRoute(
             path: '/schedule',
