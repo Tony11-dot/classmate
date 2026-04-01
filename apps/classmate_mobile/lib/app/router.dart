@@ -91,23 +91,27 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       GoRoute(
         path: '/messages',
+        name: 'messages_inbox',
         builder: (context, state) =>
             const AppShell(child: MessagesInboxScreen()),
       ),
       GoRoute(
         path: '/messages/request/:id',
+        name: 'message_request',
         builder: (context, state) => MessageRequestScreen(
           threadId: state.pathParameters['id']!,
         ),
       ),
       GoRoute(
         path: '/messages/:id',
+        name: 'dm_thread',
         builder: (context, state) => MessageThreadScreen(
           threadId: state.pathParameters['id']!,
         ),
         routes: [
           GoRoute(
             path: 'info',
+            name: 'dm_info',
             builder: (context, state) {
               final args = state.extra as ChatMessageInfoRouteArgs;
               return ChatMessageInfoPage(

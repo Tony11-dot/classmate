@@ -192,9 +192,15 @@ class _InboxRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           onTap: () {
             if (isRequest) {
-              context.go('/messages/request/${item.id}');
+              context.pushNamed(
+                'message_request',
+                pathParameters: {'id': item.id},
+              );
             } else {
-              context.go('/messages/${item.id}');
+              context.pushNamed(
+                'dm_thread',
+                pathParameters: {'id': item.id},
+              );
             }
           },
           child: Container(

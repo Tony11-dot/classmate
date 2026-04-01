@@ -46,7 +46,10 @@ class MessageRequestScreen extends ConsumerWidget {
                   ref.invalidate(messagesInboxProvider);
                   ref.invalidate(messageRequestProvider(threadId));
                   if (!context.mounted) return;
-                  context.go('/messages/${detail.id}');
+                  context.pushReplacementNamed(
+                    'dm_thread',
+                    pathParameters: {'id': detail.id},
+                  );
                 },
                 onBlock: () async {
                   await repo.blockRequest(threadId: detail.id);
