@@ -17,10 +17,10 @@ import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_message_info_model.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
-import '../../chat_core/ui/chat_message_info_model.dart';
 
 class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ForwardTargetPickerSheet({required this.currentThreadId});
@@ -554,13 +554,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         replySnippet: row.replyPreview?.text,
         mediaMimeType: row.mediaMimeType,
         messageKind: row.kind,
-        maxWidth: 228,
+        maxWidth: 236,
       ),
       seenByNames: const <String>[],
       deliveredToNames: const <String>[],
     );
 
-    await context.push('info', extra: infoArgs);
+    await context.pushNamed(
+      'dm_info',
+      pathParameters: {'id': widget.threadId},
+      extra: infoArgs,
+    );
   }
 
   Future<void> _editMessage(MessageItem row) async {
