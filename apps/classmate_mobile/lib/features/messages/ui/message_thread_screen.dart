@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,7 +20,7 @@ import '../../chat_core/ui/chat_message_actions_sheet.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
-import '../../chat_core/ui/chat_message_info_page.dart';
+import '../../chat_core/ui/chat_message_info_model.dart';
 
 class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ForwardTargetPickerSheet({required this.currentThreadId});
@@ -510,61 +510,57 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Future<void> _showMessageInfo(MessageItem row) async {
     if (!mounted) return;
 
-    final navigator = Navigator.of(context);
-
-    await navigator.push(
-      CupertinoPageRoute<void>(
-        builder: (_) => ChatMessageInfoPage(
-          info: ChatMessageInfo(
-            title: 'Message info',
-            sentAt: row.timeLabel,
-            deliveredAt: row.isMine ? row.deliveredAt : '',
-            seenAt: row.isMine ? row.seenAt : '',
-            delivered: row.isMine ? row.delivered : false,
-            seen: row.isMine ? row.seen : false,
-            edited: row.edited,
-            forwarded: row.forwarded,
-            deleteState: row.deleteState,
-            isMine: row.isMine,
-            messageType: _kindInfoLabel(row),
-            voiceDuration:
-                row.kind.trim().toUpperCase() == 'VOICE' &&
-                        row.voiceDurationSeconds != null &&
-                        row.voiceDurationSeconds! > 0
-                    ? _fmtDuration(row.voiceDurationSeconds!)
-                    : '',
-          ),
-          previewTitle: row.isMine ? 'You' : row.senderName,
-          previewBody: row.text.trim(),
-          previewMeta: row.timeLabel,
-          previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-            contextForNavigation: infoContext,
-            rawText: row.text,
-            mediaUrl: row.mediaUrl ?? '',
-            isMine: row.isMine,
-            showName: false,
-            senderLabel: row.senderName,
-            timeLabel: row.timeLabel,
-            edited: row.edited,
-            reaction: row.reaction,
-            forwarded: row.forwarded,
-            delivered: row.delivered,
-            seen: row.seen,
-            deleteState: row.deleteState,
-            voiceDurationSeconds: row.voiceDurationSeconds,
-            voiceUnread: false,
-            onVoicePlayed: null,
-            replySender: row.replyPreview?.senderName,
-            replySnippet: row.replyPreview?.text,
-            mediaMimeType: row.mediaMimeType,
-            messageKind: row.kind,
-            maxWidth: 248,
-          ),
-          seenByNames: const <String>[],
-          deliveredToNames: const <String>[],
-        ),
+    final infoArgs = ChatMessageInfoRouteArgs(
+      info: ChatMessageInfo(
+        title: 'Message info',
+        sentAt: row.timeLabel,
+        deliveredAt: row.isMine ? row.deliveredAt : '',
+        seenAt: row.isMine ? row.seenAt : '',
+        delivered: row.isMine ? row.delivered : false,
+        seen: row.isMine ? row.seen : false,
+        edited: row.edited,
+        forwarded: row.forwarded,
+        deleteState: row.deleteState,
+        isMine: row.isMine,
+        messageType: _kindInfoLabel(row),
+        voiceDuration:
+            row.kind.trim().toUpperCase() == 'VOICE' &&
+                    row.voiceDurationSeconds != null &&
+                    row.voiceDurationSeconds! > 0
+                ? _fmtDuration(row.voiceDurationSeconds!)
+                : '',
       ),
+      previewTitle: row.isMine ? 'You' : row.senderName,
+      previewBody: row.text.trim(),
+      previewMeta: row.timeLabel,
+      previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+        contextForNavigation: infoContext,
+        rawText: row.text,
+        mediaUrl: row.mediaUrl ?? '',
+        isMine: row.isMine,
+        showName: false,
+        senderLabel: row.senderName,
+        timeLabel: row.timeLabel,
+        edited: row.edited,
+        reaction: row.reaction,
+        forwarded: row.forwarded,
+        delivered: row.delivered,
+        seen: row.seen,
+        deleteState: row.deleteState,
+        voiceDurationSeconds: row.voiceDurationSeconds,
+        voiceUnread: false,
+        onVoicePlayed: null,
+        replySender: row.replyPreview?.senderName,
+        replySnippet: row.replyPreview?.text,
+        mediaMimeType: row.mediaMimeType,
+        messageKind: row.kind,
+        maxWidth: 236,
+      ),
+      seenByNames: const <String>[],
+      deliveredToNames: const <String>[],
     );
+
+    await context.push('/messages/${widget.threadId}/info', extra: infoArgs);
   }
 
   Future<void> _editMessage(MessageItem row) async {
