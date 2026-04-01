@@ -620,32 +620,56 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String previewTitle,
     required String previewBody,
     String previewMeta = '',
+    String previewMediaUrl = '',
+    Widget? previewBubble,
     int? voiceDurationSeconds,
   }) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChatMessageInfoPage(
-          info: ChatMessageInfo(
-            title: 'Message info',
-            sentAt: sentAt,
-            deliveredAt: '',
-            seenAt: '',
-            delivered: false,
-            seen: false,
-            edited: edited,
-            forwarded: forwarded,
-            deleteState: deleteState,
-            isMine: isMine,
-            messageType: _classroomKindInfoLabel(kind),
-            voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
-          ),
-          previewTitle: previewTitle,
-          previewBody: previewBody,
-          previewMeta: previewMeta,
-          seenByNames: const <String>[],
-          deliveredToNames: const <String>[],
+    await showGeneralDialog<void>(
+      context: context,
+      useRootNavigator: false,
+      barrierDismissible: true,
+      barrierLabel: 'Message info',
+      barrierColor: Colors.black.withValues(alpha: 0.14),
+      transitionDuration: const Duration(milliseconds: 220),
+      pageBuilder: (_, __, ___) => ChatMessageInfoPage(
+        info: ChatMessageInfo(
+          title: 'Message info',
+          sentAt: sentAt,
+          deliveredAt: '',
+          seenAt: '',
+          delivered: false,
+          seen: false,
+          edited: edited,
+          forwarded: forwarded,
+          deleteState: deleteState,
+          isMine: isMine,
+          messageType: _classroomKindInfoLabel(kind),
+          voiceDuration: _fmtInfoDurationSeconds(voiceDurationSeconds),
         ),
+        previewTitle: previewTitle,
+        previewBody: previewBody,
+        previewMeta: previewMeta,
+        seenByNames: const <String>[],
+        deliveredToNames: const <String>[],
+        previewBubble: previewBubble,
       ),
+      transitionBuilder: (_, animation, __, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.035, 0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -1158,6 +1182,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             : '(empty)')
             : editableBodyText(text),
         previewMeta: timeLabel,
+        previewMediaUrl: mediaUrl,
       );
       return;
     }
@@ -2695,6 +2720,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             : '(empty)')
             : editableBodyText(text),
         previewMeta: timeLabel,
+        previewMediaUrl: mediaUrl,
       );
       return;
     }
@@ -3127,6 +3153,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                                         : '(empty)')
                                         : messageText,
                                     previewMeta: _friendlyTime(createdRaw),
+                                    previewMediaUrl: mediaUrl,
                                     voiceDurationSeconds: durationSec,
                                   );
                                 } else if (current >= 34) {
