@@ -510,9 +510,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Future<void> _showMessageInfo(MessageItem row) async {
     if (!mounted) return;
 
-    final nav = Navigator.of(context);
+    final navigator = Navigator.of(context);
 
-    await nav.push(
+    await navigator.push(
       CupertinoPageRoute<void>(
         builder: (_) => ChatMessageInfoPage(
           info: ChatMessageInfo(
@@ -529,10 +529,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             messageType: _kindInfoLabel(row),
             voiceDuration:
                 row.kind.trim().toUpperCase() == 'VOICE' &&
-                    row.voiceDurationSeconds != null &&
-                    row.voiceDurationSeconds! > 0
-                ? _fmtDuration(row.voiceDurationSeconds!)
-                : '',
+                        row.voiceDurationSeconds != null &&
+                        row.voiceDurationSeconds! > 0
+                    ? _fmtDuration(row.voiceDurationSeconds!)
+                    : '',
           ),
           previewTitle: row.isMine ? 'You' : row.senderName,
           previewBody: row.text.trim(),
@@ -558,7 +558,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             replySnippet: row.replyPreview?.text,
             mediaMimeType: row.mediaMimeType,
             messageKind: row.kind,
-            maxWidth: 280,
+            maxWidth: 248,
           ),
           seenByNames: const <String>[],
           deliveredToNames: const <String>[],
