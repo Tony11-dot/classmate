@@ -8,7 +8,6 @@ class ChatMessageInfoRouteArgs {
     this.previewTitle = '',
     this.previewBody = '',
     this.previewMeta = '',
-    this.previewBubble,
     this.previewBubbleBuilder,
     this.seenByNames = const <String>[],
     this.deliveredToNames = const <String>[],
@@ -18,7 +17,6 @@ class ChatMessageInfoRouteArgs {
   final String previewTitle;
   final String previewBody;
   final String previewMeta;
-  final Widget? previewBubble;
   final WidgetBuilder? previewBubbleBuilder;
   final List<String> seenByNames;
   final List<String> deliveredToNames;

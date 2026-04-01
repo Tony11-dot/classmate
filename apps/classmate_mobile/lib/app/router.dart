@@ -115,7 +115,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 previewTitle: args.previewTitle,
                 previewBody: args.previewBody,
                 previewMeta: args.previewMeta,
-                previewBubble: args.previewBubble,
                 previewBubbleBuilder: args.previewBubbleBuilder,
                 seenByNames: args.seenByNames,
                 deliveredToNames: args.deliveredToNames,
