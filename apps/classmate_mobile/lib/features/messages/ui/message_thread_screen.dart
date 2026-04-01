@@ -534,7 +534,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       maxWidth: 280,
     );
 
-    final nav = Navigator.of(context, rootNavigator: true);
+    final nav = Navigator.of(context);
 
     await nav.push(
       CupertinoPageRoute<void>(
