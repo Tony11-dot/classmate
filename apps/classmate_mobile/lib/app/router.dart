@@ -21,8 +21,6 @@ import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
 import '../features/messages/ui/message_thread_screen.dart';
 import '../features/messages/ui/messages_inbox_screen.dart';
-import '../features/chat_core/ui/chat_message_info_model.dart';
-import '../features/chat_core/ui/chat_message_info_page.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -32,6 +30,8 @@ import '../features/solutions/ui/filter/solutions_books_screen.dart';
 import '../features/solutions/ui/filter/solutions_pages_screen.dart';
 import '../features/solutions/ui/filter/solutions_questions_screen.dart';
 import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/chat_core/ui/chat_message_info_model.dart';
+import '../features/chat_core/ui/chat_message_info_page.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
 
