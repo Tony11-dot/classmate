@@ -10,6 +10,7 @@ class ChatMessageInfoPage extends StatelessWidget {
     this.previewBody = '',
     this.previewMeta = '',
     this.previewBubble,
+    this.previewBubbleBuilder,
     this.seenByNames = const <String>[],
     this.deliveredToNames = const <String>[],
   });
@@ -19,6 +20,7 @@ class ChatMessageInfoPage extends StatelessWidget {
   final String previewBody;
   final String previewMeta;
   final Widget? previewBubble;
+  final WidgetBuilder? previewBubbleBuilder;
   final List<String> seenByNames;
   final List<String> deliveredToNames;
 
@@ -140,6 +142,8 @@ class ChatMessageInfoPage extends StatelessWidget {
       body: previewBody.trim(),
       meta: previewMeta.trim(),
     );
+    final resolvedPreview =
+        previewBubbleBuilder?.call(context) ?? previewBubble ?? fallbackPreview;
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -196,7 +200,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                               alignment: info.isMine
                                   ? Alignment.topRight
                                   : Alignment.topLeft,
-                              child: previewBubble ?? fallbackPreview,
+                              child: resolvedPreview,
                             ),
                           ),
                         ),
@@ -333,32 +337,34 @@ class _ThreadPreviewBubble extends StatefulWidget {
 }
 
 class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
-  static const int _truncateAt = 320;
+  static const int _truncateAt = 420;
   bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
-    final fullText = widget.body.trim().isEmpty ? '(empty)' : widget.body.trim();
-    final shouldTruncate = fullText.length > _truncateAt;
+
+    final body = widget.body.trim().isEmpty ? '(empty)' : widget.body.trim();
+    final shouldTruncate = body.length > _truncateAt;
     final visibleText = shouldTruncate && !_expanded
-        ? '${fullText.substring(0, _truncateAt).trimRight()}…'
-        : fullText;
+        ? '${body.substring(0, _truncateAt).trimRight()}…'
+        : body;
 
     final bubbleColor = widget.isMine
         ? scheme.primaryContainer
-        : scheme.surfaceContainerHighest.withValues(alpha: 0.72);
+        : scheme.surfaceContainerHighest;
     final bodyColor = widget.isMine
         ? scheme.onPrimaryContainer
         : scheme.onSurface;
-    final metaColor = widget.isMine
-        ? scheme.onPrimaryContainer.withValues(alpha: 0.72)
-        : scheme.onSurfaceVariant;
+    final metaColor = (widget.isMine
+            ? scheme.onPrimaryContainer
+            : scheme.onSurfaceVariant)
+        .withValues(alpha: 0.82);
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 320),
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
       decoration: BoxDecoration(
         color: bubbleColor,
         borderRadius: BorderRadius.only(
@@ -367,19 +373,19 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
           bottomLeft: Radius.circular(widget.isMine ? 18 : 6),
           bottomRight: Radius.circular(widget.isMine ? 6 : 18),
         ),
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.12),
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (widget.senderLabel.isNotEmpty && !widget.isMine) ...[
-            Text(
-              widget.senderLabel,
-              style: text.labelLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: scheme.primary,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.senderLabel,
+                style: text.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: scheme.primary,
+                ),
               ),
             ),
             const SizedBox(height: 6),
