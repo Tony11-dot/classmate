@@ -230,7 +230,7 @@ Widget sessionProgressStrip(ModeContextData d) {
           const SizedBox(width: 10),
           AnimatedContainer(
             duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
+            curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: d.accent.withValues(alpha: streakActive ? 0.16 : 0.08),
@@ -389,7 +389,7 @@ class ModeAnswerTile extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 280),
-          curve: Curves.easeOut,
+          curve: Curves.easeOutCubic,
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
           decoration: BoxDecoration(
             color: revealed

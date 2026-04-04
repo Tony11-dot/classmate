@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../domain/message_thread_models.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 abstract class MessagesRepository {
   Future<List<MessageThreadSummary>> fetchInbox();
@@ -150,6 +151,46 @@ class ApiMessagesRepository implements MessagesRepository {
     }
   }
 
+
+  // ignore: unused_element
+  String _pickFirstNonEmpty(dynamic json, List<String> keys) {
+    if (json is! Map) return '';
+    for (final key in keys) {
+      final value = (json[key] ?? '').toString().trim();
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  String _digString(dynamic root, List<String> path) {
+    dynamic current = root;
+    for (final part in path) {
+      if (current is Map) {
+        current = current[part];
+      } else {
+        return '';
+      }
+    }
+    return (current ?? '').toString().trim();
+  }
+
+  String _pickDeepFirstNonEmpty(dynamic json, List<List<String>> paths) {
+    for (final path in paths) {
+      final value = _digString(json, path);
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  DateTime _parseServerishDate(String raw) {
+    return parseChatTimestamp(raw) ?? DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  String _formatDmMessageTime(DateTime? dt, String fallback) {
+    if (dt == null) return fallback.trim();
+    return formatChatTime12(dt);
+  }
+
   ChatRequestState _requestState(String raw) {
     switch (raw.trim().toUpperCase()) {
       case 'PENDING_INCOMING':
@@ -167,6 +208,42 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   MessageThreadSummary _summaryFromJson(Map<String, dynamic> json) {
+    final rawLastMessageAt = _pickDeepFirstNonEmpty(json, const [
+      ['lastMessageCreatedAt'],
+      ['lastMessageSentAt'],
+      ['lastActivityAt'],
+      ['updatedAt'],
+      ['createdAt'],
+      ['updated_at'],
+      ['created_at'],
+      ['last_activity_at'],
+      ['last_message_created_at'],
+      ['last_message_sent_at'],
+      ['lastMessage', 'createdAt'],
+      ['lastMessage', 'sentAt'],
+      ['lastMessage', 'updatedAt'],
+      ['lastMessage', 'created_at'],
+      ['lastMessage', 'sent_at'],
+      ['lastMessage', 'updated_at'],
+      ['message', 'createdAt'],
+      ['message', 'sentAt'],
+      ['message', 'updatedAt'],
+      ['message', 'created_at'],
+      ['message', 'sent_at'],
+      ['message', 'updated_at'],
+      ['meta', 'createdAt'],
+      ['meta', 'sentAt'],
+      ['meta', 'updatedAt'],
+      ['meta', 'created_at'],
+      ['meta', 'sent_at'],
+      ['meta', 'updated_at'],
+      ['lastMessageAtRaw'],
+      ['lastMessageAt'],
+      ['last_message_at'],
+    ]);
+    final parsedLastMessageAt = parseChatTimestamp(rawLastMessageAt) ??
+        parseChatTimestamp((json['lastMessageAt'] ?? '').toString());
+
     return MessageThreadSummary(
       id: (json['id'] ?? '').toString(),
       type: _threadType((json['type'] ?? '').toString()),
@@ -177,7 +254,11 @@ class ApiMessagesRepository implements MessagesRepository {
       unreadCount: (json['unreadCount'] ?? 0) is int
           ? (json['unreadCount'] ?? 0) as int
           : int.tryParse((json['unreadCount'] ?? '0').toString()) ?? 0,
-      lastMessageAt: (json['lastMessageAt'] ?? '').toString(),
+      lastMessageAt: formatChatInboxTrailingLabel(
+        parsedLastMessageAt,
+        fallback: (json['lastMessageAt'] ?? '').toString(),
+      ),
+      lastMessageAtRaw: rawLastMessageAt,
       requestState: _requestState((json['requestState'] ?? '').toString()),
       initials: (json['initials'] ?? '').toString(),
       groupAvatarUrl: (json['groupAvatarUrl'] ?? '').toString().trim().isEmpty
@@ -213,13 +294,40 @@ class ApiMessagesRepository implements MessagesRepository {
   MessageItem _messageFromJson(Map<String, dynamic> json) {
     final rawMedia = (json['mediaUrl'] ?? '').toString().trim();
     final rawReply = (json['replyToMessageId'] ?? '').toString().trim();
+    final originalTimeLabel = (json['timeLabel'] ?? '').toString();
+    final rawSentAt = _pickDeepFirstNonEmpty(json, const [
+      ['sentAtRaw'],
+      ['sentAt'],
+      ['createdAt'],
+      ['updatedAt'],
+      ['sent_at'],
+      ['created_at'],
+      ['updated_at'],
+      ['message', 'createdAt'],
+      ['message', 'sentAt'],
+      ['message', 'updatedAt'],
+      ['message', 'sent_at'],
+      ['message', 'created_at'],
+      ['message', 'updated_at'],
+      ['meta', 'createdAt'],
+      ['meta', 'sentAt'],
+      ['meta', 'updatedAt'],
+      ['meta', 'sent_at'],
+      ['meta', 'created_at'],
+      ['meta', 'updated_at'],
+    ]);
+    final parsedSentAt =
+        parseChatTimestamp(rawSentAt) ?? parseChatTimestamp(originalTimeLabel);
 
     return MessageItem(
       id: (json['id'] ?? '').toString(),
       senderId: (json['senderId'] ?? '').toString(),
       senderName: (json['senderName'] ?? '').toString(),
       text: (json['text'] ?? '').toString(),
-      timeLabel: (json['timeLabel'] ?? '').toString(),
+      timeLabel: _formatDmMessageTime(parsedSentAt, originalTimeLabel),
+      sentAtRaw: rawSentAt.isNotEmpty
+          ? rawSentAt
+          : (parseChatTimestamp(originalTimeLabel) != null ? originalTimeLabel : ''),
       isMine: (json['isMine'] ?? false) == true,
       reaction: (json['reaction'] ?? '').toString().trim().isEmpty
           ? null
@@ -261,6 +369,18 @@ class ApiMessagesRepository implements MessagesRepository {
         ? json['messages'] as List
         : const [];
 
+    final messages = messagesRaw
+        .whereType<Map>()
+        .map((item) => _messageFromJson(Map<String, dynamic>.from(item)))
+        .toList()
+      ..sort((a, b) {
+        final ad = _parseServerishDate(a.sentAtRaw);
+        final bd = _parseServerishDate(b.sentAtRaw);
+        final byDate = ad.compareTo(bd);
+        if (byDate != 0) return byDate;
+        return a.id.compareTo(b.id);
+      });
+
     return MessageThreadDetail(
       id: (json['id'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
@@ -271,10 +391,7 @@ class ApiMessagesRepository implements MessagesRepository {
           .whereType<Map>()
           .map((item) => _participantFromJson(Map<String, dynamic>.from(item)))
           .toList(),
-      messages: messagesRaw
-          .whereType<Map>()
-          .map((item) => _messageFromJson(Map<String, dynamic>.from(item)))
-          .toList(),
+      messages: messages,
       canSend: (json['canSend'] ?? true) == true,
     );
   }

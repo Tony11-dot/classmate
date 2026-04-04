@@ -70,7 +70,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             const SizedBox(height: 16),
             AnimatedContainer(
               duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOut,
+              curve: Curves.easeOutCubic,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest.withValues(alpha: 0.45),

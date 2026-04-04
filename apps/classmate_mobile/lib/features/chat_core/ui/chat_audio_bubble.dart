@@ -200,7 +200,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         : Colors.white.withValues(alpha: widget.isUnread ? 0.78 : 0.40);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 140),
+      duration: const Duration(milliseconds: 180),
       width: 3,
       height: h,
       decoration: BoxDecoration(
@@ -217,6 +217,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final resolvedDuration = _duration > Duration.zero
@@ -229,6 +230,62 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final progress = posMs / totalMs;
     final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
 
+    final speedChip = InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: _cycleVoiceSpeed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          speedLabel,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+
+    final timeRow = Row(
+      children: [
+        Flexible(
+          child: Text(
+            _fmt(_position),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.70),
+              fontSize: 10,
+              fontWeight: unreadDot ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              _fmt(resolvedDuration),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.70),
+                fontSize: 10,
+                fontWeight: unreadDot ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -240,13 +297,15 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: unreadDot
-                    ? Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.45)
+                    ? Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.45)
                     : Colors.white.withValues(alpha: 0.05),
               ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 InkWell(
                   borderRadius: BorderRadius.circular(999),
@@ -288,85 +347,46 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: (details) {
-                          final box = context.findRenderObject() as RenderBox?;
-                          if (box == null) return;
-                          final local = box.globalToLocal(
-                            details.globalPosition,
-                          );
-                          final ratio = (local.dx / math.max(1, box.size.width))
-                              .clamp(0.0, 1.0);
-                          _seekToRatio(ratio);
-                        },
-                        child: SizedBox(
-                          height: 22,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: List.generate(
-                              28,
-                              (index) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 1,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final usableWidth = constraints.maxWidth.clamp(48.0, 10000.0);
+                          final barCount = math.max(10, (usableWidth / 6).floor());
+
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTapDown: (details) {
+                              final box = context.findRenderObject() as RenderBox?;
+                              if (box == null) return;
+                              final local = box.globalToLocal(details.globalPosition);
+                              final ratio =
+                                  (local.dx / math.max(1, box.size.width)).clamp(0.0, 1.0);
+                              _seekToRatio(ratio);
+                            },
+                            child: SizedBox(
+                              height: 22,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: List.generate(
+                                  barCount,
+                                  (index) => Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                                    child: _waveBar(context, index, progress),
+                                  ),
                                 ),
-                                child: _waveBar(context, index, progress),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Text(
-                            _fmt(_position),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.70),
-                              fontSize: 10,
-                              fontWeight: unreadDot
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            _fmt(resolvedDuration),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.70),
-                              fontSize: 10,
-                              fontWeight: unreadDot
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                      timeRow,
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: _cycleVoiceSpeed,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      speedLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+                Flexible(
+                  flex: 0,
+                  child: speedChip,
                 ),
               ],
             ),

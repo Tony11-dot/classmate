@@ -440,7 +440,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           _scroll.animateTo(
             _scroll.position.maxScrollExtent + 120,
             duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
+            curve: Curves.easeOutCubic,
           );
         });
       }
@@ -791,7 +791,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         _scroll.animateTo(
           pos,
           duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
+          curve: Curves.easeOutCubic,
         );
       }
     });
@@ -1211,7 +1211,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       showCamera: true,
       showAttach: true,
       showMic: true,
-      forceMicOnlyTap: true,
     );
   }
 
@@ -1246,7 +1245,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                               _scroll.animateTo(
                                 _scroll.position.maxScrollExtent + 120,
                                 duration: const Duration(milliseconds: 240),
-                                curve: Curves.easeOut,
+                                curve: Curves.easeOutCubic,
                               );
                             },
                             child: const Icon(
