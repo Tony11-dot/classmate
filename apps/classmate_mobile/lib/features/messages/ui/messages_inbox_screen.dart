@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
   const MessagesInboxScreen({super.key});
@@ -14,6 +15,53 @@ class MessagesInboxScreen extends ConsumerStatefulWidget {
 
 class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   final TextEditingController _searchCtl = TextEditingController();
+
+
+  DateTime? _parseInboxTimestamp(String raw) {
+    return parseChatTimestamp(raw);
+  }
+
+  String _threadTimestamp(MessageThreadSummary item) {
+    final raw = item.lastMessageAtRaw.trim();
+    if (raw.isNotEmpty) return raw;
+    return item.lastMessageAt.trim();
+  }
+
+  void _sortInboxByRecency(List<MessageThreadSummary> items) {
+    final indexed = items.asMap().entries.toList();
+
+    indexed.sort((a, b) {
+      final ad = _parseInboxTimestamp(_threadTimestamp(a.value));
+      final bd = _parseInboxTimestamp(_threadTimestamp(b.value));
+
+      if (ad != null && bd != null) {
+        final byDate = bd.compareTo(ad);
+        if (byDate != 0) return byDate;
+      } else if (ad != null) {
+        return -1;
+      } else if (bd != null) {
+        return 1;
+      }
+
+      // preserve server order when raw timestamps are missing/ambiguous
+      return a.key.compareTo(b.key);
+    });
+
+    final sorted = indexed.map((e) => e.value).toList(growable: false)
+      ..forEach((_) {});
+    items
+      ..clear()
+      ..addAll(sorted);
+  }
+
+
+  String _formatInboxTrailingLabel(MessageThreadSummary item) {
+    return formatChatInboxTrailingLabel(
+      item.lastMessageDate,
+      fallback: item.lastMessageAt.trim(),
+    );
+  }
+
 
   @override
   void dispose() {
@@ -27,46 +75,9 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
     final query = _searchCtl.text.trim().toLowerCase();
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Messages',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.edit_rounded),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: TextField(
-                controller: _searchCtl,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'Search messages',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: inbox.when(
+        child: inbox.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) => Center(
                   child: Text('Failed to load messages: $error'),
@@ -85,6 +96,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                   final chats = filtered
                       .where((item) => !item.requestState.name.startsWith('pending'))
                       .toList();
+                  _sortInboxByRecency(chats);
 
                   if (filtered.isEmpty) {
                     return RefreshIndicator(
@@ -93,7 +105,43 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         await ref.read(messagesInboxProvider.future);
                       },
                       child: ListView(
-                        children: const [
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Messages',
+                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.add_rounded),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: TextField(
+                              controller: _searchCtl,
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                hintText: 'Search messages',
+                                prefixIcon: const Icon(Icons.search_rounded),
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                          ),
                           SizedBox(height: 180),
                           Center(child: Text('No messages found')),
                         ],
@@ -107,14 +155,50 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                       await ref.read(messagesInboxProvider.future);
                     },
                     child: ListView(
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Messages',
+                                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.add_rounded),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                          child: TextField(
+                            controller: _searchCtl,
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              hintText: 'Search messages',
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
                         if (requests.isNotEmpty) ...[
                           const _SectionHeader(
                             title: 'Requests',
                             subtitle: 'Pending approvals',
                           ),
-                          ...requests.map((item) => _InboxRow(item: item)),
+                          ...requests.map((item) => _InboxRow(item: item, trailingLabel: _formatInboxTrailingLabel(item))),
                           const SizedBox(height: 8),
                         ],
                         if (chats.isNotEmpty) ...[
@@ -122,16 +206,13 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                             title: requests.isEmpty ? 'Chats' : 'All chats',
                             subtitle: '${chats.length} conversation${chats.length == 1 ? '' : 's'}',
                           ),
-                          ...chats.map((item) => _InboxRow(item: item)),
+                          ...chats.map((item) => _InboxRow(item: item, trailingLabel: _formatInboxTrailingLabel(item))),
                         ],
                       ],
                     ),
                   );
                 },
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -173,16 +254,21 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _InboxRow extends StatelessWidget {
-  const _InboxRow({required this.item});
+  const _InboxRow({
+    required this.item,
+    required this.trailingLabel,
+  });
 
   final MessageThreadSummary item;
+  final String trailingLabel;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isRequest = item.requestState.name.startsWith('pending');
     final showUnread = item.unreadCount > 0;
-    final trailingText = item.lastMessageAt.trim();
+    final trailingText =
+        trailingLabel.trim().isEmpty ? item.lastMessageAt.trim() : trailingLabel.trim();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

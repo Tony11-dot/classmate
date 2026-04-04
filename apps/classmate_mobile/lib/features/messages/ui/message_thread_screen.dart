@@ -17,10 +17,10 @@ import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_info_page.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
-import '../../chat_core/ui/chat_message_info_model.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 class _ForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ForwardTargetPickerSheet({required this.currentThreadId});
@@ -322,10 +322,34 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Offset? _holdStartGlobal;
   double _holdDx = 0;
   double _holdDy = 0;
+  double _lastThreadInsetsBottom = 0;
+
+  bool _threadNearBottom([double threshold = 140]) {
+    if (!_scrollController.hasClients) return true;
+    final distance =
+        _scrollController.position.maxScrollExtent - _scrollController.position.pixels;
+    return distance <= threshold;
+  }
+
 
   Future<void> _refreshThread() async {
     ref.invalidate(messageThreadProvider(widget.threadId));
     ref.invalidate(messagesInboxProvider);
+  }
+
+
+  void _scrollToBottom({bool jump = false}) {
+    if (!_scrollController.hasClients) return;
+    final offset = _scrollController.position.maxScrollExtent;
+    if (jump) {
+      _scrollController.jumpTo(offset);
+      return;
+    }
+    _scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   String _kindInfoLabel(MessageItem row) {
@@ -343,6 +367,52 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       default:
         return 'Message';
     }
+  }
+
+
+
+  DateTime _parseThreadMessageDate(MessageItem row) {
+    return row.sentAtDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  bool _sameMessageDay(MessageItem a, MessageItem b) {
+    return sameLocalCalendarDay(a.sentAtDate, b.sentAtDate);
+  }
+
+
+
+  String _messageDaySeparatorLabel(MessageItem row) {
+    return formatChatDayChipLabel(
+      row.sentAtDate,
+      includeYear: true,
+      fallback: row.timeLabel.trim().isEmpty ? 'Earlier' : row.timeLabel.trim(),
+    );
+  }
+
+  Widget _buildDaySeparatorChip(BuildContext context, String label) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: scheme.outlineVariant.withValues(alpha: 0.20),
+            ),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   String _fmtDuration(int seconds) {
@@ -937,7 +1007,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (_sending || !detail.canSend) return;
     if (text.isEmpty) return;
 
-    final rows = detail.messages;
+    final rows = [...detail.messages]
+      ..sort((a, b) {
+        final ad = _parseThreadMessageDate(a);
+        final bd = _parseThreadMessageDate(b);
+        final byDate = ad.compareTo(bd);
+        if (byDate != 0) return byDate;
+        return a.id.compareTo(b.id);
+      });
     final replyToMessageId = _replyIndex == null ? null : rows[_replyIndex!].id;
 
     setState(() => _sending = true);
@@ -975,7 +1052,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   }) async {
     if (_sending || !detail.canSend) return;
 
-    final rows = detail.messages;
+    final rows = [...detail.messages]
+      ..sort((a, b) {
+        final ad = _parseThreadMessageDate(a);
+        final bd = _parseThreadMessageDate(b);
+        final byDate = ad.compareTo(bd);
+        if (byDate != 0) return byDate;
+        return a.id.compareTo(b.id);
+      });
     final replyToMessageId = _replyIndex == null ? null : rows[_replyIndex!].id;
 
     setState(() => _sending = true);
@@ -1435,7 +1519,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     BuildContext modalContext,
     MessageItem row,
   ) async {
-    Navigator.of(modalContext).pop();
     await _showMessageInfo(row);
   }
 
@@ -1533,7 +1616,19 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Widget build(BuildContext context) {
     final thread = ref.watch(messageThreadProvider(widget.threadId));
 
+    final threadInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+    if (threadInsetsBottom != _lastThreadInsetsBottom) {
+      _lastThreadInsetsBottom = threadInsetsBottom;
+      if (threadInsetsBottom > 0 && _threadNearBottom(220)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _scrollToBottom(jump: true);
+        });
+      }
+    }
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: thread.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -1550,7 +1645,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
               ref.invalidate(messagesInboxProvider);
             });
 
-            final rows = detail.messages;
+            final rows = [...detail.messages]
+      ..sort((a, b) {
+        final ad = _parseThreadMessageDate(a);
+        final bd = _parseThreadMessageDate(b);
+        final byDate = ad.compareTo(bd);
+        if (byDate != 0) return byDate;
+        return a.id.compareTo(b.id);
+      });
             _lastRows = rows;
 
             return Column(
@@ -1692,25 +1794,36 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   ),
                 Expanded(
                   child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 24),
                     itemCount: rows.length,
                     itemBuilder: (context, index) {
                       final row = rows[index];
+                      final showDaySeparator =
+                          index == 0 || !_sameMessageDay(rows[index - 1], row);
                       final startsGroup = _startsGroup(rows, index);
                       final endsGroup = _endsGroup(rows, index);
                       final swipeDx = _swipeDxByMessage[row.id] ?? 0.0;
 
-                      return Align(
-                        alignment: row.isMine
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: startsGroup ? 8 : 2,
-                            bottom: endsGroup ? 4 : 2,
-                          ),
-                          child: GestureDetector(
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (showDaySeparator)
+                            _buildDaySeparatorChip(
+                              context,
+                              _messageDaySeparatorLabel(row),
+                            ),
+                          Align(
+                            alignment: row.isMine
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: startsGroup ? 8 : 2,
+                                bottom: endsGroup ? 4 : 2,
+                              ),
+                              child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onHorizontalDragUpdate: (details) {
                               final current = _swipeDxByMessage[row.id] ?? 0.0;
@@ -1840,7 +1953,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
                               if (selected == 'info') {
                                 await _openMessageInfoSheet(
-                                  navigator.context,
+                                  this.context,
                                   row,
                                 );
                               }
@@ -1948,8 +2061,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 ],
                               ),
                             ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       );
                     },
                   ),

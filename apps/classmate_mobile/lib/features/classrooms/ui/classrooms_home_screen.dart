@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/classrooms_providers.dart';
 import 'classroom_detail_screen.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
   const ClassroomsHomeScreen({super.key});
@@ -217,6 +218,9 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
   }
 }
 
+
+
+
 class _ClassroomAppleCard extends ConsumerWidget {
   const _ClassroomAppleCard({required this.item, required this.onTap});
 
@@ -284,9 +288,27 @@ class _ClassroomAppleCard extends ConsumerWidget {
                         isUnread: false,
                       ),
                       data: (raw) {
-                        final messages = _normalizeChatList(raw);
-                        final latest = messages.isNotEmpty
-                            ? Map<String, dynamic>.from(messages.first)
+                        final sortedMessages = _normalizeChatList(raw)
+                          ..sort((a, b) {
+                            final ad = parseFirstChatTimestamp([
+                                  _s(a, 'createdAt'),
+                                  _s(a, 'sentAt'),
+                                  _s(a, 'updatedAt'),
+                                ]) ??
+                                DateTime.fromMillisecondsSinceEpoch(0);
+                            final bd = parseFirstChatTimestamp([
+                                  _s(b, 'createdAt'),
+                                  _s(b, 'sentAt'),
+                                  _s(b, 'updatedAt'),
+                                ]) ??
+                                DateTime.fromMillisecondsSinceEpoch(0);
+                            final byDate = bd.compareTo(ad);
+                            if (byDate != 0) return byDate;
+                            return _s(b, 'id').compareTo(_s(a, 'id'));
+                          });
+
+                        final latest = sortedMessages.isNotEmpty
+                            ? Map<String, dynamic>.from(sortedMessages.first)
                             : null;
 
                         final preview = latest == null
@@ -296,9 +318,11 @@ class _ClassroomAppleCard extends ConsumerWidget {
                         final createdAtRaw = latest == null
                             ? ''
                             : _s(latest, 'createdAt');
-                        final createdAt = DateTime.tryParse(
+                        final createdAt = parseFirstChatTimestamp([
                           createdAtRaw,
-                        )?.toUtc();
+                          latest == null ? '' : _s(latest, 'sentAt'),
+                          latest == null ? '' : _s(latest, 'updatedAt'),
+                        ])?.toUtc();
 
                         final isUnread =
                             latest != null &&
@@ -492,13 +516,8 @@ String _previewText(Map<String, dynamic> m) {
 }
 
 String _previewTime(String raw) {
-  final dt = DateTime.tryParse(raw)?.toLocal();
-  if (dt == null) {
-    return '';
-  }
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mm = dt.minute.toString().padLeft(2, '0');
-  return '$hh:$mm';
+  final dt = parseChatTimestamp(raw);
+  return formatChatInboxTrailingLabel(dt, fallback: '');
 }
 
 IconData _subjectIcon(String subject) {

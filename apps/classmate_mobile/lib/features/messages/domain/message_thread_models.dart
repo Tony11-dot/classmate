@@ -1,5 +1,6 @@
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 class MessageThreadSummary {
   final String id;
@@ -10,9 +11,13 @@ class MessageThreadSummary {
   final bool isUnread;
   final int unreadCount;
   final String lastMessageAt;
+  final String lastMessageAtRaw;
   final ChatRequestState requestState;
   final String initials;
   final String? groupAvatarUrl;
+
+  DateTime? get lastMessageDate =>
+      parseFirstChatTimestamp([lastMessageAtRaw, lastMessageAt]);
 
   const MessageThreadSummary({
     required this.id,
@@ -23,6 +28,7 @@ class MessageThreadSummary {
     required this.isUnread,
     required this.unreadCount,
     required this.lastMessageAt,
+    this.lastMessageAtRaw = '',
     required this.requestState,
     required this.initials,
     this.groupAvatarUrl,
@@ -71,6 +77,7 @@ class MessageItem {
   final String senderName;
   final String text;
   final String timeLabel;
+  final String sentAtRaw;
   final bool isMine;
   final String? reaction;
   final bool isPinned;
@@ -89,12 +96,17 @@ class MessageItem {
   final String? replyToMessageId;
   final MessageReplyRef? replyPreview;
 
+  DateTime? get sentAtDate => parseChatTimestamp(sentAtRaw);
+  DateTime? get deliveredAtDate => parseChatTimestamp(deliveredAt);
+  DateTime? get seenAtDate => parseChatTimestamp(seenAt);
+
   const MessageItem({
     required this.id,
     required this.senderId,
     required this.senderName,
     required this.text,
     required this.timeLabel,
+    this.sentAtRaw = '',
     required this.isMine,
     this.reaction,
     this.isPinned = false,

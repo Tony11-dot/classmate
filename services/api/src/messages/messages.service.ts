@@ -85,6 +85,12 @@ export class MessagesService {
     });
   }
 
+  private toIsoString(value: Date | string | null | undefined) {
+    if (!value) return '';
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isFinite(date.getTime()) ? date.toISOString() : '';
+  }
+
   private kindLabel(kind: DmMessageKind | string | null | undefined) {
     switch (String(kind ?? 'TEXT').toUpperCase()) {
       case 'IMAGE':
@@ -391,6 +397,9 @@ export class MessagesService {
       lastMessageAt: this.formatTime(
         latestMessage?.createdAt ?? thread.updatedAt ?? thread.createdAt,
       ),
+      lastMessageAtRaw: this.toIsoString(
+        latestMessage?.createdAt ?? thread.updatedAt ?? thread.createdAt,
+      ),
       requestState: this.viewerRequestState(thread, viewerId),
       initials:
         thread.type === DmThreadType.GROUP
@@ -462,6 +471,8 @@ export class MessagesService {
           senderName: this.displayNameOf(users.get(m.senderId)),
           text: String(m.text ?? '').trim(),
           timeLabel: this.formatTime(m.createdAt),
+          sentAtRaw: this.toIsoString(m.createdAt),
+          createdAt: this.toIsoString(m.createdAt),
           isMine: m.senderId === viewerId,
           reaction:
             Array.isArray(m.reactions) && m.reactions.length
@@ -524,7 +535,11 @@ export class MessagesService {
     const items = await Promise.all(
       participants.map((p) => this.threadToSummary(p)),
     );
-    items.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
+    items.sort(
+      (a, b) =>
+        new Date(String(b.lastMessageAtRaw || 0)).getTime() -
+        new Date(String(a.lastMessageAtRaw || 0)).getTime(),
+    );
     return { items };
   }
 
@@ -842,6 +857,8 @@ export class MessagesService {
         senderName: this.displayNameOf(users.get(created.senderId)),
         text: String(created.text ?? '').trim(),
         timeLabel: this.formatTime(created.createdAt),
+        sentAtRaw: this.toIsoString(created.createdAt),
+        createdAt: this.toIsoString(created.createdAt),
         isMine: true,
         reaction:
           Array.isArray(created.reactions) && created.reactions.length

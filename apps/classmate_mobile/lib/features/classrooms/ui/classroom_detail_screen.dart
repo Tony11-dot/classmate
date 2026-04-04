@@ -32,6 +32,7 @@ import '../../chat_core/ui/chat_message_info_page.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
+import '../../chat_core/utils/chat_time.dart';
 
 class _ClassroomForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ClassroomForwardTargetPickerSheet();
@@ -313,6 +314,8 @@ String _classroomSeenKey(String courseId) => 'classroom_last_seen_$courseId';
 
 class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     with SingleTickerProviderStateMixin {
+  double lastClassroomInsetsBottom = 0;
+
   ({String replyPrefix, String bodyText}) _splitReplyRaw(String raw) {
     final v = raw.trim();
     if (!v.startsWith('↪ ')) {
@@ -386,7 +389,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     _showClassroomScrollToBottom.value = distance > 120;
   }
 
-  void _pinClassroomToBottom() {
+  void _pinClassroomToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -394,7 +397,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       if (!_chatScrollCtl.hasClients) {
         return;
       }
-      final target = _chatScrollCtl.position.maxScrollExtent;
+      final pos = _chatScrollCtl.position;
+      final target = pos.maxScrollExtent;
+      final distance = target - pos.pixels;
+
+      if (!jump && distance > 140) {
+        return;
+      }
+
+      if (jump) {
+        _chatScrollCtl.jumpTo(target);
+        return;
+      }
+
       _chatScrollCtl.animateTo(
         target,
         duration: const Duration(milliseconds: 180),
@@ -408,6 +423,31 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   bool _voicePaused = false;
   bool _voiceCancelled = false;
   String? replyToId;
+
+
+  Future<void> _invalidateClassroomChatCaches() async {
+    final provider50 = classroomChatProvider((
+      id: widget.courseId,
+      limit: 50,
+      cursor: null,
+    ));
+    final provider20 = classroomChatProvider((
+      id: widget.courseId,
+      limit: 20,
+      cursor: null,
+    ));
+
+    ref.invalidate(provider50);
+    ref.invalidate(provider20);
+
+    try {
+      await ref.read(provider50.future);
+    } catch (_) {}
+
+    try {
+      await ref.read(provider20.future);
+    } catch (_) {}
+  }
 
   void _goBackToClassrooms() {
     if (!mounted) {
@@ -824,12 +864,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-  void _refreshAll() {
+  Future<void> _refreshAll() async {
     ref.invalidate(classroomDetailProvider(widget.courseId));
     ref.invalidate(classroomPeopleProvider(widget.courseId));
-    ref.invalidate(
-      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-    );
+    await _invalidateClassroomChatCaches();
+    if (mounted) setState(() {});
     ref.invalidate(classroomAssignmentsProvider(widget.courseId));
     ref.invalidate(classroomMaterialsProvider(widget.courseId));
     ref.invalidate(classroomMeetingsProvider(widget.courseId));
@@ -852,6 +891,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
+    if (jump) {
+      _chatScrollCtl.jumpTo(_chatScrollCtl.position.maxScrollExtent);
+      return;
+    }
     _chatScrollCtl.animateTo(
       target,
       duration: const Duration(milliseconds: 320),
@@ -1167,7 +1210,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
         previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-          contextForNavigation: infoContext,
+          contextForNavigation: context,
           rawText: editableBodyText(text),
           mediaUrl: mediaUrl,
           isMine: isMine,
@@ -1277,11 +1320,30 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final materials = ref.watch(classroomMaterialsProvider(widget.courseId));
     final meetings = ref.watch(classroomMeetingsProvider(widget.courseId));
 
+    final classroomInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+    if (classroomInsetsBottom != lastClassroomInsetsBottom) {
+      lastClassroomInsetsBottom = classroomInsetsBottom;
+      if (classroomInsetsBottom > 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _pinClassroomToBottom(jump: true);
+        });
+      }
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [_classroomComposer()],
+      bottomNavigationBar: AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [_classroomComposer()],
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
@@ -1415,7 +1477,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) {
@@ -1484,7 +1546,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
@@ -1688,10 +1750,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
 
       _clearReply();
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      _pinClassroomToBottom();
+      await _invalidateClassroomChatCaches();
+      _pinClassroomToBottom(jump: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -1776,10 +1836,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     } catch (_) {}
 
-    ref.invalidate(
-      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-    );
-    _pinClassroomToBottom();
+    await _invalidateClassroomChatCaches();
+    _pinClassroomToBottom(jump: true);
 
     if (!mounted) return;
     setState(() {
@@ -2131,10 +2189,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         });
       }
 
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      _pinClassroomToBottom();
+      await _invalidateClassroomChatCaches();
+      _pinClassroomToBottom(jump: true);
     } finally {
       if (mounted) {
         setState(() => _sending = false);
@@ -2728,7 +2784,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
         previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-          contextForNavigation: infoContext,
+          contextForNavigation: context,
           rawText: editableBodyText(text),
           mediaUrl: mediaUrl,
           isMine: isMine,
@@ -2793,14 +2849,59 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+
+  bool _sameClassroomDay(String a, String b) {
+    return sameLocalCalendarDay(parseChatTimestamp(a), parseChatTimestamp(b));
+  }
+
+  String _classroomDayLabel(String raw) {
+    return formatChatDayChipLabel(
+      parseChatTimestamp(raw),
+      includeYear: false,
+      fallback: 'Earlier',
+    );
+  }
+
+  Widget _classroomDayChip(String raw) {
+    final label = _classroomDayLabel(raw);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.20),
+            ),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _chatTabWithInsets(
+    AsyncValue<Map<String, dynamic>> value,
+    AsyncValue<Map<String, dynamic>> people,
+  ) {
+    return _chatTab(value, people);
+  }
+
   Widget _chatTab(
     AsyncValue<Map<String, dynamic>> value,
     AsyncValue<Map<String, dynamic>> people,
   ) {
     return Column(
       children: [
-        Flexible(
-          fit: FlexFit.loose,
+        Expanded(
           child: value.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => _CenteredState(
@@ -2821,12 +2922,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       )
                       .toList()
                     ..sort((a, b) {
-                      final da =
-                          DateTime.tryParse(_pick(a, 'createdAt')) ??
-                          DateTime.fromMillisecondsSinceEpoch(0);
-                      final db =
-                          DateTime.tryParse(_pick(b, 'createdAt')) ??
-                          DateTime.fromMillisecondsSinceEpoch(0);
+                      DateTime read(dynamic item) {
+                        final candidates = <String>[
+                          _pick(item, 'createdAt'),
+                          _pick(item, 'sentAt'),
+                          _pick(item, 'updatedAt'),
+                        ];
+                        for (final raw in candidates) {
+                          final dt = DateTime.tryParse(raw);
+                          if (dt != null) return dt.toLocal();
+                        }
+                        return DateTime.fromMillisecondsSinceEpoch(0);
+                      }
+
+                      final da = read(a);
+                      final db = read(b);
                       return da.compareTo(db);
                     });
 
@@ -2876,7 +2986,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               if (_lastChatCount != filtered.length) {
                 _lastChatCount = filtered.length;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollToBottom(jump: filtered.length <= 3);
+                  _pinClassroomToBottom(jump: filtered.length <= 3);
                 });
               }
 
@@ -2888,57 +2998,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 );
               }
 
-              if (filtered.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.06),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.08),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 28,
-                              spreadRadius: -8,
-                              color: Colors.black.withValues(alpha: 0.24),
-                            ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.forum_outlined,
-                          color: Colors.white70,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'Start the classroom chat',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Ask a question, send a file, or share an update.',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.56),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
               return ValueListenableBuilder<bool>(
                 valueListenable: _showClassroomScrollToBottom,
                 builder: (context, showScroll, child) {
@@ -2946,21 +3005,32 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     children: [
                       NotificationListener<ScrollNotification>(
                         onNotification: (notification) {
+                          if (notification is ScrollUpdateNotification &&
+                              notification.dragDetails != null) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          }
                           _handleClassroomScroll();
                           return false;
                         },
                         child: ListView.builder(
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                           controller: _chatScrollCtl,
                           cacheExtent: 900,
                           addAutomaticKeepAlives: false,
                           addRepaintBoundaries: true,
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final item = filtered[index];
                             final previous = index > 0
                                 ? filtered[index - 1]
                                 : null;
+                            final showDaySeparator =
+                                previous == null ||
+                                !_sameClassroomDay(
+                                  _pick(previous, 'createdAt'),
+                                  _pick(item, 'createdAt'),
+                                );
 
                             final messageId = _pick(item, 'id');
                             final senderId =
@@ -3184,7 +3254,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     previewMeta: _friendlyTime(createdRaw),
                                     previewMediaUrl: mediaUrl,
                                     previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-                                      contextForNavigation: infoContext,
+                                      contextForNavigation: context,
                                       rawText: messageText,
                                       mediaUrl: mediaUrl,
                                       isMine: isMine,
@@ -3322,12 +3392,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               ),
                             );
 
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                top: groupedWithPrevious ? 2 : 5,
-                                bottom: 1,
-                              ),
-                              child: Row(
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (showDaySeparator)
+                                  _classroomDayChip(_pick(item, 'createdAt')),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: groupedWithPrevious ? 2 : 5,
+                                    bottom: 1,
+                                  ),
+                                  child: Row(
                                 mainAxisAlignment: isMine
                                     ? MainAxisAlignment.end
                                     : MainAxisAlignment.start,
@@ -3344,8 +3419,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   Flexible(child: bubble),
                                   if (isMine) const SizedBox(width: 6),
                                   if (isMine) const SizedBox(width: 6),
-                                ],
-                              ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         ),
@@ -3356,9 +3433,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         child: showScroll
                             ? FloatingActionButton.small(
                                 heroTag: 'classroom-scroll-bottom',
-                                backgroundColor: const Color(0xFF0A84FF),
-                                foregroundColor: Colors.white,
-                                onPressed: _pinClassroomToBottom,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                                onPressed: () => _pinClassroomToBottom(jump: true),
                                 child: const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                 ),
@@ -3372,20 +3449,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             },
           ),
         ),
-        if (_typing && !_sending)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Typing…',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -3481,7 +3544,7 @@ class _CenteredTabs extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(

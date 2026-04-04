@@ -6,6 +6,7 @@ class ChatMessageInfoPage extends StatelessWidget {
   const ChatMessageInfoPage({
     super.key,
     required this.info,
+    this.onBack,
     this.previewTitle = '',
     this.previewBody = '',
     this.previewMeta = '',
@@ -16,6 +17,7 @@ class ChatMessageInfoPage extends StatelessWidget {
   });
 
   final ChatMessageInfo info;
+  final VoidCallback? onBack;
   final String previewTitle;
   final String previewBody;
   final String previewMeta;
@@ -165,7 +167,14 @@ class ChatMessageInfoPage extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
+                    onPressed: () {
+                      final cb = onBack;
+                      if (cb != null) {
+                        cb();
+                        return;
+                      }
+                      Navigator.of(context, rootNavigator: true).pop();
+                    },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   ),
                   Expanded(
@@ -184,31 +193,16 @@ class ChatMessageInfoPage extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxPreviewHeight = (constraints.maxHeight * 0.24).clamp(96.0, 176.0);
-
                   return Column(
-                    children: [                      Padding(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Padding(
                         padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: maxPreviewHeight,
-                          child: ClipRect(
-                            child: Align(
-                              alignment: info.isMine
-                                  ? Alignment.topRight
-                                  : Alignment.topLeft,
-                              child: OverflowBox(
-                                alignment: info.isMine
-                                    ? Alignment.topRight
-                                    : Alignment.topLeft,
-                                minWidth: 0,
-                                minHeight: 0,
-                                maxWidth: double.infinity,
-                                maxHeight: double.infinity,
-                                child: resolvedPreview,
-                              ),
-                            ),
-                          ),
+                        child: Align(
+                          alignment: info.isMine
+                              ? Alignment.topRight
+                              : Alignment.topLeft,
+                          child: resolvedPreview,
                         ),
                       ),
                       Expanded(
