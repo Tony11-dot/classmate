@@ -205,30 +205,9 @@ class ChatMessageBubble extends StatelessWidget {
 
 
 
+
   Widget _buildChecks() {
-    if (!isMine) return const SizedBox.shrink();
-
-    if (seen) {
-      return Icon(
-        Icons.done_all_rounded,
-        size: 15,
-        color: Colors.lightBlueAccent.shade100,
-      );
-    }
-
-    if (delivered) {
-      return Icon(
-        Icons.done_all_rounded,
-        size: 15,
-        color: Colors.white.withValues(alpha: 0.78),
-      );
-    }
-
-    return Icon(
-      Icons.done_rounded,
-      size: 15,
-      color: Colors.white.withValues(alpha: 0.78),
-    );
+    return const SizedBox.shrink();
   }
 
   Future<void> _openAttachment(

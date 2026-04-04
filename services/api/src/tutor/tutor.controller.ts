@@ -182,4 +182,16 @@ export class TutorController {
       novaSettings,
     });
   }
+
+  @Post('sessions/:sessionId/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadSessionFile(
+    @Req() req: any,
+    @Param('sessionId') sessionId: string,
+    @UploadedFile() file: any,
+    @Body() body: any,
+  ) {
+    return this.svc.uploadSessionFile(req.user, String(sessionId || '').trim(), file, body);
+  }
+
 }

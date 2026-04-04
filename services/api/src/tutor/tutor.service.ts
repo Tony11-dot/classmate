@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { getOpenAIClient } from './providers/openai.provider';
 import { TutorReplyMode, generateAssistantReplyStream } from './tutor.reply.provider';
-import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 
 function toTutorRole(raw: any) {
   const v = String(raw ?? '').trim().toUpperCase();
@@ -1815,4 +1815,47 @@ const system =
       'tutorReply|' + createHash('sha256').update(payload, 'utf8').digest('hex')
     );
   }
+
+  async uploadSessionFile(
+    user: any,
+    sessionId: string,
+    file?: any,
+    body: any = {},
+  ) {
+    const studentId = this.requireStudent(user);
+    const session = await this.prisma.tutorSession.findFirst({
+      where: { id: sessionId, userId: studentId },
+      select: { id: true },
+    });
+    if (!session) throw new NotFoundException('Session not found');
+
+    const mimeType =
+      String(body?.mimeType ?? file?.mimetype ?? '').trim() || undefined;
+    const originalName =
+      String(
+        body?.fileName ?? body?.originalName ?? file?.originalname ?? '',
+      ).trim() || undefined;
+    const content = String(body?.caption ?? body?.content ?? '').trim();
+
+    const inferredKind =
+      String(body?.kind ?? '').trim().toUpperCase() ||
+      (String(mimeType ?? '').toLowerCase().startsWith('image/')
+        ? 'IMAGE'
+        : 'FILE');
+
+    return this.addMessage(
+      user,
+      sessionId,
+      {
+        role: 'USER',
+        kind: inferredKind,
+        content,
+        mimeType,
+        originalName,
+      },
+      file,
+    );
+  }
+
+
 }
