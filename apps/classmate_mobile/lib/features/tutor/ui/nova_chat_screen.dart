@@ -150,8 +150,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   bool _voiceCancelled = false;
   double _holdDx = 0;
   double _holdDy = 0;
+  Offset? _holdOrigin;
+  Duration _recordingElapsed = Duration.zero;
   String? _recordingPath;
   StreamSubscription<Map<String, dynamic>>? _replySub;
+  Timer? _recordTicker;
 
   TutorRepository get _repo => ref.read(tutorRepositoryProvider);
 
@@ -182,6 +185,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   @override
   void dispose() {
     _replySub?.cancel();
+    _recordTicker?.cancel();
     _controller.dispose();
     _scroll.dispose();
     _recorder.dispose();
@@ -387,6 +391,168 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
 
+  Future<void> _showCameraSheet() async {
+    if (_sending || _recording) return;
+
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Capture a photo'),
+              onTap: () => Navigator.of(sheetContext).pop('camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Select from gallery'),
+              onTap: () => Navigator.of(sheetContext).pop('gallery'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case 'camera':
+        await _openDirectCamera();
+        return;
+      case 'gallery':
+        final picked = await FilePicker.platform.pickFiles(
+          allowMultiple: true,
+          type: FileType.image,
+        );
+        if (picked == null || !mounted) return;
+
+        final initial = picked.files
+            .map((f) => f.path ?? '')
+            .where((p) => p.trim().isNotEmpty)
+            .toList();
+        if (initial.isEmpty) return;
+
+        final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+          MaterialPageRoute(
+            builder: (_) => ChatMediaPreviewScreen(
+              initialPaths: initial,
+              title: 'Preview',
+            ),
+          ),
+        );
+        if (result == null || !mounted) return;
+
+        setState(() {
+          for (final path in result.paths) {
+            _draftAttachments.add(
+              _DraftAttachment(
+                path: path,
+                name: path.split('/').last,
+                kind: _draftKindForPath(path),
+              ),
+            );
+          }
+          if (result.caption.trim().isNotEmpty) {
+            final current = _controller.text.trim();
+            _controller.text = current.isEmpty
+                ? result.caption.trim()
+                : '$current\n${result.caption.trim()}';
+            _controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: _controller.text.length),
+            );
+          }
+        });
+        return;
+    }
+  }
+
+
+  Future<void> _regenerateFromAssistantRow(_Msg m) async {
+    if (_sending) return;
+    final sessionId = _sessionId;
+    if (sessionId == null || sessionId.trim().isEmpty) return;
+
+    final idx = _messages.indexOf(m);
+    if (idx < 0) return;
+
+    setState(() {
+      while (_messages.length > idx) {
+        _messages.removeLast();
+      }
+      _sending = true;
+      _messages.add(const _Msg(role: 'assistant', content: 'Thinking…'));
+    });
+    _scrollToBottom();
+
+    await _replySub?.cancel();
+    final buffer = StringBuffer();
+
+    _replySub = _repo.replyStream(sessionId: sessionId).listen(
+      (ev) {
+        if (!mounted) return;
+        final type = (ev['type'] ?? '').toString();
+
+        if (type == 'chunk') {
+          buffer.write((ev['delta'] ?? '').toString());
+          setState(() {
+            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
+              _messages[_messages.length - 1] = _Msg(
+                role: 'assistant',
+                content: buffer.isEmpty ? 'Thinking…' : buffer.toString(),
+              );
+            }
+          });
+          _scrollToBottom();
+          return;
+        }
+
+        if (type == 'done') {
+          final assistant = ev['assistantMessage'];
+          final content = assistant is Map
+              ? (assistant['content'] ?? '').toString()
+              : buffer.toString();
+
+          setState(() {
+            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
+              _messages[_messages.length - 1] = _Msg(
+                role: 'assistant',
+                content: content.trim().isEmpty ? 'Done.' : content,
+              );
+            }
+            _sending = false;
+          });
+          _scrollToBottom();
+          return;
+        }
+
+        if (type == 'error') {
+          setState(() {
+            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
+              _messages[_messages.length - 1] = _Msg(
+                role: 'assistant',
+                content:
+                    '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
+              );
+            }
+            _sending = false;
+          });
+          _scrollToBottom();
+        }
+      },
+      onError: (_) {
+        if (!mounted) return;
+        setState(() => _sending = false);
+      },
+      onDone: () {
+        if (!mounted) return;
+        setState(() => _sending = false);
+      },
+    );
+  }
+
   Future<void> _pickFiles() async {
     if (_sending || _recording) return;
     final picked = await FilePicker.platform.pickFiles(
@@ -491,6 +657,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
+    _holdOrigin = d.globalPosition;
     _holdDx = 0;
     _holdDy = 0;
     _voiceLocked = false;
@@ -500,9 +667,15 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   void _micHoldMove(LongPressMoveUpdateDetails d) {
     if (!_recording) return;
+    final origin = _holdOrigin;
+    if (origin == null) return;
+
+    final dx = d.globalPosition.dx - origin.dx;
+    final dy = d.globalPosition.dy - origin.dy;
+
     setState(() {
-      _holdDx = d.offsetFromOrigin.dx;
-      _holdDy = d.offsetFromOrigin.dy;
+      _holdDx = dx;
+      _holdDy = dy;
       if (_holdDx < -88) _voiceCancelled = true;
       if (_holdDy < -88) _voiceLocked = true;
     });
@@ -522,6 +695,41 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Future<void> _micHoldCancel() async {
+    if (!_recording) return;
+    if (_voiceLocked) return;
+    await _cancelVoiceDraft();
+  }
+
+  void _activeHoldMove(Offset globalPosition) {
+    if (!_recording) return;
+    final origin = _holdOrigin;
+    if (origin == null) return;
+
+    final dx = globalPosition.dx - origin.dx;
+    final dy = globalPosition.dy - origin.dy;
+
+    setState(() {
+      _holdDx = dx;
+      _holdDy = dy;
+      if (_holdDx < -88) _voiceCancelled = true;
+      if (_holdDy < -88) _voiceLocked = true;
+    });
+  }
+
+  Future<void> _activeHoldRelease() async {
+    if (!_recording) return;
+    if (_voiceCancelled) {
+      await _cancelVoiceDraft();
+      return;
+    }
+    if (_voiceLocked) {
+      if (mounted) setState(() {});
+      return;
+    }
+    await _toggleMic();
+  }
+
+  Future<void> _activeHoldCancel() async {
     if (!_recording) return;
     if (_voiceLocked) return;
     await _cancelVoiceDraft();
@@ -549,23 +757,38 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     try {
       await _recorder.stop();
     } catch (_) {}
+    _recordTicker?.cancel();
     setState(() {
       _recording = false;
       _voiceLocked = false;
       _voicePaused = false;
       _voiceCancelled = false;
+      _holdOrigin = null;
       _holdDx = 0;
       _holdDy = 0;
+      _recordingElapsed = Duration.zero;
     });
   }
 
   Widget _recordHud() => const SizedBox.shrink();
+
+  void _startRecordTicker() {
+    _recordTicker?.cancel();
+    _recordingElapsed = Duration.zero;
+    _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted || !_recording) return;
+      setState(() {
+        _recordingElapsed = _recordingElapsed + const Duration(seconds: 1);
+      });
+    });
+  }
 
   Future<void> _toggleMic() async {
     if (_sending) return;
 
     if (_recording) {
       final stoppedPath = await _recorder.stop();
+      _recordTicker?.cancel();
       _recordingPath = stoppedPath;
 
       if (!mounted) return;
@@ -609,7 +832,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         );
       } finally {
         if (mounted) {
-          setState(() => _sending = false);
+          setState(() {
+            _sending = false;
+            _recordingElapsed = Duration.zero;
+            _holdOrigin = null;
+            _holdDx = 0;
+            _holdDy = 0;
+          });
         }
         if (_recordingPath != null && _recordingPath!.trim().isNotEmpty) {
           final f = File(_recordingPath!);
@@ -640,11 +869,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         '${dir.path}/nova-${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _recorder.start(const RecordConfig(), path: path);
+    _startRecordTicker();
 
     if (!mounted) return;
     setState(() {
       _recording = true;
       _recordingPath = path;
+      _recordingElapsed = Duration.zero;
     });
   }
 
@@ -1075,7 +1306,39 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 )
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: _assistantRichContent(m.content),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _assistantRichContent(m.content),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () async {
+                              await Clipboard.setData(
+                                ClipboardData(text: m.content),
+                              );
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Copied')),
+                              );
+                            },
+                            icon: const Icon(Icons.copy_rounded, size: 16),
+                            label: const Text('Copy'),
+                          ),
+                          const SizedBox(width: 4),
+                          TextButton.icon(
+                            onPressed: _sending
+                                ? null
+                                : () => _regenerateFromAssistantRow(m),
+                            icon: const Icon(Icons.refresh_rounded, size: 16),
+                            label: const Text('Regenerate'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
       ],
     );
@@ -1187,7 +1450,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       hintText: 'Message NOVA',
       onSend: _send,
       onAttach: _pickFiles,
-      onCamera: _openDirectCamera,
+      onCamera: _showCameraSheet,
       onMic: () async {
         if (_recording) {
           await _toggleMic();
@@ -1205,6 +1468,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       onMicHoldMove: _micHoldMove,
       onMicHoldEnd: _micHoldEnd,
       onMicHoldCancel: _micHoldCancel,
+      onActiveHoldMove: _activeHoldMove,
+      onActiveHoldRelease: _activeHoldRelease,
+      onActiveHoldCancel: _activeHoldCancel,
       onTrashRecording: _cancelVoiceDraft,
       onPauseRecording: _pauseVoiceRecord,
       onResumeRecording: _resumeVoiceRecord,
@@ -1223,10 +1489,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
-                  ChatGptMessageList(
-                    controller: _scroll,
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) => _bubble(_messages[index]),
+                  NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (notification) {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      return false;
+                    },
+                    child: ChatGptMessageList(
+                      controller: _scroll,
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) => _bubble(_messages[index]),
+                    ),
                   ),
                   Positioned(
                     right: 16,
@@ -1265,18 +1537,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         centerTitle: true,
-        title: Column(
-          children: [
-            Text(_headerTitle),
-            const SizedBox(height: 1),
-            Text(
-              _recording
-                  ? 'Recording… tap mic again to transcribe'
-                  : (_sending ? 'Working…' : 'Ready'),
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-            ),
-          ],
-        ),
+        title: Text(_headerTitle),
       ),
       body: SafeArea(
         top: false,
