@@ -125,6 +125,11 @@ export class TutorService {
             ...(originalName ? [`name: ${originalName}`] : []),
             ...(mimeType ? [`mime: ${mimeType}`] : []),
             ...(uploadedPath ? [`path: ${uploadedPath}`] : []),
+            ...(kind === 'IMAGE'
+              ? [
+                  'image_instruction: The user attached an image. If no OCR/extracted text is present, explicitly say what you can and cannot infer and ask one targeted follow-up only when necessary.',
+                ]
+              : []),
             ...(documentText ? [`extracted_text:\n${documentText}`] : []),
           ].join('\n')
         : '';
@@ -743,6 +748,45 @@ export class TutorService {
           (effectiveFilePath ? fs.readFileSync(effectiveFilePath) : null);
 
         if (!buf) return '';
+
+        if (mimeType.startsWith('image/')) {
+          try {
+            const client = getOpenAIClient();
+            const dataUrl = `data:${mimeType};base64,${buf.toString('base64')}`;
+            const vision: any = await client.chat.completions.create({
+              model: process.env.OPENAI_VISION_MODEL || 'gpt-4.1-mini',
+              temperature: 0.2,
+              messages: [
+                {
+                  role: 'system',
+                  content:
+                    'Describe the image faithfully for tutoring context. Extract any readable text. Do not invent details.',
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text:
+                        'Describe this image accurately and extract any readable text. Focus on the actual visible content only.',
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: { url: dataUrl },
+                    },
+                  ],
+                },
+              ],
+            } as any);
+
+            return String(
+              vision?.choices?.[0]?.message?.content ?? '',
+            ).trim();
+          } catch (e) {
+            console.error('[NOVA_IMAGE_VISION_FAIL]', e);
+            return '';
+          }
+        }
 
         if (mimeType === 'application/pdf') {
           try {
