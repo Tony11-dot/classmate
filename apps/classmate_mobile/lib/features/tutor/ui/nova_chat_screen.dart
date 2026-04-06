@@ -319,6 +319,20 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Future<void> _showNovaMessageActions(_Msg m) async {
+
+    final isTextOnlyMessage =
+        !m.isImage &&
+        (m.kind.trim().isEmpty || m.kind.toUpperCase() == 'TEXT') &&
+        m.content.trim().isNotEmpty;
+
+    if (!isTextOnlyMessage) return;
+
+    final hasText = m.content.trim().isNotEmpty;
+    final canCopy = hasText;
+    final canEdit = m.isUser && hasText;
+
+    if (!canCopy && !canEdit) return;
+
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -326,12 +340,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.copy_all_rounded),
-              title: const Text('Copy'),
-              onTap: () => Navigator.of(sheetContext).pop('copy'),
-            ),
-            if (m.isUser && m.content.trim().isNotEmpty)
+            if (canCopy)
+              ListTile(
+                leading: const Icon(Icons.copy_all_rounded),
+                title: const Text('Copy'),
+                onTap: () => Navigator.of(sheetContext).pop('copy'),
+              ),
+            if (canEdit)
               ListTile(
                 leading: const Icon(Icons.edit_rounded),
                 title: const Text('Edit message'),
@@ -345,10 +360,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!mounted || action == null) return;
 
     if (action == 'copy') {
-      final text = m.content.trim().isEmpty
-          ? ((m.fileName ?? '').trim().isEmpty ? 'Attachment' : m.fileName!.trim())
-          : m.content.trim();
-      await Clipboard.setData(ClipboardData(text: text));
+      await Clipboard.setData(ClipboardData(text: m.content.trim()));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Copied')),
@@ -581,38 +593,36 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!mounted) return;
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: initial,
+          title: 'Preview',
+        ),
       ),
     );
     if (result == null || !mounted) return;
 
-    final sessionId = _sessionId;
-    if (sessionId == null || sessionId.trim().isEmpty) return;
-
-    setState(() => _sending = true);
-    try {
-      for (final p in result.paths) {
-        await _repo.sendFile(sessionId: sessionId, path: p);
+    setState(() {
+      for (final path in result.paths) {
+        _draftAttachments.add(
+          _DraftAttachment(
+            path: path,
+            name: path.split('/').last,
+            kind: _draftKindForPath(path),
+          ),
+        );
       }
       if (result.caption.trim().isNotEmpty) {
-        _controller.text = result.caption.trim();
-        await _send();
+        final current = _controller.text.trim();
+        _controller.text = current.isEmpty
+            ? result.caption.trim()
+            : '$current\n${result.caption.trim()}';
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
       }
-      if (mounted) {
-        setState(() {});
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_scroll.hasClients) return;
-          _scroll.animateTo(
-            _scroll.position.maxScrollExtent + 120,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-          );
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
+    });
+
+    await _send();
   }
 
   Future<void> _openDirectCamera() async {
@@ -770,7 +780,39 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     });
   }
 
-  Widget _recordHud() => const SizedBox.shrink();
+  String _formatRecordingElapsed(Duration d) {
+    final mm = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final ss = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
+  Widget _recordHud() {
+    if (!_recording) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.mic_rounded, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                _formatRecordingElapsed(_recordingElapsed),
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void _startRecordTicker() {
     _recordTicker?.cancel();
@@ -1035,10 +1077,14 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         ? 'file'
         : (m.fileName ?? m.content).trim();
 
-    if (m.isImage && remote.isNotEmpty) {
+    final imageUrl = remote.isNotEmpty
+        ? remote
+        : (local.isNotEmpty ? Uri.file(local).toString() : '');
+
+    if (m.isImage && imageUrl.isNotEmpty) {
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => ImageViewerScreen(url: remote, label: label),
+          builder: (_) => ImageViewerScreen(url: imageUrl, label: label),
         ),
       );
       return;
@@ -1047,10 +1093,14 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final isPdf =
         label.toLowerCase().endsWith('.pdf') || m.kind.toUpperCase() == 'PDF';
 
-    if (isPdf && remote.isNotEmpty) {
+    final pdfUrl = remote.isNotEmpty
+        ? remote
+        : (local.isNotEmpty ? Uri.file(local).toString() : '');
+
+    if (isPdf && pdfUrl.isNotEmpty) {
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => PdfViewerScreen(url: remote, label: label),
+          builder: (_) => PdfViewerScreen(url: pdfUrl, label: label),
         ),
       );
       return;

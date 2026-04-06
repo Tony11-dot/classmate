@@ -788,6 +788,45 @@ export class TutorService {
           }
         }
 
+        if (mimeType.startsWith('image/')) {
+          try {
+            const client = getOpenAIClient();
+            const dataUrl = `data:${mimeType};base64,${buf.toString('base64')}`;
+            const vision: any = await client.chat.completions.create({
+              model: process.env.OPENAI_VISION_MODEL || 'gpt-4.1-mini',
+              temperature: 0.1,
+              messages: [
+                {
+                  role: 'system',
+                  content:
+                    'You are extracting tutoring context from an uploaded image. Describe only what is actually visible, extract readable text faithfully, and never guess missing details.',
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text:
+                        'Describe this image accurately. Include visible objects, board positions, diagrams, equations, labels, and any readable text. Do not invent details.',
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: { url: dataUrl },
+                    },
+                  ],
+                },
+              ],
+            } as any);
+
+            return String(
+              vision?.choices?.[0]?.message?.content ?? '',
+            ).trim();
+          } catch (e) {
+            console.error('[NOVA_IMAGE_VISION_FAIL]', e);
+            return '';
+          }
+        }
+
         if (mimeType === 'application/pdf') {
           try {
             const { PDFParse } = await import('pdf-parse');
