@@ -29,7 +29,6 @@ import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_info_page.dart';
-import '../../chat_core/ui/primitives/classroom_chat_surface.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
@@ -1302,7 +1301,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: null,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [_classroomComposer()],
+      ),
       body: SafeArea(
         child: Column(
           children: [
