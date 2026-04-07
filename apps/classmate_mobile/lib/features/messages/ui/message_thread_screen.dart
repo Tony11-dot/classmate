@@ -1,4 +1,5 @@
 import 'dart:async';
+// ignore_for_file: use_build_context_synchronously
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -307,7 +308,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   final ScrollController _scrollController = ScrollController();
   final Set<String> _pinnedMessageIds = <String>{};
   final Map<String, double> _swipeDxByMessage = <String, double>{};
+  final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
   final AudioRecorder _recorder = AudioRecorder();
+  Timer? _highlightClearTimer;
+  String? _highlightedMessageId;
+  bool _showScrollToBottom = false;
+  bool _newMessagesBelow = false;
+  int _knownMessageCount = 0;
+  String? _knownLastMessageId;
   final ImagePicker _imagePicker = ImagePicker();
 
   int? _replyIndex;
@@ -324,19 +332,93 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   double _holdDy = 0;
   double _lastThreadInsetsBottom = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleThreadScroll);
+  }
+
   bool _threadNearBottom([double threshold = 140]) {
     if (!_scrollController.hasClients) return true;
     final distance =
-        _scrollController.position.maxScrollExtent - _scrollController.position.pixels;
+        _scrollController.position.maxScrollExtent -
+        _scrollController.position.pixels;
     return distance <= threshold;
   }
 
+  void _handleThreadScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final nearBottom = _threadNearBottom(96);
+    if (nearBottom && _newMessagesBelow) {
+      if (!mounted) return;
+      setState(() {
+        _newMessagesBelow = false;
+        _showScrollToBottom = false;
+      });
+      return;
+    }
+
+    final shouldShow = !_threadNearBottom(180) || _newMessagesBelow;
+    if (shouldShow == _showScrollToBottom || !mounted) return;
+    setState(() {
+      _showScrollToBottom = shouldShow;
+    });
+  }
+
+  void _onThreadRowsRendered(List<MessageItem> rows) {
+    final previousCount = _knownMessageCount;
+    final previousLastMessageId = _knownLastMessageId;
+    final currentLastMessageId = rows.isEmpty ? null : rows.last.id;
+
+    _knownMessageCount = rows.length;
+    _knownLastMessageId = currentLastMessageId;
+
+    if (previousCount == 0 || currentLastMessageId == null) return;
+    if (currentLastMessageId == previousLastMessageId) return;
+
+    final shouldStickToBottom = _threadNearBottom(180);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (shouldStickToBottom) {
+        if (_newMessagesBelow || _showScrollToBottom) {
+          setState(() {
+            _newMessagesBelow = false;
+            _showScrollToBottom = false;
+          });
+        }
+        _scrollToBottom();
+        return;
+      }
+
+      setState(() {
+        _newMessagesBelow = true;
+        _showScrollToBottom = true;
+      });
+    });
+  }
+
+  void _pulseMessage(String messageId) {
+    _highlightClearTimer?.cancel();
+    if (mounted) {
+      setState(() {
+        _highlightedMessageId = messageId;
+      });
+    }
+    _highlightClearTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (!mounted || _highlightedMessageId != messageId) return;
+      setState(() {
+        _highlightedMessageId = null;
+      });
+    });
+  }
 
   Future<void> _refreshThread() async {
     ref.invalidate(messageThreadProvider(widget.threadId));
     ref.invalidate(messagesInboxProvider);
   }
-
 
   void _scrollToBottom({bool jump = false}) {
     if (!_scrollController.hasClients) return;
@@ -369,8 +451,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     }
   }
 
-
-
   DateTime _parseThreadMessageDate(MessageItem row) {
     return row.sentAtDate ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
@@ -378,8 +458,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   bool _sameMessageDay(MessageItem a, MessageItem b) {
     return sameLocalCalendarDay(a.sentAtDate, b.sentAtDate);
   }
-
-
 
   String _messageDaySeparatorLabel(MessageItem row) {
     return formatChatDayChipLabel(
@@ -422,7 +500,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return '$mm:$ss';
   }
 
-
   Widget _threadMemberTile(BuildContext context, MessageParticipant p) {
     final school = p.schoolName.trim().isEmpty ? '—' : p.schoolName.trim();
     final grade = p.gradeLabel.trim().isEmpty ? '—' : p.gradeLabel.trim();
@@ -432,9 +509,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
         p.displayName.trim().isEmpty ? 'Student' : p.displayName.trim(),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
       subtitle: Text(
         (school == '—' && grade == '—')
@@ -452,7 +529,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
   Future<void> _showThreadInfo(MessageThreadDetail detail) async {
     final participantCount = detail.participants.length;
-    final subtitle = detail.subtitle.trim().isEmpty ? '—' : detail.subtitle.trim();
+    final subtitle = detail.subtitle.trim().isEmpty
+        ? '—'
+        : detail.subtitle.trim();
 
     String school = '—';
     String grade = '—';
@@ -487,16 +566,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   radius: 28,
                   child: Text(
                     _avatarText(detail),
-                    style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: Theme.of(sheetContext).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
               const SizedBox(height: 14),
               Center(
                 child: Text(
-                  detail.title.trim().isEmpty ? 'Conversation' : detail.title.trim(),
+                  detail.title.trim().isEmpty
+                      ? 'Conversation'
+                      : detail.title.trim(),
                   textAlign: TextAlign.center,
                   style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -507,7 +587,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 const SizedBox(height: 8),
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(sheetContext)
                           .colorScheme
@@ -517,9 +600,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     ),
                     child: Text(
                       'Group',
-                      style: Theme.of(sheetContext).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(sheetContext).textTheme.labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),
@@ -534,12 +616,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Students',
-                    style: Theme.of(sheetContext).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                    style: Theme.of(sheetContext).textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
-                  ...detail.participants.map((p) => _threadMemberTile(sheetContext, p)),
+                  ...detail.participants.map(
+                    (p) => _threadMemberTile(sheetContext, p),
+                  ),
                 ],
               ],
             ],
@@ -560,17 +643,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             width: 88,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),
@@ -597,10 +677,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             messageType: _kindInfoLabel(row),
             voiceDuration:
                 row.kind.trim().toUpperCase() == 'VOICE' &&
-                        row.voiceDurationSeconds != null &&
-                        row.voiceDurationSeconds! > 0
-                    ? _fmtDuration(row.voiceDurationSeconds!)
-                    : '',
+                    row.voiceDurationSeconds != null &&
+                    row.voiceDurationSeconds! > 0
+                ? _fmtDuration(row.voiceDurationSeconds!)
+                : '',
           ),
           previewTitle: row.isMine ? 'You' : row.senderName,
           previewBody: row.text.trim(),
@@ -739,8 +819,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (row.isMine || row.voicePlayed) return;
     await ref
         .read(messagesRepositoryProvider)
-        .markThreadRead(threadId: widget.threadId).catchError((_) {});
-      if (!mounted) return;
+        .markThreadRead(threadId: widget.threadId)
+        .catchError((_) {});
+    if (!mounted) return;
     await _refreshThread();
   }
 
@@ -768,9 +849,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 
-
   Future<List<String>?> _showForwardTargetPicker() async {
     final inbox = await ref.read(messagesInboxProvider.future);
+    if (!mounted) return null;
+
+    final messenger = ScaffoldMessenger.of(context);
 
     final candidates = inbox.where((item) {
       if (item.id == widget.threadId) return false;
@@ -778,10 +861,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       return !state.startsWith('pending');
     }).toList();
 
-    if (!mounted) return null;
-
     if (candidates.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('No approved chats available')),
       );
       return null;
@@ -789,6 +870,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
     final selected = <String>{};
 
+    if (!mounted) return null;
     return showModalBottomSheet<List<String>>(
       context: context,
       showDragHandle: true,
@@ -806,9 +888,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Forward to',
-                        style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style: Theme.of(sheetContext).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -816,7 +897,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: candidates.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 4),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 4),
                         itemBuilder: (_, index) {
                           final item = candidates[index];
                           final checked = selected.contains(item.id);
@@ -832,9 +914,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 }
                               });
                             },
-                            secondary: CircleAvatar(
-                              child: Text(item.initials),
-                            ),
+                            secondary: CircleAvatar(child: Text(item.initials)),
                             title: Text(
                               item.title,
                               maxLines: 1,
@@ -862,7 +942,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       child: FilledButton(
                         onPressed: selected.isEmpty
                             ? null
-                            : () => Navigator.of(sheetContext).pop(selected.toList()),
+                            : () => Navigator.of(
+                                sheetContext,
+                              ).pop(selected.toList()),
                         child: Text(
                           selected.length == 1
                               ? 'Forward'
@@ -879,7 +961,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       },
     );
   }
-
 
   Future<void> _forwardMessage(MessageItem row) async {
     final targetThreadIds = await _showForwardTargetPicker();
@@ -910,12 +991,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       final message = text.contains('Cannot forward into a non-approved thread')
           ? 'Cannot forward into a request chat until it is approved'
           : 'Could not forward this message';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
-
 
   // ignore: unused_element
   Future<void> _openBubbleMenu(MessageItem row, {required bool canPin}) async {
@@ -988,15 +1068,65 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         .toList();
   }
 
+  GlobalKey _messageKeyFor(String messageId) {
+    return _messageKeys.putIfAbsent(messageId, () => GlobalKey());
+  }
+
   void _jumpToMessage(String messageId) {
     final index = _lastRows.indexWhere((row) => row.id == messageId);
-    if (index < 0) return;
-    _pinToBottom();
+    if (index < 0 || !_scrollController.hasClients) return;
+
+    void ensureAfterScroll() {
+      Future<void>.delayed(const Duration(milliseconds: 40), () {
+        if (!mounted) return;
+        final ctx = _messageKeyFor(messageId).currentContext;
+        if (ctx == null) return;
+        _pulseMessage(messageId);
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: 0.18,
+        );
+      });
+    }
+
+    final target = _messageKeyFor(messageId).currentContext;
+    if (target != null) {
+      _pulseMessage(messageId);
+      Scrollable.ensureVisible(
+        target,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        alignment: 0.18,
+      );
+      return;
+    }
+
+    final total = _lastRows.length;
+    final fraction = total <= 1 ? 0.0 : index / (total - 1);
+    final estimatedOffset =
+        (_scrollController.position.maxScrollExtent * fraction).clamp(
+          _scrollController.position.minScrollExtent,
+          _scrollController.position.maxScrollExtent,
+        );
+
+    _scrollController
+        .animateTo(
+          estimatedOffset,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        )
+        .then((_) {
+          ensureAfterScroll();
+        });
   }
 
   @override
   void dispose() {
+    _highlightClearTimer?.cancel();
     _controller.dispose();
+    _scrollController.removeListener(_handleThreadScroll);
     _scrollController.dispose();
     _recorder.dispose();
     super.dispose();
@@ -1259,7 +1389,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     if (paths.isEmpty) return;
 
     for (final path in paths) {
-      final mime = lookupMimeType(path) ??
+      final mime =
+          lookupMimeType(path) ??
           (path.toLowerCase().endsWith('.mp4') ||
                   path.toLowerCase().endsWith('.mov') ||
                   path.toLowerCase().endsWith('.m4v')
@@ -1300,14 +1431,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     final willCancel = dx <= -56;
     final willLock = dy <= -44;
 
-    // 🔥 LIVE CANCEL (WHILE HOLDING)
     if (willCancel && !_voiceCancelled) {
       _voiceCancelled = true;
       _cancelVoiceDraft();
       return;
     }
 
-    // 🔥 LIVE LOCK (WHILE HOLDING)
     if (willLock && !_voiceLocked) {
       setState(() {
         _voiceLocked = true;
@@ -1417,7 +1546,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       _holdDx = 0;
       _holdDy = 0;
       _recordingPath = null;
-      _holdStartGlobal = null;
       _recordElapsed = Duration.zero;
     });
   }
@@ -1629,6 +1757,48 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: _showScrollToBottom
+          ? Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 92 : 74,
+              ),
+              child: FloatingActionButton.small(
+                heroTag: 'dm_thread_scroll_to_bottom_${widget.threadId}',
+                onPressed: () {
+                  if (!mounted) return;
+                  setState(() {
+                    _newMessagesBelow = false;
+                    _showScrollToBottom = false;
+                  });
+                  _scrollToBottom();
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.keyboard_arrow_down_rounded),
+                    if (_newMessagesBelow)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.surface,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         child: thread.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -1639,21 +1809,23 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
               try {
                 await ref
                     .read(messagesRepositoryProvider)
-                    .markThreadRead(threadId: widget.threadId).catchError((_) {});
-      if (!mounted) return;
+                    .markThreadRead(threadId: widget.threadId)
+                    .catchError((_) {});
+                if (!mounted) return;
               } catch (_) {}
               ref.invalidate(messagesInboxProvider);
             });
 
             final rows = [...detail.messages]
-      ..sort((a, b) {
-        final ad = _parseThreadMessageDate(a);
-        final bd = _parseThreadMessageDate(b);
-        final byDate = ad.compareTo(bd);
-        if (byDate != 0) return byDate;
-        return a.id.compareTo(b.id);
-      });
+              ..sort((a, b) {
+                final ad = _parseThreadMessageDate(a);
+                final bd = _parseThreadMessageDate(b);
+                final byDate = ad.compareTo(bd);
+                if (byDate != 0) return byDate;
+                return a.id.compareTo(b.id);
+              });
             _lastRows = rows;
+            _onThreadRowsRendered(rows);
 
             return Column(
               children: [
@@ -1679,7 +1851,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         detail.title,
@@ -1695,9 +1868,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                               ),
                                         ),
                                     ],
@@ -1794,7 +1967,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   ),
                 Expanded(
                   child: ListView.builder(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(8, 6, 8, 24),
                     itemCount: rows.length,
@@ -1805,266 +1979,312 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       final startsGroup = _startsGroup(rows, index);
                       final endsGroup = _endsGroup(rows, index);
                       final swipeDx = _swipeDxByMessage[row.id] ?? 0.0;
+                      final isHighlighted = _highlightedMessageId == row.id;
 
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (showDaySeparator)
-                            _buildDaySeparatorChip(
-                              context,
-                              _messageDaySeparatorLabel(row),
-                            ),
-                          Align(
-                            alignment: row.isMine
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: startsGroup ? 8 : 2,
-                                bottom: endsGroup ? 4 : 2,
+                      return KeyedSubtree(
+                        key: _messageKeyFor(row.id),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (showDaySeparator)
+                              _buildDaySeparatorChip(
+                                context,
+                                _messageDaySeparatorLabel(row),
                               ),
-                              child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onHorizontalDragUpdate: (details) {
-                              final current = _swipeDxByMessage[row.id] ?? 0.0;
-                              final next = (current + details.delta.dx).clamp(
-                                -84.0,
-                                84.0,
-                              );
-                              if ((_swipeDxByMessage[row.id] ?? 0.0) != next) {
-                                setState(() {
-                                  _swipeDxByMessage[row.id] = next;
-                                });
-                              }
-                            },
-                            onHorizontalDragEnd: (_) async {
-                              final current = _swipeDxByMessage[row.id] ?? 0.0;
+                            Align(
+                              alignment: row.isMine
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: startsGroup ? 8 : 2,
+                                  bottom: endsGroup ? 4 : 2,
+                                ),
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onHorizontalDragUpdate: (details) {
+                                    final current =
+                                        _swipeDxByMessage[row.id] ?? 0.0;
+                                    final next = (current + details.delta.dx)
+                                        .clamp(-84.0, 84.0);
+                                    if ((_swipeDxByMessage[row.id] ?? 0.0) !=
+                                        next) {
+                                      setState(() {
+                                        _swipeDxByMessage[row.id] = next;
+                                      });
+                                    }
+                                  },
+                                  onHorizontalDragEnd: (_) async {
+                                    final current =
+                                        _swipeDxByMessage[row.id] ?? 0.0;
 
-                              if (_swipeDxByMessage.containsKey(row.id)) {
-                                setState(() {
-                                  _swipeDxByMessage.remove(row.id);
-                                });
-                              }
+                                    if (_swipeDxByMessage.containsKey(row.id)) {
+                                      setState(() {
+                                        _swipeDxByMessage.remove(row.id);
+                                      });
+                                    }
 
-                              if (current >= 44) {
-                                setState(() => _replyIndex = index);
-                                return;
-                              }
+                                    if (current >= 44) {
+                                      setState(() => _replyIndex = index);
+                                      return;
+                                    }
 
-                              if (current <= -44) {
-                                await _openMessageInfoSheet(
-                                  Navigator.of(context).context,
-                                  row,
-                                );
-                                return;
-                              }
-                            },
-                            onHorizontalDragCancel: () {
-                              if (_swipeDxByMessage.containsKey(row.id)) {
-                                setState(() {
-                                  _swipeDxByMessage.remove(row.id);
-                                });
-                              }
-                            },
-                            onLongPress: () async {
-                              final navigator = Navigator.of(context);
-                              final selected =
-                                  await showModalBottomSheet<String>(
-                                    context: navigator.context,
-                                    showDragHandle: true,
-                                    builder: (_) => ChatMessageActionsSheet(
-                                      canEdit:
-                                          row.isMine &&
-                                          (row.mediaUrl == null ||
-                                              row.mediaUrl!.trim().isEmpty),
-                                      canDelete: row.isMine,
-                                      canViewInfo: true,
-                                      canPin: detail.isGroup || row.isMine,
-                                      canForward: true,
-                                      canCopy: (row.mediaUrl == null ||
-                                              row.mediaUrl!.trim().isEmpty) &&
-                                          row.text.trim().isNotEmpty,
-                                    ),
-                                  );
+                                    if (current <= -44) {
+                                      await _openMessageInfoSheet(
+                                        Navigator.of(context).context,
+                                        row,
+                                      );
+                                      return;
+                                    }
+                                  },
+                                  onHorizontalDragCancel: () {
+                                    if (_swipeDxByMessage.containsKey(row.id)) {
+                                      setState(() {
+                                        _swipeDxByMessage.remove(row.id);
+                                      });
+                                    }
+                                  },
+                                  onLongPress: () async {
+                                    final navigator = Navigator.of(context);
+                                    final selected =
+                                        await showModalBottomSheet<String>(
+                                          context: navigator.context,
+                                          showDragHandle: true,
+                                          builder: (_) =>
+                                              ChatMessageActionsSheet(
+                                                canEdit:
+                                                    row.isMine &&
+                                                    (row.mediaUrl == null ||
+                                                        row.mediaUrl!
+                                                            .trim()
+                                                            .isEmpty),
+                                                canDelete: row.isMine,
+                                                canViewInfo: true,
+                                                canPin:
+                                                    detail.isGroup ||
+                                                    row.isMine,
+                                                canForward: true,
+                                                canCopy:
+                                                    (row.mediaUrl == null ||
+                                                        row.mediaUrl!
+                                                            .trim()
+                                                            .isEmpty) &&
+                                                    row.text.trim().isNotEmpty,
+                                              ),
+                                        );
 
-                              if (!mounted || selected == null) return;
+                                    if (!mounted || selected == null) return;
 
-                              if (selected == 'reply') {
-                                setState(() => _replyIndex = index);
-                                return;
-                              }
+                                    if (selected == 'reply') {
+                                      setState(() => _replyIndex = index);
+                                      return;
+                                    }
 
-                              if (selected == 'copy') {
-                                final text = row.text.trim();
-                                if (text.isNotEmpty) {
-                                  final messenger = ScaffoldMessenger.of(
-                                    navigator.context,
-                                  );
-                                  await Clipboard.setData(
-                                    ClipboardData(text: text),
-                                  );
-                                  if (!mounted) return;
-                                  messenger.showSnackBar(
-                                    const SnackBar(content: Text('Copied')),
-                                  );
-                                }
-                                return;
-                              }
-
-                              if (selected == 'forward') {
-                                await _forwardMessage(row);
-                                return;
-                              }
-
-                              if (selected == 'pin') {
-                                await _togglePin(row);
-                                return;
-                              }
-
-                              if (selected == 'edit') {
-                                await _editMessage(row);
-                                return;
-                              }
-
-                              if (selected == 'delete') {
-                                final deleteMode = await _showDeleteModeSheet();
-                                if (!mounted || deleteMode == null) return;
-
-                                if (deleteMode == 'everyone') {
-                                  await _deleteForEveryone(row);
-                                  return;
-                                }
-                                if (deleteMode == 'me') {
-                                  await _deleteForMe(row);
-                                  return;
-                                }
-                              }
-
-                              if (selected.startsWith('react:')) {
-                                final reaction = selected
-                                    .substring('react:'.length)
-                                    .trim();
-                                await _reactToMessage(
-                                  row,
-                                  reaction.isEmpty ? null : reaction,
-                                );
-                                return;
-                              }
-
-                              if (selected == 'info') {
-                                await _openMessageInfoSheet(
-                                  this.context,
-                                  row,
-                                );
-                              }
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 160),
-                              curve: Curves.easeOutCubic,
-                              transform: Matrix4.translationValues(swipeDx, 0, 0),
-                              child: Column(
-                                crossAxisAlignment: row.isMine
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                                children: [
-                                if (row.isPinned ||
-                                    _pinnedMessageIds.contains(row.id))
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 2,
-                                      bottom: 6,
-                                      left: 8,
-                                      right: 8,
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.10),
-                                        borderRadius: BorderRadius.circular(
-                                          999,
-                                        ),
-                                        border: Border.all(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                              .withValues(alpha: 0.18),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.push_pin_rounded,
-                                            size: 12,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
+                                    if (selected == 'copy') {
+                                      final text = row.text.trim();
+                                      if (text.isNotEmpty) {
+                                        final messenger = ScaffoldMessenger.of(
+                                          this.context,
+                                        );
+                                        await Clipboard.setData(
+                                          ClipboardData(text: text),
+                                        );
+                                        if (!mounted) return;
+                                        messenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Copied'),
                                           ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            'Pinned',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w800,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
+                                        );
+                                      }
+                                      return;
+                                    }
+
+                                    if (selected == 'forward') {
+                                      await _forwardMessage(row);
+                                      return;
+                                    }
+
+                                    if (selected == 'pin') {
+                                      await _togglePin(row);
+                                      return;
+                                    }
+
+                                    if (selected == 'edit') {
+                                      await _editMessage(row);
+                                      return;
+                                    }
+
+                                    if (selected == 'delete') {
+                                      final deleteMode =
+                                          await _showDeleteModeSheet();
+                                      if (!mounted || deleteMode == null) {
+                                        return;
+                                      }
+
+                                      if (deleteMode == 'everyone') {
+                                        await _deleteForEveryone(row);
+                                        return;
+                                      }
+                                      if (deleteMode == 'me') {
+                                        await _deleteForMe(row);
+                                        return;
+                                      }
+                                    }
+
+                                    if (selected.startsWith('react:')) {
+                                      final reaction = selected
+                                          .substring('react:'.length)
+                                          .trim();
+                                      await _reactToMessage(
+                                        row,
+                                        reaction.isEmpty ? null : reaction,
+                                      );
+                                      return;
+                                    }
+
+                                    if (selected == 'info') {
+                                      await _openMessageInfoSheet(
+                                        this.context,
+                                        row,
+                                      );
+                                    }
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 220),
+                                    curve: Curves.easeOutCubic,
+                                    transform: Matrix4.translationValues(
+                                      swipeDx,
+                                      0,
+                                      0,
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: isHighlighted ? 4 : 0,
+                                      vertical: isHighlighted ? 2 : 0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isHighlighted
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.10)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: row.isMine
+                                          ? CrossAxisAlignment.end
+                                          : CrossAxisAlignment.start,
+                                      children: [
+                                        if (row.isPinned ||
+                                            _pinnedMessageIds.contains(row.id))
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 2,
+                                              bottom: 6,
+                                              left: 8,
+                                              right: 8,
+                                            ),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.10),
+                                                borderRadius:
+                                                    BorderRadius.circular(999),
+                                                border: Border.all(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withValues(alpha: 0.18),
                                                 ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.push_pin_rounded,
+                                                    size: 12,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Pinned',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .labelSmall
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).colorScheme.primary,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
-                                        ],
-                                      ),
+                                        if (row.deleteState.toUpperCase() !=
+                                            'DELETED_FOR_ME')
+                                          ChatMessageBubble(
+                                            contextForNavigation: context,
+                                            rawText: row.text,
+                                            mediaUrl: row.mediaUrl ?? '',
+                                            isMine: row.isMine,
+                                            showName:
+                                                detail.isGroup &&
+                                                startsGroup &&
+                                                !row.isMine,
+                                            senderLabel: row.senderName,
+                                            timeLabel: row.timeLabel,
+                                            edited: row.edited,
+                                            reaction: row.reaction,
+                                            forwarded: row.forwarded,
+                                            delivered: row.delivered,
+                                            seen: row.seen,
+                                            deleteState: row.deleteState,
+                                            voiceDurationSeconds:
+                                                row.voiceDurationSeconds,
+                                            voiceUnread:
+                                                !row.isMine &&
+                                                row.kind.toUpperCase() ==
+                                                    'VOICE' &&
+                                                !row.voicePlayed,
+                                            onVoicePlayed:
+                                                row.kind.toUpperCase() ==
+                                                    'VOICE'
+                                                ? () => _markVoicePlayed(row)
+                                                : null,
+                                            replySender:
+                                                row.replyPreview?.senderName,
+                                            replySnippet:
+                                                row.replyPreview?.text,
+                                            onReplyTap:
+                                                row.replyToMessageId == null
+                                                ? null
+                                                : () => _jumpToMessage(
+                                                    row.replyToMessageId!,
+                                                  ),
+                                            mediaMimeType: row.mediaMimeType,
+                                            messageKind: row.kind,
+                                            maxWidth: 280,
+                                          ),
+                                      ],
                                     ),
                                   ),
-                                if (row.deleteState.toUpperCase() !=
-                                    'DELETED_FOR_ME')
-                                  ChatMessageBubble(
-                                    contextForNavigation: context,
-                                    rawText: row.text,
-                                    mediaUrl: row.mediaUrl ?? '',
-                                    isMine: row.isMine,
-                                    showName:
-                                        detail.isGroup &&
-                                        startsGroup &&
-                                        !row.isMine,
-                                    senderLabel: row.senderName,
-                                    timeLabel: row.timeLabel,
-                                    edited: row.edited,
-                                    reaction: row.reaction,
-                                    forwarded: row.forwarded,
-                                    delivered: row.delivered,
-                                    seen: row.seen,
-                                    deleteState: row.deleteState,
-                                    voiceDurationSeconds:
-                                        row.voiceDurationSeconds,
-                                    voiceUnread:
-                                        !row.isMine &&
-                                        row.kind.toUpperCase() == 'VOICE' &&
-                                        !row.voicePlayed,
-                                    onVoicePlayed:
-                                        row.kind.toUpperCase() == 'VOICE'
-                                        ? () => _markVoicePlayed(row)
-                                        : null,
-                                    replySender: row.replyPreview?.senderName,
-                                    replySnippet: row.replyPreview?.text,
-                                    mediaMimeType: row.mediaMimeType,
-                                    messageKind: row.kind,
-                                    maxWidth: 280,
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -2083,6 +2303,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   onCancelReply: () {
                     setState(() => _replyIndex = null);
                   },
+                  onTapReplyPreview: _replyIndex == null
+                      ? null
+                      : () => _jumpToMessage(rows[_replyIndex!].id),
                   onSend: () => _send(detail),
                   onCamera: () => _openCamera(detail),
                   onAttach: () => _pickFiles(detail),

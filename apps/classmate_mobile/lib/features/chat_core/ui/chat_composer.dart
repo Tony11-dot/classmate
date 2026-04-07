@@ -12,6 +12,7 @@ class ChatComposer extends StatelessWidget {
     required this.onMic,
     this.replyingTo,
     this.onCancelReply,
+    this.onTapReplyPreview,
     this.onStop,
     this.onMicHoldStart,
     this.onMicHoldMove,
@@ -44,6 +45,7 @@ class ChatComposer extends StatelessWidget {
   final TextEditingController controller;
   final dynamic replyingTo;
   final VoidCallback? onCancelReply;
+  final VoidCallback? onTapReplyPreview;
 
   final VoidCallback onSend;
   final VoidCallback onCamera;
@@ -94,6 +96,8 @@ class ChatComposer extends StatelessWidget {
     return v.isEmpty ? 'Message' : v;
   }
 
+  double _clamp01(double v) => v < 0 ? 0 : (v > 1 ? 1 : v);
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -127,8 +131,8 @@ class ChatComposer extends StatelessWidget {
                     child: isRecording && !isVoiceLocked
                         ? _holding(context)
                         : isRecording && isVoiceLocked
-                            ? _locked(context)
-                            : _idle(context, hasText),
+                        ? _locked(context)
+                        : _idle(context, hasText),
                   );
                 },
               ),
@@ -144,8 +148,9 @@ class ChatComposer extends StatelessWidget {
     final dynamic rawReplyingTo = replyingTo;
     final String sender = ((rawReplyingTo?.senderName ?? '') as String).trim();
     final String raw = ((rawReplyingTo?.text ?? '') as String).trim();
-    final String preview =
-        raw.isEmpty ? 'Replying to message' : replyPreviewText(raw);
+    final String preview = raw.isEmpty
+        ? 'Replying to message'
+        : replyPreviewText(raw);
 
     return Container(
       width: double.infinity,
@@ -160,39 +165,54 @@ class ChatComposer extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
             width: 3,
             height: 36,
             decoration: BoxDecoration(
               color: scheme.primary,
               borderRadius: BorderRadius.circular(999),
+              boxShadow: [
+                BoxShadow(
+                  color: scheme.primary.withValues(alpha: 0.18),
+                  blurRadius: 8,
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sender.isEmpty ? 'Reply' : sender,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: onTapReplyPreview,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sender.isEmpty ? 'Reply' : sender,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: scheme.primary,
                         fontWeight: FontWeight.w800,
                       ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  preview,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      preview,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -303,49 +323,48 @@ class ChatComposer extends StatelessWidget {
                       onTap: enabled ? (onStop ?? onSend) : null,
                     )
                   : canSend
-                      ? _sendBtn(
-                          context,
-                          key: const ValueKey('send_btn'),
-                          icon: Icons.send_rounded,
-                          active: true,
-                          onTap: onSend,
-                        )
-                      : showMic
-                          ? SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: GestureDetector(
-                                key: const ValueKey('mic_btn'),
-                                behavior: HitTestBehavior.opaque,
-                                onLongPressStart: enabled && !forceMicOnlyTap
-                                    ? onMicHoldStart
-                                    : null,
-                                onLongPressMoveUpdate:
-                                    enabled && !forceMicOnlyTap
-                                        ? onMicHoldMove
-                                        : null,
-                                onLongPressEnd: enabled && !forceMicOnlyTap
-                                    ? onMicHoldEnd
-                                    : null,
-                                onLongPressCancel: enabled && !forceMicOnlyTap
-                                    ? onMicHoldCancel
-                                    : null,
-                                child: Center(
-                                  child: _circleBtn(
-                                    context,
-                                    icon: Icons.mic_none_rounded,
-                                    onTap: enabled ? onMic : null,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : _sendBtn(
-                              context,
-                              key: const ValueKey('disabled_send_btn'),
-                              icon: Icons.send_rounded,
-                              active: false,
-                              onTap: null,
-                            ),
+                  ? _sendBtn(
+                      context,
+                      key: const ValueKey('send_btn'),
+                      icon: Icons.send_rounded,
+                      active: true,
+                      onTap: onSend,
+                    )
+                  : showMic
+                  ? SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: GestureDetector(
+                        key: const ValueKey('mic_btn'),
+                        behavior: HitTestBehavior.opaque,
+                        onLongPressStart: enabled && !forceMicOnlyTap
+                            ? onMicHoldStart
+                            : null,
+                        onLongPressMoveUpdate: enabled && !forceMicOnlyTap
+                            ? onMicHoldMove
+                            : null,
+                        onLongPressEnd: enabled && !forceMicOnlyTap
+                            ? onMicHoldEnd
+                            : null,
+                        onLongPressCancel: enabled && !forceMicOnlyTap
+                            ? onMicHoldCancel
+                            : null,
+                        child: Center(
+                          child: _circleBtn(
+                            context,
+                            icon: Icons.mic_none_rounded,
+                            onTap: enabled ? onMic : null,
+                          ),
+                        ),
+                      ),
+                    )
+                  : _sendBtn(
+                      context,
+                      key: const ValueKey('disabled_send_btn'),
+                      icon: Icons.send_rounded,
+                      active: false,
+                      onTap: null,
+                    ),
             ),
           ),
         ],
@@ -355,8 +374,17 @@ class ChatComposer extends StatelessWidget {
 
   Widget _holding(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final cancelActive = activeHoldDx <= -56;
-    final lockActive = activeHoldDy <= -44;
+    final cancelProgress = _clamp01((-activeHoldDx) / 56);
+    final lockProgress = _clamp01((-activeHoldDy) / 44);
+    final cancelActive = cancelProgress >= 1;
+    final lockActive = lockProgress >= 1;
+
+    final cancelAccent =
+        Color.lerp(scheme.onSurfaceVariant, scheme.error, cancelProgress) ??
+        scheme.error;
+    final lockAccent =
+        Color.lerp(scheme.onSurfaceVariant, scheme.primary, lockProgress) ??
+        scheme.primary;
 
     return Stack(
       key: const ValueKey('holding_pan_surface'),
@@ -369,7 +397,9 @@ class ChatComposer extends StatelessWidget {
             children: [
               const SizedBox(width: 10),
               Expanded(
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 110),
+                  curve: Curves.easeOutCubic,
                   constraints: const BoxConstraints(minHeight: 46),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -381,50 +411,108 @@ class ChatComposer extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: (cancelActive
-                              ? scheme.error
-                              : scheme.outlineVariant)
-                          .withValues(alpha: 0.18),
+                      color:
+                          Color.lerp(
+                            scheme.outlineVariant.withValues(alpha: 0.18),
+                            scheme.error.withValues(alpha: 0.42),
+                            cancelProgress,
+                          ) ??
+                          scheme.outlineVariant.withValues(alpha: 0.18),
                     ),
+                    boxShadow: cancelProgress > 0
+                        ? [
+                            BoxShadow(
+                              color: scheme.error.withValues(
+                                alpha: 0.14 * cancelProgress,
+                              ),
+                              blurRadius: 16,
+                              spreadRadius: -6,
+                              offset: const Offset(0, 6),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     children: [
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.88, end: 1.02),
-                        duration: const Duration(milliseconds: 700),
-                        curve: Curves.easeInOut,
-                        builder: (context, value, child) =>
-                            Transform.scale(scale: value, child: child),
+                      AnimatedScale(
+                        scale: 1 + (cancelProgress * 0.08),
+                        duration: const Duration(milliseconds: 110),
+                        curve: Curves.easeOutCubic,
                         child: Icon(
                           cancelActive
                               ? Icons.delete_outline_rounded
                               : Icons.mic_rounded,
-                          size: 18,
-                          color: cancelActive
-                              ? scheme.error
-                              : scheme.primary,
+                          size: 18 + (cancelProgress * 1.5),
+                          color: cancelAccent,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text(
-                        _fmtElapsed(recordingElapsed),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: cancelActive
-                                  ? scheme.error
-                                  : scheme.primary,
-                            ),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 110),
+                        curve: Curves.easeOutCubic,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: cancelAccent,
+                        ),
+                        child: Text(_fmtElapsed(recordingElapsed)),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          cancelActive
-                              ? 'Release to cancel'
-                              : 'Slide left to cancel',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                        child: Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            AnimatedOpacity(
+                              opacity: 1 - cancelProgress.clamp(0, 0.92),
+                              duration: const Duration(milliseconds: 110),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Transform.translate(
+                                    offset: Offset(-10 * cancelProgress, 0),
+                                    child: Icon(
+                                      Icons.chevron_left_rounded,
+                                      size: 18,
+                                      color: scheme.onSurfaceVariant.withValues(
+                                        alpha: 0.72,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Expanded(
+                                    child: Text(
+                                      lockProgress > 0.15
+                                          ? 'Slide up to lock'
+                                          : 'Slide left to cancel',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AnimatedOpacity(
+                              opacity: cancelProgress,
+                              duration: const Duration(milliseconds: 110),
+                              child: Text(
+                                cancelActive
+                                    ? 'Release to cancel'
+                                    : 'Keep sliding to cancel',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: cancelAccent,
+                                    ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -438,58 +526,92 @@ class ChatComposer extends StatelessWidget {
         Positioned(
           right: 8,
           bottom: 8,
-          child: AnimatedScale(
-            scale: lockActive ? 1.06 : 1,
-            duration: const Duration(milliseconds: 120),
-            child: Container(
-              width: 46,
-              height: 96,
-              decoration: BoxDecoration(
-                color: scheme.surface.withValues(alpha: 0.92),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: (lockActive
-                          ? scheme.primary
-                          : scheme.outlineVariant)
-                      .withValues(alpha: 0.20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 16,
-                    spreadRadius: -6,
-                    offset: const Offset(0, 8),
-                    color: Colors.black.withValues(alpha: 0.22),
+          child: AnimatedSlide(
+            duration: const Duration(milliseconds: 110),
+            curve: Curves.easeOutCubic,
+            offset: Offset(0, -0.08 * lockProgress),
+            child: AnimatedScale(
+              scale: 1 + (lockProgress * 0.10),
+              duration: const Duration(milliseconds: 110),
+              curve: Curves.easeOutCubic,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 110),
+                curve: Curves.easeOutCubic,
+                width: 46,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: scheme.surface.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color:
+                        Color.lerp(
+                          scheme.outlineVariant.withValues(alpha: 0.20),
+                          scheme.primary.withValues(alpha: 0.42),
+                          lockProgress,
+                        ) ??
+                        scheme.outlineVariant.withValues(alpha: 0.20),
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(
-                    lockActive ? Icons.lock : Icons.lock_open_rounded,
-                    size: 20,
-                    color: lockActive
-                        ? scheme.primary
-                        : scheme.onSurfaceVariant,
-                  ),
-                  Container(
-                    width: 16,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: scheme.outlineVariant,
-                      borderRadius: BorderRadius.circular(999),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 16,
+                      spreadRadius: -6,
+                      offset: const Offset(0, 8),
+                      color: Colors.black.withValues(alpha: 0.22),
                     ),
-                  ),
-                  Text(
-                    lockActive ? 'Release' : 'Lock',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: lockActive
-                              ? scheme.primary
-                              : scheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w800,
+                    if (lockProgress > 0)
+                      BoxShadow(
+                        blurRadius: 18,
+                        spreadRadius: -8,
+                        offset: const Offset(0, 8),
+                        color: scheme.primary.withValues(
+                          alpha: 0.18 * lockProgress,
                         ),
-                  ),
-                ],
+                      ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Transform.translate(
+                      offset: Offset(0, -4 * lockProgress),
+                      child: Icon(
+                        lockActive
+                            ? Icons.lock_rounded
+                            : Icons.lock_open_rounded,
+                        size: 20,
+                        color: lockAccent,
+                      ),
+                    ),
+                    AnimatedOpacity(
+                      opacity: 1 - (lockProgress * 0.55),
+                      duration: const Duration(milliseconds: 110),
+                      child: Icon(
+                        Icons.keyboard_arrow_up_rounded,
+                        size: 16,
+                        color: scheme.onSurfaceVariant.withValues(alpha: 0.72),
+                      ),
+                    ),
+                    Container(
+                      width: 16,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        color: Color.lerp(
+                          scheme.outlineVariant,
+                          scheme.primary,
+                          lockProgress,
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    Text(
+                      lockActive ? 'Release' : 'Lock',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: lockAccent,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -513,7 +635,9 @@ class ChatComposer extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Expanded(
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
               constraints: const BoxConstraints(minHeight: 46),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               decoration: BoxDecoration(
@@ -522,15 +646,29 @@ class ChatComposer extends StatelessWidget {
                 border: Border.all(
                   color: scheme.outlineVariant.withValues(alpha: 0.16),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.10),
+                    blurRadius: 14,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
-                  Icon(
-                    isVoicePaused
-                        ? Icons.pause_circle_outline_rounded
-                        : Icons.mic_rounded,
-                    size: 18,
-                    color: scheme.primary,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    child: Icon(
+                      isVoicePaused
+                          ? Icons.pause_circle_outline_rounded
+                          : Icons.lock_rounded,
+                      key: ValueKey(isVoicePaused ? 'paused' : 'locked'),
+                      size: 18,
+                      color: scheme.primary,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -570,8 +708,8 @@ class ChatComposer extends StatelessWidget {
                     compact: true,
                     onTap: enabled
                         ? (isVoicePaused
-                            ? (onResumeRecording ?? onMic)
-                            : (onPauseRecording ?? onMic))
+                              ? (onResumeRecording ?? onMic)
+                              : (onPauseRecording ?? onMic))
                         : null,
                   ),
                 ],
@@ -627,7 +765,9 @@ class ChatComposer extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
         width: size,
         height: size,
         decoration: BoxDecoration(
@@ -655,7 +795,9 @@ class ChatComposer extends StatelessWidget {
       key: key,
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
         width: 40,
         height: 40,
         decoration: BoxDecoration(
@@ -668,6 +810,16 @@ class ChatComposer extends StatelessWidget {
                 ? scheme.primary.withValues(alpha: 0.28)
                 : scheme.outlineVariant.withValues(alpha: 0.14),
           ),
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.14),
+                    blurRadius: 12,
+                    spreadRadius: -6,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
         ),
         alignment: Alignment.center,
         child: Icon(

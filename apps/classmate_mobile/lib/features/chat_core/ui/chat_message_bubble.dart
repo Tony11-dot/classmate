@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -29,6 +28,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.onVoicePlayed,
     this.replySender,
     this.replySnippet,
+    this.onReplyTap,
     this.mediaMimeType,
     this.messageKind = 'TEXT',
     this.maxWidth = 236,
@@ -54,15 +54,17 @@ class ChatMessageBubble extends StatelessWidget {
   final VoidCallback? onVoicePlayed;
   final String? replySender;
   final String? replySnippet;
+  final VoidCallback? onReplyTap;
   final String? mediaMimeType;
   final String messageKind;
   final double maxWidth;
   final bool previewMode;
   final double? previewMaxHeight;
 
-  bool _isImageByUrl(String v) =>
-      RegExp(r'\.(jpg|jpeg|png|webp|gif|heic|heif)(\?|$)', caseSensitive: false)
-          .hasMatch(v);
+  bool _isImageByUrl(String v) => RegExp(
+    r'\.(jpg|jpeg|png|webp|gif|heic|heif)(\?|$)',
+    caseSensitive: false,
+  ).hasMatch(v);
 
   bool _isVoiceByUrl(String v) =>
       RegExp(r'\.(m4a|aac|mp3|wav)(\?|$)', caseSensitive: false).hasMatch(v);
@@ -178,7 +180,8 @@ class ChatMessageBubble extends StatelessWidget {
 
     final upperKind = kind.trim().toUpperCase();
     final lowerMime = mime.trim().toLowerCase();
-    final isMediaish = upperKind == 'IMAGE' ||
+    final isMediaish =
+        upperKind == 'IMAGE' ||
         upperKind == 'VIDEO' ||
         upperKind == 'VOICE' ||
         upperKind == 'FILE' ||
@@ -200,11 +203,6 @@ class ChatMessageBubble extends StatelessWidget {
 
     return isMediaish && _looksLikeFileName(normalizedBody);
   }
-
-
-
-
-
 
   Widget _buildChecks() {
     return const SizedBox.shrink();
@@ -228,9 +226,7 @@ class ChatMessageBubble extends StatelessWidget {
 
     if (_isVideoByUrl(url) || _isVideoByMeta(kind, mime)) {
       await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => _InlineVideoViewerScreen(url: url),
-        ),
+        MaterialPageRoute(builder: (_) => _InlineVideoViewerScreen(url: url)),
       );
       return;
     }
@@ -327,14 +323,15 @@ class ChatMessageBubble extends StatelessWidget {
             decoration: BoxDecoration(
               color: isMine
                   ? Color.alphaBlend(
-                      Theme.of(contextForNavigation).colorScheme.primary.withValues(
-                        alpha: 0.26,
-                      ),
+                      Theme.of(
+                        contextForNavigation,
+                      ).colorScheme.primary.withValues(alpha: 0.26),
                       Theme.of(contextForNavigation).colorScheme.surface,
                     )
-                  : Theme.of(contextForNavigation).colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.55,
-                    ),
+                  : Theme.of(contextForNavigation)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.55),
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(13),
                 topRight: const Radius.circular(13),
@@ -343,17 +340,17 @@ class ChatMessageBubble extends StatelessWidget {
               ),
               border: Border.all(
                 color: isMine
-                    ? Theme.of(contextForNavigation).colorScheme.primary.withValues(
-                        alpha: 0.24,
-                      )
+                    ? Theme.of(
+                        contextForNavigation,
+                      ).colorScheme.primary.withValues(alpha: 0.24)
                     : Colors.white.withValues(alpha: 0.04),
               ),
               boxShadow: isMine
                   ? [
                       BoxShadow(
-                        color: Theme.of(contextForNavigation).colorScheme.primary.withValues(
-                          alpha: 0.18,
-                        ),
+                        color: Theme.of(
+                          contextForNavigation,
+                        ).colorScheme.primary.withValues(alpha: 0.18),
                         blurRadius: 18,
                         spreadRadius: 0,
                         offset: const Offset(0, 2),
@@ -403,45 +400,49 @@ class ChatMessageBubble extends StatelessWidget {
                 if (resolvedReplySender.isNotEmpty ||
                     resolvedReplySnippet.isNotEmpty ||
                     inlineReplyPrefix.isNotEmpty) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-                    margin: const EdgeInsets.only(bottom: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onReplyTap,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+                      margin: const EdgeInsets.only(bottom: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          resolvedReplySender.isEmpty
-                              ? 'Reply'
-                              : resolvedReplySender,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 11.5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            resolvedReplySender.isEmpty
+                                ? 'Reply'
+                                : resolvedReplySender,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11.5,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          resolvedReplySnippet.isEmpty
-                              ? 'Message'
-                              : resolvedReplySnippet,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.78),
-                            fontSize: 11.5,
+                          const SizedBox(height: 1),
+                          Text(
+                            resolvedReplySnippet.isEmpty
+                                ? 'Message'
+                                : resolvedReplySnippet,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.78),
+                              fontSize: 11.5,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -484,15 +485,16 @@ class ChatMessageBubble extends StatelessWidget {
                           resolvedMediaUrl,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            height: previewMode ? 132 : 180,
-                            alignment: Alignment.center,
-                            color: Colors.white.withValues(alpha: 0.06),
-                            child: const Icon(
-                              Icons.broken_image_outlined,
-                              color: Colors.white70,
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                height: previewMode ? 132 : 180,
+                                alignment: Alignment.center,
+                                color: Colors.white.withValues(alpha: 0.06),
+                                child: const Icon(
+                                  Icons.broken_image_outlined,
+                                  color: Colors.white70,
+                                ),
+                              ),
                         ),
                       ),
                     ),
@@ -578,9 +580,7 @@ class ChatMessageBubble extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              showRealUserCaption
-                                  ? body
-                                  : displayFileName,
+                              showRealUserCaption ? body : displayFileName,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white),
@@ -591,10 +591,8 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                 ] else if (showRealUserCaption) ...[
-                    _CollapsibleMessageText(
-                      text: body,
-                      previewMode: previewMode,
-                    ),                ],
+                  _CollapsibleMessageText(text: body, previewMode: previewMode),
+                ],
                 const SizedBox(height: 3),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -661,7 +659,6 @@ class ChatMessageBubble extends StatelessWidget {
   }
 }
 
-
 class _CollapsibleMessageText extends StatefulWidget {
   const _CollapsibleMessageText({
     required this.text,
@@ -672,7 +669,8 @@ class _CollapsibleMessageText extends StatefulWidget {
   final bool previewMode;
 
   @override
-  State<_CollapsibleMessageText> createState() => _CollapsibleMessageTextState();
+  State<_CollapsibleMessageText> createState() =>
+      _CollapsibleMessageTextState();
 }
 
 class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
@@ -701,7 +699,9 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
             Text(
               widget.text,
               maxLines: _expanded ? null : collapsedMaxLines,
-              overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              overflow: _expanded
+                  ? TextOverflow.visible
+                  : TextOverflow.ellipsis,
               style: style,
             ),
             if (exceeds && !widget.previewMode) ...[
@@ -756,9 +756,11 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
     final uri = Uri.tryParse(widget.url);
     if (uri != null) {
       _controller = VideoPlayerController.networkUrl(uri)
-        ..initialize().then((_) {
-          if (mounted) setState(() {});
-        }).catchError((_) {});
+        ..initialize()
+            .then((_) {
+              if (mounted) setState(() {});
+            })
+            .catchError((_) {});
     }
   }
 
@@ -778,7 +780,10 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: Container(
-          constraints: BoxConstraints(minHeight: widget.previewMode ? 132 : 96, maxHeight: widget.previewMode ? 132 : 220),
+          constraints: BoxConstraints(
+            minHeight: widget.previewMode ? 132 : 96,
+            maxHeight: widget.previewMode ? 132 : 220,
+          ),
           width: double.infinity,
           color: Colors.white.withValues(alpha: 0.06),
           child: Stack(
@@ -786,7 +791,9 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
             children: [
               if (ready)
                 AspectRatio(
-                  aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio,
+                  aspectRatio: c.value.aspectRatio == 0
+                      ? 16 / 9
+                      : c.value.aspectRatio,
                   child: VideoPlayer(c),
                 )
               else
@@ -823,14 +830,13 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
 }
 
 class _InlineVideoViewerScreen extends StatefulWidget {
-  const _InlineVideoViewerScreen({
-    required this.url,
-  });
+  const _InlineVideoViewerScreen({required this.url});
 
   final String url;
 
   @override
-  State<_InlineVideoViewerScreen> createState() => _InlineVideoViewerScreenState();
+  State<_InlineVideoViewerScreen> createState() =>
+      _InlineVideoViewerScreenState();
 }
 
 class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
@@ -849,9 +855,11 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
     final uri = Uri.tryParse(widget.url);
     if (uri != null) {
       _controller = VideoPlayerController.networkUrl(uri)
-        ..initialize().then((_) {
-          if (mounted) setState(() {});
-        }).catchError((_) {});
+        ..initialize()
+            .then((_) {
+              if (mounted) setState(() {});
+            })
+            .catchError((_) {});
       _controller?.addListener(() {
         if (mounted) setState(() {});
       });
@@ -895,7 +903,9 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                           }
                         },
                         child: AspectRatio(
-                          aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio,
+                          aspectRatio: c.value.aspectRatio == 0
+                              ? 16 / 9
+                              : c.value.aspectRatio,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -958,8 +968,11 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                           children: [
                             IconButton(
                               onPressed: () async {
-                                final back = position - const Duration(seconds: 10);
-                                await c.seekTo(back < Duration.zero ? Duration.zero : back);
+                                final back =
+                                    position - const Duration(seconds: 10);
+                                await c.seekTo(
+                                  back < Duration.zero ? Duration.zero : back,
+                                );
                               },
                               icon: const Icon(
                                 Icons.replay_10_rounded,
@@ -984,8 +997,11 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                             const SizedBox(width: 12),
                             IconButton(
                               onPressed: () async {
-                                final next = position + const Duration(seconds: 10);
-                                await c.seekTo(next > duration ? duration : next);
+                                final next =
+                                    position + const Duration(seconds: 10);
+                                await c.seekTo(
+                                  next > duration ? duration : next,
+                                );
                               },
                               icon: const Icon(
                                 Icons.forward_10_rounded,

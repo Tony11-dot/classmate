@@ -32,7 +32,6 @@ import '../../chat_core/ui/chat_message_info_page.dart';
 import '../../../core/auth/auth_session.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
-import '../../chat_core/utils/chat_time.dart';
 
 class _ClassroomForwardTargetPickerSheet extends ConsumerStatefulWidget {
   const _ClassroomForwardTargetPickerSheet();
@@ -397,19 +396,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       if (!_chatScrollCtl.hasClients) {
         return;
       }
-      final pos = _chatScrollCtl.position;
-      final target = pos.maxScrollExtent;
-      final distance = target - pos.pixels;
-
-      if (!jump && distance > 140) {
-        return;
-      }
-
+      final target = _chatScrollCtl.position.maxScrollExtent;
       if (jump) {
-        _chatScrollCtl.jumpTo(target);
+        _chatScrollCtl.jumpTo(_chatScrollCtl.position.maxScrollExtent);
         return;
       }
-
       _chatScrollCtl.animateTo(
         target,
         duration: const Duration(milliseconds: 180),
@@ -423,31 +414,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   bool _voicePaused = false;
   bool _voiceCancelled = false;
   String? replyToId;
-
-
-  Future<void> _invalidateClassroomChatCaches() async {
-    final provider50 = classroomChatProvider((
-      id: widget.courseId,
-      limit: 50,
-      cursor: null,
-    ));
-    final provider20 = classroomChatProvider((
-      id: widget.courseId,
-      limit: 20,
-      cursor: null,
-    ));
-
-    ref.invalidate(provider50);
-    ref.invalidate(provider20);
-
-    try {
-      await ref.read(provider50.future);
-    } catch (_) {}
-
-    try {
-      await ref.read(provider20.future);
-    } catch (_) {}
-  }
 
   void _goBackToClassrooms() {
     if (!mounted) {
@@ -864,11 +830,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-  Future<void> _refreshAll() async {
+  void _refreshAll() {
     ref.invalidate(classroomDetailProvider(widget.courseId));
     ref.invalidate(classroomPeopleProvider(widget.courseId));
-    await _invalidateClassroomChatCaches();
-    if (mounted) setState(() {});
+    ref.invalidate(
+      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+    );
     ref.invalidate(classroomAssignmentsProvider(widget.courseId));
     ref.invalidate(classroomMaterialsProvider(widget.courseId));
     ref.invalidate(classroomMeetingsProvider(widget.courseId));
@@ -1198,14 +1165,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewTitle: isMine ? 'You' : senderLabel,
         previewBody: editableBodyText(text).trim().isEmpty
             ? (kind.trim().toUpperCase() == 'IMAGE'
-                ? 'Photo'
-                : kind.trim().toUpperCase() == 'VIDEO'
-                    ? 'Video'
-                    : kind.trim().toUpperCase() == 'VOICE'
-                        ? 'Voice note'
-                        : kind.trim().toUpperCase() == 'FILE'
-                            ? 'File'
-                            : '(empty)')
+                  ? 'Photo'
+                  : kind.trim().toUpperCase() == 'VIDEO'
+                  ? 'Video'
+                  : kind.trim().toUpperCase() == 'VOICE'
+                  ? 'Voice note'
+                  : kind.trim().toUpperCase() == 'FILE'
+                  ? 'File'
+                  : '(empty)')
             : editableBodyText(text),
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
@@ -1278,12 +1245,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       } catch (e) {
         if (!mounted) return;
         final text = e.toString();
-        final message = text.contains('Cannot forward into a non-approved thread')
+        final message =
+            text.contains('Cannot forward into a non-approved thread')
             ? 'Cannot forward into a request chat until it is approved'
             : 'Could not forward this message';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
       return;
     }
@@ -1326,24 +1294,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       if (classroomInsetsBottom > 0) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          _pinClassroomToBottom(jump: true);
+          _scrollToBottom(jump: false);
         });
       }
     }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: AnimatedPadding(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [_classroomComposer()],
-          ),
-        ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [_classroomComposer()],
       ),
       body: SafeArea(
         child: Column(
@@ -1477,7 +1437,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+          padding: EdgeInsets.fromLTRB(
+            12,
+            8,
+            12,
+            24 + MediaQuery.of(context).viewInsets.bottom,
+          ),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) {
@@ -1546,7 +1511,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+          padding: EdgeInsets.fromLTRB(
+            12,
+            8,
+            12,
+            24 + MediaQuery.of(context).viewInsets.bottom,
+          ),
           itemCount: raw.length,
           separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
@@ -1588,10 +1558,30 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
-        'jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif',
-        'mp4', 'mov', 'm4v', 'webm',
-        'm4a', 'aac', 'mp3', 'wav',
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip',
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'gif',
+        'heic',
+        'heif',
+        'mp4',
+        'mov',
+        'm4v',
+        'webm',
+        'm4a',
+        'aac',
+        'mp3',
+        'wav',
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'ppt',
+        'pptx',
+        'txt',
+        'zip',
       ],
     );
 
@@ -1604,8 +1594,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     await _sendClassroomPickedMedia(paths);
   }
-
-
 
   Future<void> _pickClassroomCameraOrUploadImage() async {
     if (_sending || _recording) return;
@@ -1692,12 +1680,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-
   Future<void> _sendClassroomPickedMedia(
     List<String> paths, {
     String caption = '',
   }) async {
-    final clean = paths.where((e) => e.trim().isNotEmpty).map((e) => e.trim()).toList();
+    final clean = paths
+        .where((e) => e.trim().isNotEmpty)
+        .map((e) => e.trim())
+        .toList();
     if (clean.isEmpty) return;
 
     final repo = ref.read(classroomsRepoProvider);
@@ -1750,7 +1740,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
 
       _clearReply();
-      await _invalidateClassroomChatCaches();
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
       _pinClassroomToBottom(jump: true);
     } finally {
       if (mounted) {
@@ -1770,7 +1762,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Future<void> _startVoiceNote() async => _toggleClassroomMic();
-  Future<void> _stopVoiceNoteAndSend() async => _toggleClassroomMic(sendNow: true);
+  Future<void> _stopVoiceNoteAndSend() async =>
+      _toggleClassroomMic(sendNow: true);
 
   Future<void> _stopVoiceNoteAndSendNow() async {
     if (!_recording) return;
@@ -1836,7 +1829,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     } catch (_) {}
 
-    await _invalidateClassroomChatCaches();
+    ref.invalidate(
+      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+    );
     _pinClassroomToBottom(jump: true);
 
     if (!mounted) return;
@@ -2046,9 +2041,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Microphone permission denied')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission denied')),
+      );
       return;
     }
 
@@ -2063,9 +2058,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
       return;
     }
 
@@ -2189,7 +2182,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         });
       }
 
-      await _invalidateClassroomChatCaches();
+      ref.invalidate(
+        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+      );
       _pinClassroomToBottom(jump: true);
     } finally {
       if (mounted) {
@@ -2474,10 +2469,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-
   Widget _classroomComposerTopContent() {
     final hasDrafts =
-        _draftAttachments.isNotEmpty || (_draftVoicePath ?? '').trim().isNotEmpty;
+        _draftAttachments.isNotEmpty ||
+        (_draftVoicePath ?? '').trim().isNotEmpty;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -2527,11 +2522,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 18,
-            ),
+            child: Icon(icon, color: Colors.white, size: 18),
           ),
           const SizedBox(width: 8),
           InkWell(
@@ -2596,7 +2587,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       showAttach: true,
       showMic: true,
       forceMicOnlyTap: false,
-      hasDraft: _draftAttachments.isNotEmpty || (_draftVoicePath ?? '').trim().isNotEmpty,
+      hasDraft:
+          _draftAttachments.isNotEmpty ||
+          (_draftVoicePath ?? '').trim().isNotEmpty,
       replyingTo: _replyToMessageId == null
           ? null
           : (
@@ -2746,12 +2739,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       } catch (e) {
         if (!mounted) return;
         final text = e.toString();
-        final message = text.contains('Cannot forward into a non-approved thread')
+        final message =
+            text.contains('Cannot forward into a non-approved thread')
             ? 'Cannot forward into a request chat until it is approved'
             : 'Could not forward this message';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
       return;
     }
@@ -2772,14 +2766,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewTitle: isMine ? 'You' : senderLabel,
         previewBody: editableBodyText(text).trim().isEmpty
             ? (kind.trim().toUpperCase() == 'IMAGE'
-                ? 'Photo'
-                : kind.trim().toUpperCase() == 'VIDEO'
-                    ? 'Video'
-                    : kind.trim().toUpperCase() == 'VOICE'
-                        ? 'Voice note'
-                        : kind.trim().toUpperCase() == 'FILE'
-                            ? 'File'
-                            : '(empty)')
+                  ? 'Photo'
+                  : kind.trim().toUpperCase() == 'VIDEO'
+                  ? 'Video'
+                  : kind.trim().toUpperCase() == 'VOICE'
+                  ? 'Voice note'
+                  : kind.trim().toUpperCase() == 'FILE'
+                  ? 'File'
+                  : '(empty)')
             : editableBodyText(text),
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
@@ -2849,17 +2843,41 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-
   bool _sameClassroomDay(String a, String b) {
-    return sameLocalCalendarDay(parseChatTimestamp(a), parseChatTimestamp(b));
+    final da = DateTime.tryParse(a)?.toLocal();
+    final db = DateTime.tryParse(b)?.toLocal();
+    if (da == null || db == null) return false;
+    return da.year == db.year && da.month == db.month && da.day == db.day;
   }
 
   String _classroomDayLabel(String raw) {
-    return formatChatDayChipLabel(
-      parseChatTimestamp(raw),
-      includeYear: false,
-      fallback: 'Earlier',
-    );
+    final d = DateTime.tryParse(raw)?.toLocal();
+    if (d == null) return 'Earlier';
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final that = DateTime(d.year, d.month, d.day);
+    final diff = today.difference(that).inDays;
+
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[d.month]} ${d.day}, ${d.year}';
   }
 
   Widget _classroomDayChip(String raw) {
@@ -2870,10 +2888,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.20),
+              color: Theme.of(
+                context,
+              ).colorScheme.outlineVariant.withValues(alpha: 0.20),
             ),
           ),
           child: Text(
@@ -2892,7 +2914,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     AsyncValue<Map<String, dynamic>> value,
     AsyncValue<Map<String, dynamic>> people,
   ) {
-    return _chatTab(value, people);
+    final mq = MediaQuery.of(context);
+    final keyboardLift = mq.viewInsets.bottom > 0
+        ? mq.viewInsets.bottom + 12
+        : 0.0;
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: keyboardLift),
+      child: _chatTab(value, people),
+    );
   }
 
   Widget _chatTab(
@@ -2901,7 +2933,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   ) {
     return Column(
       children: [
-        Expanded(
+        Flexible(
+          fit: FlexFit.loose,
           child: value.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => _CenteredState(
@@ -2986,7 +3019,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               if (_lastChatCount != filtered.length) {
                 _lastChatCount = filtered.length;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _pinClassroomToBottom(jump: filtered.length <= 3);
+                  _scrollToBottom(jump: filtered.length <= 3);
+                  _pinClassroomToBottom(jump: true);
                 });
               }
 
@@ -3013,12 +3047,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           return false;
                         },
                         child: ListView.builder(
-                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
                           controller: _chatScrollCtl,
                           cacheExtent: 900,
                           addAutomaticKeepAlives: false,
                           addRepaintBoundaries: true,
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+                          padding: EdgeInsets.fromLTRB(
+                            12,
+                            8,
+                            12,
+                            24 + MediaQuery.of(context).viewInsets.bottom,
+                          ),
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final item = filtered[index];
@@ -3242,42 +3282,46 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     previewTitle: isMine ? 'You' : senderName,
                                     previewBody: messageText.isEmpty
                                         ? (kind.trim().toUpperCase() == 'IMAGE'
-                                            ? 'Photo'
-                                            : kind.trim().toUpperCase() == 'VIDEO'
-                                                ? 'Video'
-                                                : kind.trim().toUpperCase() == 'VOICE'
-                                                    ? 'Voice note'
-                                                    : kind.trim().toUpperCase() == 'FILE'
-                                                        ? 'File'
-                                                        : '(empty)')
+                                              ? 'Photo'
+                                              : kind.trim().toUpperCase() ==
+                                                    'VIDEO'
+                                              ? 'Video'
+                                              : kind.trim().toUpperCase() ==
+                                                    'VOICE'
+                                              ? 'Voice note'
+                                              : kind.trim().toUpperCase() ==
+                                                    'FILE'
+                                              ? 'File'
+                                              : '(empty)')
                                         : messageText,
                                     previewMeta: _friendlyTime(createdRaw),
                                     previewMediaUrl: mediaUrl,
-                                    previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-                                      contextForNavigation: context,
-                                      rawText: messageText,
-                                      mediaUrl: mediaUrl,
-                                      isMine: isMine,
-                                      showName: false,
-                                      senderLabel: senderName,
-                                      timeLabel: _friendlyTime(createdRaw),
-                                      edited: _editedTextByMessage.containsKey(
-                                        messageId,
-                                      ),
-                                      reaction: _reactionByMessage[messageId],
-                                      forwarded: false,
-                                      delivered: false,
-                                      seen: false,
-                                      deleteState: 'VISIBLE',
-                                      voiceDurationSeconds: durationSec,
-                                      voiceUnread: false,
-                                      onVoicePlayed: null,
-                                      replySender: null,
-                                      replySnippet: null,
-                                      mediaMimeType: null,
-                                      messageKind: kind,
-                                      maxWidth: 280,
-                                    ),
+                                    previewBubbleBuilder: (infoContext) =>
+                                        ChatMessageBubble(
+                                          contextForNavigation: context,
+                                          rawText: messageText,
+                                          mediaUrl: mediaUrl,
+                                          isMine: isMine,
+                                          showName: false,
+                                          senderLabel: senderName,
+                                          timeLabel: _friendlyTime(createdRaw),
+                                          edited: _editedTextByMessage
+                                              .containsKey(messageId),
+                                          reaction:
+                                              _reactionByMessage[messageId],
+                                          forwarded: false,
+                                          delivered: false,
+                                          seen: false,
+                                          deleteState: 'VISIBLE',
+                                          voiceDurationSeconds: durationSec,
+                                          voiceUnread: false,
+                                          onVoicePlayed: null,
+                                          replySender: null,
+                                          replySnippet: null,
+                                          mediaMimeType: null,
+                                          messageKind: kind,
+                                          maxWidth: 280,
+                                        ),
                                     voiceDurationSeconds: durationSec,
                                   );
                                 } else if (current >= 34) {
@@ -3403,22 +3447,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     bottom: 1,
                                   ),
                                   child: Row(
-                                mainAxisAlignment: isMine
-                                    ? MainAxisAlignment.end
-                                    : MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (!isMine)
-                                    SizedBox(
-                                      width: 36,
-                                      child: showAvatar
-                                          ? _InitialsAvatar(name: senderName)
-                                          : const SizedBox.shrink(),
-                                    ),
-                                  if (!isMine) const SizedBox(width: 6),
-                                  Flexible(child: bubble),
-                                  if (isMine) const SizedBox(width: 6),
-                                  if (isMine) const SizedBox(width: 6),
+                                    mainAxisAlignment: isMine
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      if (!isMine)
+                                        SizedBox(
+                                          width: 36,
+                                          child: showAvatar
+                                              ? _InitialsAvatar(
+                                                  name: senderName,
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ),
+                                      if (!isMine) const SizedBox(width: 6),
+                                      Flexible(child: bubble),
+                                      if (isMine) const SizedBox(width: 6),
+                                      if (isMine) const SizedBox(width: 6),
                                     ],
                                   ),
                                 ),
@@ -3433,9 +3479,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         child: showScroll
                             ? FloatingActionButton.small(
                                 heroTag: 'classroom-scroll-bottom',
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                onPressed: () => _pinClassroomToBottom(jump: true),
+                                backgroundColor: const Color(0xFF0A84FF),
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimary,
+                                onPressed: () =>
+                                    _pinClassroomToBottom(jump: true),
                                 child: const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                 ),
@@ -3449,6 +3498,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             },
           ),
         ),
+        if (_typing && !_sending)
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              12,
+              8,
+              12,
+              24 + MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Typing…',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -3544,7 +3612,12 @@ class _CenteredTabs extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      padding: EdgeInsets.fromLTRB(
+        12,
+        8,
+        12,
+        24 + MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
