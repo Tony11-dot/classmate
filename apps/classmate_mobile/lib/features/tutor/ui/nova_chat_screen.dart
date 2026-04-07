@@ -319,7 +319,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Future<void> _showNovaMessageActions(_Msg m) async {
-
     final isTextOnlyMessage =
         !m.isImage &&
         (m.kind.trim().isEmpty || m.kind.toUpperCase() == 'TEXT') &&
@@ -362,9 +361,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (action == 'copy') {
       await Clipboard.setData(ClipboardData(text: m.content.trim()));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Copied')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Copied')));
       return;
     }
 
@@ -376,9 +375,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         TextPosition(offset: _controller.text.length),
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Loaded into composer')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Loaded into composer')));
     }
   }
 
@@ -401,7 +400,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       ],
     );
   }
-
 
   Future<void> _showCameraSheet() async {
     if (_sending || _recording) return;
@@ -449,10 +447,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
         final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
           MaterialPageRoute(
-            builder: (_) => ChatMediaPreviewScreen(
-              initialPaths: initial,
-              title: 'Preview',
-            ),
+            builder: (_) =>
+                ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
           ),
         );
         if (result == null || !mounted) return;
@@ -481,7 +477,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     }
   }
 
-
   Future<void> _regenerateFromAssistantRow(_Msg m) async {
     if (_sending) return;
     final sessionId = _sessionId;
@@ -502,67 +497,72 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     await _replySub?.cancel();
     final buffer = StringBuffer();
 
-    _replySub = _repo.replyStream(sessionId: sessionId).listen(
-      (ev) {
-        if (!mounted) return;
-        final type = (ev['type'] ?? '').toString();
+    _replySub = _repo
+        .replyStream(sessionId: sessionId)
+        .listen(
+          (ev) {
+            if (!mounted) return;
+            final type = (ev['type'] ?? '').toString();
 
-        if (type == 'chunk') {
-          buffer.write((ev['delta'] ?? '').toString());
-          setState(() {
-            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
-              _messages[_messages.length - 1] = _Msg(
-                role: 'assistant',
-                content: buffer.isEmpty ? 'Thinking…' : buffer.toString(),
-              );
+            if (type == 'chunk') {
+              buffer.write((ev['delta'] ?? '').toString());
+              setState(() {
+                if (_messages.isNotEmpty &&
+                    _messages.last.role == 'assistant') {
+                  _messages[_messages.length - 1] = _Msg(
+                    role: 'assistant',
+                    content: buffer.isEmpty ? 'Thinking…' : buffer.toString(),
+                  );
+                }
+              });
+              _scrollToBottom();
+              return;
             }
-          });
-          _scrollToBottom();
-          return;
-        }
 
-        if (type == 'done') {
-          final assistant = ev['assistantMessage'];
-          final content = assistant is Map
-              ? (assistant['content'] ?? '').toString()
-              : buffer.toString();
+            if (type == 'done') {
+              final assistant = ev['assistantMessage'];
+              final content = assistant is Map
+                  ? (assistant['content'] ?? '').toString()
+                  : buffer.toString();
 
-          setState(() {
-            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
-              _messages[_messages.length - 1] = _Msg(
-                role: 'assistant',
-                content: content.trim().isEmpty ? 'Done.' : content,
-              );
+              setState(() {
+                if (_messages.isNotEmpty &&
+                    _messages.last.role == 'assistant') {
+                  _messages[_messages.length - 1] = _Msg(
+                    role: 'assistant',
+                    content: content.trim().isEmpty ? 'Done.' : content,
+                  );
+                }
+                _sending = false;
+              });
+              _scrollToBottom();
+              return;
             }
-            _sending = false;
-          });
-          _scrollToBottom();
-          return;
-        }
 
-        if (type == 'error') {
-          setState(() {
-            if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
-              _messages[_messages.length - 1] = _Msg(
-                role: 'assistant',
-                content:
-                    '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
-              );
+            if (type == 'error') {
+              setState(() {
+                if (_messages.isNotEmpty &&
+                    _messages.last.role == 'assistant') {
+                  _messages[_messages.length - 1] = _Msg(
+                    role: 'assistant',
+                    content:
+                        '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
+                  );
+                }
+                _sending = false;
+              });
+              _scrollToBottom();
             }
-            _sending = false;
-          });
-          _scrollToBottom();
-        }
-      },
-      onError: (_) {
-        if (!mounted) return;
-        setState(() => _sending = false);
-      },
-      onDone: () {
-        if (!mounted) return;
-        setState(() => _sending = false);
-      },
-    );
+          },
+          onError: (_) {
+            if (!mounted) return;
+            setState(() => _sending = false);
+          },
+          onDone: () {
+            if (!mounted) return;
+            setState(() => _sending = false);
+          },
+        );
   }
 
   Future<void> _pickFiles() async {
@@ -579,12 +579,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         .toList();
     if (initial.isEmpty) return;
 
-    final unsupported = initial.where((p) => _isVideoPath(p) || _isAudioPath(p)).toList();
+    final unsupported = initial
+        .where((p) => _isVideoPath(p) || _isAudioPath(p))
+        .toList();
     if (unsupported.isNotEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('NOVA supports images, documents, and text. Video and audio files are not supported here.'),
+          content: Text(
+            'NOVA supports images, documents, and text. Video and audio files are not supported here.',
+          ),
         ),
       );
       return;
@@ -593,10 +597,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!mounted) return;
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
-        builder: (_) => ChatMediaPreviewScreen(
-          initialPaths: initial,
-          title: 'Preview',
-        ),
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
       ),
     );
     if (result == null || !mounted) return;
@@ -1330,7 +1332,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         !m.content.startsWith('[Voice note attached.');
 
     final body = Column(
-      crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: mine
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         if (hasPreview) preview,
         if (isFileLike) _fileAttachmentCard(m),
@@ -1355,7 +1359,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   maxWidth: 340,
                 )
               : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1547,7 +1554,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                     child: ChatGptMessageList(
                       controller: _scroll,
                       itemCount: _messages.length,
-                      itemBuilder: (context, index) => _bubble(_messages[index]),
+                      itemBuilder: (context, index) =>
+                          _bubble(_messages[index]),
                     ),
                   ),
                   Positioned(
@@ -1602,11 +1610,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 }
 
-
 class _RichBlock {
-  const _RichBlock.text(this.value)
-      : isCode = false,
-        language = '';
+  const _RichBlock.text(this.value) : isCode = false, language = '';
 
   const _RichBlock.code(this.value, this.language) : isCode = true;
 
