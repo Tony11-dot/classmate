@@ -1373,7 +1373,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewMediaUrl: mediaUrl,
         previewBubbleBuilder: (infoContext) => ChatMessageBubble(
           contextForNavigation: context,
-          rawText: editableBodyText(text),
+          rawText: text,
           mediaUrl: mediaUrl,
           isMine: isMine,
           showName: false,
@@ -3000,7 +3000,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         previewMediaUrl: mediaUrl,
         previewBubbleBuilder: (infoContext) => ChatMessageBubble(
           contextForNavigation: context,
-          rawText: editableBodyText(text),
+          rawText: text,
           mediaUrl: mediaUrl,
           isMine: isMine,
           showName: false,
@@ -3566,7 +3566,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     previewBubbleBuilder: (infoContext) =>
                                         ChatMessageBubble(
                                           contextForNavigation: context,
-                                          rawText: messageText,
+                                          rawText: text,
                                           mediaUrl: mediaUrl,
                                           isMine: isMine,
                                           showName: false,
