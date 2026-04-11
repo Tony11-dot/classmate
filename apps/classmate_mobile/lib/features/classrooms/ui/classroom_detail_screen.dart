@@ -367,6 +367,39 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
   final Set<String> _pinnedMessageIds = <String>{};
+
+  String get _classroomPinnedPrefsKey => 'classroom_pinned_ids_${widget.courseId}';
+
+  Future<void> _loadPinnedClassroomIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList(_classroomPinnedPrefsKey) ?? const <String>[];
+      if (!mounted) return;
+      setState(() {
+        _pinnedMessageIds
+          ..clear()
+          ..addAll(
+            saved
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty),
+          );
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _persistPinnedClassroomIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+        _classroomPinnedPrefsKey,
+        _pinnedMessageIds
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList()
+          ..sort(),
+      );
+    } catch (_) {}
+  }
   final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
   final List<Map<String, dynamic>> _lastVisibleClassroomRows =
       <Map<String, dynamic>>[];
@@ -929,6 +962,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
     _chatCtl.addListener(_onComposerChanged);
     _loadLocalChatState();
+    _loadPinnedClassroomIds();
   }
 
   @override
@@ -1489,8 +1523,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      resizeToAvoidBottomInset: true,      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: _showClassroomScrollToBottom,
         builder: (context, showScroll, _) {
@@ -3784,22 +3817,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                           },
                         ),
                       ),
-                      Positioned(
-                        right: 16,
-                        bottom: 0,
-                        child: ChatScrollToBottomFab(
-                          heroTag: 'classroom-scroll-bottom',
-                          show: showScroll,
-                          hasUnreadBelow: _classroomNewMessagesBelow,
-                          bottomInset: MediaQuery.of(context).viewInsets.bottom,
-                          onPressed: () {
-                            if (!mounted) return;
-                            _classroomNewMessagesBelow = false;
-                            _showClassroomScrollToBottom.value = false;
-                            _pinClassroomToBottom();
-                          },
-                        ),
-                      ),
+                      
                     ],
                   );
                 },

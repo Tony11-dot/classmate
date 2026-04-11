@@ -1559,21 +1559,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                           _bubble(_messages[index]),
                     ),
                   ),
-                  Positioned(
-                    right: 16,
-                    bottom: 0,
-                    child: ChatScrollToBottomFab(
-                      heroTag: 'nova-scroll-bottom',
-                      show: showScroll,
-                      hasUnreadBelow: false,
-                      bottomInset: MediaQuery.of(context).viewInsets.bottom,
-                      onPressed: () {
-                        if (!mounted) return;
-                        _showScrollToBottom.value = false;
-                        _scrollToBottom();
-                      },
-                    ),
-                  ),
+                  
                 ],
               );
             },
