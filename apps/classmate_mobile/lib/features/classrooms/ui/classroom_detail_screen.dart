@@ -2747,6 +2747,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           _replyToText = null;
         });
       },
+      onTapReplyPreview: _replyToMessageId == null
+          ? null
+          : () => _jumpToClassroomMessage(_replyToMessageId!),
     );
   }
 
