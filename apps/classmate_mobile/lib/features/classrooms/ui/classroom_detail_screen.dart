@@ -861,6 +861,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   bool _typing = false;
+  bool _classroomTabsCollapsed = false;
   String? _replyToMessageId;
   String? _replyToSender;
   String? _replyToText;
@@ -1514,6 +1515,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   _refreshAll();
                 },
                 onBack: _goBackToClassrooms,
+                tabsCollapsed: _classroomTabsCollapsed,
+                onToggleTabs: () {
+                  setState(() {
+                    _classroomTabsCollapsed = !_classroomTabsCollapsed;
+                  });
+                },
               ),
               data: (m) => _TopHeader(
                 icon: _subjectIcon((m['subject'] ?? '').toString()),
@@ -1531,6 +1538,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   _refreshAll();
                 },
                 onBack: _goBackToClassrooms,
+                tabsCollapsed: _classroomTabsCollapsed,
+                onToggleTabs: () {
+                  setState(() {
+                    _classroomTabsCollapsed = !_classroomTabsCollapsed;
+                  });
+                },
               ),
             ),
             const SizedBox(height: 0),
@@ -3708,17 +3721,33 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         child: showScroll
                             ? FloatingActionButton.small(
                                 heroTag: 'classroom-scroll-bottom',
-                                backgroundColor: const Color(0xFF0A84FF),
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimary,
                                 onPressed: () {
                                   _classroomNewMessagesBelow = false;
                                   _showClassroomScrollToBottom.value = false;
                                   _pinClassroomToBottom(jump: true);
                                 },
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Icon(Icons.keyboard_arrow_down_rounded),
+                                    if (_classroomNewMessagesBelow)
+                                      Positioned(
+                                        right: -2,
+                                        top: -2,
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Theme.of(context).colorScheme.surface,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -3742,6 +3771,8 @@ class _TopHeader extends StatelessWidget {
     required this.subtitle,
     required this.onRefresh,
     required this.onBack,
+    required this.tabsCollapsed,
+    required this.onToggleTabs,
   });
 
   final IconData icon;
@@ -3749,6 +3780,8 @@ class _TopHeader extends StatelessWidget {
   final String subtitle;
   final VoidCallback onRefresh;
   final VoidCallback onBack;
+  final bool tabsCollapsed;
+  final VoidCallback onToggleTabs;
 
   @override
   Widget build(BuildContext context) {
