@@ -3661,7 +3661,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       ),
                       Positioned(
                         right: 16,
-                        bottom: 16,
+                        bottom:
+                            MediaQuery.of(context).viewInsets.bottom > 0
+                                ? 92
+                                : 74,
                         child: showScroll
                             ? FloatingActionButton.small(
                                 heroTag: 'classroom-scroll-bottom',
@@ -3669,8 +3672,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 foregroundColor: Theme.of(
                                   context,
                                 ).colorScheme.onPrimary,
-                                onPressed: () =>
-                                    _pinClassroomToBottom(jump: true),
+                                onPressed: () {
+                                  _showClassroomScrollToBottom.value = false;
+                                  _pinClassroomToBottom(jump: true);
+                                },
                                 child: const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                 ),
