@@ -2724,10 +2724,33 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+  Widget _classroomTypingIndicator() {
+    if (!_typing || _sending) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Typing…',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _classroomComposer() {
     return ChatComposer(
       controller: _chatCtl,
-      topContent: _classroomComposerTopContent(),
+      topContent: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _classroomTypingIndicator(),
+          _classroomComposerTopContent(),
+        ],
+      ),
       enabled: !_sending,
       isStreaming: false,
       isRecording: _recording,
@@ -3743,25 +3766,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             },
           ),
         ),
-        if (_typing && !_sending)
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              12,
-              8,
-              12,
-              24 + MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Typing…',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
