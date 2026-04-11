@@ -459,6 +459,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final rest = afterArrow.substring(colon + 1).trim();
     final dash = rest.lastIndexOf(' — ');
     final replySnippet = (dash == -1 ? rest : rest.substring(0, dash)).trim();
+    if (replySnippet.isEmpty) return null;
+
+    String normalize(String v) => v.trim().toLowerCase();
 
     for (var i = rows.length - 1; i >= 0; i--) {
       final row = rows[i];
@@ -473,14 +476,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       final candidateRaw =
           (_editedTextByMessage[rowId] ?? _pick(row, 'text')).trim();
+      final candidatePreview = _replyPreviewText(candidateRaw).trim();
       final candidateBody = _editableBodyText(candidateRaw).trim();
 
-      final senderOk = replySender.isEmpty || candidateSender == replySender;
+      final senderOk =
+          replySender.isEmpty ||
+          candidateSender == replySender ||
+          candidateSender.isEmpty;
+
       final snippetOk =
-          replySnippet.isEmpty ||
-          candidateBody == replySnippet ||
-          candidateBody.startsWith(replySnippet) ||
-          replySnippet.startsWith(candidateBody);
+          normalize(candidatePreview) == normalize(replySnippet) ||
+          normalize(candidateBody) == normalize(replySnippet) ||
+          normalize(candidatePreview).startsWith(normalize(replySnippet)) ||
+          normalize(replySnippet).startsWith(normalize(candidatePreview)) ||
+          normalize(candidateBody).startsWith(normalize(replySnippet)) ||
+          normalize(replySnippet).startsWith(normalize(candidateBody));
 
       if (senderOk && snippetOk) {
         return rowId;
