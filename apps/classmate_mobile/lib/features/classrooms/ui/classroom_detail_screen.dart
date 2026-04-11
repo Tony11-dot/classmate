@@ -1097,6 +1097,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
+  bool _isClassroomForwardedText(String text) {
+    final normalized = text.trimLeft();
+    return normalized.startsWith('Forwarded\n') ||
+        normalized.startsWith('Forwarded\r\n') ||
+        normalized.startsWith('↪ Forwarded:') ||
+        normalized.startsWith('↪ Forwarded：') ||
+        normalized == 'Forwarded';
+  }
+
   Future<void> _forwardPlaceholder({
     required String messageId,
     required String text,
@@ -1345,7 +1354,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         sentAt: timeLabel,
         isMine: isMine,
         edited: edited,
-        forwarded: false,
+        forwarded: _isClassroomForwardedText(text),
         deleteState: 'VISIBLE',
         kind: kind,
         previewTitle: isMine ? 'You' : senderLabel,
@@ -1372,7 +1381,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           timeLabel: timeLabel,
           edited: edited,
           reaction: _reactionByMessage[messageId],
-          forwarded: false,
+          forwarded: _isClassroomForwardedText(text),
           delivered: false,
           seen: false,
           deleteState: 'VISIBLE',
@@ -3343,6 +3352,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     .trim();
                             final kind = _pick(item, 'kind').toUpperCase();
                             final mediaUrl = _pick(item, 'mediaUrl');
+                            final isForwarded =
+                                _isClassroomForwardedText(text) ||
+                                _isClassroomForwardedText(originalText);
 
                             String replySender = '';
                             String replySnippet = '';
@@ -3531,7 +3543,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     edited: _editedTextByMessage.containsKey(
                                       messageId,
                                     ),
-                                    forwarded: false,
+                                    forwarded: isForwarded,
                                     deleteState: 'VISIBLE',
                                     kind: kind,
                                     previewTitle: isMine ? 'You' : senderName,
@@ -3564,7 +3576,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               .containsKey(messageId),
                                           reaction:
                                               _reactionByMessage[messageId],
-                                          forwarded: false,
+                                          forwarded: isForwarded,
                                           delivered: false,
                                           seen: false,
                                           deleteState: 'VISIBLE',
@@ -3664,7 +3676,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               _pinnedMessageIds.contains(
                                                 messageId,
                                               ),
-                                      forwarded: false,
+                                      forwarded: isForwarded,
                                       delivered: false,
                                       seen: false,
                                       deleteState: 'VISIBLE',
