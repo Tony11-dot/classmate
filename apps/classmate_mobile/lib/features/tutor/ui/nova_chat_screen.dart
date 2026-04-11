@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1560,29 +1561,18 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   ),
                   Positioned(
                     right: 16,
-                    bottom: 16,
-                    child: showScroll
-                        ? FloatingActionButton.small(
-                            heroTag: 'nova-scroll-bottom',
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimary,
-                            onPressed: () {
-                              if (!_scroll.hasClients) return;
-                              _scroll.animateTo(
-                                _scroll.position.maxScrollExtent + 120,
-                                duration: const Duration(milliseconds: 240),
-                                curve: Curves.easeOutCubic,
-                              );
-                            },
-                            child: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                    bottom: 0,
+                    child: ChatScrollToBottomFab(
+                      heroTag: 'nova-scroll-bottom',
+                      show: showScroll,
+                      hasUnreadBelow: false,
+                      bottomInset: MediaQuery.of(context).viewInsets.bottom,
+                      onPressed: () {
+                        if (!mounted) return;
+                        _showScrollToBottom.value = false;
+                        _scrollToBottom();
+                      },
+                    ),
                   ),
                 ],
               );
