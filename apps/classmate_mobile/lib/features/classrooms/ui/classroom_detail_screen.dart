@@ -385,13 +385,55 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   bool _draftVoiceReady = false;
 
   bool _sending = false;
+  bool _classroomNearBottom([double threshold = 140]) {
+    if (!_chatScrollCtl.hasClients) return true;
+    final distance =
+        _chatScrollCtl.position.maxScrollExtent - _chatScrollCtl.position.pixels;
+    return distance <= threshold;
+  }
+
+  void _onClassroomRowsRendered(List<Map<String, dynamic>> rows) {
+    final previousCount = _lastChatCount;
+    final previousLastMessageId = _knownLastClassroomMessageId;
+    final currentLastMessageId = rows.isEmpty ? null : _pick(rows.last, 'id');
+
+    _lastChatCount = rows.length;
+    _knownLastClassroomMessageId = currentLastMessageId;
+
+    if (previousCount <= 0 || currentLastMessageId == null) return;
+    if (currentLastMessageId == previousLastMessageId) return;
+
+    final shouldStickToBottom = _classroomNearBottom(180);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (shouldStickToBottom) {
+        _classroomNewMessagesBelow = false;
+        _showClassroomScrollToBottom.value = false;
+        _pinClassroomToBottom();
+        return;
+      }
+
+      _classroomNewMessagesBelow = true;
+      _showClassroomScrollToBottom.value = true;
+    });
+  }
+
   void _handleClassroomScroll() {
     if (!_chatScrollCtl.hasClients) {
       return;
     }
-    final pos = _chatScrollCtl.position;
-    final distance = pos.maxScrollExtent - pos.pixels;
-    _showClassroomScrollToBottom.value = distance > 120;
+
+    final nearBottom = _classroomNearBottom(96);
+    if (nearBottom && _classroomNewMessagesBelow) {
+      _classroomNewMessagesBelow = false;
+      _showClassroomScrollToBottom.value = false;
+      return;
+    }
+
+    _showClassroomScrollToBottom.value =
+        !_classroomNearBottom(180) || _classroomNewMessagesBelow;
   }
 
   void _pinClassroomToBottom({bool jump = false}) {
@@ -824,6 +866,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   String? _replyToText;
 
   int _lastChatCount = -1;
+  String? _knownLastClassroomMessageId;
+  bool _classroomNewMessagesBelow = false;
 
   Map<String, String> _reactionByMessage = <String, String>{};
   Map<String, String> _editedTextByMessage = <String, String>{};
@@ -3162,11 +3206,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               final myUserId = _resolveMyUserId(peopleMap);
 
               if (_lastChatCount != filtered.length) {
-                _lastChatCount = filtered.length;
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollToBottom(jump: filtered.length <= 3);
-                  _pinClassroomToBottom(jump: true);
-                });
+                if (_lastChatCount < 0) {
+                  _lastChatCount = filtered.length;
+                  _knownLastClassroomMessageId = filtered.isEmpty
+                      ? null
+                      : _pick(filtered.last, 'id');
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _scrollToBottom(jump: filtered.length <= 3);
+                    _pinClassroomToBottom(jump: true);
+                  });
+                } else {
+                  _onClassroomRowsRendered(
+                    filtered.cast<Map<String, dynamic>>(),
+                  );
+                }
               }
 
               if (filtered.isEmpty) {
@@ -3673,6 +3726,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   context,
                                 ).colorScheme.onPrimary,
                                 onPressed: () {
+                                  _classroomNewMessagesBelow = false;
                                   _showClassroomScrollToBottom.value = false;
                                   _pinClassroomToBottom(jump: true);
                                 },
