@@ -1327,6 +1327,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required bool isMine,
     required bool edited,
     required String timeLabel,
+    int? voiceDurationSeconds,
   }) async {
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -1385,7 +1386,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           delivered: false,
           seen: false,
           deleteState: 'VISIBLE',
-          voiceDurationSeconds: null,
+          voiceDurationSeconds: voiceDurationSeconds,
           voiceUnread: false,
           onVoicePlayed: null,
           replySender: splitReplyRaw(text).replyPrefix.trim(),
