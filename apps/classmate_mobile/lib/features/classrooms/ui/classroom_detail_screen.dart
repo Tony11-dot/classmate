@@ -3414,10 +3414,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               behavior: HitTestBehavior.opaque,
                               onHorizontalDragUpdate: (details) {
                                 final current =
-                                    _swipeDxByMessage[messageId] ?? 0;
-                                final rawNext = current + details.delta.dx;
-                                final next = rawNext.clamp(-24.0, 56.0);
-                                if ((_swipeDxByMessage[messageId] ?? 0) !=
+                                    _swipeDxByMessage[messageId] ?? 0.0;
+                                final next = (current + details.delta.dx)
+                                    .clamp(-84.0, 84.0);
+                                if ((_swipeDxByMessage[messageId] ?? 0.0) !=
                                     next) {
                                   setState(() {
                                     _swipeDxByMessage[messageId] = next;
@@ -3426,8 +3426,26 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               },
                               onHorizontalDragEnd: (_) async {
                                 final current =
-                                    _swipeDxByMessage[messageId] ?? 0;
-                                if (current <= -16) {
+                                    _swipeDxByMessage[messageId] ?? 0.0;
+
+                                if (_swipeDxByMessage.containsKey(messageId)) {
+                                  setState(() {
+                                    _swipeDxByMessage.remove(messageId);
+                                  });
+                                }
+
+                                if (current >= 44) {
+                                  _replyTo(
+                                    messageId: messageId,
+                                    sender: isMine ? 'You' : senderName,
+                                    text: messageText.isEmpty
+                                        ? '(empty)'
+                                        : messageText,
+                                  );
+                                  return;
+                                }
+
+                                if (current <= -44) {
                                   await _showClassroomMessageInfo(
                                     sentAt: _friendlyTime(createdRaw),
                                     isMine: isMine,
@@ -3482,19 +3500,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         ),
                                     voiceDurationSeconds: durationSec,
                                   );
-                                } else if (current >= 34) {
-                                  _replyTo(
-                                    messageId: messageId,
-                                    sender: isMine ? 'You' : senderName,
-                                    text: messageText.isEmpty
-                                        ? '(empty)'
-                                        : messageText,
-                                  );
-                                }
-                                if (_swipeDxByMessage.containsKey(messageId)) {
-                                  setState(() {
-                                    _swipeDxByMessage.remove(messageId);
-                                  });
+                                  return;
                                 }
                               },
                               onHorizontalDragCancel: () {
@@ -3520,96 +3526,110 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 'timeLabel': _friendlyTime(createdRaw),
                                 'durationSec': durationSec,
                               }, d.globalPosition),
-                              child: Transform.translate(
-                                offset: Offset(swipeDx, 0),
-                                child: TweenAnimationBuilder<double>(
-                                  tween: Tween<double>(begin: 0.96, end: 1),
-                                  duration: const Duration(milliseconds: 180),
-                                  curve: Curves.easeOutCubic,
-                                  builder: (context, scale, child) =>
-                                      Transform.scale(
-                                        scale: scale,
-                                        child: child,
-                                      ),
-                                  child: Column(
-                                    crossAxisAlignment: isMine
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                    children: [
-                                      if (_pinnedMessageIds.contains(messageId))
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                            left: 6,
-                                            right: 6,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.push_pin_rounded,
-                                                size: 12,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                'Pinned',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                transform: Matrix4.translationValues(
+                                  swipeDx,
+                                  0,
+                                  0,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: _highlightedMessageId == messageId
+                                      ? 4
+                                      : 0,
+                                  vertical: _highlightedMessageId == messageId
+                                      ? 2
+                                      : 0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _highlightedMessageId == messageId
+                                      ? Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.10)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: isMine
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: [
+                                    if (_pinnedMessageIds.contains(messageId))
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 4,
+                                          left: 6,
+                                          right: 6,
                                         ),
-                                      ChatMessageBubble(
-                                        contextForNavigation: context,
-                                        rawText:
-                                            _editedTextByMessage[messageId] ??
-                                            text,
-                                        mediaUrl: mediaUrl.isEmpty
-                                            ? ''
-                                            : _absoluteMediaUrl(mediaUrl),
-                                        isMine: isMine,
-                                        showName: showName,
-                                        senderLabel: isMine
-                                            ? 'You'
-                                            : senderName,
-                                        timeLabel: _friendlyTime(createdRaw),
-                                        edited: _editedTextByMessage
-                                            .containsKey(messageId),
-                                        reaction: reaction,
-                                        forwarded: false,
-                                        deleteState: 'VISIBLE',
-                                        voiceDurationSeconds:
-                                            durationSec > 0 ? durationSec : null,
-                                        voiceUnread: false,
-                                        onVoicePlayed: null,
-                                        replySender:
-                                            replySender.trim().isEmpty
-                                                ? null
-                                                : replySender,
-                                        replySnippet:
-                                            replySnippet.trim().isEmpty
-                                                ? null
-                                                : replySnippet,
-                                        onReplyTap:
-                                            resolvedReplyTargetId == null
-                                                ? null
-                                                : () => _jumpToClassroomMessage(
-                                                      resolvedReplyTargetId,
-                                                    ),
-                                        mediaMimeType: null,
-                                        messageKind: kind,
-                                        maxWidth: 280,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.push_pin_rounded,
+                                              size: 12,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Pinned',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelSmall
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ChatMessageBubble(
+                                      contextForNavigation: context,
+                                      rawText:
+                                          _editedTextByMessage[messageId] ??
+                                          text,
+                                      mediaUrl: mediaUrl.isEmpty
+                                          ? ''
+                                          : _absoluteMediaUrl(mediaUrl),
+                                      isMine: isMine,
+                                      showName: showName,
+                                      senderLabel: isMine
+                                          ? 'You'
+                                          : senderName,
+                                      timeLabel: _friendlyTime(createdRaw),
+                                      edited: _editedTextByMessage
+                                          .containsKey(messageId),
+                                      reaction: reaction,
+                                      forwarded: false,
+                                      delivered: false,
+                                      seen: false,
+                                      deleteState: 'VISIBLE',
+                                      voiceDurationSeconds:
+                                          durationSec > 0 ? durationSec : null,
+                                      voiceUnread: false,
+                                      onVoicePlayed: null,
+                                      replySender:
+                                          replySender.trim().isEmpty
+                                              ? null
+                                              : replySender,
+                                      replySnippet:
+                                          replySnippet.trim().isEmpty
+                                              ? null
+                                              : replySnippet,
+                                      onReplyTap:
+                                          resolvedReplyTargetId == null
+                                              ? null
+                                              : () => _jumpToClassroomMessage(
+                                                    resolvedReplyTargetId,
+                                                  ),
+                                      mediaMimeType: null,
+                                      messageKind: kind,
+                                      maxWidth: 280,
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
