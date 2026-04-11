@@ -1541,6 +1541,53 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             const SizedBox(height: 0),
             if (!_classroomTabsCollapsed)
               _CenteredTabs(controller: _tabs),
+            if (_tabs.index == 0)
+              _PinnedMessagesStrip(
+                rows: _pinnedClassroomRows(_lastVisibleClassroomRows),
+                onTapMessage: _jumpToClassroomMessage,
+                titleForMessage: (item) {
+                  final senderId =
+                      [
+                        _pick(item, 'senderUserId'),
+                        _pick(item, 'senderId'),
+                        _pick(item, 'userId'),
+                        _pick(item, 'authorId'),
+                        _pick(item, 'createdByUserId'),
+                      ].firstWhere(
+                        (e) => e.trim().isNotEmpty,
+                        orElse: () => '',
+                      );
+
+                  final senderName = [
+                    _pick(item, 'senderName').trim(),
+                    _pick(item, 'authorName').trim(),
+                    _pick(item, 'createdByName').trim(),
+                    _shortSender(senderId).trim(),
+                  ].firstWhere((e) => e.isNotEmpty, orElse: () => 'Message');
+
+                  final raw =
+                      (_editedTextByMessage[_pick(item, 'id')] ??
+                              _pick(item, 'text'))
+                          .trim();
+
+                  final body = editableBodyText(raw).trim();
+                  final kind = _pick(item, 'kind').trim().toUpperCase();
+
+                  final title = body.isNotEmpty
+                      ? body
+                      : (kind == 'IMAGE'
+                            ? 'Photo'
+                            : kind == 'VIDEO'
+                            ? 'Video'
+                            : kind == 'VOICE'
+                            ? 'Voice note'
+                            : kind == 'FILE'
+                            ? 'File'
+                            : senderName);
+
+                  return title;
+                },
+              ),
             const SizedBox(height: 2),
             Flexible(
               fit: FlexFit.loose,
@@ -2995,6 +3042,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
   }
 
+  List<Map<String, dynamic>> _pinnedClassroomRows(
+    List<Map<String, dynamic>> rows,
+  ) {
+    return rows
+        .where(
+          (row) =>
+              _pick(row, 'id').trim().isNotEmpty &&
+              (_pick(row, 'isPinned').trim().toLowerCase() == 'true' ||
+                  _pick(row, 'isPinned').trim() == '1' ||
+                  _pinnedMessageIds.contains(_pick(row, 'id'))),
+        )
+        .toList();
+  }
+
   Widget _waTopAction(
     BuildContext context, {
     required IconData icon,
@@ -3729,6 +3790,79 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PinnedMessagesStrip extends StatelessWidget {
+  const _PinnedMessagesStrip({
+    required this.rows,
+    required this.onTapMessage,
+    required this.titleForMessage,
+  });
+
+  final List<Map<String, dynamic>> rows;
+  final void Function(String messageId) onTapMessage;
+  final String Function(Map<String, dynamic> item) titleForMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    final cs = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+      child: SizedBox(
+        height: 42,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: rows.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final item = rows[index];
+            final id = _pick(item, 'id');
+            final title = titleForMessage(item).trim();
+
+            return InkWell(
+              onTap: id.trim().isEmpty ? null : () => onTapMessage(id),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.push_pin_rounded,
+                      size: 14,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 220),
+                      child: Text(
+                        title.isEmpty ? 'Pinned message' : title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

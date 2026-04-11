@@ -401,13 +401,13 @@ class ChatMessageBubble extends StatelessWidget {
                 ],
                 if (pinned) ...[
                   Container(
-                    margin: const EdgeInsets.only(bottom: 3),
+                    margin: const EdgeInsets.only(bottom: 2),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.push_pin_rounded,
-                          size: 12,
+                          size: 11,
                           color: Colors.white.withValues(alpha: 0.68),
                         ),
                         const SizedBox(width: 4),
