@@ -2976,55 +2976,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    if (action == 'info') {
-      await _showClassroomMessageInfo(
-        sentAt: timeLabel,
-        isMine: isMine,
-        edited: edited,
-        forwarded: _isClassroomForwardedText(text),
-        deleteState: 'VISIBLE',
-        kind: kind,
-        previewTitle: isMine ? 'You' : senderLabel,
-        previewBody: editableBodyText(text).trim().isEmpty
-            ? (kind.trim().toUpperCase() == 'IMAGE'
-                  ? 'Photo'
-                  : kind.trim().toUpperCase() == 'VIDEO'
-                  ? 'Video'
-                  : kind.trim().toUpperCase() == 'VOICE'
-                  ? 'Voice note'
-                  : kind.trim().toUpperCase() == 'FILE'
-                  ? 'File'
-                  : '(empty)')
-            : editableBodyText(text),
-        previewMeta: timeLabel,
-        previewMediaUrl: mediaUrl,
-        previewBubbleBuilder: (infoContext) => ChatMessageBubble(
-          contextForNavigation: context,
-          rawText: text,
-          mediaUrl: mediaUrl,
-          isMine: isMine,
-          showName: false,
-          senderLabel: senderLabel,
-          timeLabel: timeLabel,
-          edited: edited,
-          reaction: _reactionByMessage[messageId],
-          forwarded: _isClassroomForwardedText(text),
-          delivered: false,
-          seen: false,
-          deleteState: 'VISIBLE',
-          voiceDurationSeconds: null,
-          voiceUnread: false,
-          onVoicePlayed: null,
-          replySender: splitReplyRaw(text).replyPrefix.trim(),
-          replySnippet: replyPreviewText(text),
-          mediaMimeType: null,
-          messageKind: kind,
-          maxWidth: 280,
-        ),
-      );
-      return;
-    }
-
     if (action == 'edit') {
       await _editMessage(context, messageId: messageId, currentText: text);
       return;
