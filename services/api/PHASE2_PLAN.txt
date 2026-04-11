@@ -1,0 +1,46 @@
+PHASE 2 GOAL
+============
+Extract a tiny shared wrapper around:
+- Expanded(message list)
+- bottom-right scroll-to-bottom FAB
+- shared composer wrapper already extracted
+
+DO NOT MOVE YET:
+- pinned strip
+- message row rendering
+- long press sheet logic
+- reply/jump anchors
+- classroom-specific chat mapping
+- DM-specific request state logic
+
+TARGET FILE TO ADD:
+lib/features/chat_core/ui/primitives/chat_thread_shell.dart
+
+TARGET SHAPE:
+class ChatThreadShell extends StatelessWidget {
+  final Widget messageList;
+  final bool showScrollToBottom;
+  final VoidCallback onScrollToBottomTap;
+  final Widget composer;
+}
+
+CLASSROOM WILL USE:
+ChatThreadShell(
+  messageList: _chatTab(...existing...),
+  showScrollToBottom: _showClassroomScrollToBottom.value,
+  onScrollToBottomTap: () => _pinClassroomToBottom(jump: true),
+  composer: _classroomComposer(),
+)
+
+DM WILL USE:
+ChatThreadShell(
+  messageList: ...existing DM list...,
+  showScrollToBottom: _showScrollToBottom,
+  onScrollToBottomTap: () { ...existing DM code... },
+  composer: ChatThreadComposerSurface(...already extracted...)
+)
+
+SUCCESS CRITERIA:
+- zero behavior change in DM
+- zero behavior change in classroom except structure starts matching DM
+- flutter analyze clean

@@ -34,6 +34,22 @@ function safeNovaName(raw: string) {
   return String(raw || 'upload').replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
+function novaDiskStorage() {
+  return diskStorage({
+    destination: (_req, _file, cb) => {
+      ensureNovaUploadsDir();
+      cb(null, 'uploads/nova');
+    },
+    filename: (_req, file, cb) => {
+      const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const base = safeNovaName(file.originalname || 'upload');
+      const ext = extname(base);
+      const stem = ext ? base.slice(0, -ext.length) : base;
+      cb(null, `${stem}-${stamp}${ext}`);
+    },
+  });
+}
+
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
@@ -113,7 +129,6 @@ export class TutorController {
   }
 
   @Roles(Role.STUDENT, Role.ADMIN)
-
   @Get('sessions/:id')
   getSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.getSession(req.user, id);
@@ -123,19 +138,7 @@ export class TutorController {
   @Post('sessions/:id/messages')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          ensureNovaUploadsDir();
-          cb(null, 'uploads/nova');
-        },
-        filename: (_req, file, cb) => {
-          const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          const base = safeNovaName(file.originalname || 'upload');
-          const ext = extname(base);
-          const stem = ext ? base.slice(0, -ext.length) : base;
-          cb(null, `${stem}-${stamp}${ext}`);
-        },
-      }),
+      storage: novaDiskStorage(),
       limits: { fileSize: 30 * 1024 * 1024 },
     }),
   )
@@ -149,7 +152,6 @@ export class TutorController {
   }
 
   @Roles(Role.STUDENT, Role.ADMIN)
-
   @Delete('sessions/:id')
   deleteSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.deleteSession(req.user, String(id));
@@ -184,14 +186,23 @@ export class TutorController {
   }
 
   @Post('sessions/:sessionId/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: novaDiskStorage(),
+      limits: { fileSize: 30 * 1024 * 1024 },
+    }),
+  )
   uploadSessionFile(
     @Req() req: any,
     @Param('sessionId') sessionId: string,
-    @UploadedFile() file: any,
+    @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
-    return this.svc.uploadSessionFile(req.user, String(sessionId || '').trim(), file, body);
+    return this.svc.uploadSessionFile(
+      req.user,
+      String(sessionId || '').trim(),
+      file,
+      body,
+    );
   }
-
 }

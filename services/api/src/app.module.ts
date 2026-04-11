@@ -2,6 +2,7 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 import { loadEnv } from './env';
@@ -42,19 +43,30 @@ import { MessagesModule } from './messages/messages.module';
 
 const env = loadEnv();
 
+const uploadsRoot = join(process.cwd(), 'uploads');
+
+if (!existsSync(uploadsRoot)) {
+  mkdirSync(uploadsRoot, { recursive: true });
+}
+
 const serveStatic =
   env.SERVE_UPLOADS === 'true' || env.NODE_ENV !== 'production'
     ? [
         ServeStaticModule.forRoot({
-          rootPath: join(process.cwd(), 'uploads'),
+          rootPath: uploadsRoot,
           serveRoot: '/uploads',
+          serveStaticOptions: {
+            fallthrough: false,
+          },
         }),
       ]
     : [];
 
 const seedControllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
-  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED ? [E2ESeedController] : []),
+  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED
+    ? [E2ESeedController]
+    : []),
 ];
 
 @Module({
@@ -85,9 +97,7 @@ const seedControllers = [
     NovaModule,
     PracticeModule,
   ],
-  controllers: [
-    DmUploadController,
-MetricsController, ...seedControllers],
+  controllers: [DmUploadController, MetricsController, ...seedControllers],
   providers: [
     JsonLogger,
     RequestMetricsInterceptor,
@@ -122,5 +132,3 @@ MetricsController, ...seedControllers],
   ],
 })
 export class AppModule {}
-
-
