@@ -14,6 +14,7 @@ import 'package:mime/mime.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -3706,44 +3707,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       ),
                       Positioned(
                         right: 16,
-                        bottom:
-                            MediaQuery.of(context).viewInsets.bottom > 0
-                                ? 92
-                                : 74,
-                        child: showScroll
-                            ? FloatingActionButton.small(
-                                heroTag: 'classroom-scroll-bottom',
-                                onPressed: () {
-                                  if (!mounted) return;
-                                  _classroomNewMessagesBelow = false;
-                                  _showClassroomScrollToBottom.value = false;
-                                  _pinClassroomToBottom();
-                                },
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const Icon(Icons.keyboard_arrow_down_rounded),
-                                    if (_classroomNewMessagesBelow)
-                                      Positioned(
-                                        right: -2,
-                                        top: -2,
-                                        child: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Theme.of(context).colorScheme.surface,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox.shrink(),
+                        bottom: 0,
+                        child: ChatScrollToBottomFab(
+                          heroTag: 'classroom-scroll-bottom',
+                          show: showScroll,
+                          hasUnreadBelow: _classroomNewMessagesBelow,
+                          bottomInset: MediaQuery.of(context).viewInsets.bottom,
+                          onPressed: () {
+                            if (!mounted) return;
+                            _classroomNewMessagesBelow = false;
+                            _showClassroomScrollToBottom.value = false;
+                            _pinClassroomToBottom();
+                          },
+                        ),
                       ),
                     ],
                   );

@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
@@ -1776,47 +1777,20 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: _showScrollToBottom
-          ? Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 92 : 74,
-              ),
-              child: FloatingActionButton.small(
-                heroTag: 'dm_thread_scroll_to_bottom_${widget.threadId}',
-                onPressed: () {
-                  if (!mounted) return;
-                  setState(() {
-                    _newMessagesBelow = false;
-                    _showScrollToBottom = false;
-                  });
-                  _scrollToBottom();
-                },
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(Icons.keyboard_arrow_down_rounded),
-                    if (_newMessagesBelow)
-                      Positioned(
-                        right: -2,
-                        top: -2,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.surface,
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            )
-          : null,
+      floatingActionButton: ChatScrollToBottomFab(
+        heroTag: 'dm_thread_scroll_to_bottom_${widget.threadId}',
+        show: _showScrollToBottom,
+        hasUnreadBelow: _newMessagesBelow,
+        bottomInset: MediaQuery.of(context).viewInsets.bottom,
+        onPressed: () {
+          if (!mounted) return;
+          setState(() {
+            _newMessagesBelow = false;
+            _showScrollToBottom = false;
+          });
+          _scrollToBottom();
+        },
+      ),
       body: SafeArea(
         child: thread.when(
           loading: () => const Center(child: CircularProgressIndicator()),
