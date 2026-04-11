@@ -1580,6 +1580,23 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           );
 
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: _showScrollToBottom,
+        builder: (context, showScroll, _) {
+          return ChatScrollToBottomFab(
+            heroTag: 'nova-scroll-bottom',
+            show: showScroll,
+            hasUnreadBelow: false,
+            bottomInset: MediaQuery.of(context).viewInsets.bottom,
+            onPressed: () {
+              if (!mounted) return;
+              _showScrollToBottom.value = false;
+              _scrollToBottom();
+            },
+          );
+        },
+      ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,

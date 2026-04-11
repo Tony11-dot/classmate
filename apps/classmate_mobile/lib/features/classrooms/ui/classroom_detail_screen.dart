@@ -1490,6 +1490,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: _showClassroomScrollToBottom,
+        builder: (context, showScroll, _) {
+          return ChatScrollToBottomFab(
+            heroTag: 'classroom-scroll-bottom',
+            show: showScroll,
+            hasUnreadBelow: _classroomNewMessagesBelow,
+            bottomInset: MediaQuery.of(context).viewInsets.bottom,
+            onPressed: () {
+              if (!mounted) return;
+              _classroomNewMessagesBelow = false;
+              _showClassroomScrollToBottom.value = false;
+              _pinClassroomToBottom();
+            },
+          );
+        },
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [_classroomComposer()],
