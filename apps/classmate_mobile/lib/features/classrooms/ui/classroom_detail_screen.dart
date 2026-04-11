@@ -421,9 +421,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   void _handleClassroomScroll() {
-    if (!_chatScrollCtl.hasClients) {
-      return;
-    }
+    if (!_chatScrollCtl.hasClients) return;
 
     final nearBottom = _classroomNearBottom(96);
     if (nearBottom && _classroomNewMessagesBelow) {
@@ -437,24 +435,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   void _pinClassroomToBottom({bool jump = false}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      if (!_chatScrollCtl.hasClients) {
-        return;
-      }
-      final target = _chatScrollCtl.position.maxScrollExtent;
-      if (jump) {
-        _chatScrollCtl.jumpTo(_chatScrollCtl.position.maxScrollExtent);
-        return;
-      }
-      _chatScrollCtl.animateTo(
-        target,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
-    });
+    if (!_chatScrollCtl.hasClients) return;
+    final offset = _chatScrollCtl.position.maxScrollExtent;
+    if (jump) {
+      _chatScrollCtl.jumpTo(offset);
+      return;
+    }
+    _chatScrollCtl.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   GlobalKey _keyForClassroomMessage(String messageId) {
