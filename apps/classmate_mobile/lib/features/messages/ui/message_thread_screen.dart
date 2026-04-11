@@ -1575,6 +1575,24 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       _recordingPath = path;
 
       if (detail != null) {
+        final f = File(path);
+        if (!await f.exists()) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Voice recording file was not created. Please try again.')),
+          );
+          setState(() {
+            _voiceLocked = false;
+            _voicePaused = false;
+            _voiceCancelled = false;
+            _holdDx = 0;
+            _holdDy = 0;
+            _recordingPath = null;
+            _recordElapsed = Duration.zero;
+          });
+          return;
+        }
+
         await _sendMediaFile(
           detail,
           path,
@@ -1584,7 +1602,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         );
 
         try {
-          final f = File(path);
           if (await f.exists()) await f.delete();
         } catch (_) {}
 
@@ -1621,6 +1638,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       path: path,
     );
 
+    _recordingPath = path;
     _startRecordTicker();
     if (!mounted) return;
     setState(() {

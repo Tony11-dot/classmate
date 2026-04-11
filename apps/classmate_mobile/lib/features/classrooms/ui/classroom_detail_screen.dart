@@ -1547,7 +1547,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               ),
             ),
             const SizedBox(height: 0),
-            _CenteredTabs(controller: _tabs),
+            if (!_classroomTabsCollapsed)
+              _CenteredTabs(controller: _tabs),
             const SizedBox(height: 2),
             Flexible(
               fit: FlexFit.loose,
@@ -3716,8 +3717,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                         right: 16,
                         bottom:
                             MediaQuery.of(context).viewInsets.bottom > 0
-                                ? 92
-                                : 74,
+                                ? 84
+                                : 66,
                         child: showScroll
                             ? FloatingActionButton.small(
                                 heroTag: 'classroom-scroll-bottom',
