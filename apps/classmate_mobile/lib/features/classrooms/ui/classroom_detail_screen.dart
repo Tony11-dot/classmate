@@ -2892,6 +2892,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final isMine = (_pick(item, 'isMine').trim().toLowerCase() == 'true');
     final edited = (_pick(item, 'edited').trim().toLowerCase() == 'true');
     final timeLabel = _pick(item, 'timeLabel').trim();
+    final voiceDurationSeconds = int.tryParse(_pick(item, 'durationSec').trim());
 
     final canEdit =
         isMine &&
