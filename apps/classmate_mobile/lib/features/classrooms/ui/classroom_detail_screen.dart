@@ -3725,7 +3725,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       if (!isMine) const SizedBox(width: 6),
                                       Flexible(child: bubble),
                                       if (isMine) const SizedBox(width: 6),
-                                      if (isMine) const SizedBox(width: 6),
                                     ],
                                   ),
                                 ),
