@@ -366,6 +366,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
   final Set<String> _pinnedMessageIds = <String>{};
+  final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
+  final List<Map<String, dynamic>> _lastVisibleClassroomRows =
+      <Map<String, dynamic>>[];
+  final List<String> _lastVisibleClassroomMessageIds = <String>[];
+  Timer? _highlightClearTimer;
+  String? _highlightedMessageId;
   String? _draftVoicePath;
   Timer? _recordTicker;
   Duration _recordElapsed = Duration.zero;
@@ -407,6 +413,131 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         curve: Curves.easeOut,
       );
     });
+  }
+
+  GlobalKey _keyForClassroomMessage(String messageId) {
+    return _messageKeys.putIfAbsent(messageId, () => GlobalKey());
+  }
+
+  void _pulseClassroomMessage(String messageId) {
+    _highlightClearTimer?.cancel();
+    if (!mounted) return;
+    setState(() {
+      _highlightedMessageId = messageId;
+    });
+    _highlightClearTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (!mounted || _highlightedMessageId != messageId) return;
+      setState(() {
+        _highlightedMessageId = null;
+      });
+    });
+  }
+
+  String? _resolveClassroomReplyJumpTarget(
+    Map<String, dynamic> item,
+    List<Map<String, dynamic>> rows,
+  ) {
+    final direct = [
+      _pick(item, 'replyToMessageId'),
+      _pick(item, 'replyToId'),
+      _pick(item, 'quotedMessageId'),
+      _pick(item, 'parentMessageId'),
+    ].firstWhere((e) => e.trim().isNotEmpty, orElse: () => '');
+    if (direct.isNotEmpty && rows.any((row) => _pick(row, 'id') == direct)) {
+      return direct;
+    }
+
+    final selfId = _pick(item, 'id');
+    final rawText = (_editedTextByMessage[selfId] ?? _pick(item, 'text')).trim();
+    if (!rawText.startsWith('↪ ')) return null;
+
+    final afterArrow = rawText.substring(2).trim();
+    final colon = afterArrow.indexOf(':');
+    if (colon == -1) return null;
+
+    final replySender = afterArrow.substring(0, colon).trim().toLowerCase();
+    final rest = afterArrow.substring(colon + 1).trim();
+    final dash = rest.lastIndexOf(' — ');
+    final replySnippet = (dash == -1 ? rest : rest.substring(0, dash)).trim();
+
+    for (var i = rows.length - 1; i >= 0; i--) {
+      final row = rows[i];
+      final rowId = _pick(row, 'id');
+      if (rowId.isEmpty || rowId == selfId) continue;
+
+      final candidateSender = [
+        _pick(row, 'senderName').trim(),
+        _pick(row, 'authorName').trim(),
+        _pick(row, 'createdByName').trim(),
+      ].firstWhere((e) => e.isNotEmpty, orElse: () => '').toLowerCase();
+
+      final candidateRaw =
+          (_editedTextByMessage[rowId] ?? _pick(row, 'text')).trim();
+      final candidateBody = _editableBodyText(candidateRaw).trim();
+
+      final senderOk = replySender.isEmpty || candidateSender == replySender;
+      final snippetOk =
+          replySnippet.isEmpty ||
+          candidateBody == replySnippet ||
+          candidateBody.startsWith(replySnippet) ||
+          replySnippet.startsWith(candidateBody);
+
+      if (senderOk && snippetOk) {
+        return rowId;
+      }
+    }
+
+    return null;
+  }
+
+  void _jumpToClassroomMessage(String messageId) {
+    final index = _lastVisibleClassroomMessageIds.indexOf(messageId);
+    if (index < 0 || !_chatScrollCtl.hasClients) return;
+
+    void ensureAfterScroll() {
+      Future<void>.delayed(const Duration(milliseconds: 40), () {
+        if (!mounted) return;
+        final ctx = _keyForClassroomMessage(messageId).currentContext;
+        if (ctx == null) return;
+        _pulseClassroomMessage(messageId);
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: 0.18,
+        );
+      });
+    }
+
+    final target = _keyForClassroomMessage(messageId).currentContext;
+    if (target != null) {
+      _pulseClassroomMessage(messageId);
+      Scrollable.ensureVisible(
+        target,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        alignment: 0.18,
+      );
+      return;
+    }
+
+    final total = _lastVisibleClassroomMessageIds.length;
+    final fraction = total <= 1 ? 0.0 : index / (total - 1);
+    final estimatedOffset =
+        (_chatScrollCtl.position.maxScrollExtent * fraction).clamp(
+          _chatScrollCtl.position.minScrollExtent,
+          _chatScrollCtl.position.maxScrollExtent,
+        );
+
+    _chatScrollCtl
+        .animateTo(
+          estimatedOffset,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        )
+        .then((_) {
+          ensureAfterScroll();
+        });
   }
 
   bool _recording = false;
@@ -755,6 +886,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   @override
   void dispose() {
+    _highlightClearTimer?.cancel();
     _draftVoicePlayer.stop();
     _draftVoicePlayer.dispose();
     _tabs.dispose();
@@ -3032,6 +3164,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 );
               }
 
+              _lastVisibleClassroomRows
+                ..clear()
+                ..addAll(filtered.map((e) => Map<String, dynamic>.from(e)));
+              _lastVisibleClassroomMessageIds
+                ..clear()
+                ..addAll(
+                  filtered
+                      .map((e) => _pick(e, 'id'))
+                      .where((e) => e.trim().isNotEmpty),
+                );
+
               return ValueListenableBuilder<bool>(
                 valueListenable: _showClassroomScrollToBottom,
                 builder: (context, showScroll, child) {
@@ -3251,6 +3394,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             final showAvatar = !groupedWithPrevious;
                             final showName = !groupedWithPrevious;
                             final swipeDx = _swipeDxByMessage[messageId] ?? 0;
+                            final resolvedReplyTargetId =
+                                _resolveClassroomReplyJumpTarget(
+                                  Map<String, dynamic>.from(item),
+                                  _lastVisibleClassroomRows,
+                                );
 
                             final bubble = GestureDetector(
                               behavior: HitTestBehavior.opaque,
@@ -3428,6 +3576,26 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         reaction: reaction,
                                         forwarded: false,
                                         deleteState: 'VISIBLE',
+                                        voiceDurationSeconds:
+                                            durationSec > 0 ? durationSec : null,
+                                        voiceUnread: false,
+                                        onVoicePlayed: null,
+                                        replySender:
+                                            replySender.trim().isEmpty
+                                                ? null
+                                                : replySender,
+                                        replySnippet:
+                                            replySnippet.trim().isEmpty
+                                                ? null
+                                                : replySnippet,
+                                        onReplyTap:
+                                            resolvedReplyTargetId == null
+                                                ? null
+                                                : () => _jumpToClassroomMessage(
+                                                      resolvedReplyTargetId,
+                                                    ),
+                                        mediaMimeType: null,
+                                        messageKind: kind,
                                         maxWidth: 280,
                                       ),
                                     ],
@@ -3436,9 +3604,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               ),
                             );
 
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
+                            return KeyedSubtree(
+                              key: _keyForClassroomMessage(messageId),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                                 if (showDaySeparator)
                                   _classroomDayChip(_pick(item, 'createdAt')),
                                 Padding(
@@ -3469,6 +3639,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   ),
                                 ),
                               ],
+                            ),
                             );
                           },
                         ),

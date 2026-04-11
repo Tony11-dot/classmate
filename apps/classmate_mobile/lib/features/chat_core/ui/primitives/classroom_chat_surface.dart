@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/chat_composer.dart';
-import '../../ui/chat_message_bubble.dart';
 
 typedef ClassroomRow = Map<String, dynamic>;
 
