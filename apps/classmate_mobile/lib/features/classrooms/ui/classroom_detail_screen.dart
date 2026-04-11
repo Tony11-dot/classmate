@@ -3556,36 +3556,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                                   children: [
-                                    if (_pinnedMessageIds.contains(messageId))
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 4,
-                                          left: 6,
-                                          right: 6,
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.push_pin_rounded,
-                                              size: 12,
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Pinned',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelSmall
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     ChatMessageBubble(
                                       contextForNavigation: context,
                                       rawText:
@@ -3603,6 +3573,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       edited: _editedTextByMessage
                                           .containsKey(messageId),
                                       reaction: reaction,
+                                      pinned:
+                                          _pick(item, 'isPinned')
+                                                      .trim()
+                                                      .toLowerCase() ==
+                                                  'true' ||
+                                              _pick(item, 'isPinned')
+                                                      .trim()
+                                                      .toLowerCase() ==
+                                                  '1' ||
+                                              _pinnedMessageIds.contains(
+                                                messageId,
+                                              ),
                                       forwarded: false,
                                       delivered: false,
                                       seen: false,

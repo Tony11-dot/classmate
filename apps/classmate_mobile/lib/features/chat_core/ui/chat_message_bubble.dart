@@ -19,6 +19,7 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    this.pinned = false,
     required this.forwarded,
     this.delivered = false,
     this.seen = false,
@@ -45,6 +46,7 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final bool pinned;
   final bool forwarded;
   final bool delivered;
   final bool seen;
@@ -387,6 +389,30 @@ class ChatMessageBubble extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'Forwarded',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.68),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (pinned) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 3),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.push_pin_rounded,
+                          size: 12,
+                          color: Colors.white.withValues(alpha: 0.68),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Pinned',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.68),
                             fontSize: 10.5,
