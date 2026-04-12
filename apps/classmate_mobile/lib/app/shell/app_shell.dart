@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -92,80 +92,211 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-class _PlatformCoreBottomNav extends StatelessWidget {
+class _PlatformCoreBottomNav extends StatefulWidget {
   const _PlatformCoreBottomNav({required this.index, required this.onTap});
 
   final int index;
   final ValueChanged<int> onTap;
 
   @override
+  State<_PlatformCoreBottomNav> createState() => _PlatformCoreBottomNavState();
+}
+
+class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
+  int? _pressedIndex;
+
+  @override
   Widget build(BuildContext context) {
-    final platform = Theme.of(context).platform;
-    final isApple =
-        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brightness = theme.brightness;
 
     final items = const <_NavItem>[
-      _NavItem(Icons.event_note_outlined, Icons.event_note, 'Schedule'),
-      _NavItem(Icons.groups_outlined, Icons.groups, 'Classes'),
-      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome, 'Practice'),
-      _NavItem(Icons.insights_outlined, Icons.insights, 'Insights'),
-      _NavItem(Icons.psychology_outlined, Icons.psychology, 'NOVA'),
+      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, 'Schedule'),
+      _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classes'),
+      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, 'Practice'),
+      _NavItem(Icons.insights_outlined, Icons.insights_rounded, 'Insights'),
+      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'NOVA'),
     ];
 
-    if (isApple) {
-      final cupertinoTheme = CupertinoTheme.of(context);
-      final brightness = Theme.of(context).brightness;
-      final background =
-          brightness == Brightness.dark
-              ? CupertinoColors.systemBackground.darkColor.withValues(alpha: 0.92)
-              : CupertinoColors.systemBackground.color.withValues(alpha: 0.92);
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final barHeight = 64.0 + bottomInset.clamp(0.0, 20.0);
 
-      return CupertinoTheme(
-        data: cupertinoTheme,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: CupertinoColors.separator.resolveFrom(context),
-                width: 0.0,
+    final surface =
+        brightness == Brightness.dark
+            ? Colors.white.withValues(alpha: 0.10)
+            : Colors.white.withValues(alpha: 0.72);
+
+    final border =
+        brightness == Brightness.dark
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.white.withValues(alpha: 0.34);
+
+    return SafeArea(
+      top: false,
+      left: false,
+      right: false,
+      bottom: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(26),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+            child: Container(
+              height: barHeight,
+              decoration: BoxDecoration(
+                color: surface,
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: border),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 24,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 10),
+                    color: Colors.black.withValues(alpha: 0.18),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  for (var i = 0; i < items.length; i++)
+                    Expanded(
+                      child: _TelegramGlassNavButton(
+                        item: items[i],
+                        selected: i == widget.index,
+                        pressed: i == _pressedIndex,
+                        onTap: () => widget.onTap(i),
+                        onPressStart: () {
+                          if (!mounted) return;
+                          setState(() => _pressedIndex = i);
+                        },
+                        onPressEnd: () {
+                          if (!mounted) return;
+                          setState(() {
+                            if (_pressedIndex == i) _pressedIndex = null;
+                          });
+                        },
+                        activeColor: cs.primary,
+                        inactiveColor: cs.onSurfaceVariant,
+                      ),
+                    ),
+                ],
               ),
             ),
-          ),
-          child: CupertinoTabBar(
-            currentIndex: index,
-            onTap: onTap,
-            activeColor: cupertinoTheme.primaryColor,
-            inactiveColor: CupertinoColors.inactiveGray.resolveFrom(context),
-            backgroundColor: background,
-            border: Border(
-              top: BorderSide(
-                color: CupertinoColors.separator.resolveFrom(context),
-                width: 0.0,
-              ),
-            ),
-            items: [
-              for (var i = 0; i < items.length; i++)
-                BottomNavigationBarItem(
-                  icon: Icon(i == index ? items[i].selectedIcon : items[i].icon),
-                  label: items[i].label,
-                ),
-            ],
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
+}
 
-    return NavigationBar(
-      selectedIndex: index,
-      onDestinationSelected: onTap,
-      destinations: [
-        for (final item in items)
-          NavigationDestination(
-            icon: Icon(item.icon),
-            selectedIcon: Icon(item.selectedIcon),
-            label: item.label,
+class _TelegramGlassNavButton extends StatelessWidget {
+  const _TelegramGlassNavButton({
+    required this.item,
+    required this.selected,
+    required this.pressed,
+    required this.onTap,
+    required this.onPressStart,
+    required this.onPressEnd,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  final _NavItem item;
+  final bool selected;
+  final bool pressed;
+  final VoidCallback onTap;
+  final VoidCallback onPressStart;
+  final VoidCallback onPressEnd;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    final selectedFill =
+        brightness == Brightness.dark
+            ? activeColor.withValues(alpha: 0.22)
+            : activeColor.withValues(alpha: 0.14);
+
+    final selectedBorder =
+        brightness == Brightness.dark
+            ? activeColor.withValues(alpha: 0.22)
+            : activeColor.withValues(alpha: 0.18);
+
+    final iconColor = selected ? activeColor : inactiveColor;
+    final labelColor = selected ? activeColor : inactiveColor;
+
+    final scale = pressed ? 0.94 : (selected ? 1.0 : 0.985);
+    final translateY = pressed ? 1.5 : 0.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      child: Listener(
+        onPointerDown: (_) => onPressStart(),
+        onPointerUp: (_) => onPressEnd(),
+        onPointerCancel: (_) => onPressEnd(),
+        child: AnimatedScale(
+          scale: scale,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            transform: Matrix4.translationValues(0, translateY, 0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: selected ? selectedFill : Colors.transparent,
+              border: Border.all(
+                color: selected ? selectedBorder : Colors.transparent,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                splashFactory: InkSparkle.splashFactory,
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 160),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeOutCubic,
+                        transitionBuilder: (child, animation) {
+                          return ScaleTransition(scale: animation, child: child);
+                        },
+                        child: Icon(
+                          selected ? item.selectedIcon : item.icon,
+                          key: ValueKey('${item.label}_$selected'),
+                          size: selected ? 24 : 23,
+                          color: iconColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                          color: labelColor,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }
