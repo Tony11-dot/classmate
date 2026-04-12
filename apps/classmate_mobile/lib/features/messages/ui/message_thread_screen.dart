@@ -2167,64 +2167,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                           ? CrossAxisAlignment.end
                                           : CrossAxisAlignment.start,
                                       children: [
-                                        if (row.isPinned ||
-                                            _pinnedMessageIds.contains(row.id))
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 2,
-                                              bottom: 6,
-                                              left: 8,
-                                              right: 8,
-                                            ),
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withValues(alpha: 0.10),
-                                                borderRadius:
-                                                    BorderRadius.circular(999),
-                                                border: Border.all(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary
-                                                      .withValues(alpha: 0.18),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.push_pin_rounded,
-                                                    size: 12,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    'Pinned',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelSmall
-                                                        ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w800,
-                                                          color: Theme.of(
-                                                            context,
-                                                          ).colorScheme.primary,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        if (row.deleteState.toUpperCase() !=
+                                                  const SizedBox(width: 5),if (row.deleteState.toUpperCase() !=
                                             'DELETED_FOR_ME')
                                           ChatMessageBubble(
                                             contextForNavigation: context,
