@@ -45,7 +45,7 @@ class ChatMessageActionsSheet extends StatelessWidget {
                       onOpenPicker: () async {
                         final picked = await ChatEmojiPickerSheet.show(
                           context,
-                          allowedEmojis: pickerAllowedEmojis,
+                          allowedEmojis: null,
                         );
                         if (!context.mounted) return;
                         if ((picked ?? '').trim().isEmpty) return;

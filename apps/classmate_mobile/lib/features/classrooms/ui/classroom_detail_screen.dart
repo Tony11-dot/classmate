@@ -315,6 +315,7 @@ String _classroomSeenKey(String courseId) => 'classroom_last_seen_$courseId';
 
 class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     with SingleTickerProviderStateMixin {
+  static const List<String> classroomAllowedEmojis = <String>['❤️', '👍', '😂', '😮', '😢', '🙏'];
   double lastClassroomInsetsBottom = 0;
 
   ({String replyPrefix, String bodyText}) _splitReplyRaw(String raw) {
@@ -1136,7 +1137,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       context,
       myReaction: _reactionByMessage[messageId],
       otherReactions: const <String>[],
-      pickerAllowedEmojis: null,
+      pickerAllowedEmojis: classroomAllowedEmojis,
     );
     if (!mounted || (picked ?? '').trim().isEmpty) return;
     if (picked == '__remove__') {
@@ -3063,7 +3064,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         canViewInfo: isMine,
         canPin: true,
         canForward: true,
-        pickerAllowedEmojis: null,
+        pickerAllowedEmojis: classroomAllowedEmojis,
       ),
     );
 
