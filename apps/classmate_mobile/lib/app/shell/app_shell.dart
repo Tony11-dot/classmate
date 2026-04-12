@@ -113,20 +113,44 @@ class _PlatformCoreBottomNav extends StatelessWidget {
     ];
 
     if (isApple) {
+      final cupertinoTheme = CupertinoTheme.of(context);
+      final brightness = Theme.of(context).brightness;
+      final background =
+          brightness == Brightness.dark
+              ? CupertinoColors.systemBackground.darkColor.withValues(alpha: 0.92)
+              : CupertinoColors.systemBackground.color.withValues(alpha: 0.92);
+
       return CupertinoTheme(
-        data: CupertinoTheme.of(context),
-        child: CupertinoTabBar(
-          currentIndex: index,
-          onTap: onTap,
-          items: [
-            for (final item in items)
-              BottomNavigationBarItem(
-                icon: Icon(
-                  index == items.indexOf(item) ? item.selectedIcon : item.icon,
-                ),
-                label: item.label,
+        data: cupertinoTheme,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: CupertinoColors.separator.resolveFrom(context),
+                width: 0.0,
               ),
-          ],
+            ),
+          ),
+          child: CupertinoTabBar(
+            currentIndex: index,
+            onTap: onTap,
+            activeColor: cupertinoTheme.primaryColor,
+            inactiveColor: CupertinoColors.inactiveGray.resolveFrom(context),
+            backgroundColor: background,
+            border: Border(
+              top: BorderSide(
+                color: CupertinoColors.separator.resolveFrom(context),
+                width: 0.0,
+              ),
+            ),
+            items: [
+              for (var i = 0; i < items.length; i++)
+                BottomNavigationBarItem(
+                  icon: Icon(i == index ? items[i].selectedIcon : items[i].icon),
+                  label: items[i].label,
+                ),
+            ],
+          ),
         ),
       );
     }
