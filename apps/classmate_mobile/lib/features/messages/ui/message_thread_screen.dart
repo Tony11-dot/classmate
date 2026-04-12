@@ -2167,7 +2167,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                           ? CrossAxisAlignment.end
                                           : CrossAxisAlignment.start,
                                       children: [
-                                                  const SizedBox(width: 5),if (row.deleteState.toUpperCase() !=
+                                                  if (row.deleteState.toUpperCase() !=
                                             'DELETED_FOR_ME')
                                           ChatMessageBubble(
                                             contextForNavigation: context,
@@ -2210,6 +2210,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                                   ),
                                             mediaMimeType: row.mediaMimeType,
                                             messageKind: row.kind,
+                                            pinned:
+                                                row.isPinned ||
+                                                _pinnedMessageIds.contains(
+                                                  row.id,
+                                                ),
                                             maxWidth: 280,
                                           ),
                                       ],
