@@ -19,6 +19,5 @@ export class ReactMessageDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['❤️', '👍', '😂', '😮', '😢', '🙏'])
   emoji?: string;
 }
