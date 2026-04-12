@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'chat_emoji_picker_sheet.dart';
 import '../../messages/ui/components/message_reaction_bar.dart';
 
 class ChatMessageActionsSheet extends StatelessWidget {
@@ -10,6 +11,7 @@ class ChatMessageActionsSheet extends StatelessWidget {
     this.canPin = false,
     this.canForward = true,
     this.canCopy = false,
+    this.pickerAllowedEmojis,
   });
 
   final bool canEdit;
@@ -18,6 +20,7 @@ class ChatMessageActionsSheet extends StatelessWidget {
   final bool canPin;
   final bool canForward;
   final bool canCopy;
+  final List<String>? pickerAllowedEmojis;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +42,15 @@ class ChatMessageActionsSheet extends StatelessWidget {
                     child: MessageReactionBar(
                       onReact: (emoji) =>
                           Navigator.of(context).pop('react:$emoji'),
+                      onOpenPicker: () async {
+                        final picked = await ChatEmojiPickerSheet.show(
+                          context,
+                          allowedEmojis: pickerAllowedEmojis,
+                        );
+                        if (!context.mounted) return;
+                        if ((picked ?? '').trim().isEmpty) return;
+                        Navigator.of(context).pop('react:${picked!.trim()}');
+                      },
                     ),
                   ),
                 ),

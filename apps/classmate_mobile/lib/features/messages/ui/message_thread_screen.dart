@@ -19,6 +19,7 @@ import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_info_page.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_reaction_details_sheet.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
@@ -304,7 +305,10 @@ class MessageThreadScreen extends ConsumerStatefulWidget {
       _MessageThreadScreenState();
 }
 
+const List<String> dmAllowedEmojis = <String>['❤️', '👍', '😂', '😮', '😢', '🙏'];
+
 class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
+  static const List<String> dmAllowedEmojis = <String>['❤️', '👍', '😂', '😮', '😢', '🙏'];
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Set<String> _pinnedMessageIds = <String>{};
@@ -814,6 +818,20 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           emoji: (emoji ?? '').trim().isEmpty ? null : emoji!.trim(),
         );
     await _refreshThread();
+  }
+
+  Future<void> _openReactionDetails(MessageItem row) async {
+    final picked = await ChatReactionDetailsSheet.show(
+      context,
+      myReaction: row.reaction,
+      otherReactions: const <String>[],
+      pickerAllowedEmojis: dmAllowedEmojis,
+    );
+    if (!mounted || (picked ?? '').trim().isEmpty) return;
+    await _reactToMessage(
+      row,
+      picked == '__remove__' ? null : picked!.trim(),
+    );
   }
 
   Future<void> _markVoicePlayed(MessageItem row) async {
@@ -2062,6 +2080,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                                             .trim()
                                                             .isEmpty) &&
                                                     row.text.trim().isNotEmpty,
+                                                pickerAllowedEmojis:
+                                                    dmAllowedEmojis,
                                               ),
                                         );
 
@@ -2182,6 +2202,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                             timeLabel: row.timeLabel,
                                             edited: row.edited,
                                             reaction: row.reaction,
+                                            onReactionTap:
+                                                (row.reaction ?? '').trim().isEmpty
+                                                    ? null
+                                                    : () => _openReactionDetails(
+                                                          row,
+                                                        ),
                                             forwarded: row.forwarded,
                                             delivered: row.delivered,
                                             seen: row.seen,

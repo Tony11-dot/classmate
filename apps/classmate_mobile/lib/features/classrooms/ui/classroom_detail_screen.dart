@@ -26,6 +26,7 @@ import '../../messages/domain/message_thread_models.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_reaction_details_sheet.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
@@ -1128,6 +1129,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     });
     await _persistLocalChatState();
+  }
+
+  Future<void> _openClassroomReactionDetails(String messageId) async {
+    final picked = await ChatReactionDetailsSheet.show(
+      context,
+      myReaction: _reactionByMessage[messageId],
+      otherReactions: const <String>[],
+      pickerAllowedEmojis: null,
+    );
+    if (!mounted || (picked ?? '').trim().isEmpty) return;
+    if (picked == '__remove__') {
+      setState(() {
+        _reactionByMessage.remove(messageId);
+      });
+      await _persistLocalChatState();
+      return;
+    }
+    await _setReaction(messageId, picked!.trim());
   }
 
   Future<void> _togglePinMessage(String messageId) async {
@@ -3044,6 +3063,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         canViewInfo: isMine,
         canPin: true,
         canForward: true,
+        pickerAllowedEmojis: null,
       ),
     );
 
@@ -3675,6 +3695,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               .containsKey(messageId),
                                           reaction:
                                               _reactionByMessage[messageId],
+                                          onReactionTap:
+                                              (_reactionByMessage[messageId] ?? '')
+                                                      .trim()
+                                                      .isEmpty
+                                                  ? null
+                                                  : () => _openClassroomReactionDetails(
+                                                        messageId,
+                                                      ),
                                           forwarded: isForwarded,
                                           delivered: false,
                                           seen: false,
@@ -3763,6 +3791,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       edited: _editedTextByMessage
                                           .containsKey(messageId),
                                       reaction: reaction,
+                                      onReactionTap:
+                                          (reaction ?? '').trim().isEmpty
+                                              ? null
+                                              : () => _openClassroomReactionDetails(
+                                                    messageId,
+                                                  ),
                                       pinned:
                                           _pick(item, 'isPinned')
                                                       .trim()

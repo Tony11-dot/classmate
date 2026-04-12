@@ -30,6 +30,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.replySender,
     this.replySnippet,
     this.onReplyTap,
+    this.onReactionTap,
     this.mediaMimeType,
     this.messageKind = 'TEXT',
     this.maxWidth = 236,
@@ -57,6 +58,7 @@ class ChatMessageBubble extends StatelessWidget {
   final String? replySender;
   final String? replySnippet;
   final VoidCallback? onReplyTap;
+  final VoidCallback? onReactionTap;
   final String? mediaMimeType;
   final String messageKind;
   final double maxWidth;
@@ -649,16 +651,20 @@ class ChatMessageBubble extends StatelessWidget {
           ),
           if ((reaction ?? '').trim().isNotEmpty) ...[
             const SizedBox(height: 3),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-              ),
-              child: Text(
-                reaction!.trim(),
-                style: const TextStyle(fontSize: 12),
+            InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: onReactionTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                ),
+                child: Text(
+                  reaction!.trim(),
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
             ),
           ],
