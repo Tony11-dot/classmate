@@ -369,6 +369,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final Set<String> _pinnedMessageIds = <String>{};
 
   String get _classroomPinnedPrefsKey => 'classroom_pinned_ids_${widget.courseId}';
+  String get _classroomTabsCollapsedPrefsKey =>
+      'classroom_tabs_collapsed_${widget.courseId}';
 
   Future<void> _loadPinnedClassroomIds() async {
     try {
@@ -400,6 +402,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       );
     } catch (_) {}
   }
+
+  Future<void> _loadClassroomTabsCollapsed() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getBool(_classroomTabsCollapsedPrefsKey) ?? false;
+      if (!mounted) return;
+      setState(() {
+        _classroomTabsCollapsed = saved;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _persistClassroomTabsCollapsed() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+        _classroomTabsCollapsedPrefsKey,
+        _classroomTabsCollapsed,
+      );
+    } catch (_) {}
+  }
+
   final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
   final List<Map<String, dynamic>> _lastVisibleClassroomRows =
       <Map<String, dynamic>>[];
@@ -902,6 +926,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   @override
   void initState() {
     super.initState();
+    _loadPinnedClassroomIds();
+    _loadClassroomTabsCollapsed();
     _draftVoicePlayer.positionStream.listen((value) {
       if (!mounted || false) {
         return;
@@ -1112,7 +1138,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _pinnedMessageIds.add(messageId);
       }
     });
-    await _persistLocalChatState();
+    await _persistPinnedClassroomIds();
   }
 
   Future<List<String>?> _showClassroomForwardTargetPicker() {
@@ -1559,10 +1585,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 },
                 onBack: _goBackToClassrooms,
                 tabsCollapsed: _classroomTabsCollapsed,
-                onToggleTabs: () {
+                onToggleTabs: () async {
                   setState(() {
                     _classroomTabsCollapsed = !_classroomTabsCollapsed;
                   });
+                  await _persistClassroomTabsCollapsed();
                 },
               ),
               data: (m) => _TopHeader(
@@ -1582,10 +1609,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 },
                 onBack: _goBackToClassrooms,
                 tabsCollapsed: _classroomTabsCollapsed,
-                onToggleTabs: () {
+                onToggleTabs: () async {
                   setState(() {
                     _classroomTabsCollapsed = !_classroomTabsCollapsed;
                   });
+                  await _persistClassroomTabsCollapsed();
                 },
               ),
             ),
