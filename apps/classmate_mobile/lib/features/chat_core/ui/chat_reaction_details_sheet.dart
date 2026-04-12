@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'chat_emoji_picker_sheet.dart';
 
 class ChatReactionDetailsSheet extends StatelessWidget {
   const ChatReactionDetailsSheet({
     super.key,
-    required this.myReaction,
-    required this.otherReactions,
+    this.myReaction,
+    required this.reactionUsers,
     this.pickerAllowedEmojis,
   });
 
   final String? myReaction;
-  final List<String> otherReactions;
+  final Map<String, List<String>> reactionUsers;
   final List<String>? pickerAllowedEmojis;
 
   static Future<String?> show(
     BuildContext context, {
-    required String? myReaction,
-    required List<String> otherReactions,
+    String? myReaction,
+    Map<String, List<String>> reactionUsers = const <String, List<String>>{},
     List<String>? pickerAllowedEmojis,
   }) {
     return showModalBottomSheet<String>(
@@ -25,7 +26,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
       showDragHandle: true,
       builder: (_) => ChatReactionDetailsSheet(
         myReaction: myReaction,
-        otherReactions: otherReactions,
+        reactionUsers: reactionUsers,
         pickerAllowedEmojis: pickerAllowedEmojis,
       ),
     );
@@ -33,20 +34,37 @@ class ChatReactionDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = <({String emoji, bool isMine})>[
-      if ((myReaction ?? '').trim().isNotEmpty)
-        (emoji: myReaction!.trim(), isMine: true),
-      for (final emoji in otherReactions)
-        if (emoji.trim().isNotEmpty) (emoji: emoji.trim(), isMine: false),
-    ];
+    final rows = <({String emoji, bool isMine, int count})>[];
+    final seen = <String>{};
+
+    final mine = (myReaction ?? '').trim();
+    if (mine.isNotEmpty) {
+      final count = (reactionUsers[mine] ?? const <String>[]).length;
+      rows.add((
+        emoji: mine,
+        isMine: true,
+        count: count > 0 ? count : 1,
+      ));
+      seen.add(mine);
+    }
+
+    for (final entry in reactionUsers.entries) {
+      final emoji = entry.key.trim();
+      if (emoji.isEmpty || seen.contains(emoji)) continue;
+      rows.add((
+        emoji: emoji,
+        isMine: false,
+        count: entry.value.length,
+      ));
+    }
 
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          16 + MediaQuery.of(context).viewInsets.bottom,
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -62,6 +80,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Add reaction',
                   onPressed: () async {
                     final picked = await ChatEmojiPickerSheet.show(
                       context,
@@ -86,7 +105,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: rows.length,
-                  separatorBuilder: (_, index) => const SizedBox(height: 8),
+                  separatorBuilder: (_, value) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final row = rows[index];
                     return InkWell(
@@ -128,7 +147,11 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                row.isMine ? 'You' : 'Reaction',
+                                row.isMine
+                                    ? 'You${row.count > 1 ? ' · ${row.count}' : ''}'
+                                    : row.count > 1
+                                        ? '${row.count} reactions'
+                                        : 'Reaction',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium

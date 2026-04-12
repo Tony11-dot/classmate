@@ -80,6 +80,7 @@ class MessageItem {
   final String sentAtRaw;
   final bool isMine;
   final String? reaction;
+  final Map<String, List<String>> reactions;
   final bool isPinned;
   final bool edited;
   final bool forwarded;
@@ -109,6 +110,7 @@ class MessageItem {
     this.sentAtRaw = '',
     required this.isMine,
     this.reaction,
+    this.reactions = const <String, List<String>>{},
     this.isPinned = false,
     this.edited = false,
     this.forwarded = false,

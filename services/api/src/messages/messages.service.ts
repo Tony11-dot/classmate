@@ -76,6 +76,20 @@ export class MessagesService {
     return parts.map((v) => v[0]!.toUpperCase()).join();
   }
 
+  private mapDmReactions(
+    reactions: Array<{ emoji?: string | null; userId?: string | null }> | null | undefined,
+    viewerId: string,
+  ): Record<string, string[]> {
+    const out: Record<string, string[]> = {};
+    for (const reaction of reactions ?? []) {
+      const emoji = String(reaction?.emoji ?? '').trim();
+      const userId = String(reaction?.userId ?? '').trim();
+      if (!emoji || !userId) continue;
+      (out[emoji] ??= []).push(userId === viewerId ? 'me' : userId);
+    }
+    return out;
+  }
+
   private formatTime(value: Date | string | null | undefined) {
     if (!value) return '';
     const date = value instanceof Date ? value : new Date(value);
@@ -478,6 +492,7 @@ export class MessagesService {
             Array.isArray(m.reactions) && m.reactions.length
               ? String(m.reactions[0]?.emoji ?? '').trim() || null
               : null,
+          reactions: this.mapDmReactions(m.reactions as Array<{ emoji?: string | null; userId?: string | null }>, viewerId),
           isPinned: !!m.isPinned,
           edited: !!m.editedAt,
           forwarded: !!m.forwardedFromId,
@@ -864,6 +879,7 @@ export class MessagesService {
           Array.isArray(created.reactions) && created.reactions.length
             ? String(created.reactions[0]?.emoji ?? '').trim() || null
             : null,
+        reactions: this.mapDmReactions(created.reactions as Array<{ emoji?: string | null; userId?: string | null }>, userId),
         isPinned: !!created.isPinned,
         edited: !!created.editedAt,
         forwarded: !!created.forwardedFromId,

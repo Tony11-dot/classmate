@@ -152,14 +152,23 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
 
-  // ignore: unused_element
-  String _pickFirstNonEmpty(dynamic json, List<String> keys) {
-    if (json is! Map) return '';
-    for (final key in keys) {
-      final value = (json[key] ?? '').toString().trim();
-      if (value.isNotEmpty) return value;
-    }
-    return '';
+  Map<String, List<String>> _parseDmReactions(dynamic raw) {
+    if (raw is! Map) return const <String, List<String>>{};
+    final out = <String, List<String>>{};
+    raw.forEach((key, value) {
+      final emoji = key.toString().trim();
+      if (emoji.isEmpty) return;
+      if (value is List) {
+        final users = value
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .toList(growable: false);
+        if (users.isNotEmpty) {
+          out[emoji] = users;
+        }
+      }
+    });
+    return out;
   }
 
   String _digString(dynamic root, List<String> path) {
@@ -332,6 +341,7 @@ class ApiMessagesRepository implements MessagesRepository {
       reaction: (json['reaction'] ?? '').toString().trim().isEmpty
           ? null
           : (json['reaction'] ?? '').toString().trim(),
+      reactions: _parseDmReactions(json['reactions']),
       isPinned: (json['isPinned'] ?? false) == true,
       edited: (json['edited'] ?? false) == true,
       forwarded: (json['forwarded'] ?? false) == true,

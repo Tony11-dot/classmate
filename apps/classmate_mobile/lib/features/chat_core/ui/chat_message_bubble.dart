@@ -19,6 +19,7 @@ class ChatMessageBubble extends StatelessWidget {
     required this.timeLabel,
     required this.edited,
     required this.reaction,
+    this.reactions = const <String, List<String>>{},
     this.pinned = false,
     required this.forwarded,
     this.delivered = false,
@@ -47,6 +48,7 @@ class ChatMessageBubble extends StatelessWidget {
   final String timeLabel;
   final bool edited;
   final String? reaction;
+  final Map<String, List<String>> reactions;
   final bool pinned;
   final bool forwarded;
   final bool delivered;
@@ -649,7 +651,56 @@ class ChatMessageBubble extends StatelessWidget {
               ],
             ),
           ),
-          if ((reaction ?? '').trim().isNotEmpty) ...[
+          if (reactions.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: reactions.entries.map((entry) {
+                final emoji = entry.key.trim();
+                final users = entry.value;
+                if (emoji.isEmpty || users.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                final isMineReaction = users.contains('me');
+                return InkWell(
+                  onTap: onReactionTap,
+                  borderRadius: BorderRadius.circular(999),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isMineReaction
+                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.18)
+                          : Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.50),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: isMineReaction
+                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.22)
+                            : Theme.of(context)
+                                .colorScheme
+                                .outlineVariant
+                                .withValues(alpha: 0.16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(emoji, style: const TextStyle(fontSize: 13)),
+                        const SizedBox(width: 4),
+                        Text(
+                          users.length.toString(),
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ] else if ((reaction ?? '').trim().isNotEmpty) ...[
             const SizedBox(height: 3),
             InkWell(
               borderRadius: BorderRadius.circular(999),

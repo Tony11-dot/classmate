@@ -1136,7 +1136,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final picked = await ChatReactionDetailsSheet.show(
       context,
       myReaction: _reactionByMessage[messageId],
-      otherReactions: const <String>[],
+      reactionUsers:
+          (_reactionByMessage[messageId] ?? '').trim().isEmpty
+              ? const <String, List<String>>{}
+              : <String, List<String>>{
+                  _reactionByMessage[messageId]!.trim(): const <String>['me'],
+                },
       pickerAllowedEmojis: classroomAllowedEmojis,
     );
     if (!mounted || (picked ?? '').trim().isEmpty) return;
@@ -3696,6 +3701,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               .containsKey(messageId),
                                           reaction:
                                               _reactionByMessage[messageId],
+                                          reactions:
+                                              (_reactionByMessage[messageId] ?? '')
+                                                      .trim()
+                                                      .isEmpty
+                                                  ? const <String, List<String>>{}
+                                                  : <String, List<String>>{
+                                                      _reactionByMessage[messageId]!.trim(): const <String>['me'],
+                                                    },
                                           onReactionTap:
                                               (_reactionByMessage[messageId] ?? '')
                                                       .trim()
@@ -3792,6 +3805,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       edited: _editedTextByMessage
                                           .containsKey(messageId),
                                       reaction: reaction,
+                                      reactions:
+                                          (reaction ?? '').trim().isEmpty
+                                              ? const <String, List<String>>{}
+                                              : <String, List<String>>{
+                                                  reaction!.trim(): const <String>['me'],
+                                                },
                                       onReactionTap:
                                           (reaction ?? '').trim().isEmpty
                                               ? null

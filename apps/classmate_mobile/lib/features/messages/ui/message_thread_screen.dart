@@ -305,7 +305,6 @@ class MessageThreadScreen extends ConsumerStatefulWidget {
       _MessageThreadScreenState();
 }
 
-const List<String> dmAllowedEmojis = <String>['❤️', '👍', '😂', '😮', '😢', '🙏'];
 
 class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   static const List<String> dmAllowedEmojis = <String>['❤️', '👍', '😂', '😮', '😢', '🙏'];
@@ -824,7 +823,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     final picked = await ChatReactionDetailsSheet.show(
       context,
       myReaction: row.reaction,
-      otherReactions: const <String>[],
+      reactionUsers: row.reactions,
       pickerAllowedEmojis: dmAllowedEmojis,
     );
     if (!mounted || (picked ?? '').trim().isEmpty) return;
@@ -2202,6 +2201,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                             timeLabel: row.timeLabel,
                                             edited: row.edited,
                                             reaction: row.reaction,
+                                            reactions: row.reactions,
                                             onReactionTap:
                                                 (row.reaction ?? '').trim().isEmpty
                                                     ? null
