@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -191,7 +192,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
   }
 }
 
-class _TelegramGlassNavButton extends StatelessWidget {
+class _TelegramGlassNavButton extends StatefulWidget {
   const _TelegramGlassNavButton({
     required this.item,
     required this.selected,
@@ -213,90 +214,176 @@ class _TelegramGlassNavButton extends StatelessWidget {
   final Color inactiveColor;
 
   @override
+  State<_TelegramGlassNavButton> createState() => _TelegramGlassNavButtonState();
+}
+
+class _TelegramGlassNavButtonState extends State<_TelegramGlassNavButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pressCtl;
+  bool _holding = false;
+
+  static const _spring = SpringDescription(
+    mass: 0.9,
+    stiffness: 520,
+    damping: 30,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _pressCtl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 140),
+      reverseDuration: const Duration(milliseconds: 240),
+      lowerBound: 0,
+      upperBound: 1,
+      value: 0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressCtl.dispose();
+    super.dispose();
+  }
+
+  void _pressIn() {
+    if (_holding) return;
+    _holding = true;
+    widget.onPressStart();
+    _pressCtl.animateTo(
+      1,
+      duration: const Duration(milliseconds: 110),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _release() {
+    if (!_holding) return;
+    _holding = false;
+    widget.onPressEnd();
+    final sim = SpringSimulation(_spring, _pressCtl.value, 0, -2.2);
+    _pressCtl.animateWith(sim);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
 
     final selectedFill =
         brightness == Brightness.dark
-            ? activeColor.withValues(alpha: 0.22)
-            : activeColor.withValues(alpha: 0.14);
+            ? widget.activeColor.withValues(alpha: 0.22)
+            : widget.activeColor.withValues(alpha: 0.14);
 
     final selectedBorder =
         brightness == Brightness.dark
-            ? activeColor.withValues(alpha: 0.22)
-            : activeColor.withValues(alpha: 0.18);
+            ? widget.activeColor.withValues(alpha: 0.22)
+            : widget.activeColor.withValues(alpha: 0.18);
 
-    final iconColor = selected ? activeColor : inactiveColor;
-    final labelColor = selected ? activeColor : inactiveColor;
+    final iconColor = widget.selected ? widget.activeColor : widget.inactiveColor;
+    final labelColor = widget.selected ? widget.activeColor : widget.inactiveColor;
 
-    final scale = pressed ? 0.94 : (selected ? 1.0 : 0.985);
-    final translateY = pressed ? 1.5 : 0.0;
+    return AnimatedBuilder(
+      animation: _pressCtl,
+      builder: (context, _) {
+        final t = _pressCtl.value;
+        final scale = 1.0 - (0.075 * t);
+        final translateY = 2.6 * t;
+        final glowAlpha = widget.selected ? (0.18 - (0.06 * t)) : 0.0;
+        final fillAlphaMul = widget.selected ? (1.0 - (0.18 * t)) : 1.0;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      child: Listener(
-        onPointerDown: (_) => onPressStart(),
-        onPointerUp: (_) => onPressEnd(),
-        onPointerCancel: (_) => onPressEnd(),
-        child: AnimatedScale(
-          scale: scale,
-          duration: const Duration(milliseconds: 120),
-          curve: Curves.easeOutCubic,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            transform: Matrix4.translationValues(0, translateY, 0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: selected ? selectedFill : Colors.transparent,
-              border: Border.all(
-                color: selected ? selectedBorder : Colors.transparent,
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                splashFactory: InkSparkle.splashFactory,
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 160),
-                        switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeOutCubic,
-                        transitionBuilder: (child, animation) {
-                          return ScaleTransition(scale: animation, child: child);
-                        },
-                        child: Icon(
-                          selected ? item.selectedIcon : item.icon,
-                          key: ValueKey('${item.label}_$selected'),
-                          size: selected ? 24 : 23,
-                          color: iconColor,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Transform.translate(
+            offset: Offset(0, translateY),
+            child: Transform.scale(
+              scale: scale,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    if (widget.selected)
+                      BoxShadow(
+                        blurRadius: 18,
+                        spreadRadius: -6,
+                        offset: const Offset(0, 8),
+                        color: widget.activeColor.withValues(alpha: glowAlpha),
+                      ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    splashFactory: NoSplash.splashFactory,
+                    highlightColor: Colors.transparent,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    onTap: widget.onTap,
+                    onTapDown: (_) => _pressIn(),
+                    onTapUp: (_) => _release(),
+                    onTapCancel: _release,
+                    onLongPressStart: (_) => _pressIn(),
+                    onLongPressEnd: (_) => _release(),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 120),
+                      curve: Curves.easeOutCubic,
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: widget.selected
+                            ? selectedFill.withValues(
+                                alpha: selectedFill.a * fillAlphaMul,
+                              )
+                            : Colors.transparent,
+                        border: Border.all(
+                          color: widget.selected ? selectedBorder : Colors.transparent,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                          color: labelColor,
-                          letterSpacing: -0.1,
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Transform.scale(
+                            scale: 1.0 - (0.05 * t),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 160),
+                              switchInCurve: Curves.easeOutCubic,
+                              switchOutCurve: Curves.easeOutCubic,
+                              transitionBuilder: (child, animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: Icon(
+                                widget.selected
+                                    ? widget.item.selectedIcon
+                                    : widget.item.icon,
+                                key: ValueKey('${widget.item.label}_${widget.selected}'),
+                                size: widget.selected ? 24 : 23,
+                                color: iconColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontWeight: widget.selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                              color: labelColor,
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
