@@ -311,20 +311,24 @@ class _TelegramGlassNavButtonState extends State<_TelegramGlassNavButton>
                       ),
                   ],
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    splashFactory: NoSplash.splashFactory,
-                    highlightColor: Colors.transparent,
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                    onTap: widget.onTap,
-                    onTapDown: (_) => _pressIn(),
-                    onTapUp: (_) => _release(),
-                    onTapCancel: _release,
-                    onLongPressStart: (_) => _pressIn(),
-                    onLongPressEnd: (_) => _release(),
-                    child: AnimatedContainer(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onLongPress: () {},
+                  onLongPressDown: (_) => _pressIn(),
+                  onLongPressEnd: (_) => _release(),
+                  onLongPressCancel: _release,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                      onTap: widget.onTap,
+                      onTapDown: (_) => _pressIn(),
+                      onTapUp: (_) => _release(),
+                      onTapCancel: _release,
+                      child: AnimatedContainer(
                       duration: const Duration(milliseconds: 120),
                       curve: Curves.easeOutCubic,
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -379,6 +383,7 @@ class _TelegramGlassNavButtonState extends State<_TelegramGlassNavButton>
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           ),
