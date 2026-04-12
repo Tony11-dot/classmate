@@ -824,7 +824,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       context,
       myReaction: row.reaction,
       reactionUsers: row.reactions,
-      pickerAllowedEmojis: dmAllowedEmojis,
+      pickerAllowedEmojis: null,
     );
     if (!mounted || (picked ?? '').trim().isEmpty) return;
     await _reactToMessage(
