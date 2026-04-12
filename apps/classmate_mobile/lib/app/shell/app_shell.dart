@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -81,7 +80,7 @@ class AppShell extends ConsumerWidget {
       body: child,
       bottomNavigationBar: hideBottomNav
           ? null
-          : _LiquidTelegramNav(
+          : _PlatformCoreBottomNav(
               index: idx,
               onTap: (i) {
                 final next = _locFor(i);
@@ -93,16 +92,19 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-class _LiquidTelegramNav extends StatelessWidget {
-  const _LiquidTelegramNav({required this.index, required this.onTap});
+class _PlatformCoreBottomNav extends StatelessWidget {
+  const _PlatformCoreBottomNav({required this.index, required this.onTap});
 
   final int index;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final items = const [
+    final platform = Theme.of(context).platform;
+    final isApple =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+
+    final items = const <_NavItem>[
       _NavItem(Icons.event_note_outlined, Icons.event_note, 'Schedule'),
       _NavItem(Icons.groups_outlined, Icons.groups, 'Classes'),
       _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome, 'Practice'),
@@ -110,129 +112,36 @@ class _LiquidTelegramNav extends StatelessWidget {
       _NavItem(Icons.psychology_outlined, Icons.psychology, 'NOVA'),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-          child: Container(
-            height: 78,
-            decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.78),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.22),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 22,
-                  offset: const Offset(0, 10),
-                  color: Colors.black.withValues(alpha: 0.10),
+    if (isApple) {
+      return CupertinoTheme(
+        data: CupertinoTheme.of(context),
+        child: CupertinoTabBar(
+          currentIndex: index,
+          onTap: onTap,
+          items: [
+            for (final item in items)
+              BottomNavigationBarItem(
+                icon: Icon(
+                  index == items.indexOf(item) ? item.selectedIcon : item.icon,
                 ),
-              ],
-            ),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final segment = constraints.maxWidth / items.length;
-                final blobWidth = segment - 20;
-                final horizontalInset = (segment - blobWidth) / 2;
-                final left = (segment * index) + horizontalInset;
-
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 380),
-                      curve: Curves.easeOutExpo,
-                      left: left,
-                      top: 7,
-                      width: blobWidth,
-                      height: 60,
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                cs.primary.withValues(alpha: 0.26),
-                                cs.primary.withValues(alpha: 0.10),
-                              ],
-                            ),
-                            border: Border.all(
-                              color: cs.primary.withValues(alpha: 0.24),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 30,
-                                spreadRadius: -2,
-                                offset: const Offset(0, 8),
-                                color: cs.primary.withValues(alpha: 0.20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        for (var i = 0; i < items.length; i++)
-                          Expanded(
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(24),
-                              onTap: () => onTap(i),
-                              child: SizedBox(
-                                height: 78,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    AnimatedScale(
-                                      duration: const Duration(
-                                        milliseconds: 220,
-                                      ),
-                                      scale: i == index ? 1.04 : 1.0,
-                                      child: Icon(
-                                        i == index
-                                            ? items[i].selectedIcon
-                                            : items[i].icon,
-                                        color: i == index
-                                            ? cs.primary
-                                            : cs.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 0),
-                                    Text(
-                                      items[i].label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall
-                                          ?.copyWith(
-                                            fontWeight: i == index
-                                                ? FontWeight.w700
-                                                : FontWeight.w600,
-                                            color: i == index
-                                                ? cs.primary
-                                                : cs.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
+                label: item.label,
+              ),
+          ],
         ),
-      ),
+      );
+    }
+
+    return NavigationBar(
+      selectedIndex: index,
+      onDestinationSelected: onTap,
+      destinations: [
+        for (final item in items)
+          NavigationDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.selectedIcon),
+            label: item.label,
+          ),
+      ],
     );
   }
 }
