@@ -55,6 +55,22 @@ class MessageParticipant {
   });
 }
 
+class MessageDirectoryPerson {
+  final String userId;
+  final String displayName;
+  final String initials;
+  final String schoolName;
+  final String gradeLabel;
+
+  const MessageDirectoryPerson({
+    required this.userId,
+    required this.displayName,
+    required this.initials,
+    this.schoolName = '',
+    this.gradeLabel = '',
+  });
+}
+
 class MessageReplyRef {
   final String id;
   final String senderName;

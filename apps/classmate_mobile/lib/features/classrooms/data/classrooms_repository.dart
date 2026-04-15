@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +23,7 @@ class ClassroomsRepository {
 
   static const _timeout = Duration(seconds: 12);
   static const _devStudentToken = 'dev-token-student@classmate.local';
+  static const _hiddenClassroomsKey = 'hidden_classrooms_v1';
 
   Future<String> _readToken() async {
     if (_token.isNotEmpty && _token != 'SIM_TOKEN') return _token;
@@ -44,6 +46,28 @@ class ClassroomsRepository {
     }
 
     return _devStudentToken;
+  }
+
+  Future<Set<String>> _readHiddenClassrooms() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_hiddenClassroomsKey) ?? const <String>[];
+    return raw.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
+  }
+
+  Future<void> _writeHiddenClassrooms(Set<String> ids) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _hiddenClassroomsKey,
+      ids.map((e) => e.trim()).where((e) => e.isNotEmpty).toList()..sort(),
+    );
+  }
+
+  Future<void> leaveClassroom(String courseId) async {
+    final id = courseId.trim();
+    if (id.isEmpty) return;
+    final hidden = await _readHiddenClassrooms();
+    hidden.add(id);
+    await _writeHiddenClassrooms(hidden);
   }
 
   Uri _uri(String path, [Map<String, String>? query]) {
@@ -401,3 +425,8 @@ class ClassroomsRepository {
     }
   }
 }
+
+
+final classroomsRepositoryProvider = Provider<ClassroomsRepository>(
+  (ref) => ClassroomsRepository(),
+);

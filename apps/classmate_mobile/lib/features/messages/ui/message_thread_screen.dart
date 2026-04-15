@@ -423,6 +423,67 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     ref.invalidate(messageThreadProvider(widget.threadId));
     ref.invalidate(messagesInboxProvider);
   }
+  Future<void> _leaveGroup() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave group?'),
+        content: const Text('You will stop receiving messages from this group.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true || !mounted) return;
+
+    await ref.read(messagesRepositoryProvider).leaveGroup(
+      threadId: widget.threadId,
+    );
+    ref.invalidate(messagesInboxProvider);
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _blockDirectThread() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Block person?'),
+        content: const Text(
+          'You will no longer be able to exchange messages with this person.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Block'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true || !mounted) return;
+
+    await ref.read(messagesRepositoryProvider).blockDirectThread(
+      threadId: widget.threadId,
+    );
+    ref.invalidate(messagesInboxProvider);
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
 
   void _scrollToBottom({bool jump = false}) {
     if (!_scrollController.hasClients) return;
@@ -1686,81 +1747,285 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await _showMessageInfo(row);
   }
 
-  String _avatarText(MessageThreadDetail detail) {
-    if (detail.isGroup) {
-      final parts = detail.title
-          .split(' ')
-          .where((v) => v.trim().isNotEmpty)
-          .take(2)
-          .map((e) => e[0].toUpperCase())
-          .join();
-      return parts.isEmpty ? 'G' : parts;
+    
+  
+  
+  
+    String _avatarText(MessageThreadDetail detail) {
+    String normalize(String value) => value.trim().replaceAll(',', '');
+
+    final title = normalize(detail.title);
+    if (title.isNotEmpty) {
+      final parts = title
+          .split(RegExp(r'\s+'))
+          .map(normalize)
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      if (parts.length >= 2) {
+        return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+      }
+      if (parts.length == 1) {
+        final word = parts.first;
+        return (word.length >= 2 ? word.substring(0, 2) : word).toUpperCase();
+      }
     }
 
-    final others = detail.participants.where((p) {
-      final lower = p.displayName.trim().toLowerCase();
-      return lower != 'you';
-    }).toList();
+    final others = detail.participants
+        .where((p) => normalize(p.displayName).toLowerCase() != 'student')
+        .toList();
 
-    if (others.isNotEmpty && others.first.initials.trim().isNotEmpty) {
-      return others.first.initials.trim().toUpperCase();
+    if (others.isNotEmpty) {
+      final name = normalize(others.first.displayName);
+      final parts = name
+          .split(RegExp(r'\s+'))
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      if (parts.length >= 2) {
+        return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+      }
+      if (parts.length == 1) {
+        final word = parts.first;
+        return (word.length >= 2 ? word.substring(0, 2) : word).toUpperCase();
+      }
     }
 
-    return detail.title.isNotEmpty ? detail.title[0].toUpperCase() : '?';
+    return detail.isGroup ? 'G' : '?';
   }
 
-  Widget _pendingBanner(BuildContext context, MessageThreadDetail detail) {
-    final scheme = Theme.of(context).colorScheme;
-    final isOutgoing = detail.requestState == ChatRequestState.pendingOutgoing;
-    final title = isOutgoing ? 'Waiting for approval' : 'Message request';
-    final subtitle = isOutgoing
-        ? 'You can send more once the other person approves this chat.'
-        : 'Review the request to start chatting.';
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.25),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isOutgoing
-                ? Icons.hourglass_top_rounded
-                : Icons.mark_chat_unread_rounded,
-            color: scheme.primary,
+
+
+
+
+
+
+
+    
+  
+  
+
+  Future<void> _approveIncomingRequest() async {
+    await ref.read(messagesRepositoryProvider).approveRequest(
+      threadId: widget.threadId,
+    );
+    ref.invalidate(messageThreadProvider(widget.threadId));
+    ref.invalidate(messagesInboxProvider);
+  }
+
+
+  Future<void> _blockIncomingRequest() async {
+    await ref.read(messagesRepositoryProvider).blockRequest(
+      threadId: widget.threadId,
+    );
+    ref.invalidate(messageThreadProvider(widget.threadId));
+    ref.invalidate(messagesInboxProvider);
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  
+    Widget _incomingRequestBanner(MessageThreadDetail detail) {
+    final title =
+        detail.title.trim().isEmpty ? 'New request' : detail.title.trim();
+
+    final subtitle = detail.subtitle.trim().isNotEmpty
+        ? detail.subtitle.trim()
+        : (detail.isGroup
+            ? 'Wants you to join this group'
+            : 'Wants to start chatting');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: Theme.of(context)
+                .colorScheme
+                .outlineVariant
+                .withValues(alpha: 0.24),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.06),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
               children: [
-                Text(
-                  title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                CircleAvatar(
+                  radius: 28,
+                  child: Text(_avatarText(detail)),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _approveIncomingRequest,
+                    child: const Text('Approve'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _blockIncomingRequest,
+                    child: Text(detail.isGroup ? 'Leave' : 'Block'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+
+
+  
+  
+    Widget _senderHeader(MessageThreadDetail detail) {
+    final title = detail.title.trim().isEmpty ? 'User' : detail.title.trim();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 10,
+            child: Text(
+              _avatarText(detail),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _pendingBanner(BuildContext context, MessageThreadDetail detail) {
+    if (detail.requestState == ChatRequestState.pendingIncoming) {
+      return const SizedBox.shrink();
+    }
+
+    final scheme = Theme.of(context).colorScheme;
+    final title = detail.requestState == ChatRequestState.pendingOutgoing
+        ? 'Request sent'
+        : (detail.requestState == ChatRequestState.blocked
+            ? 'Messaging unavailable'
+            : 'Messaging unavailable');
+
+    final text = detail.requestState == ChatRequestState.pendingOutgoing
+        ? (detail.isGroup
+            ? 'Waiting for approval before you can join this group.'
+            : 'Waiting for approval before you can chat here.')
+        : (detail.requestState == ChatRequestState.blocked
+            ? 'You blocked this chat. Unblock from the blocked people page to chat again.'
+            : 'You cannot send messages in this chat right now.');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.20),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.schedule_rounded, color: scheme.onSurfaceVariant),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    text,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+
+
+
 
   bool _startsGroup(List<MessageItem> rows, int index) {
     if (index == 0) return true;
@@ -1890,12 +2155,27 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                           ),
                         ),
                       ),
+                      if (!detail.isGroup)
+                        IconButton(
+                          tooltip: 'Block person',
+                          onPressed: _blockDirectThread,
+                          icon: const Icon(Icons.block_rounded),
+                        ),
+                      if (detail.isGroup)
+                        IconButton(
+                          tooltip: 'Leave group',
+                          onPressed: _leaveGroup,
+                          icon: const Icon(Icons.logout_rounded),
+                        ),
                     ],
                   ),
                 ),
+                if (detail.requestState == ChatRequestState.pendingIncoming)
+                  _incomingRequestBanner(detail),
+                if (detail.requestState == ChatRequestState.pendingIncoming)
+                  _incomingRequestBanner(detail),
                 if (!detail.canSend ||
-                    detail.requestState == ChatRequestState.pendingOutgoing ||
-                    detail.requestState == ChatRequestState.pendingIncoming)
+                    detail.requestState == ChatRequestState.pendingOutgoing)
                   _pendingBanner(context, detail),
                 if (_pinnedRows(rows).isNotEmpty)
                   Padding(
@@ -1987,6 +2267,24 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                           index == 0 || !_sameMessageDay(rows[index - 1], row);
                       final startsGroup = _startsGroup(rows, index);
                       final endsGroup = _endsGroup(rows, index);
+                      final isSystemStamp =
+                          row.text.trim().startsWith('[SYSTEM]');
+                      if (isSystemStamp) {
+                        final label = row.text
+                            .trim()
+                            .replaceFirst('[SYSTEM]', '')
+                            .trim();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: _buildDaySeparatorChip(
+                              context,
+                              label.isEmpty ? 'System' : label,
+                            ),
+                          ),
+                        );
+                      }
+
                       final swipeDx = _swipeDxByMessage[row.id] ?? 0.0;
                       final isHighlighted = _highlightedMessageId == row.id;
 
@@ -2000,6 +2298,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                 context,
                                 _messageDaySeparatorLabel(row),
                               ),
+                            if (!row.isMine && startsGroup)
+                              _senderHeader(detail),
                             Align(
                               alignment: row.isMine
                                   ? Alignment.centerRight

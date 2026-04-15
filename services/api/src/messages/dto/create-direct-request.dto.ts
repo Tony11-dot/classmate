@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateDirectRequestDto {
   @IsString()
@@ -6,7 +6,6 @@ export class CreateDirectRequestDto {
   recipientUserId!: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(4000)
-  firstMessage!: string;
+  @IsOptional()
+  firstMessage?: string;
 }

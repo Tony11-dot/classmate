@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
+import 'new_chat_screen.dart';
+import 'blocked_people_screen.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
   const MessagesInboxScreen({super.key});
@@ -88,11 +90,11 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
             _sortInboxByRecency(filtered);
 
             final requests = filtered
-                .where((item) => item.requestState.name.startsWith('pending'))
+                .where((item) => item.requestState.name == 'pendingIncoming')
                 .toList();
 
             final chats = filtered
-                .where((item) => !item.requestState.name.startsWith('pending'))
+                .where((item) => item.requestState.name != 'pendingIncoming')
                 .toList();
 
             if (filtered.isEmpty) {
@@ -116,6 +118,28 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                                   ?.copyWith(fontWeight: FontWeight.w900),
                             ),
                           ),
+                          IconButton(
+
+                            tooltip: 'Blocked people',
+
+                            onPressed: () {
+
+                              Navigator.of(context).push(
+
+                                MaterialPageRoute(
+
+                                  builder: (_) => const BlockedPeopleScreen(),
+
+                                ),
+
+                              );
+
+                            },
+
+                            icon: const Icon(Icons.block_rounded),
+
+                          ),
+
                           IconButton(
                             onPressed: () {},
                             icon: const Icon(Icons.add_rounded),
@@ -168,7 +192,38 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {},
+
+                          tooltip: 'Blocked people',
+
+                          onPressed: () {
+
+                            Navigator.of(context).push(
+
+                              MaterialPageRoute(
+
+                                builder: (_) => const BlockedPeopleScreen(),
+
+                              ),
+
+                            );
+
+                          },
+
+                          icon: const Icon(Icons.block_rounded),
+
+                        ),
+
+                        IconButton(
+                          onPressed: () async {
+                            final threadId = await Navigator.of(context).push<String>(
+                              MaterialPageRoute<String>(
+                                builder: (_) => const NewChatScreen(),
+                              ),
+                            );
+                            if (!context.mounted || threadId == null || threadId.trim().isEmpty) return;
+                            ref.invalidate(messagesInboxProvider);
+                            context.pushNamed('dm_thread', pathParameters: {'id': threadId.trim()});
+                          },
                           icon: const Icon(Icons.add_rounded),
                         ),
                       ],
@@ -267,7 +322,7 @@ class _InboxRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isRequest = item.requestState.name.startsWith('pending');
+    final isRequest = item.requestState.name == 'pendingIncoming';
     final showUnread = item.unreadCount > 0;
     final trailingText = trailingLabel.trim().isEmpty
         ? item.lastMessageAt.trim()
@@ -282,7 +337,7 @@ class _InboxRow extends StatelessWidget {
           onTap: () {
             if (isRequest) {
               context.pushNamed(
-                'message_request',
+                'dm_thread',
                 pathParameters: {'id': item.id},
               );
             } else {

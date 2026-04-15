@@ -1,6 +1,7 @@
 import 'dart:async';
 // ignore_for_file: unused_element, unused_local_variable, use_build_context_synchronously, annotate_overrides, unnecessary_import
 import 'dart:convert';
+import 'package:classmate_mobile/features/classrooms/data/classrooms_repository.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -87,7 +88,6 @@ class _ClassroomForwardTargetPickerSheetState
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     final inbox = ref.watch(messagesInboxProvider);
 
@@ -1550,6 +1550,39 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
   }
 
+  Future<void> _leaveClassroom() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave classroom?'),
+        content: const Text('You will be removed from this classroom.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true || !mounted) return;
+
+    await ClassroomsRepository().leaveClassroom(widget.courseId);
+    ref.invalidate(classroomDetailProvider(widget.courseId));
+    ref.invalidate(classroomPeopleProvider(widget.courseId));
+    ref.invalidate(
+      classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+
   Widget build(BuildContext context) {
     final detail = ref.watch(classroomDetailProvider(widget.courseId));
     final people = ref.watch(classroomPeopleProvider(widget.courseId));
@@ -1616,6 +1649,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   });
                   await _persistClassroomTabsCollapsed();
                 },
+                onLeave: _leaveClassroom,
               ),
               data: (m) => _TopHeader(
                 icon: _subjectIcon((m['subject'] ?? '').toString()),
@@ -1640,6 +1674,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   });
                   await _persistClassroomTabsCollapsed();
                 },
+                onLeave: _leaveClassroom,
               ),
             ),
             const SizedBox(height: 0),
@@ -3994,6 +4029,7 @@ class _TopHeader extends StatelessWidget {
     required this.onBack,
     required this.tabsCollapsed,
     required this.onToggleTabs,
+    required this.onLeave,
   });
 
   final IconData icon;
@@ -4003,6 +4039,7 @@ class _TopHeader extends StatelessWidget {
   final VoidCallback onBack;
   final bool tabsCollapsed;
   final VoidCallback onToggleTabs;
+  final VoidCallback onLeave;
 
   @override
   Widget build(BuildContext context) {
@@ -4049,6 +4086,12 @@ class _TopHeader extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              onPressed: onLeave,
+              icon: const Icon(Icons.logout_rounded, size: 20),
+              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+              tooltip: 'Leave classroom',
             ),
             IconButton(
               onPressed: onToggleTabs,

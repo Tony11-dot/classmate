@@ -34,6 +34,16 @@ export class MessagesController {
     return this.service.fetchInbox(req.user);
   }
 
+  @Get('people/same-school')
+  fetchSameSchoolPeople(@Req() req: any) {
+    return this.service.fetchSameSchoolPeople(req.user);
+  }
+
+  @Get('blocked')
+  fetchBlocked(@Req() req: any) {
+    return this.service.fetchBlocked(req.user);
+  }
+
   @Get('threads/:threadId')
   fetchThread(@Req() req: any, @Param('threadId') threadId: string) {
     return this.service.fetchThread(req.user, String(threadId || '').trim());
@@ -62,6 +72,21 @@ export class MessagesController {
   @Post('threads/group')
   createGroup(@Req() req: any, @Body() body: CreateGroupThreadDto) {
     return this.service.createGroup(req.user, body);
+  }
+
+  @Post('groups/leave')
+  leaveGroup(@Req() req: any, @Body() body: BlockMessageRequestDto) {
+    return this.service.leaveGroup(req.user, body);
+  }
+
+  @Post('threads/block')
+  blockDirectThread(@Req() req: any, @Body() body: BlockMessageRequestDto) {
+    return this.service.blockDirectThread(req.user, body);
+  }
+
+  @Post('threads/unblock')
+  unblockDirectThread(@Req() req: any, @Body() body: BlockMessageRequestDto) {
+    return this.service.unblockDirectThread(req.user, body);
   }
 
   @Post('send')

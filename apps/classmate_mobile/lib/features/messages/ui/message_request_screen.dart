@@ -20,7 +20,7 @@ class MessageRequestScreen extends ConsumerWidget {
     final repo = ref.read(messagesRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Message request')),
+      appBar: AppBar(title: const Text('Request')),
       body: request.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(

@@ -117,7 +117,7 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   String _resolveMediaUrl(String raw) {
-    final value = raw.trim();
+    final value = raw.trim().replaceAll(',', '');
     if (value.isEmpty) return '';
 
     final uri = Uri.tryParse(value);
@@ -157,7 +157,7 @@ class ChatMessageBubble extends StatelessWidget {
   }) {
     if (!hasMedia) return false;
 
-    final normalizedBody = body.trim();
+    final normalizedBody = body.trim().replaceAll(',', '');
     if (normalizedBody.isEmpty) return true;
 
     final lowerBody = normalizedBody.toLowerCase();
@@ -168,7 +168,7 @@ class ChatMessageBubble extends StatelessWidget {
       return true;
     }
 
-    final fileName = _displayFileName(resolvedMediaUrl).trim();
+    final fileName = _displayFileName(resolvedMediaUrl).trim().replaceAll(',', '');
     final stem = fileName.contains('.')
         ? fileName.substring(0, fileName.lastIndexOf('.'))
         : fileName;
@@ -257,19 +257,19 @@ class ChatMessageBubble extends StatelessWidget {
     final isDeletedForMe = deleteMode == 'DELETED_FOR_ME';
 
     final parts = splitReplyRaw(rawText);
-    final inlineReplyPrefix = parts.replyPrefix.trim();
-    final body = parts.bodyText.trim();
-    final resolvedMime = (mediaMimeType ?? '').trim();
+    final inlineReplyPrefix = parts.replyPrefix.trim().replaceAll(',', '');
+    final body = parts.bodyText.trim().replaceAll(',', '');
+    final resolvedMime = (mediaMimeType ?? '').trim().replaceAll(',', '');
 
-    var resolvedReplySender = (replySender ?? '').trim();
-    var resolvedReplySnippet = (replySnippet ?? '').trim();
+    var resolvedReplySender = (replySender ?? '').trim().replaceAll(',', '');
+    var resolvedReplySnippet = (replySnippet ?? '').trim().replaceAll(',', '');
 
     if (resolvedReplySender.isEmpty && inlineReplyPrefix.startsWith('↪ ')) {
-      final afterArrow = inlineReplyPrefix.substring(2).trim();
+      final afterArrow = inlineReplyPrefix.substring(2).trim().replaceAll(',', '');
       final colon = afterArrow.indexOf(':');
       if (colon != -1) {
-        resolvedReplySender = afterArrow.substring(0, colon).trim();
-        resolvedReplySnippet = afterArrow.substring(colon + 1).trim();
+        resolvedReplySender = afterArrow.substring(0, colon).trim().replaceAll(',', '');
+        resolvedReplySnippet = afterArrow.substring(colon + 1).trim().replaceAll(',', '');
       } else {
         resolvedReplySnippet = afterArrow;
       }
@@ -657,7 +657,7 @@ class ChatMessageBubble extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: reactions.entries.map((entry) {
-                final emoji = entry.key.trim();
+                final emoji = entry.key.trim().replaceAll(',', '');
                 final users = entry.value;
                 if (emoji.isEmpty || users.isEmpty) {
                   return const SizedBox.shrink();

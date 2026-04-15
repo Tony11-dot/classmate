@@ -1,10 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'classroom_order_prefs.dart';
 import 'classrooms_repo_provider.dart';
 
 final studentClassroomsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
       final repo = ref.read(classroomsRepoProvider);
       return repo.list();
+    });
+
+
+final orderedStudentClassroomsProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+      final repo = ref.read(classroomsRepoProvider);
+      final items = await repo.list();
+      final saved = await loadSavedClassroomOrder();
+      return applySavedClassroomOrder(items, saved);
     });
 
 final classroomPeopleProvider = FutureProvider.autoDispose

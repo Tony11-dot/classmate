@@ -15,7 +15,9 @@ abstract class MessagesRepository {
 
   Future<MessageThreadDetail> fetchRequest({required String threadId});
 
-  Future<void> createDirectRequest({
+  Future<List<MessageDirectoryPerson>> fetchSameSchoolPeople();
+
+  Future<MessageThreadDetail> createDirectRequest({
     required String recipientUserId,
     required String firstMessage,
   });
@@ -24,10 +26,16 @@ abstract class MessagesRepository {
 
   Future<void> blockRequest({required String threadId});
 
-  Future<void> createGroup({
+  Future<MessageThreadDetail> createGroup({
     required String title,
     required List<String> memberIds,
   });
+
+  Future<void> leaveGroup({required String threadId});
+  Future<void> blockThread({required String threadId});
+  Future<List<Map<String, dynamic>>> listBlockedPeople();
+  Future<void> unblockDirectThread({required String threadId});
+  Future<void> blockDirectThread({required String threadId});
 
   Future<void> sendMessage({
     required String threadId,
@@ -286,6 +294,26 @@ class ApiMessagesRepository implements MessagesRepository {
     );
   }
 
+  MessageDirectoryPerson _directoryPersonFromJson(Map<String, dynamic> json) {
+    final displayName = (json['displayName'] ?? json['name'] ?? '').toString().trim();
+    final initials = (json['initials'] ?? '').toString().trim();
+    return MessageDirectoryPerson(
+      userId: (json['userId'] ?? json['id'] ?? '').toString(),
+      displayName: displayName.isEmpty ? 'Student' : displayName,
+      initials: initials.isNotEmpty
+          ? initials
+          : displayName
+                .split(' ')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .take(2)
+                .map((e) => e[0].toUpperCase())
+                .join(),
+      schoolName: (json['schoolName'] ?? '').toString(),
+      gradeLabel: (json['gradeLabel'] ?? '').toString(),
+    );
+  }
+
   MessageReplyRef? _replyPreviewFromJson(dynamic value) {
     if (value is! Map) return null;
     final json = Map<String, dynamic>.from(value);
@@ -447,7 +475,23 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> createDirectRequest({
+  Future<List<MessageDirectoryPerson>> fetchSameSchoolPeople() async {
+    final response = await _client
+        .get(_uri('/messages/people/same-school'), headers: await _headers())
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.fetchSameSchoolPeople', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final raw = (body['items'] as List? ?? const []);
+    return raw
+        .whereType<Map>()
+        .map((item) => _directoryPersonFromJson(Map<String, dynamic>.from(item)))
+        .toList(growable: false);
+  }
+
+  @override
+  Future<MessageThreadDetail> createDirectRequest({
     required String recipientUserId,
     required String firstMessage,
   }) async {
@@ -457,12 +501,15 @@ class ApiMessagesRepository implements MessagesRepository {
           headers: await _headers(),
           body: jsonEncode(<String, dynamic>{
             'recipientUserId': recipientUserId,
-            'firstMessage': firstMessage,
+            if (firstMessage.trim().isNotEmpty) 'firstMessage': firstMessage.trim(),
           }),
         )
         .timeout(_timeout);
 
     if (!_ok(response)) _fail('messages.createDirectRequest', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return _detailFromJson(Map<String, dynamic>.from(body['thread'] as Map));
   }
 
   @override
@@ -492,7 +539,7 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> createGroup({
+  Future<MessageThreadDetail> createGroup({
     required String title,
     required List<String> memberIds,
   }) async {
@@ -508,6 +555,82 @@ class ApiMessagesRepository implements MessagesRepository {
         .timeout(_timeout);
 
     if (!_ok(response)) _fail('messages.createGroup', response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return _detailFromJson(Map<String, dynamic>.from(body['thread'] as Map));
+  }
+
+  @override
+  Future<void> leaveGroup({required String threadId}) async {
+    final response = await _client
+        .post(
+          _uri('/messages/groups/leave'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.leaveGroup', response);
+  }
+
+
+  @override
+  Future<void> blockThread({required String threadId}) async {
+    final response = await _client
+        .post(
+          _uri('/messages/threads/block'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.blockThread', response);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> listBlockedPeople() async {
+    final response = await _client
+        .get(
+          _uri('/messages/blocked'),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.listBlockedPeople', response);
+    if (response.body.trim().isEmpty) return <Map<String, dynamic>>[];
+
+    final json = jsonDecode(response.body);
+    final raw = json is Map ? (json['items'] as List? ?? const []) : const [];
+    return raw
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  @override
+  Future<void> unblockDirectThread({required String threadId}) async {
+    final response = await _client
+        .post(
+          _uri('/messages/threads/unblock'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.unblockDirectThread', response);
+  }
+
+  @override
+  Future<void> blockDirectThread({required String threadId}) async {
+    final response = await _client
+        .post(
+          _uri('/messages/threads/block'),
+          headers: await _headers(),
+          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(response)) _fail('messages.blockDirectThread', response);
   }
 
   @override

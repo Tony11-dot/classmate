@@ -198,8 +198,6 @@ export class MessagesService {
     },
     viewerId: string,
   ) {
-    if (thread.type === DmThreadType.GROUP) return 'none';
-
     const viewer = thread.participants.find((p) => p.userId === viewerId);
     if (!viewer) return 'none';
 
@@ -229,7 +227,8 @@ export class MessagesService {
     }
 
     const viewer = thread.participants.find((p) => p.userId === viewerId);
-    return viewer?.state === DmParticipantState.ACCEPTED;
+    return viewer?.state === DmParticipantState.ACCEPTED ||
+        viewer?.state === DmParticipantState.PENDING_OUTGOING;
   }
 
   private async userMapForIds(userIds: string[]) {
@@ -248,6 +247,83 @@ export class MessagesService {
     });
 
     return new Map(rows.map((row) => [row.id, row]));
+  }
+
+  async fetchSameSchoolPeople(user: AppUser) {
+    const viewerId = this.viewerId(user);
+
+    const viewerProfile = await this.prisma.studentProfile.findUnique({
+      where: { userId: viewerId },
+      select: {
+        cohortId: true,
+      },
+    });
+
+    if (!viewerProfile?.cohortId) {
+      throw new BadRequestException('Viewer is not attached to a cohort');
+    }
+
+    const rows = await this.prisma.studentProfile.findMany({
+      where: {
+        cohortId: viewerProfile.cohortId,
+        userId: { not: viewerId },
+      },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+      orderBy: [{ userId: 'asc' }],
+    });
+
+    const existingParticipants = await this.prisma.dmParticipant.findMany({
+      where: {
+        userId: viewerId,
+      },
+      include: {
+        thread: {
+          select: {
+            type: true,
+            participants: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const existingDirectPeerIds = new Set(
+      existingParticipants
+        .filter((p) => p.thread?.type === DmThreadType.DIRECT)
+        .flatMap((p) => p.thread?.participants ?? [])
+        .map((p) => String(p.userId ?? '').trim())
+        .filter((id) => id.length > 0 && id !== viewerId),
+    );
+
+    return {
+      ok: true,
+      items: rows
+        .filter((row) => !existingDirectPeerIds.has(String(row.userId ?? '').trim()))
+        .map((row) => {
+          const displayName = this.displayNameOf(row.user);
+
+          return {
+            id: row.userId,
+            userId: row.userId,
+            name: displayName,
+            displayName,
+            initials: this.initialsOf(displayName),
+            schoolName: '',
+            gradeLabel: '',
+          };
+        }),
+    };
   }
 
   private async loadParticipantOrThrow(threadId: string, userId: string) {
@@ -558,6 +634,81 @@ export class MessagesService {
     return { items };
   }
 
+  async fetchBlocked(user: AppUser) {
+    const userId = this.viewerId(user);
+
+    const threads = await this.prisma.dmThread.findMany({
+      where: {
+        type: DmThreadType.DIRECT,
+        participants: {
+          some: {
+            userId,
+            state: DmParticipantState.BLOCKED,
+          },
+        },
+      },
+      include: {
+        participants: true,
+      },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    });
+
+    const otherIds = Array.from(
+      new Set(
+        threads
+          .map((thread) =>
+            thread.participants.find((p) => p.userId !== userId)?.userId ?? '',
+          )
+          .filter((v) => String(v).trim().length > 0),
+      ),
+    );
+
+    const users = otherIds.length
+      ? await this.prisma.user.findMany({
+          where: {
+            id: { in: otherIds },
+          },
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        })
+      : [];
+
+    const userById = new Map(users.map((u) => [u.id, u]));
+
+    const initialsOf = (value: string) => {
+      const parts = String(value || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2);
+      return parts.map((p) => p[0]?.toUpperCase() ?? '').join(',') || '?';
+    };
+
+    return {
+      ok: true,
+      items: threads
+        .map((thread) => {
+          const otherId =
+            thread.participants.find((p) => p.userId !== userId)?.userId ?? '';
+          if (!otherId) return null;
+          const other = userById.get(otherId);
+          const displayName = String(
+            other?.displayName ?? other?.name ?? 'Unknown user',
+          ).trim();
+          return {
+            threadId: thread.id,
+            userId: otherId,
+            displayName,
+            initials: initialsOf(displayName),
+          };
+        })
+        .filter(Boolean),
+    };
+  }
+
   async fetchThread(user: AppUser, threadId: string) {
     const userId = this.viewerId(user);
     const thread = await this.loadThreadOrThrow(threadId, userId);
@@ -587,9 +738,6 @@ export class MessagesService {
     if (!recipientUserId) {
       throw new BadRequestException('recipientUserId is required');
     }
-    if (!firstMessage) {
-      throw new BadRequestException('firstMessage is required');
-    }
     if (recipientUserId === userId) {
       throw new BadRequestException('Cannot message yourself');
     }
@@ -601,58 +749,65 @@ export class MessagesService {
       where: {
         type: DmThreadType.DIRECT,
         participants: {
-          some: {
-            userId: {
-              in: [userId, recipientUserId],
-            },
-          },
+          some: { userId },
         },
       },
       include: {
         participants: true,
+        messages: {
+          orderBy: [{ createdAt: 'asc' }],
+        },
       },
     });
 
     const exact = existing.find((thread) => {
       const ids = thread.participants.map((p) => p.userId).sort();
-      return (
-        ids.length === 2 &&
-        ids[0] === [userId, recipientUserId].sort()[0] &&
-        ids[1] === [userId, recipientUserId].sort()[1]
-      );
+      return ids.length == 2 && ids[0] === [userId, recipientUserId].sort()[0] && ids[1] === [userId, recipientUserId].sort()[1];
     });
 
-    if (exact) {
-      return this.fetchThread(user, exact.id);
-    }
-
-    const thread = await this.prisma.dmThread.create({
-      data: {
-        type: DmThreadType.DIRECT,
-        createdById: userId,
-        participants: {
-          create: [
-            {
-              userId,
-              role: DmParticipantRole.MEMBER,
-              state: DmParticipantState.PENDING_OUTGOING,
-            },
-            {
-              userId: recipientUserId,
-              role: DmParticipantRole.MEMBER,
-              state: DmParticipantState.PENDING_INCOMING,
-            },
-          ],
-        },
-        messages: {
-          create: {
-            senderId: userId,
-            kind: DmMessageKind.TEXT,
-            text: firstMessage,
+    const thread =
+      exact ??
+      (await this.prisma.dmThread.create({
+        data: {
+          type: DmThreadType.DIRECT,
+          createdById: userId,
+          participants: {
+            create: [
+              {
+                userId,
+                role: DmParticipantRole.MEMBER,
+                state: DmParticipantState.PENDING_OUTGOING,
+              },
+              {
+                userId: recipientUserId,
+                role: DmParticipantRole.MEMBER,
+                state: DmParticipantState.PENDING_INCOMING,
+              },
+            ],
           },
         },
-      },
-    });
+      }));
+
+    if (firstMessage) {
+      const participant = await this.loadParticipantOrThrow(thread.id, userId);
+      const alreadyHasMessages = await this.prisma.dmMessage.count({
+        where: { threadId: thread.id },
+      });
+
+      if (
+        participant.state === DmParticipantState.PENDING_OUTGOING &&
+        alreadyHasMessages === 0
+      ) {
+        await this.prisma.dmMessage.create({
+          data: {
+            threadId: thread.id,
+            senderId: userId,
+            text: firstMessage,
+            kind: DmMessageKind.TEXT,
+          },
+        });
+      }
+    }
 
     return this.fetchThread(user, thread.id);
   }
@@ -676,6 +831,19 @@ export class MessagesService {
       throw new ForbiddenException(
         'Only the receiver can approve this request',
       );
+    }
+
+    if (thread.type === DmThreadType.GROUP) {
+      await this.prisma.dmParticipant.update({
+        where: {
+          threadId_userId: {
+            threadId,
+            userId,
+          },
+        },
+        data: { state: DmParticipantState.ACCEPTED },
+      });
+      return { ok: true };
     }
 
     await this.prisma.dmParticipant.updateMany({
@@ -703,6 +871,18 @@ export class MessagesService {
       viewerParticipant.state !== DmParticipantState.PENDING_INCOMING
     ) {
       throw new ForbiddenException('Only the receiver can block this request');
+    }
+
+    if (thread.type === DmThreadType.GROUP) {
+      await this.prisma.dmParticipant.delete({
+        where: {
+          threadId_userId: {
+            threadId,
+            userId,
+          },
+        },
+      });
+      return { ok: true };
     }
 
     await this.prisma.$transaction([
@@ -771,14 +951,115 @@ export class MessagesService {
             ...memberIds.map((memberId) => ({
               userId: memberId,
               role: DmParticipantRole.MEMBER,
-              state: DmParticipantState.ACCEPTED,
+              state: DmParticipantState.PENDING_INCOMING,
             })),
           ],
         },
       },
     });
 
+    const creator = await this.requireUser(userId);
+    await this.prisma.dmMessage.create({
+      data: {
+        threadId: thread.id,
+        senderId: userId,
+        kind: DmMessageKind.TEXT,
+        text: `[SYSTEM] ${this.displayNameOf(creator)} created the group`,
+      },
+    });
+
     return this.fetchThread(user, thread.id);
+  }
+
+  async leaveGroup(user: AppUser, dto: BlockMessageRequestDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    if (!threadId) {
+      throw new BadRequestException('threadId is required');
+    }
+
+    const thread = await this.loadThreadOrThrow(threadId, userId);
+    if (thread.type !== DmThreadType.GROUP) {
+      throw new BadRequestException('Only group threads can be left');
+    }
+
+    const me = thread.participants.find((p) => p.userId === userId);
+    if (!me) {
+      throw new ForbiddenException('No access to this thread');
+    }
+
+    const acceptedOthers = thread.participants
+      .filter((p) => p.userId !== userId && p.state === DmParticipantState.ACCEPTED)
+      .sort((a, b) => String(a.userId).localeCompare(String(b.userId)));
+
+    await this.prisma.$transaction(async (tx) => {
+      if (me.role === DmParticipantRole.ADMIN && acceptedOthers.length > 0) {
+        await tx.dmParticipant.update({
+          where: {
+            threadId_userId: {
+              threadId,
+              userId: acceptedOthers[0]!.userId,
+            },
+          },
+          data: {
+            role: DmParticipantRole.ADMIN,
+          },
+        });
+      }
+
+      await tx.dmParticipant.delete({
+        where: {
+          threadId_userId: {
+            threadId,
+            userId,
+          },
+        },
+      });
+    });
+
+    return { ok: true };
+  }
+    async blockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    if (!threadId) {
+      throw new BadRequestException('threadId is required');
+    }
+
+    const thread = await this.loadThreadOrThrow(threadId, userId);
+    if (thread.type !== DmThreadType.DIRECT) {
+      throw new BadRequestException('Only direct threads can be blocked here');
+    }
+
+    await this.prisma.dmParticipant.updateMany({
+      where: { threadId },
+      data: { state: DmParticipantState.BLOCKED },
+    });
+
+    return { ok: true };
+  }
+
+
+
+
+async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    if (!threadId) {
+      throw new BadRequestException('threadId is required');
+    }
+
+    const thread = await this.loadThreadOrThrow(threadId, userId);
+    if (thread.type !== DmThreadType.DIRECT) {
+      throw new BadRequestException('Only direct threads can be unblocked here');
+    }
+
+    await this.prisma.dmParticipant.updateMany({
+      where: { threadId },
+      data: { state: DmParticipantState.ACCEPTED },
+    });
+
+    return { ok: true };
   }
 
   async sendMessage(user: AppUser, dto: SendMessageDto) {
@@ -802,8 +1083,33 @@ export class MessagesService {
     if (participant.state === DmParticipantState.BLOCKED) {
       throw new ForbiddenException('Thread is blocked');
     }
-    if (participant.state !== DmParticipantState.ACCEPTED) {
+    const canSendWhilePendingOutgoing =
+      participant.thread.type === DmThreadType.DIRECT &&
+      participant.state === DmParticipantState.PENDING_OUTGOING;
+    if (
+      participant.state !== DmParticipantState.ACCEPTED &&
+      !canSendWhilePendingOutgoing
+    ) {
       throw new ForbiddenException('Request is not approved yet');
+    }
+
+    const existingMessageCount = await this.prisma.dmMessage.count({
+      where: { threadId },
+    });
+
+    if (
+      participant.thread.type === DmThreadType.DIRECT &&
+      existingMessageCount === 0
+    ) {
+      const sender = await this.requireUser(userId);
+      await this.prisma.dmMessage.create({
+        data: {
+          threadId,
+          senderId: userId,
+          kind: DmMessageKind.TEXT,
+          text: `[SYSTEM] ${this.displayNameOf(sender)} started the chat`,
+        },
+      });
     }
     if (!text && !mediaUrl) {
       throw new BadRequestException('text or mediaUrl is required');

@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/classrooms_providers.dart';
+import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
 
@@ -25,12 +27,12 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final async = ref.watch(studentClassroomsProvider);
+    final async = ref.watch(orderedStudentClassroomsProvider);
     final cs = Theme.of(context).colorScheme;
     final query = _searchCtl.text.trim().toLowerCase();
 
     return Scaffold(
-      backgroundColor: cs.surface,
+backgroundColor: cs.surface,
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
@@ -90,14 +92,33 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'Your classrooms',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w900,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Your classrooms',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w900,
+                                                ),
                                           ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Reorder classrooms',
+                                          onPressed: () async {
+                                            await Navigator.of(context, rootNavigator: true).push(
+                                              CupertinoPageRoute<void>(
+                                                builder: (_) => const ClassroomOrderScreen(),
+                                              ),
+                                            );
+                                            if (!mounted) return;
+                                            ref.invalidate(orderedStudentClassroomsProvider);
+                                          },
+                                          icon: const Icon(Icons.reorder_rounded),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
