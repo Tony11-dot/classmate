@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/schedule_providers.dart';
+import 'schedule_empty_state_copy.dart';
 import '../classrooms/ui/classroom_detail_screen.dart';
+import '../../l10n/app_localizations.dart';
+import '../../ui/glass/liquid_glass_card.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -14,15 +17,15 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   late DateTime _selectedDate;
 
-  String _friendlyScheduleError(Object error) {
+  String _friendlyScheduleError(AppLocalizations l, Object error) {
     final raw = error.toString();
     if (raw.contains('HTTP 429') || raw.contains('Too Many Requests')) {
-      return 'Schedule is refreshing too fast right now. Wait a moment and try again.';
+      return l.scheduleRefreshTooFast;
     }
     if (raw.contains('Student not onboarded')) {
-      return 'Your student profile is not fully set up yet. Showing a demo schedule for now.';
+      return l.scheduleNotOnboarded;
     }
-    return 'Could not load schedule yet.';
+    return l.scheduleLoadError;
   }
 
   Future<void> _retryWeek(String weekOf) async {
@@ -42,6 +45,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final weekAsync = ref.watch(weekScheduleProvider(weekOf));
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: () => _retryWeek(weekOf),
@@ -63,7 +67,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               data: (data) => _heroCard(context, data),
               loading: () => _heroLoadingCard(context),
               error: (error, _) =>
-                  _heroErrorCard(context, _friendlyScheduleError(error), () {
+                  _heroErrorCard(context, _friendlyScheduleError(l, error), () {
                     _retryWeek(weekOf);
                   }),
             ),
@@ -110,7 +114,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
-                                '${_friendlyDate(_ymd(_selectedDate))} · ${_weekdayLong(_selectedDate)}',
+                                '${_friendlyDate(context, _selectedDate)} · ${_weekdayLong(context, _selectedDate)}',
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.titleMedium?.copyWith(
@@ -138,7 +142,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               data: (data) => _daySection(context, data),
               loading: () => const _LoadingState(),
               error: (error, _) => _ErrorState(
-                message: _friendlyScheduleError(error),
+                message: _friendlyScheduleError(l, error),
                 onRetry: () {
                   _retryWeek(weekOf);
                 },
@@ -153,29 +157,29 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _heroCard(BuildContext context, Map<String, dynamic> data) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
     final days = _weekDays(data);
     final selectedItems = _itemsForSelectedDate(data);
     final next = selectedItems.isNotEmpty ? selectedItems.first : null;
 
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.primaryContainer.withValues(alpha: 0.95),
-            cs.surfaceContainerHigh.withValues(alpha: 0.95),
-          ],
-        ),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+      borderRadius: BorderRadius.circular(26),
+      blurSigma: 18,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          cs.primaryContainer.withValues(alpha: 0.95),
+          cs.surfaceContainerHigh.withValues(alpha: 0.95),
+        ],
       ),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your schedule',
+            l.titleSchedule,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
@@ -189,23 +193,27 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               _statPill(
                 context,
                 icon: Icons.today_rounded,
-                label: 'Selected day',
-                value: '${selectedItems.length} classes',
+                label: l.scheduleSelectedDay,
+                value: l.scheduleClassCount(selectedItems.length),
               ),
               _statPill(
                 context,
                 icon: Icons.calendar_view_week_rounded,
-                label: 'This week',
-                value:
-                    '${days.fold<int>(0, (sum, day) => sum + (((day['items'] as List?)?.length) ?? 0))} classes',
+                label: l.thisWeek,
+                value: l.scheduleClassCount(
+                  days.fold<int>(
+                    0,
+                    (sum, day) => sum + (((day['items'] as List?)?.length) ?? 0),
+                  ),
+                ),
               ),
               _statPill(
                 context,
                 icon: Icons.schedule_rounded,
-                label: 'Next up',
+                label: l.scheduleNextUp,
                 value: next == null
-                    ? 'No more classes'
-                    : '${_timeLabel(next)} • ${_titleOf(next)}',
+                    ? l.scheduleNoMoreClasses
+                    : '${_timeLabel(next)} • ${_titleOf(context, next)}',
               ),
             ],
           ),
@@ -216,13 +224,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _heroLoadingCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        color: cs.surfaceContainerHigh.withValues(alpha: 0.75),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-      ),
+      borderRadius: BorderRadius.circular(26),
+      blurSigma: 16,
+      color: cs.surfaceContainerHigh.withValues(alpha: 0.75),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
       child: const Center(child: CircularProgressIndicator()),
     );
   }
@@ -233,30 +240,30 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     VoidCallback onRetry,
   ) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+    final l = AppLocalizations.of(context)!;
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        color: cs.errorContainer.withValues(alpha: 0.45),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-      ),
+      borderRadius: BorderRadius.circular(26),
+      blurSigma: 14,
+      color: cs.errorContainer.withValues(alpha: 0.45),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Your schedule',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 28),
+          Text(
+            l.titleSchedule,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 28),
           ),
           const SizedBox(height: 8),
           Text(
-            'Could not load schedule yet',
+            l.scheduleLoadError,
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(l.retry),
           ),
           const SizedBox(height: 8),
           Text(message, maxLines: 3, overflow: TextOverflow.ellipsis),
@@ -288,13 +295,17 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   Widget _daySection(BuildContext context, Map<String, dynamic> data) {
+    final l = AppLocalizations.of(context)!;
     final items = _itemsForSelectedDate(data);
 
     if (items.isEmpty) {
       return _EmptyState(
         icon: Icons.free_breakfast_rounded,
-        title: 'No classes on this day',
-        subtitle: '${_weekdayLong(_selectedDate)} looks clear.',
+        title: ScheduleEmptyStateCopy.title(l),
+        subtitle: ScheduleEmptyStateCopy.subtitle(
+          l,
+          _weekdayLong(context, _selectedDate),
+        ),
       );
     }
 
@@ -313,7 +324,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _weekdayLong(_selectedDate),
+          _weekdayLong(context, _selectedDate),
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w800,
             letterSpacing: -0.4,
@@ -321,7 +332,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          _friendlyDate(_ymd(_selectedDate)),
+          _friendlyDate(context, _selectedDate),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: cs.onSurfaceVariant,
           ),
@@ -396,47 +407,29 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     return _ymd(start);
   }
 
-  String _friendlyDate(String ymd) {
+  String _friendlyDate(BuildContext context, DateTime date) {
     try {
-      final d = DateTime.parse(ymd);
-      const months = [
-        '',
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      return '${d.day} ${months[d.month]} ${d.year}';
+      return MaterialLocalizations.of(context).formatMediumDate(date);
     } catch (_) {
-      return ymd;
+      return _ymd(date);
     }
   }
 
-  String _weekdayLong(DateTime d) {
-    const names = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
-    return names[d.weekday % 7];
+  String _weekdayLong(BuildContext context, DateTime date) {
+    try {
+      final fullDate = MaterialLocalizations.of(context).formatFullDate(date);
+      final parts = fullDate.split(RegExp(r'[,،]'));
+      return parts.first.trim().isEmpty ? fullDate : parts.first.trim();
+    } catch (_) {
+      return _ymd(date);
+    }
   }
 
   String _startsAt(Map<String, dynamic> item) => '${item['startsAt'] ?? ''}';
   String _timeLabel(Map<String, dynamic> item) =>
       '${item['startsAt'] ?? '--:--'}–${item['endsAt'] ?? '--:--'}';
-  String _titleOf(Map<String, dynamic> item) => '${item['title'] ?? 'Class'}';
+  String _titleOf(BuildContext context, Map<String, dynamic> item) =>
+      '${item['title'] ?? AppLocalizations.of(context)!.scheduleClassFallback}';
 }
 
 Widget _statPill(
@@ -448,42 +441,43 @@ Widget _statPill(
   final theme = Theme.of(context);
   final cs = theme.colorScheme;
 
-  return Container(
+  return ConstrainedBox(
     constraints: const BoxConstraints(minWidth: 150),
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-    decoration: BoxDecoration(
-      color: cs.surface.withValues(alpha: 0.72),
+    child: LiquidGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       borderRadius: BorderRadius.circular(18),
+      blurSigma: 10,
+      color: cs.surface.withValues(alpha: 0.72),
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18),
-        const SizedBox(width: 10),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -497,8 +491,9 @@ class _ScheduleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
 
-    final title = '${item['title'] ?? 'Class'}';
+    final title = '${item['title'] ?? l.scheduleClassFallback}';
     final subject = (item['subject'] ?? '').toString().trim();
     final location = (item['location'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
@@ -520,12 +515,11 @@ class _ScheduleTile extends StatelessWidget {
                 builder: (_) => ClassroomDetailScreen(courseId: courseId),
               ),
             ),
-      child: Ink(
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
-        ),
+      child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(24),
+        blurSigma: 12,
+        color: cs.surfaceContainerLow.withValues(alpha: 0.92),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -586,7 +580,7 @@ class _ScheduleTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
-                              'P$period',
+                              l.teacherPeriod(period),
                               style: theme.textTheme.labelMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
@@ -597,7 +591,7 @@ class _ScheduleTile extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       subtitleParts.isEmpty
-                          ? 'No subject/location yet'
+                          ? l.scheduleNoSubjectLocation
                           : subtitleParts.join(' • '),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cs.onSurfaceVariant,
@@ -642,19 +636,18 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: cs.errorContainer.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-      ),
+      borderRadius: BorderRadius.circular(24),
+      blurSigma: 14,
+      color: cs.errorContainer.withValues(alpha: 0.45),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
       child: Column(
         children: [
           const Icon(Icons.cloud_off_rounded, size: 34),
           const SizedBox(height: 10),
           const Text(
-            'Could not load schedule yet',
+            '',
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
           ),
@@ -669,7 +662,7 @@ class _ErrorState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -692,29 +685,37 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 36, color: cs.onSurfaceVariant),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: LiquidGlassCard(
+            padding: const EdgeInsets.all(22),
+            borderRadius: BorderRadius.circular(24),
+            blurSigma: 14,
+            color: cs.surfaceContainerLow.withValues(alpha: 0.9),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 36, color: cs.onSurfaceVariant),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant),
-          ),
-        ],
+        ),
       ),
     );
   }

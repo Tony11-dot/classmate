@@ -61,15 +61,22 @@ export class ParentNotificationsService {
 
   async markSeen(parentUserId: string, ids: string[]) {
     if (!parentUserId) throw new UnauthorizedException();
-    if (!ids.length) return { updated: 0 };
+    const now = new Date();
+
+    const where = ids.length
+      ? {
+          id: { in: ids },
+          parentId: parentUserId,
+          seenAt: null,
+        }
+      : {
+          parentId: parentUserId,
+          seenAt: null,
+        };
 
     const res = await this.model.updateMany({
-      where: {
-        id: { in: ids },
-        parentId: parentUserId,
-        seenAt: null,
-      },
-      data: { seenAt: new Date() },
+      where,
+      data: { seenAt: now },
     });
 
     return { updated: res.count };

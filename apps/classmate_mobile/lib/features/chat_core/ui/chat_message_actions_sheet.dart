@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import 'chat_emoji_picker_sheet.dart';
 import '../../messages/ui/components/message_reaction_bar.dart';
 
@@ -7,23 +8,26 @@ class ChatMessageActionsSheet extends StatelessWidget {
     super.key,
     required this.canEdit,
     required this.canDelete,
-    this.canViewInfo = false,
-    this.canPin = false,
-    this.canForward = true,
-    this.canCopy = false,
-    this.pickerAllowedEmojis,
+    required this.canViewInfo,
+    required this.canPin,
+    this.pinLabel,
+    required this.canForward,
+    required this.canCopy,
+    required this.pickerAllowedEmojis,
   });
 
   final bool canEdit;
   final bool canDelete;
   final bool canViewInfo;
   final bool canPin;
+  final String? pinLabel;
   final bool canForward;
   final bool canCopy;
   final List<String>? pickerAllowedEmojis;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final maxHeight = MediaQuery.of(context).size.height * 0.72;
 
     return SafeArea(
@@ -57,43 +61,43 @@ class ChatMessageActionsSheet extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.reply_rounded),
-                title: const Text('Reply'),
+                title: Text(l.chatComposerReplyFallback),
                 onTap: () => Navigator.of(context).pop('reply'),
               ),
               if (canCopy)
                 ListTile(
                   leading: const Icon(Icons.copy_rounded),
-                  title: const Text('Copy'),
+                  title: Text(l.tutorCopy),
                   onTap: () => Navigator.of(context).pop('copy'),
                 ),
               if (canForward)
                 ListTile(
                   leading: const Icon(Icons.forward_rounded),
-                  title: const Text('Forward'),
+                  title: Text(l.classroomsForwardAction),
                   onTap: () => Navigator.of(context).pop('forward'),
                 ),
               if (canPin)
                 ListTile(
                   leading: const Icon(Icons.push_pin_outlined),
-                  title: const Text('Pin'),
+                  title: Text(pinLabel ?? l.classroomDetailPinAction),
                   onTap: () => Navigator.of(context).pop('pin'),
                 ),
               if (canViewInfo)
                 ListTile(
                   leading: const Icon(Icons.info_outline_rounded),
-                  title: const Text('Message info'),
+                  title: Text(l.classroomDetailMessageInfoTitle),
                   onTap: () => Navigator.of(context).pop('info'),
                 ),
               if (canEdit)
                 ListTile(
                   leading: const Icon(Icons.edit_rounded),
-                  title: const Text('Edit'),
+                  title: Text(l.classroomDetailEditMessageTitle),
                   onTap: () => Navigator.of(context).pop('edit'),
                 ),
               if (canDelete)
                 ListTile(
                   leading: const Icon(Icons.delete_outline_rounded),
-                  title: const Text('Delete'),
+                  title: Text(l.chatContextDelete),
                   onTap: () => Navigator.of(context).pop('delete'),
                 ),
             ],

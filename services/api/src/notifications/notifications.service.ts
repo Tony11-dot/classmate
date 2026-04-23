@@ -46,4 +46,53 @@ export class NotificationsService {
       items,
     };
   }
+
+  async seen(user: any, ids: unknown) {
+    const userId = this.userIdOf(user);
+    if (!userId) {
+      return { ok: true, updated: 0 };
+    }
+
+    const cleaned = Array.isArray(ids)
+      ? ids
+          .map((item) => String(item ?? '').trim())
+          .filter((item) => item.length > 0)
+      : [];
+
+    if (cleaned.length === 0) {
+      return { ok: true, updated: 0 };
+    }
+
+    const result = await this.prisma.notification.updateMany({
+      where: {
+        userId,
+        id: { in: cleaned },
+        seenAt: null,
+      },
+      data: {
+        seenAt: new Date(),
+      },
+    });
+
+    return { ok: true, updated: Number(result.count ?? 0) };
+  }
+
+  async seenAll(user: any) {
+    const userId = this.userIdOf(user);
+    if (!userId) {
+      return { ok: true, updated: 0 };
+    }
+
+    const result = await this.prisma.notification.updateMany({
+      where: {
+        userId,
+        seenAt: null,
+      },
+      data: {
+        seenAt: new Date(),
+      },
+    });
+
+    return { ok: true, updated: Number(result.count ?? 0) };
+  }
 }

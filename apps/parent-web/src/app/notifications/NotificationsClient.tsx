@@ -125,9 +125,8 @@ export default function NotificationsClient() {
   useEffect(() => {
     if (!token) return;
     try {
-      const base = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
-      const url = base.replace(/\/api$/, '') + '/api/parent/notifications/stream';
-      const t = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
+      const url = '/api/parent/notifications/stream';
+      const t = typeof window !== 'undefined' ? (localStorage.getItem('parent_token') || '') : '';
       const es = new EventSource(t ? `${url}?token=${encodeURIComponent(t)}` : url);
 
       es.onmessage = async () => {
@@ -189,10 +188,9 @@ export default function NotificationsClient() {
 
   async function markAllRead() {
     try {
-      const ids = (items || []).filter((n) => !n.seenAt).map((n) => n.id);
-      if (ids.length === 0) return;
+      if (!(items || []).some((n) => !n.seenAt)) return;
 
-      await parentMarkSeen({ ids });
+      await parentMarkSeen();
 
       // optimistic local update
       const now = new Date().toISOString();

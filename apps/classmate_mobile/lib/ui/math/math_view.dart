@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 
+import '../../common/widgets/cm_code_block.dart';
 import '../../core/text/normalize_question.dart';
 
 class MathView extends StatelessWidget {
@@ -19,6 +20,10 @@ class MathView extends StatelessWidget {
 
   static final RegExp _tokenRe = RegExp(
     r'(\\\[[\s\S]+?\\\])|(\\\([\s\S]+?\\\))|(\$\$[\s\S]+?\$\$)|(\$[^$\n]+\$)',
+    multiLine: true,
+  );
+  static final RegExp _codeFenceRe = RegExp(
+    r'```([a-zA-Z0-9_+#.-]*)\n?([\s\S]*?)```',
     multiLine: true,
   );
 
@@ -117,10 +122,58 @@ class MathView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = data.trim();
+    final value = prepareRenderableText(data).trim();
     if (value.isEmpty) return const SizedBox.shrink();
 
     final textStyle = style ?? Theme.of(context).textTheme.bodyMedium;
+    if (_codeFenceRe.hasMatch(value)) {
+      return _buildWithCodeFences(value, textStyle);
+    }
+
+    return _buildMathTextOnly(value, textStyle);
+  }
+
+  Widget _buildWithCodeFences(String value, TextStyle? textStyle) {
+    final widgets = <Widget>[];
+    var last = 0;
+
+    for (final match in _codeFenceRe.allMatches(value)) {
+      if (match.start > last) {
+        final plain = value.substring(last, match.start).trim();
+        if (plain.isNotEmpty) {
+          widgets.add(_buildMathTextOnly(plain, textStyle));
+        }
+      }
+
+      final language = (match.group(1) ?? '').trim();
+      final code = (match.group(2) ?? '').trimRight();
+      if (code.isNotEmpty) {
+        if (widgets.isNotEmpty) widgets.add(SizedBox(height: compact ? 6 : 10));
+        widgets.add(CMCodeBlock(code, language: language));
+      }
+
+      last = match.end;
+    }
+
+    if (last < value.length) {
+      final tail = value.substring(last).trim();
+      if (tail.isNotEmpty) {
+        if (widgets.isNotEmpty) widgets.add(SizedBox(height: compact ? 6 : 10));
+        widgets.add(_buildMathTextOnly(tail, textStyle));
+      }
+    }
+
+    if (widgets.isEmpty) {
+      return _buildMathTextOnly(value, textStyle);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
+    );
+  }
+
+  Widget _buildMathTextOnly(String value, TextStyle? textStyle) {
     final normalizedValue = normalizeQuestionText(value);
 
     if (!_tokenRe.hasMatch(value)) {

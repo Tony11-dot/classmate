@@ -51,7 +51,7 @@ test('attendance e2e', async ({ page, request }) => {
     { key: TOKEN_KEY, evt: TOKEN_EVT, token },
   );
 await page.goto(`${WEB_BASE}/attendance`, { waitUntil: 'domcontentloaded', timeout: 120_000 });
-  await expect(page.getByRole('heading', { name: /^attendance$/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /today\s*&\s*attendance/i })).toBeVisible({ timeout: 30_000 });
 
   const dateInput = page.locator("text=/^Date/i").locator("..").locator("input").first();
   await expect(dateInput).toBeVisible({ timeout: 30_000 });

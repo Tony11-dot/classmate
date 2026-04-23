@@ -1,13 +1,14 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
 import '../widgets/solution_asset_preview_sheet.dart';
 import '../../providers/solutions_flow_provider.dart';
+import '../widgets/solution_upload_sheet_content.dart';
 
 final liveExactSolutionsPageProvider =
     FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
@@ -108,216 +109,9 @@ class _SolutionsQuestionsScreenState
     ref.invalidate(liveSamePageSolutionsPageProvider(1));
   }
 
-  Future<void> _openAssetPreview(SolutionUploadAsset asset) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => SolutionAssetPreviewSheet(asset: asset),
-    );
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickMultiImage();
-    if (picked.isEmpty || !mounted) return;
-
-    final current = List<SolutionUploadAsset>.from(
-      ref.read(solutionsFlowProvider).uploadFiles,
-    );
-
-    current.addAll(
-      picked.map(
-        (file) => SolutionUploadAsset(
-          id: 'img-${DateTime.now().microsecondsSinceEpoch}-${file.name}',
-          name: file.name,
-          kind: SolutionAssetKind.image,
-          filePath: file.path,
-        ),
-      ),
-    );
-
-    ref.read(solutionsFlowProvider.notifier).setUploadFiles(current);
-  }
-
-  Future<void> _pickPdf() async {
-    final picked = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: const ['pdf'],
-    );
-
-    if (picked == null || picked.files.isEmpty || !mounted) return;
-
-    final current = List<SolutionUploadAsset>.from(
-      ref.read(solutionsFlowProvider).uploadFiles,
-    );
-
-    current.addAll(
-      picked.files
-          .where((f) => (f.path ?? '').trim().isNotEmpty)
-          .map(
-            (file) => SolutionUploadAsset(
-              id: 'pdf-${DateTime.now().microsecondsSinceEpoch}-${file.name}',
-              name: file.name,
-              kind: SolutionAssetKind.pdf,
-              filePath: file.path,
-            ),
-          ),
-    );
-
-    ref.read(solutionsFlowProvider.notifier).setUploadFiles(current);
-  }
-
-  void _markUploadState(String id, UploadState next) {
-    final state = ref.read(solutionsFlowProvider);
-    final items = state.uploadFiles
-        .map(
-          (e) => e.id == id
-              ? SolutionUploadAsset(
-                  id: e.id,
-                  name: e.name,
-                  kind: e.kind,
-                  filePath: e.filePath,
-                  remoteUrl: e.remoteUrl,
-                  uploadState: next,
-                )
-              : e,
-        )
-        .toList(growable: false);
-    ref.read(solutionsFlowProvider.notifier).setUploadFiles(items);
-  }
-
-  Future<void> _retryFailedUploads() async {
-    final state = ref.read(solutionsFlowProvider);
-    final repaired = state.uploadFiles
-        .map(
-          (e) => e.uploadState == UploadState.failed
-              ? SolutionUploadAsset(
-                  id: e.id,
-                  name: e.name,
-                  kind: e.kind,
-                  filePath: e.filePath,
-                  remoteUrl: e.remoteUrl,
-                  uploadState: UploadState.queued,
-                )
-              : e,
-        )
-        .toList(growable: false);
-    ref.read(solutionsFlowProvider.notifier).setUploadFiles(repaired);
-  }
-
-  Future<void> _submitUpload(BuildContext context) async {
-    final state = ref.read(solutionsFlowProvider);
-    final api = ref.read(solutionsApiProvider);
-
-    final subject = state.uploadSelectedSubject ?? state.selectedSubject;
-    final book = state.uploadSelectedBook ?? state.selectedBook;
-    final page = int.tryParse(state.uploadPageNumber.trim());
-    final question = state.uploadQuestionNumber.trim();
-
-    if (subject == null || book == null || page == null || question.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Complete subject, book, page, and question'),
-        ),
-      );
-      return;
-    }
-
-    final filePaths = state.uploadFiles
-        .map((e) => e.filePath)
-        .whereType<String>()
-        .toList(growable: false);
-
-    if (filePaths.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least one image or PDF')),
-      );
-      return;
-    }
-
-    final currentFiles = List<SolutionUploadAsset>.from(state.uploadFiles);
-    for (final file in currentFiles) {
-      _markUploadState(file.id, UploadState.uploading);
-    }
-
-    List<Map<String, dynamic>> files;
-    try {
-      files = await api.uploadFilesMultipart(filePaths);
-      final uploaded = ref
-          .read(solutionsFlowProvider)
-          .uploadFiles
-          .map(
-            (e) => SolutionUploadAsset(
-              id: e.id,
-              name: e.name,
-              kind: e.kind,
-              filePath: e.filePath,
-              remoteUrl: e.remoteUrl,
-              uploadState: UploadState.uploaded,
-            ),
-          )
-          .toList(growable: false);
-      ref.read(solutionsFlowProvider.notifier).setUploadFiles(uploaded);
-    } catch (e) {
-      final failed = ref
-          .read(solutionsFlowProvider)
-          .uploadFiles
-          .map(
-            (e2) => SolutionUploadAsset(
-              id: e2.id,
-              name: e2.name,
-              kind: e2.kind,
-              filePath: e2.filePath,
-              remoteUrl: e2.remoteUrl,
-              uploadState: UploadState.failed,
-            ),
-          )
-          .toList(growable: false);
-      ref.read(solutionsFlowProvider.notifier).setUploadFiles(failed);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Upload failed. Retry files and try again.'),
-        ),
-      );
-      return;
-    }
-
-    final raw = await api.createSolution(
-      subject: subject.title,
-      bookTitle: book.title,
-      pageNumber: page,
-      questionNumber: question,
-      caption: state.uploadCaption.trim(),
-      uploaderName: 'You',
-      uploaderInitials: 'YO',
-      files: files,
-    );
-
-    final uploadRaw = raw['upload'];
-    if (uploadRaw is Map) {
-      final mapped = SolutionsLiveMapper.mapUpload(
-        uploadRaw.map((k, v) => MapEntry(k.toString(), v)),
-      );
-      ref.read(solutionsFlowProvider.notifier).addUploadLocally(mapped);
-    }
-
-    ref.invalidate(liveExactSolutionsPageProvider(1));
-    ref.invalidate(liveSamePageSolutionsPageProvider(1));
-
-    if (!context.mounted) return;
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Solution uploaded')));
-
-    _resetAndRefresh();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final state = ref.watch(solutionsFlowProvider);
     final exactAsync = ref.watch(liveExactSolutionsPageProvider(_exactPage));
     final samePageAsync = ref.watch(
@@ -370,251 +164,63 @@ class _SolutionsQuestionsScreenState
       },
     );
 
-    Future<void> openUploadSheet() async {
-      await showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 8,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Consumer(
-              builder: (context, ref, child) {
-                final uploadState = ref.watch(solutionsFlowProvider);
-                final uploadSubject =
-                    uploadState.uploadSelectedSubject ??
-                    uploadState.selectedSubject;
-                final uploadBook =
-                    uploadState.uploadSelectedBook ?? uploadState.selectedBook;
+    Future<void> openUploadSheet() => showSolutionUploadSheet(
+      context,
+      initialPageNumber: state.pageNumber,
+      initialQuestionNumber: state.questionNumber,
+      onSuccess: _resetAndRefresh,
+    );
 
-                return ListView(
-                  shrinkWrap: true,
-                  children: [
-                    const Text(
-                      'Upload a solution',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Upload real images/PDFs. Moderation and NOVA verification come next.',
-                      style: TextStyle(color: cs.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<SolutionSubject>(
-                      initialValue: uploadSubject,
-                      items: uploadState.subjects
-                          .map(
-                            (subject) => DropdownMenuItem<SolutionSubject>(
-                              value: subject,
-                              child: Text(subject.title),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          ref
-                              .read(solutionsFlowProvider.notifier)
-                              .setUploadSelectedSubject(value);
-                        }
-                      },
-                      decoration: const InputDecoration(labelText: 'Subject'),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<SolutionBook>(
-                      initialValue: uploadBook,
-                      items: (uploadSubject?.books ?? const <SolutionBook>[])
-                          .map(
-                            (book) => DropdownMenuItem<SolutionBook>(
-                              value: book,
-                              child: Text(book.title),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          ref
-                              .read(solutionsFlowProvider.notifier)
-                              .setUploadSelectedBook(value);
-                        }
-                      },
-                      decoration: const InputDecoration(labelText: 'Book'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      initialValue: uploadState.uploadPageNumber.isEmpty
-                          ? state.pageNumber
-                          : uploadState.uploadPageNumber,
-                      onChanged: ref
-                          .read(solutionsFlowProvider.notifier)
-                          .setUploadPageNumber,
-                      decoration: const InputDecoration(
-                        labelText: 'Page number',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      initialValue: uploadState.uploadQuestionNumber.isEmpty
-                          ? state.questionNumber
-                          : uploadState.uploadQuestionNumber,
-                      onChanged: ref
-                          .read(solutionsFlowProvider.notifier)
-                          .setUploadQuestionNumber,
-                      decoration: const InputDecoration(
-                        labelText: 'Question number',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      initialValue: uploadState.uploadCaption,
-                      onChanged: ref
-                          .read(solutionsFlowProvider.notifier)
-                          .setUploadCaption,
-                      maxLines: 3,
-                      decoration: const InputDecoration(labelText: 'Caption'),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: _pickImage,
-                          icon: const Icon(Icons.photo_outlined),
-                          label: const Text('Pick images'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: _pickPdf,
-                          icon: const Icon(Icons.picture_as_pdf_outlined),
-                          label: const Text('Pick PDF'),
-                        ),
-                      ],
-                    ),
-                    if (uploadState.uploadFiles.any(
-                      (e) => e.uploadState == UploadState.failed,
-                    )) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.errorContainer.withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline_rounded),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Text(
-                                'Some files failed to upload. You can retry them.',
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: _retryFailedUploads,
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (uploadState.uploadFiles.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: uploadState.uploadFiles
-                            .map(
-                              (file) => InputChip(
-                                label: Text(file.name),
-                                avatar: Icon(
-                                  file.kind == SolutionAssetKind.pdf
-                                      ? Icons.picture_as_pdf_outlined
-                                      : Icons.photo_outlined,
-                                ),
-                                onDeleted: () => ref
-                                    .read(solutionsFlowProvider.notifier)
-                                    .removeUploadAsset(file.id),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      if (uploadState.uploadFiles.any(
-                        (e) => e.uploadState == UploadState.failed,
-                      )) ...[
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: _retryFailedUploads,
-                            icon: const Icon(Icons.refresh_rounded),
-                            label: const Text('Retry failed files'),
-                          ),
-                        ),
-                      ],
-                    ],
-                    const SizedBox(height: 18),
-                    FilledButton.icon(
-                      onPressed: () => _submitUpload(context),
-                      icon: const Icon(Icons.cloud_upload_outlined),
-                      label: const Text('Upload solution'),
-                    ),
-                  ],
-                );
-              },
-            ),
-          );
-        },
-      );
-    }
 
     final exactHasMore = exactPage?.hasMore ?? false;
     final samePageHasMore = samePagePage?.hasMore ?? false;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '${state.selectedSubject?.title ?? l.titleSolutions} • ${state.selectedBook?.title ?? ''}',
+          overflow: TextOverflow.ellipsis,
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: openUploadSheet,
         icon: const Icon(Icons.add_a_photo_outlined),
-        label: const Text('Upload'),
+        label: Text(l.solutionsUploadAction),
       ),
-      body: SafeArea(
-        child: ListView(
+      body: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           children: [
             Text(
-              '${state.selectedSubject?.title ?? 'Subject'} • ${state.selectedBook?.title ?? 'Book'}',
+              '${state.selectedSubject?.title ?? l.assignmentsSubjectLabel} • ${state.selectedBook?.title ?? l.solutionsBookLabel}',
               style: TextStyle(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
             Text(
-              'Page ${state.pageNumber.isEmpty ? '—' : state.pageNumber} • Question ${state.questionNumber.isEmpty ? '—' : state.questionNumber}',
+              l.solutionsPageQuestionSummary(
+                state.pageNumber.isEmpty ? '—' : state.pageNumber,
+                state.questionNumber.isEmpty ? '—' : state.questionNumber,
+              ),
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
             _SectionTitle(
-              title: 'Solutions for this exact question',
+              title: l.solutionsExactQuestionTitle,
               subtitle: _exactItems.isEmpty
-                  ? 'Nothing has been uploaded for this exact question yet. Be the first to help your classmates.'
-                  : '${_exactItems.length} upload${_exactItems.length == 1 ? '' : 's'} found',
+                  ? l.solutionsExactQuestionEmptySubtitle
+                  : l.solutionsUploadsFound(_exactItems.length),
             ),
             const SizedBox(height: 10),
             if (exactAsync.isLoading && _exactItems.isEmpty)
               const Center(child: CircularProgressIndicator())
             else if (_exactItems.isEmpty)
-              const _EmptyCard(
-                text:
-                    'No exact match yet. You can upload one now, or check what classmates solved on this same page.',
+              _EmptyCard(
+                text: l.solutionsExactQuestionEmptyBody,
               )
             else ...[
               ..._exactItems.map(
@@ -622,7 +228,6 @@ class _SolutionsQuestionsScreenState
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _SolutionCard(
                     item: item,
-                    onOpenAsset: _openAssetPreview,
                   ),
                 ),
               ),
@@ -632,24 +237,23 @@ class _SolutionsQuestionsScreenState
                   child: OutlinedButton.icon(
                     onPressed: () => setState(() => _exactPage += 1),
                     icon: const Icon(Icons.expand_more_rounded),
-                    label: const Text('Load more'),
+                    label: Text(l.solutionsLoadMoreAction),
                   ),
                 ),
             ],
             const SizedBox(height: 20),
             _SectionTitle(
-              title: 'Other questions solved on this page',
+              title: l.solutionsSamePageTitle,
               subtitle: _samePageItems.isEmpty
-                  ? 'No neighboring questions were uploaded from this page yet.'
-                  : 'Useful fallback when your exact question has no upload yet.',
+                  ? l.solutionsSamePageEmptySubtitle
+                  : l.solutionsSamePageFallbackSubtitle,
             ),
             const SizedBox(height: 10),
             if (samePageAsync.isLoading && _samePageItems.isEmpty)
               const Center(child: CircularProgressIndicator())
             else if (_samePageItems.isEmpty)
-              const _EmptyCard(
-                text:
-                    'No nearby uploads on this page yet. A fresh upload here would really help.',
+              _EmptyCard(
+                text: l.solutionsSamePageEmptyBody,
               )
             else ...[
               ..._samePageItems.map(
@@ -657,7 +261,6 @@ class _SolutionsQuestionsScreenState
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _SolutionCard(
                     item: item,
-                    onOpenAsset: _openAssetPreview,
                   ),
                 ),
               ),
@@ -667,13 +270,12 @@ class _SolutionsQuestionsScreenState
                   child: OutlinedButton.icon(
                     onPressed: () => setState(() => _samePagePage += 1),
                     icon: const Icon(Icons.expand_more_rounded),
-                    label: const Text('Load more'),
+                    label: Text(l.solutionsLoadMoreAction),
                   ),
                 ),
             ],
           ],
         ),
-      ),
     );
   }
 }
@@ -718,13 +320,13 @@ class _EmptyCard extends StatelessWidget {
 }
 
 class _SolutionCard extends StatelessWidget {
-  const _SolutionCard({required this.item, required this.onOpenAsset});
+  const _SolutionCard({required this.item});
 
   final QuestionSolutionCard item;
-  final Future<void> Function(SolutionUploadAsset asset) onOpenAsset;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -750,7 +352,10 @@ class _SolutionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Page ${item.pageNumber} • Question ${item.questionNumber}',
+                      l.solutionsPageQuestionSummary(
+                        item.pageNumber,
+                        item.questionNumber,
+                      ),
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                   ],
@@ -766,12 +371,12 @@ class _SolutionCard extends StatelessWidget {
                     color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.verified_rounded, size: 16),
-                      SizedBox(width: 6),
-                      Text('Verified by NOVA'),
+                      const Icon(Icons.verified_rounded, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l.solutionsVerifiedByNova),
                     ],
                   ),
                 ),
@@ -795,24 +400,8 @@ class _SolutionCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: item.assets
-                .map(
-                  (asset) => ActionChip(
-                    label: Text(asset.name),
-                    avatar: Icon(
-                      asset.kind == SolutionAssetKind.pdf
-                          ? Icons.picture_as_pdf_outlined
-                          : Icons.photo_outlined,
-                      size: 18,
-                    ),
-                    onPressed: () => onOpenAsset(asset),
-                  ),
-                )
-                .toList(),
-          ),
+          if (item.assets.isNotEmpty)
+            SolutionMediaStrip(assets: item.assets),
         ],
       ),
     );

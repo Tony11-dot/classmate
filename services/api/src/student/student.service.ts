@@ -150,6 +150,62 @@ export class StudentService {
     return this.studentInsightsService.getStudentInsights(user);
   }
 
+  async myAssessments(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+    });
+    if (!sp) throw new BadRequestException('Student not onboarded');
+
+    // Get all courses the student is enrolled in
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { studentId },
+      select: { courseId: true },
+    });
+    const courseIds = enrollments.map((e) => e.courseId);
+
+    if (courseIds.length === 0) {
+      return { ok: true, assessments: [] };
+    }
+
+    // Get assessments for all enrolled courses
+    const assessments = await this.prisma.assessment.findMany({
+      where: { courseId: { in: courseIds } },
+      include: {
+        course: { select: { id: true, name: true, subject: true, teacherId: true } },
+      },
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
+    });
+
+    // Get this student's grades
+    const grades = await this.prisma.gradeRecord.findMany({
+      where: { studentId, assessmentId: { in: assessments.map((a) => a.id) } },
+      select: { assessmentId: true, grade: true, comment: true },
+    });
+    const gradeMap = new Map(grades.map((g) => [g.assessmentId, g]));
+
+    return {
+      ok: true,
+      assessments: assessments.map((a) => {
+        const g = gradeMap.get(a.id);
+        return {
+          id: a.id,
+          title: a.title,
+          date: a.date.toISOString(),
+          maxGrade: a.maxGrade,
+          subject: a.course.subject,
+          courseName: a.course.name,
+          courseId: a.course.id,
+          teacher: a.course.teacherId ?? '',
+          grade: g?.grade ?? null,
+          comment: g?.comment ?? null,
+        };
+      }),
+    };
+  }
+
   async myGrades(user: any) {
     this.ensureStudent(user);
     const studentId = user.sub ?? user.id;

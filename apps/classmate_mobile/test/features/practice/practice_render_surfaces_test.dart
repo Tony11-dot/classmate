@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:classmate_mobile/common/widgets/cm_code_block.dart';
 import 'package:classmate_mobile/common/widgets/cm_rich_content.dart';
+import 'package:classmate_mobile/core/text/normalize_question.dart';
 import 'package:classmate_mobile/features/practice/domain/practice_models.dart';
 import 'package:classmate_mobile/features/practice/domain/practice_history_models.dart';
 import 'package:classmate_mobile/features/practice/providers/saved_questions_provider.dart';
+import 'package:classmate_mobile/features/practice/ui/modes/mode_common.dart';
 import 'package:classmate_mobile/features/practice/ui/practice_history_review_screen.dart';
 import 'package:classmate_mobile/features/practice/ui/saved_questions_screen.dart';
+import 'package:classmate_mobile/l10n/app_localizations.dart';
 
 class TestSavedQuestionsController extends SavedQuestionsController {
   TestSavedQuestionsController(this.seed);
@@ -17,14 +21,65 @@ class TestSavedQuestionsController extends SavedQuestionsController {
   List<PracticeQuestion> build() => List<PracticeQuestion>.from(seed);
 }
 
+Widget _testApp(Widget child) {
+  return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: Scaffold(body: child),
+  );
+}
+
+Widget _testScreenApp(Widget child) {
+  return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: child,
+  );
+}
+
 void main() {
+  test('prepareRenderableText repairs bare latex commands outside code fences', () {
+    final prepared = prepareRenderableText('Compute frac{1}{2} and lim_{x->0} x.');
+
+    expect(prepared, contains(r'$\frac{1}{2}$'));
+    expect(prepared, contains(r'$\lim_{x->0} x$'));
+  });
+
+  test('prepareRenderableText repairs raw limits payloads from practice API', () {
+    final prepared = prepareRenderableText(
+      r'Find \lim_{x \to 1} \frac{x^2 + x - 2}{x - 1}\.',
+    );
+
+    expect(prepared, contains(r'$\lim_{x \to 1} \frac{x^2 + x - 2}{x - 1}$'));
+    expect(prepared, isNot(contains(r'\.')));
+  });
+
+  test('prepareRenderableText does not turn left-hand or right-hand prose into latex', () {
+    final prepared = prepareRenderableText(
+      'Left-hand limit = 7 and right-hand limit = 7, so the limit exists.',
+    );
+
+    expect(prepared, contains('Left-hand limit = 7'));
+    expect(prepared, contains('right-hand limit = 7'));
+    expect(prepared, isNot(contains(r'\left-hand')));
+    expect(prepared, isNot(contains(r'\right-hand')));
+  });
+
+  test('prepareRenderableText converts inline code tails into fenced blocks', () {
+    final prepared = prepareRenderableText(
+      'What does this print for score = 82? if (score >= 90) print("A"); else if (score >= 75) print("B"); else print("C");',
+    );
+
+    expect(prepared, contains('```'));
+    expect(prepared, contains('else if'));
+    expect(prepared, contains('print("B");'));
+  });
+
   testWidgets('CMRichContent renders plain math text safely', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: CMRichContent(
-            data: r'Find \(x^2+3x+2\) and explain why \(x=1\) is not a root.',
-          ),
+      _testApp(
+        const CMRichContent(
+          data: r'Find \(x^2+3x+2\) and explain why \(x=1\) is not a root.',
         ),
       ),
     );
@@ -32,6 +87,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CMRichContent), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('CMRichContent renders fenced code blocks with the shared code widget', (tester) async {
+    await tester.pumpWidget(
+      _testApp(
+        const CMRichContent(
+          data: '```python\nprint("hi")\n```',
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CMCodeBlock), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ModeAnswerTile renders fenced code answers with the shared code widget', (tester) async {
+    await tester.pumpWidget(
+      _testApp(
+        ModeAnswerTile(
+          label: '```python\nprint("hi")\n```',
+          selected: false,
+          revealed: false,
+          correct: false,
+          wrongSelected: false,
+          accent: Colors.blue,
+          onTap: () {},
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CMCodeBlock), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -65,15 +156,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: PracticeHistoryReviewScreen(session: session),
-      ),
+      _testScreenApp(PracticeHistoryReviewScreen(session: session)),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Session Review'), findsOneWidget);
-    expect(find.byType(CMRichContent), findsWidgets);
+    expect(find.byType(CMRichContent), findsNWidgets(4));
     expect(find.textContaining('Relativity'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('SavedQuestionsScreen renders saved prompt + explanation with rich content', (tester) async {
@@ -97,18 +186,16 @@ void main() {
         overrides: [
           savedQuestionsProvider.overrideWith(() => TestSavedQuestionsController(seed)),
         ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: SavedQuestionsScreen(),
-          ),
+        child: _testApp(
+          const SavedQuestionsScreen(),
         ),
       ),
     );
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Saved questions'), findsOneWidget);
-    expect(find.byType(CMRichContent), findsWidgets);
+    expect(find.byType(CMRichContent), findsNWidgets(2));
     expect(find.textContaining('Relativity'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 }

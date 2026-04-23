@@ -45,7 +45,7 @@ describe('PracticeService polynomial blocker replays', () => {
           correctIndex: 0,
           correctAnswerText: '72',
           explanation:
-            'Use the binomial theorem. The x^3 coefficient is 96. Correction: earlier 72 was wrong.',
+            'Use the binomial theorem. The x^3 term works out to 96, even though the keyed answer here says 72.',
           recommendedTimeSeconds: 75,
           topicMatchNote: 'Polynomials',
         },

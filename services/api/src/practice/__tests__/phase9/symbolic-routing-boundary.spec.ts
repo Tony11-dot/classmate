@@ -5,6 +5,11 @@ import { FactualQuizService } from '../../factual/factual-quiz.service';
 import { ConceptualTopicService } from '../../conceptual/conceptual-topic.service';
 
 describe('PHASE 9 — symbolic routing boundary', () => {
+  beforeEach(() => {
+    process.env.OPENAI_API_KEY = 'test-key';
+    jest.clearAllMocks();
+  });
+
   it('does not use AI fallback for supported symbolic topics', async () => {
     const registry = { generate: jest.fn(async () => []) };
 
@@ -73,15 +78,50 @@ describe('PHASE 9 — symbolic routing boundary', () => {
     expect(registry.generate).toHaveBeenCalled();
   });
 
-  it('does not use AI fallback for unsupported symbolic topics either', async () => {
+  it('uses AI fallback for specific symbolic topics when the seed bank is too generic', async () => {
     const registry = { generate: jest.fn(async () => []) };
+    const aiQuestion = {
+      prompt:
+        'Which improper integral best supports the integral comparison test for $\\int_1^\\infty \\frac{1}{x^2} \\; dx$?',
+      options: ['A convergent p-series comparison', 'A linear approximation', 'A midpoint sum only', 'A determinant identity'],
+      correctIndex: 0,
+      correctAnswerText: 'A convergent p-series comparison',
+      explanation:
+        'Comparing against a known convergent p-series keeps the exact topic on integral comparison tests rather than falling back to generic antiderivative drills.',
+      recommendedTimeSeconds: 45,
+      topicMatchNote: 'integral comparison test',
+    };
 
     class TestPracticeService extends PracticeService {
-      requestQuestionSet = jest.fn(async () => {
-        throw new Error('AI fallback should not be called for unsupported symbolic topics');
-      }) as any;
+      async callResponsesJson(args: any): Promise<any> {
+        if (args.schemaName === 'practice_questions') {
+          return { questions: [aiQuestion] };
+        }
 
-      verifyQuestionSet = jest.fn(async () => []) as any;
+        if (args.schemaName === 'practice_self_verify') {
+          return {
+            audits: [
+              {
+                index: 0,
+                final_answer: aiQuestion.correctAnswerText,
+                steps: aiQuestion.explanation,
+                confidence: 1,
+                type: 'symbolic',
+                validation_passed: true,
+                reason: 'ok',
+              },
+            ],
+          };
+        }
+
+        if (args.schemaName === 'practice_verifier') {
+          return {
+            decisions: [{ index: 0, verdict: 'accept', reason: 'ok' }],
+          };
+        }
+
+        return {};
+      }
     }
 
     const mod = await Test.createTestingModule({
@@ -101,7 +141,7 @@ describe('PHASE 9 — symbolic routing boundary', () => {
               ok: false,
               ready: false,
               subject: 'Math',
-              topic: 'Tensor Calculus',
+              topic: 'integral comparison test',
               confidence: 0,
               needsClarification: false,
               gaps: ['not_conceptual'],
@@ -131,13 +171,14 @@ describe('PHASE 9 — symbolic routing boundary', () => {
 
     const res = await service.generate({
       subject: 'Math',
-      topicLabel: 'tensor calculus',
+      topicLabel: 'integral comparison test',
       mode: 'practice',
       difficulty: 'medium',
-      questionCount: 2,
+      questionCount: 1,
     } as any);
 
-    expect(res.questions).toEqual([]);
-    expect(res.symbolic.ready).toBe(false);
+    expect(res.questions).toHaveLength(1);
+    expect(res.questions[0].topicLabel).toBe('integral comparison test');
+    expect(String(res.questions[0].prompt)).toContain('integral comparison test');
   });
 });

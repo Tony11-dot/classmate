@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/solutions_api.dart';
 import '../domain/solutions_models.dart';
+
+const _kCustomBooksKey = 'solutions_custom_books_v1';
 
 final solutionsFlowProvider =
     NotifierProvider<SolutionsFlowNotifier, SolutionsFlowState>(
@@ -10,7 +15,74 @@ final solutionsFlowProvider =
 
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
-  SolutionsFlowState build() => SolutionsFlowState.initial();
+  SolutionsFlowState build() {
+    // Load persisted custom books asynchronously and merge into initial state.
+    Future.microtask(_loadCustomBooks);
+    return SolutionsFlowState.initial();
+  }
+
+  // ── persistence ─────────────────────────────────────────────────────────
+
+  Future<void> _loadCustomBooks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCustomBooksKey);
+    if (raw == null || raw.isEmpty) return;
+
+    final List<dynamic> decoded;
+    try {
+      decoded = jsonDecode(raw) as List<dynamic>;
+    } catch (_) {
+      return;
+    }
+
+    // Each entry: { subjectId, bookId, bookTitle }
+    if (decoded.isEmpty) return;
+    var subjects = List<SolutionSubject>.from(state.subjects);
+    for (final entry in decoded) {
+      if (entry is! Map) continue;
+      final subjectId = entry['subjectId'] as String?;
+      final bookId = entry['bookId'] as String?;
+      final bookTitle = entry['bookTitle'] as String?;
+      if (subjectId == null || bookId == null || bookTitle == null) continue;
+
+      final idx = subjects.indexWhere((s) => s.id == subjectId);
+      if (idx == -1) continue;
+
+      // Skip if book already exists (e.g. loaded from server).
+      final alreadyExists = subjects[idx].books.any((b) => b.id == bookId);
+      if (alreadyExists) continue;
+
+      final subject = subjects[idx];
+      subjects[idx] = SolutionSubject(
+        id: subject.id,
+        title: subject.title,
+        books: [...subject.books, SolutionBook(id: bookId, title: bookTitle, subjectId: subjectId)],
+      );
+    }
+    state = state.copyWith(subjects: subjects);
+  }
+
+  Future<void> _persistCustomBooks() async {
+    // Collect all books whose IDs start with 'custom-'.
+    final customEntries = <Map<String, String>>[];
+    for (final subject in state.subjects) {
+      for (final book in subject.books) {
+        if (book.id.startsWith('custom-')) {
+          customEntries.add({
+            'subjectId': subject.id,
+            'bookId': book.id,
+            'bookTitle': book.title,
+          });
+        }
+      }
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (customEntries.isEmpty) {
+      await prefs.remove(_kCustomBooksKey);
+    } else {
+      await prefs.setString(_kCustomBooksKey, jsonEncode(customEntries));
+    }
+  }
 
   void search(String value) {
     state = state.copyWith(searchQuery: value);
@@ -178,6 +250,28 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     state = state.copyWith(
       uploadFiles: state.uploadFiles.where((e) => e.id != id).toList(),
     );
+  }
+
+  void addBook(String subjectId, String bookTitle) {
+    final trimmed = bookTitle.trim();
+    if (trimmed.isEmpty) return;
+    final newBook = SolutionBook(
+      id: 'custom-${DateTime.now().microsecondsSinceEpoch}',
+      title: trimmed,
+      subjectId: subjectId,
+    );
+    final updatedSubjects = state.subjects
+        .map((s) {
+          if (s.id != subjectId) return s;
+          return SolutionSubject(
+            id: s.id,
+            title: s.title,
+            books: <SolutionBook>[...s.books, newBook],
+          );
+        })
+        .toList(growable: false);
+    state = state.copyWith(subjects: updatedSubjects);
+    _persistCustomBooks();
   }
 
   void addUploadLocally(QuestionSolutionCard newSolution) {

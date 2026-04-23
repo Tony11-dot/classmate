@@ -105,10 +105,7 @@ describe('PracticeService observability', () => {
     jest.restoreAllMocks();
   });
 
-  it('strict mode: no fallback allowed', async () => { return expect(true).toBe(true); });
-
-// REMOVED OLD FALLBACK TEST
-/*
+  it('returns a strict local set when verifier rejects an otherwise valid set', async () => {
     const spy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     const res = await service.generate({
@@ -120,27 +117,31 @@ describe('PracticeService observability', () => {
     });
 
     expect(res.questions).toHaveLength(3);
+
     expect(
       spy.mock.calls.some((call) =>
-        String(call[0]).includes(
-          '[practice.generate] verifier_fallback_using_local_valid count=3',
-        ),
+        String(call[0]).includes('"event":"generation_strict_local_fallback"'),
       ),
     ).toBe(true);
+    expect(
+      spy.mock.calls.some((call) =>
+        String(call[0]).includes('"event":"generation_failed"'),
+      ),
+    ).toBe(false);
   });
 
-  */
-
-it('logs verifier reject summary when verifier rejects answers', async () => {
+  it('logs verifier reject summary when verifier rejects answers', async () => {
     const spy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    await service.generate({
+    const res = await service.generate({
       subject: 'Physics',
       topic: 'Optics',
       difficulty: 'medium',
       mode: 'practice',
       count: 3,
     });
+
+    expect(res.questions).toHaveLength(3);
 
     expect(
       spy.mock.calls.some((call) =>

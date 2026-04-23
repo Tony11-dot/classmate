@@ -46,6 +46,12 @@ type BulkRequest = {
   records: Array<{ studentId: string; status: AttendanceStatus; note?: string }>;
 };
 
+type SessionSelection = {
+  cohortId: string;
+  date: string;
+  period: number;
+};
+
 export default function AttendancePage() {
   const [cohortId, setCohortId] = useState('');
   const [date, setDate] = useState('');
@@ -110,14 +116,18 @@ export default function AttendancePage() {
     return { status: student.status, note: student.note ?? '' };
   }
 
-  const loadSession = useCallback(async () => {
-    if (!cohortId) {
+  const loadSession = useCallback(async (selection?: SessionSelection) => {
+    const nextCohortId = selection?.cohortId ?? cohortId;
+    const nextDate = selection?.date ?? date;
+    const nextPeriod = selection?.period ?? period;
+
+    if (!nextCohortId) {
       const msg = 'Pick a session first (cohortId missing)';
       setErr(msg);
       toast(msg, 'error');
       return;
     }
-    if (!date) {
+    if (!nextDate) {
       const msg = 'Pick a session first (date missing)';
       setErr(msg);
       toast(msg, 'error');
@@ -128,9 +138,9 @@ export default function AttendancePage() {
     setLoading(true);
     try {
       const q = new URLSearchParams({
-        cohortId,
-        date,
-        period: String(period),
+        cohortId: nextCohortId,
+        date: nextDate,
+        period: String(nextPeriod),
       }).toString();
 
       const res = await apiFetch<AttendanceSessionResponse>(
@@ -246,17 +256,19 @@ const visibleStudents = useMemo(() => {
             </div>
           </div>
         )}
+        <div className="teacher-page">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold">Attendance</h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <div className="teacher-kicker">Today & Attendance</div>
+            <h1 className="mt-2 text-3xl font-semibold">Load the session and mark the room fast</h1>
+            <p className="teacher-muted mt-2 text-sm">
               Load a session, edit inline, Save sends only changed rows.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+              className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
               disabled={!data || dirtyCount === 0 || saving}
               onClick={() => {
                 if (!data) return;
@@ -268,7 +280,7 @@ const visibleStudents = useMemo(() => {
             </button>
 
             <button
-              className="rounded bg-black px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+              className="teacher-button-primary rounded-xl px-3 py-2 text-sm transition hover:opacity-95 disabled:opacity-50"
               disabled={!data || dirtyCount === 0 || saving}
               onClick={saveBulk}
             >
@@ -277,17 +289,17 @@ const visibleStudents = useMemo(() => {
           </div>
         </div>
 
-        <div className="mt-6 rounded border p-4">
+        <div className="teacher-panel rounded-[1.75rem] p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-sm font-medium">Today sessions</div>
-              <div className="text-xs text-gray-600">
+              <div className="teacher-muted text-xs">
                 {today ? `Date: ${today.date}` : '—'}
               </div>
             </div>
 
             <button
-              className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+              className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
               disabled={todayLoading}
               onClick={loadToday}
             >
@@ -304,18 +316,24 @@ const visibleStudents = useMemo(() => {
                   <button
                     key={`${slot.cohort?.id}-${slot.period}`}
                     className={
-                      'rounded border px-3 py-2 text-left text-sm hover:bg-gray-50 ' +
-                      (active ? 'border-black bg-black text-white hover:bg-black' : '')
+                      'rounded-2xl border px-3 py-2 text-left text-sm transition ' +
+                      (active
+                        ? 'border-teal-700 bg-teal-700 text-white'
+                        : 'border-slate-200/80 bg-white/72 hover:bg-white/92')
                     }
                     onClick={() => {
+                      const selection = {
+                        cohortId: slot.cohort!.id,
+                        period: slot.period,
+                        date: today!.date,
+                      };
                       setCohortId(slot.cohort!.id);
                       setPeriod(slot.period);
                       setDate(today!.date);
                       setDraft({});
                       setData(null);
                       toast('Session selected', 'success');
-                      // auto-load
-                      void loadSession();
+                      void loadSession(selection);
                     }}
                   >
                     <div className="text-xs opacity-80">Period {slot.period}</div>
@@ -326,18 +344,19 @@ const visibleStudents = useMemo(() => {
               })}
 
             {(today?.slots ?? []).filter((s) => s.course && s.cohort).length === 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="teacher-muted text-sm">
                 No sessions for today.
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-4">
+        <div className="teacher-panel rounded-[1.75rem] p-5">
+        <div className="grid gap-3 md:grid-cols-4">
           <div className="md:col-span-2">
             <label className="text-sm text-gray-700">Cohort ID</label>
             <input
-              className="mt-1 w-full rounded border px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white/85 px-3 py-2"
               value={cohortId}
               onChange={(e) => setCohortId(e.target.value)}
               placeholder="cohort UUID"
@@ -347,7 +366,7 @@ const visibleStudents = useMemo(() => {
           <div>
             <label className="text-sm text-gray-700">Date</label>
             <input
-              className="mt-1 w-full rounded border px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white/85 px-3 py-2"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               placeholder="YYYY-MM-DD"
@@ -357,7 +376,7 @@ const visibleStudents = useMemo(() => {
           <div>
             <label className="text-sm text-gray-700">Period</label>
             <input
-              className="mt-1 w-full rounded border px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white/85 px-3 py-2"
               type="number"
               min={1}
               max={12}
@@ -369,9 +388,9 @@ const visibleStudents = useMemo(() => {
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={loading}
-            onClick={loadSession}
+            onClick={() => void loadSession()}
           >
             {loading ? 'Loading…' : 'Load session'}
           </button>
@@ -379,28 +398,28 @@ const visibleStudents = useMemo(() => {
           <div className="h-6 w-px bg-gray-200" />
 
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={!data}
             onClick={() => setAllStatus('PRESENT')}
           >
             Set all PRESENT
           </button>
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={!data}
             onClick={() => setAllStatus('ABSENT')}
           >
             Set all ABSENT
           </button>
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={!data}
             onClick={() => setAllStatus('LATE')}
           >
             Set all LATE
           </button>
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={!data}
             onClick={() => setAllStatus('EXCUSED')}
           >
@@ -408,7 +427,7 @@ const visibleStudents = useMemo(() => {
           </button>
 
           <button
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="teacher-button-secondary rounded-xl px-3 py-2 text-sm transition hover:bg-white/90 disabled:opacity-50"
             disabled={!data}
             onClick={clearAllNotes}
           >
@@ -434,17 +453,17 @@ const visibleStudents = useMemo(() => {
 
         {data && (
           <div className="mt-6">
-            <div className="rounded border p-4">
-              <div className="text-sm text-gray-600">
+            <div className="teacher-panel rounded-[1.75rem] p-5">
+              <div className="teacher-muted text-sm">
                 {data.cohort.name} (grade {data.cohort.grade}) — {data.date} —
                 period {data.period}
               </div>
               <div className="mt-1 font-medium">{data.course.name}</div>
             </div>
 
-            <div className="mt-4 overflow-hidden rounded border">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-left">
+            <div className="mt-4 overflow-hidden rounded-[1.75rem] border border-slate-200/80">
+              <table className="teacher-grid-table w-full text-sm">
+                <thead className="text-left">
                   <tr>
                     <th className="px-3 py-2">Student</th>
                     <th className="px-3 py-2">Status</th>
@@ -460,12 +479,12 @@ const visibleStudents = useMemo(() => {
                       cur.status !== s.status || cur.note !== origNote;
 
                     return (
-                      <tr key={s.studentId} className="border-t">
+                      <tr key={s.studentId} className="border-t border-slate-200/70">
                         <td className="px-3 py-2">{s.name}</td>
 
                         <td className="px-3 py-2">
                           <select
-                            className="rounded border px-2 py-1"
+                            className="rounded-lg border border-slate-200 bg-white/90 px-2 py-1"
                             value={cur.status}
                             onChange={(e) => {
                               const v = e.target.value as AttendanceStatus;
@@ -487,7 +506,7 @@ const visibleStudents = useMemo(() => {
 
                         <td className="px-3 py-2">
                           <input
-                            className="w-full rounded border px-2 py-1"
+                            className="w-full rounded-lg border border-slate-200 bg-white/90 px-2 py-1"
                             value={cur.note}
                             placeholder="optional note"
                             onChange={(e) => {
@@ -529,6 +548,8 @@ const visibleStudents = useMemo(() => {
             </div>
           </div>
         )}
+        </div>
+        </div>
       </AdminShell>
     </RequireAuth>
   );

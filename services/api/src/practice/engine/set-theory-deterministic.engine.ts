@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { PracticeEngine } from './practice-engine.interface';
 import type { GeneratedQuestion, PracticeEngineRequest } from './practice-engine.types';
+import { clampTime } from './practice-engine.utils';
 
 @Injectable()
 export class SetTheoryDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = String(req.subject ?? '').toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
@@ -12,17 +15,7 @@ export class SetTheoryDeterministicEngine implements PracticeEngine {
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
     const count = Math.max(1, Math.min(20, Number(req.questionCount ?? 5)));
-    const seconds = Math.max(
-      5,
-      Math.min(
-        900,
-        Math.round(
-          Number.isFinite(Number(req.timePreferenceSeconds))
-            ? Number(req.timePreferenceSeconds)
-            : 18,
-        ),
-      ),
-    );
+    const seconds = clampTime(req.timePreferenceSeconds, 18);
 
     const bank: GeneratedQuestion[] = [
       this.mcq(

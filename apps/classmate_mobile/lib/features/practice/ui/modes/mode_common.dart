@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../l10n/app_localizations.dart';
 
 import '../../domain/practice_models.dart';
 import '../../providers/practice_providers.dart';
 import '../practice_mode_specs.dart';
+import '../practice_display_text.dart';
 import '../../../tutor/ui/nova_chat_screen.dart';
-import '../../../../ui/math/math_view.dart';
+import '../../../../common/widgets/cm_ai_message.dart';
 export '../../../../ui/math/math_view.dart';
 
 typedef SessionResetFn = void Function();
@@ -60,8 +62,18 @@ class ModeContextData {
   }
 
   String get topicText => state.filter.topicPath.isEmpty
-      ? 'General'
+      ? AppLocalizations.of(context)!.practiceSessionGeneralTopic
       : state.filter.topicPath.join(' • ');
+
+  String get topicDisplayText => localizedPracticeTopicPath(
+        context,
+        state.filter.topicPath,
+      ).replaceAll(' · ', ' • ');
+
+  String get subjectDisplayText => localizedPracticeSubject(
+        context,
+        state.filter.subject,
+      );
 
   Color get accent => practiceModeColor(state.filter.mode);
 
@@ -78,11 +90,15 @@ class ModeContextData {
 
   bool? get lastSubmittedCorrect => state.lastResult?.isCorrect;
 
-  String promptOf() => (q?.prompt ?? 'Question').toString();
+  String promptOf() =>
+      (q?.prompt ?? AppLocalizations.of(context)!.practiceModeFallbackQuestion)
+          .toString();
 
   String explanationOf() {
     final txt = (q?.explanation ?? '').toString().trim();
-    return txt.isEmpty ? 'No explanation available yet.' : txt;
+    return txt.isEmpty
+        ? AppLocalizations.of(context)!.practiceModeNoExplanationYet
+        : txt;
   }
 
   Future<void> openNova() async {
@@ -94,7 +110,7 @@ class ModeContextData {
 
     final prompt =
         '''
-Mode: ${practiceModeLabel(state.filter.mode)}
+  Mode: ${practiceModeLabel(context, state.filter.mode)}
 Subject: ${state.filter.subject}
 Topic: $topicText
 Difficulty: ${state.filter.difficulty}
@@ -114,7 +130,7 @@ Stay strictly inside the same subject/topic. Help the student solve this exact q
       MaterialPageRoute(
         builder: (_) => NovaChatScreen(
           initialTitle:
-              '${practiceModeLabel(state.filter.mode)} · ${state.filter.subject}',
+              '${practiceModeLabel(context, state.filter.mode)} · $subjectDisplayText',
           initialPrompt: prompt,
         ),
       ),
@@ -186,7 +202,7 @@ Widget modeBanner(ModeContextData d) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                practiceModeLabel(d.state.filter.mode),
+                practiceModeLabel(d.context, d.state.filter.mode),
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: accent,
                   fontWeight: FontWeight.w900,
@@ -194,7 +210,7 @@ Widget modeBanner(ModeContextData d) {
               ),
               const SizedBox(height: 2),
               Text(
-                practiceModeDescription(d.state.filter.mode),
+                practiceModeDescription(d.context, d.state.filter.mode),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                   height: 1.25,
@@ -310,7 +326,7 @@ Widget defaultQuestionHeader(ModeContextData d) {
               border: Border.all(color: d.accent.withValues(alpha: 0.24)),
             ),
             child: Text(
-              practiceModeLabel(d.state.filter.mode),
+              practiceModeLabel(d.context, d.state.filter.mode),
               style: d.theme.textTheme.labelLarge?.copyWith(
                 color: d.accent,
                 fontWeight: FontWeight.w800,
@@ -320,7 +336,10 @@ Widget defaultQuestionHeader(ModeContextData d) {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              d.state.filter.topicLabel,
+              localizedPracticeTopicLabel(
+                d.context,
+                d.state.filter.topicLabel,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: d.theme.textTheme.labelMedium?.copyWith(
@@ -332,30 +351,37 @@ Widget defaultQuestionHeader(ModeContextData d) {
         ],
       ),
       const SizedBox(height: 14),
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-        decoration: BoxDecoration(
-          color: _sessionPanelBg(cs, d.accent),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: _sessionPanelBorder(cs)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-              color: d.accent.withValues(alpha: 0.10),
-            ),
-          ],
-        ),
-        child: MathView(
-          d.promptOf(),
-          style: d.theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            height: 1.22,
-          ),
-        ),
-      ),
+      questionPromptPanel(d),
     ],
+  );
+}
+
+Widget questionPromptPanel(ModeContextData d) {
+  final cs = d.theme.colorScheme;
+
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+    decoration: BoxDecoration(
+      color: _sessionPanelBg(cs, d.accent),
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: _sessionPanelBorder(cs)),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+          color: d.accent.withValues(alpha: 0.10),
+        ),
+      ],
+    ),
+    child: CMAiMessage(
+      d.promptOf(),
+      compact: true,
+      textStyle: d.theme.textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w900,
+        height: 1.22,
+      ),
+    ),
   );
 }
 
@@ -463,10 +489,10 @@ class ModeAnswerTile extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: MathView(
+                child: CMAiMessage(
                   label,
                   compact: true,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     height: 1.15,
                   ),
@@ -511,7 +537,8 @@ Widget answerResultBar(ModeContextData d) {
 
   final accent = result ? Colors.green : Colors.red;
   final icon = result ? Icons.check_circle_rounded : Icons.cancel_rounded;
-  final title = result ? 'Correct' : 'Not quite';
+  final l = AppLocalizations.of(d.context)!;
+  final title = result ? l.practiceModeFeedbackCorrect : l.practiceModeFeedbackNotQuite;
 
   return Container(
     width: double.infinity,
@@ -539,7 +566,8 @@ Widget answerResultBar(ModeContextData d) {
   );
 }
 
-Widget explanationCard(ModeContextData d, {String title = 'Explanation'}) {
+Widget explanationCard(ModeContextData d, {String? title}) {
+  final l = AppLocalizations.of(d.context)!;
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
@@ -552,14 +580,14 @@ Widget explanationCard(ModeContextData d, {String title = 'Explanation'}) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          title ?? l.practiceSessionExplanation,
           style: d.theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w900,
             color: d.accent,
           ),
         ),
         const SizedBox(height: 8),
-        MathView(d.explanationOf(), compact: true),
+        CMAiMessage(d.explanationOf(), compact: true),
       ],
     ),
   );
@@ -567,7 +595,7 @@ Widget explanationCard(ModeContextData d, {String title = 'Explanation'}) {
 
 Widget answerFeedbackSection(
   ModeContextData d, {
-  String explanationTitle = 'Explanation',
+  String? explanationTitle,
 }) {
   if (!d.answered && !d.showExplanation) return const SizedBox.shrink();
 
@@ -613,6 +641,6 @@ Widget novaHintAction(ModeContextData d) {
   return compactIconAction(
     onPressed: d.openNova,
     icon: Icons.tips_and_updates_rounded,
-    tooltip: 'NOVA hint',
+    tooltip: AppLocalizations.of(d.context)!.practiceModeActionNovaHint,
   );
 }

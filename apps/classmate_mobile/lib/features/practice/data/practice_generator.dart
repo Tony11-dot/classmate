@@ -8,36 +8,138 @@ import '../domain/practice_models.dart';
 import 'practice_prompt_builder.dart';
 import 'bagrut_repository.dart';
 
+bool _matchesTopicPath(List<String> left, List<String> right) {
+  if (left.length != right.length) return false;
+  for (var i = 0; i < left.length; i++) {
+    if (left[i].trim().toLowerCase() != right[i].trim().toLowerCase()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+@visibleForTesting
+bool shouldTopUpRemotePracticeResults(PracticeFilter filter) {
+  final catalogTopics = practiceSubjectCatalog[filter.subject] ?? const <List<String>>[];
+  return catalogTopics.any((topicPath) => _matchesTopicPath(topicPath, filter.topicPath));
+}
+
 String normalizeMathInline(String text) {
+  final normalizedText = text
+      .replaceAll(RegExp(r'\\n'), '\n')
+      .replaceAll(RegExp(r'\n{3,}'), '\n\n');
+  final fenceRe = RegExp(r'```[\s\S]*?```', multiLine: true);
+  if (!fenceRe.hasMatch(normalizedText)) {
+    return _normalizeMathInlineChunk(normalizedText);
+  }
+
+  final out = StringBuffer();
+  var cursor = 0;
+  for (final match in fenceRe.allMatches(normalizedText)) {
+    if (match.start > cursor) {
+      out.write(
+        _normalizeMathInlineChunk(normalizedText.substring(cursor, match.start)),
+      );
+    }
+    out.write(match.group(0)!);
+    cursor = match.end;
+  }
+  if (cursor < normalizedText.length) {
+    out.write(_normalizeMathInlineChunk(normalizedText.substring(cursor)));
+  }
+  return out.toString();
+}
+
+String _normalizeMathInlineChunk(String text) {
   var t = text;
 
   // Convert \( ... \) → $...$
-  t = t.replaceAllMapped(RegExp(r'\\((.*?)\\)'), (m) => '\$${m.group(1)}\$');
+  t = t.replaceAllMapped(
+    RegExp(r'\\\(([\s\S]*?)\\\)'),
+    (m) => '\$${m.group(1) ?? m.group(0) ?? ''}\$',
+  );
 
-  // Convert \[ ... \] → $...$
-  t = t.replaceAllMapped(RegExp(r'\\[(.*?)\\]'), (m) => '\$${m.group(1)}\$');
+  // Convert \[ ... \] → $$...$$
+  t = t.replaceAllMapped(
+    RegExp(r'\\\[([\s\S]*?)\\\]'),
+    (m) => '\$\$${m.group(1) ?? m.group(0) ?? ''}\$\$',
+  );
 
   // Repair lost leading backslashes on common latex commands inside math/text.
   t = t.replaceAllMapped(
     RegExp(
-      r'(^|[^\A-Za-z])(frac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|left|right|alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma)',
+      r'(^|[^A-Za-z\\])(frac|dfrac|tfrac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|left|right|alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma|lim|int|sum|prod|sin|cos|tan|sec|csc|cot|log|ln|exp|partial|infty|begin|end)(?=[^A-Za-z]|$)',
     ),
-    (m) => '${m.group(1)}\${m.group(2)}',
+    (m) => '${m.group(1) ?? ''}\\${m.group(2) ?? ''}',
+  );
+
+  // Wrap raw LaTeX environments as display math when they are not already delimited.
+  t = t.replaceAllMapped(
+    RegExp(
+      r'(?<!\$)(\\begin\{[a-zA-Z*]+\}[\s\S]*?\\end\{[a-zA-Z*]+\})(?!\$)',
+      multiLine: true,
+    ),
+    (m) => '\$\$${m.group(1) ?? ''}\$\$',
+  );
+
+  // Wrap common bare symbolic runs that should render as math.
+  t = t.replaceAllMapped(
+    RegExp(
+      r'(?<!\$)((?:\\)?(?:int|sum|prod|lim)\s*(?:_[^\s,.;:!?]+)?(?:\^[^\s,.;:!?]+)?\s*[^,.;:!?\n]+)(?!\$)',
+    ),
+    (m) => '\$${m.group(1)}\$',
   );
 
   // Wrap simple powers if they are still plain text.
-  t = t.replaceAllMapped(
+  t = _replaceOutsideMathDelimiters(
+    t,
     RegExp(r'(?<!\$)([a-zA-Z0-9]+\^[0-9]+)(?!\$)'),
     (m) => '\$${m.group(1)}\$',
   );
 
+  // Wrap simple subscripts/superscripts if they are still plain text.
+  t = _replaceOutsideMathDelimiters(
+    t,
+    RegExp(
+      r'(?<!\$)([a-zA-Z][a-zA-Z0-9]*\s*[_^]\s*(?:\{[^{}]+\}|[a-zA-Z0-9+-]+))(?!\$)',
+    ),
+    (m) => '\$${m.group(1)}\$',
+  );
+
   // Wrap simple slash fractions if they are still plain text.
-  t = t.replaceAllMapped(
+  t = _replaceOutsideMathDelimiters(
+    t,
     RegExp(r'(?<!\$)([0-9a-zA-Z]+/[0-9a-zA-Z]+)(?!\$)'),
     (m) => '\$${m.group(1)}\$',
   );
 
   return t;
+}
+
+String _replaceOutsideMathDelimiters(
+  String input,
+  RegExp pattern,
+  String Function(Match match) replacer,
+) {
+  final mathRe = RegExp(r'\$\$[\s\S]+?\$\$|\$[^$\n]+\$');
+  final out = StringBuffer();
+  var cursor = 0;
+
+  for (final match in mathRe.allMatches(input)) {
+    if (match.start > cursor) {
+      out.write(
+        input.substring(cursor, match.start).replaceAllMapped(pattern, replacer),
+      );
+    }
+    out.write(match.group(0)!);
+    cursor = match.end;
+  }
+
+  if (cursor < input.length) {
+    out.write(input.substring(cursor).replaceAllMapped(pattern, replacer));
+  }
+
+  return out.toString();
 }
 
 class PracticeGenerator {
@@ -175,7 +277,9 @@ class PracticeGenerator {
             ),
           );
       debugPrint('practice.generate status=${res.statusCode}');
-      debugPrint('practice.generate ok body: $body');
+      debugPrint(
+        'practice.generate bodyPreview=${body.replaceAll(RegExp(r'\s+'), ' ').substring(0, body.length > 600 ? 600 : body.length)}',
+      );
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
         debugPrint('practice.generate http ${res.statusCode}: $body');
@@ -189,6 +293,26 @@ class PracticeGenerator {
       for (var i = 0; i < rawQuestions.length; i++) {
         final q = _parseQuestion(rawQuestions[i], filter: filter, index: i);
         if (q != null) out.add(q);
+      }
+
+      final targetCount = filter.mode == PracticeMode.bagrut
+          ? 1
+          : filter.questionCount.clamp(1, 25);
+
+      if (out.length > targetCount) {
+        return out.take(targetCount).toList(growable: false);
+      }
+
+      if (out.length < targetCount) {
+        if (out.isNotEmpty && !shouldTopUpRemotePracticeResults(filter)) {
+          return out;
+        }
+
+        final toppedUp = <PracticeQuestion>[...out];
+        for (var i = toppedUp.length; i < targetCount; i++) {
+          toppedUp.add(_localQuestion(filter, i));
+        }
+        return toppedUp;
       }
 
       return out;
@@ -255,11 +379,6 @@ class PracticeGenerator {
         _asString(map['reasoning']) ??
         'Review the logic carefully and ask NOVA for a full walkthrough.';
 
-    final subject = _asString(map['subject']) ?? filter.subject;
-    final topicLabel =
-        _asString(map['topicLabel']) ??
-        _asString(map['topic']) ??
-        filter.topicLabel;
     final recommendedTimeSeconds =
         _asInt(map['recommendedTimeSeconds']) ??
         _asInt(map['timeSeconds']) ??
@@ -275,19 +394,28 @@ class PracticeGenerator {
         ? correctIndex
         : 0;
 
+    final normalizedPrompt = normalizeMathInline(prompt.trim());
+    final normalizedExplanation = normalizeMathInline(explanation.trim());
+    final normalizedOptions = safeOptions
+      .map((option) => normalizeMathInline(option.trim()))
+      .toList(growable: false);
+
     return PracticeQuestion(
       id:
           _asString(map['id']) ??
           'ai-${DateTime.now().millisecondsSinceEpoch}-$index',
-      subject: subject,
-      topicLabel: topicLabel,
-      mode: _parseMode(_asString(map['mode'])) ?? filter.mode,
-      difficulty:
-          _parseDifficulty(_asString(map['difficulty'])) ?? filter.difficulty,
-      prompt: prompt.trim(),
-      options: safeOptions,
+      subject: _asString(map['subject'])?.trim().isNotEmpty == true
+        ? _asString(map['subject'])!.trim()
+        : filter.subject,
+      topicLabel: _asString(map['topicLabel'])?.trim().isNotEmpty == true
+        ? _asString(map['topicLabel'])!.trim()
+        : filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt: normalizedPrompt,
+      options: normalizedOptions,
       correctIndex: safeCorrectIndex,
-      explanation: explanation.trim(),
+      explanation: normalizedExplanation,
       recommendedTimeSeconds: recommendedTimeSeconds < 1
           ? 1
           : recommendedTimeSeconds,
@@ -314,9 +442,15 @@ class PracticeGenerator {
           'End question',
         ],
         correctIndex: 1,
-        explanation: 'Formal school-style solution will appear here.',
+        explanation:
+            'Use the official-style solution flow or NOVA to review this prompt step by step in full exam format.',
         recommendedTimeSeconds: 3600,
       );
+    }
+
+    if (_mentions(subject, const ['math', 'mathematics']) &&
+        _mentions(topic, const ['quadratic', 'quadratic equations'])) {
+      return _localQuadraticQuestion(filter, index);
     }
 
     if (_mentions(subject, const ['computer science', 'cs', 'programming']) &&
@@ -367,6 +501,194 @@ class PracticeGenerator {
     );
   }
 
+  PracticeQuestion _localQuadraticQuestion(PracticeFilter filter, int index) {
+    final seconds = filter.timePreferenceSeconds ??
+        (filter.difficulty == PracticeDifficulty.olympiad ? 70 : 50);
+
+    switch (index % 10) {
+      case 0:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-roots-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'Solve the quadratic equation $x^2 - 5x + 6 = 0$.',
+          options: const [
+            r'$x=2$ or $x=3$',
+            r'$x=-2$ or $x=-3$',
+            r'$x=1$ or $x=6$',
+            r'No real roots',
+          ],
+          correctIndex: 0,
+          explanation:
+              r'Factor: $x^2 - 5x + 6 = (x-2)(x-3)$, so the roots are $2$ and $3$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 1:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-discriminant-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'How many real roots does $x^2 + 4x + 5 = 0$ have?',
+          options: const [
+            r'2 real roots',
+            r'1 repeated real root',
+            r'0 real roots',
+            r'Infinitely many real roots',
+          ],
+          correctIndex: 2,
+          explanation:
+              r'The discriminant is $\Delta = b^2 - 4ac = 4^2 - 4(1)(5) = 16 - 20 = -4 < 0$, so there are no real roots.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 2:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-sum-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'Find the sum of the roots of $2x^2 - 7x + 3 = 0$.',
+          options: const [
+            r'$\frac{7}{2}$',
+            r'$\frac{3}{2}$',
+            r'$-\frac{7}{2}$',
+            r'$7$',
+          ],
+          correctIndex: 0,
+          explanation:
+              r'For $ax^2 + bx + c = 0$, the sum of the roots is $-\frac{b}{a} = -\frac{-7}{2} = \frac{7}{2}$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 3:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-product-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'Find the product of the roots of $x^2 - 8x + 12 = 0$.',
+          options: const [r'$8$', r'$12$', r'$-12$', r'$20$'],
+          correctIndex: 1,
+          explanation:
+              r'For $ax^2 + bx + c = 0$, the product of the roots is $\frac{c}{a} = 12$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 4:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-parameter-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'If $x=1$ is a root of $x^2 - (m+3)x + 2m = 0$, what is $m$?',
+          options: const [r'$1$', r'$2$', r'$3$', r'$4$'],
+          correctIndex: 1,
+          explanation:
+              r'Substitute $x=1$: $1-(m+3)+2m=0 \Rightarrow m-2=0$, so $m=2$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 5:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-vertex-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'What is the minimum value of $f(x)=x^2 - 4x + 7$?',
+          options: const [r'$1$', r'$2$', r'$3$', r'$4$'],
+          correctIndex: 2,
+          explanation:
+              r'Complete the square: $x^2 - 4x + 7 = (x-2)^2 + 3$, so the minimum value is $3$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 6:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-diff-roots-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'The roots of $x^2 - 6x + k = 0$ differ by $2$. Find $k$.',
+          options: const [r'$5$', r'$8$', r'$9$', r'$12$'],
+          correctIndex: 1,
+          explanation:
+              r'If the roots differ by $2$ and sum to $6$, they are $2$ and $4$. Their product is $k=8$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 7:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-build-equation-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'Which equation has roots $3$ and $5$?',
+          options: const [
+            r'$x^2 - 8x + 15 = 0$',
+            r'$x^2 + 8x + 15 = 0$',
+            r'$x^2 - 15x + 8 = 0$',
+            r'$x^2 - 2x - 15 = 0$',
+          ],
+          correctIndex: 0,
+          explanation:
+              r'An equation with roots $r_1,r_2$ is $x^2 - (r_1+r_2)x + r_1r_2 = 0$. Here that is $x^2 - 8x + 15 = 0$.',
+          recommendedTimeSeconds: seconds,
+        );
+      case 8:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-intercepts-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'What are the $x$-intercepts of $y=x^2 - 2x - 8$?',
+          options: const [
+            r'$x=-2$ and $x=4$',
+            r'$x=2$ and $x=4$',
+            r'$x=-4$ and $x=2$',
+            r'No real intercepts',
+          ],
+          correctIndex: 0,
+          explanation:
+              r'Solve $x^2 - 2x - 8=0$. Factor: $(x-4)(x+2)=0$, so the intercepts are $-2$ and $4$.',
+          recommendedTimeSeconds: seconds,
+        );
+      default:
+        return PracticeQuestion(
+          id: 'fallback-quadratic-double-root-$index',
+          subject: filter.subject,
+          topicLabel: filter.topicLabel,
+          mode: filter.mode,
+          difficulty: filter.difficulty,
+          prompt:
+              r'If $x^2 - 6x + 9 = 0$, which statement is true?',
+          options: const [
+            r'Two distinct real roots',
+            r'One repeated real root at $x=3$',
+            r'No real roots',
+            r'One repeated real root at $x=-3$',
+          ],
+          correctIndex: 1,
+          explanation:
+              r'$x^2 - 6x + 9 = (x-3)^2$, so the equation has a repeated root at $x=3$.',
+          recommendedTimeSeconds: seconds,
+        );
+    }
+  }
+
   bool _mentions(String haystack, List<String> needles) {
     final h = haystack.toLowerCase();
     for (final n in needles) {
@@ -395,32 +717,6 @@ class PracticeGenerator {
     if (v is int) return v;
     if (v is num) return v.toInt();
     if (v is String) return int.tryParse(v);
-    return null;
-  }
-
-  PracticeMode? _parseMode(String? v) {
-    switch ((v ?? '').trim().toLowerCase()) {
-      case 'practice':
-        return PracticeMode.practice;
-      case 'flashcards':
-        return PracticeMode.flashcards;
-      case 'speedround':
-      case 'speed_round':
-      case 'speed-round':
-        return PracticeMode.speedRound;
-      case 'examprep':
-      case 'exam_prep':
-      case 'exam-prep':
-        return PracticeMode.examPrep;
-      case 'conceptbuilder':
-      case 'concept_builder':
-      case 'concept-builder':
-        return PracticeMode.conceptBuilder;
-      case 'adaptive':
-        return PracticeMode.adaptive;
-      case 'bagrut':
-        return PracticeMode.bagrut;
-    }
     return null;
   }
 

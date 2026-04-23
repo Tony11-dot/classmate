@@ -16,8 +16,6 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = Radius.circular(14);
-
     return Container(
       margin: EdgeInsets.only(
         top: isFirst ? 6 : 2,
@@ -25,17 +23,14 @@ class ChatBubble extends StatelessWidget {
         left: isMe ? 48 : 8,
         right: isMe ? 8 : 48,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: isMe
-            ? const Color(0xFF2A6DF4)
-            : Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.only(
-          topLeft: radius,
-          topRight: radius,
-          bottomLeft: isMe ? radius : (isLast ? radius : Radius.circular(4)),
-          bottomRight: isMe ? (isLast ? radius : Radius.circular(4)) : radius,
-        ),
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF0A1730)
+                : const Color(0xFF2D4A7A),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: child,
     );

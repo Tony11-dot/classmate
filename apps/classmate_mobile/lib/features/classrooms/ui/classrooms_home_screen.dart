@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../l10n/app_localizations.dart';
+import '../../../ui/glass/liquid_glass_card.dart';
 import '../providers/classrooms_providers.dart';
 import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
@@ -29,6 +31,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(orderedStudentClassroomsProvider);
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     final query = _searchCtl.text.trim().toLowerCase();
 
     return Scaffold(
@@ -68,8 +71,25 @@ backgroundColor: cs.surface,
                   if (index == 0) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        decoration: _glassCard(context, accent: cs.primary),
+                      child: LiquidGlassCard(
+                        borderRadius: BorderRadius.circular(28),
+                        blurSigma: 18,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            cs.surface.withValues(alpha: 0.98),
+                            cs.primary.withValues(alpha: 0.06),
+                          ],
+                        ),
+                        border: Border.all(color: cs.primary.withValues(alpha: 0.22)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 30,
+                            offset: const Offset(0, 12),
+                            color: cs.primary.withValues(alpha: 0.10),
+                          ),
+                        ],
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                           child: Row(
@@ -96,7 +116,7 @@ backgroundColor: cs.surface,
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            'Your classrooms',
+                                            l.classroomsYourClassrooms,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headlineSmall
@@ -106,7 +126,7 @@ backgroundColor: cs.surface,
                                           ),
                                         ),
                                         IconButton(
-                                          tooltip: 'Reorder classrooms',
+                                          tooltip: l.classroomsReorder,
                                           onPressed: () async {
                                             await Navigator.of(context, rootNavigator: true).push(
                                               CupertinoPageRoute<void>(
@@ -122,7 +142,7 @@ backgroundColor: cs.surface,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${items.length} classrooms',
+                                      l.classroomsCount(items.length),
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium
@@ -149,7 +169,7 @@ backgroundColor: cs.surface,
                         onChanged: (_) => setState(() {}),
                         onTapOutside: (_) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
-                          hintText: 'Search classrooms',
+                          hintText: l.classroomsSearchHint,
                           prefixIcon: const Icon(Icons.search_rounded),
                           suffixIcon: _searchCtl.text.isEmpty
                               ? null
@@ -190,8 +210,25 @@ backgroundColor: cs.surface,
                   }
 
                   if (filtered.isEmpty) {
-                    return Container(
-                      decoration: _glassCard(context, accent: cs.primary),
+                    return LiquidGlassCard(
+                      borderRadius: BorderRadius.circular(28),
+                      blurSigma: 18,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          cs.surface.withValues(alpha: 0.98),
+                          cs.primary.withValues(alpha: 0.06),
+                        ],
+                      ),
+                      border: Border.all(color: cs.primary.withValues(alpha: 0.22)),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 30,
+                          offset: const Offset(0, 12),
+                          color: cs.primary.withValues(alpha: 0.10),
+                        ),
+                      ],
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                       child: Column(
                         children: [
@@ -202,7 +239,7 @@ backgroundColor: cs.surface,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'No classrooms match your search',
+                            l.classroomsNoSearchMatches,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
@@ -251,7 +288,8 @@ class _ClassroomAppleCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final subject = _s(item, 'subject', fallback: 'Classroom');
+    final l = AppLocalizations.of(context)!;
+    final subject = _s(item, 'subject', fallback: l.classroomsClassroomLabel);
     final title = _s(
       item,
       'name',
@@ -267,8 +305,25 @@ class _ClassroomAppleCard extends ConsumerWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(28),
-      child: Container(
-        decoration: _glassCard(context, accent: accent),
+      child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(28),
+        blurSigma: 18,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.surface.withValues(alpha: 0.98),
+            accent.withValues(alpha: 0.06),
+          ],
+        ),
+        border: Border.all(color: accent.withValues(alpha: 0.22)),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 30,
+            offset: const Offset(0, 12),
+            color: accent.withValues(alpha: 0.10),
+          ),
+        ],
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           child: Row(
@@ -296,7 +351,7 @@ class _ClassroomAppleCard extends ConsumerWidget {
                         title: title,
                         subject: subject,
                         accent: accent,
-                        preview: 'Loading latest message…',
+                        preview: l.classroomsLoadingLatestMessage,
                         timeText: '',
                         isUnread: false,
                       ),
@@ -304,7 +359,7 @@ class _ClassroomAppleCard extends ConsumerWidget {
                         title: title,
                         subject: subject,
                         accent: accent,
-                        preview: 'Tap to open classroom',
+                        preview: l.classroomsTapToOpen,
                         timeText: '',
                         isUnread: false,
                       ),
@@ -333,8 +388,8 @@ class _ClassroomAppleCard extends ConsumerWidget {
                             : null;
 
                         final preview = latest == null
-                            ? 'No messages yet'
-                            : _previewText(latest);
+                          ? l.classroomsNoMessagesYet
+                          : _previewText(context, latest);
 
                         final createdAtRaw = latest == null
                             ? ''
@@ -482,8 +537,16 @@ Widget _pill(String text, Color fg, Color bg) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: bg,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          bg.withValues(alpha: 0.94),
+          Colors.white.withValues(alpha: 0.24),
+        ],
+      ),
       borderRadius: BorderRadius.circular(999),
+      border: Border.all(color: fg.withValues(alpha: 0.10)),
     ),
     child: Text(
       text,
@@ -527,9 +590,17 @@ List<Map<String, dynamic>> _normalizeChatList(dynamic raw) {
   return const <Map<String, dynamic>>[];
 }
 
-String _previewText(Map<String, dynamic> m) {
+String _previewText(BuildContext context, Map<String, dynamic> m) {
   final sender = _s(m, 'senderName', fallback: _s(m, 'sender', fallback: ''));
-  final text = _s(m, 'text', fallback: _s(m, 'content', fallback: 'Message'));
+  final text = _s(
+    m,
+    'text',
+    fallback: _s(
+      m,
+      'content',
+      fallback: AppLocalizations.of(context)!.classroomsMessageFallback,
+    ),
+  );
   if (sender.isEmpty) {
     return text;
   }
@@ -554,24 +625,3 @@ IconData _subjectIcon(String subject) {
   return Icons.forum_rounded;
 }
 
-BoxDecoration _glassCard(BuildContext context, {Color? accent}) {
-  final cs = Theme.of(context).colorScheme;
-  final a = accent ?? cs.primary;
-
-  return BoxDecoration(
-    borderRadius: BorderRadius.circular(28),
-    gradient: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [cs.surface.withValues(alpha: 0.98), a.withValues(alpha: 0.06)],
-    ),
-    border: Border.all(color: a.withValues(alpha: 0.22)),
-    boxShadow: [
-      BoxShadow(
-        blurRadius: 30,
-        offset: const Offset(0, 12),
-        color: a.withValues(alpha: 0.10),
-      ),
-    ],
-  );
-}

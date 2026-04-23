@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../config/env.dart';
+import '../contracts/auth_contracts.dart';
+import '../http/cm_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +11,10 @@ const String _kDevToken = String.fromEnvironment('CM_DEV_TOKEN');
 class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
   static const _kDisplayName = 'auth_display_name_v1';
+  static const _kRoles = 'auth_roles_v1';
+  static const _kEmail = 'auth_email_v1';
+  static const _kSchoolId = 'auth_school_id_v1';
+  static const _kCohortId = 'auth_cohort_id_v1';
 
   AuthSession() {
     _init();
@@ -19,6 +25,10 @@ class AuthSession extends ChangeNotifier {
 
   String? _token;
   String? _displayName;
+  String? _email;
+  String? _schoolId;
+  String? _cohortId;
+  List<String> _roles = const <String>[];
 
   String? get token {
     final dt = _kDevToken.trim();
@@ -28,6 +38,20 @@ class AuthSession extends ChangeNotifier {
   }
 
   String get displayName => (_displayName ?? '').trim();
+  String get email => (_email ?? '').trim();
+  String get schoolId => (_schoolId ?? '').trim();
+  String get cohortId => (_cohortId ?? '').trim();
+  List<String> get roles => List<String>.unmodifiable(_roles);
+
+  String get primaryRole {
+    const priority = <String>['TEACHER', 'ADMIN', 'SECRETARY', 'PARENT', 'STUDENT'];
+    for (final role in priority) {
+      if (_roles.contains(role)) return role;
+    }
+    return 'STUDENT';
+  }
+
+  bool get isTeacherLike => _roles.contains('TEACHER') || _roles.contains('ADMIN');
 
   bool get isLoggedIn => (token != null && token!.isNotEmpty);
 
@@ -35,6 +59,13 @@ class AuthSession extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     _displayName = (prefs.getString(_kDisplayName) ?? '').trim();
+    _email = (prefs.getString(_kEmail) ?? '').trim();
+    _schoolId = (prefs.getString(_kSchoolId) ?? '').trim();
+    _cohortId = (prefs.getString(_kCohortId) ?? '').trim();
+    _roles = (prefs.getStringList(_kRoles) ?? const <String>[])
+        .map((role) => role.trim().toUpperCase())
+        .where((role) => role.isNotEmpty)
+        .toList(growable: false);
 
     final saved = prefs.getString(_kToken);
     if (saved != null) {
@@ -52,7 +83,8 @@ class AuthSession extends ChangeNotifier {
     }
 
     // DEV: only auto-fill when Env.devToken is a real JWT-ish token.
-    // If Env.devToken is empty (or email-ish), keep token empty so x-dev-* headers are used.
+    // If Env.devToken is empty (or email-ish), keep token empty and let
+    // authenticated APIs fail normally instead of falling back to dev headers.
     if (_token == null || _token!.isEmpty || _token == 'SIM_TOKEN') {
       final dt = Env.devToken.trim();
       final dtIsJwtish = dt.split('.').length >= 3;
@@ -64,6 +96,10 @@ class AuthSession extends ChangeNotifier {
         _token = null;
         await prefs.remove(_kToken);
       }
+    }
+
+    if ((_token ?? '').isNotEmpty && _token != 'SIM_TOKEN') {
+      await _refreshAuthMe(clearUnauthorizedToken: true);
     }
 
     _ready = true;
@@ -83,6 +119,21 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setRoles(List<String> roles) async {
+    final prefs = await SharedPreferences.getInstance();
+    _roles = roles
+        .map((role) => role.trim().toUpperCase())
+        .where((role) => role.isNotEmpty)
+        .toSet()
+        .toList(growable: false);
+    if (_roles.isEmpty) {
+      await prefs.remove(_kRoles);
+    } else {
+      await prefs.setStringList(_kRoles, _roles);
+    }
+    notifyListeners();
+  }
+
   Future<void> setDisplayName(String? name) async {
     final prefs = await SharedPreferences.getInstance();
     final v = (name ?? '').trim();
@@ -95,15 +146,119 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setEmail(String? email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (email ?? '').trim();
+    _email = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kEmail);
+    } else {
+      await prefs.setString(_kEmail, value);
+    }
+    notifyListeners();
+  }
+
+  Future<void> setSchoolId(String? schoolId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (schoolId ?? '').trim();
+    _schoolId = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kSchoolId);
+    } else {
+      await prefs.setString(_kSchoolId, value);
+    }
+    notifyListeners();
+  }
+
+  Future<void> setCohortId(String? cohortId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (cohortId ?? '').trim();
+    _cohortId = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kCohortId);
+    } else {
+      await prefs.setString(_kCohortId, value);
+    }
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     await setToken(null);
     await setDisplayName(null);
+    await setEmail(null);
+    await setSchoolId(null);
+    await setCohortId(null);
+    await setRoles(const <String>[]);
   }
 
   // dev helper
-  Future<void> simLogin() => setToken('SIM_TOKEN');
+  Future<void> simLogin({List<String> roles = const <String>['STUDENT']}) async {
+    await setToken('SIM_TOKEN');
+    await setRoles(roles);
+  }
 
   Future<void> devSetToken(String token) => setToken(token);
+
+  Future<void> login({required String email, required String password}) async {
+    final api = CMApi();
+    try {
+      final raw = await api.postJson(
+        '/auth/login',
+        body: <String, dynamic>{'email': email.trim(), 'password': password},
+      );
+      final token = (raw is Map ? raw['token'] : null)?.toString().trim() ?? '';
+      if (token.isEmpty) {
+        throw Exception('Login did not return a token');
+      }
+
+      await setToken(token);
+      await _refreshAuthMe(clearUnauthorizedToken: true);
+
+      if (displayName.isEmpty) {
+        await setDisplayName(_displayNameFromEmail(email));
+      }
+    } finally {
+      api.dispose();
+    }
+  }
+
+  Future<void> _refreshAuthMe({bool clearUnauthorizedToken = false}) async {
+    final currentToken = (_token ?? '').trim();
+    if (currentToken.isEmpty || currentToken == 'SIM_TOKEN') return;
+
+    final api = CMApi(token: currentToken);
+    try {
+      final raw = await api.getJson('/auth/me');
+      if (raw is! Map<String, dynamic>) return;
+      final me = AuthMe.fromJson(raw);
+      await setRoles(me.roles);
+      await setEmail(me.email);
+      await setSchoolId(me.schoolId);
+      await setCohortId(me.cohortId);
+      if ((_displayName ?? '').trim().isEmpty && (me.email ?? '').trim().isNotEmpty) {
+        await setDisplayName(_displayNameFromEmail(me.email!));
+      }
+    } on CMApiException catch (error) {
+      if (clearUnauthorizedToken && error.statusCode == 401) {
+        await logout();
+        return;
+      }
+    } catch (_) {
+      // Keep the saved token if profile refresh is temporarily unavailable.
+    } finally {
+      api.dispose();
+    }
+  }
+
+  String _displayNameFromEmail(String email) {
+    final local = email.trim().split('@').first;
+    if (local.isEmpty) return 'ClassMate';
+    return local
+        .split(RegExp(r'[._-]+'))
+        .where((part) => part.isNotEmpty)
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
 }
 
 // DEV DEBUG

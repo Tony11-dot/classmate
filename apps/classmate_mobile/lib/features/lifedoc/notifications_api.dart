@@ -4,18 +4,14 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
 import 'notifications_models.dart';
 
-const _devStudentToken = 'dev-token-student@classmate.local';
-
 final notificationsApiProvider = Provider<StudentNotificationsApi>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
-  return StudentNotificationsApi(
-    token: token.isEmpty ? _devStudentToken : token,
-  );
+  return StudentNotificationsApi(token: token);
 });
 
 class StudentNotificationsApi {
-  const StudentNotificationsApi({this.token = _devStudentToken});
+  const StudentNotificationsApi({this.token = ''});
 
   final String token;
 
@@ -57,5 +53,22 @@ class StudentNotificationsApi {
           );
         })
         .toList(growable: false);
+  }
+
+  Future<void> markSeen(List<String> ids) async {
+    final cleaned = ids
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
+    if (cleaned.isEmpty) return;
+
+    await _api.patchJson(
+      '/notifications/seen',
+      body: <String, dynamic>{'ids': cleaned},
+    );
+  }
+
+  Future<void> markAllSeen() async {
+    await _api.patchJson('/notifications/seen-all');
   }
 }

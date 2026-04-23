@@ -2,7 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { request } from '@playwright/test';
 
-const API_BASE = process.env.API_BASE || 'http://127.0.0.1:3000';
+const RAW_API_BASE =
+  process.env.API_BASE ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE ||
+  'http://127.0.0.1:3001';
+const API_BASE = RAW_API_BASE.replace(/\/api\/?$/, '');
 const TOKEN_KEY = 'parent_token';
 
 async function sleep(ms: number) {
@@ -10,7 +15,7 @@ async function sleep(ms: number) {
 }
 
 async function waitForApi(ctx: any) {
-  const healthPaths = ['/api/health', '/health', '/api/healthz', '/healthz'];
+  const healthPaths = ['/health', '/healthz', '/api/health', '/api/healthz'];
   for (let i = 0; i < 200; i++) {
     for (const p of healthPaths) {
       try {
@@ -29,8 +34,7 @@ async function waitForApi(ctx: any) {
 }
 
 async function seedParent(ctx: any, runId: string) {
-  // try both: with /api prefix and without (controller is /test/seed)
-  const seedPaths = ['/api/test/seed/parent-web'];
+  const seedPaths = ['/test/seed/parent-web', '/api/test/seed/parent-web'];
 
   let lastErr = '';
   for (const p of seedPaths) {
@@ -57,8 +61,7 @@ export default async function globalSetup() {
   // 1) seed isolated parent
   const seed = await seedParent(ctx, runId);
 
-  // 2) login for token (auth is under /api/auth/login in your API)
-  const loginRes = await ctx.post('/api/auth/login', {
+  const loginRes = await ctx.post('/auth/login', {
     data: { email: seed.email, password: seed.password },
   });
   if (!loginRes.ok()) {

@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class AdaptiveModeView extends StatelessWidget {
   final ModeContextData d;
   const AdaptiveModeView({super.key, required this.d});
 
-  String _difficultyLine() {
+  String _difficultyLine(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final correct = d.state.stats.correct;
     final answered = d.state.stats.answered;
-    if (answered == 0) return 'Warm-up difficulty';
+    if (answered == 0) return l.practiceModeAdaptiveWarmup;
     final ratio = correct / answered;
-    if (ratio > 0.8) return 'Difficulty trending up';
-    if (ratio < 0.4) return 'Difficulty easing down';
-    return 'Difficulty holding steady';
+    if (ratio > 0.8) return l.practiceModeAdaptiveTrendingUp;
+    if (ratio < 0.4) return l.practiceModeAdaptiveEasingDown;
+    return l.practiceModeAdaptiveSteady;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return questionCard(
       d,
       child: Column(
@@ -41,7 +44,7 @@ class AdaptiveModeView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _difficultyLine(),
+                    _difficultyLine(context),
                     style: d.theme.textTheme.labelLarge?.copyWith(
                       color: d.accent,
                       fontWeight: FontWeight.w900,
@@ -54,14 +57,14 @@ class AdaptiveModeView extends StatelessWidget {
           const SizedBox(height: 14),
           sessionProgressStrip(d),
           const SizedBox(height: 14),
-          MathView(d.promptOf()),
+          questionPromptPanel(d),
           const SizedBox(height: 16),
           answerList(d),
           const SizedBox(height: 12),
           answerFeedbackSection(d),
           const SizedBox(height: 14),
           if (d.showExplanation) ...[
-            explanationCard(d, title: 'Adaptive feedback'),
+            explanationCard(d, title: l.practiceModeAdaptiveFeedback),
             const SizedBox(height: 12),
           ],
           Row(
@@ -69,14 +72,14 @@ class AdaptiveModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.state.currentIndex > 0 ? d.previous : null,
                 icon: Icons.arrow_back_rounded,
-                tooltip: 'Previous',
+                tooltip: l.practiceModeActionPrevious,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: sharedPrimaryActionButton(
                   d,
-                  preAnswerLabel: 'Check & adapt',
-                  postAnswerLabel: 'Continue',
+                  preAnswerLabel: l.practiceModeActionCheckAdapt,
+                  postAnswerLabel: l.practiceModeActionContinue,
                   preAnswerIcon: Icons.auto_graph_rounded,
                 ),
               ),
@@ -85,7 +88,7 @@ class AdaptiveModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.end,
                 icon: Icons.close_rounded,
-                tooltip: 'End session',
+                tooltip: l.practiceModeActionEndSession,
               ),
             ],
           ),

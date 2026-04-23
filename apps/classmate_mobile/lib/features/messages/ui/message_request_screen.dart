@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../models/message_request_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'components/message_request_banner.dart';
@@ -16,15 +17,16 @@ class MessageRequestScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final request = ref.watch(messageRequestProvider(threadId));
     final repo = ref.read(messagesRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Request')),
+      appBar: AppBar(title: Text(l.messagesRequestTitle)),
       body: request.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
-          child: Text('Failed to load request: $error'),
+          child: Text(l.messagesRequestLoadFailed(error.toString())),
         ),
         data: (detail) {
           final first = detail.messages.first;

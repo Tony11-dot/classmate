@@ -5,25 +5,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/env.dart';
+
 class ClassroomsRepository {
   ClassroomsRepository({String? token, http.Client? client, String? baseUrl})
     : _token = (token ?? '').trim(),
       _client = client ?? http.Client(),
-      _baseUrl =
-          (baseUrl ??
-                  const String.fromEnvironment(
-                    'CM_API_BASE_URL',
-                    defaultValue: 'http://127.0.0.1:3001/api',
-                  ))
-              .replaceAll(RegExp(r'/$'), '');
+      _baseUrl = Env.ensureApiSuffix(
+        Env.normalizeApiBaseUrl(
+          (baseUrl ?? Env.apiBaseUrl).replaceAll(RegExp(r'/$'), ''),
+        ),
+      );
 
   final String _token;
   final http.Client _client;
   final String _baseUrl;
 
   static const _timeout = Duration(seconds: 12);
-  static const _devStudentToken = 'dev-token-student@classmate.local';
   static const _hiddenClassroomsKey = 'hidden_classrooms_v1';
+
+  List<String> get _baseCandidates {
+    final primary = _baseUrl.replaceAll(RegExp(r'/+$'), '');
+    final withApi = Env.ensureApiSuffix(primary);
+    final withoutApi = Env.stripApiSuffix(primary).replaceAll(RegExp(r'/+$'), '');
+
+    return <String>{primary, withApi, withoutApi}
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+  }
 
   Future<String> _readToken() async {
     if (_token.isNotEmpty && _token != 'SIM_TOKEN') return _token;
@@ -45,7 +54,7 @@ class ClassroomsRepository {
       if (value.isNotEmpty && value != 'SIM_TOKEN') return value;
     }
 
-    return _devStudentToken;
+    return '';
   }
 
   Future<Set<String>> _readHiddenClassrooms() async {
@@ -75,11 +84,16 @@ class ClassroomsRepository {
     return Uri.parse('$_baseUrl$clean').replace(queryParameters: query);
   }
 
+  Uri _uriWithBase(String base, String path, [Map<String, String>? query]) {
+    final clean = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$base$clean').replace(queryParameters: query);
+  }
+
   Future<Map<String, String>> _headers() async {
     final token = await _readToken();
     return <String, String>{
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
   }
 
@@ -96,14 +110,21 @@ class ClassroomsRepository {
     Map<String, String>? query,
     required String label,
   }) async {
-    final res = await _client
-        .get(_uri(path, query), headers: await _headers())
-        .timeout(_timeout);
+    final headers = await _headers();
+    late http.Response res;
 
-    if (!_ok(res)) _fail(label, res);
-    if (res.body.trim().isEmpty) return null;
+    for (var index = 0; index < _baseCandidates.length; index++) {
+      res = await _client
+          .get(_uriWithBase(_baseCandidates[index], path, query), headers: headers)
+          .timeout(_timeout);
+      if (res.statusCode != 404 || index == _baseCandidates.length - 1) {
+        if (!_ok(res)) _fail(label, res);
+        if (res.body.trim().isEmpty) return null;
+        return jsonDecode(res.body);
+      }
+    }
 
-    return jsonDecode(res.body);
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> list() async {
@@ -226,6 +247,29 @@ class ClassroomsRepository {
     }
 
     return Map<String, dynamic>.from(j);
+  }
+
+  Future<List<Map<String, dynamic>>> studentAssessments() async {
+    final j = await _getJson(
+      '/student/assessments',
+      label: 'classrooms.studentAssessments',
+    );
+
+    if (j is Map && j['assessments'] is List) {
+      return (j['assessments'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(growable: false);
+    }
+
+    if (j is List) {
+      return j
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(growable: false);
+    }
+
+    return const <Map<String, dynamic>>[];
   }
 
   Future<Map<String, dynamic>> materials(String courseId) async {
@@ -382,6 +426,65 @@ class ClassroomsRepository {
     }
 
     return Map<String, dynamic>.from(j);
+  }
+
+  Future<void> editChatMessage(
+    String courseId, {
+    required String messageId,
+    required String text,
+  }) async {
+    final trimmedCourseId = courseId.trim();
+    final trimmedMessageId = messageId.trim();
+    final trimmedText = text.trim();
+
+    if (trimmedCourseId.isEmpty ||
+        trimmedMessageId.isEmpty ||
+        trimmedText.isEmpty) {
+      throw Exception('courseId, messageId, and text are required');
+    }
+
+    final candidates = <Uri>[
+      _uri('/student/classrooms/$trimmedCourseId/chat/messages/$trimmedMessageId'),
+      _uri('/student/classrooms/$trimmedCourseId/chat/messages/$trimmedMessageId/edit'),
+      _uri('/student/classrooms/$trimmedCourseId/messages/$trimmedMessageId'),
+      _uri('/student/classrooms/$trimmedCourseId/messages/$trimmedMessageId/edit'),
+      _uri('/student/classrooms/$trimmedCourseId/chat/edit'),
+      _uri('/student/classrooms/$trimmedCourseId/chat/edit-message'),
+    ];
+
+    http.Response? lastRes;
+
+    for (final uri in candidates) {
+      final res = await _client
+          .patch(
+            uri,
+            headers: {
+              ...await _headers(),
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(<String, dynamic>{
+              'messageId': trimmedMessageId,
+              'text': trimmedText,
+            }),
+          )
+          .timeout(_timeout);
+
+      if (_ok(res)) {
+        return;
+      }
+
+      lastRes = res;
+
+      if (res.statusCode != 404) {
+        _fail('classrooms.editChatMessage', res);
+      }
+    }
+
+    if (lastRes != null) {
+      _fail('classrooms.editChatMessage', lastRes);
+    }
+
+    throw Exception('classrooms.editChatMessage failed: no edit endpoint matched');
   }
 
   Future<void> sendChatMedia(

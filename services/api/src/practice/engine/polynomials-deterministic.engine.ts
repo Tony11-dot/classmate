@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { PracticeEngine } from './practice-engine.interface';
 import type { GeneratedQuestion, PracticeEngineRequest } from './practice-engine.types';
+import { clampTime } from './practice-engine.utils';
 
 @Injectable()
 export class PolynomialsDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'examPrep'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = String(req.subject ?? '').toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
@@ -12,16 +15,9 @@ export class PolynomialsDeterministicEngine implements PracticeEngine {
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {
     const count = Math.max(1, Math.min(20, Number(req.questionCount ?? 5)));
-    const seconds = Math.max(
-      5,
-      Math.min(
-        900,
-        Math.round(
-          Number.isFinite(Number(req.timePreferenceSeconds))
-            ? Number(req.timePreferenceSeconds)
-            : (req.mode === 'examPrep' ? 75 : 45),
-        ),
-      ),
+    const seconds = clampTime(
+      req.timePreferenceSeconds,
+      req.mode === 'examPrep' ? 75 : 45,
     );
 
     const bank: GeneratedQuestion[] = [
@@ -45,8 +41,8 @@ export class PolynomialsDeterministicEngine implements PracticeEngine {
         'Polynomials',
         'What is P(2) if P(x) = x^2 - 3x + 4?',
         ['2', '4', '6', '8'],
-        1,
-        'Substitute x = 2: 2^2 - 3(2) + 4 = 4 - 6 + 4 = 2. Wait carefully: 4 - 6 + 4 = 2.',
+        0,
+        'Substitute x = 2: 2^2 - 3(2) + 4 = 4 - 6 + 4 = 2.',
         seconds,
       ),
       this.mcq(

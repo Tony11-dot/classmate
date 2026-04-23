@@ -8,8 +8,8 @@ export class E2ESeedGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext) {
     const env = loadEnv();
 
-    // ✅ In dev/test, allow seeding without auth (controller exists only if ENABLE_E2E_SEED anyway)
-    if (env.ENABLE_E2E_SEED && env.NODE_ENV !== 'production') return true;
+    // Allow unauthenticated seeding in non-production so local E2E/dev flows remain stable.
+    if (env.NODE_ENV !== 'production') return true;
 
     // ✅ In prod, require JWT...
     const ok = (await super.canActivate(context)) as boolean;

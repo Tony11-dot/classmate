@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 class ClassroomChatMediaSheet extends StatelessWidget {
   const ClassroomChatMediaSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     Widget tile({
       required IconData icon,
       required String title,
@@ -24,13 +28,13 @@ class ClassroomChatMediaSheet extends StatelessWidget {
         children: [
           tile(
             icon: Icons.photo_library_rounded,
-            title: 'Send photo',
-            subtitle: 'Share an image in the classroom chat',
+            title: l.classroomChatMediaSendPhoto,
+            subtitle: l.classroomChatMediaSendPhotoSubtitle,
           ),
           tile(
             icon: Icons.mic_rounded,
-            title: 'Send voice message',
-            subtitle: 'Record and send a voice note',
+            title: l.classroomChatMediaSendVoiceMessage,
+            subtitle: l.classroomChatMediaSendVoiceMessageSubtitle,
           ),
         ],
       ),

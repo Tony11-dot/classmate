@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../models/chat_message_info.dart';
 
 class ChatMessageInfoSheet extends StatelessWidget {
@@ -8,7 +9,8 @@ class ChatMessageInfoSheet extends StatelessWidget {
   final ChatMessageInfo info;
 
   Widget _row(BuildContext context, String label, String value) {
-    final text = value.trim().isEmpty ? '—' : value.trim();
+    final l = AppLocalizations.of(context)!;
+    final text = value.trim().isEmpty ? l.profileEmptyValue : value.trim();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -34,6 +36,7 @@ class ChatMessageInfoSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return SafeArea(
@@ -55,38 +58,48 @@ class ChatMessageInfoSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              info.title.trim().isEmpty ? 'Message info' : info.title.trim(),
+              info.title.trim().isEmpty
+                  ? l.classroomDetailMessageInfoTitle
+                  : info.title.trim(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 14),
-            _row(context, 'Sent', info.sentAt),
+            _row(context, l.chatMessageInfoSent, info.sentAt),
             if (info.isMine)
               _row(
                 context,
-                'Delivered',
+                l.chatMessageInfoDelivered,
                 info.delivered
                     ? (info.deliveredAt.isEmpty
-                          ? 'Delivered'
+                          ? l.chatMessageInfoDelivered
                           : info.deliveredAt)
-                    : 'Pending',
+                    : l.chatMessageInfoPending,
               ),
             if (info.isMine)
               _row(
                 context,
-                'Seen',
+                l.chatMessageInfoSeen,
                 info.seen
-                    ? (info.seenAt.isEmpty ? 'Seen' : info.seenAt)
-                    : 'Not seen',
+                    ? (info.seenAt.isEmpty ? l.chatMessageInfoSeen : info.seenAt)
+                    : l.chatMessageInfoNotSeen,
               ),
             if (info.messageType.trim().isNotEmpty)
-              _row(context, 'Type', info.messageType),
+              _row(context, l.chatMessageInfoType, info.messageType),
             if (info.voiceDuration.trim().isNotEmpty)
-              _row(context, 'Duration', info.voiceDuration),
-            _row(context, 'Edited', info.edited ? 'Yes' : 'No'),
-            _row(context, 'Forwarded', info.forwarded ? 'Yes' : 'No'),
-            _row(context, 'Delete state', info.deleteState),
+              _row(context, l.chatMessageInfoDuration, info.voiceDuration),
+            _row(
+              context,
+              l.chatMessageInfoEdited,
+              info.edited ? l.chatMessageInfoYes : l.chatMessageInfoNo,
+            ),
+            _row(
+              context,
+              l.chatMessageInfoForwarded,
+              info.forwarded ? l.chatMessageInfoYes : l.chatMessageInfoNo,
+            ),
+            _row(context, l.chatMessageInfoDeleteState, info.deleteState),
           ],
         ),
       ),

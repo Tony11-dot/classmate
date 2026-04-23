@@ -80,23 +80,25 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 /* ---- API helpers used by /grades page ---- */
 
 export type CohortStudent = {
-  id: string;
+  studentId: string;
   name: string;
   email?: string | null;
 };
 
 export type AssessmentGrade = {
   studentId: string;
-  assessmentId: string;
-  score: number | null;
+  grade: number | null;
+  rawScore?: number | null;
+  adjustedScore?: number | null;
+  feedback?: string | null;
 };
 
 export async function fetchCohortStudents(cohortId: string) {
-  return apiFetch<CohortStudent[] | { ok?: boolean; students: CohortStudent[] }>(`/teacher/cohorts/${cohortId}/students`);
+  return apiFetch<{ students: CohortStudent[] }>(`/teacher/cohorts/${cohortId}/students`);
 }
 
 export async function fetchAssessmentGrades(assessmentId: string) {
-  return apiFetch<AssessmentGrade[]>(`/teacher/assessments/${assessmentId}/grades`);
+  return apiFetch<{ grades: AssessmentGrade[] }>(`/teacher/assessments/${assessmentId}/grades`);
 }
 
 

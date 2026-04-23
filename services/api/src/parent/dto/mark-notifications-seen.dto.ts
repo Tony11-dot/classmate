@@ -1,8 +1,8 @@
-import { ArrayNotEmpty, IsArray, IsUUID } from 'class-validator';
+import { IsArray, IsOptional, IsUUID } from 'class-validator';
 
 export class MarkNotificationsSeenDto {
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsUUID('4', { each: true })
-  ids!: string[];
+  ids?: string[];
 }

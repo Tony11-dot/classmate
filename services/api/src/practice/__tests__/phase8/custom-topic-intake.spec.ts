@@ -29,6 +29,18 @@ describe('PHASE 8 — custom topic intake', () => {
     expect(res.topicType).toBe('factual_history');
   });
 
+  it('infers structured subject from a strong catalog-style custom prompt', () => {
+    const res = analyzeCustomPracticeTopic({
+      subject: 'General Knowledge',
+      topicLabel: 'periodic table trends',
+    });
+
+    expect(res.effectiveSubject).toBe('Chemistry');
+    expect(res.effectiveTopic).toBe('Periodic Table Trends');
+    expect(res.generationStrategy).toBe('deterministic');
+    expect(res.topicType).toBe('school_stem');
+  });
+
   it('keeps school symbolic topics on structured paths', () => {
     const res = analyzeCustomPracticeTopic({
       subject: 'math',
@@ -60,5 +72,17 @@ describe('PHASE 8 — custom topic intake', () => {
     console.log('CUSTOM_TOPIC_FAIL_CASE', JSON.stringify(res, null, 2));
     expect(res.confidence).toBeLessThan(0.75);
     expect(res.generationStrategy).toBe('fallback');
+  });
+
+  it('keeps specific unknown topics answerable instead of low-signal', () => {
+    const res = analyzeCustomPracticeTopic({
+      subject: 'Business',
+      topicLabel: 'coffee trade routes in the 1600s',
+    });
+
+    expect(res.topicType).toBe('unknown');
+    expect(res.generationStrategy).toBe('fallback');
+    expect(res.quizzability).toBe('medium');
+    expect(res.needsClarification).toBe(false);
   });
 });

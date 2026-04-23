@@ -1,8 +1,14 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:image_editor_plus/options.dart' as o;
+import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../../l10n/app_localizations.dart';
 
 class ChatMediaPreviewResult {
   const ChatMediaPreviewResult({required this.paths, required this.caption});
@@ -15,11 +21,11 @@ class ChatMediaPreviewScreen extends StatefulWidget {
   const ChatMediaPreviewScreen({
     super.key,
     required this.initialPaths,
-    this.title = 'Preview',
+    this.title,
   });
 
   final List<String> initialPaths;
-  final String title;
+  final String? title;
 
   @override
   State<ChatMediaPreviewScreen> createState() => _ChatMediaPreviewScreenState();
@@ -136,6 +142,39 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     });
   }
 
+  Future<void> _openEditor() async {
+    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    final bytes = await File(_paths[_index]).readAsBytes();
+    if (!mounted) return;
+    final result = await Navigator.push<Uint8List>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ImageEditor(
+          image: bytes,
+          outputFormat: o.OutputFormat.jpeg,
+          cropOption: const o.CropOption(),
+          brushOption: const o.BrushOption(showBackground: true),
+          flipOption: const o.FlipOption(),
+          rotateOption: const o.RotateOption(),
+          filtersOption: null,
+          blurOption: null,
+          emojiOption: null,
+          textOption: null,
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    final dir = await getTemporaryDirectory();
+    final tmpPath =
+        '${dir.path}/edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    await File(tmpPath).writeAsBytes(result);
+    setState(() {
+      _paths = List<String>.from(_paths)..[_index] = tmpPath;
+      _quarterTurns[_index] = 0;
+      _mirrored[_index] = false;
+    });
+  }
+
   Future<void> _removeCurrent() async {
     if (_paths.isEmpty) return;
 
@@ -163,6 +202,42 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     }
 
     await _syncVideo();
+  }
+
+  Widget _toolButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool destructive = false,
+  }) {
+    final fg = destructive ? const Color(0xFFFF7D73) : Colors.white;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF151A20),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: fg),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: fg,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildThumb(String itemPath, int i) {
@@ -332,10 +407,10 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   Widget _buildMainPreview() {
     if (_paths.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'Nothing to preview',
-          style: TextStyle(color: Colors.white70),
+          AppLocalizations.of(context)!.chatMediaPreviewEmptyState,
+          style: const TextStyle(color: Colors.white70),
         ),
       );
     }
@@ -347,65 +422,51 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   Widget _buildToolsTray() {
     if (_paths.isEmpty) return const SizedBox.shrink();
     final isVideo = _isVideo(_paths[_index]);
+    final l = AppLocalizations.of(context)!;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151A20),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: ExpansionTile(
-        initiallyExpanded: false,
-        collapsedIconColor: Colors.white70,
-        iconColor: Colors.white,
-        title: const Text(
-          'Edit media',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-        ),
-        subtitle: Text(
-          isVideo ? 'Playback tools' : 'Rotate, mirror, reset, remove',
-          style: const TextStyle(color: Colors.white60),
-        ),
-        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+    return SizedBox(
+      height: 52,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+        scrollDirection: Axis.horizontal,
         children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (!isVideo) ...[
-                FilledButton.tonalIcon(
-                  onPressed: () => _rotateCurrent(-1),
-                  icon: const Icon(Icons.rotate_left_rounded),
-                  label: const Text('Rotate left'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: () => _rotateCurrent(1),
-                  icon: const Icon(Icons.rotate_right_rounded),
-                  label: const Text('Rotate right'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: _mirrorCurrent,
-                  icon: const Icon(Icons.flip_rounded),
-                  label: const Text('Mirror'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: () => _rotateCurrent(2),
-                  icon: const Icon(Icons.rotate_90_degrees_ccw_rounded),
-                  label: const Text('Rotate 180'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: _resetCurrentEdits,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Reset'),
-                ),
-              ],
-              FilledButton.tonalIcon(
-                onPressed: _removeCurrent,
-                icon: const Icon(Icons.delete_outline_rounded),
-                label: const Text('Remove'),
-              ),
-            ],
+          if (!isVideo) ...[
+            _toolButton(
+              icon: Icons.draw_rounded,
+              label: l.chatMediaPreviewDrawCropAction,
+              onTap: _openEditor,
+            ),
+            const SizedBox(width: 8),
+            _toolButton(
+              icon: Icons.rotate_left_rounded,
+              label: l.chatMediaPreviewRotateLeftAction,
+              onTap: () => _rotateCurrent(-1),
+            ),
+            const SizedBox(width: 8),
+            _toolButton(
+              icon: Icons.rotate_right_rounded,
+              label: l.chatMediaPreviewRotateRightAction,
+              onTap: () => _rotateCurrent(1),
+            ),
+            const SizedBox(width: 8),
+            _toolButton(
+              icon: Icons.flip_rounded,
+              label: l.chatMediaPreviewMirrorAction,
+              onTap: _mirrorCurrent,
+            ),
+            const SizedBox(width: 8),
+            _toolButton(
+              icon: Icons.refresh_rounded,
+              label: l.chatMediaPreviewResetAction,
+              onTap: _resetCurrentEdits,
+            ),
+            const SizedBox(width: 8),
+          ],
+          _toolButton(
+            icon: Icons.delete_outline_rounded,
+            label: l.chatMediaPreviewRemoveAction,
+            onTap: _removeCurrent,
+            destructive: true,
           ),
         ],
       ),
@@ -421,27 +482,40 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: Text(widget.title),
+        title: Text(widget.title ?? l.tutorPreviewTitle),
+        actions: [
+          if (_paths.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '${_index + 1}/${_paths.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(child: _buildMainPreview()),
-            if (_paths.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  'Page ${_index + 1} / ${_paths.length}',
-                  style: const TextStyle(color: Colors.white54),
-                ),
-              ),
             _buildToolsTray(),
             if (_paths.length > 1)
               SizedBox(
@@ -495,25 +569,33 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                         minLines: 1,
                         maxLines: 4,
                         style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: 'Add a caption...',
-                          hintStyle: TextStyle(color: Colors.white54),
+                        decoration: InputDecoration(
+                          hintText: l.chatMediaPreviewCaptionHint,
+                          hintStyle: const TextStyle(color: Colors.white54),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(
-                        ChatMediaPreviewResult(
-                          paths: _paths,
-                          caption: _captionCtl.text.trim(),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.send_rounded),
+                  SizedBox(
+                    width: 54,
+                    height: 54,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: EdgeInsets.zero,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(
+                          ChatMediaPreviewResult(
+                            paths: _paths,
+                            caption: _captionCtl.text.trim(),
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.send_rounded),
+                    ),
                   ),
                 ],
               ),

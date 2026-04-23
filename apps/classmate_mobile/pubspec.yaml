@@ -1,5 +1,5 @@
 name: classmate_mobile
-description: "A new Flutter project."
+description: "ClassMate mobile app for students, teachers, and parents."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -28,10 +28,12 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_localizations:
+    sdk: flutter
   video_player: ^2.9.2
   just_audio: ^0.9.46
   pdfrx: ^2.2.24
-  syncfusion_flutter_pdfviewer: ^25.1.41
+  syncfusion_flutter_pdfviewer: ^33.1.49
   dio: ^5.7.0
   path_provider: ^2.1.5
   record: ^6.2.0
@@ -56,8 +58,10 @@ dependencies:
   flutter_math_fork: ^0.7.4
   web_socket_channel: ^3.0.3
   flutter_markdown: ^0.7.7+1
+  markdown: ^7.3.0
   flutter_highlight: ^0.7.0
   flutter_pdfview: ^1.4.4
+  flutter_local_notifications: ^21.0.0
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +79,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

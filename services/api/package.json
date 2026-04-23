@@ -72,6 +72,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.91.0",
     "@nestjs/common": "^11.1.14",
     "@nestjs/core": "^11.1.14",
     "@nestjs/jwt": "11.0.2",

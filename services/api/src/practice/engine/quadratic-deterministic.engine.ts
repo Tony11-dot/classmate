@@ -12,6 +12,8 @@ type QuadTemplate = {
 
 @Injectable()
 export class QuadraticDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase();

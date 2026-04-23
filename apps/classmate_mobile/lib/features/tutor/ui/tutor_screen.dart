@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import 'nova_chat_screen.dart';
 import 'tutor_home_screen.dart';
 
@@ -20,11 +21,12 @@ class TutorScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final prompt = (initialPrompt ?? '').trim();
     final title = (initialTitle ?? '').trim();
+    final l = AppLocalizations.of(context)!;
 
     if (prompt.isNotEmpty) {
       return NovaChatScreen(
         initialPrompt: prompt,
-        initialTitle: title.isEmpty ? 'NOVA Explain' : title,
+        initialTitle: title.isEmpty ? l.tutorExplainTitle : title,
       );
     }
 

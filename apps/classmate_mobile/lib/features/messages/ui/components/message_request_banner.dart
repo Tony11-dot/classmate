@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../models/message_request_models.dart';
 
 class MessageRequestBanner extends StatelessWidget {
@@ -16,6 +17,7 @@ class MessageRequestBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
 
     return Container(
@@ -30,7 +32,9 @@ class MessageRequestBanner extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            data.isIncoming ? 'Message request' : 'Pending approval',
+            data.isIncoming
+                ? l.messagesRequestBannerIncoming
+                : l.messagesRequestBannerOutgoing,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -47,21 +51,21 @@ class MessageRequestBanner extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onBlock,
-                    child: const Text('Block'),
+                    child: Text(l.messagesBlockAction),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: FilledButton(
                     onPressed: onApprove,
-                    child: const Text('Approve'),
+                    child: Text(l.messagesApproveAction),
                   ),
                 ),
               ],
             )
           else
             Text(
-              'The chat unlocks after the receiver approves your first message.',
+              l.messagesRequestUnlockHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),

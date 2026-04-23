@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 
-const API_BASE = process.env.API_BASE || 'http://127.0.0.1:3000';
+const API_BASE = (process.env.API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3001').replace(/\/api\/?$/, '');
 
 test('notifications API returns createdAt + seenAt', async ({ page }) => {
   await page.goto('/notifications');
@@ -12,7 +12,7 @@ test('notifications API returns createdAt + seenAt', async ({ page }) => {
     extraHTTPHeaders: { Authorization: `Bearer ${token}` },
   });
 
-  const res = await ctx.get('/api/parent/notifications?take=10');
+  const res = await ctx.get('/parent/notifications?take=10');
   expect(res.ok()).toBeTruthy();
   const json = await res.json();
 

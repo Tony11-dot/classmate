@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
@@ -18,6 +19,87 @@ class MessagesInboxScreen extends ConsumerStatefulWidget {
 
 class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   final TextEditingController _searchCtl = TextEditingController();
+
+  Future<void> _refreshInbox() async {
+    ref.invalidate(messagesInboxProvider);
+    await ref.read(messagesInboxProvider.future);
+  }
+
+  Future<void> _startNewChat() async {
+    final threadId = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (_) => const NewChatScreen(),
+      ),
+    );
+    if (!mounted || threadId == null || threadId.trim().isEmpty) {
+      return;
+    }
+    ref.invalidate(messagesInboxProvider);
+    context.pushNamed('dm_thread', pathParameters: {'id': threadId.trim()});
+  }
+
+  void _openBlockedPeople() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const BlockedPeopleScreen(),
+      ),
+    );
+  }
+
+  Widget _header(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              l.titleMessages,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: l.messagesBlockedPeopleTitle,
+            onPressed: _openBlockedPeople,
+            icon: const Icon(Icons.block_rounded),
+          ),
+          const SizedBox(width: 4),
+          FilledButton.icon(
+            onPressed: _startNewChat,
+            icon: const Icon(Icons.edit_rounded, size: 18),
+            label: Text(l.messagesStartChatAction),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomNavCover(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return IgnorePointer(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          height: 108,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                scheme.surface.withValues(alpha: 0),
+                scheme.surface.withValues(alpha: 0.76),
+                scheme.surface,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   DateTime? _parseInboxTimestamp(String raw) {
     return parseChatTimestamp(raw);
@@ -70,6 +152,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final inbox = ref.watch(messagesInboxProvider);
     final query = _searchCtl.text.trim().toLowerCase();
 
@@ -79,7 +162,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
         child: inbox.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) =>
-              Center(child: Text('Failed to load messages: $error')),
+              Center(child: Text(l.messagesLoadFailed(error.toString()))),
           data: (items) {
             final filtered = items.where((item) {
               if (query.isEmpty) return true;
@@ -98,181 +181,106 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                 .toList();
 
             if (filtered.isEmpty) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(messagesInboxProvider);
-                  await ref.read(messagesInboxProvider.future);
-                },
-                child: ListView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Messages',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.w900),
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: _refreshInbox,
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
+                      children: [
+                        _header(context),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                          child: TextField(
+                            controller: _searchCtl,
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              hintText: l.messagesSearchHint,
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
-                          IconButton(
-
-                            tooltip: 'Blocked people',
-
-                            onPressed: () {
-
-                              Navigator.of(context).push(
-
-                                MaterialPageRoute(
-
-                                  builder: (_) => const BlockedPeopleScreen(),
-
-                                ),
-
-                              );
-
-                            },
-
-                            icon: const Icon(Icons.block_rounded),
-
-                          ),
-
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.add_rounded),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: TextField(
-                        controller: _searchCtl,
-                        onChanged: (_) => setState(() {}),
-                        decoration: InputDecoration(
-                          hintText: 'Search messages',
-                          prefixIcon: const Icon(Icons.search_rounded),
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 180),
-                    const Center(child: Text('No messages found')),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(messagesInboxProvider);
-                await ref.read(messagesInboxProvider.future);
-              },
-              child: ListView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Messages',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.w900),
-                          ),
-                        ),
-                        IconButton(
-
-                          tooltip: 'Blocked people',
-
-                          onPressed: () {
-
-                            Navigator.of(context).push(
-
-                              MaterialPageRoute(
-
-                                builder: (_) => const BlockedPeopleScreen(),
-
-                              ),
-
-                            );
-
-                          },
-
-                          icon: const Icon(Icons.block_rounded),
-
-                        ),
-
-                        IconButton(
-                          onPressed: () async {
-                            final threadId = await Navigator.of(context).push<String>(
-                              MaterialPageRoute<String>(
-                                builder: (_) => const NewChatScreen(),
-                              ),
-                            );
-                            if (!context.mounted || threadId == null || threadId.trim().isEmpty) return;
-                            ref.invalidate(messagesInboxProvider);
-                            context.pushNamed('dm_thread', pathParameters: {'id': threadId.trim()});
-                          },
-                          icon: const Icon(Icons.add_rounded),
-                        ),
+                        const SizedBox(height: 180),
+                        Center(child: Text(l.messagesNoResults)),
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                    child: TextField(
-                      controller: _searchCtl,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: 'Search messages',
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
+                  _bottomNavCover(context),
+                ],
+              );
+            }
+
+            return Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: _refreshInbox,
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
+                    children: [
+                      _header(context),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                        child: TextField(
+                          controller: _searchCtl,
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            hintText: l.messagesSearchHint,
+                            prefixIcon: const Icon(Icons.search_rounded),
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      if (requests.isNotEmpty) ...[
+                        _SectionHeader(
+                          title: l.messagesRequestsSection,
+                          subtitle: l.messagesPendingApprovals,
+                        ),
+                        ...requests.map(
+                          (item) => _InboxRow(
+                            item: item,
+                            trailingLabel: _formatInboxTrailingLabel(item),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      if (chats.isNotEmpty) ...[
+                        _SectionHeader(
+                          title: requests.isEmpty
+                              ? l.messagesChatsSection
+                              : l.messagesAllChatsSection,
+                          subtitle: l.messagesConversationCount(chats.length),
+                        ),
+                        ...chats.map(
+                          (item) => _InboxRow(
+                            item: item,
+                            trailingLabel: _formatInboxTrailingLabel(item),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  if (requests.isNotEmpty) ...[
-                    const _SectionHeader(
-                      title: 'Requests',
-                      subtitle: 'Pending approvals',
-                    ),
-                    ...requests.map(
-                      (item) => _InboxRow(
-                        item: item,
-                        trailingLabel: _formatInboxTrailingLabel(item),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  if (chats.isNotEmpty) ...[
-                    _SectionHeader(
-                      title: requests.isEmpty ? 'Chats' : 'All chats',
-                      subtitle:
-                          '${chats.length} conversation${chats.length == 1 ? '' : 's'}',
-                    ),
-                    ...chats.map(
-                      (item) => _InboxRow(
-                        item: item,
-                        trailingLabel: _formatInboxTrailingLabel(item),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+                ),
+                _bottomNavCover(context),
+              ],
             );
           },
         ),
@@ -321,12 +329,16 @@ class _InboxRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final isRequest = item.requestState.name == 'pendingIncoming';
     final showUnread = item.unreadCount > 0;
     final trailingText = trailingLabel.trim().isEmpty
         ? item.lastMessageAt.trim()
         : trailingLabel.trim();
+    final borderColor = isRequest || showUnread
+        ? scheme.primary.withValues(alpha: 0.2)
+        : scheme.outlineVariant.withValues(alpha: 0.18);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -349,9 +361,7 @@ class _InboxRow extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: scheme.surfaceContainerLowest,
-              border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.18),
-              ),
+              border: Border.all(color: borderColor),
               boxShadow: [
                 BoxShadow(
                   blurRadius: 14,
@@ -366,6 +376,9 @@ class _InboxRow extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
+                  backgroundColor: isRequest || showUnread
+                    ? scheme.primaryContainer
+                    : scheme.surfaceContainerHigh,
                   backgroundImage:
                       item.isGroup &&
                           (item.groupAvatarUrl ?? '').trim().isNotEmpty
@@ -376,7 +389,7 @@ class _InboxRow extends StatelessWidget {
                           (item.groupAvatarUrl ?? '').trim().isNotEmpty
                       ? null
                       : Text(
-                          item.initials,
+                          item.initials.replaceAll(',', ''),
                           style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                 ),
@@ -411,8 +424,8 @@ class _InboxRow extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(999),
                                 color: scheme.surfaceContainerHighest,
                               ),
-                              child: const Text(
-                                'Group',
+                              child: Text(
+                                l.classroomsThreadTypeGroup,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -465,8 +478,8 @@ class _InboxRow extends StatelessWidget {
                         ),
                         child: Text(
                           item.requestState.name == 'pendingIncoming'
-                              ? 'Review'
-                              : 'Pending',
+                              ? l.messagesRequestReviewStatus
+                              : l.chatMessageInfoPending,
                           style: TextStyle(
                             color: scheme.onPrimary,
                             fontSize: 11,

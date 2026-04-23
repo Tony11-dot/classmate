@@ -5,10 +5,12 @@ import type {
   GeneratedQuestion,
   EngineDifficulty,
 } from './practice-engine.types';
-import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
+import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class GeometryDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`
@@ -193,8 +195,7 @@ export class GeometryDeterministicEngine implements PracticeEngine {
   }
 
   private uniqueRotate(raw: string[], seed: number): string[] {
-    const out = uniqueFirst(raw, 4);
-    while (out.length < 4) out.push(String(out.length + seed + 10));
+    const out = fillOptionsWithSafeFallback(uniqueFirst(raw, 4), raw[0] ?? '', seed);
     return rotateBySeed(out.slice(0, 4), seed);
   }
 

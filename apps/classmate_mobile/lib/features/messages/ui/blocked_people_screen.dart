@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
 
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
@@ -26,23 +27,26 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
   }
 
   Future<void> _unblock(Map<String, dynamic> item) async {
+    final l = AppLocalizations.of(context)!;
     final threadId = (item['threadId'] ?? '').toString().trim();
-    final name = (item['displayName'] ?? 'this person').toString().trim();
+    final name = (item['displayName'] ?? l.messagesBlockedPersonFallback)
+        .toString()
+        .trim();
     if (threadId.isEmpty) return;
 
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Unblock person?'),
-        content: Text('Allow $name to message you again?'),
+        title: Text(l.messagesUnblockPersonTitle),
+        content: Text(l.messagesUnblockPersonBody(name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.classroomDetailCancelTooltip),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Unblock'),
+            child: Text(l.messagesUnblockAction),
           ),
         ],
       ),
@@ -58,14 +62,15 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
     await _reload();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$name unblocked')),
+      SnackBar(content: Text(l.messagesUnblockedToast(name))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Blocked people')),
+      appBar: AppBar(title: Text(l.messagesBlockedPeopleTitle)),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
         builder: (context, snapshot) {
@@ -77,14 +82,16 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Failed to load blocked people: ${snapshot.error}'),
+                child: Text(
+                  l.messagesBlockedPeopleLoadFailed(snapshot.error.toString()),
+                ),
               ),
             );
           }
 
           final items = snapshot.data ?? const <Map<String, dynamic>>[];
           if (items.isEmpty) {
-            return const Center(child: Text('No blocked people'));
+            return Center(child: Text(l.messagesNoBlockedPeople));
           }
 
           return RefreshIndicator(
@@ -95,7 +102,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final item = items[index];
-                final name = (item['displayName'] ?? 'Unknown user')
+                final name = (item['displayName'] ?? l.messagesUnknownUser)
                     .toString()
                     .trim();
                 final initials = (item['initials'] ?? '?').toString().trim().replaceAll(',', '');
@@ -103,10 +110,10 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(child: Text(initials.isEmpty ? '?' : initials)),
-                    title: Text(name.isEmpty ? 'Unknown user' : name),
+                    title: Text(name.isEmpty ? l.messagesUnknownUser : name),
                     trailing: FilledButton(
                       onPressed: () => _unblock(item),
-                      child: const Text('Unblock'),
+                      child: Text(l.messagesUnblockAction),
                     ),
                   ),
                 );

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../common/widgets/cm_ai_message.dart';
 
 import '../domain/practice_models.dart';
 import '../domain/practice_mode_behavior.dart';
 
 import '../providers/practice_providers.dart';
+import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
+import 'practice_setup_screen.dart';
 import 'modes/mode_common.dart';
 import 'modes/practice_mode_view.dart';
 import 'modes/flashcards_mode_view.dart';
@@ -14,6 +18,46 @@ import 'modes/exam_prep_mode_view.dart';
 import 'modes/concept_builder_mode_view.dart';
 import 'modes/adaptive_mode_view.dart';
 import 'modes/bagrut_mode_view.dart';
+
+String _practiceSessionModeLabel(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSetupModeLabelPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSetupModeLabelFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSetupModeLabelSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSetupModeLabelExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSetupModeLabelConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSetupModeLabelAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSetupModeLabelBagrut;
+  }
+}
+
+String _practiceSessionModeDescription(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSessionModeDescriptionPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSessionModeDescriptionFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSessionModeDescriptionSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSessionModeDescriptionExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSessionModeDescriptionConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSessionModeDescriptionAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSessionModeDescriptionBagrut;
+  }
+}
 
 Color _sessionPanelBorder(ColorScheme cs) {
   return cs.brightness == Brightness.dark
@@ -30,51 +74,54 @@ Color _sessionPanelBg(ColorScheme cs, Color accent) {
       : Color.alphaBlend(accent.withValues(alpha: 0.05), cs.surface);
 }
 
-String _friendlyModeLoadingTitle(String mode) {
-  switch (mode.toLowerCase()) {
+PracticeMode _practiceModeFromLabel(BuildContext context, String modeLabel) {
+  final normalized = modeLabel.trim().toLowerCase();
+  for (final mode in PracticeMode.values) {
+    if (_practiceSessionModeLabel(context, mode).toLowerCase() == normalized) {
+      return mode;
+    }
+  }
+
+  switch (normalized) {
     case 'practice':
-      return 'Building your practice session';
+      return PracticeMode.practice;
     case 'flashcards':
-      return 'Shuffling your flashcards';
+      return PracticeMode.flashcards;
     case 'speed round':
     case 'speedround':
-      return 'Starting the speed round';
+      return PracticeMode.speedRound;
     case 'exam prep':
     case 'examprep':
-      return 'Preparing your exam session';
+      return PracticeMode.examPrep;
     case 'concept builder':
     case 'conceptbuilder':
-      return 'Loading concept coach';
+      return PracticeMode.conceptBuilder;
     case 'adaptive':
-      return 'Personalizing your challenge';
+      return PracticeMode.adaptive;
     case 'bagrut':
-      return 'Preparing your Bagrut set';
+      return PracticeMode.bagrut;
     default:
-      return 'Preparing your session';
+      return PracticeMode.practice;
   }
 }
 
-Color _sessionAccentFromModeLabel(String mode) {
-  switch (mode.toLowerCase()) {
-    case 'practice':
-      return const Color(0xFF2563EB);
-    case 'flashcards':
-      return const Color(0xFF7C3AED);
-    case 'speed round':
-    case 'speedround':
-      return const Color(0xFFF59E0B);
-    case 'exam prep':
-    case 'examprep':
-      return const Color(0xFF14B8A6);
-    case 'concept builder':
-    case 'conceptbuilder':
-      return const Color(0xFF4F46E5);
-    case 'adaptive':
-      return const Color(0xFFEC4899);
-    case 'bagrut':
-      return const Color(0xFFDC2626);
-    default:
-      return const Color(0xFF2563EB);
+String _friendlyModeLoadingTitle(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSessionLoadingPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSessionLoadingFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSessionLoadingSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSessionLoadingExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSessionLoadingConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSessionLoadingAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSessionLoadingBagrut;
   }
 }
 
@@ -136,6 +183,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
     final state = ref.watch(practiceSessionProvider);
     final sessionCtl = ref.read(practiceSessionProvider.notifier);
     final loading = ref.watch(practiceSessionLoadingProvider);
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final accent = practiceModeColor(state.filter.mode);
@@ -167,7 +215,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     Navigator.of(context).maybePop();
                   },
                   icon: const Icon(Icons.close_rounded),
-                  label: const Text('Stop Generating'),
+                  label: Text(l.practiceSetupStopGenerating),
                 ),
               ],
             ),
@@ -223,7 +271,9 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     Icon(Icons.emoji_events_rounded, size: 54, color: accent),
                     const SizedBox(height: 12),
                     Text(
-                      '${practiceModeLabel(state.filter.mode)} complete',
+                      l.practiceSessionCompleteTitle(
+                        _practiceSessionModeLabel(context, state.filter.mode),
+                      ),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -233,21 +283,42 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        _MetricPill(label: 'Answered', value: '$answered'),
-                        _MetricPill(label: 'Correct', value: '$correct'),
-                        _MetricPill(label: 'Wrong', value: '$wrong'),
-                        _MetricPill(label: 'Accuracy', value: '$accuracy%'),
-                        _MetricPill(label: 'Total', value: '$total'),
-                        _MetricPill(label: 'XP', value: '${state.stats.xp}'),
                         _MetricPill(
-                          label: 'Streak',
+                          label: l.practiceSessionMetricAnswered,
+                          value: '$answered',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricCorrect,
+                          value: '$correct',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricWrong,
+                          value: '$wrong',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricAccuracy,
+                          value: '$accuracy%',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricTotal,
+                          value: '$total',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricXp,
+                          value: '${state.stats.xp}',
+                        ),
+                        _MetricPill(
+                          label: l.practiceSessionMetricStreak,
                           value: '${state.stats.streak}',
                         ),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      practiceModeDescription(state.filter.mode),
+                      _practiceSessionModeDescription(
+                        context,
+                        state.filter.mode,
+                      ),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cs.onSurfaceVariant,
@@ -256,7 +327,11 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${state.filter.subject} • ${state.filter.topicLabel}',
+                      localizedPracticeSubjectAndTopic(
+                        context,
+                        subject: state.filter.subject,
+                        topicLabel: state.filter.topicLabel,
+                      ),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,
@@ -271,9 +346,15 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                 children: [
                   Expanded(
                     child: SegmentedButton<bool>(
-                      segments: const [
-                        ButtonSegment(value: false, label: Text('Stacked')),
-                        ButtonSegment(value: true, label: Text('Focus')),
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          label: Text(l.practiceSessionReviewLayoutStacked),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          label: Text(l.practiceSessionReviewLayoutFocus),
+                        ),
                       ],
                       selected: {_focusReview},
                       onSelectionChanged: (v) {
@@ -296,7 +377,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('All'),
+                          label: Text(l.practiceSessionFilterAll),
                           selected: _reviewFilter == _ReviewFilter.all,
                           onSelected: (_) {
                             setState(() {
@@ -306,7 +387,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           },
                         ),
                         ChoiceChip(
-                          label: const Text('Wrong'),
+                          label: Text(l.practiceSessionFilterWrong),
                           selected: _reviewFilter == _ReviewFilter.wrong,
                           onSelected: (_) {
                             setState(() {
@@ -316,7 +397,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           },
                         ),
                         ChoiceChip(
-                          label: const Text('Correct'),
+                          label: Text(l.practiceSessionFilterCorrect),
                           selected: _reviewFilter == _ReviewFilter.correct,
                           onSelected: (_) {
                             setState(() {
@@ -334,7 +415,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Session review',
+                l.practiceSessionReviewTitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w900,
                 ),
@@ -351,7 +432,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     ),
                   ),
                   child: Text(
-                    'No questions match this filter yet.',
+                    l.practiceSessionNoQuestionsForFilter,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -365,12 +446,12 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                         selectedIndex >= 0 &&
                         selectedIndex < question.options.length)
                     ? question.options[selectedIndex]
-                    : 'No answer';
+                  : l.practiceSessionNoAnswer;
                 final correctLabel =
                     (question.correctIndex >= 0 &&
                         question.correctIndex < question.options.length)
                     ? question.options[question.correctIndex]
-                    : 'Unknown';
+                  : l.practiceSessionUnknownAnswer;
                 final isCorrect = result?.isCorrect ?? false;
                 final isFlashcards =
                     state.filter.mode == PracticeMode.flashcards;
@@ -395,7 +476,10 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                question.topicLabel,
+                                localizedPracticeTopicLabel(
+                                  context,
+                                  question.topicLabel,
+                                ),
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: accent,
                                   fontWeight: FontWeight.w800,
@@ -414,9 +498,10 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        MathView(
+                        CMAiMessage(
                           question.prompt,
-                          style: theme.textTheme.bodyLarge?.copyWith(
+                          compact: true,
+                          textStyle: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w700,
                             height: 1.3,
                           ),
@@ -424,7 +509,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                         const SizedBox(height: 12),
                         if (isFlashcards) ...[
                           Text(
-                            'Reflection',
+                            l.practiceSessionReflectionTitle,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
@@ -432,7 +517,9 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            isCorrect ? 'Knew it' : 'Review again',
+                            isCorrect
+                                ? l.practiceSessionReflectionKnewIt
+                                : l.practiceSessionReflectionReviewAgain,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isCorrect
@@ -442,44 +529,44 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Back of card',
+                            l.practiceSessionBackOfCard,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          MathView(question.explanation, compact: true),
+                          CMAiMessage(question.explanation, compact: true),
                         ] else ...[
                           Text(
-                            'Your answer',
+                            l.practiceSessionYourAnswer,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          MathView(selectedLabel, compact: true),
+                          CMAiMessage(selectedLabel, compact: true),
                           const SizedBox(height: 10),
                           Text(
-                            'Correct answer',
+                            l.practiceSessionCorrectAnswer,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: Colors.green,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          MathView(correctLabel, compact: true),
+                          CMAiMessage(correctLabel, compact: true),
                           const SizedBox(height: 10),
                           Text(
-                            'Explanation',
+                            l.practiceSessionExplanation,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          MathView(question.explanation, compact: true),
+                          CMAiMessage(question.explanation, compact: true),
                         ],
                       ],
                     ),
@@ -520,7 +607,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                   Navigator.of(context).maybePop();
                 },
                 icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                label: const Text('Back to setup'),
+                label: Text(l.practiceSessionBackToSetup),
               ),
             ],
           ),
@@ -569,24 +656,38 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      _MiniPill(label: state.filter.subject),
                       _MiniPill(
-                        label: state.filter.topicPath.isEmpty
-                            ? 'General'
-                            : state.filter.topicPath.join(' • '),
+                        label: localizedPracticeSubject(
+                          context,
+                          state.filter.subject,
+                        ),
                       ),
                       _MiniPill(
-                        label: state.filter.difficulty
-                            .toString()
-                            .split('.')
-                            .last,
+                        label: localizedPracticeTopicPath(
+                          context,
+                          state.filter.topicPath,
+                        ).replaceAll(' · ', ' • '),
                       ),
-                      _MiniPill(label: practiceModeLabel(state.filter.mode)),
+                      _MiniPill(
+                        label: practiceDifficultyLabel(
+                          context,
+                          state.filter.difficulty,
+                        ),
+                      ),
+                      _MiniPill(
+                        label: _practiceSessionModeLabel(
+                          context,
+                          state.filter.mode,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Question ${state.currentIndex + 1} of ${state.questions.length}',
+                    l.practiceSessionQuestionProgress(
+                      state.currentIndex + 1,
+                      state.questions.length,
+                    ),
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -606,12 +707,17 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     children: [
                       if (behavior.allowTimer)
                         _MetricPill(
-                          label: 'Time',
-                          value: '${state.secondsRemaining}s',
+                          label: l.practiceSessionMetricTime,
+                          value: l.practiceSetupSecondsShort(
+                            state.secondsRemaining,
+                          ),
                         ),
-                      _MetricPill(label: 'XP', value: '${state.stats.xp}'),
                       _MetricPill(
-                        label: 'Streak',
+                        label: l.practiceSessionMetricXp,
+                        value: '${state.stats.xp}',
+                      ),
+                      _MetricPill(
+                        label: l.practiceSessionMetricStreak,
                         value: '${state.stats.streak}',
                       ),
                     ],
@@ -719,7 +825,9 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final accent = _sessionAccentFromModeLabel(mode);
+    final currentMode = _practiceModeFromLabel(context, mode);
+    final accent = practiceModeColor(currentMode);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -765,14 +873,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                         radius: 30,
                         backgroundColor: accent.withValues(alpha: .12),
                         child: Icon(
-                          practiceModeIcon(
-                            PracticeMode.values.firstWhere(
-                              (m) =>
-                                  practiceModeLabel(m).toLowerCase() ==
-                                  mode.toLowerCase(),
-                              orElse: () => PracticeMode.practice,
-                            ),
-                          ),
+                          practiceModeIcon(currentMode),
                           color: accent,
                           size: 28,
                         ),
@@ -783,7 +884,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 18),
                       Text(
-                        _friendlyModeLoadingTitle(mode),
+                        _friendlyModeLoadingTitle(context, currentMode),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
@@ -799,7 +900,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "Difficulty: $difficulty",
+                        l.practiceSessionMatchmakingDifficulty(difficulty),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -833,7 +934,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                         ),
                         onPressed: onCancel,
                         icon: Icon(Icons.close_rounded, color: accent),
-                        label: const Text("Stop generating"),
+                        label: Text(l.practiceSetupStopGenerating),
                       ),
                     ],
                   ),

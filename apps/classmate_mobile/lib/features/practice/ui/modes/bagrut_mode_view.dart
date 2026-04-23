@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class BagrutModeView extends StatelessWidget {
@@ -7,6 +8,7 @@ class BagrutModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return questionCard(
       d,
       child: Column(
@@ -26,7 +28,7 @@ class BagrutModeView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Bagrut mode · official-style paper flow',
+                    l.practiceModeBagrutBanner,
                     style: d.theme.textTheme.labelLarge?.copyWith(
                       color: d.accent,
                       fontWeight: FontWeight.w900,
@@ -39,10 +41,10 @@ class BagrutModeView extends StatelessWidget {
           const SizedBox(height: 16),
           sessionProgressStrip(d),
           const SizedBox(height: 14),
-          MathView(d.promptOf()),
+          questionPromptPanel(d),
           const SizedBox(height: 16),
           if (d.showExplanation) ...[
-            explanationCard(d, title: 'Official-style solution'),
+            explanationCard(d, title: l.practiceModeOfficialSolution),
             const SizedBox(height: 14),
           ],
           Row(
@@ -51,8 +53,8 @@ class BagrutModeView extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: d.openNova,
                   icon: const Icon(Icons.tips_and_updates_rounded),
-                  label: const Text(
-                    'NOVA hint',
+                  label: Text(
+                    l.practiceModeActionNovaHint,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -64,7 +66,9 @@ class BagrutModeView extends StatelessWidget {
                   onPressed: () => d.onShowExplanation(!d.showExplanation),
                   icon: const Icon(Icons.description_rounded),
                   label: Text(
-                    d.showExplanation ? 'Hide solution' : 'Show solution',
+                    d.showExplanation
+                        ? l.practiceModeActionHideSolution
+                        : l.practiceModeActionShowSolution,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -74,7 +78,7 @@ class BagrutModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.end,
                 icon: Icons.close_rounded,
-                tooltip: 'End question',
+                tooltip: l.practiceModeActionEndQuestion,
               ),
             ],
           ),

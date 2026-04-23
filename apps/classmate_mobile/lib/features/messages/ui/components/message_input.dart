@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../chat_core/ui/chat_composer.dart';
 
 class MessageInput extends StatelessWidget {
@@ -48,6 +49,7 @@ class MessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return ChatComposer(
       controller: controller,
       replyingTo: replyingTo,
@@ -68,7 +70,7 @@ class MessageInput extends StatelessWidget {
       isRecording: isRecording,
       isVoiceLocked: isVoiceLocked,
       isVoicePaused: isVoicePaused,
-      hintText: 'Message',
+      hintText: l.chatComposerDefaultHint,
     );
   }
 }

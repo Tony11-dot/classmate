@@ -1,0 +1,3973 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Hebrew (`he`).
+class AppLocalizationsHe extends AppLocalizations {
+  AppLocalizationsHe([String locale = 'he']) : super(locale);
+
+  @override
+  String get menu => 'תפריט';
+
+  @override
+  String get sectionCore => 'ניווט ראשי';
+
+  @override
+  String get sectionSchoolTools => 'כלי בית ספר';
+
+  @override
+  String get sectionAccount => 'חשבון';
+
+  @override
+  String get navSchedule => 'לוח זמנים';
+
+  @override
+  String get navClassrooms => 'כיתות';
+
+  @override
+  String get navPractice => 'תרגול';
+
+  @override
+  String get navInsights => 'תובנות';
+
+  @override
+  String get navNova => 'נובה';
+
+  @override
+  String get navMessages => 'הודעות';
+
+  @override
+  String get navAttendance => 'נוכחות';
+
+  @override
+  String get navGrades => 'ציונים';
+
+  @override
+  String get navAssignments => 'משימות';
+
+  @override
+  String get navMeetings => 'פגישות';
+
+  @override
+  String get navAnnouncements => 'הודעות כלליות';
+
+  @override
+  String get navNotifications => 'התראות';
+
+  @override
+  String get navSolutions => 'פתרונות';
+
+  @override
+  String get navExams => 'בחינות';
+
+  @override
+  String get navForms => 'טפסים';
+
+  @override
+  String get navHome => 'בית';
+
+  @override
+  String get navTeacherWorkspace => 'סביבת המורה';
+
+  @override
+  String get navTeacherAssessments => 'הערכות וציונים';
+
+  @override
+  String get navSavedQuestions => 'שאלות שמורות';
+
+  @override
+  String get navProfile => 'פרופיל';
+
+  @override
+  String get navSettings => 'הגדרות';
+
+  @override
+  String get navLogout => 'התנתקות';
+
+  @override
+  String get roleTeacher => 'מורה';
+
+  @override
+  String get roleAdmin => 'מנהל';
+
+  @override
+  String get roleSecretary => 'מזכירות';
+
+  @override
+  String get roleParent => 'הורה';
+
+  @override
+  String get titleSchedule => 'לוח זמנים';
+
+  @override
+  String get titleClasses => 'כיתות';
+
+  @override
+  String get titlePractice => 'תרגול';
+
+  @override
+  String get titleInsights => 'תובנות';
+
+  @override
+  String get titleNova => 'נובה';
+
+  @override
+  String get titleMessages => 'הודעות';
+
+  @override
+  String get titleSolutions => 'פתרונות';
+
+  @override
+  String get titleExams => 'בחינות';
+
+  @override
+  String get solutionsUploadAction => 'העלאה';
+
+  @override
+  String get solutionsNoSubjectsAvailable => 'אין נושאים זמינים.';
+
+  @override
+  String solutionsNoSubjectsMatch(Object query) {
+    return 'אין נושאים התואמים \"$query\".';
+  }
+
+  @override
+  String solutionsBookCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ספרים',
+      one: 'ספר אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get solutionsBooksTitle => 'ספרים';
+
+  @override
+  String get solutionsAddBookTitle => 'הוסף ספר';
+
+  @override
+  String get solutionsBookTitleHint => 'כותרת הספר...';
+
+  @override
+  String get solutionsAddBookAction => 'הוסף ספר';
+
+  @override
+  String get solutionsSearchBooks => 'חפש ספרים';
+
+  @override
+  String get solutionsChooseSubjectFirst => 'בחר נושא קודם.';
+
+  @override
+  String solutionsNoBooksYetBody(Object action) {
+    return 'אין ספרים עדיין.\nהקש על \"$action\" כדי להוסיף את הראשון.';
+  }
+
+  @override
+  String solutionsNoBooksMatch(Object query) {
+    return 'אין ספרים תואמים \"$query\".';
+  }
+
+  @override
+  String get solutionsBookLabel => 'ספר';
+
+  @override
+  String get solutionsPagesFilterHint =>
+      'הכנס מספר עמוד ומספר שאלה כדי לסנן, או השאר ריק כדי לראות הכל.';
+
+  @override
+  String get solutionsPageNumberLabel => 'מספר עמוד';
+
+  @override
+  String get solutionsPageNumberHint => 'למשל 42';
+
+  @override
+  String get solutionsQuestionNumberLabel => 'מספר שאלה';
+
+  @override
+  String get solutionsQuestionNumberHint => 'למשל 3a או 7';
+
+  @override
+  String get solutionsViewSolutionsAction => 'הצג פתרונות';
+
+  @override
+  String solutionsPageQuestionSummary(Object page, Object question) {
+    return 'עמוד $page • שאלה $question';
+  }
+
+  @override
+  String get solutionsExactQuestionTitle => 'פתרונות לשאלה זו בדיוק';
+
+  @override
+  String get solutionsExactQuestionEmptySubtitle =>
+      'עדיין לא הועלה כלום לשאלה זו בדיוק. היה הראשון לעזור לחברי הכיתה שלך.';
+
+  @override
+  String solutionsUploadsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'נמצאו $count קבצים שהועלו',
+      one: 'נמצא 1 קובץ שהועלה',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get solutionsExactQuestionEmptyBody =>
+      'עדיין אין התאמה מדויקת. אתה יכול להעלות אחד עכשיו, או לבדוק מה חברי הכיתה שלך פתרו בעמוד זה.';
+
+  @override
+  String get solutionsLoadMoreAction => 'טען עוד';
+
+  @override
+  String get solutionsSamePageTitle => 'שאלות אחרות שנפתרו בעמוד זה';
+
+  @override
+  String get solutionsSamePageEmptySubtitle =>
+      'עדיין לא הועלו שאלות שכנות מעמוד זה.';
+
+  @override
+  String get solutionsSamePageFallbackSubtitle =>
+      'fallback שימושי כשלשאלה המדויקת שלך אין עדיין הועלאה.';
+
+  @override
+  String get solutionsSamePageEmptyBody =>
+      'עדיין אין הועלאות בסביבה בעמוד זה. העלאה חדשה כאן תהיה באמת עוזרת.';
+
+  @override
+  String get solutionsVerifiedByNova => 'אומת על ידי NOVA';
+
+  @override
+  String get solutionsUploadFileLimitReached => 'הגבול של 10 קבצים הושג.';
+
+  @override
+  String solutionsUploadFilesAddedLimit(int count) {
+    return 'נוספו $count — גבול של 10 קבצים.';
+  }
+
+  @override
+  String get solutionsUploadCompleteFields => 'השלם נושא, ספר, עמוד ושאלה.';
+
+  @override
+  String get solutionsUploadAddOneFile => 'הוסף לפחות תמונה אחת או PDF.';
+
+  @override
+  String solutionsUploadFileFailed(Object error) {
+    return 'העלאת הקובץ נכשלה: $error';
+  }
+
+  @override
+  String solutionsUploadCreateFailed(Object error) {
+    return 'יצירת הפתרון נכשלה: $error';
+  }
+
+  @override
+  String get solutionsUploadSuccess => 'הפתרון הועלה!';
+
+  @override
+  String get solutionsUploadAddNewBookOption => '+ הוסף ספר חדש...';
+
+  @override
+  String get solutionsUploadAddBookShortAction => 'הוסף';
+
+  @override
+  String get solutionsUploadTitle => 'העלה פתרון';
+
+  @override
+  String get solutionsUploadSubtitle =>
+      'תמונות או PDFs אמיתיות בלבד. אימות NOVA והנחיות מופעלות לאחר ההעלאה.';
+
+  @override
+  String get solutionsUploadNoBooksAbove => 'אין ספרים — הוסף אחד למעלה';
+
+  @override
+  String get solutionsUploadCaptionOptional => 'כותרת (אופציונלי)';
+
+  @override
+  String get solutionsUploadImagesAction => 'תמונות';
+
+  @override
+  String get solutionsUploadPdfAction => 'PDF';
+
+  @override
+  String solutionsUploadFileCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'קבצים נבחרים',
+      one: 'קובץ נבחר',
+    );
+    return '$count / 10 $_temp0';
+  }
+
+  @override
+  String get solutionsUploadSomeFilesFailed => 'כמה קבצים נכשלו בהעלאה.';
+
+  @override
+  String get solutionsUploadRetryFailedFiles => 'נסו שוב קבצים שנכשלו';
+
+  @override
+  String get solutionsUploadSubmittingAction => 'מעלה...';
+
+  @override
+  String get solutionsUploadSubmitAction => 'העלה פתרון';
+
+  @override
+  String get settingsTitle => 'הגדרות';
+
+  @override
+  String get settingsSubtitle => 'מראה, שפה וחשבון';
+
+  @override
+  String get settingsAppearance => 'מראה';
+
+  @override
+  String get settingsTheme => 'ערכת נושא';
+
+  @override
+  String get settingsLanguage => 'שפה';
+
+  @override
+  String get settingsLanguageSystem => 'ברירת מחדל של מערכת';
+
+  @override
+  String get settingsAccentColour => 'צבע הדגשה';
+
+  @override
+  String get settingsAccentSubtitle => 'הגוון בכל רחבי האפליקציה';
+
+  @override
+  String get settingsReduceMotion => 'הפחת תנועה';
+
+  @override
+  String get settingsReduceMotionSubtitle => 'פחות אנימציות באפליקציה';
+
+  @override
+  String get settingsAccount => 'חשבון';
+
+  @override
+  String get settingsLogout => 'התנתקות';
+
+  @override
+  String get settingsLogoutSubtitle => 'צא מהמכשיר הזה';
+
+  @override
+  String get settingsThemeSystem => 'ברירת מחדל של מערכת';
+
+  @override
+  String get settingsThemeLight => 'בהיר';
+
+  @override
+  String get settingsThemeDark => 'כהה';
+
+  @override
+  String get settingsLanguageSearchHint => 'חפש שפה...';
+
+  @override
+  String get teacherWorkspaceSubtitle =>
+      'נהלו נוכחות, רשימות וציונים מתוך האפליקציה.';
+
+  @override
+  String get teacherMetricSessionsToday => 'שיעורים היום';
+
+  @override
+  String get teacherMetricTeachingGroups => 'קבוצות הוראה';
+
+  @override
+  String get teacherMetricAssessments => 'הערכות';
+
+  @override
+  String get teacherQuickActions => 'פעולות מהירות';
+
+  @override
+  String get teacherNoDateAvailable => 'אין תאריך זמין';
+
+  @override
+  String get teacherNoTeachingSlotsToday => 'אין שיעורי הוראה מתוזמנים היום.';
+
+  @override
+  String get teacherUpcomingAssessments => 'הערכות קרובות';
+
+  @override
+  String get teacherUpcomingAssessmentsSubtitle =>
+      'ישירות ממערכת הציונים של המורים';
+
+  @override
+  String get teacherNoAssessmentsYet => 'עדיין לא נוצרו הערכות.';
+
+  @override
+  String get teacherUnassignedSlot => 'שיעור לא משויך';
+
+  @override
+  String get teacherNoCohort => 'אין קבוצה';
+
+  @override
+  String get teacherCourseFallback => 'קורס';
+
+  @override
+  String teacherPeriod(Object number) {
+    return 'שיעור $number';
+  }
+
+  @override
+  String get teacherLoadErrorTitle => 'לא ניתן לטעון את סביבת המורה';
+
+  @override
+  String get teacherClassroomsLoadError =>
+      'לא היינו יכולים לטעון כיתות עכשיו. גרור כדי לרענן או נסה שוב.';
+
+  @override
+  String get teacherClassroomsLoadTimeout =>
+      'טעינת כיתות אורכת זמן רב מדי. גרור כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get teacherClassroomsLoadNetwork =>
+      'כיתות לא יכלו להתחבר עכשיו. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get teacherClassroomsSubtitle =>
+      'פתח את רשימת התלמידים וצור קוד הצטרפות חי לכניסת תלמידים.';
+
+  @override
+  String get teacherClassroomsNoCohorts =>
+      'עדיין לא קושרו קבוצות כיתות למורה זה.';
+
+  @override
+  String teacherClassroomsCohort(Object cohortId) {
+    return 'קבוצה $cohortId';
+  }
+
+  @override
+  String get teacherClassroomsGeneratingJoinCode => 'מייצר…';
+
+  @override
+  String get teacherClassroomsCreateJoinCode => 'יצור קוד הצטרפות';
+
+  @override
+  String get teacherClassroomsLiveJoinCode => 'קוד הצטרפות חי';
+
+  @override
+  String teacherClassroomsExpiresAt(Object value) {
+    return 'פג תוקף $value';
+  }
+
+  @override
+  String get teacherClassroomsRoster => 'רשימה';
+
+  @override
+  String get teacherClassroomsNoStudents => 'עדיין לא נרשמו תלמידים בכיתה זו.';
+
+  @override
+  String get teacherAttendanceLoadError =>
+      'לא הצלחנו לטעון את הנוכחות כרגע. גרור כדי לרענן או נסה שוב.';
+
+  @override
+  String get teacherAttendanceLoadTimeout =>
+      'טעינת הנוכחות לוקחת יותר מדי זמן. גרור כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get teacherAttendanceLoadNetwork =>
+      'הנוכחות לא הצליחה להתחבר כרגע. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get teacherAttendanceSubtitle =>
+      'בחר בישיבה חיה, סמן את החדר והצילו רק שורות שהשתנו.';
+
+  @override
+  String get teacherAttendanceTodaySessions => 'ישיבות היום';
+
+  @override
+  String teacherAttendanceSessionSummary(
+    Object cohort,
+    Object grade,
+    Object date,
+    Object period,
+  ) {
+    return '$cohort • כיתה $grade • $date • שיעור $period';
+  }
+
+  @override
+  String get teacherAttendanceChanged => 'שונה';
+
+  @override
+  String get teacherAttendanceNoteLabel => 'הערה';
+
+  @override
+  String get teacherAttendanceSaving => 'שומר…';
+
+  @override
+  String teacherAttendanceSaveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count שינויים',
+      one: 'שינוי אחד',
+    );
+    return 'שמור $_temp0';
+  }
+
+  @override
+  String get teacherAttendanceSaved => 'הנוכחות נשמרה';
+
+  @override
+  String get retry => 'נסה שוב';
+
+  @override
+  String get scheduleRefreshTooFast =>
+      'לוח הזמנים מתרענן מהר מדי כרגע. חכו רגע ונסו שוב.';
+
+  @override
+  String get scheduleNotOnboarded =>
+      'פרופיל התלמיד שלך עדיין לא הוגדר במלואו, ולכן עדיין אין לוח זמנים זמין.';
+
+  @override
+  String get scheduleLoadError => 'עדיין לא ניתן לטעון את לוח הזמנים.';
+
+  @override
+  String get scheduleSelectedDay => 'היום שנבחר';
+
+  @override
+  String scheduleClassCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count שיעורים',
+      two: '2 שיעורים',
+      one: 'שיעור אחד',
+      zero: '0 שיעורים',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scheduleNextUp => 'הבא בתור';
+
+  @override
+  String get scheduleNoMoreClasses => 'אין עוד שיעורים';
+
+  @override
+  String get scheduleNoClassesTitle => 'אין שיעורים ביום הזה';
+
+  @override
+  String scheduleNoClassesSubtitle(Object day) {
+    return 'נראה ש-$day פנוי.';
+  }
+
+  @override
+  String get scheduleClassFallback => 'שיעור';
+
+  @override
+  String get scheduleNoSubjectLocation => 'עדיין אין מקצוע או מיקום';
+
+  @override
+  String get loginTitle => 'התחברות בנייד לתלמידים ומורים';
+
+  @override
+  String get loginSubtitle =>
+      'חשבונות מורים פותחים את סביבת המורה. חשבונות תלמידים נשארים בחוויית התלמיד.';
+
+  @override
+  String get loginSignIn => 'התחבר';
+
+  @override
+  String get loginSigningIn => 'מתחבר...';
+
+  @override
+  String get loginEmailLabel => 'אימייל';
+
+  @override
+  String get loginPasswordLabel => 'סיסמה';
+
+  @override
+  String get profileNotAvailable => 'לא זמין';
+
+  @override
+  String get profileSchoolInfo => 'פרטי בית הספר';
+
+  @override
+  String get profileFullName => 'שם מלא';
+
+  @override
+  String get profileRole => 'תפקיד';
+
+  @override
+  String get profileSchoolId => 'מזהה בית ספר';
+
+  @override
+  String get profileCohortId => 'מזהה קבוצה';
+
+  @override
+  String get profileAccountInfo => 'פרטי חשבון';
+
+  @override
+  String get profileUsername => 'שם משתמש';
+
+  @override
+  String get profileUsernameHint => 'your_username';
+
+  @override
+  String get profileContactEmail => 'אימייל ליצירת קשר';
+
+  @override
+  String get profileEmailAddress => 'כתובת אימייל';
+
+  @override
+  String get profileEmailHint => 'you@example.com';
+
+  @override
+  String get profileBirthday => 'יום הולדת';
+
+  @override
+  String get profileSecurity => 'אבטחה';
+
+  @override
+  String get profileSelectBirthday => 'בחר את יום ההולדת שלך';
+
+  @override
+  String get profilePasswordUpdated => 'הסיסמה עודכנה';
+
+  @override
+  String get profileSave => 'שמור';
+
+  @override
+  String get profileEmptyValue => '—';
+
+  @override
+  String get profileChangePassword => 'שנה סיסמה';
+
+  @override
+  String get profileCurrentPassword => 'סיסמה נוכחית';
+
+  @override
+  String get profileNewPassword => 'סיסמה חדשה';
+
+  @override
+  String get profileConfirmNewPassword => 'אשר סיסמה חדשה';
+
+  @override
+  String get profileUpdatePassword => 'עדכן סיסמה';
+
+  @override
+  String get profilePasswordAllFieldsRequired => 'כל השדות נדרשים';
+
+  @override
+  String get profilePasswordMinLength =>
+      'הסיסמה החדשה חייבת להכיל לפחות 8 תווים';
+
+  @override
+  String get profilePasswordMismatch => 'הסיסמאות אינן תואמות';
+
+  @override
+  String get profilePasswordNotAuthenticated => 'לא מחובר';
+
+  @override
+  String get profilePasswordIncorrect => 'הסיסמה הנוכחית שגויה';
+
+  @override
+  String get profilePasswordGenericError => 'משהו השתבש. נסה שוב.';
+
+  @override
+  String get editProfileTitle => 'עריכת פרופיל';
+
+  @override
+  String get editProfileSchool => 'בית ספר';
+
+  @override
+  String get editProfileSchoolPublic => 'בית הספר ציבורי';
+
+  @override
+  String get editProfileGradePublic => 'הכיתה ציבורית';
+
+  @override
+  String get editProfileMajors => 'מגמות';
+
+  @override
+  String get editProfileMajorsPublic => 'המגמות ציבוריות';
+
+  @override
+  String get editProfileBio => 'ביוגרפיה';
+
+  @override
+  String get editProfileBioPublic => 'הביוגרפיה ציבורית';
+
+  @override
+  String get editProfileStatus => 'סטטוס';
+
+  @override
+  String get editProfileStatusPublic => 'הסטטוס ציבורי';
+
+  @override
+  String get classroomsYourClassrooms => 'הכיתות שלך';
+
+  @override
+  String get classroomsReorder => 'סידור הכיתות מחדש';
+
+  @override
+  String classroomsCount(Object count) {
+    return '$count כיתות';
+  }
+
+  @override
+  String get classroomsSearchHint => 'חיפוש כיתות';
+
+  @override
+  String get classroomsNoSearchMatches => 'אין כיתות שתואמות לחיפוש שלך';
+
+  @override
+  String get classroomsClassroomLabel => 'כיתה';
+
+  @override
+  String get classroomsLoadingLatestMessage => 'טוען את ההודעה האחרונה...';
+
+  @override
+  String get classroomsTapToOpen => 'הקש כדי לפתוח את הכיתה';
+
+  @override
+  String get classroomsNoMessagesYet => 'אין הודעות עדיין';
+
+  @override
+  String get classroomsMessageFallback => 'הודעה';
+
+  @override
+  String get examsLoadError => 'לא ניתן לטעון מבחנים או טפסים';
+
+  @override
+  String get examsAllFilter => 'הכול';
+
+  @override
+  String get examsFormsSubtitle =>
+      'עיינו בטפסי הכיתה, חלונות המענה והמעקבים שמפורסמים על ידי בית הספר.';
+
+  @override
+  String get examsOnlySubtitle =>
+      'עקבו אחר מבחנים קרובים, ספירות לאחור ורישומי מבחנים קודמים מהכיתות שלכם.';
+
+  @override
+  String get examsUpcomingStat => 'מבחנים קרובים';
+
+  @override
+  String get examsOpenFormsStat => 'טפסים פתוחים';
+
+  @override
+  String get examsCountdownPast => 'עבר';
+
+  @override
+  String get examsCountdownTomorrow => 'מחר';
+
+  @override
+  String examsCountdownInDays(Object days) {
+    return 'בעוד $days ימים';
+  }
+
+  @override
+  String get examsNoExamsPublished => 'עדיין לא פורסמו מבחנים.';
+
+  @override
+  String get examsNoFormsPublished => 'עדיין לא פורסמו טפסים.';
+
+  @override
+  String examsNoExamsForFilter(Object subject) {
+    return 'אין כרגע מבחנים זמינים עבור $subject.';
+  }
+
+  @override
+  String examsNoFormsForFilter(Object subject) {
+    return 'אין כרגע טפסים זמינים עבור $subject.';
+  }
+
+  @override
+  String examsMaterialsCount(Object count) {
+    return '$count חומרים';
+  }
+
+  @override
+  String get examsOpenState => 'פתוח';
+
+  @override
+  String get examsClosedState => 'סגור';
+
+  @override
+  String examsQuestionsCount(Object count) {
+    return '$count שאלות';
+  }
+
+  @override
+  String examsResponsesCount(Object count) {
+    return '$count תגובות';
+  }
+
+  @override
+  String get insightsTrendBaseline => 'קו בסיס';
+
+  @override
+  String get insightsTrendImproving => 'במגמת שיפור';
+
+  @override
+  String get insightsTrendDropping => 'בירידה';
+
+  @override
+  String get insightsTrendStable => 'יציב';
+
+  @override
+  String get insightsHeadlineIntervention => 'חלון ההתערבות פתוח';
+
+  @override
+  String get insightsHeadlineSignals => 'כמה אותות צריכים הידוק';
+
+  @override
+  String get insightsHeadlineMomentum => 'המומנטום יכול להתחזק השבוע';
+
+  @override
+  String get insightsBodyAttendance =>
+      'שמרו קודם על נוכחות. נוכחות טובה יותר עכשיו תרים כל אות אחר מהר יותר.';
+
+  @override
+  String insightsBodyWeakTrend(Object subject) {
+    return '$subject יחד עם ירידת מגמת התרגול הוא כרגע שילוב הסיכון הגדול ביותר. תקנו את זה לפני שמרחיבים.';
+  }
+
+  @override
+  String insightsBodyLeverage(Object subject) {
+    return '$subject היא נקודת המינוף שלך. השתמשו בה כדי לבנות ביטחון בזמן שאתם מחזקים את התחומים החלשים יותר.';
+  }
+
+  @override
+  String get insightsBodyConsistency =>
+      'המשיכו לצבור מפגשים קצרים וממוקדים. הימים הקרובים חשובים יותר מתוכנית מושלמת לטווח ארוך.';
+
+  @override
+  String get insightsInterventionScoreTitle => 'ציון התערבות';
+
+  @override
+  String insightsInterventionScoreBody(Object count) {
+    return '$count אותות פעילים מעצבים את הצעד הבא שלך.';
+  }
+
+  @override
+  String get insightsRecoveryPathTitle => 'מסלול ההתאוששות המהיר ביותר';
+
+  @override
+  String get insightsRecoveryPathDefault => 'נוכחות + עקביות קודם.';
+
+  @override
+  String insightsRecoveryPathTopic(Object topic, Object subject) {
+    return 'חזרו אל $topic ב-$subject לפני שמגבירים את הקצב.';
+  }
+
+  @override
+  String get insightsProjectedDirectionTitle => 'כיוון צפוי';
+
+  @override
+  String insightsProjectedDirectionBody(Object trend) {
+    return '$trend לפי התנהגות התרגול האחרונה של 7 ימים מול 30 ימים.';
+  }
+
+  @override
+  String get insightsLoadingTitle => 'טוען תובנות';
+
+  @override
+  String get insightsLoadingSubtitle => 'בונה את לוח המחוונים התחזיתי שלך.';
+
+  @override
+  String get insightsNotReadyTitle => 'התובנות עדיין לא מוכנות';
+
+  @override
+  String get insightsEmptyTitle => 'עדיין אין תובנות';
+
+  @override
+  String get insightsEmptySubtitle =>
+      'המשיכו להשתמש בתרגול ובכלי בית הספר כדי ש-ClassMate יוכל לבנות תמונה אקדמית ברורה יותר.';
+
+  @override
+  String get insightsGradeAverage => 'ממוצע ציונים';
+
+  @override
+  String get insightsAccuracy => 'דיוק';
+
+  @override
+  String get insightsOpenNova => 'פתח את נובה';
+
+  @override
+  String get insightsOpenNovaPrompt =>
+      'עזור לי לשפר את התחום החלש ביותר שלי על בסיס התובנות האחרונות של ClassMate.';
+
+  @override
+  String get insightsPredictiveRecoveryPlanTitle => 'תוכנית התאוששות תחזיתית';
+
+  @override
+  String get insightsPracticeNow => 'תרגל עכשיו';
+
+  @override
+  String get insightsPredictiveModulesTitle => 'מודולים תחזיתיים';
+
+  @override
+  String get insightsPredictiveModulesSubtitle =>
+      'האותות הצופים פני עתיד החזקים ביותר מנתוני התלמיד הנוכחיים שלך.';
+
+  @override
+  String get insightsAnnouncementsPressureTitle => 'לחץ ההודעות';
+
+  @override
+  String get insightsAnnouncementsPressureSubtitle =>
+      'מנוע ההודעות מזין עכשיו את לוח המחוונים ישירות.';
+
+  @override
+  String get insightsAiCoachTitle => 'סיכום מאמן ה-AI';
+
+  @override
+  String get insightsAiCoachLoadingSubtitle => 'טוען הנחיות AI.';
+
+  @override
+  String get insightsAiCoachUnavailableSubtitle =>
+      'הנחיות AI אינן זמינות כרגע עבור החשבון הזה.';
+
+  @override
+  String get insightsAskNova => 'שאל את נובה';
+
+  @override
+  String get insightsAskNovaPrompt =>
+      'בנה לי תוכנית התאוששות מהתובנות האחרונות שלי.';
+
+  @override
+  String get insightsAiStudyCoachTitle => 'מאמן לימוד מבוסס AI';
+
+  @override
+  String get insightsSchoolToolsTitle => 'כלי בית ספר';
+
+  @override
+  String get insightsSchoolToolsSubtitle =>
+      'עברו ישירות למסלולי התלמיד שהכי חשובים עכשיו.';
+
+  @override
+  String get tutorUntitledChat => 'צ\'אט ללא כותרת';
+
+  @override
+  String get tutorNewChat => 'צ\'אט חדש';
+
+  @override
+  String tutorFailedToOpenSeededChat(Object error) {
+    return 'לא ניתן לפתוח את הצ\'אט: $error';
+  }
+
+  @override
+  String tutorFailedToCreateChat(Object error) {
+    return 'לא ניתן ליצור צ\'אט: $error';
+  }
+
+  @override
+  String get tutorRenameChatTitle => 'שינוי שם הצ\'אט';
+
+  @override
+  String get tutorChatNameHint => 'שם הצ\'אט';
+
+  @override
+  String get tutorCancel => 'ביטול';
+
+  @override
+  String get tutorHide => 'הסתר';
+
+  @override
+  String get tutorHideChatTitle => 'הסתר צ\'אט';
+
+  @override
+  String get tutorHideChatSubtitle => 'מסתיר את הצ\'אט הזה במכשיר הזה.';
+
+  @override
+  String get tutorHideChatConfirmTitle => 'להסתיר את הצ\'אט?';
+
+  @override
+  String get tutorHideChatConfirmBody =>
+      'הפעולה תסתיר את הצ\'אט מהרשימה במכשיר הזה. הסשן יישאר בשרת.';
+
+  @override
+  String get tutorTapToOpenHistory => 'הקשו כדי לפתוח היסטוריה';
+
+  @override
+  String get tutorAiTutorSubtitle => 'המורה האישי שלכם מבוסס AI';
+
+  @override
+  String get tutorHeroBody =>
+      'היסטוריית צ\'אט אמיתית, שרשורים נקיים יותר וגישה מהירה יותר.';
+
+  @override
+  String get tutorStartFreshConversation => 'התחילו שיחה חדשה';
+
+  @override
+  String get tutorSearchHistoryHint => 'חיפוש בהיסטוריית הצ\'אט';
+
+  @override
+  String get chatComposerDefaultHint => 'הודעה';
+
+  @override
+  String get chatComposerReplyingToMessage => 'מגיבים להודעה';
+
+  @override
+  String get chatComposerReplyFallback => 'תגובה';
+
+  @override
+  String get chatComposerMicHint =>
+      'הקישו להודעה קולית מהירה או לחצו לחיצה ארוכה כדי להקליט';
+
+  @override
+  String get chatComposerRecordingTitle => 'מקליט';
+
+  @override
+  String get chatComposerReleaseToSend => 'שחררו כדי לשלוח';
+
+  @override
+  String get chatComposerCancelTitle => 'ביטול';
+
+  @override
+  String get chatComposerLockTitle => 'נעילה';
+
+  @override
+  String get chatComposerSlideLeftToCancel => 'החליקו שמאלה כדי לבטל';
+
+  @override
+  String get chatComposerSlideUpToLock => 'החליקו למעלה כדי לנעול';
+
+  @override
+  String get chatComposerReleaseToCancel => 'שחררו כדי לבטל';
+
+  @override
+  String get chatComposerKeepSlidingToCancel => 'המשיכו להחליק כדי לבטל';
+
+  @override
+  String get chatComposerReleaseToLock => 'שחררו כדי לנעול';
+
+  @override
+  String get chatComposerRelease => 'שחרור';
+
+  @override
+  String get chatComposerLock => 'נעילה';
+
+  @override
+  String get chatComposerRecordingPaused => 'ההקלטה מושהית';
+
+  @override
+  String get chatComposerRecordingLocked => 'ההקלטה נעולה';
+
+  @override
+  String get chatComposerResumeHint => 'המשיכו כשתהיו מוכנים להמשיך להקליט';
+
+  @override
+  String get chatComposerLockedHint => 'הקישו על שליחה כשתהיו מוכנים לשתף';
+
+  @override
+  String get chatContextDismiss => 'סגירה';
+
+  @override
+  String get chatContextCopyText => 'העתקת טקסט';
+
+  @override
+  String get chatContextDelete => 'מחיקה';
+
+  @override
+  String get chatMessageInfoShortTitle => 'מידע';
+
+  @override
+  String get chatMessageInfoStatus => 'סטטוס';
+
+  @override
+  String get chatMessageInfoStatusTime => 'שעת סטטוס';
+
+  @override
+  String get chatMessageInfoSentAt => 'נשלח ב-';
+
+  @override
+  String get chatMessageInfoDeliveredAt => 'נמסר ב-';
+
+  @override
+  String get chatMessageInfoSeenAt => 'נצפה ב-';
+
+  @override
+  String get chatMessageInfoMessageType => 'סוג הודעה';
+
+  @override
+  String get chatMessageInfoTextType => 'טקסט';
+
+  @override
+  String get chatMessageInfoEdited => 'נערך';
+
+  @override
+  String get chatMessageInfoForwarded => 'הועבר';
+
+  @override
+  String get chatMessageInfoVoiceDuration => 'משך קולי';
+
+  @override
+  String get chatMessageInfoSeenBy => 'נצפה על ידי';
+
+  @override
+  String get chatMessageInfoDeliveredTo => 'נמסר אל';
+
+  @override
+  String get chatMessageInfoEmptyBody => '(ריק)';
+
+  @override
+  String get chatMessageInfoReadLess => 'קראו פחות';
+
+  @override
+  String get chatMessageInfoReadMore => 'קראו עוד';
+
+  @override
+  String get chatMessageInfoSeen => 'נצפה';
+
+  @override
+  String get chatMessageInfoDelivered => 'נמסר';
+
+  @override
+  String get chatMessageInfoNotDelivered => 'לא נמסר';
+
+  @override
+  String get chatMessageInfoSent => 'נשלח';
+
+  @override
+  String get chatMessageInfoPending => 'ממתין';
+
+  @override
+  String get chatMessageInfoNotSeen => 'לא נצפה';
+
+  @override
+  String get chatMessageInfoType => 'סוג';
+
+  @override
+  String get chatMessageInfoDuration => 'משך';
+
+  @override
+  String get chatMessageInfoYes => 'כן';
+
+  @override
+  String get chatMessageInfoNo => 'לא';
+
+  @override
+  String get chatMessageInfoDeleteState => 'מצב מחיקה';
+
+  @override
+  String get chatReactionDetailsTitle => 'תגובות';
+
+  @override
+  String get chatReactionAddAction => 'הוספת תגובה';
+
+  @override
+  String get chatReactionEmptyState => 'אין תגובות עדיין';
+
+  @override
+  String get chatReactionSingle => 'תגובה';
+
+  @override
+  String get chatReactionTapToRemove => 'הקישו להסרה';
+
+  @override
+  String chatReactionYouCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: ' · $count',
+      one: '',
+    );
+    return 'אתם$_temp0';
+  }
+
+  @override
+  String chatReactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תגובות',
+      one: 'תגובה',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatEmojiPickerTitle => 'בחירת אימוג\'י';
+
+  @override
+  String get chatEmojiPickerSearchHint => 'חיפוש אימוג\'י';
+
+  @override
+  String get chatEmojiPickerEmptyState => 'לא נמצא אימוג\'י';
+
+  @override
+  String get chatCameraTitle => 'מצלמה';
+
+  @override
+  String get chatCameraUseAction => 'שימוש';
+
+  @override
+  String get chatCameraGalleryAction => 'גלריה';
+
+  @override
+  String chatCameraSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count נבחרו',
+      one: '1 נבחר',
+      zero: '0 נבחרו',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatMediaPreviewEmptyState => 'אין מה להציג בתצוגה מקדימה';
+
+  @override
+  String get chatMediaPreviewDrawCropAction => 'ציור וחיתוך';
+
+  @override
+  String get chatMediaPreviewRotateLeftAction => 'סיבוב שמאלה';
+
+  @override
+  String get chatMediaPreviewRotateRightAction => 'סיבוב ימינה';
+
+  @override
+  String get chatMediaPreviewMirrorAction => 'שיקוף';
+
+  @override
+  String get chatMediaPreviewResetAction => 'איפוס';
+
+  @override
+  String get chatMediaPreviewRemoveAction => 'הסרה';
+
+  @override
+  String get chatMediaPreviewCaptionHint => 'הוסיפו כיתוב...';
+
+  @override
+  String tutorPlanSelectedPlaceholder(Object plan) {
+    return 'התוכנית $plan נבחרה. התשלומים נשארים כרגע במצב דמה.';
+  }
+
+  @override
+  String get tutorFailedToLoadChats => 'טעינת הצ\'אטים נכשלה';
+
+  @override
+  String get tutorNoChatsYet => 'עדיין אין צ\'אטים';
+
+  @override
+  String get tutorNoChatsMatchSearch => 'אין צ\'אטים שתואמים לחיפוש שלכם';
+
+  @override
+  String get tutorCreateFirstChat => 'צרו את הצ\'אט הראשון';
+
+  @override
+  String get tutorPlansTitle => 'תוכניות NOVA';
+
+  @override
+  String tutorPlansSubtitle(Object model) {
+    return 'מבוסס על הנחות עלות של $model ומכסות חודשיות קשיחות כדי שהשימוש יישאר רווחי.';
+  }
+
+  @override
+  String get tutorPlanPriceFree => 'חינם';
+
+  @override
+  String tutorPlanPriceMonthly(Object price) {
+    return '\$$price/לחודש';
+  }
+
+  @override
+  String get tutorPromptsLeft => 'פרומפטים שנותרו';
+
+  @override
+  String get tutorUploadsLeft => 'העלאות שנותרו';
+
+  @override
+  String get tutorVoiceLeft => 'דקות קול שנותרו';
+
+  @override
+  String tutorUsageValue(Object remaining, Object total) {
+    return '$remaining/$total';
+  }
+
+  @override
+  String tutorVoiceUsageValue(Object remaining, Object total) {
+    return '$remaining/$total דק\'';
+  }
+
+  @override
+  String get tutorPaymentMethodsTitle => 'אמצעי תשלום';
+
+  @override
+  String tutorPaymentMethodsSubtitle(Object plan) {
+    return 'התשלום נשאר במצב דמה עד שחשבון הבנק והמעבד של ClassMate יהיו פעילים. התוכנית שנבחרה היא $plan.';
+  }
+
+  @override
+  String get tutorCardCheckoutTitle => 'תשלום בכרטיס';
+
+  @override
+  String get tutorCardCheckoutSubtitle =>
+      'שער דמה עבור Visa, Mastercard ו-AmEx.';
+
+  @override
+  String get tutorApplePayTitle => 'Apple Pay';
+
+  @override
+  String get tutorApplePaySubtitle => 'זרימת ארנק דמה עבור iPhone והווב.';
+
+  @override
+  String get tutorBankTransferTitle => 'העברה בנקאית';
+
+  @override
+  String get tutorBankTransferSubtitle =>
+      'חשבון הבנק של ClassMate עדיין ממתין. הפרטים יתווספו לאחר פתיחתו.';
+
+  @override
+  String get tutorPlanStarterName => 'Starter';
+
+  @override
+  String get tutorPlanStarterTagline => 'מספיק לניסיון ולחזרה שבועית קלה.';
+
+  @override
+  String get tutorPlanPlusName => 'Plus';
+
+  @override
+  String get tutorPlanPlusTagline =>
+      'הכי מתאים לתלמיד רציני שמשתמש ב-NOVA ברוב הימים.';
+
+  @override
+  String get tutorPlanProName => 'Pro';
+
+  @override
+  String get tutorPlanProTagline =>
+      'לשימוש יומי כבד, עונת מבחנים מלאה ומפגשי לימוד ארוכים.';
+
+  @override
+  String get tutorPlanSchoolSeatName => 'מושב בית ספרי';
+
+  @override
+  String get tutorPlanSchoolSeatTagline =>
+      'לפריסה לכל תלמיד או איש צוות בתוך בית ספר אמיתי.';
+
+  @override
+  String tutorPlanBulletPromptsMonthly(Object count) {
+    return '$count פרומפטים של NOVA בכל חודש';
+  }
+
+  @override
+  String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
+    return '$count פרומפטים של NOVA לכל מושב בכל חודש';
+  }
+
+  @override
+  String tutorPlanBulletUploads(Object count) {
+    return '$count העלאות תמונה או קובץ';
+  }
+
+  @override
+  String tutorPlanBulletVoiceMinutes(Object count) {
+    return '$count דקות תמלול קולי';
+  }
+
+  @override
+  String tutorEstimatedCostCeilingFree(Object cost) {
+    return 'תקרת עלות משוערת: \$$cost/לחודש';
+  }
+
+  @override
+  String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
+    return 'תקרת עלות משוערת: \$$cost/לחודש • מרווח $margin%';
+  }
+
+  @override
+  String tutorTimeMinutesShort(Object count) {
+    return '$countדק\'';
+  }
+
+  @override
+  String tutorTimeHoursShort(Object count) {
+    return '$countש\'';
+  }
+
+  @override
+  String get tutorVoiceMessageFallback => 'הודעה קולית';
+
+  @override
+  String get tutorFileFallback => 'קובץ';
+
+  @override
+  String get tutorCopy => 'העתק';
+
+  @override
+  String get tutorEditMessage => 'ערוך הודעה';
+
+  @override
+  String get tutorCopied => 'הועתק';
+
+  @override
+  String get tutorLoadedIntoComposer => 'נטען לשורת הכתיבה';
+
+  @override
+  String get tutorTakePhoto => 'צלם תמונה';
+
+  @override
+  String get tutorRecordVideo => 'הקלט וידאו';
+
+  @override
+  String get tutorChooseFromGallery => 'בחר מהגלריה';
+
+  @override
+  String get tutorPreviewTitle => 'תצוגה מקדימה';
+
+  @override
+  String get tutorThinking => 'חושב...';
+
+  @override
+  String get tutorDone => 'בוצע.';
+
+  @override
+  String get tutorFailedToStreamReply => 'הזרמת התשובה נכשלה';
+
+  @override
+  String get tutorUnsupportedFilesMessage =>
+      'NOVA תומך בתמונות, מסמכים וטקסט. קבצי וידאו ואודיו אינם נתמכים כאן.';
+
+  @override
+  String get tutorNoAudioCaptured => 'לא נקלט אודיו.';
+
+  @override
+  String get tutorVoiceLimitReachedTitle => 'הגעת למגבלת הקול';
+
+  @override
+  String get tutorVoiceLimitReachedMessage =>
+      'לתוכנית ה-NOVA הנוכחית שלך אין מספיק דקות קול למחזור התמלול הזה.';
+
+  @override
+  String get tutorTranscriptionFailed => 'התמלול נכשל. נסו שוב.';
+
+  @override
+  String get tutorMicrophonePermissionRequired => 'נדרשת הרשאת מיקרופון.';
+
+  @override
+  String get tutorPlanLimitReachedTitle => 'הגעת למגבלת תוכנית NOVA';
+
+  @override
+  String get tutorPlanLimitReachedMessage =>
+      'מכסת הפרומפטים או ההעלאות של החודש לתוכנית ה-NOVA הנוכחית שלך אזלה. בחרו תוכנית גבוהה יותר במסך הבית של NOVA כדי להמשיך.';
+
+  @override
+  String get tutorSendFailed => 'השליחה נכשלה.';
+
+  @override
+  String tutorCurrentPlanUsageSummary(
+    Object plan,
+    Object prompts,
+    Object uploads,
+    Object voice,
+  ) {
+    return 'תוכנית נוכחית: $plan • $prompts פרומפטים נותרו • $uploads העלאות נותרו • $voice דקות קול נותרו';
+  }
+
+  @override
+  String get tutorReviewPlansInHome => 'עבור על התוכניות בבית של NOVA';
+
+  @override
+  String get tutorCouldNotOpenAttachment => 'לא ניתן לפתוח את הקובץ המצורף.';
+
+  @override
+  String get tutorAttachmentUnavailable => 'הקובץ המצורף אינו זמין.';
+
+  @override
+  String get tutorImageUnavailable => 'התמונה אינה זמינה';
+
+  @override
+  String get tutorYou => 'אתם';
+
+  @override
+  String get tutorRegenerate => 'צור מחדש';
+
+  @override
+  String get tutorEmptyStateTitle => 'התחילו משאלה אמיתית';
+
+  @override
+  String get tutorEmptyStateBody =>
+      'בקשו מ-NOVA להסביר מושג, להפוך הערות לטבלה, להשוות רעיונות או לעזור לכם לחזור מחומר שהועלה.';
+
+  @override
+  String get tutorPromptSuggestionSummarizeNotes => 'סכם את הערות השיעור שלי';
+
+  @override
+  String get tutorPromptSuggestionRevisionTable => 'הכן טבלת חזרה';
+
+  @override
+  String get tutorPromptSuggestionQuizMe => 'בחן אותי על הנושא הזה';
+
+  @override
+  String get tutorMessageNovaHint => 'שלחו הודעה ל-NOVA';
+
+  @override
+  String get tutorHeaderSubtitleReady => 'תשובות מובנות, טבלאות ועזרת לימוד';
+
+  @override
+  String get tutorYourNovaPlanTitle => 'תוכנית ה-NOVA שלך';
+
+  @override
+  String get tutorYourNovaPlanMessage =>
+      'בדקו כאן את מגבלות הפרומפטים, ההעלאות והקול, ואז חזרו לבית של NOVA אם תרצו להחליף תוכנית.';
+
+  @override
+  String get tutorExplainTitle => 'NOVA מסביר';
+
+  @override
+  String get classroomsThreadTypeClassroom => 'כיתה';
+
+  @override
+  String get classroomsThreadTypeGroup => 'קבוצה';
+
+  @override
+  String get classroomsThreadTypeDirectMessage => 'הודעה ישירה';
+
+  @override
+  String get classroomsThreadTypeDirectMessageShort => 'DM';
+
+  @override
+  String get messagesBlockedPeopleTitle => 'אנשים חסומים';
+
+  @override
+  String get messagesStartChatAction => 'התחלת צ\'אט';
+
+  @override
+  String messagesLoadFailed(Object error) {
+    return 'טעינת ההודעות נכשלה: $error';
+  }
+
+  @override
+  String get messagesSearchHint => 'חיפוש הודעות';
+
+  @override
+  String get messagesNoResults => 'לא נמצאו הודעות';
+
+  @override
+  String get messagesRequestsSection => 'בקשות';
+
+  @override
+  String get messagesPendingApprovals => 'אישורים ממתינים';
+
+  @override
+  String get messagesChatsSection => 'צ\'אטים';
+
+  @override
+  String get messagesAllChatsSection => 'כל הצ\'אטים';
+
+  @override
+  String messagesConversationCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count שיחות',
+      one: 'שיחה אחת',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get messagesRequestReviewStatus => 'סקירה';
+
+  @override
+  String messagesPeopleLoadFailed(Object error) {
+    return 'טעינת האנשים נכשלה: $error';
+  }
+
+  @override
+  String get messagesSearchPeopleHint => 'חיפוש אנשים';
+
+  @override
+  String get messagesNewGroupTitle => 'קבוצה חדשה';
+
+  @override
+  String get messagesNewGroupSubtitle => 'יצירת צ\'אט קבוצתי';
+
+  @override
+  String get messagesGroupNameHint => 'שם הקבוצה';
+
+  @override
+  String get messagesCreateGroupAction => 'יצירת קבוצה';
+
+  @override
+  String get messagesBlockedPersonFallback => 'האדם הזה';
+
+  @override
+  String get messagesUnblockPersonTitle => 'לבטל חסימה של האדם הזה?';
+
+  @override
+  String messagesUnblockPersonBody(Object name) {
+    return 'לאפשר ל-$name לשלוח לך שוב הודעות?';
+  }
+
+  @override
+  String get messagesUnblockAction => 'ביטול חסימה';
+
+  @override
+  String messagesUnblockedToast(Object name) {
+    return 'החסימה של $name בוטלה';
+  }
+
+  @override
+  String messagesBlockedPeopleLoadFailed(Object error) {
+    return 'טעינת האנשים החסומים נכשלה: $error';
+  }
+
+  @override
+  String get messagesNoBlockedPeople => 'אין אנשים חסומים';
+
+  @override
+  String get messagesUnknownUser => 'משתמש לא ידוע';
+
+  @override
+  String get messagesRequestTitle => 'בקשה';
+
+  @override
+  String messagesRequestLoadFailed(Object error) {
+    return 'טעינת הבקשה נכשלה: $error';
+  }
+
+  @override
+  String get messagesRequestBannerIncoming => 'בקשת הודעה';
+
+  @override
+  String get messagesRequestBannerOutgoing => 'אישור ממתין';
+
+  @override
+  String get messagesBlockAction => 'חסימה';
+
+  @override
+  String get messagesApproveAction => 'אישור';
+
+  @override
+  String get messagesRequestUnlockHint =>
+      'הצ\'אט ייפתח אחרי שהנמען יאשר את ההודעה הראשונה שלך.';
+
+  @override
+  String get messagesThreadConversationFallback => 'שיחה';
+
+  @override
+  String get messagesThreadLeaveGroupTitle => 'לעזוב את הקבוצה?';
+
+  @override
+  String get messagesThreadLeaveGroupBody =>
+      'לא תקבלו יותר הודעות מהקבוצה הזו.';
+
+  @override
+  String get messagesThreadBlockPersonTitle => 'לחסום את האדם הזה?';
+
+  @override
+  String get messagesThreadBlockPersonBody =>
+      'לא תוכלו עוד להחליף הודעות עם האדם הזה.';
+
+  @override
+  String get messagesThreadPersonFallback => 'אדם';
+
+  @override
+  String get messagesThreadProfileInfoUnavailable => 'פרטי הפרופיל לא זמינים';
+
+  @override
+  String get messagesThreadParticipants => 'משתתפים';
+
+  @override
+  String get messagesThreadPeople => 'אנשים';
+
+  @override
+  String get messagesThreadDeleteForMe => 'מחיקה בשבילי';
+
+  @override
+  String get messagesThreadDeleteForEveryone => 'מחיקה לכולם';
+
+  @override
+  String get messagesThreadDeleteForEveryoneSubtitle => 'הסרה עבור כל המשתתפים';
+
+  @override
+  String get messagesThreadSending => 'שולח…';
+
+  @override
+  String get messagesThreadWaitingForApproval => 'ממתין לאישור';
+
+  @override
+  String get classroomsForwardSearchHint => 'חיפוש שיחות';
+
+  @override
+  String get classroomsForwardNewChat => 'צ\'אט חדש';
+
+  @override
+  String classroomsForwardLoadError(Object error) {
+    return 'טעינת הצ\'אטים נכשלה: $error';
+  }
+
+  @override
+  String get classroomsForwardNoChatsFound => 'לא נמצאו צ\'אטים';
+
+  @override
+  String get classroomsForwardSectionClassrooms => 'כיתות';
+
+  @override
+  String get classroomsForwardSectionDirectMessages => 'הודעות ישירות';
+
+  @override
+  String get classroomsForwardCancel => 'ביטול';
+
+  @override
+  String get classroomsForwardAction => 'העבר';
+
+  @override
+  String classroomsForwardCount(Object count) {
+    return 'העבר ($count)';
+  }
+
+  @override
+  String get markRead => 'סמן כנקרא';
+
+  @override
+  String get markUnread => 'סמן כלא נקרא';
+
+  @override
+  String get markAllRead => 'סמן הכל כנקרא';
+
+  @override
+  String get filters => 'סינונים';
+
+  @override
+  String get source => 'מקור';
+
+  @override
+  String get state => 'סטטוס';
+
+  @override
+  String get allSources => 'כל המקורות';
+
+  @override
+  String get allStates => 'כל הסטטוסים';
+
+  @override
+  String get unread => 'לא נקרא';
+
+  @override
+  String get read => 'נקרא';
+
+  @override
+  String get clear => 'נקה';
+
+  @override
+  String get today => 'היום';
+
+  @override
+  String get yesterday => 'אתמול';
+
+  @override
+  String get thisWeek => 'השבוע';
+
+  @override
+  String get earlier => 'קודם לכן';
+
+  @override
+  String get openDetails => 'פתח פרטים';
+
+  @override
+  String get total => 'סה\"כ';
+
+  @override
+  String get local => 'מקומי';
+
+  @override
+  String get server => 'שרת';
+
+  @override
+  String get notificationsSourceSystem => 'מערכת';
+
+  @override
+  String get notificationsHeroSubtitleStudent =>
+      'מרכז ההתראות שלך להודעות, עדכוני שרת ופעילות לימודית חשובה בזמן אמת.';
+
+  @override
+  String get notificationsHeroSubtitleTeacher =>
+      'מרכז ההתראות של המורה להודעות, עדכוני שרת ופעילות בית ספרית בזמן אמת.';
+
+  @override
+  String get notificationsFiltersSubtitle =>
+      'התמקדו לפי מקור או מצב קריאה כדי למיין מהר יותר.';
+
+  @override
+  String get notificationsSearchSourcesHint => 'חיפוש מקורות';
+
+  @override
+  String notificationsShowingSummary(Object shown, Object total) {
+    return 'מוצגות $shown מתוך $total התראות.';
+  }
+
+  @override
+  String get notificationsEmptyForAccount =>
+      'אין כרגע התראות זמינות לחשבון הזה.';
+
+  @override
+  String get notificationsEmptyFiltered =>
+      'אין כרגע התראות שתואמות למסננים האלה. נקו מסננים כדי לראות את כל הפיד.';
+
+  @override
+  String get notificationsEmpty => 'אין כרגע התראות זמינות.';
+
+  @override
+  String get notificationsNewBadge => 'חדש';
+
+  @override
+  String get notificationsUnavailable =>
+      'ההתראה הזו כבר לא זמינה. רעננו את תיבת ההתראות ונסו שוב.';
+
+  @override
+  String get notificationsSeverityCritical => 'קריטי';
+
+  @override
+  String get notificationsSeverityWarning => 'אזהרה';
+
+  @override
+  String get notificationsSeverityInfo => 'מידע';
+
+  @override
+  String get announcementsLoadError =>
+      'לא הצלחנו לטעון הודעות כעת. גרור כדי לרענן או נסה שוב.';
+
+  @override
+  String get announcementsLoadTimeout =>
+      'הודעות לוקחות זמן רב מדי לטעינה. גרור כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get announcementsLoadNetwork =>
+      'הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get announcementsAudienceTeacher => 'מורה';
+
+  @override
+  String get announcementsAudienceAccount => 'חשבון';
+
+  @override
+  String get announcementsAudienceTeacherWorkspace => 'מרחב עבודה של מורה';
+
+  @override
+  String get announcementsLoadFailedTitle => 'לא הצלחנו לטעון הודעות';
+
+  @override
+  String get announcementsLoadFailedHint => 'גרור כדי לרענן לאחר שהחיבור יציב.';
+
+  @override
+  String announcementsHeroSubtitle(Object audience) {
+    return 'הודעות שפורסמו בבית ספר, מורה ומערכת זמינות ל$audience.';
+  }
+
+  @override
+  String get announcementsLatestSourceLabel => 'מקור אחרון';
+
+  @override
+  String get announcementsNone => 'אף אחד';
+
+  @override
+  String announcementsUnreadCountTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count הודעות שלא נקראו',
+      one: 'הודעה אחת שלא נקראת',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get announcementsAllReadTitle => 'הכל קרא';
+
+  @override
+  String announcementsEmptyForAudience(Object audience) {
+    return 'לא פורסמו הודעות ל$audience עד כה.';
+  }
+
+  @override
+  String announcementsLatestBody(Object title) {
+    return 'אחרון: $title. הקש עליו כדי לקרוא את התוכן המלא.';
+  }
+
+  @override
+  String get announcementsFiltersSubtitle =>
+      'הצר את תיבת הדואר לפי מקור או לפי מצב קריאה כדי שתוכל להתמקד במה שעדיין צריך תשומת לב.';
+
+  @override
+  String get announcementsAllAnnouncements => 'כל ההודעות';
+
+  @override
+  String get announcementsSearchStatesHint => 'לא קרא / קרא';
+
+  @override
+  String announcementsSummarySourceSegment(Object source) {
+    return ' מ$source';
+  }
+
+  @override
+  String announcementsSummaryStateSegment(Object state) {
+    return ' ב$state';
+  }
+
+  @override
+  String announcementsShowingSummary(
+    Object shown,
+    Object total,
+    Object sourceSegment,
+    Object stateSegment,
+  ) {
+    return 'מציג $shown מתוך $total הודעות$sourceSegment$stateSegment.';
+  }
+
+  @override
+  String get announcementsNoMatchTitle => 'אין הודעות התואמות לסינונים אלה';
+
+  @override
+  String get announcementsNoPublishedTitle => 'אין הודעות שפורסמו עדיין';
+
+  @override
+  String get announcementsNoMatchSubtitle =>
+      'נסה מקור שונה או חזור לכל ההודעות כדי להביא עוד פריטים לתצוגה.';
+
+  @override
+  String get announcementsClearFiltersHint => 'נקה סינונים כדי לראות הכל שוב.';
+
+  @override
+  String get announcementsPullToRefreshHint =>
+      'גרור כדי לרענן לאחר פרסום פעילות בית ספר חדשה.';
+
+  @override
+  String get announcementsInboxTitle => 'תיבת הדואר';
+
+  @override
+  String get announcementsInboxSubtitle =>
+      'רק כותרות מופיעות כאן לסריקה מהירה. הקש על כל פריט כדי לפתוח את תוכן ההודעה המלא.';
+
+  @override
+  String get meetingsLoadError =>
+      'לא ניתן לטעון פגישות כעת. גרור כדי לרענן או נסה שוב.';
+
+  @override
+  String get meetingsLoadTimeout =>
+      'פגישות לוקחות זמן רב מדי לטעינה. גרור כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get meetingsLoadNetwork =>
+      'לא ניתן להתחבר לפגישות כעת. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get meetingsHeroSubtitle =>
+      'כל פגישות הכיתה בתצוגה אחת נקייה, עם קישורים מצורפים ועמוד פרטים במסך מלא כשאתה צריך הקשר.';
+
+  @override
+  String get meetingsJoinReadyMetric => 'מוכן להצטרף';
+
+  @override
+  String get meetingsNoLinkMetric => 'ללא קישור';
+
+  @override
+  String get meetingsNoPostedTitle => 'עדיין לא פורסמו פגישות';
+
+  @override
+  String get meetingsEmptyForAccount =>
+      'אין פגישות כיתה זמינות לחשבון הסטודנט הזה כעת.';
+
+  @override
+  String meetingsLatestBody(Object title, Object updatedAt) {
+    return '$title עודכן $updatedAt. פתח אותו כדי לראות את הקישור המצורף והקשר כיתה.';
+  }
+
+  @override
+  String get meetingsPullToRefreshHint => 'גרור למטה כדי לבדוק שוב.';
+
+  @override
+  String get meetingsFiltersSubtitle =>
+      'צמצם את הרשימה לפי נושא או אם הפגישה כוללת כבר קישור שאתה יכול לפתוח.';
+
+  @override
+  String get meetingsAccessLabel => 'גישה';
+
+  @override
+  String get meetingsAllMeetings => 'כל הפגישות';
+
+  @override
+  String get meetingsAccessReady => 'מוכן להצטרף';
+
+  @override
+  String get meetingsAccessNoLink => 'ללא קישור';
+
+  @override
+  String get meetingsAccessNoLinkYet => 'עדיין אין קישור';
+
+  @override
+  String get meetingsAccessSearchHint => 'מוכן להצטרף / עדיין אין קישור';
+
+  @override
+  String meetingsSummarySubjectSegment(Object subject) {
+    return ' עבור $subject';
+  }
+
+  @override
+  String meetingsSummaryAccessSegment(Object state) {
+    return ' ב$state';
+  }
+
+  @override
+  String meetingsShowingSummary(
+    Object shown,
+    Object total,
+    Object subjectSegment,
+    Object accessSegment,
+  ) {
+    return 'הצגה של $shown מתוך $total פגישות$subjectSegment$accessSegment.';
+  }
+
+  @override
+  String get meetingsNoMatchTitle => 'אין פגישות תואמות לפילטרים אלה';
+
+  @override
+  String get meetingsNoMatchSubtitle =>
+      'נסה את כל הנושאים או כלול פגישות ללא קישורים כדי לחזור יותר תוצאות לרשימה.';
+
+  @override
+  String get meetingsListSubtitle =>
+      'הקש על כל פגישה כדי לפתוח את תצוגת הפרטים במסך מלא והקפוץ לקישור המצורף שלה כשהוא זמין.';
+
+  @override
+  String meetingsDateTimeValue(Object date, Object time) {
+    return '$date • $time';
+  }
+
+  @override
+  String meetingsSharedByValue(Object name) {
+    return 'שותף על ידי $name';
+  }
+
+  @override
+  String get meetingsPreviewFallback =>
+      'פתח את הפגישה הזו כדי לראות את הקישור המצורף ופרטי הכיתה העדכניים.';
+
+  @override
+  String get meetingsNoValidLinkAttached => 'עדיין לא צורף קישור פגישה תקף.';
+
+  @override
+  String get meetingsCouldNotOpenLink => 'לא ניתן לפתוח קישור פגישה.';
+
+  @override
+  String get meetingsNoLinkToCopy => 'עדיין אין קישור פגישה להעתקה.';
+
+  @override
+  String get meetingsLinkCopied => 'קישור פגישה הועתק.';
+
+  @override
+  String get meetingsUnavailableTitle => 'פגישה לא זמינה';
+
+  @override
+  String get meetingsUnavailableSubtitle =>
+      'לא ניתן למצוא את הפגישה הזו בפיד הנוכחי. ייתכן שהיא הוסרה או אינה זמינה בלא חיבור.';
+
+  @override
+  String get meetingsUnavailableHint => 'חזור אחורה ורענן את רשימת הפגישות.';
+
+  @override
+  String get meetingsNoLinkAttachedYet => 'עדיין לא צורף קישור';
+
+  @override
+  String get meetingsAttachedLinkTitle => 'קישור פגישה מצורף';
+
+  @override
+  String get meetingsAttachedLinkMissingBody =>
+      'הפגישה הזו גלויה בפיד הכיתה שלך, אך לא צורפה URL תקפה בעומס הסטודנט הנוכחי.';
+
+  @override
+  String get meetingsDetailsTitle => 'פרטי הפגישה';
+
+  @override
+  String get meetingsDetailsSubtitle =>
+      'הכל הרלוונטי לסטודנט שזמין כעת בעומס פגישת הכיתה.';
+
+  @override
+  String get meetingsDetailClassroomLabel => 'כיתה';
+
+  @override
+  String get meetingsSharedByLabel => 'שותף על ידי';
+
+  @override
+  String get meetingsIdLabel => 'מזהה פגישה';
+
+  @override
+  String get meetingsAttachedLinkSubtitle =>
+      'השתמש ב-URL המצורף כדי להצטרף או העתק קישור פגישה כשהכיתה שלך מספקת אחד.';
+
+  @override
+  String get meetingsOpening => 'נפתח כעת';
+
+  @override
+  String get meetingsOpenLink => 'פתח קישור';
+
+  @override
+  String get meetingsCopyLink => 'העתק קישור';
+
+  @override
+  String get meetingsAccessPanelTitle => 'גישת פגישה';
+
+  @override
+  String get meetingsAccessPanelReadyBody =>
+      'פתח את ה-URL המצורף בדפדפן או באפליקציית פגישה.';
+
+  @override
+  String get meetingsJoinAction => 'הצטרף';
+
+  @override
+  String get announcementsDetailLoadFailedHint =>
+      'חזור ונסה לרענן את תיבת דואר ההודעות.';
+
+  @override
+  String get announcementsUnavailableTitle => 'הודעה לא זמינה';
+
+  @override
+  String announcementsUnavailableSubtitle(Object audience) {
+    return 'הודעה זו כבר לא זמינה בהזנה המפורסמת עבור $audience.';
+  }
+
+  @override
+  String get announcementsUnavailableHint => 'חזור לתיבת הדואר כדי להמשיך.';
+
+  @override
+  String announcementsPublishedReadStateBody(Object audience) {
+    return 'הודעה זו פורסמה ל$audience ומצב הקריאה שלך מאוחסן באופן מקומי על התקן זה.';
+  }
+
+  @override
+  String get announcementsDetailsTitle => 'פרטי הודעה';
+
+  @override
+  String get announcementsDetailsSubtitle =>
+      'מטא נתונים שפורסמו עבור הודעה זו ומצב הקריאה הנוכחי שלה.';
+
+  @override
+  String get announcementsSeverityLabel => 'חומרה';
+
+  @override
+  String get announcementsCreatedLabel => 'נוצר';
+
+  @override
+  String get announcementsIdLabel => 'מזהה הודעה';
+
+  @override
+  String get announcementsFullContentTitle => 'תוכן מלא';
+
+  @override
+  String get announcementsFullContentSubtitle =>
+      'הטקסט המלא של ההודעה מופיע כאן לאחר פתיחת הפריט מתיבת הדואר.';
+
+  @override
+  String get announcementsReadStateTitle => 'מצב קריאה';
+
+  @override
+  String get announcementsReadStateBodyRead =>
+      'הודעה זו מסומנת כנקראת על התקן זה.';
+
+  @override
+  String get announcementsReadStateBodyUnread =>
+      'הודעה זו עדיין לא נקראת על התקן זה.';
+
+  @override
+  String get alertsTitle => 'התראות';
+
+  @override
+  String get alertsSubtitle =>
+      'זה המסך לדברים שדורשים תשומת לב עכשיו, לא רק עדכונים כלליים.';
+
+  @override
+  String get alertsAttendanceTitle => 'הנוכחות דורשת תשומת לב';
+
+  @override
+  String alertsAttendanceBody(Object rate) {
+    return 'שיעור הנוכחות שלך הוא $rate%. כמה שיעורים שהוחמצו יכולים להצטבר מהר.';
+  }
+
+  @override
+  String get alertsWeakestSubjectTitle => 'סימן למקצוע החלש ביותר';
+
+  @override
+  String alertsWeakestSubjectBody(Object subject) {
+    return '$subject דורש כרגע את מירב תשומת הלב לפי הציונים האחרונים שלך.';
+  }
+
+  @override
+  String get alertsPracticeWeakAreaTitle => 'אזור חולשה בתרגול';
+
+  @override
+  String alertsPracticeWeakAreaBody(Object topic, Object subject) {
+    return '$topic ב-$subject הוא נושא החולשה הברור ביותר שלך כרגע.';
+  }
+
+  @override
+  String get alertsPracticeTrendDroppedTitle => 'מגמת התרגול ירדה';
+
+  @override
+  String get alertsPracticeTrendDroppedBody =>
+      'הביצועים שלך ב-7 הימים האחרונים נמוכים מקו הבסיס של 30 הימים. האטו וחזרו ליסודות לפני שמגבירים קצב.';
+
+  @override
+  String get alertsEmpty =>
+      'כרגע הכול רגוע. אם משהו ידרוש תשומת לב דחופה, הוא יופיע כאן.';
+
+  @override
+  String get student => 'תלמיד';
+
+  @override
+  String get classroomDetailPhoto => 'תמונה';
+
+  @override
+  String get classroomDetailVoiceNote => 'הודעה קולית';
+
+  @override
+  String get classroomDetailVideo => 'וידאו';
+
+  @override
+  String get classroomDetailFile => 'קובץ';
+
+  @override
+  String get classroomDetailEmptyValue => '(ריק)';
+
+  @override
+  String get classroomDetailAttachmentUnavailable => 'הקובץ המצורף לא זמין.';
+
+  @override
+  String get classroomDetailAudioUnavailable => 'האודיו לא זמין.';
+
+  @override
+  String get classroomDetailCouldNotOpenAttachment =>
+      'לא ניתן לפתוח את הקובץ המצורף.';
+
+  @override
+  String get classroomDetailVoiceMessage => 'הודעה קולית';
+
+  @override
+  String get classroomDetailVideoFile => 'קובץ וידאו';
+
+  @override
+  String get classroomDetailAttachedFile => 'קובץ מצורף';
+
+  @override
+  String get classroomDetailAttachment => 'קובץ מצורף';
+
+  @override
+  String get classroomDetailPinAction => 'נעץ';
+
+  @override
+  String get classroomDetailUnpinAction => 'בטל נעיצה';
+
+  @override
+  String get classroomDetailMessageInfoTitle => 'פרטי הודעה';
+
+  @override
+  String get classroomDetailForwardedSingle => 'הועבר';
+
+  @override
+  String classroomDetailForwardedMultiple(Object count) {
+    return '$count הודעות הועברו';
+  }
+
+  @override
+  String get classroomDetailCannotForwardPending =>
+      'אי אפשר להעביר לצ\'אט בקשה לפני אישור';
+
+  @override
+  String get classroomDetailCouldNotForwardSelected =>
+      'לא ניתן היה להעביר את ההודעות שנבחרו';
+
+  @override
+  String classroomDetailSelectedCount(Object count) {
+    return '$count נבחרו';
+  }
+
+  @override
+  String classroomDetailDeleteCount(Object count) {
+    return 'מחק ($count)';
+  }
+
+  @override
+  String get classroomDetailSelectAllTooltip => 'בחר הכל';
+
+  @override
+  String get classroomDetailCancelTooltip => 'ביטול';
+
+  @override
+  String get classroomDetailMicrophoneAccessTitle => 'נדרשת גישה למיקרופון';
+
+  @override
+  String get classroomDetailMicrophoneAccessBody =>
+      'נא לאפשר גישה למיקרופון בהגדרות -> ClassMate כדי לשלוח הודעות קוליות.';
+
+  @override
+  String get classroomDetailOpenSettingsAction => 'פתח הגדרות';
+
+  @override
+  String classroomDetailForwardTargetNext(Object label) {
+    return 'יעד ההעברה הבא: $label';
+  }
+
+  @override
+  String get classroomDetailEditMessageTitle => 'עריכת הודעה';
+
+  @override
+  String get classroomDetailEditMessageHint => 'ערוך את ההודעה שלך...';
+
+  @override
+  String get classroomDetailLeaveClassroomTitle => 'לעזוב את הכיתה?';
+
+  @override
+  String get classroomDetailLeaveClassroomBody => 'תוסר מהכיתה הזו.';
+
+  @override
+  String get classroomDetailLeaveAction => 'עזיבה';
+
+  @override
+  String get classroomDetailNoAssignmentsTitle => 'אין מטלות עדיין';
+
+  @override
+  String get classroomDetailNoAssignmentsSubtitle =>
+      'כרגע אין מטלות בכיתה הזו.';
+
+  @override
+  String get classroomDetailAssignmentFallback => 'מטלה';
+
+  @override
+  String get classroomDetailNoMaterialsTitle => 'אין חומרים עדיין';
+
+  @override
+  String get classroomDetailNoMaterialsSubtitle => 'כרגע אין חומרים בכיתה הזו.';
+
+  @override
+  String get classroomDetailMaterialFallback => 'חומר';
+
+  @override
+  String get classroomDetailNoMeetingsTitle => 'אין פגישות עדיין';
+
+  @override
+  String get classroomDetailNoMeetingsSubtitle => 'כרגע אין פגישות בכיתה הזו.';
+
+  @override
+  String get classroomDetailMeetingFallback => 'פגישה';
+
+  @override
+  String get classroomDetailCouldNotLoadPeople => 'לא ניתן לטעון את האנשים';
+
+  @override
+  String get classroomDetailNoPeopleTitle => 'אין אנשים עדיין';
+
+  @override
+  String get classroomDetailNoPeopleSubtitle =>
+      'אף אחד עדיין לא מופיע בכיתה הזו.';
+
+  @override
+  String get classroomDetailTabChat => 'צ\'אט';
+
+  @override
+  String get classroomDetailTabMaterials => 'חומרים';
+
+  @override
+  String get classroomDetailTabPeople => 'אנשים';
+
+  @override
+  String get classroomChatMediaSendPhoto => 'שליחת תמונה';
+
+  @override
+  String get classroomChatMediaSendPhotoSubtitle => 'שתפו תמונה בצ\'אט הכיתה';
+
+  @override
+  String get classroomChatMediaSendVoiceMessage => 'שליחת הודעה קולית';
+
+  @override
+  String get classroomChatMediaSendVoiceMessageSubtitle =>
+      'הקליטו ושלחו הודעה קולית';
+
+  @override
+  String get classroomDetailCouldNotLoadTab => 'לא ניתן לטעון את הלשונית';
+
+  @override
+  String get classroomDetailDeletedByYou => 'מחקת את ההודעה הזו';
+
+  @override
+  String get classroomDetailDeletedMessage => 'ההודעה הזו נמחקה';
+
+  @override
+  String get practiceSetupDifficultyEasy => 'קל';
+
+  @override
+  String get practiceSetupDifficultyMedium => 'בינוני';
+
+  @override
+  String get practiceSetupDifficultyHard => 'קשה';
+
+  @override
+  String get practiceSetupDifficultyOlympiad => 'אולימפיאדה';
+
+  @override
+  String get practiceSetupDifficultyAdaptive => 'מסתגל';
+
+  @override
+  String get practiceSetupModeLabelPractice => 'תרגול';
+
+  @override
+  String get practiceSetupModeLabelFlashcards => 'כרטיסיות';
+
+  @override
+  String get practiceSetupModeLabelSpeedRound => 'סבב מהיר';
+
+  @override
+  String get practiceSetupModeLabelExamPrep => 'הכנה למבחן';
+
+  @override
+  String get practiceSetupModeLabelConceptBuilder => 'בניית מושג';
+
+  @override
+  String get practiceSetupModeLabelAdaptive => 'מסתגל';
+
+  @override
+  String get practiceSetupModeLabelBagrut => 'בגרות';
+
+  @override
+  String get practiceSetupModeSubtitlePractice => 'תרגול יומי מאוזן';
+
+  @override
+  String get practiceSetupModeSubtitleFlashcards => 'חשיפה ושליפה עצמית';
+
+  @override
+  String get practiceSetupModeSubtitleSpeedRound => 'תרגיל לחץ מהיר';
+
+  @override
+  String get practiceSetupModeSubtitleExamPrep => 'זרימה רגועה בסגנון מבחן';
+
+  @override
+  String get practiceSetupModeSubtitleConceptBuilder =>
+      'קודם מושג, אחר כך פתרון';
+
+  @override
+  String get practiceSetupModeSubtitleAdaptive => 'הקושי משתנה בזמן אמת';
+
+  @override
+  String get practiceSetupModeSubtitleBagrut => 'סגנון רשמי קפדני';
+
+  @override
+  String get practiceSetupModeHelpPractice =>
+      'מצב מאוזן: פותרים, בודקים, מסבירים וממשיכים.';
+
+  @override
+  String get practiceSetupModeHelpFlashcards =>
+      'כרטיסיות עובדות הכי טוב כשמנסים להיזכר לפני החשיפה.';
+
+  @override
+  String get practiceSetupModeHelpSpeedRound =>
+      'הסבב המהיר מאמן שליפה מהירה. זוז מהר וסמוך על אינסטינקטים חזקים.';
+
+  @override
+  String get practiceSetupModeHelpExamPrep =>
+      'הכנה למבחן רגועה ורשמית יותר, כמו שיעור בית ספר אמיתי.';
+
+  @override
+  String get practiceSetupModeHelpConceptBuilder =>
+      'בניית מושג מלמדת קודם את הרעיון ואז מבקשת ליישם אותו.';
+
+  @override
+  String get practiceSetupModeHelpAdaptive =>
+      'המצב המסתגל משנה את רמת האתגר לפי הביצועים שלך.';
+
+  @override
+  String get practiceSetupModeHelpBagrut =>
+      'מצב בגרות מתמקד בפתרון ובסקירה בסגנון מבחן קפדני.';
+
+  @override
+  String get practiceSetupModeInfoTitle => 'איך כל מצב עובד';
+
+  @override
+  String get practiceSetupHeroTitle => 'התחל סשן';
+
+  @override
+  String get practiceSetupHeroSubtitle => 'בחר מצב, תזמון ורמת קושי.';
+
+  @override
+  String get practiceSetupInfiniteLives => 'חיים אינסופיים';
+
+  @override
+  String practiceSetupLivesCount(Object count) {
+    return '$count חיים';
+  }
+
+  @override
+  String get practiceSetupAiTiming => 'תזמון AI';
+
+  @override
+  String practiceSetupSecondsShort(Object seconds) {
+    return '$secondsש׳';
+  }
+
+  @override
+  String practiceSetupQuestionsCount(Object count) {
+    return '$count שאלות';
+  }
+
+  @override
+  String practiceSetupSummarySubject(Object subject) {
+    return 'נושא לימוד: $subject';
+  }
+
+  @override
+  String practiceSetupSummaryTopic(Object topic) {
+    return 'תת-נושא: $topic';
+  }
+
+  @override
+  String practiceSetupSummaryMode(Object mode) {
+    return 'מצב: $mode';
+  }
+
+  @override
+  String practiceSetupSummaryDifficulty(Object difficulty) {
+    return 'קושי: $difficulty';
+  }
+
+  @override
+  String practiceSetupSummaryQuestions(Object count) {
+    return 'שאלות: $count';
+  }
+
+  @override
+  String practiceSetupSummaryTiming(Object timing) {
+    return 'תזמון: $timing';
+  }
+
+  @override
+  String practiceSetupSummaryLives(Object lives) {
+    return 'חיים: $lives';
+  }
+
+  @override
+  String get practiceSetupSectionSubjectTopic => 'מקצוע ונושא';
+
+  @override
+  String get practiceSetupFieldSubject => 'מקצוע';
+
+  @override
+  String get practiceSetupFieldSubjectHint => 'בחר מקצוע';
+
+  @override
+  String get practiceSetupChooseSubject => 'בחר מקצוע';
+
+  @override
+  String get practiceSetupFieldCustomSubject => 'מקצוע מותאם';
+
+  @override
+  String get practiceSetupFieldCustomSubjectHint => 'כתוב את המקצוע שלך';
+
+  @override
+  String get practiceSetupDialogCustomSubjectTitle => 'מקצוע מותאם';
+
+  @override
+  String get practiceSetupDialogEnterSubject => 'הזן מקצוע';
+
+  @override
+  String get practiceSetupUseAction => 'השתמש';
+
+  @override
+  String get practiceSetupFieldTopic => 'נושא';
+
+  @override
+  String get practiceSetupFieldTopicHint => 'בחר תת-נושא';
+
+  @override
+  String get practiceSetupChooseTopic => 'בחר נושא';
+
+  @override
+  String get practiceSetupFieldCustomTopic => 'נושא מותאם';
+
+  @override
+  String get practiceSetupFieldCustomTopicHint => 'כתוב את הנושא שלך';
+
+  @override
+  String get practiceSetupDialogCustomTopicTitle => 'נושא מותאם';
+
+  @override
+  String get practiceSetupDialogEnterTopic => 'הזן נושא';
+
+  @override
+  String get practiceSubjectMath => 'מתמטיקה';
+
+  @override
+  String get practiceSubjectPhysics => 'פיזיקה';
+
+  @override
+  String get practiceSubjectComputerScience => 'מדעי המחשב';
+
+  @override
+  String get practiceSubjectChemistry => 'כימיה';
+
+  @override
+  String get practiceSubjectBiology => 'ביולוגיה';
+
+  @override
+  String get practiceSubjectEnglish => 'אנגלית';
+
+  @override
+  String get practiceSubjectArabic => 'ערבית';
+
+  @override
+  String get practiceSubjectHebrew => 'עברית';
+
+  @override
+  String get practiceSubjectGeneralKnowledge => 'ידע כללי';
+
+  @override
+  String get practiceTopicAllTopics => 'כל הנושאים';
+
+  @override
+  String get practiceTopicAlgebra => 'אלגברה';
+
+  @override
+  String get practiceTopicLinearEquations => 'משוואות ליניאריות';
+
+  @override
+  String get practiceTopicQuadraticEquations => 'משוואות ריבועיות';
+
+  @override
+  String get practiceTopicFunctions => 'פונקציות';
+
+  @override
+  String get practiceTopicGeometry => 'גיאומטריה';
+
+  @override
+  String get practiceTopicTriangles => 'משולשים';
+
+  @override
+  String get practiceTopicCircles => 'מעגלים';
+
+  @override
+  String get practiceTopicAnalyticGeometry => 'גיאומטריה אנליטית';
+
+  @override
+  String get practiceTopicTrigonometry => 'טריגונומטריה';
+
+  @override
+  String get practiceTopicProbability => 'הסתברות';
+
+  @override
+  String get practiceTopicStatistics => 'סטטיסטיקה';
+
+  @override
+  String get practiceTopicSequences => 'סדרות';
+
+  @override
+  String get practiceTopicCalculus => 'חשבון דיפרנציאלי ואינטגרלי';
+
+  @override
+  String get practiceTopicLimits => 'גבולות';
+
+  @override
+  String get practiceTopicDerivatives => 'נגזרות';
+
+  @override
+  String get practiceTopicMechanics => 'מכניקה';
+
+  @override
+  String get practiceTopicKinematics => 'קינמטיקה';
+
+  @override
+  String get practiceTopicNewtonLaws => 'חוקי ניוטון';
+
+  @override
+  String get practiceTopicForces => 'כוחות';
+
+  @override
+  String get practiceTopicEnergy => 'אנרגיה';
+
+  @override
+  String get practiceTopicMomentum => 'תנע';
+
+  @override
+  String get practiceTopicElectricity => 'חשמל';
+
+  @override
+  String get practiceTopicElectricField => 'שדה חשמלי';
+
+  @override
+  String get practiceTopicCircuits => 'מעגלים חשמליים';
+
+  @override
+  String get practiceTopicWaves => 'גלים';
+
+  @override
+  String get practiceTopicOptics => 'אופטיקה';
+
+  @override
+  String get practiceTopicThermodynamics => 'תרמודינמיקה';
+
+  @override
+  String get practiceTopicConditions => 'תנאים';
+
+  @override
+  String get practiceTopicBooleanLogic => 'לוגיקה בוליאנית';
+
+  @override
+  String get practiceTopicIfElse => 'אם / אחרת';
+
+  @override
+  String get practiceTopicNestedConditions => 'תנאים מקוננים';
+
+  @override
+  String get practiceTopicLoops => 'לולאות';
+
+  @override
+  String get practiceTopicVariables => 'משתנים';
+
+  @override
+  String get practiceTopicArrays => 'מערכים';
+
+  @override
+  String get practiceTopicStrings => 'מחרוזות';
+
+  @override
+  String get practiceTopicAlgorithms => 'אלגוריתמים';
+
+  @override
+  String get practiceTopicComplexity => 'סיבוכיות';
+
+  @override
+  String get practiceTopicRecursion => 'רקורסיה';
+
+  @override
+  String get practiceTopicAtoms => 'אטומים';
+
+  @override
+  String get practiceTopicPeriodicTable => 'הטבלה המחזורית';
+
+  @override
+  String get practiceTopicChemicalBonds => 'קשרים כימיים';
+
+  @override
+  String get practiceTopicReactions => 'תגובות';
+
+  @override
+  String get practiceTopicStoichiometry => 'סטוכיומטריה';
+
+  @override
+  String get practiceTopicAcidsAndBases => 'חומצות ובסיסים';
+
+  @override
+  String get practiceTopicOrganicChemistry => 'כימיה אורגנית';
+
+  @override
+  String get practiceTopicCells => 'תאים';
+
+  @override
+  String get practiceTopicGenetics => 'גנטיקה';
+
+  @override
+  String get practiceTopicHumanBody => 'גוף האדם';
+
+  @override
+  String get practiceTopicEcology => 'אקולוגיה';
+
+  @override
+  String get practiceTopicEvolution => 'אבולוציה';
+
+  @override
+  String get practiceTopicSystems => 'מערכות';
+
+  @override
+  String get practiceTopicGrammar => 'דקדוק';
+
+  @override
+  String get practiceTopicReadingComprehension => 'הבנת הנקרא';
+
+  @override
+  String get practiceTopicVocabulary => 'אוצר מילים';
+
+  @override
+  String get practiceTopicTenses => 'זמנים';
+
+  @override
+  String get practiceTopicWriting => 'כתיבה';
+
+  @override
+  String get practiceTopicRhetoric => 'רטוריקה';
+
+  @override
+  String get practiceSetupSectionMode => 'מצב';
+
+  @override
+  String get practiceSetupSectionDifficulty => 'קושי';
+
+  @override
+  String get practiceSetupSectionControls => 'בקרות הסשן';
+
+  @override
+  String get practiceSetupQuestionsTitle => 'שאלות';
+
+  @override
+  String get practiceSetupQuestionsCaption => 'כמה שאלות ליצור בסשן';
+
+  @override
+  String get practiceSetupTimingTitle => 'תזמון';
+
+  @override
+  String get practiceSetupTimingCaption =>
+      'בחר קודם את ההיקף, ואז AI, הזמן שלך או אינסופי.';
+
+  @override
+  String get practiceSetupTimingScopePerQuestion => 'לכל שאלה';
+
+  @override
+  String get practiceSetupTimingScopeWholeQuiz => 'לכל המבחן';
+
+  @override
+  String get practiceSetupTimingModeAi => 'AI';
+
+  @override
+  String get practiceSetupTimingModeMyTime => 'הזמן שלי';
+
+  @override
+  String get practiceSetupTimingModeInfinite => 'אינסופי';
+
+  @override
+  String get practiceSetupTimingCustomPerQuestionTitle => 'שניות לכל שאלה';
+
+  @override
+  String get practiceSetupTimingCustomPerQuestionCaption =>
+      'הטיימר שלך לכל שאלה';
+
+  @override
+  String get practiceSetupTimingCustomQuizMinutesTitle => 'דקות למבחן';
+
+  @override
+  String get practiceSetupTimingCustomQuizMinutesCaption =>
+      'הטיימר שלך לכל המבחן';
+
+  @override
+  String get practiceSetupInfiniteLivesTitle => 'חיים אינסופיים';
+
+  @override
+  String get practiceSetupInfiniteLivesSubtitle =>
+      'אל תסיים את הסשן בגלל תשובות שגויות';
+
+  @override
+  String get practiceSetupLivesTitle => 'חיים';
+
+  @override
+  String get practiceSetupLivesCaption => 'טעויות מותרות לפני שהסשן מסתיים';
+
+  @override
+  String get practiceSetupTooltipHistory => 'היסטוריית תרגול';
+
+  @override
+  String get practiceHistoryTitle => 'היסטוריית תרגול';
+
+  @override
+  String get practiceHistoryClearTooltip => 'מחק היסטוריה';
+
+  @override
+  String get practiceHistoryClearConfirmTitle => 'למחוק את היסטוריית התרגול?';
+
+  @override
+  String get practiceHistoryClearConfirmBody =>
+      'פעולה זו מסירה את כל הפעילויות של תרגול השמורות מהמכשיר הזה.';
+
+  @override
+  String get practiceHistoryLoadError =>
+      'לא ניתן לטעון את היסטוריית התרגול כרגע.';
+
+  @override
+  String get practiceHistoryErrorPrefix => 'שגיאה:';
+
+  @override
+  String get practiceHistoryEmpty => 'אין עדיין פעילויות של תרגול.';
+
+  @override
+  String get practiceHistoryDeleteConfirmTitle => 'למחוק את הפעילות הזו?';
+
+  @override
+  String get practiceHistoryDeleteConfirmBody =>
+      'פעולה זו מסירה רק את הפעילות של תרגול השמורה הזו.';
+
+  @override
+  String get practiceHistoryOpenReview => 'פתח סקירה';
+
+  @override
+  String get practiceHistoryDeleteSession => 'מחק פעילות';
+
+  @override
+  String get practiceHistoryDebugTitle => 'ניפוי היסטוריית תרגול';
+
+  @override
+  String get practiceAnalyticsTitle => 'ניתוחי תרגול';
+
+  @override
+  String get practiceAnalyticsSectionOverall => 'כללי';
+
+  @override
+  String get practiceAnalyticsRecentSessionsTitle => 'אימונים אחרונים';
+
+  @override
+  String practiceAnalyticsRecentSessionsSummary(
+    Object sessions,
+    Object correct,
+    Object answered,
+    Object accuracy,
+    Object xp,
+  ) {
+    return '$sessions אימונים • $correct/$answered נכונים • $accuracy% • XP $xp';
+  }
+
+  @override
+  String get practiceAnalyticsSectionWeakestTopics => 'הנושאים החלשים ביותר';
+
+  @override
+  String get practiceAnalyticsSectionStrongestTopics => 'הנושאים החזקים ביותר';
+
+  @override
+  String get practiceAnalyticsSectionModePerformance => 'ביצועי מצבים';
+
+  @override
+  String get practiceAnalyticsNoTopicData => 'עדיין אין נתוני נושאים';
+
+  @override
+  String get practiceAnalyticsNoModeData => 'עדיין אין נתוני מצבים';
+
+  @override
+  String get savedQuestionsTopSubjectNone => 'עדיין אין';
+
+  @override
+  String get savedQuestionsHeroSubtitle =>
+      'שאלות ששמרת במהלך התרגול אמורות להיות קלות לחזור אליהן. דף זה הוא מרכז הניסיון הנקי שלהן.';
+
+  @override
+  String get savedQuestionsSavedMetric => 'שמור';
+
+  @override
+  String get savedQuestionsTopSubjectMetric => 'נושא עליון';
+
+  @override
+  String get savedQuestionsQuickActionsSubtitle =>
+      'קפוץ ישר חזרה לתרגול או עיין בפתרונות קהילה.';
+
+  @override
+  String get savedQuestionsOpenPractice => 'פתח תרגול';
+
+  @override
+  String get savedQuestionsOpenPracticeSubtitle =>
+      'התחל סשן חדש והמשך לבנות תנופה';
+
+  @override
+  String get savedQuestionsOpenSolutions => 'פתח פתרונות';
+
+  @override
+  String get savedQuestionsOpenSolutionsSubtitle =>
+      'עיין בפתרונות שהועלו לפי נושא, ספר, דף ושאלה';
+
+  @override
+  String get savedQuestionsQueueTitle => 'תור השמור שלך';
+
+  @override
+  String get savedQuestionsQueueSubtitle =>
+      'שאלות שאתה שומר בתרגול מופיעות כאן כדי שתוכל לפתוח אותן מחדש במהירות ולהמשיך לעבוד על נקודות החולשה שלך.';
+
+  @override
+  String get savedQuestionsEmptyTitle => 'עדיין אין שאלות שמורות';
+
+  @override
+  String get savedQuestionsEmptySubtitle =>
+      'שמור שאלה מתרגול כדי לחזור אליה מאוחר יותר, פתח פתרונות קשורים ועקוב אחרי הנושאים שעדיין צריכים עבודה.';
+
+  @override
+  String get savedQuestionsClearAction => 'נקה שאלות שמורות';
+
+  @override
+  String get savedQuestionsWhyItWorks => 'למה זה עובד';
+
+  @override
+  String savedQuestionsHoursTarget(Object count) {
+    return '$count ש\' יעד';
+  }
+
+  @override
+  String savedQuestionsMinutesTarget(Object count) {
+    return '$count דק\' יעד';
+  }
+
+  @override
+  String savedQuestionsSecondsTarget(Object count) {
+    return '$count שנ\' יעד';
+  }
+
+  @override
+  String get practiceSetupTooltipAnalytics => 'אנליטיקת תרגול';
+
+  @override
+  String get practiceSetupStopGenerating => 'עצור יצירה';
+
+  @override
+  String get practiceSetupGenerating => 'יוצר...';
+
+  @override
+  String get practiceSetupStartSession => 'התחל סשן';
+
+  @override
+  String get practiceSetupSearchHint => 'חיפוש...';
+
+  @override
+  String get practiceSessionModeDescriptionPractice =>
+      'פתרון מאוזן עם בדיקה ומשוב מיידיים.';
+
+  @override
+  String get practiceSessionModeDescriptionFlashcards =>
+      'מצב מבוסס זיכרון לשליפה ושימור מהירים.';
+
+  @override
+  String get practiceSessionModeDescriptionSpeedRound =>
+      'חזרות לחץ מהירות, קצרות ומתוזמנות.';
+
+  @override
+  String get practiceSessionModeDescriptionExamPrep =>
+      'פתרון בסגנון מבחן רשמי עם פחות גיימיפיקציה.';
+
+  @override
+  String get practiceSessionModeDescriptionConceptBuilder =>
+      'להבין קודם את הרעיון ואז לפתור בהקשר.';
+
+  @override
+  String get practiceSessionModeDescriptionAdaptive =>
+      'רמת הקושי משתנה לפי הביצועים שלך.';
+
+  @override
+  String get practiceSessionModeDescriptionBagrut =>
+      'זרימת בגרות רשמית עם שאלה אחת בסגנון רשמי.';
+
+  @override
+  String get practiceSessionLoadingPractice => 'בונה את סשן התרגול שלך';
+
+  @override
+  String get practiceSessionLoadingFlashcards => 'מערבב את הכרטיסיות שלך';
+
+  @override
+  String get practiceSessionLoadingSpeedRound => 'מתחיל את הסבב המהיר';
+
+  @override
+  String get practiceSessionLoadingExamPrep => 'מכין את סשן המבחן שלך';
+
+  @override
+  String get practiceSessionLoadingConceptBuilder => 'טוען את מאמן המושגים';
+
+  @override
+  String get practiceSessionLoadingAdaptive => 'מתאים את האתגר עבורך';
+
+  @override
+  String get practiceSessionLoadingBagrut => 'מכין את סט הבגרות שלך';
+
+  @override
+  String get practiceSessionLoadingDefault => 'מכין את הסשן שלך';
+
+  @override
+  String practiceSessionCompleteTitle(Object mode) {
+    return '$mode הושלם';
+  }
+
+  @override
+  String get practiceSessionMetricAnswered => 'נענו';
+
+  @override
+  String get practiceSessionMetricCorrect => 'נכון';
+
+  @override
+  String get practiceSessionMetricWrong => 'שגוי';
+
+  @override
+  String get practiceSessionMetricAccuracy => 'דיוק';
+
+  @override
+  String get practiceSessionMetricTotal => 'סה״כ';
+
+  @override
+  String get practiceSessionMetricXp => 'XP';
+
+  @override
+  String get practiceSessionMetricStreak => 'רצף';
+
+  @override
+  String get practiceSessionReviewLayoutStacked => 'ערימה';
+
+  @override
+  String get practiceSessionReviewLayoutFocus => 'מיקוד';
+
+  @override
+  String get practiceSessionFilterAll => 'הכול';
+
+  @override
+  String get practiceSessionFilterWrong => 'שגויות';
+
+  @override
+  String get practiceSessionFilterCorrect => 'נכונות';
+
+  @override
+  String get practiceSessionReviewTitle => 'סקירת סשן';
+
+  @override
+  String get practiceSessionNoQuestionsForFilter =>
+      'עדיין אין שאלות שתואמות למסנן הזה.';
+
+  @override
+  String get practiceSessionNoAnswer => 'אין תשובה';
+
+  @override
+  String get practiceSessionUnknownAnswer => 'לא ידוע';
+
+  @override
+  String get practiceSessionReflectionTitle => 'רפלקציה';
+
+  @override
+  String get practiceSessionReflectionKnewIt => 'ידעתי את זה';
+
+  @override
+  String get practiceSessionReflectionReviewAgain => 'לסקור שוב';
+
+  @override
+  String get practiceSessionBackOfCard => 'גב הכרטיס';
+
+  @override
+  String get practiceSessionYourAnswer => 'התשובה שלך';
+
+  @override
+  String get practiceSessionCorrectAnswer => 'התשובה הנכונה';
+
+  @override
+  String get practiceSessionExplanation => 'הסבר';
+
+  @override
+  String get practiceSessionBackToSetup => 'חזרה להגדרות';
+
+  @override
+  String get practiceSessionGeneralTopic => 'כללי';
+
+  @override
+  String practiceSessionQuestionProgress(Object current, Object total) {
+    return 'שאלה $current מתוך $total';
+  }
+
+  @override
+  String get practiceSessionMetricTime => 'זמן';
+
+  @override
+  String practiceSessionMatchmakingDifficulty(Object difficulty) {
+    return 'קושי: $difficulty';
+  }
+
+  @override
+  String get practiceModeActionPrevious => 'הקודם';
+
+  @override
+  String get practiceModeActionCheckAnswer => 'בדוק תשובה';
+
+  @override
+  String get practiceModeActionNext => 'הבא';
+
+  @override
+  String get practiceModeActionNextQuestion => 'שאלה הבאה';
+
+  @override
+  String get practiceModeActionEndSession => 'סיים סשן';
+
+  @override
+  String get practiceModeActionEndQuestion => 'סיים שאלה';
+
+  @override
+  String get practiceModeActionEndExam => 'סיים מבחן';
+
+  @override
+  String get practiceModeActionNovaHint => 'רמז NOVA';
+
+  @override
+  String get practiceModeActionReveal => 'חשוף';
+
+  @override
+  String get practiceModeActionShowSolution => 'הצג פתרון';
+
+  @override
+  String get practiceModeActionHideSolution => 'הסתר פתרון';
+
+  @override
+  String get practiceModeActionLockIn => 'נעל תשובה';
+
+  @override
+  String get practiceModeActionCheckAdapt => 'בדוק והסתגל';
+
+  @override
+  String get practiceModeActionContinue => 'המשך';
+
+  @override
+  String get practiceModeActionSolveIt => 'פתור את זה';
+
+  @override
+  String get practiceModeActionNextConcept => 'המושג הבא';
+
+  @override
+  String get practiceModeCardFront => 'צד קדמי של הכרטיס';
+
+  @override
+  String get practiceModeRecallSummary => 'סיכום היזכרות';
+
+  @override
+  String get practiceModeFeelingPrompt => 'איך זה הרגיש?';
+
+  @override
+  String get practiceModeFeelingAgain => 'שוב';
+
+  @override
+  String get practiceModeFeelingHard => 'קשה';
+
+  @override
+  String get practiceModeFeelingGood => 'טוב';
+
+  @override
+  String get practiceModeFeelingEasy => 'קל';
+
+  @override
+  String get practiceModeSpeedRoundBanner =>
+      'סבב מהיר · החלטות מהירות ותנופה מיידית';
+
+  @override
+  String get practiceModeFastFeedback => 'משוב מהיר';
+
+  @override
+  String get practiceModeExamPrepBanner =>
+      'הכנה למבחן · פריסה שקטה יותר, התשובות נבדקות אחרי ההתקדמות';
+
+  @override
+  String get practiceModeReview => 'סקירה';
+
+  @override
+  String get practiceModeBagrutBanner => 'מצב בגרות · זרימת טופס רשמית';
+
+  @override
+  String get practiceModeOfficialSolution => 'פתרון בסגנון רשמי';
+
+  @override
+  String get practiceModeAdaptiveWarmup => 'קושי חימום';
+
+  @override
+  String get practiceModeAdaptiveTrendingUp => 'הקושי עולה';
+
+  @override
+  String get practiceModeAdaptiveEasingDown => 'הקושי יורד';
+
+  @override
+  String get practiceModeAdaptiveSteady => 'הקושי נשאר יציב';
+
+  @override
+  String get practiceModeAdaptiveFeedback => 'משוב מסתגל';
+
+  @override
+  String get practiceModeConceptFirst => 'קודם הרעיון';
+
+  @override
+  String get practiceModeNowSolveIt => 'עכשיו פתור את זה';
+
+  @override
+  String get practiceModeConceptTitle => 'מושג';
+
+  @override
+  String get practiceModeFeedbackCorrect => 'נכון';
+
+  @override
+  String get practiceModeFeedbackNotQuite => 'לא בדיוק';
+
+  @override
+  String get practiceModeFallbackQuestion => 'שאלה';
+
+  @override
+  String get practiceModeNoExplanationYet => 'עדיין אין הסבר זמין.';
+
+  @override
+  String get teacherGradesAssessmentCreated => 'הערכת הישגים נוצרה';
+
+  @override
+  String get teacherGradesEditAssessmentTitle => 'עריכת הערכה';
+
+  @override
+  String get teacherGradesFieldTitle => 'כותרת';
+
+  @override
+  String get teacherGradesFieldDate => 'תאריך (YYYY-MM-DD)';
+
+  @override
+  String get teacherGradesFieldMaxGrade => 'ציון מקסימלי';
+
+  @override
+  String get teacherGradesAssessmentUpdated => 'הערכת הישגים עודכנה';
+
+  @override
+  String get teacherGradesDeleteAssessmentTitle => 'למחוק את ההערכה?';
+
+  @override
+  String teacherGradesDeleteAssessmentBody(Object title) {
+    return 'הפעולה תסיר את $title ואת רשומת הציונים שלה ממרחב המורה.';
+  }
+
+  @override
+  String get teacherGradesDeleteAction => 'מחיקה';
+
+  @override
+  String get teacherGradesAssessmentDeleted => 'הערכת הישגים נמחקה';
+
+  @override
+  String get teacherGradesRosterLinkError => 'הערכה זו אינה מקושרת לסגל כיתה.';
+
+  @override
+  String get teacherGradesSaved => 'הציונים נשמרו';
+
+  @override
+  String get teacherGradesSubtitle =>
+      'צור הערכות ושמור ציונים מול סגל הכיתה החי.';
+
+  @override
+  String get teacherGradesCreateAssessmentTitle => 'יצירת הערכה';
+
+  @override
+  String get teacherGradesFieldCourse => 'קורס';
+
+  @override
+  String get teacherGradesCreateAction => 'יצירה';
+
+  @override
+  String get teacherGradesNoStudentsLoaded => 'לא נטענו תלמידים עבור הערכה זו.';
+
+  @override
+  String get teacherGradesFieldGrade => 'ציון';
+
+  @override
+  String teacherGradesMaxHint(Object grade) {
+    return 'מקסימום $grade';
+  }
+
+  @override
+  String get teacherGradesSaving => 'שומר…';
+
+  @override
+  String teacherGradesSaveCount(Object count) {
+    return 'שמור $count ציונים';
+  }
+
+  @override
+  String get assignmentsNoDueDate => 'אין תאריך סיום';
+
+  @override
+  String get assignmentsLoadError =>
+      'לא הצלחנו לטעון משימות כעת. משוך כדי לרענן או נסה שוב.';
+
+  @override
+  String get assignmentsLoadTimeout =>
+      'משימות לוקחות זמן רב מדי לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get assignmentsLoadNetwork =>
+      'לא ניתן היה להתחבר למשימות כעת. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get assignmentsStatusOverdue => 'איחור בתאריך';
+
+  @override
+  String get assignmentsStatusDueSoon => 'יעד קרוב';
+
+  @override
+  String get assignmentsStatusUpcoming => 'קרוב';
+
+  @override
+  String get assignmentsPreviewFallback =>
+      'פתח משימה זו כדי לראות את ההנחיות המלאות ולהכין את עבודתך.';
+
+  @override
+  String get assignmentsSubmissionPrepEmpty =>
+      'שלח את ההערה או הקבצים שלך כאן.';
+
+  @override
+  String assignmentsSubmissionPrepCount(Object count) {
+    return '$count קובץ(ים) מוצמדים באופן מקומי.';
+  }
+
+  @override
+  String get assignmentsHeroSubtitle =>
+      'כל משימות הכיתה בתצוגה אחת נקייה, עם דף פרטים במסך מלא ומקום ייעודי להכנת עבודתך.';
+
+  @override
+  String get assignmentsSubjectsMetric => 'נושאים';
+
+  @override
+  String get assignmentsNothingAssignedYet => 'עדיין לא הוקצה כלום';
+
+  @override
+  String get assignmentsNoAssignmentsForAccount =>
+      'אין משימות כיתה זמינות עבור חשבון תלמיד זה כרגע.';
+
+  @override
+  String assignmentsNextThingBody(Object title, Object due) {
+    return '$title הוא הדבר הבא שצריך להביט בו. $due.';
+  }
+
+  @override
+  String get assignmentsPullToCheckAgain => 'משוך למטה כדי לבדוק שוב.';
+
+  @override
+  String get assignmentsFiltersSubtitle =>
+      'צמצם את הרשימה לפי נושא או דחיפות כדי להתמקד במה שחשוב תחילה.';
+
+  @override
+  String get assignmentsSubjectLabel => 'נושא';
+
+  @override
+  String get assignmentsAllSubjects => 'כל הנושאים';
+
+  @override
+  String get assignmentsSearchSubjects => 'חפש נושאים';
+
+  @override
+  String get assignmentsStatusLabel => 'סטטוס';
+
+  @override
+  String get assignmentsAllStatuses => 'כל הסטטוסים';
+
+  @override
+  String get assignmentsSearchStatuses => 'חפש סטטוסים';
+
+  @override
+  String assignmentsShowingSummary(Object shown, Object total) {
+    return 'מוצג $shown מתוך $total משימות.';
+  }
+
+  @override
+  String get assignmentsNoFilterMatchesTitle =>
+      'אין משימות התואמות למסננים אלה';
+
+  @override
+  String get assignmentsNoFilterMatchesSubtitle =>
+      'נסה את כל הנושאים או תצוגת סטטוס רחבה יותר כדי להחזיר עוד משימות לרשימה.';
+
+  @override
+  String get assignmentsClearFiltersHint => 'נקה מסננים כדי לראות הכל שוב.';
+
+  @override
+  String get assignmentsListSubtitle =>
+      'הקש על משימה כלשהי כדי לפתוח את תצוגת הפרטים במסך מלא ולהכין את עבודתך.';
+
+  @override
+  String get assignmentsAddNoteBeforePrepare =>
+      'הוסף הערה או צרף קובץ לפני הכנת עבודתך.';
+
+  @override
+  String get assignmentsWorkDraftPrepared => 'טיוטת עבודה מוכנה.';
+
+  @override
+  String get assignmentsWorkDraftPreparedWithFiles =>
+      'טיוטת עבודה מוכנה. קבצים מצורפים נשמרים בהתקן זה.';
+
+  @override
+  String get assignmentsUnavailableTitle => 'משימה לא זמינה';
+
+  @override
+  String get assignmentsUnavailableSubtitle =>
+      'לא ניתן היה למצוא משימה זו בזרם הנוכחי. ייתכן שהוסרה או אינה זמינה במצב לא מקוון.';
+
+  @override
+  String get assignmentsUnavailableHint => 'חזור ורענן את רשימת המשימות.';
+
+  @override
+  String get assignmentsOverdueBannerBody =>
+      'משימה זו עברה את תאריך הסיום שלה. פתח את אזור העבודה שלך להלן כדי להכין מה שברצונך להגיש.';
+
+  @override
+  String get assignmentsWorkAreaBannerBody =>
+      'השתמש באזור העבודה למטה כדי לארגן קבצים, לכתוב הערה ולהשאיר הכל מוכן במקום אחד.';
+
+  @override
+  String get assignmentsDetailsSectionTitle => 'פרטי משימה';
+
+  @override
+  String get assignmentsDetailsSectionSubtitle =>
+      'הכל רלוונטי לתלמיד המצוי כעת בעומס המשימה של הכיתה.';
+
+  @override
+  String get assignmentsDetailDueLabel => 'תאריך סיום';
+
+  @override
+  String get assignmentsDetailClassroomLabel => 'כיתה';
+
+  @override
+  String get assignmentsDetailTeacherLabel => 'מורה';
+
+  @override
+  String get assignmentsDetailPostedByLabel => 'פורסם על ידי';
+
+  @override
+  String get assignmentsDetailPublishedLabel => 'פורסם';
+
+  @override
+  String get assignmentsDetailUpdatedLabel => 'עודכן';
+
+  @override
+  String get assignmentsDetailIdLabel => 'מזהה משימה';
+
+  @override
+  String get assignmentsInstructionsTitle => 'הוראות';
+
+  @override
+  String get assignmentsInstructionsSubtitle =>
+      'טקסט משימה מלא מזרם הכיתה, כשהנוסח המקורי נשמר.';
+
+  @override
+  String get assignmentsYourWorkTitle => 'עבודתך';
+
+  @override
+  String get assignmentsYourWorkSubtitle =>
+      'ארגן הערה, צרף קבצים או מסמכים והשאיר את הכנת ההגשה שלך במקום ממוקד.';
+
+  @override
+  String get assignmentsPrivateNoteLabel => 'הערת עבודה פרטית';
+
+  @override
+  String get assignmentsPrivateNoteHint =>
+      'הוסף מה שאתה מתכנן להגיש, תזכורות לעצמך או תקציר מסמך/קישור.';
+
+  @override
+  String get assignmentsAddFiles => 'הוסף קבצים או מסמכים';
+
+  @override
+  String get assignmentsClearFiles => 'נקה קבצים';
+
+  @override
+  String get assignmentsStagedDeviceHint =>
+      'קבצים מסודרים בהתקן זה. הגשת קובץ משימה אינה זמינה באפליקציה זו.';
+
+  @override
+  String assignmentsLastPrepared(Object time) {
+    return 'הוכן לאחרונה $time.';
+  }
+
+  @override
+  String get assignmentsSubmissionPrepTitle => 'הכנת הגשה';
+
+  @override
+  String get assignmentsPreparing => 'בהכנה';
+
+  @override
+  String get assignmentsPrepareWork => 'הכן עבודה';
+
+  @override
+  String get assignmentsLoadingSubtitle => 'טעינת משימות הכיתה שלך.';
+
+  @override
+  String get assignmentsPullToRefreshRetry => 'משוך לרענון או נסה שוב להלן.';
+
+  @override
+  String get assignmentsFileSizeUnknown => 'קובץ';
+
+  @override
+  String get assignmentsRemoveAttachment => 'הסר קובץ מצורף';
+
+  @override
+  String get attendanceUndated => 'ללא תאריך';
+
+  @override
+  String get attendanceLoadError =>
+      'לא יכולנו לטעון נוכחות כעת. גרור לרענון או נסה שוב.';
+
+  @override
+  String get attendanceLoadTimeout =>
+      'נוכחות לוקחת זמן רב מדי לטעינה. גרור לרענון או נסה שוב בעוד רגע.';
+
+  @override
+  String get attendanceLoadNetwork =>
+      'נוכחות לא יכלה להתחבר כעת. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get attendanceConsistencyBuilding => 'עדיין בבנייה';
+
+  @override
+  String get attendanceConsistencyExcellent => 'עקביות מעולה';
+
+  @override
+  String get attendanceConsistencySteady => 'בעיקר יציב';
+
+  @override
+  String get attendanceConsistencyNeedsAttention => 'דורש תשומת לב';
+
+  @override
+  String get attendanceConsistencyRisk => 'סיכון נוכחות';
+
+  @override
+  String get attendanceWatchRecentAbsences => 'היעדרויות אחרונות';
+
+  @override
+  String get attendanceWatchRepeatedLateness => 'איחורים חוזרים';
+
+  @override
+  String get attendanceWatchExcusedAddingUp => 'זמן מוצדק מצטבר';
+
+  @override
+  String get attendanceWatchNoFlags => 'אין דגלים נוכחיים';
+
+  @override
+  String get attendanceAllSubjectsLowercase => 'כל הנושאים';
+
+  @override
+  String attendanceShowingSummary(
+    Object shown,
+    Object total,
+    Object subject,
+    Object range,
+  ) {
+    return 'מציג $shown מתוך $total סימנים עבור $subject בטווח $range.';
+  }
+
+  @override
+  String get attendanceDayToneAbsent => 'יום היעדרות';
+
+  @override
+  String get attendanceDayToneLate => 'אות איחור';
+
+  @override
+  String get attendanceDayToneExcused => 'נוכחות מוצדקת';
+
+  @override
+  String get attendanceDayToneClean => 'יום נקי';
+
+  @override
+  String get attendanceLoadingSubtitle =>
+      'טוען את סיכום הנוכחות העדכני ביותר שלך.';
+
+  @override
+  String get attendanceUnavailableTitle => 'נוכחות לא זמינה';
+
+  @override
+  String get attendanceHeroSubtitle =>
+      'קריאה ברורה על שיעור הנוכחות שלך, שיעורים אחרונים וכל דבר שדורש תשומת לב.';
+
+  @override
+  String get attendanceMetricRate => 'שיעור';
+
+  @override
+  String get attendanceMetricPresent => 'סימני נוכחות';
+
+  @override
+  String get attendanceMetricLate => 'סימני איחור';
+
+  @override
+  String get attendanceMetricAbsent => 'סימני היעדרות';
+
+  @override
+  String attendanceHeroSignalBody(Object flag) {
+    return '$flag. לחץ נוכחות יכול להצטבר בשקט, כך שהתצוגה זו מתמקדת במה שהשתנה לאחרונה.';
+  }
+
+  @override
+  String get attendanceNoSummary =>
+      'עדיין אין סיכום נוכחות זמין לחשבון תלמיד זה.';
+
+  @override
+  String get attendanceEmptyTitle => 'אין רישומי נוכחות עדיין';
+
+  @override
+  String get attendanceEmptySubtitle =>
+      'עדיין לא פורסמו רישומי נוכחות לחשבון תלמיד זה.';
+
+  @override
+  String get attendanceFiltersSubtitle =>
+      'השתמש באותו סגנון בורר ניתן לחיפוש כמו בהגדרות כדי להצר את תצוגת הנוכחות לפי נושא או חלון זמן.';
+
+  @override
+  String get attendanceTimeRangeLabel => 'טווח זמן';
+
+  @override
+  String get attendanceSearchRanges => 'כל הזמן / 7 ימים / 30 ימים / 90 ימים';
+
+  @override
+  String get attendanceNoFilteredMarksTitle => 'אין סימנים התואמים למסננים אלה';
+
+  @override
+  String get attendanceNoFilteredMarksSubtitle =>
+      'נסה את כל הנושאים או טווח זמן רחב יותר כדי להחזיר יותר סימני נוכחות לתצוגה.';
+
+  @override
+  String get attendanceQuickReadTitle => 'קריאה מהירה';
+
+  @override
+  String get attendanceQuickReadSubtitleFiltered =>
+      'סיכום מהיר עבור סימני הנוכחות המסוננים המוצגים להלן.';
+
+  @override
+  String get attendanceQuickReadSubtitleAll =>
+      'סיכום מהיר המבוסס על רישומי הנוכחות העדכניים ביותר הזמינים.';
+
+  @override
+  String get attendanceSummaryConsistency => 'עקביות';
+
+  @override
+  String get attendanceSummaryWatchFor => 'שים לב ל';
+
+  @override
+  String get attendanceSummaryExcused => 'סימנים מוצדקים';
+
+  @override
+  String get attendanceSummaryMarksInView => 'סימנים בתצוגה';
+
+  @override
+  String get attendanceSummaryRateInView => 'שיעור בתצוגה';
+
+  @override
+  String get attendanceRecentDaysTitle => 'ימים אחרונים';
+
+  @override
+  String get attendanceRecentDaysSubtitleFiltered =>
+      'מקובצים לפי יום עבור הסימנים המסוננים בתצוגה כרגע.';
+
+  @override
+  String get attendanceRecentDaysSubtitleAll =>
+      'מקובצים לפי יום כך שתוכל לתפוס דפוסי היעדרות או איחור מהר יותר.';
+
+  @override
+  String get attendanceLessonCountSingle => 'שיעור אחד';
+
+  @override
+  String attendanceLessonCount(Object count) {
+    return '$count שיעורים';
+  }
+
+  @override
+  String get attendanceStatusPresent => 'נוכח';
+
+  @override
+  String get attendanceStatusLate => 'באיחור';
+
+  @override
+  String get attendanceStatusAbsent => 'היעדר';
+
+  @override
+  String get attendanceStatusExcused => 'מוצדק';
+
+  @override
+  String get attendanceStatusRecorded => 'מוקלט';
+
+  @override
+  String get attendanceLessonFallback => 'שיעור';
+
+  @override
+  String get attendanceRangeAll => 'כל הזמן';
+
+  @override
+  String get attendanceRange7 => '7 ימים אחרונים';
+
+  @override
+  String get attendanceRange30 => '30 ימים אחרונים';
+
+  @override
+  String get attendanceRange90 => '90 ימים אחרונים';
+
+  @override
+  String get attendanceRangeAllShort => 'כל הזמן';
+
+  @override
+  String get attendanceRange7Short => '7 ימים';
+
+  @override
+  String get attendanceRange30Short => '30 ימים';
+
+  @override
+  String get attendanceRange90Short => '90 ימים';
+
+  @override
+  String get gradesLoadError =>
+      'לא היה ניתן לטעון ציונים כרגע. משוך כדי לרענן או נסה שוב.';
+
+  @override
+  String get gradesLoadTimeout =>
+      'ציונים לוקחים יותר מדי זמן לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.';
+
+  @override
+  String get gradesLoadNetwork =>
+      'לא הצליח להתחבר לציונים כרגע. בדוק את החיבור שלך ונסה שוב.';
+
+  @override
+  String get gradesGeneralSubject => 'כללי';
+
+  @override
+  String get gradesBandBuilding => 'עדיין בבניה';
+
+  @override
+  String get gradesBandExcellent => 'מעולה';
+
+  @override
+  String get gradesBandStrong => 'חזק';
+
+  @override
+  String get gradesBandOkay => 'בסדר';
+
+  @override
+  String get gradesBandNeedsAttention => 'צריך תשומת לב';
+
+  @override
+  String get gradesBandRisk => 'בסיכון';
+
+  @override
+  String get gradesTrendRising => 'עולה';
+
+  @override
+  String get gradesTrendDropping => 'יורד';
+
+  @override
+  String get gradesTrendStable => 'יציב';
+
+  @override
+  String gradesShowingSummary(
+    Object shown,
+    Object total,
+    Object subject,
+    Object range,
+  ) {
+    return 'מציג $shown מתוך $total ציונים שנרשמו עבור $subject ב-$range.';
+  }
+
+  @override
+  String get gradesLoadingSubtitle => 'טוען את התוצאות האקדמיות העדכניות שלך.';
+
+  @override
+  String get gradesUnavailableTitle => 'ציונים לא זמינים';
+
+  @override
+  String get gradesHeroSubtitle =>
+      'קריאה ברורה של הממוצע שלך, הערכות אחרונות, ואילו מקצועות צריכים הגנה או התאוששות.';
+
+  @override
+  String get gradesMetricAverage => 'ממוצע';
+
+  @override
+  String get gradesMetricRecorded => 'נרשם';
+
+  @override
+  String get gradesMetricBestSubject => 'המקצוע הטוב ביותר';
+
+  @override
+  String get gradesMetricNeedsWork => 'צריך עבודה';
+
+  @override
+  String gradesLatestSignalBody(
+    Object assessment,
+    Object subject,
+    Object grade,
+    Object band,
+  ) {
+    return '$assessment ב-$subject קיבל $grade. $band כרגע.';
+  }
+
+  @override
+  String get gradesSummaryAvailableNoRecent =>
+      'סיכום ציונים זמין, אך אין הערכות אחרונות גלויות בתצוגה זו כרגע.';
+
+  @override
+  String get gradesEmptyTitle => 'עדיין אין ציונים';
+
+  @override
+  String get gradesEmptySubtitle => 'לא פורסמו ציונים לחשבון התלמיד הזה עדיין.';
+
+  @override
+  String get gradesFiltersSubtitle =>
+      'השתמש באותו סגנון בורר שניתן לחיפוש כמו בהגדרות כדי לצמצם ציונים לפי מקצוע או חלון זמן.';
+
+  @override
+  String get gradesNoFilteredTitle => 'אין ציונים התואמים לסנני אלה';
+
+  @override
+  String get gradesNoFilteredSubtitle =>
+      'נסה את כל המקצועות או טווח זמן רחב יותר כדי להחזיר יותר ציונים שנרשמו.';
+
+  @override
+  String get gradesQuickReadTitle => 'קריאה מהירה';
+
+  @override
+  String get gradesQuickReadSubtitleFiltered =>
+      'סיכום מהיר של הציונים כרגע בתצוגה.';
+
+  @override
+  String get gradesQuickReadSubtitleAll =>
+      'הקריאה המהירה ביותר על מה להגן ומה להחזיר.';
+
+  @override
+  String get gradesWeakSpotLabel => 'נקודת חולשה נוכחית';
+
+  @override
+  String get gradesNoWeakSignal => 'אין עדיין אות מקצוע חלוש';
+
+  @override
+  String gradesWeakSpotValue(Object subject) {
+    return '$subject צריך את בלוק ההתאוששות הראשון.';
+  }
+
+  @override
+  String get gradesStrengthLabel => 'כוח נוכחי';
+
+  @override
+  String get gradesNoStrengthSignal => 'אין עדיין אות מקצוע חזק';
+
+  @override
+  String gradesStrengthValue(Object subject) {
+    return '$subject הוא עוגן הביטחון שלך כרגע.';
+  }
+
+  @override
+  String get gradesBandLabel => 'פס';
+
+  @override
+  String get gradesInViewLabel => 'בתצוגה';
+
+  @override
+  String gradesInViewCount(Object count) {
+    return '$count ציונים שנרשמו בסנן זה.';
+  }
+
+  @override
+  String gradesInViewAverage(Object count, Object average) {
+    return '$count ציונים שנרשמו בממוצע $average.';
+  }
+
+  @override
+  String get gradesLatestAssessmentsTitle => 'הערכות אחרונות';
+
+  @override
+  String get gradesLatestAssessmentsSubtitleFiltered =>
+      'ציונים שנרשמו לאחרונה בתצוגה המסוננת הנוכחית.';
+
+  @override
+  String get gradesLatestAssessmentsSubtitleAll =>
+      'ציונים שנרשמו לאחרונה בסדר כרונולוגי.';
+
+  @override
+  String get gradesSubjectDrilldownTitle => 'פירוט מקצוע';
+
+  @override
+  String get gradesSubjectDrilldownSubtitleFiltered =>
+      'מקובץ לפי מקצוע עבור הציונים כרגע בתצוגה.';
+
+  @override
+  String get gradesSubjectDrilldownSubtitleAll =>
+      'מקובץ לפי מקצוע כדי שמגמה ולחץ יתבררו יותר מהר.';
+
+  @override
+  String get gradesAssessmentFallback => 'הערכה';
+
+  @override
+  String get gradesChipBest => 'הטוב ביותר';
+
+  @override
+  String get gradesNoAverageYet => 'אין ממוצע עדיין';
+
+  @override
+  String gradesRecentAverage(Object average) {
+    return 'ממוצע אחרון: $average';
+  }
+}

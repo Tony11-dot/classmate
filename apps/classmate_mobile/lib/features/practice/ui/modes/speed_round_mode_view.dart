@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class SpeedRoundModeView extends StatelessWidget {
@@ -7,6 +8,7 @@ class SpeedRoundModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return questionCard(
       d,
       padding: const EdgeInsets.all(16),
@@ -27,7 +29,7 @@ class SpeedRoundModeView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Speed round · fast decisions, instant momentum',
+                    l.practiceModeSpeedRoundBanner,
                     style: d.theme.textTheme.labelLarge?.copyWith(
                       color: d.accent,
                       fontWeight: FontWeight.w900,
@@ -35,7 +37,7 @@ class SpeedRoundModeView extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${d.state.secondsRemaining}s',
+                  l.practiceSetupSecondsShort(d.state.secondsRemaining),
                   style: d.theme.textTheme.titleMedium?.copyWith(
                     color: d.accent,
                     fontWeight: FontWeight.w900,
@@ -47,14 +49,14 @@ class SpeedRoundModeView extends StatelessWidget {
           const SizedBox(height: 14),
           sessionProgressStrip(d),
           const SizedBox(height: 14),
-          MathView(d.promptOf()),
+          questionPromptPanel(d),
           const SizedBox(height: 14),
           answerList(d),
           const SizedBox(height: 12),
           answerFeedbackSection(d),
           const SizedBox(height: 12),
           if (d.showExplanation) ...[
-            explanationCard(d, title: 'Fast feedback'),
+            explanationCard(d, title: l.practiceModeFastFeedback),
             const SizedBox(height: 10),
           ],
           Row(
@@ -62,8 +64,8 @@ class SpeedRoundModeView extends StatelessWidget {
               Expanded(
                 child: sharedPrimaryActionButton(
                   d,
-                  preAnswerLabel: 'Lock in',
-                  postAnswerLabel: 'Next',
+                  preAnswerLabel: l.practiceModeActionLockIn,
+                  postAnswerLabel: l.practiceModeActionNext,
                   preAnswerIcon: Icons.bolt_rounded,
                 ),
               ),
@@ -72,7 +74,7 @@ class SpeedRoundModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.end,
                 icon: Icons.close_rounded,
-                tooltip: 'End session',
+                tooltip: l.practiceModeActionEndSession,
               ),
             ],
           ),

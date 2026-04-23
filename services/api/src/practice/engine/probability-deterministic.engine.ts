@@ -9,6 +9,8 @@ import { clampTime, gcd, reduceFraction, rotateBySeed, uniqueFirst } from './pra
 
 @Injectable()
 export class ProbabilityDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`

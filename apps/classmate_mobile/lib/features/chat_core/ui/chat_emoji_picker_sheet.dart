@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class ChatEmojiPickerSheet extends StatefulWidget {
   const ChatEmojiPickerSheet({
     super.key,
@@ -44,6 +46,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final allowed = widget.allowedEmojis;
     final pool = allowed == null || allowed.isEmpty
         ? _allEmojis
@@ -70,7 +73,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Choose emoji',
+                    l.chatEmojiPickerTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
@@ -80,7 +83,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                     controller: _searchCtl,
                     onChanged: (_) => setSheetState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Search emoji',
+                      hintText: l.chatEmojiPickerSearchHint,
                       prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: _searchCtl.text.isEmpty
                           ? null
@@ -99,7 +102,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: filtered.isEmpty
-                        ? const Center(child: Text('No emoji found'))
+                        ? Center(child: Text(l.chatEmojiPickerEmptyState))
                         : GridView.builder(
                             itemCount: filtered.length,
                             gridDelegate:

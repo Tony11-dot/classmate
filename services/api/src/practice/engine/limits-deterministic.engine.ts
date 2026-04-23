@@ -5,15 +5,15 @@ import type {
   GeneratedQuestion,
   EngineDifficulty,
 } from './practice-engine.types';
-import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
+import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class LimitsDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
-    const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`
-      .toLowerCase()
-      .trim();
+    const t = this.topicDescriptorText(req);
 
     const looksLikeLimits =
       t.includes('limit') ||
@@ -70,7 +70,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = a * c + b;
 
     return this.finish({
-      prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \(${a}x ${this.sign(b)}\)\\.`,
+      prompt: `Find $\\lim_{x \\to ${c}} (${a}x ${this.sign(b)})$.`,
       answer: this.num(answer),
       distractors: [
         this.num(a + b),
@@ -92,7 +92,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const valueAtC = m * c + p;
 
       return this.finish({
-        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \(${m}x ${this.sign(p)}\)\\.`,
+          prompt: `Find $\\lim_{x \\to ${c}} (${m}x ${this.sign(p)})$.`,
         answer: this.num(valueAtC),
         distractors: [
           this.num(m + p),
@@ -118,7 +118,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
         `A function is defined by ` +
         `f(x) = ${leftK}x ${this.sign(leftB)} for x < ${c}, and ` +
         `f(x) = ${rightK}x ${this.sign(rightB)} for x > ${c}. ` +
-        `If both sides approach the same value, what is \\\\\lim\_\{x \\\\to ${c}\} f\(x\)\\?`,
+          `If both sides approach the same value, what is $\\lim_{x \\to ${c}} f(x)$?`,
       answer: this.num(value),
       distractors: [
         this.num(c),
@@ -143,7 +143,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const answer = linearAtC;
 
       return this.finish({
-        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{\(${a}x ${this.sign(b)}\)\(x ${this.sign(-denominatorConst)}\)\}\{x ${this.sign(-denominatorConst)}\}\\.`,
+        prompt: `Find $\\lim_{x \\to ${c}} \\frac{(${a}x ${this.sign(b)})(x ${this.sign(-denominatorConst)})}{x ${this.sign(-denominatorConst)}}$.`,
         answer: this.num(answer),
         distractors: [
           this.num(denominatorConst),
@@ -161,7 +161,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = 2 * c;
 
     return this.finish({
-      prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{x\^2 ${this.sign(-(c * c))}\}\{x ${this.sign(-c)}\}\\.`,
+      prompt: `Find $\\lim_{x \\to ${c}} \\frac{x^2 ${this.sign(-(c * c))}}{x ${this.sign(-c)}}$.`,
       answer: this.num(answer),
       distractors: [
         this.num(c),
@@ -183,7 +183,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
       const answer = 2 * c + 1;
 
       return this.finish({
-        prompt: `Find \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{x\^2 \+ x ${this.sign(-(c * c + c))}\}\{x ${this.sign(-c)}\}\\.`,
+        prompt: `Find $\\lim_{x \\to ${c}} \\frac{x^2 + x ${this.sign(-(c * c + c))}}{x ${this.sign(-c)}}$.`,
         answer: this.num(answer),
         distractors: [
           this.num(c),
@@ -206,7 +206,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
         prompt:
           `A function is defined by ` +
           `f(x) = 2x + 3 for x < ${c}, and f(x) = ${right} for x > ${c}. ` +
-          `What is \\\\\lim\_\{x \\\\to ${c}\} f\(x\)\\ if the limit exists?`,
+            `What is $\\lim_{x \\to ${c}} f(x)$ if the limit exists?`,
         answer: this.num(left === right ? left : left),
         distractors: [
           this.num(right),
@@ -228,7 +228,7 @@ export class LimitsDeterministicEngine implements PracticeEngine {
     const answer = k;
 
     return this.finish({
-      prompt: `Find k if \\\\\lim\_\{x \\\\to ${c}\} \\\\frac\{kx ${this.sign(-(k * c))}\}\{x ${this.sign(-c)}\} \= ${k}\\.`,
+      prompt: `Find $k$ if $\\lim_{x \\to ${c}} \\frac{kx ${this.sign(-(k * c))}}{x ${this.sign(-c)}} = ${k}$.`,
       answer: this.num(answer),
       distractors: [
         this.num(c),
@@ -253,11 +253,11 @@ export class LimitsDeterministicEngine implements PracticeEngine {
   }): GeneratedQuestion {
     const correct = args.forceAnswer ?? args.answer;
     const raw = [correct, ...args.distractors];
-    const options = uniqueFirst(raw, 4);
-
-    while (options.length < 4) {
-      options.push(String((args.seed + 3) * (options.length + 2)));
-    }
+    const options = fillOptionsWithSafeFallback(
+      uniqueFirst(raw, 4),
+      correct,
+      args.seed,
+    );
 
     const rotated = rotateBySeed(options.slice(0, 4), args.seed);
 
@@ -302,5 +302,21 @@ export class LimitsDeterministicEngine implements PracticeEngine {
 
   private pick<T>(i: number, arr: T[]): T {
     return arr[((i % arr.length) + arr.length) % arr.length];
+  }
+
+  private topicDescriptorText(req: PracticeEngineRequest): string {
+    const strictSummary = String(req.strictPromptSummary ?? '');
+    const strictTopicLine = strictSummary
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => /^topic\s*:/i.test(line));
+
+    const strictTopicText = strictTopicLine
+      ? strictTopicLine.replace(/^topic\s*:/i, '').trim()
+      : '';
+
+    return `${req.topicLabel} ${req.topicPathText} ${strictTopicText}`
+      .toLowerCase()
+      .trim();
   }
 }

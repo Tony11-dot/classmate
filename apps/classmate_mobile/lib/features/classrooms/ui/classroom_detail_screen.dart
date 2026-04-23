@@ -21,23 +21,31 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
+import '../../../common/widgets/typing_dots.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
+import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../../messages/domain/message_thread_models.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
-import '../../chat_core/ui/chat_message_actions_sheet.dart';
+import '../../chat_core/ui/chat_context_overlay.dart';
 import '../../chat_core/ui/chat_reaction_details_sheet.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/models/chat_message_info.dart';
 import '../../chat_core/ui/chat_message_info_page.dart';
+import '../../chat_core/ui/chat_recording_tokens.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/auth/auth_session.dart';
+import '../../../ui/glass/liquid_glass_card.dart';
 import '../providers/classrooms_providers.dart';
 import '../providers/classrooms_repo_provider.dart';
+import '../../messages/ui/new_chat_screen.dart';
 
 class _ClassroomForwardTargetPickerSheet extends ConsumerStatefulWidget {
-  const _ClassroomForwardTargetPickerSheet();
+  const _ClassroomForwardTargetPickerSheet({required this.currentThreadId});
+
+  final String currentThreadId;
 
   @override
   ConsumerState<_ClassroomForwardTargetPickerSheet> createState() =>
@@ -51,31 +59,82 @@ class _ClassroomForwardTargetPickerSheetState
   String _query = '';
   final Set<String> _selected = <String>{};
   bool _submitting = false;
+  bool _isApprovedForwardTarget(MessageThreadSummary item) {
+    return item.requestState != ChatRequestState.pendingIncoming &&
+        item.requestState != ChatRequestState.pendingOutgoing &&
+        item.requestState != ChatRequestState.blocked;
+  }
+
+  bool _isClassroomThread(MessageThreadSummary item) {
+    return item.type == ChatThreadType.classroom;
+  }
+
+  List<MessageThreadSummary> _filtered(List<MessageThreadSummary> items) {
+    final q = _query.trim().toLowerCase();
+
+    return items
+        .where((item) => item.id != widget.currentThreadId)
+        .where(_isApprovedForwardTarget)
+        .where((item) {
+          if (q.isEmpty) return true;
+          return item.title.toLowerCase().contains(q) ||
+              item.subtitle.toLowerCase().contains(q);
+        })
+        .toList();
+  }
+
+  // Sort DMs by recency (matching DM picker behaviour).
+  List<MessageThreadSummary> _sortDmTargets(List<MessageThreadSummary> items) {
+    final sorted = List<MessageThreadSummary>.from(items);
+    sorted.sort((a, b) {
+      final aDate = a.lastMessageDate;
+      final bDate = b.lastMessageDate;
+      if (aDate != null && bDate != null) {
+        final byRecent = bDate.compareTo(aDate);
+        if (byRecent != 0) return byRecent;
+      } else if (aDate != null) {
+        return -1;
+      } else if (bDate != null) {
+        return 1;
+      }
+      final byTitle = a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      if (byTitle != 0) return byTitle;
+      return a.id.compareTo(b.id);
+    });
+    return sorted;
+  }
+
+  MessageThreadSummary _classroomMapToSummary(Map<String, dynamic> map) {
+    final id = (map['id'] ?? '').toString().trim();
+    final name = (map['name'] ?? map['title'] ?? '').toString().trim();
+    final subject = (map['subject'] ?? '').toString().trim();
+    final teacher = (map['teacherName'] ?? map['teacher'] ?? '').toString().trim();
+    final displayTitle = name.isNotEmpty
+        ? name
+        : (subject.isNotEmpty
+              ? subject
+              : AppLocalizations.of(context)!.classroomsClassroomLabel);
+    final initials = displayTitle.trim().split(RegExp(r'\s+')).take(2).map((w) => w.isNotEmpty ? w[0].toUpperCase() : '').join();
+    return MessageThreadSummary(
+      id: id,
+      type: ChatThreadType.classroom,
+      title: displayTitle,
+      subtitle: [subject, teacher].where((s) => s.isNotEmpty).join(' · '),
+      isGroup: false,
+      isUnread: false,
+      unreadCount: 0,
+      lastMessageAt: '',
+      lastMessageAtRaw: '',
+      requestState: ChatRequestState.approved,
+      initials: initials.isEmpty ? 'C' : initials,
+    );
+  }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
-  }
-
-  List<MessageThreadSummary> _filtered(List<MessageThreadSummary> items) {
-    final q = _query.trim().toLowerCase();
-    final filtered = items.where((item) {
-      if (item.type == ChatThreadType.classroom) return false;
-      if (q.isEmpty) return true;
-      return item.title.toLowerCase().contains(q) ||
-          item.subtitle.toLowerCase().contains(q);
-    }).toList();
-
-    filtered.sort((a, b) {
-      final aPicked = _selected.contains(a.id) ? 1 : 0;
-      final bPicked = _selected.contains(b.id) ? 1 : 0;
-      if (aPicked != bPicked) return bPicked.compareTo(aPicked);
-      return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-    });
-
-    return filtered;
   }
 
   void _toggle(String id) {
@@ -88,8 +147,236 @@ class _ClassroomForwardTargetPickerSheetState
     });
   }
 
+  Widget _pickerSection(
+    BuildContext context, {
+    required String title,
+    required List<MessageThreadSummary> items,
+  }) {
+    final l = AppLocalizations.of(context)!;
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ),
+        ...items.map((item) {
+          final selected = _selected.contains(item.id);
+          final subtitle = item.subtitle.trim().isEmpty
+              ? (_isClassroomThread(item)
+                ? l.classroomsThreadTypeClassroom
+                : (item.isGroup
+                  ? l.classroomsThreadTypeGroup
+                  : l.classroomsThreadTypeDirectMessage))
+              : item.subtitle.trim();
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: _submitting ? null : () => _toggle(item.id),
+              child: LiquidGlassCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                blurSigma: 10,
+                color: selected
+                    ? Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.10)
+                    : Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.55),
+                border: Border.all(
+                  color: selected
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.28)
+                      : Theme.of(context)
+                          .colorScheme
+                          .outlineVariant
+                          .withValues(alpha: 0.16),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(child: Text(item.initials)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                              if (_isClassroomThread(item))
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(999),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withValues(alpha: 0.92),
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.58),
+                                      ],
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant
+                                          .withValues(alpha: 0.14),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    l.classroomsThreadTypeClassroom,
+                                    style: Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                )
+                              else if (item.isGroup)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(999),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withValues(alpha: 0.92),
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.58),
+                                      ],
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant
+                                          .withValues(alpha: 0.14),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    l.classroomsThreadTypeGroup,
+                                    style: Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                )
+                              else
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(999),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withValues(alpha: 0.92),
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.58),
+                                      ],
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant
+                                          .withValues(alpha: 0.14),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    l.classroomsThreadTypeDirectMessageShort,
+                                    style: Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      selected
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      color: selected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final inbox = ref.watch(messagesInboxProvider);
+    final classroomsAsync = ref.watch(orderedStudentClassroomsProvider);
 
     return SafeArea(
       child: Padding(
@@ -113,7 +400,7 @@ class _ClassroomForwardTargetPickerSheetState
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search chats',
+                hintText: l.classroomsForwardSearchHint,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _searchController.text.trim().isEmpty
                     ? null
@@ -129,138 +416,69 @@ class _ClassroomForwardTargetPickerSheetState
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _submitting
+                    ? null
+                    : () async {
+                        final nav = Navigator.of(context);
+                        final threadId = await nav.push<String>(
+                          MaterialPageRoute<String>(
+                            builder: (_) => const NewChatScreen(),
+                          ),
+                        );
+                        if (threadId != null && threadId.trim().isNotEmpty) {
+                          nav.pop([threadId.trim()]);
+                        }
+                      },
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                label: Text(l.classroomsForwardNewChat),
+              ),
+            ),
+            const SizedBox(height: 8),
             Flexible(
               child: inbox.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) =>
-                    Center(child: Text('Failed to load chats: $error')),
-                data: (items) {
-                  final filtered = _filtered(items);
+                error: (error, _) => Center(
+                  child: Text(l.classroomsForwardLoadError(error.toString())),
+                ),
+                data: (inboxItems) {
+                  final classrooms = _filtered(
+                    (classroomsAsync.asData?.value ?? const [])
+                        .map(_classroomMapToSummary)
+                        .toList(),
+                  );
+                  final directMessages = _sortDmTargets(
+                    _filtered(
+                      inboxItems.where((i) => !_isClassroomThread(i)).toList(),
+                    ),
+                  );
 
-                  if (filtered.isEmpty) {
-                    return const Center(
+                  if (classrooms.isEmpty && directMessages.isEmpty) {
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text('No chats found'),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(l.classroomsForwardNoChatsFound),
                       ),
                     );
                   }
 
-                  return ListView.separated(
+                  return ListView(
                     shrinkWrap: true,
-                    itemCount: filtered.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 4),
-                    itemBuilder: (context, index) {
-                      final item = filtered[index];
-                      final selected = _selected.contains(item.id);
-
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: _submitting ? null : () => _toggle(item.id),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.10)
-                                : Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest
-                                      .withValues(alpha: 0.55),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: selected
-                                  ? Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.28)
-                                  : Theme.of(context).colorScheme.outlineVariant
-                                        .withValues(alpha: 0.16),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(child: Text(item.initials)),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            item.title,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleSmall
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                          ),
-                                        ),
-                                        if (item.isGroup)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 3,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(999),
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                            ),
-                                            child: Text(
-                                              'Group',
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.labelSmall,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      item.subtitle,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                selected
-                                    ? Icons.check_circle_rounded
-                                    : Icons.circle_outlined,
-                                color: selected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                    children: [
+                      _pickerSection(
+                        context,
+                        title: l.classroomsForwardSectionClassrooms,
+                        items: classrooms,
+                      ),
+                      _pickerSection(
+                        context,
+                        title: l.classroomsForwardSectionDirectMessages,
+                        items: directMessages,
+                      ),
+                    ],
                   );
                 },
               ),
@@ -273,7 +491,7 @@ class _ClassroomForwardTargetPickerSheetState
                     onPressed: _submitting
                         ? null
                         : () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(l.classroomsForwardCancel),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -287,8 +505,8 @@ class _ClassroomForwardTargetPickerSheetState
                           },
                     child: Text(
                       _selected.isEmpty
-                          ? 'Forward'
-                          : 'Forward (${_selected.length})',
+                          ? l.classroomsForwardAction
+                          : l.classroomsForwardCount(_selected.length),
                     ),
                   ),
                 ),
@@ -333,7 +551,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-  String _editableBodyText(String raw) => _splitReplyRaw(raw).bodyText;
+  String _editableBodyText(String raw) {
+    final body = _splitReplyRaw(raw).bodyText;
+    if (body.startsWith('Forwarded\n')) return body.substring('Forwarded\n'.length);
+    if (body.startsWith('Forwarded\r\n')) return body.substring('Forwarded\r\n'.length);
+    final legacyMatch = RegExp(r'^↪ Forwarded[：:]\s*').firstMatch(body);
+    if (legacyMatch != null) return body.substring(legacyMatch.end);
+    if (body == 'Forwarded') return '';
+    return body;
+  }
 
   String _replyPreviewText(String raw) {
     var v = _editableBodyText(raw);
@@ -347,13 +573,59 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       r'\.(jpg|jpeg|png|webp|gif)$',
       caseSensitive: false,
     ).hasMatch(v)) {
-      return 'Photo';
+      return _classroomKindLabel('IMAGE');
     }
     if (RegExp(r'\.(m4a|aac|mp3|wav)$', caseSensitive: false).hasMatch(v)) {
-      return 'Voice note';
+      return _classroomKindLabel('VOICE');
     }
-    if (v.isEmpty) return 'Message';
+    if (v.isEmpty) return AppLocalizations.of(context)!.classroomsMessageFallback;
     return v;
+  }
+
+  String _classroomKindLabel(String kind) {
+    final l = AppLocalizations.of(context)!;
+    switch (kind.trim().toUpperCase()) {
+      case 'IMAGE':
+        return l.classroomDetailPhoto;
+      case 'VOICE':
+        return l.classroomDetailVoiceNote;
+      case 'VIDEO':
+        return l.classroomDetailVideo;
+      case 'DOC':
+      case 'FILE':
+      case 'PDF':
+        return l.classroomDetailFile;
+      case 'TEXT':
+      default:
+        return l.classroomsMessageFallback;
+    }
+  }
+
+  String _classroomEmptyPreviewLabel(String kind) {
+    final l = AppLocalizations.of(context)!;
+    switch (kind.trim().toUpperCase()) {
+      case 'IMAGE':
+        return l.classroomDetailPhoto;
+      case 'VIDEO':
+        return l.classroomDetailVideo;
+      case 'VOICE':
+        return l.classroomDetailVoiceNote;
+      case 'FILE':
+      case 'DOC':
+      case 'PDF':
+        return l.classroomDetailFile;
+      default:
+        return l.classroomDetailEmptyValue;
+    }
+  }
+
+  String _classroomSenderLabel(bool isMine, String senderLabel) {
+    return isMine ? AppLocalizations.of(context)!.tutorYou : senderLabel;
+  }
+
+  String _classroomPreviewBody(String text, String kind) {
+    final body = _editableBodyText(text).trim();
+    return body.isEmpty ? _classroomEmptyPreviewLabel(kind) : _editableBodyText(text);
   }
 
   final _imagePicker = ImagePicker();
@@ -369,6 +641,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
   final Set<String> _pinnedMessageIds = <String>{};
+  final Set<String> _deleteSelection = <String>{};
+  final Set<String> _forwardSelectedMessageIds = <String>{};
+  bool _isForwardSelectionMode = false;
 
   String get _classroomPinnedPrefsKey => 'classroom_pinned_ids_${widget.courseId}';
   String get _classroomTabsCollapsedPrefsKey =>
@@ -515,13 +790,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   void _pulseClassroomMessage(String messageId) {
     _highlightClearTimer?.cancel();
     if (!mounted) return;
-    setState(() {
-      _highlightedMessageId = messageId;
-    });
-    _highlightClearTimer = Timer(const Duration(milliseconds: 1200), () {
+    // Triple-flash: on → off → on → fade
+    setState(() => _highlightedMessageId = messageId);
+    _highlightClearTimer = Timer(const Duration(milliseconds: 300), () {
       if (!mounted || _highlightedMessageId != messageId) return;
-      setState(() {
-        _highlightedMessageId = null;
+      setState(() => _highlightedMessageId = null);
+      Timer(const Duration(milliseconds: 150), () {
+        if (!mounted) return;
+        setState(() => _highlightedMessageId = messageId);
+        Timer(const Duration(milliseconds: 800), () {
+          if (!mounted || _highlightedMessageId != messageId) return;
+          setState(() => _highlightedMessageId = null);
+        });
       });
     });
   }
@@ -686,6 +966,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String label,
     required String kind,
   }) async {
+    final l = AppLocalizations.of(context)!;
     final absolute = _absoluteMediaUrl(raw);
     if (absolute.isEmpty) {
       if (!mounted) {
@@ -693,7 +974,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
+      ).showSnackBar(
+        SnackBar(content: Text(l.classroomDetailAttachmentUnavailable)),
+      );
       return;
     }
 
@@ -725,11 +1008,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Audio unavailable.')));
+        ).showSnackBar(
+          SnackBar(content: Text(l.classroomDetailAudioUnavailable)),
+        );
         return;
       }
 
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
       return;
     }
 
@@ -753,14 +1038,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
+      ).showSnackBar(
+        SnackBar(content: Text(l.classroomDetailAttachmentUnavailable)),
+      );
       return;
     }
 
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final ok = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open attachment.')),
+        SnackBar(content: Text(l.classroomDetailCouldNotOpenAttachment)),
       );
     }
   }
@@ -805,6 +1092,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   String _fileLabelFromMessageText(String text, String kind) {
+    final l = AppLocalizations.of(context)!;
     final v = text.trim();
     if (v.startsWith('[IMAGE] ')) return v.substring(8).trim();
     if (v.startsWith('[VOICE] ')) return v.substring(8).trim();
@@ -815,32 +1103,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
     switch (kind) {
       case 'VOICE':
-        return 'Voice message';
+        return l.classroomDetailVoiceMessage;
       case 'VIDEO':
-        return 'Video file';
+        return l.classroomDetailVideoFile;
       case 'DOC':
       case 'FILE':
-        return 'Attached file';
+        return l.classroomDetailAttachedFile;
       default:
-        return 'Attachment';
+        return l.classroomDetailAttachment;
     }
   }
 
   String _classroomKindInfoLabel(String kind) {
-    switch (kind.trim().toUpperCase()) {
-      case 'IMAGE':
-        return 'Photo';
-      case 'VOICE':
-        return 'Voice note';
-      case 'VIDEO':
-        return 'Video';
-      case 'DOC':
-      case 'FILE':
-        return 'File';
-      case 'TEXT':
-      default:
-        return 'Message';
-    }
+    return _classroomKindLabel(kind);
   }
 
   String _fmtInfoDurationSeconds(int? seconds) {
@@ -872,7 +1147,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       CupertinoPageRoute<void>(
         builder: (_) => ChatMessageInfoPage(
           info: ChatMessageInfo(
-            title: 'Message info',
+            title: AppLocalizations.of(context)!.classroomDetailMessageInfoTitle,
             sentAt: sentAt,
             deliveredAt: '',
             seenAt: '',
@@ -913,9 +1188,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   bool _typing = false;
   bool _classroomTabsCollapsed = false;
+  int _activeClassroomTabIndex = 0;
   String? _replyToMessageId;
   String? _replyToSender;
   String? _replyToText;
+  String? _editingMessageId;
+  String? _editingOriginalText;
 
   int _lastChatCount = -1;
   String? _knownLastClassroomMessageId;
@@ -924,6 +1202,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Map<String, String> _reactionByMessage = <String, String>{};
   Map<String, String> _editedTextByMessage = <String, String>{};
   Set<String> _deletedMessageIds = <String>{};
+  final Set<String> _deletedForEveryoneMessageIds = <String>{};
 
   @override
   void initState() {
@@ -984,6 +1263,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
     Future.microtask(_markChatSeen);
     _tabs.addListener(() {
+      if (!mounted) {
+        return;
+      }
+      if (!_tabs.indexIsChanging && _activeClassroomTabIndex != _tabs.index) {
+        setState(() {
+          _activeClassroomTabIndex = _tabs.index;
+        });
+      }
       if (!_tabs.indexIsChanging && _tabs.index == 0) {
         Future.microtask(_markChatSeen);
       }
@@ -1015,16 +1302,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
   String _key(String suffix) => 'classroom_chat:${widget.courseId}:$suffix';
 
-  Future<void> _loadLocalChatState() async {
+    Future<void> _loadLocalChatState() async {
     final prefs = await SharedPreferences.getInstance();
 
     final reactionsRaw = prefs.getString(_key('reactions'));
     final editsRaw = prefs.getString(_key('edits'));
     final deletedRaw = prefs.getString(_key('deleted'));
+    final deletedForEveryoneRaw = prefs.getString(_key('deleted_for_everyone'));
+
 
     Map<String, String> reactions = <String, String>{};
     Map<String, String> edits = <String, String>{};
     Set<String> deleted = <String>{};
+    Set<String> deletedForEveryone = <String>{};
 
     if (reactionsRaw != null && reactionsRaw.trim().isNotEmpty) {
       final decoded = jsonDecode(reactionsRaw);
@@ -1051,6 +1341,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       }
     }
 
+    if (deletedForEveryoneRaw != null &&
+        deletedForEveryoneRaw.trim().isNotEmpty) {
+      final decoded = jsonDecode(deletedForEveryoneRaw);
+      if (decoded is List) {
+        deletedForEveryone = decoded.map((e) => e.toString()).toSet();
+      }
+    }
+
     if (!mounted) {
       return;
     }
@@ -1058,17 +1356,28 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       _reactionByMessage = reactions;
       _editedTextByMessage = edits;
       _deletedMessageIds = deleted;
+      _deletedForEveryoneMessageIds
+        ..clear()
+        ..addAll(deletedForEveryone);
     });
+
   }
 
-  Future<void> _persistLocalChatState() async {
+    Future<void> _persistLocalChatState() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key('reactions'), jsonEncode(_reactionByMessage));
-    await prefs.setString(_key('edits'), jsonEncode(_editedTextByMessage));
-    await prefs.setString(
-      _key('deleted'),
-      jsonEncode(_deletedMessageIds.toList()..sort()),
-    );
+    final reactionsJson = jsonEncode(_reactionByMessage);
+    final editsJson = jsonEncode(_editedTextByMessage);
+    final deletedJson = jsonEncode(_deletedMessageIds.toList()..sort());
+    final deletedForEveryoneJson = jsonEncode(_deletedForEveryoneMessageIds.toList()..sort());
+
+    debugPrint('[CLASSROOM_PERSIST] course=${widget.courseId} deleted=${_deletedMessageIds.toList()..sort()} deletedForEveryone=${_deletedForEveryoneMessageIds.toList()..sort()}');
+
+    await prefs.setString(_key('reactions'), reactionsJson);
+    await prefs.setString(_key('edits'), editsJson);
+    await prefs.setString(_key('deleted'), deletedJson);
+    await prefs.setString(_key('deleted_for_everyone'), deletedForEveryoneJson);
+
+    debugPrint('[CLASSROOM_PERSIST_DONE] course=${widget.courseId} deletedRaw=${prefs.getString(_key('deleted')) ?? 'null'} deletedForEveryoneRaw=${prefs.getString(_key('deleted_for_everyone')) ?? 'null'}');
   }
 
   void _refreshAll() {
@@ -1121,6 +1430,44 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
   }
 
+  void _clearClassroomEdit() {
+    _editingMessageId = null;
+    _editingOriginalText = null;
+  }
+
+  String _resolveMyUserId(Map<String, String> peopleMap) {
+    final session = ref.read(authSessionProvider);
+    final display = session.displayName.trim().toLowerCase();
+    final token = (session.token ?? '').trim().toLowerCase();
+    final tokenLocal = token.contains('@')
+        ? token.split('@').first.trim().toLowerCase()
+        : token;
+    final tokenLocalClean = tokenLocal.replaceFirst(
+      RegExp(r'^dev-token-'),
+      '',
+    );
+
+    for (final entry in peopleMap.entries) {
+      final id = entry.key.trim();
+      final name = entry.value.trim().toLowerCase();
+      final idLower = id.toLowerCase();
+
+      if (display.isNotEmpty &&
+          (name == display || name.contains(display) || display.contains(name))) {
+        return id;
+      }
+      if (token.isNotEmpty && idLower == token) {
+        return id;
+      }
+      if (tokenLocalClean.isNotEmpty &&
+          (name == tokenLocalClean || name.contains(tokenLocalClean))) {
+        return id;
+      }
+    }
+
+    return '';
+  }
+
   Future<void> _setReaction(String messageId, String emoji) async {
     setState(() {
       if (_reactionByMessage[messageId] == emoji) {
@@ -1171,7 +1518,145 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => const _ClassroomForwardTargetPickerSheet(),
+      builder: (_) => _ClassroomForwardTargetPickerSheet(
+        currentThreadId: widget.courseId,
+      ),
+    );
+  }
+
+  void _enterForwardSelectionMode(String messageId) {
+    if (!mounted) return;
+    setState(() {
+      _isForwardSelectionMode = true;
+      _forwardSelectedMessageIds
+        ..clear()
+        ..add(messageId);
+      _deleteSelection.clear();
+      _clearClassroomEdit();
+    });
+  }
+
+  void _exitForwardSelectionMode() {
+    if (!mounted) return;
+    setState(() {
+      _isForwardSelectionMode = false;
+      _forwardSelectedMessageIds.clear();
+    });
+  }
+
+  void _openForwardedIfSingle(List<String> targetThreadIds) {
+    if (targetThreadIds.length != 1 || !mounted) return;
+    final targetId = targetThreadIds.first;
+    final knownClassrooms =
+        ref.read(orderedStudentClassroomsProvider).asData?.value ?? const [];
+    final isClassroom = knownClassrooms.any(
+      (c) => (c['id'] ?? '').toString().trim() == targetId,
+    );
+    if (isClassroom) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ClassroomDetailScreen(courseId: targetId),
+        ),
+      );
+    } else {
+      context.push('/messages/$targetId');
+    }
+  }
+
+  Future<void> _forwardSelectedClassroomMessages() async {
+    if (_forwardSelectedMessageIds.isEmpty) return;
+    final l = AppLocalizations.of(context)!;
+
+    final targetThreadIds = await _showClassroomForwardTargetPicker();
+    if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
+      return;
+    }
+
+    final selectedRows = _lastVisibleClassroomRows
+        .where((row) => _forwardSelectedMessageIds.contains(_pick(row, 'id')))
+        .toList(growable: false);
+
+    try {
+      for (final row in selectedRows) {
+        final id = _pick(row, 'id');
+        await ref.read(classroomsRepoProvider).forwardChatMessage(
+              widget.courseId,
+              messageId: id,
+              targetThreadIds: targetThreadIds,
+            );
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _forwardSelectedMessageIds.length == 1
+                ? l.classroomDetailForwardedSingle
+                : l.classroomDetailForwardedMultiple(
+                    _forwardSelectedMessageIds.length,
+                  ),
+          ),
+        ),
+      );
+      _openForwardedIfSingle(targetThreadIds);
+    } catch (e) {
+      if (!mounted) return;
+      final text = e.toString();
+      final message = text.contains('Cannot forward into a non-approved thread')
+          ? l.classroomDetailCannotForwardPending
+          : l.classroomDetailCouldNotForwardSelected;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isForwardSelectionMode = false;
+          _forwardSelectedMessageIds.clear();
+        });
+      }
+    }
+  }
+
+  Widget _buildForwardModeHeader() {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      child: LiquidGlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        borderRadius: BorderRadius.circular(16),
+        blurSigma: 14,
+        color: cs.surface.withValues(alpha: 0.88),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.22),
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: _exitForwardSelectionMode,
+              icon: const Icon(Icons.close_rounded),
+              tooltip: AppLocalizations.of(context)!.classroomsForwardCancel,
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.classroomsForwardCount(
+                  _forwardSelectedMessageIds.length,
+                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: _forwardSelectedMessageIds.isEmpty
+                  ? null
+                  : _forwardSelectedClassroomMessages,
+              icon: const Icon(Icons.forward_rounded),
+              tooltip: 'Forward selected',
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1184,24 +1669,52 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         normalized == 'Forwarded';
   }
 
+  bool _isTruthyForwardedValue(String raw) {
+    final v = raw.trim().toLowerCase();
+    return v == 'true' || v == '1' || v == 'yes';
+  }
+
+  bool _isClassroomMessageForwarded(
+    dynamic item, {
+    required String text,
+    required String originalText,
+  }) {
+    final metadataCandidates = <String>[
+      _pick(item, 'forwarded'),
+      _pick(item, 'isForwarded'),
+      _pick(item, 'forwardedFlag'),
+    ];
+
+    for (final candidate in metadataCandidates) {
+      if (_isTruthyForwardedValue(candidate)) return true;
+    }
+
+    return _isClassroomForwardedText(text) ||
+        _isClassroomForwardedText(originalText);
+  }
+
   Future<void> _forwardPlaceholder({
     required String messageId,
     required String text,
     required String mediaUrl,
   }) async {
-    final label = editableBodyText(text).trim().isNotEmpty
-        ? editableBodyText(text).trim()
-        : (mediaUrl.trim().isNotEmpty ? mediaUrl.split('/').last : 'Message');
+    final l = AppLocalizations.of(context)!;
+    final label = _editableBodyText(text).trim().isNotEmpty
+        ? _editableBodyText(text).trim()
+        : (mediaUrl.trim().isNotEmpty
+              ? mediaUrl.split('/').last
+              : l.classroomsMessageFallback);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Forward target picker next: $label')),
+      SnackBar(content: Text(l.classroomDetailForwardTargetNext(label))),
     );
   }
 
-  Future<void> _deleteMessage(String messageId) async {
+    Future<void> _deleteMessage(String messageId) async {
     setState(() {
       _deletedMessageIds.add(messageId);
+      _deletedForEveryoneMessageIds.remove(messageId);
       _reactionByMessage.remove(messageId);
       _editedTextByMessage.remove(messageId);
     });
@@ -1213,7 +1726,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String messageId,
     required String currentText,
   }) async {
-    final ctl = TextEditingController(text: editableBodyText(currentText));
+    final l = AppLocalizations.of(context)!;
+    final ctl = TextEditingController(text: _editableBodyText(currentText));
     final next = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -1228,8 +1742,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Edit message',
+              Text(
+                l.classroomDetailEditMessageTitle,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 5),
@@ -1238,12 +1752,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 autofocus: true,
                 minLines: 2,
                 maxLines: 6,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(18)),
                   ),
-                  hintText: 'Edit your message...',
-                  contentPadding: EdgeInsets.symmetric(
+                  hintText: l.classroomDetailEditMessageHint,
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 14,
                   ),
@@ -1256,7 +1770,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     fit: FlexFit.loose,
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(l.classroomsForwardCancel),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -1264,7 +1778,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     fit: FlexFit.loose,
                     child: FilledButton(
                       onPressed: () => Navigator.pop(context, ctl.text.trim()),
-                      child: const Text('Save'),
+                      child: Text(l.profileSave),
                     ),
                   ),
                 ],
@@ -1322,7 +1836,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     setState(() {
       _replyToMessageId = messageId;
       _replyToSender = sender;
-      _replyToText = replyPreviewText(text);
+      _replyToText = _replyPreviewText(text);
     });
   }
 
@@ -1366,7 +1880,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return false;
     }
 
-    return editableBodyText(raw).trim().isNotEmpty;
+    return _editableBodyText(raw).trim().isNotEmpty;
   }
 
   String _pickKindFromRaw(String text, String mediaUrl) {
@@ -1404,50 +1918,70 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String senderLabel,
     required bool isMine,
     required bool edited,
+    required bool forwarded,
     required String timeLabel,
     int? voiceDurationSeconds,
   }) async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => ChatMessageActionsSheet(
-        canEdit:
-            isMine &&
-            _classroomCanEditMessage(
-              messageId: messageId,
-              text: text,
-              mediaUrl: mediaUrl,
-              kind: kind,
-            ),
-        canDelete: isMine,
-        canViewInfo: isMine,
-        canPin: true,
-        canForward: true,
+    final action = await ChatContextOverlay.show(
+      context,
+      isMine: isMine,
+      canReply: true,
+      canEdit: isMine &&
+          _classroomCanEditMessage(
+            messageId: messageId,
+            text: text,
+            mediaUrl: mediaUrl,
+            kind: kind,
+          ),
+      canDelete: isMine,
+      canViewInfo: isMine,
+      canPin: true,
+        pinLabel: _pinnedMessageIds.contains(messageId)
+          ? AppLocalizations.of(context)!.classroomDetailUnpinAction
+          : AppLocalizations.of(context)!.classroomDetailPinAction,
+      canForward: true,
+      canCopy: false,
+      messageBubble: ChatMessageBubble(
+        contextForNavigation: context,
+        rawText: text,
+        mediaUrl: mediaUrl,
+        isMine: isMine,
+        showName: false,
+        senderLabel: senderLabel,
+        timeLabel: timeLabel,
+        edited: edited,
+        reaction: _reactionByMessage[messageId],
+        forwarded: forwarded,
+        delivered: false,
+        seen: false,
+        deleteState: 'VISIBLE',
+        voiceDurationSeconds: voiceDurationSeconds,
+        voiceUnread: false,
+        onVoicePlayed: null,
+        replySender: null,
+        replySnippet: null,
+        mediaMimeType: null,
+        messageKind: kind,
+        maxWidth: 260,
       ),
     );
 
     if (action == null || action.trim().isEmpty) return;
 
     if (action == 'info') {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
       await _showClassroomMessageInfo(
         sentAt: timeLabel,
         isMine: isMine,
         edited: edited,
-        forwarded: _isClassroomForwardedText(text),
+        forwarded: forwarded,
         deleteState: 'VISIBLE',
         kind: kind,
-        previewTitle: isMine ? 'You' : senderLabel,
-        previewBody: editableBodyText(text).trim().isEmpty
-            ? (kind.trim().toUpperCase() == 'IMAGE'
-                  ? 'Photo'
-                  : kind.trim().toUpperCase() == 'VIDEO'
-                  ? 'Video'
-                  : kind.trim().toUpperCase() == 'VOICE'
-                  ? 'Voice note'
-                  : kind.trim().toUpperCase() == 'FILE'
-                  ? 'File'
-                  : '(empty)')
-            : editableBodyText(text),
+        previewTitle: _classroomSenderLabel(isMine, senderLabel),
+        previewBody: _classroomPreviewBody(text, kind),
         previewMeta: timeLabel,
         previewMediaUrl: mediaUrl,
         previewBubbleBuilder: (infoContext) => ChatMessageBubble(
@@ -1460,15 +1994,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           timeLabel: timeLabel,
           edited: edited,
           reaction: _reactionByMessage[messageId],
-          forwarded: _isClassroomForwardedText(text),
+          forwarded: forwarded,
           delivered: false,
           seen: false,
           deleteState: 'VISIBLE',
           voiceDurationSeconds: voiceDurationSeconds,
           voiceUnread: false,
           onVoicePlayed: null,
-          replySender: splitReplyRaw(text).replyPrefix.trim(),
-          replySnippet: replyPreviewText(text),
+          replySender: _splitReplyRaw(text).replyPrefix.trim(),
+          replySnippet: _replyPreviewText(text),
           mediaMimeType: null,
           messageKind: kind,
           maxWidth: 280,
@@ -1478,55 +2012,33 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'reply') {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
       _replyTo(
         messageId: messageId,
         sender: senderLabel,
-        text: editableBodyText(text),
+        text: _editableBodyText(text),
       );
       return;
     }
 
     if (action == 'pin') {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
       await _togglePinMessage(messageId);
       return;
     }
 
     if (action == 'forward') {
-      final targetThreadIds = await _showClassroomForwardTargetPicker();
-      if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
-        return;
-      }
-
-      try {
-        await ref
-            .read(classroomsRepoProvider)
-            .forwardChatMessage(
-              widget.courseId,
-              messageId: messageId,
-              targetThreadIds: targetThreadIds,
-            );
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              targetThreadIds.length == 1
-                  ? 'Forwarded'
-                  : 'Forwarded to ${targetThreadIds.length} chats',
-            ),
-          ),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        final text = e.toString();
-        final message =
-            text.contains('Cannot forward into a non-approved thread')
-            ? 'Cannot forward into a request chat until it is approved'
-            : 'Could not forward this message';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      }
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
+      _enterForwardSelectionMode(messageId);
       return;
     }
 
@@ -1540,30 +2052,74 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     }
 
     if (action == 'edit') {
-      await _editMessage(context, messageId: messageId, currentText: text);
+      setState(() {
+        _deleteSelection.clear();
+        _editingMessageId = messageId;
+        _editingOriginalText = _editableBodyText(text);
+        _chatCtl.value = TextEditingValue(
+          text: _editableBodyText(text),
+          selection: TextSelection.collapsed(
+            offset: _editableBodyText(text).length,
+          ),
+        );
+      });
       return;
     }
 
     if (action == 'delete') {
-      await _deleteMessage(messageId);
+      setState(() {
+        _clearClassroomEdit();
+        _deleteSelection
+          ..clear()
+          ..add(messageId);
+      });
       return;
     }
   }
 
+  Future<void> _beginInlineEditClassroom({
+    required String messageId,
+    required String text,
+    required String mediaUrl,
+    required String kind,
+  }) async {
+    if (!_classroomCanEditMessage(
+      messageId: messageId,
+      text: text,
+      mediaUrl: mediaUrl,
+      kind: kind,
+    )) {
+      return;
+    }
+
+    final original = _editableBodyText(text).trimRight();
+
+    setState(() {
+      _clearReply();
+      _editingMessageId = messageId;
+      _editingOriginalText = original;
+      _chatCtl.value = TextEditingValue(
+        text: original,
+        selection: TextSelection.collapsed(offset: original.length),
+      );
+    });
+  }
+
   Future<void> _leaveClassroom() async {
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Leave classroom?'),
-        content: const Text('You will be removed from this classroom.'),
+        title: Text(l.classroomDetailLeaveClassroomTitle),
+        content: Text(l.classroomDetailLeaveClassroomBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.classroomsForwardCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Leave'),
+            child: Text(l.classroomDetailLeaveAction),
           ),
         ],
       ),
@@ -1584,6 +2140,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
 
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final detail = ref.watch(classroomDetailProvider(widget.courseId));
     final people = ref.watch(classroomPeopleProvider(widget.courseId));
     final chat = ref.watch(
@@ -1625,18 +2182,30 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           );
         },
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [_classroomComposer()],
-      ),
+      bottomNavigationBar: _activeClassroomTabIndex == 0
+          ? AnimatedPadding(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [_classroomComposer()],
+              ),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           children: [
-            detail.when(
-              loading: () => const _HeaderSkeleton(),
-              error: (e, st) => _TopHeader(
+            if (_isForwardSelectionMode)
+              _buildForwardModeHeader()
+            else
+              detail.when(
+                loading: () => const _HeaderSkeleton(),
+                error: (e, st) => _TopHeader(
                 icon: Icons.book_rounded,
-                subject: 'Classroom',
+                subject: l.classroomsClassroomLabel,
                 subtitle: widget.courseId,
                 onRefresh: () async {
                   _refreshAll();
@@ -1656,7 +2225,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 subject:
                     ((m['name'] ?? '').toString().trim().isNotEmpty
                             ? (m['name'] ?? '').toString()
-                            : (m['subject'] ?? 'Classroom').toString())
+                      : (m['subject'] ?? l.classroomsClassroomLabel)
+                        .toString())
                         .trim(),
                 subtitle:
                     ((m['subject'] ?? '').toString().trim().isNotEmpty
@@ -1680,7 +2250,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             const SizedBox(height: 0),
             if (!_classroomTabsCollapsed)
               _CenteredTabs(controller: _tabs),
-            if (_tabs.index == 0)
+            if (_activeClassroomTabIndex == 0)
               _PinnedMessagesStrip(
                 rows: _pinnedClassroomRows(_lastVisibleClassroomRows),
                 onTapMessage: _jumpToClassroomMessage,
@@ -1709,19 +2279,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                               _pick(item, 'text'))
                           .trim();
 
-                  final body = editableBodyText(raw).trim();
+                  final body = _editableBodyText(raw).trim();
                   final kind = _pick(item, 'kind').trim().toUpperCase();
 
                   final title = body.isNotEmpty
                       ? body
                       : (kind == 'IMAGE'
-                            ? 'Photo'
+                        ? l.classroomDetailPhoto
                             : kind == 'VIDEO'
-                            ? 'Video'
+                        ? l.classroomDetailVideo
                             : kind == 'VOICE'
-                            ? 'Voice note'
+                        ? l.classroomDetailVoiceNote
                             : kind == 'FILE'
-                            ? 'File'
+                        ? l.classroomDetailFile
                             : senderName);
 
                   return title;
@@ -1741,31 +2311,42 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                   ),
                   _listTab(
                     value: assignments,
-                    emptyTitle: 'No assignments yet',
-                    emptySubtitle:
-                        'This classroom has no assignments right now.',
+                    emptyTitle: l.classroomDetailNoAssignmentsTitle,
+                    emptySubtitle: l.classroomDetailNoAssignmentsSubtitle,
                     itemBuilder: (item) => _SimpleCard(
-                      title: _pick(item, 'title', fallback: 'Assignment'),
+                      title: _pick(
+                        item,
+                        'title',
+                        fallback: l.classroomDetailAssignmentFallback,
+                      ),
                       subtitle: _pick(item, 'body'),
                       trailing: _friendlyDateTime(_pick(item, 'dueAt')),
                     ),
                   ),
                   _listTab(
                     value: materials,
-                    emptyTitle: 'No materials yet',
-                    emptySubtitle: 'This classroom has no materials right now.',
+                    emptyTitle: l.classroomDetailNoMaterialsTitle,
+                    emptySubtitle: l.classroomDetailNoMaterialsSubtitle,
                     itemBuilder: (item) => _SimpleCard(
-                      title: _pick(item, 'title', fallback: 'Material'),
+                      title: _pick(
+                        item,
+                        'title',
+                        fallback: l.classroomDetailMaterialFallback,
+                      ),
                       subtitle: _pick(item, 'description'),
                       trailing: _pick(item, 'mime'),
                     ),
                   ),
                   _listTab(
                     value: meetings,
-                    emptyTitle: 'No meetings yet',
-                    emptySubtitle: 'This classroom has no meetings right now.',
+                    emptyTitle: l.classroomDetailNoMeetingsTitle,
+                    emptySubtitle: l.classroomDetailNoMeetingsSubtitle,
                     itemBuilder: (item) => _SimpleCard(
-                      title: _pick(item, 'title', fallback: 'Meeting'),
+                      title: _pick(
+                        item,
+                        'title',
+                        fallback: l.classroomDetailMeetingFallback,
+                      ),
                       subtitle: _pick(item, 'agenda'),
                       trailing: _friendlyDateTime(_pick(item, 'startsAt')),
                     ),
@@ -1781,11 +2362,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Widget _peopleTab(AsyncValue<Map<String, dynamic>> people) {
+    final l = AppLocalizations.of(context)!;
     return people.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, st) => _CenteredState(
         icon: Icons.group_outlined,
-        title: 'Could not load people',
+        title: l.classroomDetailCouldNotLoadPeople,
         subtitle: '$e',
       ),
       data: (m) {
@@ -1800,7 +2382,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         if (teacher is Map) {
           raw.add(<String, dynamic>{
             'id': teacherUserId,
-            'name': (teacher['name'] ?? teacher['email'] ?? 'Teacher')
+            'name': (teacher['name'] ?? teacher['email'] ?? l.roleTeacher)
                 .toString(),
             'email': (teacher['email'] ?? '').toString(),
           });
@@ -1817,10 +2399,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
 
         if (raw.isEmpty) {
-          return const _CenteredState(
+          return _CenteredState(
             icon: Icons.group_outlined,
-            title: 'No people yet',
-            subtitle: 'Nobody is visible in this classroom yet.',
+            title: l.classroomDetailNoPeopleTitle,
+            subtitle: l.classroomDetailNoPeopleSubtitle,
           );
         }
 
@@ -1835,7 +2417,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 2),
           itemBuilder: (context, index) {
             final item = raw[index];
-            final name = _pick(item, 'name', fallback: 'Student');
+            final name = _pick(item, 'name', fallback: l.student);
             final email = _pick(item, 'email');
             return Container(
               padding: const EdgeInsets.all(12),
@@ -1881,11 +2463,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     required String emptySubtitle,
     required Widget Function(dynamic item) itemBuilder,
   }) {
+    final l = AppLocalizations.of(context)!;
     return value.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, st) => _CenteredState(
         icon: Icons.cloud_off_rounded,
-        title: 'Could not load tab',
+        title: l.classroomDetailCouldNotLoadTab,
         subtitle: '$e',
       ),
       data: (m) {
@@ -2049,6 +2632,64 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: initialPaths,
+          title: 'Preview',
+        ),
+      ),
+    );
+    if (!mounted || result == null) return;
+
+    final paths = result.paths.isNotEmpty ? result.paths : initialPaths;
+    if (paths.isEmpty) return;
+
+    await _sendClassroomPickedMedia(
+      paths.where((e) => e.trim().isNotEmpty).map((e) => e.trim()).toList(),
+      caption: result.caption.trim(),
+    );
+  }
+
+  Future<void> _pickClassroomPhoto() async {
+    if (_sending || _recording) return;
+    final shot = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 92,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (shot == null || !mounted || shot.path.trim().isEmpty) return;
+    await _previewClassroomPickedMedia([shot.path.trim()]);
+  }
+
+  Future<void> _recordClassroomVideo() async {
+    if (_sending || _recording) return;
+    final shot = await _imagePicker.pickVideo(
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.rear,
+      maxDuration: const Duration(minutes: 2),
+    );
+    if (shot == null || !mounted || shot.path.trim().isEmpty) return;
+    await _previewClassroomPickedMedia([shot.path.trim()]);
+  }
+
+  Future<void> _pickClassroomGalleryMedia() async {
+    if (_sending || _recording) return;
+    final picked = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.media,
+    );
+    if (picked == null || !mounted) return;
+    final paths = picked.files
+        .map((e) => e.path ?? '')
+        .where((e) => e.trim().isNotEmpty)
+        .map((e) => e.trim())
+        .toList();
+    if (paths.isEmpty) return;
+    await _previewClassroomPickedMedia(paths);
+  }
+
+  Future<void> _previewClassroomPickedMedia(List<String> initialPaths) async {
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) => ChatMediaPreviewScreen(
@@ -2256,32 +2897,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
 
-    final willCancel = dx <= -56;
-    final willLock = dy <= -44;
-
-    if (willCancel && !_voiceCancelled) {
-      setState(() {
-        _holdDx = dx;
-        _holdDy = dy;
-        _voiceCancelled = true;
-      });
-      _cancelVoiceDraft();
-      return;
-    }
-
-    if (willLock && !_voiceLocked) {
-      setState(() {
-        _holdDx = dx;
-        _holdDy = dy;
-        _voiceLocked = true;
-        _voicePaused = false;
-      });
-      return;
-    }
+    final willCancel = dx <= -chatRecordingCancelThreshold;
+    final willLock = dy <= -chatRecordingLockThreshold;
 
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
+      _voiceCancelled = willCancel;
+      _voiceLocked = willLock;
+      if (!willLock) {
+        _voicePaused = false;
+      }
     });
   }
 
@@ -2385,8 +3011,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     });
   }
 
-  Widget _recordHud() => const SizedBox.shrink();
-
   Future<void> _toggleClassroomMic({bool sendNow = false}) async {
     if (_sending) {
       return;
@@ -2429,8 +3053,34 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission denied')),
+      await showDialog<void>(
+        context: context,
+        builder: (dialogCtx) => AlertDialog(
+          title: Text(
+            AppLocalizations.of(dialogCtx)!
+                .classroomDetailMicrophoneAccessTitle,
+          ),
+          content: Text(
+            AppLocalizations.of(dialogCtx)!
+                .classroomDetailMicrophoneAccessBody,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: Text(AppLocalizations.of(dialogCtx)!.classroomsForwardCancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogCtx).pop();
+                await launchUrl(Uri.parse('app-settings:'));
+              },
+              child: Text(
+                AppLocalizations.of(dialogCtx)!
+                    .classroomDetailOpenSettingsAction,
+              ),
+            ),
+          ],
+        ),
       );
       return;
     }
@@ -2473,6 +3123,53 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _sendClassroomChat() async {
     final repo = ref.read(classroomsRepoProvider);
     final text = _chatCtl.text.trim();
+
+    if (_editingMessageId != null) {
+      final original = (_editingOriginalText ?? '').trim();
+      if (text == original) {
+        if (!mounted) return;
+        setState(() {
+          _deleteSelection.clear();
+          _clearClassroomEdit();
+          _chatCtl.clear();
+        });
+        return;
+      }
+
+      if (text.isEmpty) return;
+
+      HapticFeedback.lightImpact();
+      setState(() => _sending = true);
+      try {
+        await repo.editChatMessage(
+          widget.courseId,
+          messageId: _editingMessageId!,
+          text: text,
+        );
+
+        _chatCtl.clear();
+        _clearClassroomEdit();
+
+        ref.invalidate(
+          classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+        );
+        _pinClassroomToBottom(jump: true);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Message editing is temporarily unavailable.'),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _sending = false);
+        }
+      }
+      return;
+    }
+
     final composedText = _replyToMessageId != null
         ? composeReplyText(
             sender: (_replyToSender ?? '').trim(),
@@ -2559,6 +3256,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       if (text.isNotEmpty || sentAnyMedia) {
         _clearReply();
+        _clearClassroomEdit();
       }
 
       if (mounted) {
@@ -2862,23 +3560,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _draftAttachments.isNotEmpty ||
         (_draftVoicePath ?? '').trim().isNotEmpty;
 
+    if (!hasDrafts) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _recordHud(),
-        if (hasDrafts)
-          SizedBox(
-            height: 72,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                ..._draftAttachments.map(_classroomDraftChip),
-                if ((_draftVoicePath ?? '').trim().isNotEmpty)
-                  _classroomVoiceDraftChip(),
-              ],
-            ),
+        SizedBox(
+          height: 72,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              ..._draftAttachments.map(_classroomDraftChip),
+              if ((_draftVoicePath ?? '').trim().isNotEmpty)
+                _classroomVoiceDraftChip(),
+            ],
           ),
-        if (hasDrafts) const SizedBox(height: 2),
+        ),
+        const SizedBox(height: 2),
       ],
     );
   }
@@ -2927,134 +3627,231 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }
 
   Widget _classroomTypingIndicator() {
-    if (!_typing || _sending) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          'Typing…',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      ),
-    );
+    // Show animated dots briefly after the user sends a message,
+    // giving live feedback while waiting for peers to respond.
+    if (!_sending) return const SizedBox.shrink();
+    return const TypingIndicatorRow(label: 'Sending...');
   }
 
   Widget _classroomComposer() {
-    return ChatComposer(
-      controller: _chatCtl,
-      topContent: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _classroomTypingIndicator(),
-          _classroomComposerTopContent(),
-        ],
-      ),
-      enabled: !_sending,
-      isStreaming: false,
-      isRecording: _recording,
-      isVoiceLocked: _voiceLocked,
-      isVoicePaused: _voicePaused,
-      recordingElapsed: _recordElapsed,
-      hintText: 'Message',
-      onSend: _sending || _recording ? () {} : _sendClassroomChat,
-      onCamera: _sending || _recording
-          ? () {}
-          : _pickClassroomCameraOrUploadImage,
-      onAttach: _sending || _recording ? () {} : _pickClassroomFiles,
-      onMic: () async {
-        if (_sending) return;
-        if (_recording) {
-          await _stopVoiceNoteAndSend();
-          return;
-        }
-        await _startVoiceNote();
-        if (!mounted) return;
-        setState(() {
-          _voiceLocked = true;
-          _voicePaused = false;
-          _voiceCancelled = false;
-          _holdStartGlobal = null;
-          _holdDx = 0;
-          _holdDy = 0;
-        });
-      },
-      onMicHoldStart: _micHoldStart,
-      onMicHoldMove: _micHoldMove,
-      onMicHoldEnd: _micHoldEnd,
-      onMicHoldCancel: _micHoldCancel,
-      onActiveHoldMove: _updateActiveHold,
-      onActiveHoldRelease: _finishActiveHold,
-      onActiveHoldCancel: _micHoldCancel,
-      activeHoldDx: _holdDx,
-      activeHoldDy: _holdDy,
-      onTrashRecording: _cancelVoiceDraft,
-      onPauseRecording: _pauseVoiceRecord,
-      onResumeRecording: _resumeVoiceRecord,
-      showCamera: true,
-      showAttach: true,
-      showMic: true,
-      forceMicOnlyTap: false,
-      hasDraft:
-          _draftAttachments.isNotEmpty ||
-          (_draftVoicePath ?? '').trim().isNotEmpty,
-      replyingTo: _replyToMessageId == null
-          ? null
-          : (
-              senderName: _replyToSender?.trim().isNotEmpty == true
-                  ? _replyToSender!.trim()
-                  : 'Replying',
-              text: (_replyToText ?? '').trim(),
-            ),
-      onCancelReply: () {
-        setState(() {
-          _replyToMessageId = null;
-          _replyToSender = null;
-          _replyToText = null;
-        });
-      },
-      onTapReplyPreview: _replyToMessageId == null
-          ? null
-          : () => _jumpToClassroomMessage(_replyToMessageId!),
-    );
-  }
+    final l = AppLocalizations.of(context)!;
+    if (_deleteSelection.isNotEmpty) {
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          child: Row(
+            children: [
+              FilledButton.icon(
+                onPressed: () async {
+                  final ids = _deleteSelection.toList(growable: false);
+                  if (ids.isEmpty) return;
 
-  String _resolveMyUserId(Map<String, String> peopleMap) {
-    final session = ref.read(authSessionProvider);
-    final display = session.displayName.trim().toLowerCase();
-    final token = (session.token ?? '').trim().toLowerCase();
-    final tokenLocal = token.contains('@')
-        ? token.split('@').first.trim().toLowerCase()
-        : token;
-    final tokenLocalClean = tokenLocal.replaceFirst(RegExp(r'^dev-token-'), '');
+                  final choice = await showModalBottomSheet<String>(
+                    context: context,
+                    showDragHandle: true,
+                    builder: (_) => SafeArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.delete_outline_rounded),
+                            title: const Text('Delete for me'),
+                            onTap: () => Navigator.of(context).pop('me'),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.delete_forever_rounded),
+                            title: const Text('Delete for everyone'),
+                            subtitle: const Text('Removes for all participants'),
+                            onTap: () => Navigator.of(context).pop('everyone'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
 
-    for (final entry in peopleMap.entries) {
-      final key = entry.key.trim().toLowerCase();
-      final value = entry.value.trim().toLowerCase();
+                  if (!mounted || choice == null || choice.trim().isEmpty) {
+                    return;
+                  }
 
-      if (display.isNotEmpty &&
-          (value == display ||
-              value.contains(display) ||
-              display.contains(value))) {
-        return entry.key.trim();
-      }
+                  if (choice == 'everyone') {
+                    setState(() {
+                      _deletedForEveryoneMessageIds.addAll(ids);
+                      for (final id in ids) {
+                        _reactionByMessage.remove(id);
+                        _editedTextByMessage.remove(id);
+                        _deletedMessageIds.remove(id);
+                      }
+                      _deleteSelection.clear();
+                      _clearClassroomEdit();
+                    });
+                    await _persistLocalChatState();
+                    return;
+                  }
 
-      if (token.isNotEmpty && (key == token || value == token)) {
-        return entry.key.trim();
-      }
+                  for (final id in ids) {
+                    await _deleteMessage(id);
+                  }
 
-      if (tokenLocalClean.isNotEmpty &&
-          (value == tokenLocalClean ||
-              value.contains(tokenLocalClean) ||
-              tokenLocalClean.contains(value))) {
-        return entry.key.trim();
-      }
+                  if (!mounted) return;
+                  setState(() {
+                    _deleteSelection.clear();
+                    _clearClassroomEdit();
+                  });
+                },
+                icon: const Icon(Icons.delete_rounded),
+                label: Text(
+                  l.classroomDetailDeleteCount(_deleteSelection.length),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                l.classroomDetailSelectedCount(_deleteSelection.length),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const Spacer(),
+              IconButton(
+                tooltip: l.classroomDetailSelectAllTooltip,
+                onPressed: () {
+                  setState(() {
+                    _deleteSelection.addAll(
+                      _lastVisibleClassroomRows
+                          .map((row) => _pick(row, 'id'))
+                          .where((id) => id.isNotEmpty),
+                    );
+                  });
+                },
+                icon: const Icon(Icons.select_all_rounded),
+              ),
+              IconButton(
+                tooltip: l.classroomDetailCancelTooltip,
+                onPressed: () => setState(() {
+                  _deleteSelection.clear();
+                  _clearClassroomEdit();
+                }),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
-    return '';
+    if (_isForwardSelectionMode) {
+      return SafeArea(
+        top: false,
+        child: ChatComposer(
+          controller: _chatCtl,
+          topContent: const SizedBox.shrink(),
+          enabled: false,
+          isStreaming: false,
+          isRecording: false,
+          isVoiceLocked: false,
+          isVoicePaused: false,
+          recordingElapsed: Duration.zero,
+          hintText: 'Message',
+          onSend: () {},
+          onCamera: () {},
+          onAttach: () {},
+          onMic: () {},
+          onMicHoldStart: (_) {},
+          onMicHoldMove: (_) {},
+          onMicHoldEnd: (_) {},
+          onMicHoldCancel: () {},
+          onActiveHoldMove: (_) {},
+          onActiveHoldRelease: () {},
+          onActiveHoldCancel: () {},
+          activeHoldDx: 0,
+          activeHoldDy: 0,
+          onTrashRecording: () {},
+          onPauseRecording: () {},
+          onResumeRecording: () {},
+          showCamera: true,
+          showAttach: true,
+          showMic: true,
+          forceMicOnlyTap: false,
+        ),
+      );
+    }
+
+    return SafeArea(
+      top: false,
+      child: ChatComposer(
+        controller: _chatCtl,
+        replyingTo: _replyToMessageId == null
+            ? null
+            : (
+                senderName: (_replyToSender ?? '').trim().isEmpty
+                    ? 'Reply'
+                    : (_replyToSender ?? '').trim(),
+                text: (_replyToText ?? '').trim().isEmpty
+                    ? 'Message'
+                    : (_replyToText ?? '').trim(),
+              ),
+        onCancelReply: () {
+          setState(() {
+            _replyToMessageId = null;
+            _replyToSender = null;
+            _replyToText = null;
+          });
+        },
+        onTapReplyPreview: _replyToMessageId == null
+            ? null
+            : () => _jumpToClassroomMessage(_replyToMessageId!),
+        topContent: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _classroomTypingIndicator(),
+            _classroomComposerTopContent(),
+          ],
+        ),
+        enabled: !_sending,
+        isStreaming: false,
+        isRecording: _recording,
+        isVoiceLocked: _voiceLocked,
+        isVoicePaused: _voicePaused,
+        recordingElapsed: _recordElapsed,
+        hintText: 'Message',
+        onSend: _sending || _recording ? () {} : _sendClassroomChat,
+        onCamera: _sending || _recording ? () {} : _pickClassroomPhoto,
+        onAttach: _sending || _recording ? () {} : _pickClassroomFiles,
+        onVideo: _sending || _recording ? () {} : _recordClassroomVideo,
+        onGallery: _sending || _recording ? () {} : _pickClassroomGalleryMedia,
+        onMic: () async {
+          if (_sending) return;
+          if (_recording) {
+            await _stopVoiceNoteAndSend();
+            return;
+          }
+          await _startVoiceNote();
+          if (!mounted) return;
+          setState(() {
+            _voiceLocked = true;
+            _voicePaused = false;
+            _voiceCancelled = false;
+            _holdStartGlobal = null;
+            _holdDx = 0;
+            _holdDy = 0;
+          });
+        },
+        onMicHoldStart: _micHoldStart,
+        onMicHoldMove: _micHoldMove,
+        onMicHoldEnd: _micHoldEnd,
+        onMicHoldCancel: _micHoldCancel,
+        onActiveHoldMove: _updateActiveHold,
+        onActiveHoldRelease: _finishActiveHold,
+        onActiveHoldCancel: _micHoldCancel,
+        activeHoldDx: _holdDx,
+        activeHoldDy: _holdDy,
+        onTrashRecording: _cancelVoiceDraft,
+        onPauseRecording: _pauseVoiceRecord,
+        onResumeRecording: _resumeVoiceRecord,
+        showCamera: true,
+        showAttach: true,
+        showMic: true,
+        forceMicOnlyTap: false,
+      ),
+    );
   }
 
   Future<void> _showClassroomWaActionsAt(
@@ -3082,35 +3879,141 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       : 'Unknown'))
             .trim();
     final isMine = (_pick(item, 'isMine').trim().toLowerCase() == 'true');
-    final edited = (_pick(item, 'edited').trim().toLowerCase() == 'true');
     final timeLabel = _pick(item, 'timeLabel').trim();
-    final voiceDurationSeconds = int.tryParse(_pick(item, 'durationSec').trim());
+    final deletedForEveryone =
+
+        (_pick(item, 'deletedForEveryone').trim().toLowerCase() == 'true');
+    final isForwarded =
+        _isTruthyForwardedValue(_pick(item, 'forwarded')) ||
+        _isClassroomForwardedText(text);
+
+
+    if (deletedForEveryone) {
+
+      final action = await ChatContextOverlay.show(
+        context,
+        isMine: isMine,
+        canReply: false,
+        canDelete: true,
+        canCopy: false,
+        canForward: false,
+        canPin: false,
+        canViewInfo: false,
+        canEdit: false,
+        messageBubble: ChatMessageBubble(
+          contextForNavigation: context,
+          rawText: text,
+          mediaUrl: mediaUrl,
+          isMine: isMine,
+          showName: false,
+          senderLabel: senderLabel,
+          timeLabel: timeLabel,
+          edited: false,
+          reaction: null,
+          forwarded: false,
+          delivered: false,
+          seen: false,
+          deleteState: 'DELETED_FOR_EVERYONE',
+          voiceDurationSeconds: null,
+          voiceUnread: false,
+          onVoicePlayed: null,
+          replySender: null,
+          replySnippet: null,
+          mediaMimeType: null,
+          messageKind: kind,
+          maxWidth: 260,
+        ),
+      );
+
+
+      if (action != 'delete') return;
+
+
+      await _deleteMessage(messageId);
+
+      if (!mounted) return;
+
+      setState(() {
+
+        _deleteSelection.remove(messageId);
+
+        _clearClassroomEdit();
+
+        _replyToMessageId = null;
+
+        _replyToSender = null;
+
+        _replyToText = null;
+
+      });
+
+      return;
+
+    }
+
 
     final canEdit =
+
         isMine &&
+
         _classroomCanEditMessage(
+
           messageId: messageId,
+
           text: text,
+
           mediaUrl: mediaUrl,
+
           kind: kind,
+
         );
 
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => ChatMessageActionsSheet(
-        canEdit: canEdit,
-        canDelete: isMine,
-        canViewInfo: isMine,
-        canPin: true,
-        canForward: true,
-        pickerAllowedEmojis: classroomAllowedEmojis,
+
+    final action = await ChatContextOverlay.show(
+      context,
+      isMine: isMine,
+      canReply: !deletedForEveryone,
+      canEdit: canEdit,
+      canDelete: isMine,
+      canViewInfo: isMine,
+      canPin: true,
+        pinLabel: _pinnedMessageIds.contains(messageId)
+          ? AppLocalizations.of(context)!.classroomDetailUnpinAction
+          : AppLocalizations.of(context)!.classroomDetailPinAction,
+      canForward: !deletedForEveryone,
+      canCopy: false,
+      pickerAllowedEmojis: deletedForEveryone ? null : classroomAllowedEmojis,
+      messageBubble: ChatMessageBubble(
+        contextForNavigation: context,
+        rawText: text,
+        mediaUrl: mediaUrl,
+        isMine: isMine,
+        showName: false,
+        senderLabel: senderLabel,
+        timeLabel: timeLabel,
+        edited: _pick(item, 'edited').trim().toLowerCase() == 'true',
+        reaction: _reactionByMessage[messageId],
+        forwarded: isForwarded,
+        delivered: false,
+        seen: false,
+        deleteState: 'VISIBLE',
+        voiceDurationSeconds:
+            int.tryParse(_pick(item, 'durationSec').trim()),
+        voiceUnread: false,
+        onVoicePlayed: null,
+        replySender: null,
+        replySnippet: null,
+        mediaMimeType: null,
+        messageKind: kind,
+        maxWidth: 260,
       ),
     );
 
+
     if (action == null || action.trim().isEmpty) return;
 
-    if (action.startsWith('react:')) {
+
+    if (action.startsWith('react:') && !deletedForEveryone) {
       final emoji = action.substring('react:'.length).trim();
       if (emoji.isNotEmpty) {
         await _setReaction(messageId, emoji);
@@ -3118,66 +4021,113 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       return;
     }
 
-    if (action == 'reply') {
-      _replyTo(
-        messageId: messageId,
-        sender: senderLabel,
-        text: editableBodyText(text),
+    if (action == 'info' && !deletedForEveryone) {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
+      final durationSec = int.tryParse(_pick(item, 'durationSec').trim()) ?? 0;
+      await _showClassroomMessageInfo(
+        sentAt: timeLabel,
+        isMine: isMine,
+        edited: _pick(item, 'edited').trim().toLowerCase() == 'true',
+        forwarded: isForwarded,
+        deleteState: 'VISIBLE',
+        kind: kind,
+        previewTitle: _classroomSenderLabel(isMine, senderLabel),
+        previewBody: _classroomPreviewBody(text, kind),
+        previewMeta: timeLabel,
+        previewMediaUrl: mediaUrl,
+        previewBubbleBuilder: (infoContext) => ChatMessageBubble(
+          contextForNavigation: context,
+          rawText: text,
+          mediaUrl: mediaUrl,
+          isMine: isMine,
+          showName: false,
+          senderLabel: senderLabel,
+          timeLabel: timeLabel,
+          edited: _pick(item, 'edited').trim().toLowerCase() == 'true',
+          reaction: _reactionByMessage[messageId],
+          forwarded: isForwarded,
+          delivered: false,
+          seen: false,
+          deleteState: 'VISIBLE',
+          voiceDurationSeconds: durationSec > 0 ? durationSec : null,
+          voiceUnread: false,
+          onVoicePlayed: null,
+          replySender: _splitReplyRaw(text).replyPrefix.trim(),
+          replySnippet: _replyPreviewText(text),
+          mediaMimeType: null,
+          messageKind: kind,
+          maxWidth: 280,
+        ),
+        voiceDurationSeconds: durationSec > 0 ? durationSec : null,
       );
       return;
     }
 
-    if (action == 'forward') {
-      final targetThreadIds = await _showClassroomForwardTargetPicker();
-      if (!mounted || targetThreadIds == null || targetThreadIds.isEmpty) {
-        return;
-      }
-
-      try {
-        await ref
-            .read(classroomsRepoProvider)
-            .forwardChatMessage(
-              widget.courseId,
-              messageId: messageId,
-              targetThreadIds: targetThreadIds,
-            );
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              targetThreadIds.length == 1
-                  ? 'Forwarded'
-                  : 'Forwarded to ${targetThreadIds.length} chats',
-            ),
-          ),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        final text = e.toString();
-        final message =
-            text.contains('Cannot forward into a non-approved thread')
-            ? 'Cannot forward into a request chat until it is approved'
-            : 'Could not forward this message';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      }
+    if (action == 'reply' && !deletedForEveryone) {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
+      _replyTo(
+        messageId: messageId,
+        sender: senderLabel,
+        text: _editableBodyText(text),
+      );
       return;
     }
 
-    if (action == 'pin') {
+    if (action == 'forward' && !deletedForEveryone) {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
+      _enterForwardSelectionMode(messageId);
+      return;
+    }
+
+    if (action == 'pin' && !deletedForEveryone) {
+      setState(() {
+        _deleteSelection.clear();
+        _clearClassroomEdit();
+      });
       await _togglePinMessage(messageId);
       return;
     }
 
-    if (action == 'edit') {
-      await _editMessage(context, messageId: messageId, currentText: text);
+    if (action == 'edit' && !deletedForEveryone) {
+      final original = _editableBodyText(text);
+      setState(() {
+        _deleteSelection.clear();
+        _editingMessageId = messageId;
+        _editingOriginalText = original;
+        _replyToMessageId = null;
+        _replyToSender = null;
+        _replyToText = null;
+        _chatCtl.value = TextEditingValue(
+          text: original,
+          selection: TextSelection.collapsed(offset: original.length),
+        );
+      });
+      _pinClassroomToBottom(jump: true);
       return;
     }
 
     if (action == 'delete') {
-      await _deleteMessage(messageId);
+      setState(() {
+        _clearClassroomEdit();
+        _replyToMessageId = null;
+        _replyToSender = null;
+        _replyToText = null;
+        if (_deleteSelection.contains(messageId)) {
+          _deleteSelection.remove(messageId);
+        } else {
+          _deleteSelection.add(messageId);
+        }
+      });
+      _pinClassroomToBottom(jump: true);
       return;
     }
   }
@@ -3513,8 +4463,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                             final kind = _pick(item, 'kind').toUpperCase();
                             final mediaUrl = _pick(item, 'mediaUrl');
                             final isForwarded =
-                                _isClassroomForwardedText(text) ||
-                                _isClassroomForwardedText(originalText);
+                                _isClassroomMessageForwarded(
+                                  item,
+                                  text: text,
+                                  originalText: originalText,
+                                );
+                            final deletedForEveryone =
+                                _deletedForEveryoneMessageIds.contains(messageId);
+                            if (deletedForEveryone) {
+                            }
 
                             String replySender = '';
                             String replySnippet = '';
@@ -3663,40 +4620,50 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
                             final bubble = GestureDetector(
                               behavior: HitTestBehavior.opaque,
-                              onHorizontalDragUpdate: (details) {
-                                final current =
-                                    _swipeDxByMessage[messageId] ?? 0.0;
-                                final next = (current + details.delta.dx)
-                                    .clamp(-84.0, 84.0);
-                                if ((_swipeDxByMessage[messageId] ?? 0.0) !=
-                                    next) {
-                                  setState(() {
-                                    _swipeDxByMessage[messageId] = next;
-                                  });
-                                }
-                              },
-                              onHorizontalDragEnd: (_) async {
-                                final current =
-                                    _swipeDxByMessage[messageId] ?? 0.0;
+                              onHorizontalDragUpdate: _isForwardSelectionMode
+                                  ? null
+                                  : (details) {
+                                      final current =
+                                          _swipeDxByMessage[messageId] ?? 0.0;
+                                      final next = (current + details.delta.dx)
+                                          .clamp(-84.0, 84.0);
+                                      if ((_swipeDxByMessage[messageId] ?? 0.0) !=
+                                          next) {
+                                        setState(() {
+                                          _swipeDxByMessage[messageId] = next;
+                                        });
+                                      }
+                                    },
+                              onHorizontalDragEnd: _isForwardSelectionMode
+                                  ? null
+                                  : (_) async {
+                                      final current =
+                                          _swipeDxByMessage[messageId] ?? 0.0;
 
-                                if (_swipeDxByMessage.containsKey(messageId)) {
-                                  setState(() {
-                                    _swipeDxByMessage.remove(messageId);
-                                  });
-                                }
+                                      if (_swipeDxByMessage.containsKey(messageId)) {
+                                        setState(() {
+                                          _swipeDxByMessage.remove(messageId);
+                                        });
+                                      }
 
                                 if (current >= 44) {
                                   _replyTo(
                                     messageId: messageId,
-                                    sender: isMine ? 'You' : senderName,
+                                    sender: _classroomSenderLabel(
+                                      isMine,
+                                      senderName,
+                                    ),
                                     text: messageText.isEmpty
-                                        ? '(empty)'
+                                        ? _classroomEmptyPreviewLabel(kind)
                                         : messageText,
                                   );
                                   return;
                                 }
 
                                 if (current <= -44) {
+                                  if (deletedForEveryone) {
+                                    return;
+                                  }
                                   await _showClassroomMessageInfo(
                                     sentAt: _friendlyTime(createdRaw),
                                     isMine: isMine,
@@ -3706,20 +4673,12 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                     forwarded: isForwarded,
                                     deleteState: 'VISIBLE',
                                     kind: kind,
-                                    previewTitle: isMine ? 'You' : senderName,
+                                    previewTitle: _classroomSenderLabel(
+                                      isMine,
+                                      senderName,
+                                    ),
                                     previewBody: messageText.isEmpty
-                                        ? (kind.trim().toUpperCase() == 'IMAGE'
-                                              ? 'Photo'
-                                              : kind.trim().toUpperCase() ==
-                                                    'VIDEO'
-                                              ? 'Video'
-                                              : kind.trim().toUpperCase() ==
-                                                    'VOICE'
-                                              ? 'Voice note'
-                                              : kind.trim().toUpperCase() ==
-                                                    'FILE'
-                                              ? 'File'
-                                              : '(empty)')
+                                        ? _classroomEmptyPreviewLabel(kind)
                                         : messageText,
                                     previewMeta: _friendlyTime(createdRaw),
                                     previewMediaUrl: mediaUrl,
@@ -3777,22 +4736,61 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   });
                                 }
                               },
-                              onLongPressStart: (d) => _showClassroomWaActionsAt(<
-                                String,
-                                dynamic
-                              >{
-                                'id': messageId,
-                                'text': text,
-                                'mediaUrl': mediaUrl,
-                                'kind': kind,
-                                'senderName': senderName,
-                                'sender': senderName,
-                                'isMine': '$isMine',
-                                'edited':
-                                    '${_editedTextByMessage.containsKey(messageId)}',
-                                'timeLabel': _friendlyTime(createdRaw),
-                                'durationSec': durationSec,
-                              }, d.globalPosition),
+                              onTap: () {
+                                if (_isForwardSelectionMode) {
+                                  setState(() {
+                                    if (_forwardSelectedMessageIds.contains(messageId)) {
+                                      _forwardSelectedMessageIds.remove(messageId);
+                                    } else {
+                                      _forwardSelectedMessageIds.add(messageId);
+                                    }
+                                    if (_forwardSelectedMessageIds.isEmpty) {
+                                      _isForwardSelectionMode = false;
+                                    }
+                                  });
+                                  return;
+                                }
+                                if (_deleteSelection.isNotEmpty) {
+                                  setState(() {
+                                    if (_deleteSelection.contains(messageId)) {
+                                      _deleteSelection.remove(messageId);
+                                    } else {
+                                      _deleteSelection.add(messageId);
+                                    }
+                                  });
+                                  return;
+                                }
+                              },
+                              onLongPressStart: (d) {
+                                if (_isForwardSelectionMode) {
+                                  setState(() {
+                                    if (_forwardSelectedMessageIds.contains(messageId)) {
+                                      _forwardSelectedMessageIds.remove(messageId);
+                                    } else {
+                                      _forwardSelectedMessageIds.add(messageId);
+                                    }
+                                    if (_forwardSelectedMessageIds.isEmpty) {
+                                      _isForwardSelectionMode = false;
+                                    }
+                                  });
+                                  return;
+                                }
+                                _showClassroomWaActionsAt(<String, dynamic>{
+                                  'id': messageId,
+                                  'text': text,
+                                  'mediaUrl': mediaUrl,
+                                  'kind': kind,
+                                  'senderName': senderName,
+                                  'sender': senderName,
+                                  'isMine': '$isMine',
+                                  'edited':
+                                      '${_editedTextByMessage.containsKey(messageId)}',
+                                  'timeLabel': _friendlyTime(createdRaw),
+                                  'durationSec': durationSec,
+                                  'deletedForEveryone': '$deletedForEveryone',
+                                  'forwarded': '$isForwarded',
+                                }, d.globalPosition);
+                              },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 220),
                                 curve: Curves.easeOutCubic,
@@ -3810,13 +4808,40 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       : 0,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _highlightedMessageId == messageId
+                                  color: _forwardSelectedMessageIds.contains(messageId)
                                       ? Theme.of(context)
                                             .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.10)
-                                      : Colors.transparent,
+                                            .secondary
+                                        .withValues(alpha: 0.42)
+                                      : _deleteSelection.contains(messageId)
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .error
+                                        .withValues(alpha: 0.42)
+                                          : _highlightedMessageId == messageId
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                            .withValues(alpha: 0.48)
+                                              : Colors.transparent,
                                   borderRadius: BorderRadius.circular(18),
+                                  border: _forwardSelectedMessageIds.contains(messageId)
+                                      ? Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary
+                                          .withValues(alpha: 0.70),
+                                        width: 1.7,
+                                        )
+                                      : _deleteSelection.contains(messageId)
+                                          ? Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error
+                                            .withValues(alpha: 0.70),
+                                          width: 1.7,
+                                            )
+                                          : null,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: isMine
@@ -3825,21 +4850,29 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   children: [
                                     ChatMessageBubble(
                                       contextForNavigation: context,
-                                      rawText:
-                                          _editedTextByMessage[messageId] ??
-                                          text,
-                                      mediaUrl: mediaUrl.isEmpty
+                                      rawText: deletedForEveryone
+                                          ? (isMine
+                                          ? AppLocalizations.of(context)!
+                                            .classroomDetailDeletedByYou
+                                          : AppLocalizations.of(context)!
+                                            .classroomDetailDeletedMessage)
+                                          : (_editedTextByMessage[messageId] ??
+                                              text),
+                                      mediaUrl: deletedForEveryone
                                           ? ''
-                                          : _absoluteMediaUrl(mediaUrl),
+                                          : (mediaUrl.isEmpty
+                                              ? ''
+                                              : _absoluteMediaUrl(mediaUrl)),
                                       isMine: isMine,
                                       showName: showName,
                                       senderLabel: isMine
-                                          ? 'You'
+                                          ? AppLocalizations.of(context)!
+                                            .tutorYou
                                           : senderName,
                                       timeLabel: _friendlyTime(createdRaw),
-                                      edited: _editedTextByMessage
-                                          .containsKey(messageId),
-                                      reaction: reaction,
+                                      edited: !deletedForEveryone &&
+                                          _editedTextByMessage.containsKey(messageId),
+                                      reaction: deletedForEveryone ? null : reaction,
                                       reactions:
                                           (reaction ?? '').trim().isEmpty
                                               ? const <String, List<String>>{}
@@ -3864,22 +4897,26 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                               _pinnedMessageIds.contains(
                                                 messageId,
                                               ),
-                                      forwarded: isForwarded,
+                                      forwarded: deletedForEveryone ? false : isForwarded,
                                       delivered: false,
                                       seen: false,
-                                      deleteState: 'VISIBLE',
+                                      deleteState: deletedForEveryone
+                                          ? 'DELETED_FOR_EVERYONE'
+                                          : 'VISIBLE',
                                       voiceDurationSeconds:
                                           durationSec > 0 ? durationSec : null,
                                       voiceUnread: false,
                                       onVoicePlayed: null,
-                                      replySender:
-                                          replySender.trim().isEmpty
+                                      replySender: deletedForEveryone
+                                          ? null
+                                          : (replySender.trim().isEmpty
                                               ? null
-                                              : replySender,
-                                      replySnippet:
-                                          replySnippet.trim().isEmpty
+                                              : replySender),
+                                      replySnippet: deletedForEveryone
+                                          ? null
+                                          : (replySnippet.trim().isEmpty
                                               ? null
-                                              : replySnippet,
+                                              : replySnippet),
                                       onReplyTap:
                                           resolvedReplyTargetId == null
                                               ? null
@@ -3913,6 +4950,30 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                         : MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
+                                      // Reply arrow — fixed far left, fades in as bubble slides right
+                                      Opacity(
+                                        opacity: (swipeDx / 44).clamp(0.0, 1.0),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 4),
+                                          child: Container(
+                                            width: 28,
+                                            height: 28,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.reply_rounded,
+                                              size: 15,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                       if (!isMine)
                                         SizedBox(
                                           width: 36,
@@ -3980,14 +5041,13 @@ class _PinnedMessagesStrip extends StatelessWidget {
             return InkWell(
               onTap: id.trim().isEmpty ? null : () => onTapMessage(id),
               borderRadius: BorderRadius.circular(999),
-              child: Container(
+              child: LiquidGlassCard(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.28),
-                  ),
+                borderRadius: BorderRadius.circular(999),
+                blurSigma: 8,
+                color: cs.surfaceContainerLow.withValues(alpha: 0.92),
+                border: Border.all(
+                  color: cs.outlineVariant.withValues(alpha: 0.28),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -4047,13 +5107,12 @@ class _TopHeader extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-      child: Container(
+      child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        blurSigma: 14,
+        color: cs.surface.withValues(alpha: 0.88),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
         child: Row(
           children: [
             IconButton(
@@ -4102,7 +5161,7 @@ class _TopHeader extends StatelessWidget {
                 child: const Icon(Icons.keyboard_arrow_down_rounded, size: 22),
               ),
               visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: tabsCollapsed ? 'Show tabs' : 'Hide tabs',
+                tooltip: tabsCollapsed ? 'Show tabs' : 'Hide tabs',
             ),
           ],
         ),
@@ -4116,9 +5175,17 @@ class _HeaderSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(8, 6, 8, 0),
-      child: SizedBox(height: 84, child: Card()),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+      child: SizedBox(
+        height: 84,
+        child: LiquidGlassCard(
+          borderRadius: BorderRadius.circular(18),
+          blurSigma: 12,
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.78),
+          child: const SizedBox.expand(),
+        ),
+      ),
     );
   }
 }
@@ -4139,13 +5206,12 @@ class _CenteredTabs extends StatelessWidget {
         12,
         24 + MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Container(
+      child: LiquidGlassCard(
         padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
-        ),
+        borderRadius: BorderRadius.circular(14),
+        blurSigma: 12,
+        color: cs.surfaceContainerLow.withValues(alpha: 0.92),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
         child: TabBar(
           controller: controller,
           isScrollable: true,
@@ -4168,12 +5234,32 @@ class _CenteredTabs extends StatelessWidget {
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
           splashBorderRadius: BorderRadius.circular(28),
-          tabs: const [
-            Tab(child: _TabChipLabel(text: 'Chat')),
-            Tab(child: _TabChipLabel(text: 'Assignments')),
-            Tab(child: _TabChipLabel(text: 'Materials')),
-            Tab(child: _TabChipLabel(text: 'Meetings')),
-            Tab(child: _TabChipLabel(text: 'People')),
+          tabs: [
+            Tab(
+              child: _TabChipLabel(
+                text: AppLocalizations.of(context)!.classroomDetailTabChat,
+              ),
+            ),
+            Tab(
+              child: _TabChipLabel(
+                text: AppLocalizations.of(context)!.navAssignments,
+              ),
+            ),
+            Tab(
+              child: _TabChipLabel(
+                text: AppLocalizations.of(context)!.classroomDetailTabMaterials,
+              ),
+            ),
+            Tab(
+              child: _TabChipLabel(
+                text: AppLocalizations.of(context)!.navMeetings,
+              ),
+            ),
+            Tab(
+              child: _TabChipLabel(
+                text: AppLocalizations.of(context)!.classroomDetailTabPeople,
+              ),
+            ),
           ],
         ),
       ),
@@ -4214,9 +5300,14 @@ class _SimpleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(12),
-      decoration: _panelDecoration(context),
+      borderRadius: BorderRadius.circular(14),
+      blurSigma: 10,
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.84),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.24),
+      ),
       child: Row(
         children: [
           ConstrainedBox(
@@ -4270,37 +5361,34 @@ class _CenteredState extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.45),
-              ),
+          child: LiquidGlassCard(
+            padding: const EdgeInsets.all(24),
+            borderRadius: BorderRadius.circular(24),
+            blurSigma: 14,
+            color: cs.surface.withValues(alpha: 0.82),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: 0.45),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 40, color: cs.onSurfaceVariant),
-                  const SizedBox(height: 14),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 40, color: cs.onSurfaceVariant),
+                const SizedBox(height: 14),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: cs.onSurfaceVariant),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
+              ],
             ),
           ),
         ),
@@ -4321,22 +5409,24 @@ class _InitialsAvatar extends StatelessWidget {
         ? Colors.white
         : Colors.black87;
 
-    return Container(
+    return SizedBox(
       width: 36,
       height: 36,
-      decoration: BoxDecoration(
+      child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(999),
+        blurSigma: 8,
         color: bg,
-        shape: BoxShape.circle,
         border: Border.all(
           color: Theme.of(
             context,
           ).colorScheme.outlineVariant.withValues(alpha: 0.25),
         ),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        _initialsForName(name),
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
+        child: Center(
+          child: Text(
+            _initialsForName(name),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
+          ),
+        ),
       ),
     );
   }

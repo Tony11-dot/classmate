@@ -5,10 +5,12 @@ import type {
   GeneratedQuestion,
   EngineDifficulty,
 } from './practice-engine.types';
-import { clampTime, rotateBySeed, uniqueFirst } from './practice-engine.utils';
+import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } from './practice-engine.utils';
 
 @Injectable()
 export class FunctionsDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`
@@ -217,11 +219,11 @@ export class FunctionsDeterministicEngine implements PracticeEngine {
     seed: number;
   }): GeneratedQuestion {
     const raw = [args.answer, ...args.distractors];
-    const options = uniqueFirst(raw, 4);
-
-    while (options.length < 4) {
-      options.push(String(Number(args.answer) + options.length + args.seed + 3));
-    }
+    const options = fillOptionsWithSafeFallback(
+      uniqueFirst(raw, 4),
+      args.answer,
+      args.seed,
+    );
 
     const rotated = rotateBySeed(options.slice(0, 4), args.seed);
 

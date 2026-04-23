@@ -1,5 +1,3 @@
-import '../features/account/edit_profile_screen.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,9 +12,13 @@ import '../features/lifedoc/announcements_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/exam_detail_screen.dart';
+import '../features/lifedoc/domain/exam_models.dart' show StudentExamItem;
+import '../features/lifedoc/domain/form_models.dart' show StudentFormItem;
 import '../features/lifedoc/exams_screen.dart';
+import '../features/lifedoc/form_detail_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/meetings_screen.dart';
+import '../features/lifedoc/notifications_models.dart';
 import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
 import '../features/messages/ui/message_thread_screen.dart';
@@ -25,6 +27,10 @@ import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
 import '../features/schedule/schedule_screen.dart' as schedule_ui;
+import '../features/teacher_mobile/ui/teacher_attendance_screen.dart';
+import '../features/teacher_mobile/ui/teacher_classrooms_screen.dart';
+import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
+import '../features/teacher_mobile/ui/teacher_home_screen.dart';
 import '../features/solutions/solutions_screen.dart';
 import '../features/solutions/ui/filter/solutions_books_screen.dart';
 import '../features/solutions/ui/filter/solutions_pages_screen.dart';
@@ -53,9 +59,29 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isLogin = state.matchedLocation == '/login';
       final loggedIn = session.isLoggedIn;
+      final isTeacherRoute = loc.startsWith('/teacher/');
+      final isCommonTeacherSafe =
+          loc.startsWith('/messages') ||
+          loc.startsWith('/tutor') ||
+          loc == '/exams' ||
+          loc.startsWith('/exams/') ||
+          loc == '/forms' ||
+          loc.startsWith('/forms/') ||
+          loc == '/profile' ||
+          loc == '/settings' ||
+          loc == '/announcements' ||
+          loc.startsWith('/announcements/') ||
+          loc == '/notifications' ||
+          loc.startsWith('/notifications/');
 
       if (!loggedIn && !isLogin) return '/login';
-      if (loggedIn && isLogin) return '/schedule';
+      if (loggedIn && isLogin) {
+        return session.isTeacherLike ? '/teacher/home' : '/schedule';
+      }
+      if (loggedIn && session.isTeacherLike && !isTeacherRoute && !isCommonTeacherSafe) {
+        return '/teacher/home';
+      }
+      if (loggedIn && !session.isTeacherLike && isTeacherRoute) return '/schedule';
       return null;
     },
     initialLocation: '/schedule',
@@ -68,6 +94,70 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/practice/session',
         builder: (context, state) => const PracticeSessionScreen(),
+      ),
+
+      GoRoute(
+        path: '/announcements/:id',
+        builder: (context, state) => AnnouncementDetailScreen(
+          announcementId: state.pathParameters['id']!,
+        ),
+      ),
+
+      GoRoute(
+        path: '/notifications/:id',
+        builder: (context, state) => NotificationDetailScreen(
+          notificationId: Uri.decodeComponent(state.pathParameters['id']!),
+          initialNotification: state.extra is StudentNotificationItem
+              ? state.extra as StudentNotificationItem
+              : null,
+        ),
+      ),
+
+      GoRoute(
+        path: '/meetings/:id',
+        builder: (context, state) => MeetingDetailScreen(
+          meetingId: state.pathParameters['id']!,
+          initialMeeting: state.extra is Map
+              ? Map<String, dynamic>.from(state.extra as Map)
+              : null,
+        ),
+      ),
+
+      GoRoute(
+        path: '/assignments/:id',
+        builder: (context, state) => AssignmentDetailScreen(
+          assignmentId: state.pathParameters['id']!,
+          initialAssignment: state.extra is Map
+              ? Map<String, dynamic>.from(state.extra as Map)
+              : null,
+        ),
+      ),
+
+      GoRoute(
+        path: '/exams/:id',
+        builder: (context, state) => ExamDetailScreen(
+          examId: state.pathParameters['id']!,
+          initialExam: state.extra is StudentExamItem
+              ? state.extra as StudentExamItem
+              : null,
+        ),
+      ),
+
+      GoRoute(
+        path: '/forms',
+        builder: (context, state) => const AppShell(
+          child: ExamsScreen(mode: ExamsScreenMode.formsOnly),
+        ),
+      ),
+
+      GoRoute(
+        path: '/forms/:id',
+        builder: (context, state) => FormDetailScreen(
+          formId: state.pathParameters['id']!,
+          initialForm: state.extra is StudentFormItem
+              ? state.extra as StudentFormItem
+              : null,
+        ),
       ),
 
       GoRoute(
@@ -108,12 +198,48 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
+      GoRoute(
+        path: '/assignments/:id',
+        builder: (context, state) => AssignmentDetailScreen(
+          assignmentId: state.pathParameters['id']!,
+          initialAssignment: state.extra is Map
+              ? Map<String, dynamic>.from(state.extra as Map)
+              : null,
+        ),
+      ),
+
+      GoRoute(
+        path: '/exams/:id',
+        builder: (context, state) => ExamDetailScreen(
+          examId: state.pathParameters['id']!,
+          initialExam: state.extra is StudentExamItem
+              ? state.extra as StudentExamItem
+              : null,
+        ),
+      ),
+
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
           GoRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/home',
+            builder: (context, state) => const TeacherHomeScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/attendance',
+            builder: (context, state) => const TeacherAttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/classrooms',
+            builder: (context, state) => const TeacherClassroomsScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/grades',
+            builder: (context, state) => const TeacherGradesScreen(),
           ),
           GoRoute(
             path: '/practice',
@@ -164,12 +290,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/exams',
-            builder: (context, state) => const ExamsScreen(),
-          ),
-          GoRoute(
-            path: '/exams/:id',
-            builder: (context, state) =>
-                ExamDetailScreen(examId: state.pathParameters['id']!),
+            builder: (context, state) => const ExamsScreen(mode: ExamsScreenMode.examsOnly),
           ),
           GoRoute(
             path: '/announcements',
@@ -186,10 +307,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfileScreen(),
-          ),
-          GoRoute(
-            path: '/profile/edit',
-            builder: (context, state) => const EditProfileScreen(),
           ),
           GoRoute(
             path: '/settings',

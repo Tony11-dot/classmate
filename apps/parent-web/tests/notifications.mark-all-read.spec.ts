@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 
-const API_BASE = process.env.API_BASE || 'http://127.0.0.1:3000';
+const API_BASE = (process.env.API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3001').replace(/\/api\/?$/, '');
 const TOKEN_KEY = 'parent_token';
 
 test('mark all read clears unread count', async ({ page }) => {
@@ -22,7 +22,7 @@ test('mark all read clears unread count', async ({ page }) => {
     extraHTTPHeaders: { Authorization: `Bearer ${token}` },
   });
 
-  const res = await ctx.get('/api/parent/notifications/unread-count');
+  const res = await ctx.get('/parent/notifications/unread-count');
   expect(res.ok()).toBeTruthy();
 
   const json = await res.json();
@@ -30,9 +30,9 @@ test('mark all read clears unread count', async ({ page }) => {
   let last = json;
   for (let i = 0; i < 10; i++) {
     // re-apply mark-all-read (idempotent)
-    await ctx.post('/api/parent/notifications/mark-seen', { data: {} });
+    await ctx.patch('/parent/notifications/mark-seen', { data: {} });
 
-    const res2 = await ctx.get('/api/parent/notifications/unread-count');
+    const res2 = await ctx.get('/parent/notifications/unread-count');
     expect(res2.ok()).toBeTruthy();
 
     last = await res2.json();

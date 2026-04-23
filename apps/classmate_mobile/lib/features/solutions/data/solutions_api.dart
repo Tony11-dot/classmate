@@ -2,27 +2,35 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/env.dart';
 import '../../../core/http/cm_api.dart';
 
-const _devStudentToken = 'dev-token-student@classmate.local';
-
 final solutionsApiProvider = Provider<SolutionsApi>((ref) {
+  // Capture the session object — not the token string — so every API call
+  // reads the token lazily (correct even if the provider was built before
+  // AuthSession._init() completed).
   final session = ref.watch(authSessionProvider);
-  final token = (session.token ?? '').trim();
   return SolutionsApi(
     baseUrl: Env.apiBaseUrl,
-    token: token.isEmpty ? _devStudentToken : token,
+    tokenGetter: () {
+      final t = (session.token ?? '').trim();
+      return t;
+    },
   );
 });
 
 class SolutionsApi {
-  const SolutionsApi({required this.baseUrl, this.token = _devStudentToken});
+  const SolutionsApi({required this.baseUrl, required String Function() tokenGetter})
+      : _getToken = tokenGetter;
 
   final String baseUrl;
-  final String token;
+  final String Function() _getToken;
+
+  String get token => _getToken();
 
   CMApi get _api => CMApi(token: token);
 
@@ -36,18 +44,14 @@ class SolutionsApi {
 
   Map<String, String> _headers() {
     final trimmed = token.trim();
-    final isJwtish = trimmed.split('.').length >= 3;
+    final looksJwt = trimmed.split('.').length >= 3;
+    final looksEmailish = trimmed.contains('@') && trimmed.contains('.');
+    // dev-token-* are accepted by the backend when ALLOW_DEV_TOKEN=1.
     final isDevToken = trimmed.startsWith('dev-token-');
-    final hasToken = trimmed.isNotEmpty && (isJwtish || isDevToken);
+    final hasToken = trimmed.isNotEmpty && ((looksJwt && !looksEmailish) || isDevToken);
 
     return <String, String>{
       if (hasToken) 'Authorization': 'Bearer $trimmed',
-      if (!hasToken) ...<String, String>{
-        'x-dev-role': 'STUDENT',
-        'x-dev-user-id': 'dev-student',
-        'x-dev-grade': '10',
-        'x-dev-school-id': 'test-school',
-      },
     };
   }
 
@@ -95,7 +99,19 @@ class SolutionsApi {
     for (final path in paths) {
       final req = http.MultipartRequest('POST', _uri('/uploads/solution-file'));
       req.headers.addAll(_headers());
-      req.files.add(await http.MultipartFile.fromPath('file', path));
+
+      // Explicitly detect MIME type so the backend file-filter accepts the file.
+      final detectedMime =
+          lookupMimeType(path) ?? 'application/octet-stream';
+      final mediaType = MediaType.parse(detectedMime);
+
+      req.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          path,
+          contentType: mediaType,
+        ),
+      );
 
       final streamed = await req.send();
       final body = await streamed.stream.bytesToString();

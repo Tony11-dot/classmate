@@ -1,12 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../ui/math/math_view.dart';
+import '../../../common/widgets/cm_ai_message.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/practice_history_repository.dart';
+import '../domain/practice_models.dart';
 import '../domain/practice_history_models.dart';
 import '../providers/practice_providers.dart';
+import 'practice_display_text.dart';
 import 'practice_history_review_screen.dart';
 import 'practice_mode_specs.dart';
+
+String _practiceModeLabel(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSetupModeLabelPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSetupModeLabelFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSetupModeLabelSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSetupModeLabelExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSetupModeLabelConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSetupModeLabelAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSetupModeLabelBagrut;
+  }
+}
+
+String _friendlyError(BuildContext context, Object error) {
+  final l = AppLocalizations.of(context)!;
+  final raw = error.toString().replaceFirst('Exception: ', '').trim();
+  return raw.isEmpty ? l.practiceHistoryLoadError : '${l.practiceHistoryErrorPrefix} $raw';
+}
 
 class PracticeHistoryScreen extends ConsumerWidget {
   const PracticeHistoryScreen({super.key});
@@ -23,6 +52,7 @@ class PracticeHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final history = ref.watch(practiceHistoryProvider);
 
     return Scaffold(
@@ -31,26 +61,24 @@ class PracticeHistoryScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
-        title: const Text('Practice History'),
+        title: Text(l.practiceHistoryTitle),
         actions: [
           IconButton(
-            tooltip: 'Clear history',
+            tooltip: l.practiceHistoryClearTooltip,
             onPressed: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: const Text('Clear practice history?'),
-                  content: const Text(
-                    'This removes all saved practice sessions from this device.',
-                  ),
+                  title: Text(l.practiceHistoryClearConfirmTitle),
+                  content: Text(l.practiceHistoryClearConfirmBody),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(l.classroomsForwardCancel),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: const Text('Clear'),
+                      child: Text(l.clear),
                     ),
                   ],
                 ),
@@ -68,13 +96,13 @@ class PracticeHistoryScreen extends ConsumerWidget {
       ),
       body: history.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(_friendlyError(context, e))),
         data: (sessions) {
           if (sessions.isEmpty) {
-            return const Center(child: Text('No practice sessions yet.'));
+            return Center(child: Text(l.practiceHistoryEmpty));
           }
 
-          final grouped = _groupSessions(sessions);
+          final grouped = _groupSessions(context, sessions);
 
           return ListView(
             padding: const EdgeInsets.only(bottom: 20),
@@ -88,8 +116,10 @@ class PracticeHistoryScreen extends ConsumerWidget {
   }
 
   Map<String, List<PracticeHistorySession>> _groupSessions(
+    BuildContext context,
     List<PracticeHistorySession> sessions,
   ) {
+    final l = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final grouped = <String, List<PracticeHistorySession>>{};
@@ -103,9 +133,9 @@ class PracticeHistoryScreen extends ConsumerWidget {
       final diff = today.difference(date).inDays;
 
       final key = switch (diff) {
-        0 => 'Today',
-        1 => 'Yesterday',
-        _ => _formatDateHeader(date),
+        0 => l.today,
+        1 => l.yesterday,
+        _ => _formatDateHeader(context, date),
       };
 
       grouped.putIfAbsent(key, () => <PracticeHistorySession>[]).add(s);
@@ -114,26 +144,8 @@ class PracticeHistoryScreen extends ConsumerWidget {
     return grouped;
   }
 
-  String _formatDateHeader(DateTime date) {
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    final weekday = weekdays[date.weekday - 1];
-    final month = months[date.month - 1];
-    return '$weekday, $month ${date.day}';
+  String _formatDateHeader(BuildContext context, DateTime date) {
+    return MaterialLocalizations.of(context).formatMediumDate(date);
   }
 }
 
@@ -190,16 +202,22 @@ class _HistoryCard extends ConsumerWidget {
           backgroundColor: accent.withValues(alpha: 0.15),
           child: Icon(practiceModeIcon(session.mode), color: accent, size: 18),
         ),
-        title: MathView(
-          '${session.subject} • ${session.topicLabel}',
+        title: CMAiMessage(
+          localizedPracticeSubjectAndTopic(
+            context,
+            subject: session.subject,
+            topicLabel: session.topicLabel,
+          ),
           compact: true,
+          textStyle: Theme.of(context).textTheme.bodyLarge,
         ),
-        subtitle: MathView(
-          '${practiceModeLabel(session.mode)} • '
+        subtitle: CMAiMessage(
+          '${_practiceModeLabel(context, session.mode)} • '
           '${session.correct}/${session.answered} • '
           '${session.accuracyPercent}% • '
-          'XP ${session.xp}',
+          '${AppLocalizations.of(context)!.practiceSessionMetricXp} ${session.xp}',
           compact: true,
+          textStyle: Theme.of(context).textTheme.bodyMedium,
         ),
         trailing: PopupMenuButton<String>(
           padding: EdgeInsets.zero,
@@ -213,21 +231,20 @@ class _HistoryCard extends ConsumerWidget {
           ),
           onSelected: (value) async {
             if (value == 'delete') {
+              final l = AppLocalizations.of(context)!;
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: const Text('Delete this session?'),
-                  content: const Text(
-                    'This removes only this saved practice session.',
-                  ),
+                  title: Text(l.practiceHistoryDeleteConfirmTitle),
+                  content: Text(l.practiceHistoryDeleteConfirmBody),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(l.classroomsForwardCancel),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: const Text('Delete'),
+                      child: Text(l.chatContextDelete),
                     ),
                   ],
                 ),
@@ -250,33 +267,23 @@ class _HistoryCard extends ConsumerWidget {
             }
           },
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'open',
               child: Row(
                 children: [
-                  Icon(Icons.visibility_outlined, size: 18),
-                  SizedBox(width: 10),
-                  Text('Open review'),
+                  const Icon(Icons.visibility_outlined, size: 18),
+                  const SizedBox(width: 10),
+                  Text(AppLocalizations.of(context)!.practiceHistoryOpenReview),
                 ],
               ),
             ),
-            const PopupMenuItem(
-              enabled: false,
-              value: 'retry',
-              child: Text('Retry session'),
-            ),
-            const PopupMenuItem(
-              enabled: false,
-              value: 'share',
-              child: Text('Share result'),
-            ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete_outline_rounded, size: 18),
-                  SizedBox(width: 10),
-                  Text('Delete session'),
+                  const Icon(Icons.delete_outline_rounded, size: 18),
+                  const SizedBox(width: 10),
+                  Text(AppLocalizations.of(context)!.practiceHistoryDeleteSession),
                 ],
               ),
             ),

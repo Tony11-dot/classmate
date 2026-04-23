@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class FlashcardsModeView extends StatelessWidget {
@@ -7,6 +8,7 @@ class FlashcardsModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final correctIndex = d.q?.correctIndex ?? 0;
     final fallbackWrongIndex = d.options.isEmpty
         ? 0
@@ -47,28 +49,28 @@ class FlashcardsModeView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Back of card',
+                        l.practiceSessionBackOfCard,
                         style: d.theme.textTheme.labelLarge?.copyWith(
                           color: d.accent,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      explanationCard(d, title: 'Recall summary'),
+                      explanationCard(d, title: l.practiceModeRecallSummary),
                     ],
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Front of card',
+                        l.practiceModeCardFront,
                         style: d.theme.textTheme.labelLarge?.copyWith(
                           color: d.accent,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      MathView(d.promptOf()),
+                      questionPromptPanel(d),
                     ],
                   ),
           ),
@@ -80,8 +82,8 @@ class FlashcardsModeView extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: d.openNova,
                     icon: const Icon(Icons.tips_and_updates_rounded),
-                    label: const Text(
-                      'NOVA hint',
+                    label: Text(
+                      l.practiceModeActionNovaHint,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -93,8 +95,8 @@ class FlashcardsModeView extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: () => d.onShowExplanation(true),
                     icon: const Icon(Icons.visibility_rounded),
-                    label: const Text(
-                      'Reveal',
+                    label: Text(
+                      l.practiceModeActionReveal,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -104,13 +106,13 @@ class FlashcardsModeView extends StatelessWidget {
                 compactIconAction(
                   onPressed: d.end,
                   icon: Icons.close_rounded,
-                  tooltip: 'End session',
+                  tooltip: l.practiceModeActionEndSession,
                 ),
               ],
             )
           else ...[
             Text(
-              'How did that feel?',
+              l.practiceModeFeelingPrompt,
               style: d.theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w900,
               ),
@@ -122,19 +124,19 @@ class FlashcardsModeView extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: () => reflect(false),
-                  child: const Text('Again'),
+                  child: Text(l.practiceModeFeelingAgain),
                 ),
                 OutlinedButton(
                   onPressed: () => reflect(false),
-                  child: const Text('Hard'),
+                  child: Text(l.practiceModeFeelingHard),
                 ),
                 FilledButton(
                   onPressed: () => reflect(true),
-                  child: const Text('Good'),
+                  child: Text(l.practiceModeFeelingGood),
                 ),
                 FilledButton(
                   onPressed: () => reflect(true),
-                  child: const Text('Easy'),
+                  child: Text(l.practiceModeFeelingEasy),
                 ),
               ],
             ),
@@ -146,7 +148,7 @@ class FlashcardsModeView extends StatelessWidget {
                 compactIconAction(
                   onPressed: d.end,
                   icon: Icons.close_rounded,
-                  tooltip: 'End session',
+                  tooltip: l.practiceModeActionEndSession,
                 ),
               ],
             ),

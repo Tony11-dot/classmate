@@ -9,10 +9,15 @@ import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } fro
 
 @Injectable()
 export class PhysicsElectricFieldDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`.toLowerCase().trim();
-    return s === 'physics' && (t.includes('electric field') || t.includes('field strength'));
+    return (
+      s === 'physics' &&
+      (t.includes('electric field') || t.includes('field strength') || t.includes('electrostatics'))
+    );
   }
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[]> {

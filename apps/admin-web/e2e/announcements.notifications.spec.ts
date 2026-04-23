@@ -41,6 +41,7 @@ test('announcements + notifications are protected + stable', async () => {
 
   const student = await login('student1@classmate.app', 'dev');
   const admin = await login('admin1@classmate.app', 'dev');
+  const teacher = await login('teacher1@classmate.app', 'dev');
 
   // announcements feed must be 401 without token
   {
@@ -103,6 +104,26 @@ test('announcements + notifications are protected + stable', async () => {
     });
 
     // accept 201 or 200; if DTO differs we allow 400 (but never 500)
+    expect([200, 201]).toContain(r.status);
+    const j = await r.json().catch(() => null);
+    expect(j).not.toBeNull();
+  }
+
+  // teacher can POST announcement too
+  {
+    const r = await fetch(`${BASE}/api/announcements`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${teacher}`,
+      },
+      body: JSON.stringify({
+        title: 'Teacher E2E Announcement',
+        body: 'teacher hello from e2e',
+        targets: [{ role: 'STUDENT' }],
+      }),
+    });
+
     expect([200, 201]).toContain(r.status);
     const j = await r.json().catch(() => null);
     expect(j).not.toBeNull();

@@ -11,6 +11,11 @@ function fmtDate(d?: string) {
   return new Date(d).toLocaleDateString();
 }
 
+function gradeLabel(g: any) {
+  if (typeof g?.grade === 'number') return `${g.grade}%`;
+  return '—';
+}
+
 export default function ChildPage() {
   const token = useParentAuth();
   const { studentId } = useParams<{ studentId: string }>();
@@ -33,16 +38,13 @@ export default function ChildPage() {
       const pct = total ? Math.round((present / total) * 100) : null;
 
       const scored = (gradesList ?? []).filter(
-        (g: any) =>
-          typeof g.score === 'number' &&
-          typeof g.maxScore === 'number' &&
-          g.maxScore > 0
+        (g: any) => typeof g.grade === 'number'
       );
 
       const avg = scored.length
         ? Math.round(
             scored.reduce(
-              (a: number, g: any) => a + (g.score / g.maxScore) * 100,
+              (a: number, g: any) => a + g.grade,
               0
             ) / scored.length
           )
@@ -181,11 +183,10 @@ export default function ChildPage() {
         <div className="mt-2 space-y-2">
           {grades.slice(0, 10).map((g: any, i: number) => (
             <div key={i} className="rounded-lg border p-3">
-              <div className="font-medium">{g.title ?? g.assessmentName ?? 'Assessment'}</div>
+              <div className="font-medium">{g.assessment?.title ?? 'Assessment'}</div>
               <div className="text-sm opacity-70">
-                {typeof g.score === 'number' && typeof g.maxScore === 'number'
-                  ? `${g.score}/${g.maxScore}`
-                  : (g.score ?? '—')}
+                {gradeLabel(g)}
+                {g.course?.name ? ` · ${g.course.name}` : ''}
               </div>
             </div>
           ))}

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 @Injectable()
 export class GroundedGeneratorService {
-  private client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  private client = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
   });
 
   async generate(input: {
@@ -31,16 +31,18 @@ RULES:
 CONTEXT:
 ${context}
 
-Return ONLY JSON array.
+Return ONLY a JSON array. No markdown, no explanation.
 `;
 
-    const res = await this.client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      temperature: 0,
+    const res = await this.client.messages.create({
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      system: 'You are a strict academic exam generator. Return only valid JSON arrays.',
       messages: [{ role: 'user', content: prompt }],
-    });
+      temperature: 0,
+    } as any);
 
-    const text = res.choices[0]?.message?.content ?? '[]';
+    const text = res.content[0]?.type === 'text' ? res.content[0].text : '[]';
 
     try {
       return JSON.parse(text);

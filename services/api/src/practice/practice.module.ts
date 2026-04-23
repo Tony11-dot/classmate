@@ -45,6 +45,7 @@ import { PhysicsCircuitsDeterministicEngine } from './engine/physics-circuits-de
 import { PhysicsElectricFieldDeterministicEngine } from './engine/physics-electric-field-deterministic.engine';
 import { PhysicsElectricityDeterministicEngine } from './engine/physics-electricity-deterministic.engine';
 import { PracticeAiInsightsService } from './practice-ai-insights.service';
+import { BroadCatalogDeterministicEngine } from './engine/broad-catalog-deterministic.engine';
 
 @Module({
   imports: [PrismaModule],
@@ -83,6 +84,7 @@ import { PracticeAiInsightsService } from './practice-ai-insights.service';
     PhysicsRelativityDeterministicEngine,
     PolynomialsDeterministicEngine,
     SetTheoryDeterministicEngine,
+    BroadCatalogDeterministicEngine,
     PhysicsMomentumDeterministicEngine,
     PhysicsElectricityDeterministicEngine,
     PhysicsElectricFieldDeterministicEngine,

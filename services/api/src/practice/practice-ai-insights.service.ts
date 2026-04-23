@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getOpenAIClient } from '../tutor/providers/openai.provider';
+import { getAnthropicClient } from '../tutor/providers/openai.provider';
 
 type PracticeProgressTopicDto = {
   subject: string;
@@ -193,8 +193,8 @@ export class PracticeAiInsightsService {
     }
 
     try {
-      const client = getOpenAIClient();
-      const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+      const client = getAnthropicClient();
+      const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 
       const weak = this.safeTopic(summary.weakTopics?.[0]);
       const strong = this.safeTopic(summary.strongestTopics?.[0]);
@@ -246,16 +246,15 @@ export class PracticeAiInsightsService {
         '- suggestedPrompt: a concrete prompt the student can send to NOVA next',
       ].join('\n');
 
-      const res = await client.chat.completions.create({
+      const res = await client.messages.create({
         model,
+        max_tokens: 512,
+        system: 'You output strict JSON only.',
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
-        messages: [
-          { role: 'system', content: 'You output strict JSON only.' },
-          { role: 'user', content: prompt },
-        ],
-      });
+      } as any);
 
-      const text = String(res.choices?.[0]?.message?.content ?? '').trim();
+      const text = String(res.content[0]?.type === 'text' ? res.content[0].text : '').trim();
       const parsed = this.parseJsonObject(text);
       if (!parsed) return fallback;
 

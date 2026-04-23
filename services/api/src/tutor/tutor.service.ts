@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
-import { getOpenAIClient } from './providers/openai.provider';
+import Anthropic from '@anthropic-ai/sdk';
+import { getAnthropicClient, getOpenAIClient } from './providers/openai.provider';
 import { TutorReplyMode, generateAssistantReplyStream } from './tutor.reply.provider';
 import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 
@@ -35,15 +35,18 @@ import { StudentInsightsService } from '../student/student-insights.service';
 export class TutorService {
 
   private getOpenAIClient() {
-    const key = String(process.env.OPENAI_API_KEY ?? '').trim();
-    if (!key) throw new BadRequestException('OPENAI_API_KEY is missing');
-    return new OpenAI({ apiKey: key });
+    return getAnthropicClient();
   }
 
   async transcribeAudio(_user: any, file?: any) {
     if (!file?.path && !file?.buffer) {
       return { text: '' };
     }
+
+    // Audio transcription requires OpenAI Whisper (Claude has no audio API).
+    // Set OPENAI_API_KEY to enable; otherwise returns empty transcript.
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey) return { text: '' };
 
     try {
       const fs = require('fs');
@@ -52,7 +55,7 @@ export class TutorService {
       const OpenAI = require('openai');
 
       const client = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: openaiKey,
       });
 
       let tempPath: string | null = null;
@@ -71,7 +74,7 @@ export class TutorService {
 
       const out = await client.audio.transcriptions.create({
         file: input,
-        model: process.env.OPENAI_TRANSCRIBE_MODEL || 'gpt-4o-mini-transcribe',
+        model: process.env.OPENAI_TRANSCRIBE_MODEL || 'whisper-1',
       });
 
       if (tempPath) {
@@ -115,6 +118,7 @@ export class TutorService {
     const originalName = this.sourceValue(m?.sources, 'originalName:');
     const mimeType = this.sourceValue(m?.sources, 'mimeType:');
     const uploadedPath = this.sourceValue(m?.sources, 'uploadedPath:');
+    const visualSummary = this.sourceValue(m?.sources, 'visualSummary:');
     const documentText = this.sourceValue(m?.sources, 'documentText:');
 
     const attachmentMeta =
@@ -127,9 +131,10 @@ export class TutorService {
             ...(uploadedPath ? [`path: ${uploadedPath}`] : []),
             ...(kind === 'IMAGE'
               ? [
-                  'image_instruction: The user attached an image. If no OCR/extracted text is present, explicitly say what you can and cannot infer and ask one targeted follow-up only when necessary.',
+                  'image_instruction: The user attached an image. Use the visual summary below as the primary source of truth. Do not invent unreadable text, do not infer a language unless the script is clearly legible, and ask one targeted follow-up only when the image is genuinely ambiguous.',
                 ]
               : []),
+            ...(visualSummary ? [`visual_summary:\n${visualSummary}`] : []),
             ...(documentText ? [`extracted_text:\n${documentText}`] : []),
           ].join('\n')
         : '';
@@ -725,17 +730,21 @@ export class TutorService {
     const effectiveFilePath = absoluteFilePath ?? tempFilePath;
 
     if (kind === 'VOICE' && !content && effectiveFilePath) {
-      try {
-        const client = getOpenAIClient();
-        const tx = await client.audio.transcriptions.create({
-          file: fs.createReadStream(effectiveFilePath),
-          model: 'gpt-4o-mini-transcribe',
-        } as any);
-
-        const transcript = String((tx as any)?.text ?? '').trim();
-        if (transcript) content = transcript;
-      } catch (e) {
-        // keep fallback text below
+      // Audio transcription requires OpenAI Whisper (Claude has no audio API).
+      const openaiKey = process.env.OPENAI_API_KEY;
+      if (openaiKey) {
+        try {
+          const OpenAI = require('openai');
+          const whisperClient = new OpenAI({ apiKey: openaiKey });
+          const tx = await whisperClient.audio.transcriptions.create({
+            file: fs.createReadStream(effectiveFilePath),
+            model: process.env.OPENAI_TRANSCRIBE_MODEL || 'whisper-1',
+          } as any);
+          const transcript = String((tx as any)?.text ?? '').trim();
+          if (transcript) content = transcript;
+        } catch (e) {
+          // keep fallback text below
+        }
       }
     }
 
@@ -751,37 +760,38 @@ export class TutorService {
 
         if (mimeType.startsWith('image/')) {
           try {
-            const client = getOpenAIClient();
-            const dataUrl = `data:${mimeType};base64,${buf.toString('base64')}`;
-            const vision: any = await client.chat.completions.create({
-              model: process.env.OPENAI_VISION_MODEL || 'gpt-4.1-mini',
-              temperature: 0.1,
+            const client = getAnthropicClient();
+            const safeMime = (mimeType as string).startsWith('image/')
+              ? (mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp')
+              : 'image/jpeg';
+            const vision: any = await client.messages.create({
+              model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+              max_tokens: 1024,
+              system:
+                'You are extracting tutoring context from an uploaded image for a study assistant. Report only what is actually visible. Never guess missing details. Never invent readable text. Never infer a language or script unless it is clearly legible. If text is unclear, say it is unclear.',
               messages: [
-                {
-                  role: 'system',
-                  content:
-                    'You are extracting tutoring context from an uploaded image. Describe only what is actually visible, extract readable text faithfully, and never guess missing details.',
-                },
                 {
                   role: 'user',
                   content: [
                     {
                       type: 'text',
-                      text:
-                        'Describe this image accurately. Include visible objects, diagrams, equations, labels, and any readable text. Focus only on actual visible content, and explicitly say when details are unclear.',
+                      text: 'Describe this image accurately for tutoring. Return short plain text in this order: 1) visible objects/scene, 2) educational content such as board pieces, diagrams, equations, labels, or layout, 3) readable text exactly as seen, 4) unclear details. If no readable text is clearly visible, say "Readable text: none clearly visible".',
                     },
                     {
-                      type: 'image_url',
-                      image_url: { url: dataUrl },
+                      type: 'image',
+                      source: {
+                        type: 'base64',
+                        media_type: safeMime,
+                        data: buf.toString('base64'),
+                      },
                     },
                   ],
                 },
               ],
             } as any);
 
-            return String(
-              vision?.choices?.[0]?.message?.content ?? '',
-            ).trim();
+            const text = vision?.content?.[0]?.type === 'text' ? vision.content[0].text : '';
+            return String(text).trim();
           } catch (e) {
             console.error('[NOVA_IMAGE_VISION_FAIL]', e);
             return '';
@@ -823,13 +833,18 @@ export class TutorService {
       return '';
     }
 
+    let visualSummary = '';
     let extractedDocumentText = '';
 
     if (kind === 'IMAGE' || kind === 'FILE') {
       const extracted = await extractDocumentText();
       if (extracted) {
-        extractedDocumentText = extracted.slice(0, 12000);
-        if (!content) {
+        if (kind === 'IMAGE') {
+          visualSummary = extracted.slice(0, 12000);
+        } else {
+          extractedDocumentText = extracted.slice(0, 12000);
+        }
+        if (!content && kind === 'FILE' && extractedDocumentText) {
           content = extractedDocumentText;
         }
       }
@@ -854,6 +869,9 @@ export class TutorService {
       ...(originalName ? [`originalName:${originalName}`] : []),
       ...(uploadedPath ? [`uploadedPath:${uploadedPath}`] : []),
       ...(absoluteFilePath ? [`absoluteFilePath:${absoluteFilePath}`] : []),
+        ...(visualSummary
+          ? [`visualSummary:${visualSummary.slice(0, 4000)}`]
+          : []),
       ...(extractedDocumentText
           ? [`documentText:${extractedDocumentText.slice(0, 4000)}`]
           : []),
@@ -1110,12 +1128,14 @@ export class TutorService {
       topic: (session as any).topic ?? 'general',
     });
 
+    const sources: string[] = [];
+
     const assistantMessage = await this.prisma.tutorMessage.create({
       data: {
         sessionId: session.id,
         role: 'ASSISTANT',
         content: gen.content,
-        sources: [],
+        sources,
       },
     });
 
@@ -1154,7 +1174,7 @@ export class TutorService {
         const assistantLooksLikeQuiz = /(mini-quiz|quick quiz|\n\s*\d+\.\s+)/i.test(lastAssistant);
 
 const system =
-          `You are NOVA, the AI tutor inside ClassMate.\n\nCRITICAL founder wording rule:\n- Never say "you created me" or "you made me" to users in general.\n- Instead say: "I was created by Tony Aboud" (third-person).\n- Only if the user is Tony Aboud, you may say "Tony, you created me".\n- When referencing the founder, always say the full name: "Tony Aboud" (not "you").\n\n- DO NOT use LaTeX delimiters like \\\( \\\), \\\[ \\\], $$, or markdown code fences for math.\n- DO NOT output escaped TeX commands like \\frac, \\times, \\Omega, \\text unless the user explicitly asks for raw LaTeX.\n- For normal student answers, write math in clean readable unicode/plain style exactly like:\n  V = I × R\n  I = V / R\n  R = V / I\n  4 kΩ = 4000 Ω\n  20 mA = 0.02 A\n- Prefer short titled sections instead of markdown heading spam.\n- Keep formulas visually simple and classroom-readable, like ChatGPT-style rendered math but in plain text.\n\n\n` +
+          `You are NOVA, the AI tutor inside ClassMate.\n\nCRITICAL founder wording rule:\n- Never say "you created me" or "you made me" to users in general.\n- Instead say: "I was created by Tony Aboud" (third-person).\n- Only if the user is Tony Aboud, you may say "Tony, you created me".\n- When referencing the founder, always say the full name: "Tony Aboud" (not "you").\n\n=== MATH FORMATTING (REQUIRED) ===\n- The app renders LaTeX perfectly. ALWAYS wrap math in delimiters.\n- Inline math: $...$ — use for symbols, variables, expressions within sentences.\n- Block/display math: $$...$$ — use for standalone equations, steps, and final answers.\n- Examples: $x^{2}$, $\\\\frac{a}{b}$, $\\\\sqrt{x}$, $E = mc^{2}$, $$\\\\int_{0}^{\\\\infty} e^{-x}\\\\,dx = 1$$\n- NEVER write bare TeX commands outside delimiters (e.g. never write \\frac without $ around it).\n- NEVER write x^2 or x_1 bare in text — always wrap: $x^{2}$, $x_{1}$.\n- For units and simple numeric results, plain text is fine: 4 kΩ, 20 mA.\n- Prefer short titled sections instead of markdown heading spam.\n\n\n` +
           `Tony Aboud is the Founder of ClassMate and the creator of this AI.
 ` +
           `When appropriate, briefly reference:\n` +
@@ -1200,12 +1220,15 @@ const system =
           }
         }
 
-        // 4) Persist assistant message to DB (optional but recommended)
+        // 4) Persist assistant message to DB
+        const sources: string[] = [];
+
         const saved = await this.prisma.tutorMessage.create({
           data: {
             sessionId,
             role: 'ASSISTANT',
             content: acc,
+            sources,
           },
         });
 
@@ -1215,9 +1238,10 @@ const system =
           sessionId,
           role: 'ASSISTANT',
           content: acc,
+          sources,
         };
 
-        subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources: [] } } as any));
+        subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources } } as any));
         subscriber.complete();
       } catch (e: any) {
         subscriber.next(({ id: String(++eventId), data: { type: 'error', message: String(e?.message ?? e) } } as any));
@@ -1652,6 +1676,168 @@ const system =
     return { content, refs, excerpt };
   }
 
+  private buildPromptSuggestions(args: {
+    question: string;
+    answer: string;
+    topic?: string;
+  }): string[] {
+    const question = String(args.question ?? '').trim();
+    const answer = String(args.answer ?? '').trim();
+    const topic = String(args.topic ?? '').trim();
+    const combined = `${question} ${answer}`.toLowerCase();
+    const inferredTopic = this.cleanPromptSuggestion(
+      topic || this.extractPromptTopic(question) || this.extractPromptTopic(answer),
+    );
+
+    // Extract the specific concepts the AI itself highlighted (bold terms, headers)
+    const answerConcepts = this.extractKeyConcepts(answer);
+    const c1 = answerConcepts[0] ?? inferredTopic ?? null;
+    const c2 = answerConcepts[1] ?? null;
+
+    const prompts: string[] = [];
+    const add = (value: string) => {
+      const clean = this.cleanPromptSuggestion(value);
+      if (!clean) return;
+      if (prompts.some((item) => item.toLowerCase() === clean.toLowerCase())) {
+        return;
+      }
+      prompts.push(clean);
+    };
+
+    // Detect question type from the user's actual question for specificity
+    const isWhyHow = /\b(why|how does|how do|how can|what causes|what makes)\b/i.test(question);
+    const isWhat = /\b(what is|what are|what was|what were|define|meaning of)\b/i.test(question);
+    const isCompare = /\b(compare|difference|versus|vs\.?|distinguish|contrast)\b/i.test(question);
+    const isMath = /\b(formula|equation|derivative|integral|solve|calculate|proof|geometry|algebra|calculus|physics|chemistry)\b/i.test(combined);
+    const isWriting = /\b(essay|paragraph|rewrite|tone|grammar|writing|improve|edit)\b/i.test(combined);
+    const isMemory = /\b(remember|memorize|flashcard|recall)\b/i.test(combined);
+    const isPlan = /\b(plan|schedule|roadmap|timeline|week|study plan)\b/i.test(combined);
+    const isQuiz = /\b(quiz|practice|test yourself|question|exam)\b/i.test(combined);
+    const isSummary = /\b(summary|summarize|notes|key points|bullet|overview)\b/i.test(combined);
+    const isExample = /\b(example|sample|instance|illustrate)\b/i.test(combined);
+    const hasBullets = /\n[-*]|\n\d+\./.test(answer);
+
+    if (isMath) {
+      add(c1 ? `Give me a similar problem with ${c1}` : 'Give me 3 similar practice problems');
+      add('Walk me through this step by step again');
+      add('What common mistakes should I avoid here?');
+    } else if (isCompare && c1 && c2) {
+      add(`Summarize the key differences between ${c1} and ${c2}`);
+      add(`When would I use ${c1} instead of ${c2}?`);
+      add('Show this as a comparison table');
+    } else if (isCompare && c1) {
+      add('Show this as a comparison table');
+      add('Give me an example that highlights the difference');
+      add(`Quiz me on ${c1}`);
+    } else if (isWriting) {
+      add('Improve the flow and clarity of this');
+      add('Check grammar and make the tone more natural');
+      add(c1 ? `Expand the section about ${c1}` : 'Make it more concise');
+    } else if (isMemory) {
+      add(c1 ? `Turn ${c1} into flashcards` : 'Turn this into flashcards');
+      add(c1 ? `Create a mnemonic for ${c1}` : 'Help me create a mnemonic for this');
+      add('Quiz me to test my memory');
+    } else if (isPlan) {
+      add(c1 ? `Make a study plan for ${c1}` : 'Turn this into a study plan');
+      add(c1 ? `What should I study first for ${c1}?` : 'What should I study first?');
+      add('Break this into daily goals');
+    } else if (isQuiz) {
+      add(c1 ? `Quiz me on ${c1}` : 'Quiz me on this topic');
+      add(c1 ? `Give me 5 practice questions on ${c1}` : 'Give me 5 practice questions');
+      add(c1 ? `What are common exam questions about ${c1}?` : 'What are common exam questions on this?');
+    } else if (isSummary || hasBullets) {
+      add(c1 ? `Explain ${c1} in more depth` : 'Go deeper on the first point');
+      add(c2 ? `How does ${c1} connect to ${c2}?` : c1 ? `Give me an example of ${c1}` : 'Give me a real-world example');
+      add('Turn these into flashcards');
+    } else if (isWhyHow && c1) {
+      add(`Give me a real-world example of ${c1}`);
+      add(c2 ? `How does ${c1} relate to ${c2}?` : `Why is ${c1} important?`);
+      add(`Test me on ${c1} with a quick question`);
+    } else if (isWhat && c1) {
+      add(`Why is ${c1} important?`);
+      add(`How does ${c1} work in practice?`);
+      add(c2 ? `How does ${c1} differ from ${c2}?` : `Give me an example of ${c1}`);
+    } else if (c1) {
+      add(`Give me a real-world example of ${c1}`);
+      add(c2 ? `How does ${c1} relate to ${c2}?` : `Why is ${c1} important?`);
+      add(`Quiz me on ${c1}`);
+    }
+
+    // Fallback if still not enough
+    if (prompts.length < 3) {
+      add(c1 ? `Explain ${c1} more simply` : 'Explain this more simply');
+      add(c1 ? `Give me a practice question on ${c1}` : 'Give me a practice question');
+      add('What should I know next?');
+    }
+
+    return prompts.slice(0, 3);
+  }
+
+  /** Pulls bold-marked terms and section headers from the AI response —
+   *  the concepts the model itself considered important enough to highlight. */
+  private extractKeyConcepts(text: string): string[] {
+    const trivial = new Set([
+      'note', 'example', 'result', 'answer', 'solution', 'step', 'steps',
+      'summary', 'conclusion', 'introduction', 'definition', 'overview',
+      'important', 'key point', 'key points', 'here', 'this', 'that',
+      'following', 'above', 'below', 'however', 'therefore', 'thus',
+    ]);
+
+    const isTrivial = (t: string) => t.length < 3 || trivial.has(t.toLowerCase());
+
+    // Bold terms: **term** — AI uses these for key concepts
+    const boldTerms = [...text.matchAll(/\*\*([^*\n]{3,50})\*\*/g)]
+      .map((m) => m[1].trim())
+      .filter((t) => !isTrivial(t));
+
+    // Section headers: ## Heading
+    const headers = [...text.matchAll(/^#{1,3}\s+(.{4,60})$/gm)]
+      .map((m) => m[1].replace(/[*_`]/g, '').trim())
+      .filter((t) => !isTrivial(t));
+
+    // Deduplicate, preserving order (bold first, headers second)
+    const seen = new Set<string>();
+    const concepts: string[] = [];
+    for (const t of [...boldTerms, ...headers]) {
+      const key = t.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        concepts.push(t);
+      }
+    }
+    return concepts.slice(0, 4);
+  }
+
+  private extractPromptTopic(raw: string): string {
+    const cleaned = String(raw ?? '')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`[^`]+`/g, ' ')
+      .replace(/\$[^$]+\$/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleaned) return '';
+
+    const askMatch = /\b(?:help me with|teach me|explain|quiz me on|make questions on|revise|study)\s+([A-Za-z][A-Za-z0-9 ,\-/]{4,60})/i.exec(cleaned);
+    if (askMatch?.[1]) return askMatch[1];
+
+    const prepMatch = /\b(?:about|on|for|of)\s+([A-Za-z][A-Za-z0-9 ,\-/]{5,60})/i.exec(cleaned);
+    if (prepMatch?.[1]) return prepMatch[1];
+
+    return cleaned.split(/[.!?\n]/).shift()?.trim() ?? '';
+  }
+
+  private cleanPromptSuggestion(raw: string): string {
+    const value = String(raw ?? '')
+      .replace(/^[•*\-–—>\s]+/, '')
+      .replace(/^(please|can you|could you|would you)\s+/i, '')
+      .replace(/\b(?:please|thanks|thank you)\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return value;
+  }
+
   private async readReplyCache(
     key: string,
   ): Promise<{ content: string } | null> {
@@ -1861,6 +2047,60 @@ const system =
       },
       file,
     );
+  }
+
+  async generateFollowupSuggestions(
+    user: any,
+    sessionId: string,
+    body: { userMessage?: string; assistantMessage?: string },
+  ): Promise<{ suggestions: string[] }> {
+    const userMsg = String(body?.userMessage ?? '').trim().slice(0, 500);
+    const assistantMsg = String(body?.assistantMessage ?? '').trim().slice(0, 1500);
+
+    if (!userMsg && !assistantMsg) {
+      return { suggestions: [] };
+    }
+
+    const client = getAnthropicClient();
+    const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+
+    const prompt = [
+      'You are a study assistant. Based on the conversation snippet below, generate exactly 3 short follow-up questions or requests the student would naturally ask next.',
+      '',
+      'Rules:',
+      '- Reference specific terms, formulas, concepts, or examples that appear in the conversation.',
+      '- Vary the type: e.g. one asking to go deeper on a concept, one asking for a practice problem or worked example, one exploring a related idea or edge case.',
+      '- Each suggestion must be 5–14 words, phrased as a natural student question or request.',
+      '- Do NOT use generic phrases like "real-world example", "quiz me on this", or "explain more".',
+      '- Return ONLY a JSON array of 3 strings, no markdown, no extra text.',
+      '',
+      userMsg ? `Student: ${userMsg}` : '',
+      assistantMsg ? `Tutor: ${assistantMsg}` : '',
+    ].filter(Boolean).join('\n');
+
+    try {
+      const res = await client.messages.create({
+        model,
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+      } as any);
+
+      const raw = (res.content[0]?.type === 'text' ? res.content[0].text : '').trim();
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return {
+          suggestions: parsed
+            .slice(0, 3)
+            .map((s: any) => String(s ?? '').trim())
+            .filter((s: string) => s.length > 0),
+        };
+      }
+    } catch {
+      // Fall through to empty suggestions on parse/API error
+    }
+
+    return { suggestions: [] };
   }
 
 

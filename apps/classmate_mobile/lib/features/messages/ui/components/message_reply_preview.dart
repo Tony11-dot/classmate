@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../chat_core/utils/chat_reply_codec.dart';
 
 class MessageReplyPreview extends StatelessWidget {
@@ -16,6 +17,7 @@ class MessageReplyPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final resolvedSender = (sender ?? '').trim();
     final preview = replyPreviewText(text);
@@ -46,7 +48,9 @@ class MessageReplyPreview extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  resolvedSender.isEmpty ? 'Reply' : resolvedSender,
+                  resolvedSender.isEmpty
+                      ? l.chatComposerReplyFallback
+                      : resolvedSender,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(

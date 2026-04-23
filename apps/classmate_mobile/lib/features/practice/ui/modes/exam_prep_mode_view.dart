@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class ExamPrepModeView extends StatelessWidget {
@@ -7,6 +8,7 @@ class ExamPrepModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return questionCard(
       d,
       child: Column(
@@ -18,7 +20,7 @@ class ExamPrepModeView extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Exam prep · quieter layout, answers reviewed after moving forward',
+                  l.practiceModeExamPrepBanner,
                   style: d.theme.textTheme.labelLarge?.copyWith(
                     color: d.accent,
                     fontWeight: FontWeight.w900,
@@ -30,14 +32,14 @@ class ExamPrepModeView extends StatelessWidget {
           const SizedBox(height: 14),
           sessionProgressStrip(d),
           const SizedBox(height: 14),
-          MathView(d.promptOf()),
+          questionPromptPanel(d),
           const SizedBox(height: 16),
           answerList(d),
           const SizedBox(height: 12),
           answerFeedbackSection(d),
           const SizedBox(height: 14),
           if (d.showExplanation) ...[
-            explanationCard(d, title: 'Review'),
+            explanationCard(d, title: l.practiceModeReview),
             const SizedBox(height: 12),
           ],
           Row(
@@ -45,7 +47,7 @@ class ExamPrepModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.state.currentIndex > 0 ? d.previous : null,
                 icon: Icons.arrow_back_rounded,
-                tooltip: 'Previous',
+                tooltip: l.practiceModeActionPrevious,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -58,8 +60,8 @@ class ExamPrepModeView extends StatelessWidget {
                     d.next();
                   },
                   icon: const Icon(Icons.arrow_forward_rounded),
-                  label: const Text(
-                    'Next question',
+                  label: Text(
+                    l.practiceModeActionNextQuestion,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -70,7 +72,7 @@ class ExamPrepModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.end,
                 icon: Icons.close_rounded,
-                tooltip: 'End exam',
+                tooltip: l.practiceModeActionEndExam,
               ),
             ],
           ),

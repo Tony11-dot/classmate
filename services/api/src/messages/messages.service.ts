@@ -559,7 +559,7 @@ export class MessagesService {
           id: m.id,
           senderId: m.senderId,
           senderName: this.displayNameOf(users.get(m.senderId)),
-          text: String(m.text ?? '').trim(),
+          text: (() => { const t = String(m.text ?? '').trim(); if (t.startsWith('Forwarded\n')) return t.slice('Forwarded\n'.length); if (t === 'Forwarded') return ''; return t; })(),
           timeLabel: this.formatTime(m.createdAt),
           sentAtRaw: this.toIsoString(m.createdAt),
           createdAt: this.toIsoString(m.createdAt),
@@ -571,7 +571,7 @@ export class MessagesService {
           reactions: this.mapDmReactions(m.reactions as Array<{ emoji?: string | null; userId?: string | null }>, viewerId),
           isPinned: !!m.isPinned,
           edited: !!m.editedAt,
-          forwarded: !!m.forwardedFromId,
+          forwarded: !!m.forwardedFromId || (() => { const t = String(m.text ?? '').trim(); return t.startsWith('Forwarded\n') || t === 'Forwarded'; })(),
           deleteState: String(m.deleteMode ?? 'VISIBLE'),
           delivered: delivery.delivered,
           seen: delivery.seen,
@@ -1083,12 +1083,12 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     if (participant.state === DmParticipantState.BLOCKED) {
       throw new ForbiddenException('Thread is blocked');
     }
-    const canSendWhilePendingOutgoing =
+    const canSendWhilePending =
       participant.thread.type === DmThreadType.DIRECT &&
       participant.state === DmParticipantState.PENDING_OUTGOING;
     if (
       participant.state !== DmParticipantState.ACCEPTED &&
-      !canSendWhilePendingOutgoing
+      !canSendWhilePending
     ) {
       throw new ForbiddenException('Request is not approved yet');
     }
@@ -1221,8 +1221,11 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
 
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
 
-    if (message.senderId !== userId) {
-      throw new ForbiddenException('Only the sender can edit this message');
+    const nextText = text;
+    const currentText = String(message.text ?? '').trim();
+
+    if (nextText === currentText) {
+      return { ok: true, edited: false };
     }
 
     if (message.mediaUrl) {
@@ -1232,14 +1235,13 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     await this.prisma.dmMessage.update({
       where: { id: messageId },
       data: {
-        text,
+        text: nextText,
         editedAt: new Date(),
       },
     });
 
-    return { ok: true };
+    return { ok: true, edited: true };
   }
-
   async togglePin(user: AppUser, dto: TogglePinMessageDto) {
     const userId = this.viewerId(user);
     const threadId = String(dto.threadId ?? '').trim();
@@ -1283,9 +1285,8 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
 
     if (mode === 'deleteForEveryone') {
-      if (message.senderId !== userId) {
-        throw new ForbiddenException('Only the sender can delete for everyone');
-      }
+    // allow any participant to delete for self
+
 
       await this.prisma.dmMessage.update({
         where: { id: messageId },
@@ -1301,11 +1302,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       return { ok: true };
     }
 
-    if (message.senderId !== userId) {
-      throw new ForbiddenException(
-        'Only the sender can delete this message for self in this phase',
-      );
-    }
+    // allow any participant to delete for self
 
     await this.prisma.dmMessage.update({
       where: { id: messageId },
@@ -1417,16 +1414,6 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     );
 
     for (const targetThreadId of targetThreadIds) {
-      const participant = await this.loadParticipantOrThrow(
-        targetThreadId,
-        userId,
-      );
-      if (participant.state !== DmParticipantState.ACCEPTED) {
-        throw new ForbiddenException(
-          'Cannot forward into a non-approved thread',
-        );
-      }
-
       const sourceText = String(source.text ?? '').trim();
       const sourceMime = String(source.mediaMimeType ?? '').trim().toLowerCase();
       const taggedDuration = sourceText.match(/\[duration:(\d+)\]/i);
@@ -1434,35 +1421,63 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         taggedDuration && Number(taggedDuration[1] ?? 0) > 0
           ? Number(taggedDuration[1])
           : 0;
-
       const forwardedText =
         String(source.kind) === 'VOICE' && duration > 0
           ? (sourceText || `[VOICE] Voice message [duration:${duration}]`)
           : source.text;
 
-      await this.prisma.dmMessage.create({
-        data: {
-          threadId: targetThreadId,
-          senderId: userId,
-          kind: source.kind,
-          text: forwardedText,
-          mediaUrl: source.mediaUrl,
-          mediaMimeType: sourceMime || source.mediaMimeType,
-          forwardedFromId: source.id,
-        },
+      // Try DM participant first
+      const dmParticipant = await this.prisma.dmParticipant.findUnique({
+        where: { threadId_userId: { threadId: targetThreadId, userId } },
       });
 
-      await this.prisma.dmParticipant.update({
-        where: {
-          threadId_userId: {
+      if (dmParticipant) {
+        if (dmParticipant.state !== DmParticipantState.ACCEPTED) {
+          throw new ForbiddenException('Cannot forward into a non-approved thread');
+        }
+        await this.prisma.dmMessage.create({
+          data: {
             threadId: targetThreadId,
-            userId,
+            senderId: userId,
+            kind: source.kind,
+            text: forwardedText,
+            mediaUrl: source.mediaUrl,
+            mediaMimeType: sourceMime || source.mediaMimeType,
+            forwardedFromId: source.id,
           },
-        },
-        data: {
-          lastSeenAt: new Date(),
-        },
-      });
+        });
+        await this.prisma.dmParticipant.update({
+          where: { threadId_userId: { threadId: targetThreadId, userId } },
+          data: { lastSeenAt: new Date() },
+        });
+      } else {
+        // Try classroom target
+        const viewerProfile = await this.prisma.studentProfile.findUnique({
+          where: { userId },
+          select: { cohortId: true },
+        });
+        if (!viewerProfile?.cohortId) {
+          throw new BadRequestException('Invalid target thread');
+        }
+        const course = await this.prisma.course.findFirst({
+          where: { id: targetThreadId, cohortId: viewerProfile.cohortId },
+          select: { id: true },
+        });
+        if (!course) {
+          throw new BadRequestException('Invalid target thread');
+        }
+        await this.prisma.classroomMessage.create({
+          data: {
+            courseId: targetThreadId,
+            senderUserId: userId,
+            kind: source.kind as any,
+            text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',
+            mediaUrl: source.mediaUrl ?? null,
+            mediaMime: sourceMime || null,
+            durationSec: duration > 0 ? duration : null,
+          },
+        });
+      }
     }
 
     return { ok: true };

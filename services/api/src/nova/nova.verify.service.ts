@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { openai } from '../common/openai.client';
+import { anthropic } from '../common/openai.client';
 
 @Injectable()
 export class NovaVerifyService {
@@ -31,16 +31,15 @@ Respond ONLY in JSON:
 }
 `;
 
-      const res = await openai.chat.completions.create({
-        model: 'gpt-4.1-mini',
-        messages: [
-          { role: 'system', content: 'You are a strict academic validator.' },
-          { role: 'user', content: prompt },
-        ],
+      const res = await anthropic.messages.create({
+        model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        system: 'You are a strict academic validator.',
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
-      });
+      } as any);
 
-      const text = res.choices?.[0]?.message?.content ?? '{}';
+      const text = res.content[0]?.type === 'text' ? res.content[0].text : '{}';
 
       let parsed: any;
       try {

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class ChatCameraCaptureResult {
   const ChatCameraCaptureResult({required this.paths});
 
@@ -11,9 +13,9 @@ class ChatCameraCaptureResult {
 }
 
 class ChatCameraCaptureScreen extends StatefulWidget {
-  const ChatCameraCaptureScreen({super.key, this.title = 'Camera'});
+  const ChatCameraCaptureScreen({super.key, this.title});
 
-  final String title;
+  final String? title;
 
   @override
   State<ChatCameraCaptureScreen> createState() =>
@@ -65,6 +67,7 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final previewPath = _shots.isEmpty ? null : _shots.last;
 
@@ -73,7 +76,7 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text(widget.title),
+        title: Text(widget.title ?? l.chatCameraTitle),
         actions: [
           if (_shots.isNotEmpty)
             TextButton(
@@ -83,7 +86,7 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
                 );
               },
               child: Text(
-                'Use',
+                l.chatCameraUseAction,
                 style: TextStyle(
                   color: cs.primary,
                   fontWeight: FontWeight.w700,
@@ -163,7 +166,7 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
                 FilledButton.tonalIcon(
                   onPressed: _busy ? null : _pickFromGallery,
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Gallery'),
+                  label: Text(l.chatCameraGalleryAction),
                 ),
                 const Spacer(),
                 InkWell(
@@ -194,9 +197,7 @@ class _ChatCameraCaptureScreenState extends State<ChatCameraCaptureScreen> {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      _shots.isEmpty
-                          ? '0 selected'
-                          : '${_shots.length} selected',
+                      l.chatCameraSelectedCount(_shots.length),
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),

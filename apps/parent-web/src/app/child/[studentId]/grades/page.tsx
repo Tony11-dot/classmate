@@ -23,7 +23,7 @@ export default function ChildGradesPage() {
 
         const grouped: Record<string, any[]> = {};
         for (const g of grades) {
-          const key = g.courseName ?? 'Other';
+          const key = g.course?.name ?? 'Other';
           grouped[key] = grouped[key] || [];
           grouped[key].push(g);
         }
@@ -31,7 +31,7 @@ export default function ChildGradesPage() {
         // newest first if date exists
         Object.values(grouped).forEach(list =>
           list.sort((a, b) =>
-            String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))
+            String(b.assessment?.date ?? "").localeCompare(String(a.assessment?.date ?? ""))
           )
         );
 
@@ -61,14 +61,14 @@ export default function ChildGradesPage() {
               {list.map((g, i) => (
                 <div key={i} className="rounded-lg border p-3">
                   <div className="font-medium">
-                    {g.assessmentName ?? 'Assessment'}
+                    {g.assessment?.title ?? 'Assessment'}
                   </div>
                   <div className="text-sm opacity-70">
-                    {g.score}/{g.maxScore}
-                    {g.maxScore ? (
-                      <> · {Math.round((g.score / g.maxScore) * 100)}%</>
-                    ) : null}
+                    {typeof g.grade === 'number' ? `${g.grade}%` : '—'}
+                    {g.assessment?.date ? ` · ${new Date(g.assessment.date).toLocaleDateString()}` : ''}
+                    {g.course?.subject ? ` · ${g.course.subject}` : ''}
                   </div>
+                  {g.comment ? <div className="mt-1 text-sm opacity-70">{g.comment}</div> : null}
                 </div>
               ))}
             </div>

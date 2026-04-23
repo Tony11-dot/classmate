@@ -4,8 +4,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../chat_core/ui/chat_recording_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,12 +17,15 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
-import '../../chat_core/ui/chat_camera_capture_screen.dart';
-import '../../../common/widgets/cm_code_block.dart';
-import '../../../ui/math/math_view.dart';
+import '../../../common/widgets/cm_ai_message.dart';
+import '../../../common/widgets/typing_dots.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../ui/glass/liquid_glass_card.dart';
 import 'chatgpt_chat_components.dart';
 
+import '../data/nova_plan_models.dart';
 import '../data/tutor_repository.dart';
+import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_repository_provider.dart';
 
 class _Msg {
@@ -30,6 +36,7 @@ class _Msg {
     this.localPath,
     this.remoteUrl,
     this.fileName,
+    this.promptSuggestions = const <String>[],
   });
 
   final String role;
@@ -38,6 +45,7 @@ class _Msg {
   final String? localPath;
   final String? remoteUrl;
   final String? fileName;
+  final List<String> promptSuggestions;
 
   bool get isUser => role.toLowerCase() == 'user';
   bool get isImage => kind.toUpperCase() == 'IMAGE';
@@ -66,10 +74,24 @@ String _sourceValue(List<dynamic> sources, String prefix) {
   return '';
 }
 
-_Msg _msgFromStored(Map<String, dynamic> mm) {
+List<String> _promptSuggestionsFromSources(List<dynamic> sources) {
+  return sources
+      .map((raw) => raw.toString())
+      .where((value) => value.startsWith('promptSuggestion:'))
+      .map((value) => value.substring('promptSuggestion:'.length).trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+}
+
+_Msg _msgFromStored(
+  Map<String, dynamic> mm, {
+  required String voiceFallback,
+  required String fileFallback,
+}) {
   final role = (mm['role'] ?? 'assistant').toString().toLowerCase();
   final content = (mm['content'] ?? '').toString();
   final sources = (mm['sources'] is List) ? mm['sources'] as List : const [];
+  final promptSuggestions = _promptSuggestionsFromSources(sources);
 
   final kind = _sourceValue(sources, 'kind:').toUpperCase();
   final originalName = _sourceValue(sources, 'originalName:');
@@ -81,39 +103,48 @@ _Msg _msgFromStored(Map<String, dynamic> mm) {
     remoteUrl = uploadedPath.startsWith('/') ? uploadedPath : '/$uploadedPath';
   }
 
-  if (role == 'user' && kind == 'IMAGE') {
+  if (kind == 'IMAGE') {
     return _Msg(
       role: role,
       content: '',
       kind: 'IMAGE',
       remoteUrl: remoteUrl,
       fileName: originalName,
+      promptSuggestions: promptSuggestions,
     );
   }
 
-  if (role == 'user' && kind == 'VOICE') {
+  if (kind == 'VOICE') {
     return _Msg(
       role: role,
-      content: originalName.isNotEmpty ? originalName : 'Voice message',
+      content: originalName.isNotEmpty ? originalName : voiceFallback,
       kind: 'VOICE',
       remoteUrl: remoteUrl,
       fileName: originalName,
+      promptSuggestions: promptSuggestions,
     );
   }
 
-  if (role == 'user' && (kind == 'FILE' || kind == 'DOC' || kind == 'VIDEO')) {
+  if (kind == 'FILE' || kind == 'DOC' || kind == 'VIDEO' || kind == 'PDF') {
     return _Msg(
       role: role,
-      content: originalName.isNotEmpty ? originalName : 'File',
+      content: originalName.isNotEmpty
+          ? originalName
+          : (content.trim().isNotEmpty ? content.trim() : fileFallback),
       kind: kind.isEmpty
           ? 'FILE'
           : (mimeType.toLowerCase() == 'application/pdf' ? 'PDF' : kind),
       remoteUrl: remoteUrl,
       fileName: originalName,
+      promptSuggestions: promptSuggestions,
     );
   }
 
-  return _Msg(role: role, content: content);
+  return _Msg(
+    role: role,
+    content: content,
+    promptSuggestions: promptSuggestions,
+  );
 }
 
 class NovaChatScreen extends ConsumerStatefulWidget {
@@ -133,6 +164,9 @@ class NovaChatScreen extends ConsumerStatefulWidget {
 }
 
 class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
+  static const _untitledSentinel = '__untitled__';
+  static const _thinkingSentinel = '__thinking__';
+
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
@@ -140,9 +174,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   final List<_Msg> _messages = <_Msg>[];
   final List<_DraftAttachment> _draftAttachments = <_DraftAttachment>[];
+  final ImagePicker _imagePicker = ImagePicker();
 
   String? _sessionId;
-  String _headerTitle = 'Untitled chat';
+  String _headerTitle = _untitledSentinel;
   bool _loadingHistory = false;
   bool _sending = false;
   bool _recording = false;
@@ -157,6 +192,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   StreamSubscription<Map<String, dynamic>>? _replySub;
   Timer? _recordTicker;
 
+  // Dynamic follow-up suggestions fetched from ChatGPT
+  List<String>? _dynamicSuggestions;
+  _Msg? _suggestionTargetMsg;
+  bool _suggestionsFetched = false;
+
   TutorRepository get _repo => ref.read(tutorRepositoryProvider);
 
   @override
@@ -170,7 +210,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     });
     _sessionId = widget.sessionId;
     _headerTitle = (widget.initialTitle ?? '').trim().isEmpty
-        ? 'Untitled chat'
+      ? _untitledSentinel
         : widget.initialTitle!.trim();
 
     final seed = (widget.initialPrompt ?? '').trim();
@@ -195,6 +235,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Future<void> _loadInitial() async {
     if (_sessionId == null || _sessionId!.trim().isEmpty) return;
+    final l = AppLocalizations.of(context)!;
 
     setState(() => _loadingHistory = true);
     try {
@@ -218,7 +259,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         final mm = Map<String, dynamic>.from(
           item.map((k, v) => MapEntry(k.toString(), v)),
         );
-        final msg = _msgFromStored(mm);
+        final msg = _msgFromStored(
+          mm,
+          voiceFallback: l.tutorVoiceMessageFallback,
+          fileFallback: l.tutorFileFallback,
+        );
         if (msg.content.trim().isEmpty &&
             (msg.remoteUrl ?? '').trim().isEmpty) {
           continue;
@@ -233,6 +278,18 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           ..addAll(next);
       });
       _scrollToBottom(jump: true);
+      // Fetch dynamic suggestions for the last assistant message from history
+      final lastAssistant = _messages.lastWhere(
+        (msg) => !msg.isUser && msg.content != _thinkingSentinel,
+        orElse: () => const _Msg(role: 'user', content: ''),
+      );
+      if (!lastAssistant.isUser && lastAssistant.content.isNotEmpty) {
+        setState(() {
+          _suggestionTargetMsg = lastAssistant;
+          _dynamicSuggestions = null;
+        });
+        _fetchDynamicSuggestions(lastAssistant);
+      }
     } finally {
       if (mounted) {
         setState(() => _loadingHistory = false);
@@ -244,7 +301,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (_sessionId != null && _sessionId!.trim().isNotEmpty) return;
 
     final created = await _repo.createSession(
-      title: _headerTitle == 'Untitled chat' ? null : _headerTitle,
+      title: _headerTitle == _untitledSentinel ? null : _headerTitle,
     );
     final session = (created['session'] is Map)
         ? Map<String, dynamic>.from(created['session'] as Map)
@@ -294,32 +351,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     return 'FILE';
   }
 
-  List<_RichBlock> _richBlocks(String raw) {
-    final text = raw.replaceAll('\r\n', '\n');
-    final out = <_RichBlock>[];
-    final fence = RegExp(r'```([\w+-]*)\n([\s\S]*?)```', multiLine: true);
-    var last = 0;
-    for (final m in fence.allMatches(text)) {
-      if (m.start > last) {
-        final plain = text.substring(last, m.start).trim();
-        if (plain.isNotEmpty) out.add(_RichBlock.text(plain));
-      }
-      final lang = (m.group(1) ?? '').trim();
-      final code = (m.group(2) ?? '').trimRight();
-      out.add(_RichBlock.code(code, lang));
-      last = m.end;
-    }
-    if (last < text.length) {
-      final plain = text.substring(last).trim();
-      if (plain.isNotEmpty) out.add(_RichBlock.text(plain));
-    }
-    if (out.isEmpty && text.trim().isNotEmpty) {
-      out.add(_RichBlock.text(text.trim()));
-    }
-    return out;
-  }
+  // _richBlocks removed — CMAiMessage handles all parsing internally.
 
   Future<void> _showNovaMessageActions(_Msg m) async {
+    final l = AppLocalizations.of(context)!;
     final isTextOnlyMessage =
         !m.isImage &&
         (m.kind.trim().isEmpty || m.kind.toUpperCase() == 'TEXT') &&
@@ -333,27 +368,24 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
     if (!canCopy && !canEdit) return;
 
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (canCopy)
-              ListTile(
-                leading: const Icon(Icons.copy_all_rounded),
-                title: const Text('Copy'),
-                onTap: () => Navigator.of(sheetContext).pop('copy'),
-              ),
-            if (canEdit)
-              ListTile(
-                leading: const Icon(Icons.edit_rounded),
-                title: const Text('Edit message'),
-                onTap: () => Navigator.of(sheetContext).pop('edit'),
-              ),
-          ],
-        ),
+    final action = await _showGlassWindow<String>(
+      maxWidth: 280,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (canCopy)
+            _GlassMenuAction(
+              icon: Icons.copy_all_rounded,
+              label: l.tutorCopy,
+              onTap: () => Navigator.of(context).pop('copy'),
+            ),
+          if (canEdit)
+            _GlassMenuAction(
+              icon: Icons.edit_rounded,
+              label: l.tutorEditMessage,
+              onTap: () => Navigator.of(context).pop('edit'),
+            ),
+        ],
       ),
     );
 
@@ -364,7 +396,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Copied')));
+      ).showSnackBar(SnackBar(content: Text(l.tutorCopied)));
       return;
     }
 
@@ -378,108 +410,96 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Loaded into composer')));
+      ).showSnackBar(SnackBar(content: Text(l.tutorLoadedIntoComposer)));
     }
   }
 
   Widget _assistantRichContent(String text) {
-    final blocks = _richBlocks(text);
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < blocks.length; i++) ...[
-          if (blocks[i].isCode)
-            CMCodeBlock(blocks[i].value)
-          else
-            MathView(
-              blocks[i].value,
-              style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
-            ),
-          if (i != blocks.length - 1) const SizedBox(height: 12),
-        ],
-      ],
+    return CMAiMessage(
+      text,
+      textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
     );
   }
 
-  Future<void> _showCameraSheet() async {
+  Future<void> _pickPhoto() async {
     if (_sending || _recording) return;
+    final shot = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 92,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (!mounted || shot == null || shot.path.trim().isEmpty) return;
+    await _previewAndSendMedia(<String>[shot.path]);
+  }
 
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Capture a photo'),
-              onTap: () => Navigator.of(sheetContext).pop('camera'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Select from gallery'),
-              onTap: () => Navigator.of(sheetContext).pop('gallery'),
-            ),
-          ],
+  Future<void> _recordVideo() async {
+    if (_sending || _recording) return;
+    final shot = await _imagePicker.pickVideo(
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.rear,
+      maxDuration: const Duration(minutes: 2),
+    );
+    if (!mounted || shot == null || shot.path.trim().isEmpty) return;
+    await _previewAndSendMedia(<String>[shot.path]);
+  }
+
+  Future<void> _pickGalleryMedia() async {
+    if (_sending || _recording) return;
+    final picked = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.media,
+    );
+    if (!mounted || picked == null || picked.files.isEmpty) return;
+    final initialPaths = picked.files
+        .map((e) => e.path ?? '')
+        .where((e) => e.trim().isNotEmpty)
+        .toList();
+    if (initialPaths.isEmpty) return;
+    await _previewAndSendMedia(initialPaths);
+  }
+
+  Future<void> _previewAndSendMedia(List<String> initialPaths) async {
+    final l = AppLocalizations.of(context)!;
+    final preview = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaPreviewScreen(
+          initialPaths: initialPaths,
+          title: l.tutorPreviewTitle,
         ),
       ),
     );
+    if (!mounted || preview == null) return;
 
-    if (!mounted || action == null) return;
+    final paths = preview.paths.isNotEmpty ? preview.paths : initialPaths;
+    if (paths.isEmpty) return;
 
-    switch (action) {
-      case 'camera':
-        await _openDirectCamera();
-        return;
-      case 'gallery':
-        final picked = await FilePicker.platform.pickFiles(
-          allowMultiple: true,
-          type: FileType.image,
-        );
-        if (picked == null || !mounted) return;
+    await _sendMediaPaths(paths, preview.caption);
+  }
 
-        final initial = picked.files
-            .map((f) => f.path ?? '')
-            .where((p) => p.trim().isNotEmpty)
-            .toList();
-        if (initial.isEmpty) return;
-
-        final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-          MaterialPageRoute(
-            builder: (_) =>
-                ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
-          ),
-        );
-        if (result == null || !mounted) return;
-
-        setState(() {
-          for (final path in result.paths) {
-            _draftAttachments.add(
-              _DraftAttachment(
-                path: path,
-                name: path.split('/').last,
-                kind: _draftKindForPath(path),
-              ),
-            );
-          }
-          if (result.caption.trim().isNotEmpty) {
-            final current = _controller.text.trim();
-            _controller.text = current.isEmpty
-                ? result.caption.trim()
-                : '$current\n${result.caption.trim()}';
-            _controller.selection = TextSelection.fromPosition(
-              TextPosition(offset: _controller.text.length),
-            );
-          }
-        });
-        return;
+  /// Send media files immediately without showing draft chips.
+  Future<void> _sendMediaPaths(List<String> paths, String caption) async {
+    if (paths.isEmpty) return;
+    // Add to drafts WITHOUT setState — chips never render.
+    // _send() will snapshot + clear them atomically in its own setState.
+    for (final path in paths) {
+      _draftAttachments.add(_DraftAttachment(
+        path: path,
+        name: path.split('/').last,
+        kind: _draftKindForPath(path),
+      ));
     }
+    if (caption.trim().isNotEmpty) {
+      final current = _controller.text.trim();
+      _controller.text = current.isEmpty
+          ? caption.trim()
+          : '$current\n${caption.trim()}';
+    }
+    await _send();
   }
 
   Future<void> _regenerateFromAssistantRow(_Msg m) async {
     if (_sending) return;
+    final l = AppLocalizations.of(context)!;
     final sessionId = _sessionId;
     if (sessionId == null || sessionId.trim().isEmpty) return;
 
@@ -491,7 +511,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         _messages.removeLast();
       }
       _sending = true;
-      _messages.add(const _Msg(role: 'assistant', content: 'Thinking…'));
+      _messages.add(const _Msg(role: 'assistant', content: _thinkingSentinel));
     });
     _scrollToBottom();
 
@@ -512,7 +532,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                     _messages.last.role == 'assistant') {
                   _messages[_messages.length - 1] = _Msg(
                     role: 'assistant',
-                    content: buffer.isEmpty ? 'Thinking…' : buffer.toString(),
+                    content: buffer.isEmpty ? _thinkingSentinel : buffer.toString(),
                   );
                 }
               });
@@ -525,13 +545,17 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               final content = assistant is Map
                   ? (assistant['content'] ?? '').toString()
                   : buffer.toString();
+              final sources = assistant is Map && assistant['sources'] is List
+                  ? assistant['sources'] as List
+                  : const [];
 
               setState(() {
                 if (_messages.isNotEmpty &&
                     _messages.last.role == 'assistant') {
                   _messages[_messages.length - 1] = _Msg(
                     role: 'assistant',
-                    content: content.trim().isEmpty ? 'Done.' : content,
+                    content: content.trim().isEmpty ? l.tutorDone : content,
+                    promptSuggestions: _promptSuggestionsFromSources(sources),
                   );
                 }
                 _sending = false;
@@ -546,8 +570,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                     _messages.last.role == 'assistant') {
                   _messages[_messages.length - 1] = _Msg(
                     role: 'assistant',
-                    content:
-                        '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
+                    content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
                   );
                 }
                 _sending = false;
@@ -568,6 +591,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Future<void> _pickFiles() async {
     if (_sending || _recording) return;
+    final l = AppLocalizations.of(context)!;
     final picked = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.any,
@@ -586,11 +610,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (unsupported.isNotEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'NOVA supports images, documents, and text. Video and audio files are not supported here.',
-          ),
-        ),
+        SnackBar(content: Text(l.tutorUnsupportedFilesMessage)),
       );
       return;
     }
@@ -599,7 +619,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: initial, title: 'Preview'),
+            ChatMediaPreviewScreen(initialPaths: initial, title: l.tutorPreviewTitle),
       ),
     );
     if (result == null || !mounted) return;
@@ -628,46 +648,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     await _send();
   }
 
-  Future<void> _openDirectCamera() async {
-    final camera = await Navigator.of(context).push<ChatCameraCaptureResult>(
-      MaterialPageRoute(
-        builder: (_) => const ChatCameraCaptureScreen(title: 'Camera'),
-      ),
-    );
-    if (camera == null || camera.paths.isEmpty || !mounted) return;
-
-    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) => ChatMediaPreviewScreen(
-          initialPaths: camera.paths,
-          title: 'Preview',
-        ),
-      ),
-    );
-    if (result == null || !mounted) return;
-
-    setState(() {
-      for (final path in result.paths) {
-        _draftAttachments.add(
-          _DraftAttachment(
-            path: path,
-            name: path.split('/').last,
-            kind: _draftKindForPath(path),
-          ),
-        );
-      }
-      if (result.caption.trim().isNotEmpty) {
-        final current = _controller.text.trim();
-        _controller.text = current.isEmpty
-            ? result.caption.trim()
-            : '$current\n${result.caption.trim()}';
-        _controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: _controller.text.length),
-        );
-      }
-    });
-  }
-
   Future<void> _micHoldStart(LongPressStartDetails d) async {
     if (_sending || _recording) return;
     _holdOrigin = d.globalPosition;
@@ -689,8 +669,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
-      if (_holdDx < -88) _voiceCancelled = true;
-      if (_holdDy < -88) _voiceLocked = true;
+      _voiceCancelled = dx <= -chatRecordingCancelThreshold;
+      _voiceLocked = dy <= -chatRecordingLockThreshold;
     });
   }
 
@@ -724,8 +704,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
-      if (_holdDx < -88) _voiceCancelled = true;
-      if (_holdDy < -88) _voiceLocked = true;
+      _voiceCancelled = dx <= -chatRecordingCancelThreshold;
+      _voiceLocked = dy <= -chatRecordingLockThreshold;
     });
   }
 
@@ -779,42 +759,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       _holdOrigin = null;
       _holdDx = 0;
       _holdDy = 0;
-      _recordingElapsed = Duration.zero;
     });
-  }
-
-  String _formatRecordingElapsed(Duration d) {
-    final mm = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final ss = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$mm:$ss';
-  }
-
-  Widget _recordHud() {
-    if (!_recording) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.mic_rounded, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                _formatRecordingElapsed(_recordingElapsed),
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _startRecordTicker() {
@@ -830,6 +775,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Future<void> _toggleMic() async {
     if (_sending) return;
+    final l = AppLocalizations.of(context)!;
 
     if (_recording) {
       final stoppedPath = await _recorder.stop();
@@ -843,7 +789,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       if (path.isEmpty) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('No audio captured.')));
+        ).showSnackBar(SnackBar(content: Text(l.tutorNoAudioCaptured)));
         return;
       }
 
@@ -854,6 +800,19 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
         final clean = transcript.trim();
         if (clean.isNotEmpty) {
+          if (!ref.read(novaPlanControllerProvider).canUseVoiceMinutes(
+            _recordingElapsed.inSeconds,
+          )) {
+            await _showPlanLimitSheet(
+              title: l.tutorVoiceLimitReachedTitle,
+              message: l.tutorVoiceLimitReachedMessage,
+            );
+            return;
+          }
+
+          await ref
+              .read(novaPlanControllerProvider)
+              .recordVoiceUsage(_recordingElapsed.inSeconds);
           setState(() {
             final current = _controller.text.trim();
             _controller.text = current.isEmpty ? clean : '$current $clean';
@@ -863,17 +822,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Transcription failed. Please try again.'),
-            ),
+            SnackBar(content: Text(l.tutorTranscriptionFailed)),
           );
         }
       } catch (_) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Transcription failed. Please try again.'),
-          ),
+          SnackBar(content: Text(l.tutorTranscriptionFailed)),
         );
       } finally {
         if (mounted) {
@@ -904,7 +859,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!hasPermission) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission is required.')),
+        SnackBar(content: Text(l.tutorMicrophonePermissionRequired)),
       );
       return;
     }
@@ -928,13 +883,26 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final text = _controller.text.trim();
     if (_sending) return;
     if (text.isEmpty && _draftAttachments.isEmpty) return;
+    final l = AppLocalizations.of(context)!;
+
+    final attachments = List<_DraftAttachment>.from(_draftAttachments);
+    final planController = ref.read(novaPlanControllerProvider);
+    if (!planController.canSendPrompt(uploadCount: attachments.length)) {
+      await _showPlanLimitSheet(
+        title: l.tutorPlanLimitReachedTitle,
+        message: l.tutorPlanLimitReachedMessage,
+      );
+      return;
+    }
 
     await _ensureSession();
     final sessionId = _sessionId!;
-    final attachments = List<_DraftAttachment>.from(_draftAttachments);
 
     setState(() {
       _sending = true;
+      _dynamicSuggestions = null;
+      _suggestionTargetMsg = null;
+      _suggestionsFetched = false;
       for (final a in attachments) {
         _messages.add(
           _Msg(
@@ -967,9 +935,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         await _repo.sendMessage(sessionId: sessionId, text: text);
       }
 
+      await ref
+          .read(novaPlanControllerProvider)
+          .recordPrompt(uploadCount: attachments.length);
+
       if (!mounted) return;
       setState(() {
-        _messages.add(const _Msg(role: 'assistant', content: 'Thinking…'));
+        _messages.add(const _Msg(role: 'assistant', content: _thinkingSentinel));
       });
       _scrollToBottom();
 
@@ -990,7 +962,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       _messages.last.role == 'assistant') {
                     _messages[_messages.length - 1] = _Msg(
                       role: 'assistant',
-                      content: buffer.isEmpty ? 'Thinking…' : buffer.toString(),
+                      content: buffer.isEmpty ? _thinkingSentinel : buffer.toString(),
                     );
                   }
                 });
@@ -1003,18 +975,30 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 final content = assistant is Map
                     ? (assistant['content'] ?? '').toString()
                     : buffer.toString();
+                final sources = assistant is Map && assistant['sources'] is List
+                    ? assistant['sources'] as List
+                    : const [];
 
                 setState(() {
                   if (_messages.isNotEmpty &&
                       _messages.last.role == 'assistant') {
                     _messages[_messages.length - 1] = _Msg(
                       role: 'assistant',
-                      content: content.trim().isEmpty ? 'Done.' : content,
+                      content: content.trim().isEmpty ? l.tutorDone : content,
+                      promptSuggestions: _promptSuggestionsFromSources(sources),
                     );
+                    // Set target synchronously so we return empty while loading
+                    _suggestionTargetMsg = _messages.last;
                   }
+                  _dynamicSuggestions = null;
+                  _suggestionsFetched = false;
                   _sending = false;
                 });
                 _scrollToBottom();
+                // Fetch dynamic follow-up suggestions from ChatGPT
+                if (_messages.isNotEmpty && _messages.last.role == 'assistant') {
+                  _fetchDynamicSuggestions(_messages.last);
+                }
                 return;
               }
 
@@ -1024,8 +1008,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       _messages.last.role == 'assistant') {
                     _messages[_messages.length - 1] = _Msg(
                       role: 'assistant',
-                      content:
-                          '⚠️ ${(ev['message'] ?? 'Failed to stream reply').toString()}',
+                        content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
                     );
                   }
                   _sending = false;
@@ -1047,14 +1030,211 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       setState(() => _sending = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Send failed.')));
+      ).showSnackBar(SnackBar(content: Text(l.tutorSendFailed)));
     }
+  }
+
+  Future<T?> _showGlassWindow<T>({
+    required Widget child,
+    double maxWidth = 420,
+  }) {
+    final mediaQuery = MediaQuery.of(context);
+    return showGeneralDialog<T>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withValues(alpha: 0.12),
+      transitionDuration: const Duration(milliseconds: 180),
+      pageBuilder: (dialogContext, animation, secondaryAnimation) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            14,
+            mediaQuery.padding.top + 14,
+            14,
+            mediaQuery.padding.bottom + 14,
+          ),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              color: Colors.transparent,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: LiquidGlassCard(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                  borderRadius: BorderRadius.circular(28),
+                  blurSigma: 18,
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.76),
+                  border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outlineVariant
+                        .withValues(alpha: 0.20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.18),
+                      blurRadius: 28,
+                      spreadRadius: -14,
+                      offset: const Offset(0, 18),
+                    ),
+                  ],
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.05),
+              end: Offset.zero,
+            ).animate(curved),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.96, end: 1).animate(curved),
+              alignment: Alignment.bottomCenter,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showPlanLimitSheet({
+    required String title,
+    required String message,
+  }) async {
+    final controller = ref.read(novaPlanControllerProvider);
+    if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
+
+    await _showGlassWindow<void>(
+      maxWidth: 460,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(message),
+          const SizedBox(height: 14),
+          Text(
+            l.tutorCurrentPlanUsageSummary(
+              _localizedPlanName(l, controller.selectedPlan.id),
+              controller.promptsRemaining,
+              controller.uploadsRemaining,
+              controller.voiceMinutesRemaining,
+            ),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (mounted) {
+                context.go('/tutor');
+              }
+            },
+            child: Text(l.tutorReviewPlansInHome),
+          ),
+        ],
+      ),
+    );
   }
 
   void _removeDraftAttachment(_DraftAttachment a) {
     setState(() {
       _draftAttachments.remove(a);
     });
+  }
+
+  bool get _hasEnteredChat => _messages.isNotEmpty || _sending;
+
+  List<String> _followUpPromptsFor(_Msg assistant, AppLocalizations l) {
+    // Only show chips for the message currently being targeted by the GPT fetch
+    if (_suggestionTargetMsg != assistant) return const [];
+
+    // Still loading
+    if (!_suggestionsFetched) return const [];
+
+    // GPT suggestions
+    if (_dynamicSuggestions != null && _dynamicSuggestions!.isNotEmpty) {
+      return _dynamicSuggestions!
+          .map(_cleanSuggestionLabel)
+          .where((value) => value.isNotEmpty)
+          .take(3)
+          .toList(growable: false);
+    }
+
+    return const [];
+  }
+
+  String _lastUserQuestionBefore(_Msg assistant) {
+    final assistantIndex = _messages.indexOf(assistant);
+    for (var i = assistantIndex - 1; i >= 0; i--) {
+      if (_messages[i].isUser) return _messages[i].content;
+    }
+    return '';
+  }
+
+  Future<void> _fetchDynamicSuggestions(_Msg assistantMsg) async {
+    final sessionId = _sessionId;
+    if (sessionId == null) return;
+    final userMsg = _lastUserQuestionBefore(assistantMsg);
+    if (userMsg.isEmpty && assistantMsg.content.isEmpty) return;
+
+    final suggestions = await _repo.fetchFollowupSuggestions(
+      sessionId: sessionId,
+      userMessage: userMsg,
+      assistantMessage: assistantMsg.content,
+    );
+
+    if (!mounted) return;
+    // Only apply if this message is still the last assistant message
+    final isStillLast = _messages.isNotEmpty && identical(_messages.last, assistantMsg);
+    if (!isStillLast) return;
+
+    setState(() {
+      _dynamicSuggestions = suggestions.isEmpty ? null : suggestions;
+      _suggestionTargetMsg = assistantMsg;
+      _suggestionsFetched = true;
+    });
+  }
+
+  String _cleanSuggestionLabel(String raw) {
+    var value = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+    value = value.replaceAll('->', ' to ');
+    value = value.replaceAll('=>', ' to ');
+    value = value.replaceFirst(RegExp(r'^[\u2022*\-\u2013\u2014>\s]+'), '');
+    value = value.replaceFirst(RegExp(r'^\d+[\)\.\-\s]+'), '');
+    value = value.replaceFirst(RegExp(r"^[Ii]['’]m ready\s*[:\-\u2013\u2014>]*\s*"), '');
+    value = value.replaceAll(RegExp(r'\s+'), ' ').trim();
+    value = value.replaceAll(RegExp(r'[\s\-\u2013\u2014>]+$'), '').trim();
+    return value;
+  }
+
+  Future<void> _sendQuickPrompt(String prompt) async {
+    final clean = _cleanSuggestionLabel(prompt);
+    if (clean.isEmpty || _sending) return;
+    _controller.value = TextEditingValue(
+      text: clean,
+      selection: TextSelection.collapsed(offset: clean.length),
+    );
+    await _send();
   }
 
   void _scrollToBottom({bool jump = false}) {
@@ -1093,8 +1273,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       return;
     }
 
+    final attachmentPath = remote.isNotEmpty ? remote : local;
     final isPdf =
-        label.toLowerCase().endsWith('.pdf') || m.kind.toUpperCase() == 'PDF';
+      label.toLowerCase().endsWith('.pdf') ||
+      attachmentPath.toLowerCase().endsWith('.pdf') ||
+      m.kind.toUpperCase() == 'PDF';
 
     final pdfUrl = remote.isNotEmpty
         ? remote
@@ -1116,7 +1299,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       );
       if (!ok && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open attachment.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.tutorCouldNotOpenAttachment)),
         );
       }
       return;
@@ -1128,7 +1311,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
         if (!ok && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open attachment.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.tutorCouldNotOpenAttachment)),
           );
         }
         return;
@@ -1138,7 +1321,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Attachment unavailable.')));
+    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.tutorAttachmentUnavailable)));
   }
 
   Widget _mediaPreviewFor(_Msg m) {
@@ -1173,17 +1356,20 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           fit: BoxFit.cover,
           width: 270,
           height: 180,
-          errorBuilder: (context, error, stackTrace) => Container(
+          errorBuilder: (context, error, stackTrace) => SizedBox(
             width: 270,
             height: 180,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E242C),
+            child: LiquidGlassCard(
               borderRadius: BorderRadius.circular(14),
-            ),
-            alignment: Alignment.center,
-            child: const Text(
-              'Image unavailable',
-              style: TextStyle(color: Colors.white70),
+              blurSigma: 10,
+              color: const Color(0xFF1E242C),
+              border: Border.all(color: Colors.white12),
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context)!.tutorImageUnavailable,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
             ),
           ),
         ),
@@ -1251,52 +1437,55 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   Widget _fileAttachmentCard(_Msg m) {
     final mine = m.isUser;
     final label = _fileLabelFor(m);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final accent = mine
-        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.22)
-        : Theme.of(
-            context,
-          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.72);
+        ? cs.primaryContainer.withValues(alpha: 0.78)
+        : cs.surfaceContainerHighest.withValues(alpha: 0.88);
+    final foreground = mine ? cs.onPrimaryContainer : cs.onSurface;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: () => _openAttachment(m),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 340),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: LiquidGlassCard(
+          padding: const EdgeInsets.all(10),
+            borderRadius: BorderRadius.circular(13),
+            blurSigma: 10,
             color: accent,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          ),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(14),
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: LiquidGlassCard(
+                  borderRadius: BorderRadius.circular(12),
+                  blurSigma: 8,
+                  color: cs.surface.withValues(alpha: 0.42),
+                  child: Center(
+                    child: Icon(_fileIconFor(m), color: foreground, size: 18),
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Icon(_fileIconFor(m), color: Colors.white, size: 22),
               ),
               const SizedBox(width: 6),
               Flexible(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                      style: TextStyle(
+                        color: foreground,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        height: 1.25,
+                        height: 1.18,
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -1304,9 +1493,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                       m.kind.toUpperCase() == 'PDF'
                           ? 'PDF'
                           : m.kind.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 10.5,
                         height: 1.2,
                       ),
                     ),
@@ -1315,13 +1504,36 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               ),
             ],
           ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _bubble(_Msg m) {
+  Widget _bubble(_Msg m, int index) {
     final mine = m.isUser;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
+
+    // ── Animated typing dots while NOVA generates a reply ──────────────────
+    if (!mine && m.content == _thinkingSentinel) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 2, 84, 2),
+          child: LiquidGlassCard(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            borderRadius: BorderRadius.circular(18),
+            blurSigma: 12,
+            color: cs.surfaceContainerHigh.withValues(alpha: 0.92),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+            child: const TypingBubble(),
+          ),
+        ),
+      );
+    }
+
     final preview = _mediaPreviewFor(m);
     final hasPreview = m.isImage;
     final isFileLike = m.isFileLike;
@@ -1331,6 +1543,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         !m.content.startsWith('[FILE]') &&
         !m.content.startsWith('[VIDEO]') &&
         !m.content.startsWith('[Voice note attached.');
+    final showFollowUpChips =
+      !mine &&
+      hasText &&
+      index == _messages.lastIndexWhere(
+        (msg) => !msg.isUser && msg.content != _thinkingSentinel,
+      );
 
     final body = Column(
       crossAxisAlignment: mine
@@ -1339,8 +1557,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       children: [
         if (hasPreview) preview,
         if (isFileLike) _fileAttachmentCard(m),
-        if (hasPreview && hasText) const SizedBox(height: 10),
-        if (isFileLike && hasText) const SizedBox(height: 10),
+        if (hasPreview && hasText) const SizedBox(height: 8),
+        if (isFileLike && hasText) const SizedBox(height: 8),
         if (hasText)
           mine
               ? ChatMessageBubble(
@@ -1349,52 +1567,99 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   mediaUrl: '',
                   isMine: true,
                   showName: false,
-                  senderLabel: 'You',
+                  senderLabel: l.tutorYou,
                   timeLabel: '',
                   edited: false,
                   reaction: null,
                   forwarded: false,
                   delivered: false,
                   seen: false,
+                  showDeliveryStatus: false,
                   deleteState: 'VISIBLE',
-                  maxWidth: 340,
+                  maxWidth: 316,
                 )
-              : Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 2,
+              : LiquidGlassCard(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+                  borderRadius: BorderRadius.circular(20),
+                  blurSigma: 12,
+                  color: cs.surfaceContainerHigh.withValues(alpha: 0.88),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.26),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.shadow.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _assistantRichContent(m.content),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
                         children: [
-                          TextButton.icon(
-                            onPressed: () async {
+                          _AssistantActionChip(
+                            icon: Icons.copy_rounded,
+                            label: l.tutorCopy,
+                            onTap: () async {
                               await Clipboard.setData(
                                 ClipboardData(text: m.content),
                               );
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Copied')),
+                                SnackBar(content: Text(l.tutorCopied)),
                               );
                             },
-                            icon: const Icon(Icons.copy_rounded, size: 16),
-                            label: const Text('Copy'),
                           ),
-                          const SizedBox(width: 4),
-                          TextButton.icon(
-                            onPressed: _sending
+                          _AssistantActionChip(
+                            icon: Icons.refresh_rounded,
+                            label: l.tutorRegenerate,
+                            onTap: _sending
                                 ? null
                                 : () => _regenerateFromAssistantRow(m),
-                            icon: const Icon(Icons.refresh_rounded, size: 16),
-                            label: const Text('Regenerate'),
                           ),
                         ],
                       ),
+                      if (showFollowUpChips) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 13,
+                              color: cs.primary.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Follow-up',
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _followUpPromptsFor(m, l)
+                              .map(
+                                (prompt) => _PromptSuggestionChip(
+                                  label: prompt,
+                                  onTap: _sending
+                                      ? null
+                                      : () => _sendQuickPrompt(prompt),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -1404,7 +1669,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: InkWell(
@@ -1418,128 +1683,215 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _novaComposerTopContent() {
-    if (_draftAttachments.isEmpty && !_recording) {
+    if (_draftAttachments.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_draftAttachments.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
-            child: SizedBox(
-              height: 72,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _draftAttachments.map((a) => _draftChip(a)).toList(),
-              ),
-            ),
-          ),
-        if (_recording) _recordHud(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      child: SizedBox(
+        height: 58,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: _draftAttachments.map((a) => _draftChip(a)).toList(),
+        ),
+      ),
     );
   }
 
   Widget _draftChip(_DraftAttachment a) {
     final isImage = a.isImage;
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF171D24),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
-              size: 16,
-              color: Colors.white70,
-            ),
-          ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 160),
-            child: Text(
-              a.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: LiquidGlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+        borderRadius: BorderRadius.circular(12),
+        blurSigma: 10,
+        color: cs.surfaceContainerHigh.withValues(alpha: 0.88),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: LiquidGlassCard(
+                borderRadius: BorderRadius.circular(7),
+                blurSigma: 8,
+                color: cs.surface.withValues(alpha: 0.84),
+                child: Center(
+                  child: Icon(
+                    isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
+                    size: 14,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          InkWell(
-            onTap: () => _removeDraftAttachment(a),
-            borderRadius: BorderRadius.circular(999),
-            child: const Padding(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+            const SizedBox(width: 6),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 132),
+              child: Text(
+                a.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 4),
+            InkWell(
+              onTap: () => _removeDraftAttachment(a),
+              borderRadius: BorderRadius.circular(999),
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: Icon(Icons.close_rounded, size: 16),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _composer() {
-    return ChatComposer(
-      controller: _controller,
-      topContent: _novaComposerTopContent(),
-      enabled: !_sending,
-      isStreaming: false,
-      isRecording: _recording,
-      isVoiceLocked: _voiceLocked,
-      isVoicePaused: _voicePaused,
-      hintText: 'Message NOVA',
-      onSend: _send,
-      onAttach: _pickFiles,
-      onCamera: _showCameraSheet,
-      onMic: () async {
-        if (_recording) {
-          await _toggleMic();
-          return;
-        }
-        setState(() {
-          _voiceLocked = true;
-          _voiceCancelled = false;
-          _holdDx = 0;
-          _holdDy = 0;
-        });
-        await _toggleMic();
+  Widget _emptyStateCard() {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 96),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - 114,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: LiquidGlassCard(
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+                  borderRadius: BorderRadius.circular(24),
+                  blurSigma: 16,
+                  gradient: LinearGradient(
+                    colors: [
+                      cs.primaryContainer.withValues(alpha: 0.64),
+                      cs.surfaceContainerHigh.withValues(alpha: 0.94),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.shadow.withValues(alpha: 0.06),
+                      blurRadius: 28,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l.tutorEmptyStateTitle,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l.tutorEmptyStateBody,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          height: 1.32,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          _PromptSuggestionChip(label: l.tutorPromptSuggestionSummarizeNotes),
+                          _PromptSuggestionChip(label: l.tutorPromptSuggestionRevisionTable),
+                          _PromptSuggestionChip(label: l.tutorPromptSuggestionQuizMe),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
       },
-      onMicHoldStart: _micHoldStart,
-      onMicHoldMove: _micHoldMove,
-      onMicHoldEnd: _micHoldEnd,
-      onMicHoldCancel: _micHoldCancel,
-      onActiveHoldMove: _activeHoldMove,
-      onActiveHoldRelease: _activeHoldRelease,
-      onActiveHoldCancel: _activeHoldCancel,
-      onTrashRecording: _cancelVoiceDraft,
-      onPauseRecording: _pauseVoiceRecord,
-      onResumeRecording: _resumeVoiceRecord,
-      showCamera: true,
-      showAttach: true,
-      showMic: true,
+    );
+  }
+
+  Widget _composer() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: ChatComposer(
+        controller: _controller,
+        topContent: _novaComposerTopContent(),
+        enabled: !_sending,
+        isStreaming: false,
+        isRecording: _recording,
+        isVoiceLocked: _voiceLocked,
+        isVoicePaused: _voicePaused,
+        recordingElapsed: _recordingElapsed,
+        activeHoldDx: _holdDx,
+        activeHoldDy: _holdDy,
+        hintText: AppLocalizations.of(context)!.tutorMessageNovaHint,
+        onSend: _send,
+        onAttach: _pickFiles,
+        onCamera: _pickPhoto,
+        onVideo: _recordVideo,
+        onGallery: _pickGalleryMedia,
+        onMic: () async {
+          if (_recording) {
+            await _toggleMic();
+            return;
+          }
+          setState(() {
+            _voiceLocked = true;
+            _voiceCancelled = false;
+            _holdDx = 0;
+            _holdDy = 0;
+          });
+          await _toggleMic();
+        },
+        onMicHoldStart: _micHoldStart,
+        onMicHoldMove: _micHoldMove,
+        onMicHoldEnd: _micHoldEnd,
+        onMicHoldCancel: _micHoldCancel,
+        onActiveHoldMove: _activeHoldMove,
+        onActiveHoldRelease: _activeHoldRelease,
+        onActiveHoldCancel: _activeHoldCancel,
+        onTrashRecording: _cancelVoiceDraft,
+        onPauseRecording: _pauseVoiceRecord,
+        onResumeRecording: _resumeVoiceRecord,
+        showCamera: true,
+        showAttach: true,
+        showMic: true,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final planController = ref.read(novaPlanControllerProvider);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final headerTitle =
+      _headerTitle == _untitledSentinel ? l.tutorUntitledChat : _headerTitle;
+    final showPlanButton = _hasEnteredChat;
     final body = _loadingHistory
         ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
         : ValueListenableBuilder<bool>(
@@ -1547,19 +1899,35 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            cs.primaryContainer.withValues(alpha: 0.18),
+                            cs.surface,
+                            cs.tertiaryContainer.withValues(alpha: 0.10),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                  ),
                   NotificationListener<ScrollUpdateNotification>(
                     onNotification: (notification) {
                       FocusManager.instance.primaryFocus?.unfocus();
                       return false;
                     },
-                    child: ChatGptMessageList(
-                      controller: _scroll,
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) =>
-                          _bubble(_messages[index]),
-                    ),
+                    child: _messages.isEmpty
+                        ? _emptyStateCard()
+                        : ChatGptMessageList(
+                            controller: _scroll,
+                            itemCount: _messages.length,
+                            itemBuilder: (context, index) =>
+                                _bubble(_messages[index], index),
+                          ),
                   ),
-                  
                 ],
               );
             },
@@ -1583,12 +1951,55 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           );
         },
       ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: cs.surface.withValues(alpha: 0.94),
         elevation: 0,
+        toolbarHeight: 48,
         centerTitle: true,
-        title: Text(_headerTitle),
+        title: Text(
+          headerTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        actions: showPlanButton
+            ? [
+                ListenableBuilder(
+                  listenable: planController,
+                  builder: (context, _) => Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Center(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showPlanLimitSheet(
+                          title: l.tutorYourNovaPlanTitle,
+                          message: l.tutorYourNovaPlanMessage,
+                        ),
+                        icon: const Icon(Icons.workspace_premium_rounded, size: 16),
+                        label: Text(_localizedPlanName(l, planController.selectedPlan.id)),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                          minimumSize: const Size(0, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          textStyle: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11.5,
+                          ),
+                          side: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: 0.26),
+                          ),
+                          backgroundColor: cs.surfaceContainerLow.withValues(alpha: 0.92),
+                          foregroundColor: cs.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]
+            : const <Widget>[],
       ),
       body: SafeArea(
         top: false,
@@ -1603,12 +2014,169 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 }
 
-class _RichBlock {
-  const _RichBlock.text(this.value) : isCode = false, language = '';
+String _localizedPlanName(AppLocalizations l, NovaPlanId planId) {
+  switch (planId) {
+    case NovaPlanId.free:
+      return l.tutorPlanStarterName;
+    case NovaPlanId.plus:
+      return l.tutorPlanPlusName;
+    case NovaPlanId.pro:
+      return l.tutorPlanProName;
+    case NovaPlanId.school:
+      return l.tutorPlanSchoolSeatName;
+  }
+}
 
-  const _RichBlock.code(this.value, this.language) : isCode = true;
+class _AssistantActionChip extends StatelessWidget {
+  const _AssistantActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
-  final String value;
-  final bool isCode;
-  final String language;
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: LiquidGlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        borderRadius: BorderRadius.circular(999),
+        blurSigma: 8,
+        color: cs.surface.withValues(alpha: 0.82),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: cs.onSurfaceVariant),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 11.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassMenuAction extends StatelessWidget {
+  const _GlassMenuAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: LiquidGlassCard(
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.circular(12),
+                blurSigma: 8,
+                color: cs.primary.withValues(alpha: 0.10),
+                border: Border.all(
+                  color: cs.primary.withValues(alpha: 0.12),
+                ),
+                child: Center(
+                  child: Icon(icon, size: 18, color: cs.primary),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PromptSuggestionChip extends StatelessWidget {
+  const _PromptSuggestionChip({required this.label, this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final cleanLabel = label.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final isDisabled = onTap == null;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: LiquidGlassCard(
+        padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
+        borderRadius: BorderRadius.circular(16),
+        blurSigma: 10,
+        color: cs.primaryContainer.withValues(alpha: isDisabled ? 0.25 : 0.38),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: isDisabled ? 0.10 : 0.22),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 13,
+                color: cs.primary.withValues(alpha: isDisabled ? 0.4 : 0.75),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                cleanLabel,
+                softWrap: true,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: cs.onSurface.withValues(alpha: isDisabled ? 0.45 : 0.9),
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

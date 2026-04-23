@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../domain/practice_models.dart';
 
 class PracticeModeSpec {
@@ -110,13 +111,68 @@ PracticeModeSpec practiceModeSpec(PracticeMode mode) =>
     practiceModeSpecs[mode]!;
 
 Color practiceModeColor(PracticeMode mode) => practiceModeSpec(mode).accent;
-String practiceModeLabel(PracticeMode mode) => practiceModeSpec(mode).label;
-String practiceModeSubtitle(PracticeMode mode) =>
-    practiceModeSpec(mode).subtitle;
-String practiceModeDescription(PracticeMode mode) =>
-    practiceModeSpec(mode).description;
-String practiceModeBadge(PracticeMode mode) =>
-    practiceModeSpec(mode).shortLabel;
+String practiceModeLabel(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSetupModeLabelPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSetupModeLabelFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSetupModeLabelSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSetupModeLabelExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSetupModeLabelConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSetupModeLabelAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSetupModeLabelBagrut;
+  }
+}
+
+String practiceModeSubtitle(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSetupModeSubtitlePractice;
+    case PracticeMode.flashcards:
+      return l.practiceSetupModeSubtitleFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSetupModeSubtitleSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSetupModeSubtitleExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSetupModeSubtitleConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSetupModeSubtitleAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSetupModeSubtitleBagrut;
+  }
+}
+
+String practiceModeDescription(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSessionModeDescriptionPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSessionModeDescriptionFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSessionModeDescriptionSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSessionModeDescriptionExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSessionModeDescriptionConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSessionModeDescriptionAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSessionModeDescriptionBagrut;
+  }
+}
+
+String practiceModeBadge(BuildContext context, PracticeMode mode) =>
+    practiceModeLabel(context, mode);
 IconData practiceModeIcon(PracticeMode mode) => practiceModeSpec(mode).icon;
 
 Color practiceModeTint(ColorScheme cs, PracticeMode mode) {
@@ -278,14 +334,15 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
 
     case PracticeMode.practice:
       return Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
           3,
           (i) => Padding(
-            padding: EdgeInsets.only(bottom: i == 2 ? 0 : 4),
+            padding: EdgeInsets.only(bottom: i == 2 ? 0 : 2),
             child: Container(
               width: 42 - (i * 4),
-              height: 6,
+              height: 4,
               decoration: BoxDecoration(
                 color: accent.withValues(alpha: 0.22 - (i * 0.03)),
                 borderRadius: BorderRadius.circular(999),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import 'chat_emoji_picker_sheet.dart';
 
 class ChatReactionDetailsSheet extends StatelessWidget {
@@ -34,6 +35,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rows = <({String emoji, bool isMine, int count})>[];
     final seen = <String>{};
 
@@ -73,14 +75,14 @@ class ChatReactionDetailsSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Reactions',
+                    l.chatReactionDetailsTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Add reaction',
+                  tooltip: l.chatReactionAddAction,
                   onPressed: () async {
                     final picked = await ChatEmojiPickerSheet.show(
                       context,
@@ -96,9 +98,9 @@ class ChatReactionDetailsSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if (rows.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(child: Text('No reactions yet')),
+                child: Center(child: Text(l.chatReactionEmptyState)),
               )
             else
               Flexible(
@@ -148,10 +150,10 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 row.isMine
-                                    ? 'You${row.count > 1 ? ' · ${row.count}' : ''}'
+                                  ? l.chatReactionYouCount(row.count)
                                     : row.count > 1
-                                        ? '${row.count} reactions'
-                                        : 'Reaction',
+                                    ? l.chatReactionCount(row.count)
+                                    : l.chatReactionSingle,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -160,7 +162,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                             ),
                             if (row.isMine)
                               Text(
-                                'Tap to remove',
+                                l.chatReactionTapToRemove,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium

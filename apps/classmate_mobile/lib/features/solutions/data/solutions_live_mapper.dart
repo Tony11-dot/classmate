@@ -1,3 +1,4 @@
+import '../../../core/config/env.dart';
 import '../domain/solutions_models.dart';
 
 class LiveSolutionsPage {
@@ -86,7 +87,7 @@ class SolutionsLiveMapper {
                         f['mime'],
                       ], fallback: 'image'),
                     ),
-                    remoteUrl: _nullableText(f['url']),
+                    remoteUrl: _resolveUrl(_nullableText(f['url'])),
                     filePath: null,
                     uploadState: UploadState.uploaded,
                   ),
@@ -138,5 +139,17 @@ class SolutionsLiveMapper {
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
         .toUpperCase();
+  }
+
+  /// Turns a relative path like `/uploads/solutions/foo.jpg` into a full URL
+  /// by prepending [Env.apiBaseUrl].  Absolute URLs (http/https) pass through unchanged.
+  static String? _resolveUrl(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    final s = raw.trim();
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+    // Relative path — prepend the API base (strip trailing slash first).
+    final base = Env.apiBaseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    final path = s.startsWith('/') ? s : '/$s';
+    return '$base$path';
   }
 }

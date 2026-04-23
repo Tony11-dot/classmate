@@ -4,16 +4,14 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/http/cm_api.dart';
 import '../domain/insights_models.dart';
 
-const _devStudentToken = 'dev-token-student@classmate.local';
-
 final practiceAnalyticsApiProvider = Provider<PracticeAnalyticsApi>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
-  return PracticeAnalyticsApi(token: token.isEmpty ? _devStudentToken : token);
+  return PracticeAnalyticsApi(token: token);
 });
 
 class PracticeAnalyticsApi {
-  const PracticeAnalyticsApi({this.token = _devStudentToken});
+  const PracticeAnalyticsApi({this.token = ''});
 
   final String token;
 

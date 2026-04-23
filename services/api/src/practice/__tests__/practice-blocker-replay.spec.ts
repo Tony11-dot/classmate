@@ -1,6 +1,8 @@
 import { PracticeService } from '../practice.service';
 
 describe('PracticeService blocker replay coverage', () => {
+  const originalGenerateBudgetMs = process.env.PRACTICE_GENERATE_BUDGET_MS;
+  const originalOpenAiTimeoutMs = process.env.PRACTICE_OPENAI_TIMEOUT_MS;
   const engineRegistry = {
     generate: jest.fn(async () => null),
   };
@@ -34,6 +36,13 @@ describe('PracticeService blocker replay coverage', () => {
   beforeEach(() => {
     service = new TestPracticeService(engineRegistry as any);
     process.env.OPENAI_API_KEY = 'test-key';
+    delete process.env.PRACTICE_GENERATE_BUDGET_MS;
+    delete process.env.PRACTICE_OPENAI_TIMEOUT_MS;
+  });
+
+  afterAll(() => {
+    process.env.PRACTICE_GENERATE_BUDGET_MS = originalGenerateBudgetMs;
+    process.env.PRACTICE_OPENAI_TIMEOUT_MS = originalOpenAiTimeoutMs;
   });
 
   it('keeps live blocker payload fields intact for polynomials examPrep hard', async () => {
@@ -94,11 +103,11 @@ describe('PracticeService blocker replay coverage', () => {
   it('normalizes preview-facing latex wrappers but preserves meaning', async () => {
     service.queue.push([
       {
-        prompt: 'Find \\(\\frac{7}{2}\\) as a decimal.',
+        prompt: 'Find the fraction \\(\\frac{7}{2}\\) as a decimal.',
         options: ['3', '3.5', '4', '2.5'],
         correctIndex: 1,
         correctAnswerText: '3.5',
-        explanation: 'Since \\(\\frac{7}{2}\\) = 7/2, the decimal value is 3.5.',
+        explanation: 'Since the fraction \\(\\frac{7}{2}\\) = 7/2, the decimal value is 3.5.',
         recommendedTimeSeconds: 30,
         topicMatchNote: 'Fractions',
       },
@@ -114,5 +123,86 @@ describe('PracticeService blocker replay coverage', () => {
 
     expect(res.questions[0].prompt).toContain('\\frac{7}{2}');
     expect(res.questions[0].explanation).toContain('\\frac{7}{2}');
+  });
+
+  it('preserves multiline fenced code blocks in sanitized prompts', async () => {
+    service.queue.push([
+      {
+        prompt:
+          'What does this print?\n\n```dart\nif (score >= 90) {\n  print("A");\n} else {\n  print("B");\n}\n```',
+        options: ['A', 'B', 'C', 'D'],
+        correctIndex: 1,
+        correctAnswerText: 'B',
+        explanation:
+          'Check the branch order.\n\n```dart\nif (score >= 90) {\n  print("A");\n} else {\n  print("B");\n}\n```',
+        recommendedTimeSeconds: 30,
+        topicMatchNote: 'Nested Conditions',
+      },
+    ]);
+
+    const res = await service.generate({
+      subject: 'Computer Science',
+      topic: 'Nested Conditions',
+      difficulty: 'medium',
+      mode: 'practice',
+      count: 1,
+    });
+
+    expect(res.questions[0].prompt).toContain('```dart');
+    expect(res.questions[0].prompt).toContain('\nif (score >= 90) {\n');
+    expect(res.questions[0].explanation).toContain('```dart');
+    expect(res.questions[0].explanation).toContain('\n} else {\n');
+  });
+
+  it('fails fast when the AI generation budget is exhausted', async () => {
+    process.env.PRACTICE_GENERATE_BUDGET_MS = '20';
+    process.env.PRACTICE_OPENAI_TIMEOUT_MS = '20';
+
+    class SlowPracticeService extends PracticeService {
+      async callResponsesJson(args: any): Promise<any> {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        if (args.schemaName === 'practice_questions') {
+          return {
+            questions: [
+              {
+                prompt: 'What is 2 + 2?',
+                options: ['3', '4', '5', '6'],
+                correctIndex: 1,
+                correctAnswerText: '4',
+                explanation: '2 + 2 = 4.',
+                recommendedTimeSeconds: 20,
+                topicMatchNote: 'Arithmetic',
+              },
+            ],
+          };
+        }
+
+        return {
+          audits: [
+            {
+              index: 0,
+              final_answer: '4',
+              steps: '2 + 2 = 4.',
+              confidence: 1,
+              type: 'math',
+              validation_passed: true,
+              reason: 'ok',
+            },
+          ],
+        };
+      }
+    }
+
+    const slowService = new SlowPracticeService(engineRegistry as any);
+
+    await expect(
+      slowService.generate({
+        subject: 'Math',
+        topic: 'Arithmetic',
+        difficulty: 'easy',
+        mode: 'practice',
+        count: 1,
+      }),
+    ).rejects.toThrow(/invalid question set/i);
   });
 });

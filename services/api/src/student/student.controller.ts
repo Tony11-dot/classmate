@@ -106,6 +106,12 @@ export class StudentController {
     return StudentScheduleWeekResponseSchema.parse({ ok: true, items: { weekOf, days } });
   }
 
+@SkipThrottle()
+  @Get('assessments')
+  assessments(@Req() req: any) {
+    return this.student.myAssessments(req.user);
+  }
+
 @Get('grades')
   grades(@Req() req: any) {
     return this.student.myGrades(req.user);

@@ -7,12 +7,16 @@ class ChatAudioBubble extends StatefulWidget {
   const ChatAudioBubble({
     super.key,
     required this.url,
+    required this.isMine,
+    required this.bubbleColor,
     this.durationSeconds,
     this.isUnread = false,
     this.onPlayed,
   });
 
   final String url;
+  final bool isMine;
+  final Color bubbleColor;
   final int? durationSeconds;
   final bool isUnread;
   final VoidCallback? onPlayed;
@@ -190,13 +194,22 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     return '$mm:$ss';
   }
 
-  Widget _waveBar(BuildContext context, int index, double progress) {
-    final active = index / 20.0 <= progress;
+  Widget _waveBar(
+    BuildContext context,
+    int index,
+    int totalCount,
+    double progress,
+  ) {
+    final active = ((index + 1) / math.max(1, totalCount)) <= progress;
     final baseHeights = <double>[6, 10, 14, 18, 12, 8, 16, 11, 15, 9];
-    final h = baseHeights[index % baseHeights.length];
+    final focusIndex = (progress * math.max(1, totalCount - 1)).round();
+    final isFocus = (index - focusIndex).abs() <= 1;
+    final h = baseHeights[index % baseHeights.length] + (isFocus ? 3 : 0);
     final scheme = Theme.of(context).colorScheme;
     final color = active
-        ? scheme.primary
+        ? (widget.isMine
+              ? Colors.white.withValues(alpha: 0.98)
+              : scheme.primary)
         : Colors.white.withValues(alpha: widget.isUnread ? 0.78 : 0.40);
 
     return AnimatedContainer(
@@ -220,6 +233,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final resolvedDuration = _duration > Duration.zero
         ? _duration
         : _fallbackDuration;
@@ -229,16 +243,30 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final posMs = _position.inMilliseconds.clamp(0, totalMs);
     final progress = posMs / totalMs;
     final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
+    final innerGlass = Colors.white.withValues(
+      alpha: widget.isMine
+          ? (unreadDot ? 0.18 : 0.12)
+          : (unreadDot ? 0.16 : 0.10),
+    );
+    final timeColor = Colors.white.withValues(alpha: unreadDot ? 0.82 : 0.72);
+    final pulseBucket = (_position.inMilliseconds ~/ 240) % 2;
+    final accent = widget.isMine ? Colors.white : scheme.primary;
+    final barGlass = Colors.white.withValues(alpha: widget.isMine ? 0.10 : 0.08);
 
     final speedChip = InkWell(
       borderRadius: BorderRadius.circular(999),
       onTap: _cycleVoiceSpeed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        width: 34,
+        height: 34,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
+          color: innerGlass,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
+        alignment: Alignment.center,
         child: Text(
           speedLabel,
           maxLines: 1,
@@ -246,44 +274,10 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 10,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
-    );
-
-    final timeRow = Row(
-      children: [
-        Flexible(
-          child: Text(
-            _fmt(_position),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.70),
-              fontSize: 10,
-              fontWeight: unreadDot ? FontWeight.w700 : FontWeight.w500,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              _fmt(resolvedDuration),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.70),
-                fontSize: 10,
-                fontWeight: unreadDot ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
 
     return Row(
@@ -291,18 +285,21 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       children: [
         Expanded(
           child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: unreadDot ? 0.12 : 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: unreadDot
-                    ? Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.45)
-                    : Colors.white.withValues(alpha: 0.05),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  widget.bubbleColor.withValues(alpha: 0.96),
+                  Color.alphaBlend(
+                    Colors.white.withValues(alpha: widget.isMine ? 0.04 : 0.03),
+                    widget.bubbleColor,
+                  ),
+                ],
               ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -310,84 +307,188 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                 InkWell(
                   borderRadius: BorderRadius.circular(999),
                   onTap: _loading ? null : _togglePlay,
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: 1,
+                      end: _isPlaying ? (pulseBucket == 0 ? 1.0 : 1.07) : 1,
                     ),
-                    alignment: Alignment.center,
-                    child: _loading
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Icon(
-                            _isPlaying
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded,
-                            color: Colors.white,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeInOutCubic,
+                    builder: (context, scale, child) => Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              innerGlass,
+                              Colors.white.withValues(alpha: 0.04),
+                            ],
                           ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (unreadDot)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final usableWidth = constraints.maxWidth.clamp(48.0, 10000.0);
-                          final barCount = math.max(10, (usableWidth / 6).floor());
-
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTapDown: (details) {
-                              final box = context.findRenderObject() as RenderBox?;
-                              if (box == null) return;
-                              final local = box.globalToLocal(details.globalPosition);
-                              final ratio =
-                                  (local.dx / math.max(1, box.size.width)).clamp(0.0, 1.0);
-                              _seekToRatio(ratio);
-                            },
-                            child: SizedBox(
-                              height: 22,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: List.generate(
-                                  barCount,
-                                  (index) => Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                                    child: _waveBar(context, index, progress),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: unreadDot ? 0.22 : 0.12),
+                          ),
+                          boxShadow: _isPlaying
+                              ? [
+                                  BoxShadow(
+                                    color: accent.withValues(alpha: 0.18),
+                                    blurRadius: 14,
+                                    spreadRadius: -8,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        alignment: Alignment.center,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            if (_loading)
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            else
+                              Icon(
+                                _isPlaying
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,
+                                color: Colors.white,
+                                size: 21,
+                              ),
+                            if (unreadDot)
+                              Positioned(
+                                top: -1,
+                                right: -1,
+                                child: Container(
+                                  width: 9,
+                                  height: 9,
+                                  decoration: BoxDecoration(
+                                    color: accent,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: widget.bubbleColor,
+                                      width: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 6),
-                      timeRow,
-                    ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: barGlass,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final usableWidth = constraints.maxWidth.clamp(64.0, 10000.0);
+                        final showInlineTime = usableWidth >= 132;
+                        final timeWidth = showInlineTime ? 76.0 : 0.0;
+                        final spacing = showInlineTime ? 10.0 : 0.0;
+                        final waveformWidth = math.max(18.0, usableWidth - timeWidth - spacing);
+                        final barCount = math.max(4, (waveformWidth / 6).floor());
+
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTapDown: (details) {
+                            final box = context.findRenderObject() as RenderBox?;
+                            if (box == null) return;
+                            final local = box.globalToLocal(details.globalPosition);
+                            final ratio =
+                                (local.dx / math.max(1, box.size.width)).clamp(0.0, 1.0);
+                            _seekToRatio(ratio);
+                          },
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Stack(
+                                  alignment: Alignment.centerLeft,
+                                  children: [
+                                    Container(
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(999),
+                                      ),
+                                    ),
+                                    FractionallySizedBox(
+                                      widthFactor: progress.clamp(0.0, 1.0),
+                                      child: Container(
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withValues(alpha: 0.26),
+                                              Colors.white.withValues(alpha: 0.82),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(999),
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: List.generate(
+                                        barCount,
+                                        (index) => Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 1),
+                                          child: _waveBar(
+                                            context,
+                                            index,
+                                            barCount,
+                                            progress,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (showInlineTime) ...[
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: timeWidth,
+                                  child: Text(
+                                    '${_fmt(_position)} / ${_fmt(resolvedDuration)}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      color: timeColor,
+                                      fontSize: 10.5,
+                                      fontWeight: unreadDot ? FontWeight.w800 : FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Flexible(
-                  flex: 0,
-                  child: speedChip,
-                ),
+                speedChip,
               ],
             ),
           ),

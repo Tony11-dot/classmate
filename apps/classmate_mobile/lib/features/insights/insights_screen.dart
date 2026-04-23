@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../ui/glass/liquid_glass_card.dart';
 import '../lifedoc/announcements_provider.dart';
 import 'domain/insights_models.dart';
 import 'providers/insights_providers.dart';
@@ -38,12 +40,12 @@ class InsightsScreen extends ConsumerWidget {
     return value.toStringAsFixed(1);
   }
 
-  String _trendLabel(UnifiedPracticeTrend? trend) {
+  String _trendLabel(AppLocalizations l, UnifiedPracticeTrend? trend) {
     final delta = trend?.deltaAccuracy;
-    if (delta == null) return 'Baseline';
-    if (delta >= 6) return 'Improving';
-    if (delta <= -6) return 'Dropping';
-    return 'Stable';
+    if (delta == null) return l.insightsTrendBaseline;
+    if (delta >= 6) return l.insightsTrendImproving;
+    if (delta <= -6) return l.insightsTrendDropping;
+    return l.insightsTrendStable;
   }
 
   IconData _trendIcon(UnifiedPracticeTrend? trend) {
@@ -55,6 +57,7 @@ class InsightsScreen extends ConsumerWidget {
   }
 
   String _predictiveHeadline(
+    AppLocalizations l,
     UnifiedStudentInsights unified,
     List<dynamic> announcements,
   ) {
@@ -63,33 +66,34 @@ class InsightsScreen extends ConsumerWidget {
     final delta = unified.practice.trend?.deltaAccuracy ?? 0;
 
     if (avg < 70 || rate < 85 || delta <= -6) {
-      return 'Intervention window is open';
+      return l.insightsHeadlineIntervention;
     }
     if (announcements.length >= 3) {
-      return 'Several signals need tightening';
+      return l.insightsHeadlineSignals;
     }
-    return 'Momentum can compound this week';
+    return l.insightsHeadlineMomentum;
   }
 
-  String _predictiveBody(UnifiedStudentInsights unified) {
+  String _predictiveBody(AppLocalizations l, UnifiedStudentInsights unified) {
     final weak = (unified.grades.weakestSubject ?? '').trim();
     final best = (unified.grades.bestSubject ?? '').trim();
     final rate = unified.attendance.attendanceRate ?? 100;
     final delta = unified.practice.trend?.deltaAccuracy ?? 0;
 
     if (rate < 85) {
-      return 'Protect attendance first. Better presence now will raise every other signal faster.';
+      return l.insightsBodyAttendance;
     }
     if (weak.isNotEmpty && delta <= -6) {
-      return '$weak plus a falling practice trend is the biggest risk combo right now. Fix that before expanding.';
+      return l.insightsBodyWeakTrend(weak);
     }
     if (best.isNotEmpty) {
-      return '$best is your leverage point. Use it to build confidence while you patch weaker areas.';
+      return l.insightsBodyLeverage(best);
     }
-    return 'Keep stacking short focused sessions. The next few days matter more than a perfect long-term plan.';
+    return l.insightsBodyConsistency;
   }
 
   List<_PredictiveCardVm> _predictiveCards(
+    AppLocalizations l,
     UnifiedStudentInsights unified,
     List<dynamic> announcements,
   ) {
@@ -99,22 +103,26 @@ class InsightsScreen extends ConsumerWidget {
 
     return <_PredictiveCardVm>[
       _PredictiveCardVm(
-        title: 'Intervention score',
-        body:
-            '${announcements.length} active signal${announcements.length == 1 ? '' : 's'} are shaping your next move.',
+        title: l.insightsInterventionScoreTitle,
+        body: l.insightsInterventionScoreBody(announcements.length),
         icon: Icons.crisis_alert_rounded,
       ),
       _PredictiveCardVm(
-        title: 'Fastest recovery path',
+        title: l.insightsRecoveryPathTitle,
         body: weakTopic == null
-            ? 'Attendance + consistency first.'
-            : 'Revisit ${weakTopic.topicLabel} in ${weakTopic.subject} before pushing harder.',
+            ? l.insightsRecoveryPathDefault
+            : l.insightsRecoveryPathTopic(
+                weakTopic.topicLabel,
+                weakTopic.subject,
+              ),
         icon: Icons.route_rounded,
       ),
       _PredictiveCardVm(
-        title: 'Projected direction',
+        title: l.insightsProjectedDirectionTitle,
         body:
-            '${_trendLabel(unified.practice.trend)} based on recent 7d vs 30d practice behavior.',
+            l.insightsProjectedDirectionBody(
+              _trendLabel(l, unified.practice.trend),
+            ),
         icon: _trendIcon(unified.practice.trend),
       ),
     ];
@@ -127,6 +135,7 @@ class InsightsScreen extends ConsumerWidget {
     final announcements = ref.watch(announcementsProvider);
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final l = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -144,30 +153,29 @@ class InsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
           unifiedAsync.when(
-            loading: () => const _StateCard(
-              title: 'Insights loading',
-              subtitle: 'Building your predictive dashboard.',
+            loading: () => _StateCard(
+              title: l.insightsLoadingTitle,
+              subtitle: l.insightsLoadingSubtitle,
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: CircularProgressIndicator()),
+                padding: const EdgeInsets.all(24),
+                child: const Center(child: CircularProgressIndicator()),
               ),
             ),
             error: (error, _) => _StateCard(
-              title: 'Insights are not ready yet',
+              title: l.insightsNotReadyTitle,
               subtitle: error.toString(),
               child: const SizedBox.shrink(),
             ),
             data: (unified) {
               if (unified == null) {
-                return const _StateCard(
-                  title: 'No insight signal yet',
-                  subtitle:
-                      'Start practicing and using school tools so ClassMate can build your academic picture.',
-                  child: SizedBox.shrink(),
+                return _StateCard(
+                  title: l.insightsEmptyTitle,
+                  subtitle: l.insightsEmptySubtitle,
+                  child: const SizedBox.shrink(),
                 );
               }
 
-              final predictive = _predictiveCards(unified, announcements);
+              final predictive = _predictiveCards(l, unified, announcements);
 
               return Column(
                 children: [
@@ -191,7 +199,7 @@ class InsightsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Insights v3',
+                          l.titleInsights,
                           style: text.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w900,
                             letterSpacing: -0.5,
@@ -199,14 +207,14 @@ class InsightsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _predictiveHeadline(unified, announcements),
+                          _predictiveHeadline(l, unified, announcements),
                           style: text.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _predictiveBody(unified),
+                          _predictiveBody(l, unified),
                           style: text.bodyMedium?.copyWith(
                             color: cs.onSurfaceVariant,
                             height: 1.35,
@@ -217,7 +225,7 @@ class InsightsScreen extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: _HeroMetric(
-                                label: 'Grade avg',
+                                label: l.insightsGradeAverage,
                                 value: _fmtNum(unified.grades.average),
                                 icon: Icons.grade_rounded,
                               ),
@@ -225,7 +233,7 @@ class InsightsScreen extends ConsumerWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _HeroMetric(
-                                label: 'Attendance',
+                                label: l.navAttendance,
                                 value: _fmtPercent(
                                   unified.attendance.attendanceRate,
                                 ),
@@ -235,7 +243,7 @@ class InsightsScreen extends ConsumerWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _HeroMetric(
-                                label: 'Accuracy',
+                                label: l.insightsAccuracy,
                                 value: _fmtPercent(
                                   unified.practice.overallAccuracy * 100,
                                 ),
@@ -251,27 +259,26 @@ class InsightsScreen extends ConsumerWidget {
                           children: [
                             _ActionChip(
                               icon: Icons.psychology_alt_rounded,
-                              label: 'Open NOVA',
+                              label: l.insightsOpenNova,
                               onTap: () => _openTutorFromInsights(
                                 context,
-                                prompt:
-                                    'Help me fix my weakest area based on my latest ClassMate insights.',
-                                title: 'Predictive recovery plan',
+                                prompt: l.insightsOpenNovaPrompt,
+                                title: l.insightsPredictiveRecoveryPlanTitle,
                               ),
                             ),
                             _ActionChip(
                               icon: Icons.play_circle_fill_rounded,
-                              label: 'Practice now',
+                              label: l.insightsPracticeNow,
                               onTap: () => context.go('/practice'),
                             ),
                             _ActionChip(
                               icon: Icons.campaign_rounded,
-                              label: 'Announcements',
+                              label: l.navAnnouncements,
                               onTap: () => context.go('/announcements'),
                             ),
                             _ActionChip(
                               icon: Icons.notifications_active_rounded,
-                              label: 'Notifications',
+                              label: l.navNotifications,
                               onTap: () => context.go('/notifications'),
                             ),
                           ],
@@ -281,9 +288,8 @@ class InsightsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _StateCard(
-                    title: 'Predictive modules',
-                    subtitle:
-                        'The strongest forward-looking signals from your current student data.',
+                    title: l.insightsPredictiveModulesTitle,
+                    subtitle: l.insightsPredictiveModulesSubtitle,
                     child: Column(
                       children: predictive
                           .map(
@@ -297,9 +303,8 @@ class InsightsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _StateCard(
-                    title: 'Announcements pressure',
-                    subtitle:
-                        'The announcement engine is now feeding the dashboard directly.',
+                    title: l.insightsAnnouncementsPressureTitle,
+                    subtitle: l.insightsAnnouncementsPressureSubtitle,
                     child: Column(
                       children: announcements
                           .take(3)
@@ -317,31 +322,31 @@ class InsightsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   aiAsync.when(
-                    loading: () => const _StateCard(
-                      title: 'AI coach summary',
-                      subtitle: 'Loading AI guidance.',
-                      child: SizedBox(
+                    loading: () => _StateCard(
+                      title: l.insightsAiCoachTitle,
+                      subtitle: l.insightsAiCoachLoadingSubtitle,
+                      child: const SizedBox(
                         height: 60,
                         child: Center(child: CircularProgressIndicator()),
                       ),
                     ),
                     error: (error, _) => _StateCard(
-                      title: 'AI coach summary',
+                      title: l.insightsAiCoachTitle,
                       subtitle: error.toString(),
                       child: const SizedBox.shrink(),
                     ),
                     data: (ai) {
                       if (ai == null) {
-                        return const _StateCard(
-                          title: 'AI coach summary',
-                          subtitle: 'No AI summary yet.',
-                          child: SizedBox.shrink(),
+                        return _StateCard(
+                          title: l.insightsAiCoachTitle,
+                          subtitle: l.insightsAiCoachUnavailableSubtitle,
+                          child: const SizedBox.shrink(),
                         );
                       }
 
                       return _StateCard(
                         title: ai.headline.isEmpty
-                            ? 'AI coach summary'
+                            ? l.insightsAiCoachTitle
                             : ai.headline,
                         subtitle: ai.summary,
                         child: Column(
@@ -364,12 +369,12 @@ class InsightsScreen extends ConsumerWidget {
                                 onPressed: () => _openTutorFromInsights(
                                   context,
                                   prompt: ai.suggestedPrompt.isEmpty
-                                      ? 'Build me a recovery plan from my latest insights.'
+                                      ? l.insightsAskNovaPrompt
                                       : ai.suggestedPrompt,
-                                  title: 'AI study coach',
+                                  title: l.insightsAiStudyCoachTitle,
                                 ),
                                 icon: const Icon(Icons.psychology_alt_rounded),
-                                label: const Text('Ask NOVA'),
+                                label: Text(l.insightsAskNova),
                               ),
                             ),
                           ],
@@ -379,36 +384,35 @@ class InsightsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _StateCard(
-                    title: 'School tools',
-                    subtitle:
-                        'Jump directly into the student routes that now matter most.',
+                    title: l.insightsSchoolToolsTitle,
+                    subtitle: l.insightsSchoolToolsSubtitle,
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
                       children: [
                         _ActionChip(
                           icon: Icons.grade_rounded,
-                          label: 'Grades',
+                          label: l.navGrades,
                           onTap: () => context.go('/grades'),
                         ),
                         _ActionChip(
                           icon: Icons.how_to_reg_rounded,
-                          label: 'Attendance',
+                          label: l.navAttendance,
                           onTap: () => context.go('/attendance'),
                         ),
                         _ActionChip(
                           icon: Icons.notifications_rounded,
-                          label: 'Notifications',
+                          label: l.navNotifications,
                           onTap: () => context.go('/notifications'),
                         ),
                         _ActionChip(
                           icon: Icons.campaign_rounded,
-                          label: 'Announcements',
+                          label: l.navAnnouncements,
                           onTap: () => context.go('/announcements'),
                         ),
                         _ActionChip(
                           icon: Icons.lightbulb_rounded,
-                          label: 'Solutions',
+                          label: l.navSolutions,
                           onTap: () => context.go('/solutions'),
                         ),
                       ],
@@ -444,13 +448,11 @@ class _PredictiveCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      borderRadius: BorderRadius.circular(20),
+      blurSigma: 10,
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -495,10 +497,14 @@ class _ActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return ActionChip(
-      avatar: Icon(icon, size: 18),
+      avatar: Icon(icon, size: 18, color: cs.primary),
       label: Text(label),
       onPressed: onTap,
+      backgroundColor: cs.surface.withValues(alpha: 0.78),
+      side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     );
   }
 }
@@ -517,12 +523,11 @@ class _HeroMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(18),
-      ),
+      borderRadius: BorderRadius.circular(18),
+      blurSigma: 10,
+      color: cs.surface.withValues(alpha: 0.82),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -556,14 +561,12 @@ class _StateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-      ),
+      borderRadius: BorderRadius.circular(22),
+      blurSigma: 12,
+      color: cs.surface.withValues(alpha: 0.86),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

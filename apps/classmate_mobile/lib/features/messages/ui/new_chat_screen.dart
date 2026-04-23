@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'new_group_screen.dart';
@@ -41,17 +42,18 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final peopleValue = ref.watch(sameSchoolPeopleProvider);
     final q = _searchCtl.text.trim().toLowerCase();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New chat'),
+        title: Text(l.tutorNewChat),
       ),
       body: SafeArea(
         child: peopleValue.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Failed to load students: $e')),
+          error: (e, _) => Center(child: Text(l.messagesPeopleLoadFailed(e.toString()))),
           data: (people) {
             final filtered = people.where((p) {
               if (q.isEmpty) return true;
@@ -67,9 +69,9 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   child: TextField(
                     controller: _searchCtl,
                     onChanged: (_) => setState(() {}),
-                    decoration: const InputDecoration(
-                      hintText: 'Search students',
-                      prefixIcon: Icon(Icons.search_rounded),
+                    decoration: InputDecoration(
+                      hintText: l.messagesSearchPeopleHint,
+                      prefixIcon: const Icon(Icons.search_rounded),
                     ),
                   ),
                 ),
@@ -77,8 +79,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   leading: const CircleAvatar(
                     child: Icon(Icons.group_rounded),
                   ),
-                  title: const Text('New group'),
-                  subtitle: const Text('Create a group chat'),
+                  title: Text(l.messagesNewGroupTitle),
+                  subtitle: Text(l.messagesNewGroupSubtitle),
                   onTap: _creating ? null : () => _openGroupFlow(people),
                 ),
                 const Divider(height: 1),

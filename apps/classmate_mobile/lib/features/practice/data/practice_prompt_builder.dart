@@ -26,6 +26,11 @@ HARD RULES:
 4. Do NOT produce mixed-subject trivia unless the subject is exactly General Knowledge.
 5. Explanations must stay inside the same subject/topic.
 6. Respect the selected mode style.
+7. Return exactly ${filter.questionCount} question(s), unless mode is bagrut, which must return exactly 1.
+8. Each question must include exactly 4 answer options and one zero-based correctIndex.
+9. Keep the difficulty exactly at ${filter.difficulty.name}; do not simplify or generalize.
+10. For Math, Physics, Chemistry, and CS, format equations with LaTeX delimiters like \$...\$ or \$\$...\$\$.
+11. For code examples, use fenced markdown code blocks with a language tag.
 ''';
 }
 

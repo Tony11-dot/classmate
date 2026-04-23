@@ -4,16 +4,14 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/http/cm_api.dart';
 import '../domain/insights_models.dart';
 
-const _devStudentToken = 'dev-token-student@classmate.local';
-
 final studentInsightsApiProvider = Provider<StudentInsightsApi>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
-  return StudentInsightsApi(token: token.isEmpty ? _devStudentToken : token);
+  return StudentInsightsApi(token: token);
 });
 
 class StudentInsightsApi {
-  const StudentInsightsApi({this.token = _devStudentToken});
+  const StudentInsightsApi({this.token = ''});
 
   final String token;
 

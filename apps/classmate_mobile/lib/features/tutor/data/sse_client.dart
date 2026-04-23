@@ -23,12 +23,6 @@ class SseClient {
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       if (hasToken) 'Authorization': 'Bearer $token',
-      if (!hasToken) ...<String, String>{
-        'x-dev-role': 'STUDENT',
-        'x-dev-user-id': 'dev-student',
-        'x-dev-grade': '10',
-        'x-dev-school-id': 'test-school',
-      },
       ...headers,
     });
     final res = await _client.send(req);

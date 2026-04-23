@@ -3,7 +3,7 @@ set -euo pipefail
 
 cmd="${1:-help}"
 
-API_PORT="${API_PORT:-3000}"
+API_PORT="${API_PORT:-3001}"
 API_BASE="${API_BASE:-http://127.0.0.1:${API_PORT}}"
 LOG="${LOG:-/tmp/classmate-api.log}"
 
@@ -43,9 +43,15 @@ clean_api () {
 
 wait_health () {
   local url="$1"
-  echo "⏳ waiting for ${url}/api/health"
+  local api_health_url="${url}/api/health"
+  local bare_health_url="${url}/health"
+  echo "⏳ waiting for ${bare_health_url} or ${api_health_url}"
   for _ in $(seq 1 200); do
-    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "${url}/api/health" | grep -q '"ok":true'; then
+    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "${bare_health_url}" | grep -q '"ok":true'; then
+      echo "✅ health ok"
+      return 0
+    fi
+    if curl -fsS --connect-timeout 1 --max-time 1 2>/dev/null "${api_health_url}" | grep -q '"ok":true'; then
       echo "✅ health ok"
       return 0
     fi
@@ -133,11 +139,18 @@ ensure_api_env() {
   die "missing ${env_file} and ${example_file}. Create one with DATABASE_URL."
 }
 
-db_migrate() {
-  echo "🧩 prisma migrate deploy (api)"
+db_sync() {
+  echo "🧩 prisma db push (api)"
   export DATABASE_URL="${DATABASE_URL:-$(api_db_url)}"
   ensure_api_env
-  pnpm --filter ./services/api exec prisma migrate deploy
+  pnpm --filter ./services/api exec prisma db push --skip-generate
+}
+
+bootstrap_api() {
+  db_start
+  db_sync
+  clean_api
+  start_api
 }
 
 case "${cmd}" in
@@ -168,11 +181,11 @@ case "${cmd}" in
     lsof -ti :3004 | xargs -r kill -9 2>/dev/null || true
 
     # Single source of truth for all web apps during tests
-    export NEXT_PUBLIC_API_BASE="http://127.0.0.1:3000/api"
+    export NEXT_PUBLIC_API_BASE="http://127.0.0.1:${API_PORT}/api"
 
     # E2E helpers (some code uses these)
-    export E2E_API_BASE_URL="http://127.0.0.1:3000"
-    export E2E_API_BASE="http://127.0.0.1:3000"
+    export E2E_API_BASE_URL="http://127.0.0.1:${API_PORT}"
+    export E2E_API_BASE="http://127.0.0.1:${API_PORT}"
 
 
     # Avoid stale Next env (web dev servers cache NEXT_PUBLIC_* at startup)
@@ -203,10 +216,10 @@ case "${cmd}" in
       exit $st
     fi
 
-    db_migrate
+    db_sync
     st=$?
     if [[ $st -ne 0 ]]; then
-      echo "❌ db_migrate failed"
+      echo "❌ db_sync failed"
       pnpm -s devx:doctor || true
       exit $st
     fi
@@ -215,6 +228,17 @@ case "${cmd}" in
     st=$?
     if [[ $st -ne 0 ]]; then
       echo "❌ tests failed"
+      pnpm -s devx:doctor || true
+      exit $st
+    fi
+    ;;
+
+  bootstrap)
+    set +e
+    bootstrap_api
+    st=$?
+    if [[ $st -ne 0 ]]; then
+      echo "❌ bootstrap failed"
       pnpm -s devx:doctor || true
       exit $st
     fi
@@ -229,8 +253,8 @@ case "${cmd}" in
     docker -v || true
     echo
     echo "== env =="
-    echo "API_PORT=${API_PORT:-3000}"
-    echo "API_BASE=${API_BASE:-http://127.0.0.1:${API_PORT:-3000}}"
+    echo "API_PORT=${API_PORT:-3001}"
+    echo "API_BASE=${API_BASE:-http://127.0.0.1:${API_PORT:-3001}}"
     echo "DB_CONTAINER_NAME=${DB_CONTAINER_NAME:-classmate-postgres}"
     echo "DB_PORT=${DB_PORT:-5433}"
     echo
@@ -255,9 +279,10 @@ Commands:
   ps      Show api-related processes + port listener
   clean   Kill port + stray api watchers (pnpm/nest/node)
   logs    Tail api log
+  bootstrap  Start postgres (docker), push Prisma schema, and start api
   test    Start api + run full e2e + parent-web tests
   doctor  Print env, db status, port status, and tail api logs
-  up      Start postgres (docker), migrate, then run tests
+  up      Start postgres (docker), push schema, then run tests
 
 Env:
   API_PORT=3000

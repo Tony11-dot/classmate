@@ -286,31 +286,6 @@ export class StudentClassroomsController {
     }
 
     for (const targetThreadId of targetThreadIds) {
-      const participant = await this.prisma.dmParticipant.findUnique({
-        where: {
-          threadId_userId: {
-            threadId: targetThreadId,
-            userId: uid,
-          },
-        },
-        include: {
-          thread: {
-            select: {
-              id: true,
-              type: true,
-            },
-          },
-        },
-      });
-
-      if (!participant) {
-        throw new BadRequestException('Invalid target thread');
-      }
-
-      if (String(participant.state) !== 'ACCEPTED') {
-        throw new BadRequestException('Cannot forward into a non-approved thread');
-      }
-
       const sourceKind = String(source.kind ?? 'TEXT').trim().toUpperCase();
       const sourceText = String(source.text ?? '').trim();
       const sourceMediaMime = String(source.mediaMime ?? '').trim();
@@ -319,7 +294,6 @@ export class StudentClassroomsController {
         Number(source.durationSec ?? 0) > 0
           ? Number(source.durationSec)
           : 0;
-
       const forwardedText =
         sourceKind === 'VOICE'
           ? (() => {
@@ -332,29 +306,51 @@ export class StudentClassroomsController {
             })()
           : sourceText || null;
 
-      await this.prisma.dmMessage.create({
-        data: {
-          threadId: targetThreadId,
-          senderId: uid,
-          kind: sourceKind as any,
-          text: forwardedText,
-          mediaUrl: source.mediaUrl ?? null,
-          mediaMimeType: sourceMediaMime || null,
-          forwardedFromId: source.id,
-        },
+      // Try DM participant first
+      const participant = await this.prisma.dmParticipant.findUnique({
+        where: { threadId_userId: { threadId: targetThreadId, userId: uid } },
       });
 
-      await this.prisma.dmParticipant.update({
-        where: {
-          threadId_userId: {
+      if (participant) {
+        if (String(participant.state) !== 'ACCEPTED') {
+          throw new BadRequestException('Cannot forward into a non-approved thread');
+        }
+        await this.prisma.dmMessage.create({
+          data: {
             threadId: targetThreadId,
-            userId: uid,
+            senderId: uid,
+            kind: sourceKind as any,
+            text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',
+            mediaUrl: source.mediaUrl ?? null,
+            mediaMimeType: sourceMediaMime || null,
+            forwardedFromId: null, // source is ClassroomMessage; DmMessage FK can only ref DmMessage
           },
-        },
-        data: {
-          lastSeenAt: new Date(),
-        },
-      });
+        });
+        await this.prisma.dmParticipant.update({
+          where: { threadId_userId: { threadId: targetThreadId, userId: uid } },
+          data: { lastSeenAt: new Date() },
+        });
+      } else {
+        // Try classroom target
+        const targetCourse = await this.prisma.course.findFirst({
+          where: { id: targetThreadId, cohortId },
+          select: { id: true },
+        });
+        if (!targetCourse) {
+          throw new BadRequestException('Invalid target thread');
+        }
+        await this.prisma.classroomMessage.create({
+          data: {
+            courseId: targetThreadId,
+            senderUserId: uid,
+            kind: sourceKind as any,
+            text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',
+            mediaUrl: source.mediaUrl ?? null,
+            mediaMime: sourceMediaMime || null,
+            durationSec: sourceDuration > 0 ? sourceDuration : null,
+          },
+        });
+      }
     }
 
     return { ok: true, forwardedCount: targetThreadIds.length };

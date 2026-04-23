@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'mode_common.dart';
 
 class PracticeModeView extends StatelessWidget {
@@ -7,6 +8,7 @@ class PracticeModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return questionCard(
       d,
       child: Column(
@@ -27,14 +29,14 @@ class PracticeModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.state.currentIndex > 0 ? d.previous : null,
                 icon: Icons.arrow_back_rounded,
-                tooltip: 'Previous',
+                tooltip: l.practiceModeActionPrevious,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: sharedPrimaryActionButton(
                   d,
-                  preAnswerLabel: 'Check answer',
-                  postAnswerLabel: 'Next',
+                  preAnswerLabel: l.practiceModeActionCheckAnswer,
+                  postAnswerLabel: l.practiceModeActionNext,
                   preAnswerIcon: Icons.check_rounded,
                 ),
               ),
@@ -43,7 +45,7 @@ class PracticeModeView extends StatelessWidget {
               compactIconAction(
                 onPressed: d.end,
                 icon: Icons.close_rounded,
-                tooltip: 'End session',
+                tooltip: l.practiceModeActionEndSession,
               ),
             ],
           ),

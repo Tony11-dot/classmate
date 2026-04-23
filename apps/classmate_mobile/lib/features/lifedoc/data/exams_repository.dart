@@ -1,107 +1,123 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../classrooms/providers/classrooms_repo_provider.dart';
 import '../domain/exam_models.dart';
+
+const _examsCacheTtl = Duration(minutes: 2);
+DateTime? _examsCachedAt;
+List<StudentExamItem>? _examsCachedItems;
+Future<List<StudentExamItem>>? _examsInflight;
 
 final examsRepositoryProvider = Provider<StudentExamsRepository>((ref) {
   return const StudentExamsRepository();
 });
 
+// ── Live provider (hits /student/assessments) ────────────────────────────────
+
+final examsLiveProvider = FutureProvider<List<StudentExamItem>>((
+  ref,
+) async {
+  final now = DateTime.now();
+  final cachedAt = _examsCachedAt;
+  final cachedItems = _examsCachedItems;
+  if (cachedAt != null &&
+      cachedItems != null &&
+      now.difference(cachedAt) < _examsCacheTtl) {
+    return cachedItems;
+  }
+
+  final inflight = _examsInflight;
+  if (inflight != null) {
+    return inflight;
+  }
+
+  final repo = ref.read(classroomsRepoProvider);
+  final future = repo.studentAssessments().then((raw) {
+    final mapped = raw.map(_mapToExamItem).toList(growable: false);
+    _examsCachedItems = mapped;
+    _examsCachedAt = DateTime.now();
+    return mapped;
+  }).onError((err, st) {
+    // If the endpoint is unavailable, return empty list gracefully
+    _examsCachedItems = const <StudentExamItem>[];
+    _examsCachedAt = DateTime.now();
+    return const <StudentExamItem>[];
+  });
+
+  _examsInflight = future;
+  try {
+    return await future;
+  } finally {
+    _examsInflight = null;
+  }
+});
+
+StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
+  String str(List<String> keys, [String fallback = '']) {
+    for (final k in keys) {
+      final v = (j[k]?.toString() ?? '').trim();
+      if (v.isNotEmpty) return v;
+    }
+    return fallback;
+  }
+
+  String? opt(List<String> keys) {
+    for (final k in keys) {
+      final v = (j[k]?.toString() ?? '').trim();
+      if (v.isNotEmpty) return v;
+    }
+    return null;
+  }
+
+  final rawMaterials = j['materials'];
+  final materials = rawMaterials is List
+      ? rawMaterials
+            .whereType<Map>()
+            .map((m) {
+              final mi = m.map((k, v) => MapEntry(k.toString(), v));
+              return ExamMaterialItem(
+                id: str(['id'], 'mat-${mi.hashCode}'),
+                name: str(['name', 'title', 'filename'], 'Material'),
+                kind: str(['kind', 'type', 'mimeType'], 'File'),
+                url: opt(['url', 'fileUrl', 'link']),
+              );
+            })
+            .toList(growable: false)
+      : const <ExamMaterialItem>[];
+
+  final audienceRaw = str(['audienceType']).toUpperCase();
+  final audienceType = audienceRaw.contains('MAJOR')
+      ? ExamAudienceType.majorGroup
+      : audienceRaw.contains('GRADE')
+      ? ExamAudienceType.gradeGroup
+      : ExamAudienceType.classGroup;
+
+  return StudentExamItem(
+    id: str(['id'], 'exam-${j.hashCode}'),
+    subject: str(['subject', 'courseName', 'courseSubject']),
+    topic: opt(['topic', 'topicLabel', 'chapter']),
+    title: str(['title', 'name', 'assessmentTitle'], 'Assessment'),
+    caption: opt(['description', 'caption', 'body', 'notes']),
+    dateLabel: str(['scheduledAt', 'date', 'dueAt', 'examDate']),
+    hourLabel: opt(['hour', 'time', 'startTime']),
+    periodLabel: opt(['period', 'periodLabel']),
+    durationLabel: opt(['duration', 'durationLabel']),
+    teacher: str(['teacher', 'teacherName', 'instructor']),
+    audience: ExamAudience(
+      type: audienceType,
+      label: str(['audienceLabel', 'audience', 'audienceGroup'], 'Class'),
+    ),
+    materials: materials,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 class StudentExamsRepository {
   const StudentExamsRepository();
 
-  List<StudentExamItem> list() {
-    return const <StudentExamItem>[
-      StudentExamItem(
-        id: 'exam-math-1',
-        subject: 'Math',
-        topic: 'Functions and derivatives',
-        title: 'Math Midterm',
-        caption:
-            'Focus on derivatives, sketching, and mixed bagrut-style function questions.',
-        dateLabel: '2026-03-28',
-        hourLabel: '09:00',
-        periodLabel: null,
-        durationLabel: '90 min',
-        teacher: 'Rama Khoury',
-        audience: ExamAudience(
-          type: ExamAudienceType.classGroup,
-          label: '10th Grade • Class 10/1',
-        ),
-        materials: <ExamMaterialItem>[
-          ExamMaterialItem(
-            id: 'm1',
-            name: 'Derivative review sheet',
-            kind: 'PDF',
-            url: null,
-          ),
-          ExamMaterialItem(
-            id: 'm2',
-            name: 'Teacher notes',
-            kind: 'Text',
-            url: null,
-          ),
-        ],
-      ),
-      StudentExamItem(
-        id: 'exam-physics-1',
-        subject: 'Physics',
-        topic: 'Newton laws',
-        title: 'Mechanics Quiz',
-        caption:
-            'Short quiz on free-body diagrams and Newton second law applications.',
-        dateLabel: '2026-03-31',
-        hourLabel: null,
-        periodLabel: 'Period 3',
-        durationLabel: '45 min',
-        teacher: 'Omar Nassar',
-        audience: ExamAudience(
-          type: ExamAudienceType.majorGroup,
-          label: '10th Physics Major',
-        ),
-        materials: <ExamMaterialItem>[
-          ExamMaterialItem(
-            id: 'p1',
-            name: 'Forces summary',
-            kind: 'PDF',
-            url: null,
-          ),
-        ],
-      ),
-      StudentExamItem(
-        id: 'exam-cs-1',
-        subject: 'Computer Science',
-        topic: 'C# conditions and loops',
-        title: 'Programming Assessment',
-        caption:
-            'Expect tracing, bug fixing, and short implementation questions.',
-        dateLabel: '2026-04-03',
-        hourLabel: '11:30',
-        periodLabel: null,
-        durationLabel: '60 min',
-        teacher: 'Lina Tabet',
-        audience: ExamAudience(
-          type: ExamAudienceType.gradeGroup,
-          label: 'All 10th Grade CS Students',
-        ),
-        materials: <ExamMaterialItem>[
-          ExamMaterialItem(
-            id: 'c1',
-            name: 'Loop patterns worksheet',
-            kind: 'PDF',
-            url: null,
-          ),
-          ExamMaterialItem(
-            id: 'c2',
-            name: 'Practice code snippets',
-            kind: 'Text',
-            url: null,
-          ),
-        ],
-      ),
-    ];
-  }
+  List<StudentExamItem> list() => const <StudentExamItem>[];
 
-  StudentExamItem byId(String id) {
-    return list().firstWhere((e) => e.id == id, orElse: () => list().first);
-  }
+  StudentExamItem? byId(String id) => null;
 }

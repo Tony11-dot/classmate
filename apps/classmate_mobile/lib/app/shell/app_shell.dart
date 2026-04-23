@@ -1,16 +1,26 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_session.dart';
 import '../../ui/nav/main_drawer.dart';
+import '../../l10n/app_localizations.dart';
 
 const _coreBottomNavPaths = <String>{
   '/schedule',
   '/classrooms',
   '/practice',
   '/insights',
+  '/tutor',
+};
+
+const _teacherBottomNavPaths = <String>{
+  '/teacher/home',
+  '/teacher/classrooms',
+  '/exams',
+  '/messages',
   '/tutor',
 };
 
@@ -33,7 +43,7 @@ class AppShell extends ConsumerWidget {
 
   final Widget child;
 
-  int _indexFor(String loc) {
+  int _studentIndexFor(String loc) {
     if (loc.startsWith('/classrooms')) return 1;
     if (loc.startsWith('/practice')) return 2;
     if (loc.startsWith('/insights')) return 3;
@@ -41,7 +51,7 @@ class AppShell extends ConsumerWidget {
     return 0;
   }
 
-  String _locFor(int index) => switch (index) {
+  String _studentLocFor(int index) => switch (index) {
     0 => '/schedule',
     1 => '/classrooms',
     2 => '/practice',
@@ -50,41 +60,93 @@ class AppShell extends ConsumerWidget {
     _ => '/schedule',
   };
 
-  String _pageTitle(String loc) {
-    if (loc.startsWith('/classrooms')) return 'Classes';
-    if (loc.startsWith('/messages')) return 'Messages';
-    if (loc.startsWith('/practice')) return 'Practice';
-    if (loc.startsWith('/insights')) return 'Insights';
-    if (loc.startsWith('/tutor')) return 'NOVA';
-    if (loc.startsWith('/solutions')) return 'Solutions';
-    if (loc.startsWith('/exams')) return 'Exams';
-    return 'Schedule';
+  int _teacherIndexFor(String loc) {
+    if (loc.startsWith('/teacher/classrooms')) return 1;
+    if (loc.startsWith('/exams')) return 2;
+    if (loc.startsWith('/messages')) return 3;
+    if (loc.startsWith('/tutor')) return 4;
+    return 0;
   }
 
-  bool _hideBottomNav(String loc) {
+  String _teacherLocFor(int index) => switch (index) {
+    0 => '/teacher/home',
+    1 => '/teacher/classrooms',
+    2 => '/exams',
+    3 => '/messages',
+    4 => '/tutor',
+    _ => '/teacher/home',
+  };
+
+  String _pageTitle(BuildContext context, String loc, bool isTeacherLike) {
+    final l = AppLocalizations.of(context)!;
+    if (isTeacherLike) {
+      if (loc.startsWith('/teacher/attendance')) return l.navAttendance;
+      if (loc.startsWith('/teacher/classrooms')) return l.navClassrooms;
+      if (loc.startsWith('/teacher/grades')) return l.navTeacherAssessments;
+      if (loc.startsWith('/exams')) return l.titleExams;
+      if (loc.startsWith('/forms')) return l.navForms;
+      if (loc.startsWith('/tutor')) return l.titleNova;
+      if (loc.startsWith('/announcements')) return l.navAnnouncements;
+      if (loc.startsWith('/notifications')) return l.navNotifications;
+      if (loc.startsWith('/messages')) return l.titleMessages;
+      if (loc.startsWith('/profile')) return l.navProfile;
+      if (loc.startsWith('/settings')) return l.navSettings;
+      return l.navTeacherWorkspace;
+    }
+    if (loc.startsWith('/classrooms')) return l.titleClasses;
+    if (loc.startsWith('/messages')) return l.titleMessages;
+    if (loc.startsWith('/practice')) return l.titlePractice;
+    if (loc.startsWith('/insights')) return l.titleInsights;
+    if (loc.startsWith('/tutor')) return l.titleNova;
+    if (loc.startsWith('/solutions')) return l.titleSolutions;
+    if (loc.startsWith('/exams')) return l.titleExams;
+    if (loc.startsWith('/forms')) return l.navForms;
+    return l.titleSchedule;
+  }
+
+  bool _hideBottomNav(String loc, bool isTeacherLike) {
     final path = _routePathOnly(loc);
-    return !_coreBottomNavPaths.contains(path);
+    final allowed = isTeacherLike ? _teacherBottomNavPaths : _coreBottomNavPaths;
+    return !allowed.contains(path);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(authSessionProvider);
+    final isTeacherLike = session.isTeacherLike;
     final loc = GoRouterState.of(context).matchedLocation;
-    final idx = _indexFor(loc);
-    final hideBottomNav = _hideBottomNav(loc);
+    final idx = isTeacherLike ? _teacherIndexFor(loc) : _studentIndexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
     final hideTopBar = _hideTopBarForRoute(loc);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       extendBody: true,
       drawerEnableOpenDragGesture: !hideTopBar,
       drawer: hideTopBar ? null : const MainDrawer(),
-      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(loc)),
+      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(context, loc, isTeacherLike)),
       body: child,
       bottomNavigationBar: hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
+              items: isTeacherLike
+                  ? <_NavItem>[
+                      _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
+                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navExams),
+                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages),
+                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                    ]
+                  : <_NavItem>[
+                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
+                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                    ],
               index: idx,
               onTap: (i) {
-                final next = _locFor(i);
+                final next = isTeacherLike ? _teacherLocFor(i) : _studentLocFor(i);
                 if (next == loc) return;
                 context.go(next);
               },
@@ -94,8 +156,9 @@ class AppShell extends ConsumerWidget {
 }
 
 class _PlatformCoreBottomNav extends StatefulWidget {
-  const _PlatformCoreBottomNav({required this.index, required this.onTap});
+  const _PlatformCoreBottomNav({required this.items, required this.index, required this.onTap});
 
+  final List<_NavItem> items;
   final int index;
   final ValueChanged<int> onTap;
 
@@ -104,24 +167,71 @@ class _PlatformCoreBottomNav extends StatefulWidget {
 }
 
 class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
-  int? _pressedIndex;
+  int? _gestureIndex;
+  bool _pointerActive = false;
+  int? _lastTriggeredIndex;
+
+  int _indexForDx(
+    double dx,
+    double width,
+    int itemCount,
+    TextDirection textDirection,
+  ) {
+    if (itemCount <= 0) return 0;
+    final slot = width / itemCount;
+    if (slot <= 0) return 0;
+    final visualIndex = (dx / slot).floor().clamp(0, itemCount - 1);
+    if (textDirection == TextDirection.rtl) {
+      return itemCount - 1 - visualIndex;
+    }
+    return visualIndex;
+  }
+
+  void _updateInteraction({
+    required double localDx,
+    required double width,
+    required int itemCount,
+    required TextDirection textDirection,
+    required bool triggerNavigation,
+  }) {
+    final nextIndex = _indexForDx(localDx, width, itemCount, textDirection);
+    if (!mounted) return;
+
+    if (_gestureIndex != nextIndex) {
+      setState(() => _gestureIndex = nextIndex);
+    }
+
+    if (!triggerNavigation || nextIndex == widget.index) return;
+    if (_lastTriggeredIndex == nextIndex) return;
+    _lastTriggeredIndex = nextIndex;
+    HapticFeedback.selectionClick();
+    widget.onTap(nextIndex);
+  }
+
+  void _endInteraction() {
+    if (!_pointerActive && _gestureIndex == null) return;
+    if (!mounted) return;
+    setState(() {
+      _pointerActive = false;
+      _gestureIndex = null;
+      _lastTriggeredIndex = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brightness = theme.brightness;
+    final textDirection = Directionality.of(context);
 
-    final items = const <_NavItem>[
-      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, 'Schedule'),
-      _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classes'),
-      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, 'Practice'),
-      _NavItem(Icons.insights_outlined, Icons.insights_rounded, 'Insights'),
-      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'NOVA'),
-    ];
+    final items = widget.items;
 
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    final barHeight = 64.0 + bottomInset.clamp(0.0, 20.0);
+    const barHeight = 64.0;
+    final displayIndex = _gestureIndex ?? widget.index;
+    final visualDisplayIndex = textDirection == TextDirection.rtl
+      ? items.length - 1 - displayIndex
+      : displayIndex;
 
     final surface =
         brightness == Brightness.dark
@@ -140,255 +250,273 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
       bottom: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(26),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-            child: Container(
-              height: barHeight,
-              decoration: BoxDecoration(
-                color: surface,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final compact = width < 390;
+            final tiny = width < 350;
+            final segmentWidth = width / items.length;
+            final indicatorWidth = (segmentWidth - (compact ? 8 : 10)).clamp(
+              tiny ? 48.0 : 54.0,
+              compact ? 90.0 : 104.0,
+            );
+            final indicatorLeft =
+                (segmentWidth * visualDisplayIndex) +
+                ((segmentWidth - indicatorWidth) / 2);
+
+            return Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (event) {
+                if (!mounted) return;
+                setState(() {
+                  _pointerActive = true;
+                  _lastTriggeredIndex = null;
+                });
+                _updateInteraction(
+                  localDx: event.localPosition.dx,
+                  width: width,
+                  itemCount: items.length,
+                  textDirection: textDirection,
+                  triggerNavigation: false,
+                );
+              },
+              onPointerMove: (event) {
+                if (!_pointerActive) return;
+                _updateInteraction(
+                  localDx: event.localPosition.dx,
+                  width: width,
+                  itemCount: items.length,
+                  textDirection: textDirection,
+                  triggerNavigation: true,
+                );
+              },
+              onPointerUp: (_) => _endInteraction(),
+              onPointerCancel: (_) => _endInteraction(),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(26),
-                border: Border.all(color: border),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 24,
-                    spreadRadius: -8,
-                    offset: const Offset(0, 10),
-                    color: Colors.black.withValues(alpha: 0.18),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  for (var i = 0; i < items.length; i++)
-                    Expanded(
-                      child: _TelegramGlassNavButton(
-                        item: items[i],
-                        selected: i == widget.index,
-                        pressed: i == _pressedIndex,
-                        onTap: () => widget.onTap(i),
-                        onPressStart: () {
-                          if (!mounted) return;
-                          setState(() => _pressedIndex = i);
-                        },
-                        onPressEnd: () {
-                          if (!mounted) return;
-                          setState(() {
-                            if (_pressedIndex == i) _pressedIndex = null;
-                          });
-                        },
-                        activeColor: cs.primary,
-                        inactiveColor: cs.onSurfaceVariant,
-                      ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  child: Container(
+                    height: compact ? barHeight - 2 : barHeight,
+                    decoration: BoxDecoration(
+                      color: surface,
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(color: border),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 24,
+                          spreadRadius: -8,
+                          offset: const Offset(0, 10),
+                          color: Colors.black.withValues(alpha: 0.18),
+                        ),
+                      ],
                     ),
-                ],
+                    child: Stack(
+                      children: [
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutCubic,
+                          left: indicatorLeft,
+                          top: 7,
+                          width: indicatorWidth,
+                          height: barHeight - 18,
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(22),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    cs.primary.withValues(
+                                      alpha: brightness == Brightness.dark ? 0.22 : 0.17,
+                                    ),
+                                    cs.primaryContainer.withValues(
+                                      alpha: brightness == Brightness.dark ? 0.34 : 0.22,
+                                    ),
+                                  ],
+                                ),
+                                border: Border.all(
+                                  color: cs.primary.withValues(
+                                    alpha: brightness == Brightness.dark ? 0.22 : 0.16,
+                                  ),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 22,
+                                    spreadRadius: -8,
+                                    offset: const Offset(0, 9),
+                                    color: cs.primary.withValues(alpha: 0.22),
+                                  ),
+                                ],
+                              ),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.18),
+                                      Colors.white.withValues(alpha: 0.02),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            for (var i = 0; i < items.length; i++)
+                              Expanded(
+                                child: _TelegramGlassNavButton(
+                                  item: items[i],
+                                  selected: i == widget.index,
+                                  active: i == displayIndex,
+                                  pressed: _pointerActive && i == _gestureIndex,
+                                  compact: compact,
+                                  tiny: tiny,
+                                  onTap: () {
+                                    if (i == widget.index) return;
+                                    HapticFeedback.selectionClick();
+                                    widget.onTap(i);
+                                  },
+                                  activeColor: cs.primary,
+                                  inactiveColor: cs.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _TelegramGlassNavButton extends StatefulWidget {
+class _TelegramGlassNavButton extends StatelessWidget {
   const _TelegramGlassNavButton({
     required this.item,
     required this.selected,
+    required this.active,
     required this.pressed,
+    required this.compact,
+    required this.tiny,
     required this.onTap,
-    required this.onPressStart,
-    required this.onPressEnd,
     required this.activeColor,
     required this.inactiveColor,
   });
 
   final _NavItem item;
   final bool selected;
+  final bool active;
   final bool pressed;
+  final bool compact;
+  final bool tiny;
   final VoidCallback onTap;
-  final VoidCallback onPressStart;
-  final VoidCallback onPressEnd;
   final Color activeColor;
   final Color inactiveColor;
 
   @override
-  State<_TelegramGlassNavButton> createState() => _TelegramGlassNavButtonState();
-}
-
-class _TelegramGlassNavButtonState extends State<_TelegramGlassNavButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pressCtl;
-  bool _holding = false;
-
-  static const _spring = SpringDescription(
-    mass: 0.9,
-    stiffness: 520,
-    damping: 30,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _pressCtl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 140),
-      reverseDuration: const Duration(milliseconds: 240),
-      lowerBound: 0,
-      upperBound: 1,
-      value: 0,
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressCtl.dispose();
-    super.dispose();
-  }
-
-  void _pressIn() {
-    if (_holding) return;
-    _holding = true;
-    widget.onPressStart();
-    _pressCtl.animateTo(
-      1,
-      duration: const Duration(milliseconds: 110),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  void _release() {
-    if (!_holding) return;
-    _holding = false;
-    widget.onPressEnd();
-    final sim = SpringSimulation(_spring, _pressCtl.value, 0, -2.2);
-    _pressCtl.animateWith(sim);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final resolvedColor = active ? activeColor : inactiveColor;
+    final labelWeight = active ? FontWeight.w800 : FontWeight.w600;
+    final targetScale = pressed ? 0.92 : active ? 1.0 : 0.965;
+    final targetY = pressed ? 1.0 : 0.0;
+    final iconSize = tiny ? (active ? 20.5 : 18.5) : compact ? (active ? 21.5 : 19.5) : (active ? 22.5 : 20.5);
+    final iconData = selected ? item.selectedIcon : item.icon;
 
-    final selectedFill =
-        brightness == Brightness.dark
-            ? widget.activeColor.withValues(alpha: 0.22)
-            : widget.activeColor.withValues(alpha: 0.14);
-
-    final selectedBorder =
-        brightness == Brightness.dark
-            ? widget.activeColor.withValues(alpha: 0.22)
-            : widget.activeColor.withValues(alpha: 0.18);
-
-    final iconColor = widget.selected ? widget.activeColor : widget.inactiveColor;
-    final labelColor = widget.selected ? widget.activeColor : widget.inactiveColor;
-
-    return AnimatedBuilder(
-      animation: _pressCtl,
-      builder: (context, _) {
-        final t = _pressCtl.value;
-        final scale = 1.0 - (0.075 * t);
-        final translateY = 2.6 * t;
-        final glowAlpha = widget.selected ? (0.18 - (0.06 * t)) : 0.0;
-        final fillAlphaMul = widget.selected ? (1.0 - (0.18 * t)) : 1.0;
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          child: Transform.translate(
-            offset: Offset(0, translateY),
-            child: Transform.scale(
-              scale: scale,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    if (widget.selected)
-                      BoxShadow(
-                        blurRadius: 18,
-                        spreadRadius: -6,
-                        offset: const Offset(0, 8),
-                        color: widget.activeColor.withValues(alpha: glowAlpha),
-                      ),
-                  ],
-                ),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPress: () {},
-                  onLongPressDown: (_) => _pressIn(),
-                  onLongPressEnd: (_) => _release(),
-                  onLongPressCancel: _release,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      splashFactory: NoSplash.splashFactory,
-                      highlightColor: Colors.transparent,
-                      overlayColor: WidgetStateProperty.all(Colors.transparent),
-                      onTap: widget.onTap,
-                      onTapDown: (_) => _pressIn(),
-                      onTapUp: (_) => _release(),
-                      onTapCancel: _release,
-                      child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 120),
-                      curve: Curves.easeOutCubic,
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: widget.selected
-                            ? selectedFill.withValues(
-                                alpha: selectedFill.a * fillAlphaMul,
-                              )
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: widget.selected ? selectedBorder : Colors.transparent,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Transform.scale(
-                            scale: 1.0 - (0.05 * t),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 160),
-                              switchInCurve: Curves.easeOutCubic,
-                              switchOutCurve: Curves.easeOutCubic,
-                              transitionBuilder: (child, animation) {
-                                return ScaleTransition(scale: animation, child: child);
-                              },
-                              child: Icon(
-                                widget.selected
-                                    ? widget.item.selectedIcon
-                                    : widget.item.icon,
-                                key: ValueKey('${widget.item.label}_${widget.selected}'),
-                                size: widget.selected ? 24 : 23,
-                                color: iconColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.item.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: widget.selected
-                                  ? FontWeight.w700
-                                  : FontWeight.w600,
-                              color: labelColor,
-                              letterSpacing: -0.1,
-                            ),
-                          ),
-                        ],
-                      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: tiny ? 1 : 4, vertical: 2),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0, end: targetScale),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        builder: (context, scale, child) {
+          return AnimatedSlide(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            offset: Offset(0, targetY / 42),
+            child: Transform.scale(scale: scale, child: child),
+          );
+        },
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: tiny ? 2 : 4,
+                vertical: compact ? 6 : 7,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  if (active && brightness == Brightness.dark)
+                    BoxShadow(
+                      blurRadius: 18,
+                      spreadRadius: -8,
+                      offset: const Offset(0, 8),
+                      color: activeColor.withValues(alpha: 0.18),
+                    ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 170),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(scale: animation, child: child),
+                      );
+                    },
+                    child: Icon(
+                      iconData,
+                      key: ValueKey('${item.label}_${selected}_$active'),
+                      size: iconSize,
+                      color: resolvedColor,
                     ),
                   ),
-                ),
-              ),
+                  SizedBox(height: compact ? 2 : 3),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 170),
+                    curve: Curves.easeOutCubic,
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      fontSize: tiny ? 8 : compact ? 8.5 : 9,
+                      height: 1.05,
+                      fontWeight: labelWeight,
+                      color: resolvedColor,
+                      letterSpacing: -0.1,
+                    ),
+                    child: Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

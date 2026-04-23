@@ -25,8 +25,11 @@ export class ParentController {
   grades(
     @Req() req: any,
     @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
+    @Query('studentId') studentId?: string,
   ) {
-    // ParentService clamps 1..100 anyway, but ParseIntPipe guarantees it's a number.
+    if (studentId?.trim()) {
+      return this.parent.childGrades(req.user, studentId.trim());
+    }
     return this.parent.grades(req.user, take);
   }
 

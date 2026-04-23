@@ -1,9 +1,12 @@
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
-export function getOpenAIClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
+export function getAnthropicClient() {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || !apiKey.trim()) {
-    throw new Error('OPENAI_API_KEY missing');
+    throw new Error('ANTHROPIC_API_KEY missing');
   }
-  return new OpenAI({ apiKey });
+  return new Anthropic({ apiKey });
 }
+
+// Alias kept so existing imports don't need updating
+export const getOpenAIClient = getAnthropicClient;

@@ -4,8 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const RAW_API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ?? 'http://127.0.0.1:3000/api';
-const API_BASE = RAW_API_BASE.endsWith('/api') ? RAW_API_BASE : `${RAW_API_BASE}/api`;
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ??
+  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ??
+  'http://127.0.0.1:3001';
+const SERVER_API_BASE = RAW_API_BASE.replace(/\/api\/?$/, '');
+
+function apiBase() {
+  return typeof window === 'undefined' ? SERVER_API_BASE : '/api';
+}
 
 export default function LoginPage() {
   const r = useRouter();
@@ -19,8 +25,7 @@ export default function LoginPage() {
     setErr(null);
     setLoading(true);
     try {
-      console.log("LOGIN_API_BASE =", API_BASE);
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(`${apiBase()}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

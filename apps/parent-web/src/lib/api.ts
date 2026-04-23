@@ -17,9 +17,15 @@ export function clearToken() {
   window.dispatchEvent(new Event('classmate_token_change'));
 }
 const RAW_API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ?? 'http://127.0.0.1:3000/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ??
+  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') ??
+  'http://127.0.0.1:3001';
 
-const API_BASE = RAW_API_BASE.endsWith('/api') ? RAW_API_BASE : `${RAW_API_BASE}/api`;
+const SERVER_API_BASE = RAW_API_BASE.replace(/\/api\/?$/, '');
+
+function apiBase() {
+  return typeof window === 'undefined' ? SERVER_API_BASE : '/api';
+}
 
 type ApiOpts = {
   method?: string;
@@ -30,7 +36,7 @@ async function api<T = any>(path: string, opts: ApiOpts = {}): Promise<T> {
   const token = getToken();
   if (!token) throw new Error('Missing parent token. Go to /login and sign in.');
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase()}${path}`, {
     method: opts.method ?? 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -93,7 +99,7 @@ export function parentMarkSeen(body?: { ids?: string[] }) {
 
 // existing endpoints you already had (kept for other pages)
 export function parentChildren() {
-  return api('/parent/children');
+  return api('/parent/children').then((res: any) => res?.children ?? res ?? []);
 }
 export function parentOverview(studentId: string) {
   return api(`/parent/overview?studentId=${encodeURIComponent(studentId)}`);

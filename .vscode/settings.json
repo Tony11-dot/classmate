@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "flutter": true,
+        "printf": true,
+        "cm-analyze-file": true,
+        "cma": true,
+        "dart": true,
+        "pod": true,
+        "pnpm": true,
+        "xcrun": true
+    }
+}

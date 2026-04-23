@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   if (a.role !== "STUDENT")
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const student = await prisma.student.findFirst({
+  const student = await prisma.student.findUnique({
     where: { userId: a.uid },
     select: { id: true },
   });
@@ -23,16 +23,15 @@ export async function GET(req: Request) {
   if (!student)
     return NextResponse.json({ error: "student_not_found" }, { status: 404 });
 
-  const enrollments = await prisma.enrollment.findMany({
-    where: { studentId: student.id },
-    select: { classId: true },
-  });
-
-  const classIds = enrollments.map((e) => e.classId);
-  if (classIds.length === 0) return NextResponse.json({ assessments: [] });
-
   const assessments = await prisma.assessment.findMany({
-    where: { classId: { in: classIds }, isPublished: true },
+    where: {
+      isPublished: true,
+      class: {
+        enrollments: {
+          some: { studentId: student.id },
+        },
+      },
+    },
     orderBy: { dueDate: "asc" },
     select: {
       id: true,

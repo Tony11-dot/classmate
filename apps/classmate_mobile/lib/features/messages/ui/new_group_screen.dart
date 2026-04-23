@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 
@@ -31,6 +32,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final q = _searchCtl.text.trim().toLowerCase();
     final filtered = widget.people.where((p) {
       if (q.isEmpty) return true;
@@ -41,7 +43,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New group'),
+        title: Text(l.messagesNewGroupTitle),
       ),
       body: SafeArea(
         child: Column(
@@ -51,9 +53,9 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               child: TextField(
                 controller: _nameCtl,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  hintText: 'Group name',
-                  prefixIcon: Icon(Icons.group_rounded),
+                decoration: InputDecoration(
+                  hintText: l.messagesGroupNameHint,
+                  prefixIcon: const Icon(Icons.group_rounded),
                 ),
               ),
             ),
@@ -62,9 +64,9 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               child: TextField(
                 controller: _searchCtl,
                 onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  hintText: 'Search students',
-                  prefixIcon: Icon(Icons.search_rounded),
+                decoration: InputDecoration(
+                  hintText: l.messagesSearchPeopleHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
                 ),
               ),
             ),
@@ -74,7 +76,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '${_selected.length} selected',
+                    l.classroomDetailSelectedCount(_selected.length),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -158,7 +160,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Create group'),
+                        : Text(l.messagesCreateGroupAction),
                   ),
                 ),
               ),

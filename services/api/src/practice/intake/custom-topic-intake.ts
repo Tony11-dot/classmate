@@ -1,3 +1,5 @@
+import { inferCanonicalPracticeSubjectFromTopicLoose } from '../catalog/practice-topic-catalog';
+
 export type PracticeGenerationStrategy =
   | 'deterministic'
   | 'grounded_factual'
@@ -164,6 +166,26 @@ function isLowSignalTopicText(raw: string): boolean {
   return false;
 }
 
+function hasReasonableUnknownTopicSignal(raw: string): boolean {
+  const t = String(raw ?? '').trim().toLowerCase();
+  if (!t || isLowSignalTopicText(raw)) return false;
+
+  const words = t.split(/\s+/).filter(Boolean);
+  const meaningfulWords = words.filter(
+    (word) => word.replace(/[^a-z0-9]/gi, '').length >= 3,
+  );
+
+  if (meaningfulWords.length >= 3) return true;
+  if (meaningfulWords.length >= 2) return true;
+
+  const hasSpecificQualifier =
+    /[0-9]/.test(t) ||
+    /[-_/]/.test(raw) ||
+    /\b(of|in|with|for|from|under|between|during|versus|vs)\b/.test(t);
+
+  return meaningfulWords.length >= 1 && hasSpecificQualifier;
+}
+
 
 function isLikelySymbolicCustomTopic(subject: string, topic: string): boolean {
   const s = lower(subject);
@@ -278,6 +300,7 @@ function inferQuizzability(topicType: CustomTopicIntakeResult['topicType'], topi
   if (!t || t === 'general') return 'low';
   if (topicType === 'symbolic' || topicType === 'school_stem' || topicType === 'factual_history' || topicType === 'factual_general') return 'high';
   if (topicType === 'conceptual') return 'medium';
+  if (hasReasonableUnknownTopicSignal(topic)) return 'medium';
   return 'low';
 }
 
@@ -312,7 +335,9 @@ export function analyzeCustomPracticeTopic(input: {
   const normalizedSubject = normalizePracticeSubjectLoose(rawSubject);
   const normalizedTopic = normalizeCustomTopicText(rawTopic);
 
-  const subjectFromTopic = inferSubjectFromTopic(normalizedTopic);
+  const subjectFromTopic =
+    inferCanonicalPracticeSubjectFromTopicLoose(normalizedTopic) ||
+    inferSubjectFromTopic(normalizedTopic);
   const effectiveSubject =
     normalizedSubject === 'General Knowledge' && subjectFromTopic
       ? subjectFromTopic

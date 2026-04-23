@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../domain/practice_history_models.dart';
-import '../../../../ui/math/math_view.dart';
-import 'practice_mode_specs.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../common/widgets/cm_rich_content.dart';
+import '../domain/practice_history_models.dart';
+import '../domain/practice_models.dart';
+import 'practice_display_text.dart';
+import 'practice_mode_specs.dart';
 
 class PracticeHistoryReviewScreen extends StatefulWidget {
   final PracticeHistorySession session;
@@ -17,6 +19,26 @@ class PracticeHistoryReviewScreen extends StatefulWidget {
 
 enum _SavedReviewFilter { all, wrong, correct }
 
+String _practiceModeLabel(BuildContext context, PracticeMode mode) {
+  final l = AppLocalizations.of(context)!;
+  switch (mode) {
+    case PracticeMode.practice:
+      return l.practiceSetupModeLabelPractice;
+    case PracticeMode.flashcards:
+      return l.practiceSetupModeLabelFlashcards;
+    case PracticeMode.speedRound:
+      return l.practiceSetupModeLabelSpeedRound;
+    case PracticeMode.examPrep:
+      return l.practiceSetupModeLabelExamPrep;
+    case PracticeMode.conceptBuilder:
+      return l.practiceSetupModeLabelConceptBuilder;
+    case PracticeMode.adaptive:
+      return l.practiceSetupModeLabelAdaptive;
+    case PracticeMode.bagrut:
+      return l.practiceSetupModeLabelBagrut;
+  }
+}
+
 class _PracticeHistoryReviewScreenState
     extends State<PracticeHistoryReviewScreen> {
   _SavedReviewFilter _filter = _SavedReviewFilter.all;
@@ -25,6 +47,7 @@ class _PracticeHistoryReviewScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final accent = practiceModeColor(widget.session.mode);
@@ -49,7 +72,7 @@ class _PracticeHistoryReviewScreenState
         : questions;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Session Review')),
+      appBar: AppBar(title: Text(l.practiceSessionReviewTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
@@ -76,7 +99,11 @@ class _PracticeHistoryReviewScreenState
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '${widget.session.subject} • ${widget.session.topicLabel}',
+                  localizedPracticeSubjectAndTopic(
+                    context,
+                    subject: widget.session.subject,
+                    topicLabel: widget.session.topicLabel,
+                  ),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w900,
@@ -84,7 +111,7 @@ class _PracticeHistoryReviewScreenState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${practiceModeLabel(widget.session.mode)} • ${widget.session.correct}/${widget.session.answered} • ${widget.session.accuracyPercent}% • XP ${widget.session.xp}',
+                  '${_practiceModeLabel(context, widget.session.mode)} • ${widget.session.correct}/${widget.session.answered} • ${widget.session.accuracyPercent}% • ${l.practiceSessionMetricXp} ${widget.session.xp}',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: cs.onSurfaceVariant,
@@ -99,7 +126,7 @@ class _PracticeHistoryReviewScreenState
             runSpacing: 8,
             children: [
               ChoiceChip(
-                label: const Text('All'),
+                label: Text(l.practiceSessionFilterAll),
                 selected: _filter == _SavedReviewFilter.all,
                 onSelected: (_) => setState(() {
                   _filter = _SavedReviewFilter.all;
@@ -107,7 +134,7 @@ class _PracticeHistoryReviewScreenState
                 }),
               ),
               ChoiceChip(
-                label: const Text('Wrong'),
+                label: Text(l.practiceSessionFilterWrong),
                 selected: _filter == _SavedReviewFilter.wrong,
                 onSelected: (_) => setState(() {
                   _filter = _SavedReviewFilter.wrong;
@@ -115,7 +142,7 @@ class _PracticeHistoryReviewScreenState
                 }),
               ),
               ChoiceChip(
-                label: const Text('Correct'),
+                label: Text(l.practiceSessionFilterCorrect),
                 selected: _filter == _SavedReviewFilter.correct,
                 onSelected: (_) => setState(() {
                   _filter = _SavedReviewFilter.correct;
@@ -126,9 +153,15 @@ class _PracticeHistoryReviewScreenState
           ),
           const SizedBox(height: 12),
           SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('Stacked')),
-              ButtonSegment(value: true, label: Text('Focus')),
+            segments: [
+              ButtonSegment(
+                value: false,
+                label: Text(l.practiceSessionReviewLayoutStacked),
+              ),
+              ButtonSegment(
+                value: true,
+                label: Text(l.practiceSessionReviewLayoutFocus),
+              ),
             ],
             selected: {_focus},
             onSelectionChanged: (v) {
@@ -150,7 +183,7 @@ class _PracticeHistoryReviewScreenState
                 ),
               ),
               child: Text(
-                'No questions match this filter.',
+                l.practiceSessionNoQuestionsForFilter,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -162,12 +195,12 @@ class _PracticeHistoryReviewScreenState
                     q.selectedIndex! >= 0 &&
                     q.selectedIndex! < q.options.length)
                 ? q.options[q.selectedIndex!]
-                : 'No answer';
+              : l.practiceSessionNoAnswer;
 
             final correctLabel =
                 (q.correctIndex >= 0 && q.correctIndex < q.options.length)
                 ? q.options[q.correctIndex]
-                : 'Unknown';
+              : l.practiceSessionUnknownAnswer;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -189,7 +222,10 @@ class _PracticeHistoryReviewScreenState
                       children: [
                         Expanded(
                           child: Text(
-                            q.topicLabel,
+                            localizedPracticeTopicLabel(
+                              context,
+                              q.topicLabel,
+                            ),
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: accent,
                               fontWeight: FontWeight.w800,
@@ -215,27 +251,27 @@ class _PracticeHistoryReviewScreenState
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Your answer',
+                      l.practiceSessionYourAnswer,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: cs.onSurfaceVariant,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    MathView(selectedLabel, compact: true),
+                    CMRichContent(data: selectedLabel),
                     const SizedBox(height: 10),
                     Text(
-                      'Correct answer',
+                      l.practiceSessionCorrectAnswer,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: Colors.green,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    MathView(correctLabel, compact: true),
+                    CMRichContent(data: correctLabel),
                     const SizedBox(height: 10),
                     Text(
-                      'Explanation',
+                      l.practiceSessionExplanation,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: cs.onSurfaceVariant,
                         fontWeight: FontWeight.w700,

@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4efe5;
+  --foreground: #1e293b;
+  --surface: rgba(255, 252, 246, 0.82);
+  --surface-strong: rgba(255, 252, 246, 0.94);
+  --surface-border: rgba(148, 163, 184, 0.22);
+  --accent: #0f766e;
+  --accent-strong: #134e4a;
+  --accent-soft: rgba(15, 118, 110, 0.12);
+  --muted: #64748b;
 }
 
 @theme inline {
@@ -12,15 +19,115 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  min-height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 116, 144, 0.12), transparent 24%),
+    linear-gradient(180deg, #f8f4ec 0%, #eef4f3 52%, #edf2f7 100%);
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
+}
+
+.teacher-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.teacher-panel {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(16px);
+}
+
+.teacher-panel-strong {
+  background: var(--surface-strong);
+}
+
+.teacher-button-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+  box-shadow: 0 12px 24px rgba(15, 118, 110, 0.2);
+}
+
+.teacher-button-secondary {
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--foreground);
+}
+
+.teacher-chip {
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.teacher-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.teacher-muted {
+  color: var(--muted);
+}
+
+.teacher-metric {
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.82) 100%);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.teacher-grid-table thead {
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.teacher-grid-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.teacher-login-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.teacher-login-hero::before {
+  content: "";
+  position: absolute;
+  inset: -25% auto auto -10%;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.18);
+  filter: blur(24px);
+}
+
+.teacher-login-hero::after {
+  content: "";
+  position: absolute;
+  right: -4rem;
+  bottom: -5rem;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.16);
+  filter: blur(26px);
+}
+
+.teacher-login-hero > * {
+  position: relative;
+  z-index: 1;
 }

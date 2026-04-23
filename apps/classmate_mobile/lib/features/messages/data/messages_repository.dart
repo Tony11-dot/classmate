@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/env.dart';
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../domain/message_thread_models.dart';
@@ -85,11 +86,7 @@ class ApiMessagesRepository implements MessagesRepository {
   ApiMessagesRepository({http.Client? client, String? baseUrl, String? token})
     : _client = client ?? http.Client(),
       _baseUrl =
-          (baseUrl ??
-                  const String.fromEnvironment(
-                    'CM_API_BASE_URL',
-                    defaultValue: 'http://127.0.0.1:3001/api',
-                  ))
+          (baseUrl ?? Env.apiBaseUrl)
               .replaceAll(RegExp(r'/$'), ''),
       _token = (token ?? '').trim();
 
@@ -97,8 +94,13 @@ class ApiMessagesRepository implements MessagesRepository {
   final String _baseUrl;
   final String _token;
 
+  List<String> get _baseCandidates {
+    final fallback = Env.stripApiSuffix(_baseUrl).replaceAll(RegExp(r'/$'), '');
+    if (fallback == _baseUrl) return <String>[_baseUrl];
+    return <String>[_baseUrl, fallback];
+  }
+
   static const _timeout = Duration(seconds: 15);
-  static const _devStudentToken = 'dev-token-student@classmate.local';
 
   Future<String> _readToken() async {
     if (_token.isNotEmpty && _token != 'SIM_TOKEN') return _token;
@@ -119,12 +121,33 @@ class ApiMessagesRepository implements MessagesRepository {
       if (value.isNotEmpty && value != 'SIM_TOKEN') return value;
     }
 
-    return _devStudentToken;
+    return '';
+  }
+
+  Uri _uriWithBase(String base, String path) {
+    final clean = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$base$clean');
   }
 
   Uri _uri(String path) {
-    final clean = path.startsWith('/') ? path : '/$path';
-    return Uri.parse('$_baseUrl$clean');
+    return _uriWithBase(_baseUrl, path);
+  }
+
+  Future<http.Response> _sendWithFallback(
+    Future<http.Response> Function(Uri uri) send,
+    String path,
+  ) async {
+    late http.Response lastResponse;
+
+    for (var index = 0; index < _baseCandidates.length; index++) {
+      final uri = _uriWithBase(_baseCandidates[index], path);
+      lastResponse = await send(uri).timeout(_timeout);
+      if (lastResponse.statusCode != 404 || index == _baseCandidates.length - 1) {
+        return lastResponse;
+      }
+    }
+
+    return lastResponse;
   }
 
   Future<Map<String, String>> _headers() async {
@@ -132,7 +155,7 @@ class ApiMessagesRepository implements MessagesRepository {
     return <String, String>{
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
   }
 
@@ -208,11 +231,18 @@ class ApiMessagesRepository implements MessagesRepository {
     return formatChatTime12(dt);
   }
 
+  String _normalizeInitials(String raw) =>
+      raw.replaceAll(',', '').replaceAll(' ', '').trim().toUpperCase();
+
   ChatRequestState _requestState(String raw) {
-    switch (raw.trim().toUpperCase()) {
+    final value = raw.trim();
+    final upper = value.toUpperCase();
+    switch (upper) {
       case 'PENDING_INCOMING':
+      case 'PENDINGINCOMING':
         return ChatRequestState.pendingIncoming;
       case 'PENDING_OUTGOING':
+      case 'PENDINGOUTGOING':
         return ChatRequestState.pendingOutgoing;
       case 'APPROVED':
         return ChatRequestState.approved;
@@ -220,6 +250,11 @@ class ApiMessagesRepository implements MessagesRepository {
         return ChatRequestState.blocked;
       case 'NONE':
       default:
+        if (value == 'pendingIncoming') return ChatRequestState.pendingIncoming;
+        if (value == 'pendingOutgoing') return ChatRequestState.pendingOutgoing;
+        if (value == 'approved') return ChatRequestState.approved;
+        if (value == 'blocked') return ChatRequestState.blocked;
+        if (value == 'none') return ChatRequestState.none;
         return ChatRequestState.none;
     }
   }
@@ -277,7 +312,7 @@ class ApiMessagesRepository implements MessagesRepository {
       ),
       lastMessageAtRaw: rawLastMessageAt,
       requestState: _requestState((json['requestState'] ?? '').toString()),
-      initials: (json['initials'] ?? '').toString(),
+      initials: _normalizeInitials((json['initials'] ?? '').toString()),
       groupAvatarUrl: (json['groupAvatarUrl'] ?? '').toString().trim().isEmpty
           ? null
           : (json['groupAvatarUrl'] ?? '').toString().trim(),
@@ -288,7 +323,7 @@ class ApiMessagesRepository implements MessagesRepository {
     return MessageParticipant(
       userId: (json['userId'] ?? '').toString(),
       displayName: (json['displayName'] ?? '').toString(),
-      initials: (json['initials'] ?? '').toString(),
+      initials: _normalizeInitials((json['initials'] ?? '').toString()),
       isAdmin: (json['isAdmin'] ?? false) == true,
       isBlocked: (json['isBlocked'] ?? false) == true,
     );
@@ -296,10 +331,10 @@ class ApiMessagesRepository implements MessagesRepository {
 
   MessageDirectoryPerson _directoryPersonFromJson(Map<String, dynamic> json) {
     final displayName = (json['displayName'] ?? json['name'] ?? '').toString().trim();
-    final initials = (json['initials'] ?? '').toString().trim();
+    final initials = _normalizeInitials((json['initials'] ?? '').toString());
     return MessageDirectoryPerson(
       userId: (json['userId'] ?? json['id'] ?? '').toString(),
-      displayName: displayName.isEmpty ? 'Student' : displayName,
+      displayName: displayName.isEmpty ? 'Person' : displayName,
       initials: initials.isNotEmpty
           ? initials
           : displayName
@@ -436,9 +471,10 @@ class ApiMessagesRepository implements MessagesRepository {
 
   @override
   Future<List<MessageThreadSummary>> fetchInbox() async {
-    final response = await _client
-        .get(_uri('/messages/inbox'), headers: await _headers())
-        .timeout(_timeout);
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/inbox',
+    );
 
     if (!_ok(response)) _fail('messages.fetchInbox', response);
 
@@ -452,9 +488,10 @@ class ApiMessagesRepository implements MessagesRepository {
 
   @override
   Future<MessageThreadDetail> fetchThread({required String threadId}) async {
-    final response = await _client
-        .get(_uri('/messages/threads/$threadId'), headers: await _headers())
-        .timeout(_timeout);
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/threads/$threadId',
+    );
 
     if (!_ok(response)) _fail('messages.fetchThread', response);
 
@@ -464,9 +501,10 @@ class ApiMessagesRepository implements MessagesRepository {
 
   @override
   Future<MessageThreadDetail> fetchRequest({required String threadId}) async {
-    final response = await _client
-        .get(_uri('/messages/requests/$threadId'), headers: await _headers())
-        .timeout(_timeout);
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/requests/$threadId',
+    );
 
     if (!_ok(response)) _fail('messages.fetchRequest', response);
 
@@ -476,9 +514,10 @@ class ApiMessagesRepository implements MessagesRepository {
 
   @override
   Future<List<MessageDirectoryPerson>> fetchSameSchoolPeople() async {
-    final response = await _client
-        .get(_uri('/messages/people/same-school'), headers: await _headers())
-        .timeout(_timeout);
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/people/same-school',
+    );
 
     if (!_ok(response)) _fail('messages.fetchSameSchoolPeople', response);
 
@@ -495,16 +534,17 @@ class ApiMessagesRepository implements MessagesRepository {
     required String recipientUserId,
     required String firstMessage,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/requests/direct'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'recipientUserId': recipientUserId,
-            if (firstMessage.trim().isNotEmpty) 'firstMessage': firstMessage.trim(),
-          }),
-        )
-        .timeout(_timeout);
+    final response = await _sendWithFallback(
+      (uri) async => _client.post(
+        uri,
+        headers: await _headers(),
+        body: jsonEncode(<String, dynamic>{
+          'recipientUserId': recipientUserId,
+          if (firstMessage.trim().isNotEmpty) 'firstMessage': firstMessage.trim(),
+        }),
+      ),
+      '/messages/requests/direct',
+    );
 
     if (!_ok(response)) _fail('messages.createDirectRequest', response);
 

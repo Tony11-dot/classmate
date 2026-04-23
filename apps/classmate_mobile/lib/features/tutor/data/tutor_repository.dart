@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 import 'sse_client.dart';
 
@@ -48,12 +50,6 @@ class TutorRepository {
     return <String, String>{
       'Content-Type': 'application/json',
       if (hasToken) 'Authorization': 'Bearer $token',
-      if (!hasToken) ...<String, String>{
-        'x-dev-role': 'STUDENT',
-        'x-dev-user-id': 'dev-student',
-        'x-dev-grade': '10',
-        'x-dev-school-id': 'test-school',
-      },
     };
   }
 
@@ -273,19 +269,24 @@ extension TutorRepositoryCompat on TutorRepository {
     String? text,
   }) async {
     final headers = await _headers();
+    final multipartHeaders = Map<String, String>.from(headers)
+      ..remove('Content-Type');
     final uri = _uri('/tutor/sessions/$sessionId/upload');
 
     final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(headers);
+    req.headers.addAll(multipartHeaders);
     req.fields['kind'] = 'IMAGE';
     if ((text ?? '').trim().isNotEmpty) {
       req.fields['text'] = text!.trim();
     }
+    final imageMime = lookupMimeType(path) ?? 'image/jpeg';
+    req.fields['mimeType'] = imageMime;
     req.files.add(
       await http.MultipartFile.fromPath(
         'file',
         path,
         filename: path.split('/').last,
+        contentType: MediaType.parse(imageMime),
       ),
     );
 
@@ -303,19 +304,24 @@ extension TutorRepositoryCompat on TutorRepository {
     String? text,
   }) async {
     final headers = await _headers();
+    final multipartHeaders = Map<String, String>.from(headers)
+      ..remove('Content-Type');
     final uri = _uri('/tutor/sessions/$sessionId/upload');
 
     final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(headers);
+    req.headers.addAll(multipartHeaders);
     req.fields['kind'] = 'FILE';
     if ((text ?? '').trim().isNotEmpty) {
       req.fields['text'] = text!.trim();
     }
+    final fileMime = lookupMimeType(path) ?? 'application/octet-stream';
+    req.fields['mimeType'] = fileMime;
     req.files.add(
       await http.MultipartFile.fromPath(
         'file',
         path,
         filename: path.split('/').last,
+        contentType: MediaType.parse(fileMime),
       ),
     );
 
@@ -331,10 +337,12 @@ extension TutorRepositoryCompat on TutorRepository {
     required String path,
   }) async {
     final headers = await _headers();
+    final multipartHeaders = Map<String, String>.from(headers)
+      ..remove('Content-Type');
     final uri = _uri('/tutor/transcribe');
 
     final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(headers);
+    req.headers.addAll(multipartHeaders);
     req.files.add(
       await http.MultipartFile.fromPath(
         'file',
@@ -356,5 +364,40 @@ extension TutorRepositoryCompat on TutorRepository {
       return text?.toString().trim() ?? '';
     }
     return '';
+  }
+
+  Future<List<String>> fetchFollowupSuggestions({
+    required String sessionId,
+    required String userMessage,
+    required String assistantMessage,
+  }) async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/sessions/$sessionId/followup-suggestions');
+
+    try {
+      final res = await http
+          .post(
+            uri,
+            headers: headers,
+            body: json.encode({
+              'userMessage': userMessage,
+              'assistantMessage': assistantMessage,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (!_isOk(res)) return const [];
+      final decoded = json.decode(res.body);
+      if (decoded is Map<String, dynamic> && decoded['suggestions'] is List) {
+        return (decoded['suggestions'] as List)
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .take(3)
+            .toList(growable: false);
+      }
+      return const [];
+    } catch (_) {
+      return const [];
+    }
   }
 }

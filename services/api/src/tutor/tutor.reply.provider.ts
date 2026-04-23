@@ -1,4 +1,4 @@
-import { getOpenAIClient } from './providers/openai.provider';
+import { getAnthropicClient } from './providers/openai.provider';
 
 function buildTonyFacts(now = new Date()): string {
   // Changeover: from "starting in Oct" -> "student at Technion"
@@ -44,19 +44,16 @@ ${buildTonyFacts(now)}
   - Keep answers concise, natural, and helpful first. Then expand only when needed.
   - Never say "Bagrut level only" unless the user explicitly asked for that mode.
 
-- Use inline LaTeX for formulas when useful, wrapped in $...$.
-- For algebra, powers, fractions, roots, inequalities, and symbolic steps, always prefer LaTeX output over plain ASCII.
-- For fractions, roots, powers, limits, integrals, matrices, vectors, and symbolic math, prefer LaTeX so the app can render it.
-- When giving a final formula or symbolic step, always emit LaTeX rather than plain unicode math.
-- If the latest user turn came from an image, first say what is visibly in the image, then help with the likely academic intent.
-- For normal student answers, write math in clean readable unicode/plain style exactly like:
-  V = I × R
-  I = V / R
-  R = V / I
-  4 kΩ = 4000 Ω
-  20 mA = 0.02 A
+- Always wrap ANY math in LaTeX delimiters: $...$ for inline, $$...$$ for block/display.
+- Use LaTeX for: powers ($x^{2}$), fractions ($\frac{a}{b}$), roots ($\sqrt{x}$), Greek letters ($\alpha$, $\omega$), integrals, sums, matrices, and any symbolic expression.
+- Even simple equations must be wrapped: $V = I \times R$, $E = mc^{2}$, $F = ma$.
+- NEVER write bare TeX commands (like \frac, ^, _) outside of $...$ or $$...$$ delimiters.
+- For purely numeric results with units, plain text is fine: 4 kΩ, 20 mA.
 - Prefer short titled sections instead of markdown heading spam.
-- Keep explanations classroom-readable, but emit formulas in LaTeX when math formatting matters.
+- Use clean GitHub-flavored Markdown when structure helps.
+- Use headings, paragraphs, bullet lists, numbered lists, and tables when they improve clarity.
+- Prefer meaningful section titles and comparison tables over long walls of text.
+- Keep explanations classroom-readable. Emit ALL formulas and symbols in LaTeX.
 - Keep numbers/punctuation direction correct.
 - If the user insults Tony, respond calmly and respectfully, and do not mirror profanity.
 
@@ -122,51 +119,44 @@ export async function* generateAssistantReplyStream(args: {
   displayName?: string;
   novaSettings?: string;
 }): AsyncGenerator<string> {
-  const client = getOpenAIClient();
-  const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+  const client = getAnthropicClient();
+  const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
-  // ---- ClassMate context: convert DB roles -> chat roles ----
-type CMRole = 'system' | 'user' | 'assistant';
-const history: { role: CMRole; content: string }[] = (args.messages ?? [])
-  .filter((m: any) => m && typeof (m as any).content === 'string' && String((m as any).content).trim().length)
-  .map((m: any) => {
-    const r = String((m as any).role || '').toUpperCase();
-    let role: CMRole = 'user';
-    if (r === 'ASSISTANT') role = 'assistant';
-    else if (r === 'USER') role = 'user';
-    else if (r === 'SYSTEM') role = 'system';
-    return { role, content: String((m as any).content) };
-  });
+  // ---- ClassMate context: convert DB roles -> Anthropic roles ----
+  // Anthropic only allows 'user' | 'assistant' in messages (system is top-level).
+  type CMRole = 'user' | 'assistant';
+  const history: { role: CMRole; content: string }[] = (args.messages ?? [])
+    .filter((m: any) => m && typeof (m as any).content === 'string' && String((m as any).content).trim().length)
+    .map((m: any) => {
+      const r = String((m as any).role || '').toUpperCase();
+      const role: CMRole = r === 'ASSISTANT' ? 'assistant' : 'user';
+      return { role, content: String((m as any).content) };
+    });
 
-const stream = await client.chat.completions.create({
+  // Anthropic requires messages to alternate user/assistant; ensure last entry
+  // before the final user message is not also 'user'.
+  const filteredHistory = history.filter((m) => m.role !== 'system' as any);
+
+  const systemPrompt = buildSystemPrompt(
+    `${args.system}` +
+      `\n\n=== USER CONTEXT ===\n` +
+      `- displayName: ${args.displayName ?? ''}\n` +
+      `\n=== NOVA SETTINGS (CUSTOMIZABLE) ===\n` +
+      `${args.novaSettings ?? ''}\n`,
+  );
+
+  const stream = client.messages.stream({
     model,
-    stream: true,
+    max_tokens: 4096,
+    system: systemPrompt,
     messages: [
-      {
-        role: 'system',
-        content: buildSystemPrompt(
-          `${args.system}` +
-            `
-
-=== USER CONTEXT ===
-` +
-            `- displayName: ${args.displayName ?? ''}
-` +
-            `
-=== NOVA SETTINGS (CUSTOMIZABLE) ===
-` +
-            `${args.novaSettings ?? ''}
-`,
-        ),
-      },
-      ...(history.filter((m) => m.role !== 'system') as any),
+      ...filteredHistory,
       { role: 'user', content: args.user },
     ],
-  });
+  } as any);
 
-  for await (const chunk of stream) {
-    const delta = chunk.choices?.[0]?.delta?.content;
-    if (typeof delta === 'string' && delta.length) yield delta;
+  for await (const text of stream.textStream) {
+    if (text.length) yield text;
   }
 }
 

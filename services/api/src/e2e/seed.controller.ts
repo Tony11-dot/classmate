@@ -1,13 +1,168 @@
-import { Controller, Post, Res } from '@nestjs/common';
+import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import * as bcrypt from 'bcrypt';
+import { Public } from '../auth/public.decorator';
+import { E2ESeedGuard } from './e2e-seed.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
+@Public()
 @Controller('test/seed')
 @SkipThrottle()
+@UseGuards(E2ESeedGuard)
 export class E2ESeedController {
   constructor(private readonly prisma: PrismaService) {}
+
+  @Post('parent-web')
+  async parentWeb(@Res() res: Response) {
+    const prisma: any = this.prisma;
+    const password = 'dev';
+    const hash = await bcrypt.hash(password, 10);
+    const runId = Date.now().toString(36);
+
+    try {
+      const cohort = await prisma.cohort.upsert({
+        where: { name: `Parent Web Cohort ${runId}` } as any,
+        update: { grade: 10 } as any,
+        create: { name: `Parent Web Cohort ${runId}`, grade: 10 } as any,
+      } as any);
+
+      const teacher = await prisma.user.upsert({
+        where: { email: `teacher.${runId}@classmate.app` } as any,
+        update: {
+          name: `Teacher ${runId}`,
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'TEACHER' }] },
+        } as any,
+        create: {
+          email: `teacher.${runId}@classmate.app`,
+          name: `Teacher ${runId}`,
+          password: hash,
+          roles: { create: [{ role: 'TEACHER' }] },
+        } as any,
+      } as any);
+
+      const parent = await prisma.user.upsert({
+        where: { email: `parent.${runId}@classmate.app` } as any,
+        update: {
+          name: `Parent ${runId}`,
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'PARENT' }] },
+        } as any,
+        create: {
+          email: `parent.${runId}@classmate.app`,
+          name: `Parent ${runId}`,
+          password: hash,
+          roles: { create: [{ role: 'PARENT' }] },
+        } as any,
+      } as any);
+
+      const student = await prisma.user.upsert({
+        where: { email: `student.${runId}@classmate.app` } as any,
+        update: {
+          name: `Student ${runId}`,
+          password: hash,
+          roles: { deleteMany: {}, create: [{ role: 'STUDENT' }] },
+        } as any,
+        create: {
+          email: `student.${runId}@classmate.app`,
+          name: `Student ${runId}`,
+          password: hash,
+          roles: { create: [{ role: 'STUDENT' }] },
+        } as any,
+      } as any);
+
+      await prisma.studentProfile.upsert({
+        where: { userId: student.id } as any,
+        update: { cohortId: cohort.id, englishLevel: 4, mathLevel: 4 } as any,
+        create: {
+          userId: student.id,
+          cohortId: cohort.id,
+          englishLevel: 4,
+          mathLevel: 4,
+        } as any,
+      } as any);
+
+      await prisma.parentChild.upsert({
+        where: {
+          parentId_childId: {
+            parentId: parent.id,
+            childId: student.id,
+          },
+        } as any,
+        update: { status: 'APPROVED' } as any,
+        create: {
+          parentId: parent.id,
+          childId: student.id,
+          status: 'APPROVED',
+        } as any,
+      } as any);
+
+      const course = await prisma.course.upsert({
+        where: { id: `parent-web-course-${runId}` } as any,
+        update: {
+          name: `Parent Web Course ${runId}`,
+          subject: 'Mathematics',
+          teacherId: teacher.id,
+          cohortId: cohort.id,
+        } as any,
+        create: {
+          id: `parent-web-course-${runId}`,
+          name: `Parent Web Course ${runId}`,
+          subject: 'Mathematics',
+          teacherId: teacher.id,
+          cohortId: cohort.id,
+        } as any,
+      } as any);
+
+      await prisma.enrollment.upsert({
+        where: {
+          courseId_studentId: {
+            courseId: course.id,
+            studentId: student.id,
+          },
+        } as any,
+        update: {} as any,
+        create: {
+          courseId: course.id,
+          studentId: student.id,
+        } as any,
+      } as any);
+
+      await prisma.parentNotification.createMany({
+        data: [
+          {
+            parentId: parent.id,
+            studentId: student.id,
+            type: 'GRADE_POSTED',
+            title: `Grade posted for ${student.name}`,
+            message: 'A new grade is available to review.',
+            data: { courseId: course.id, course: { id: course.id, name: course.name } },
+          },
+          {
+            parentId: parent.id,
+            studentId: student.id,
+            type: 'ATTENDANCE_ALERT',
+            title: `Attendance update for ${student.name}`,
+            message: 'Attendance needs your attention.',
+            data: { courseId: course.id, course: { id: course.id, name: course.name } },
+          },
+        ],
+        skipDuplicates: false,
+      } as any);
+
+      return res.status(201).json({
+        ok: true,
+        email: parent.email,
+        password,
+        parentId: parent.id,
+        studentId: student.id,
+        courseId: course.id,
+      });
+    } catch (e: any) {
+      return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
+    }
+  }
 
   @Post('admin-web')
   async adminWeb(@Res() res: Response) {

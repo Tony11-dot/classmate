@@ -40,6 +40,7 @@ import { NovaModule } from './nova/nova.module';
 import { PracticeModule } from './practice/practice.module';
 import { E2ESeedController } from './e2e/seed.controller';
 import { MessagesModule } from './messages/messages.module';
+import { FormsModule } from './forms/forms.module';
 
 const env = loadEnv();
 
@@ -64,14 +65,13 @@ const serveStatic =
 
 const seedControllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),
-  ...(env.NODE_ENV !== 'production' && env.ENABLE_E2E_SEED
-    ? [E2ESeedController]
-    : []),
+  ...(env.NODE_ENV !== 'production' ? [E2ESeedController] : []),
 ];
 
 @Module({
   imports: [
     MessagesModule,
+    FormsModule,
     ...serveStatic,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
     HealthModule,

@@ -10,6 +10,8 @@ import { clampTime, fillOptionsWithSafeFallback, rotateBySeed, uniqueFirst } fro
 
 @Injectable()
 export class PhysicsMomentumDeterministicEngine implements PracticeEngine {
+  readonly supportedModes = ['practice', 'flashcards', 'speedRound', 'examPrep', 'conceptBuilder', 'adaptive'] as const;
+
   supports(req: PracticeEngineRequest): boolean {
     const s = req.subject.toLowerCase().trim();
     const t = `${req.topicLabel} ${req.topicPathText} ${req.strictPromptSummary}`

@@ -4,11 +4,13 @@ describe('PracticeService settings fidelity', () => {
   const engineRegistry = {
     generate: jest.fn(async (req) =>
       Array.from({ length: req.questionCount }, (_, i) => ({
-        prompt: `Question ${i + 1}`,
+        prompt: `Question ${i + 1} about ${req.topicLabel} with enough detail to remain classroom-valid.`,
         options: ['A', 'B', 'C', 'D'],
         correctIndex: 2,
-        explanation: `Explanation ${i + 1}`,
+        correctAnswerText: 'C',
+        explanation: `Explanation ${i + 1} for ${req.topicLabel} with a complete, classroom-valid justification.`,
         recommendedTimeSeconds: req.timePreferenceSeconds ?? 30,
+        topicMatchNote: req.topicLabel,
       })),
     ),
   };
@@ -29,7 +31,7 @@ describe('PracticeService settings fidelity', () => {
       timePreferenceSeconds: 77,
       maxLives: 2,
       useAiTiming: false,
-      strictPromptSummary: 'kinetic energy only',
+      strictPromptSummary: 'Topic: kinetic energy only',
       topicPath: ['Physics', 'Energy'],
       topicPathText: 'Physics > Energy',
     });
@@ -88,5 +90,30 @@ describe('PracticeService settings fidelity', () => {
         questionCount: 20,
       }),
     );
+  });
+
+  it('routes language basics custom topics through deterministic generation', async () => {
+    const res = await service.generate({
+      subject: 'Computer Science',
+      topicLabel: 'c# basics',
+      difficulty: 'olympiad',
+      mode: 'practice',
+      questionCount: 10,
+    });
+
+    expect(engineRegistry.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subject: 'Computer Science',
+        topicLabel: 'c# basics',
+        topicPathText: 'c# basics',
+        difficulty: 'olympiad',
+        questionCount: 10,
+      }),
+    );
+
+    expect(res.questions).toHaveLength(10);
+    expect(
+      res.questions.every((q: any) => q.topicLabel === 'c# basics'),
+    ).toBe(true);
   });
 });

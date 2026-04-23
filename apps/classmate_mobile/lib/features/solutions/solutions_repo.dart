@@ -11,14 +11,12 @@ import '../../core/config/env.dart';
 import '../../core/http/cm_api.dart';
 import 'solution_model.dart';
 import 'solutions_filters.dart';
-
-const _devStudentToken = 'dev-token-student@classmate.local';
 const _devAdminToken = 'dev-token-admin@classmate.local';
 
 final solutionsRepoProvider = Provider<SolutionsRepo>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
-  return SolutionsRepo(token: token.isEmpty ? _devStudentToken : token);
+  return SolutionsRepo(token: token);
 });
 
 class SolutionsRepo {
@@ -97,7 +95,7 @@ class SolutionsRepo {
   }) async {
     final authToken = forceStaffDevToken
         ? _devAdminToken
-        : (token ?? _devStudentToken);
+        : (token ?? '');
 
     final base = Uri.parse(Env.apiBaseUrl);
     final normalizedBasePath = base.path.endsWith('/')

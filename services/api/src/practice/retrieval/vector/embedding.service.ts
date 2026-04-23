@@ -1,16 +1,19 @@
-import OpenAI from 'openai';
+// Uses local @xenova/transformers model — no API key required.
+let _pipeline: any = null;
+
+async function getEmbeddingPipeline() {
+  if (_pipeline) return _pipeline;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { pipeline } = await import('@xenova/transformers');
+  _pipeline = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+  return _pipeline;
+}
 
 export class EmbeddingService {
-  private client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
   async embed(text: string): Promise<number[]> {
-    const res = await this.client.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: text,
-    });
-
-    return res.data[0].embedding;
+    const pipe = await getEmbeddingPipeline();
+    const output = await pipe(text, { pooling: 'mean', normalize: true });
+    // output.data is a Float32Array
+    return Array.from(output.data as Float32Array);
   }
 }

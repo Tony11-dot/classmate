@@ -45,17 +45,12 @@ export default function DashboardPage() {
       const presentPct = total ? Math.round((present / total) * 100) : null;
 
       const grades = gradesResp?.grades ?? gradesResp ?? [];
-      const scored = grades.filter(
-        (g: any) =>
-          typeof g.score === 'number' &&
-          typeof g.maxScore === 'number' &&
-          g.maxScore > 0
-      );
+      const scored = grades.filter((g: any) => typeof g.grade === 'number');
 
       const avg = scored.length
         ? Math.round(
             scored.reduce(
-              (a: number, g: any) => a + (g.score / g.maxScore) * 100,
+              (a: number, g: any) => a + g.grade,
               0
             ) / scored.length
           )

@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_session.dart';
 import '../data/messages_repository.dart';
 import '../domain/message_thread_models.dart';
 
 final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
-  return ApiMessagesRepository();
+  final session = ref.watch(authSessionProvider);
+  return ApiMessagesRepository(token: session.token ?? '');
 });
 
 final messagesInboxProvider = FutureProvider<List<MessageThreadSummary>>((ref) {

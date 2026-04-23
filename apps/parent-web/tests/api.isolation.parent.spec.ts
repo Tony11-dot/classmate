@@ -1,7 +1,6 @@
 import { test, expect, request as pwRequest } from '@playwright/test';
 
-const API_BASE = (process.env.E2E_API_BASE_URL ?? process.env.E2E_API_BASE ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
-const API = `${API_BASE}/api`;
+const API = (process.env.E2E_API_BASE_URL ?? process.env.E2E_API_BASE ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:3001').replace(/\/api\/?$/, '');
 
 async function seedAndLogin() {
   const ctx = await pwRequest.newContext();

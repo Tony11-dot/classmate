@@ -5,6 +5,7 @@
     "allowJs": false,
     "noEmit": true,
     "moduleResolution": "Bundler",
+    "ignoreDeprecations": "5.0",
     "types": [
       "node"
     ],

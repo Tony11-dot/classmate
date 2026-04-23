@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../models/chat_message_info.dart';
 
 class ChatMessageInfoPage extends StatelessWidget {
@@ -26,14 +27,15 @@ class ChatMessageInfoPage extends StatelessWidget {
   final List<String> seenByNames;
   final List<String> deliveredToNames;
 
-  String _statusLabel() {
+  String _statusLabel(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final deleteState = info.deleteState.trim().toUpperCase();
     if (deleteState.isNotEmpty && deleteState != 'VISIBLE') {
       return info.deleteState.trim();
     }
-    if (info.seen) return 'Seen';
-    if (info.delivered) return 'Delivered';
-    return 'Not delivered';
+    if (info.seen) return l.chatMessageInfoSeen;
+    if (info.delivered) return l.chatMessageInfoDelivered;
+    return l.chatMessageInfoNotDelivered;
   }
 
   String _statusTime() {
@@ -46,6 +48,7 @@ class ChatMessageInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
@@ -68,7 +71,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  value.trim().isEmpty ? '—' : value.trim(),
+                  value.trim().isEmpty ? l.profileEmptyValue : value.trim(),
                   style: text.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -179,7 +182,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Info',
+                      l.chatMessageInfoShortTitle,
                       textAlign: TextAlign.center,
                       style: text.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -226,26 +229,26 @@ class ChatMessageInfoPage extends StatelessWidget {
                                 children: [
                                   factRow(
                                     Icons.schedule_rounded,
-                                    'Status',
-                                    _statusLabel(),
+                                    l.chatMessageInfoStatus,
+                                    _statusLabel(context),
                                   ),
                                   const SizedBox(height: 14),
                                   factRow(
                                     Icons.access_time_rounded,
-                                    'Status time',
+                                    l.chatMessageInfoStatusTime,
                                     _statusTime(),
                                   ),
                                   const SizedBox(height: 14),
                                   factRow(
                                     Icons.send_rounded,
-                                    'Sent at',
+                                    l.chatMessageInfoSentAt,
                                     info.sentAt.trim(),
                                   ),
                                   if (info.deliveredAt.trim().isNotEmpty) ...[
                                     const SizedBox(height: 14),
                                     factRow(
                                       Icons.done_rounded,
-                                      'Delivered at',
+                                      l.chatMessageInfoDeliveredAt,
                                       info.deliveredAt.trim(),
                                     ),
                                   ],
@@ -253,35 +256,39 @@ class ChatMessageInfoPage extends StatelessWidget {
                                     const SizedBox(height: 14),
                                     factRow(
                                       Icons.done_all_rounded,
-                                      'Seen at',
+                                      l.chatMessageInfoSeenAt,
                                       info.seenAt.trim(),
                                     ),
                                   ],
                                   const SizedBox(height: 14),
                                   factRow(
                                     Icons.category_rounded,
-                                    'Message type',
+                                    l.chatMessageInfoMessageType,
                                     info.messageType.trim().isEmpty
-                                        ? 'Text'
+                                        ? l.chatMessageInfoTextType
                                         : info.messageType.trim(),
                                   ),
                                   const SizedBox(height: 14),
                                   factRow(
                                     Icons.edit_rounded,
-                                    'Edited',
-                                    info.edited ? 'Yes' : 'No',
+                                    l.chatMessageInfoEdited,
+                                    info.edited
+                                        ? l.chatMessageInfoYes
+                                        : l.chatMessageInfoNo,
                                   ),
                                   const SizedBox(height: 14),
                                   factRow(
                                     Icons.forward_rounded,
-                                    'Forwarded',
-                                    info.forwarded ? 'Yes' : 'No',
+                                    l.chatMessageInfoForwarded,
+                                    info.forwarded
+                                        ? l.chatMessageInfoYes
+                                        : l.chatMessageInfoNo,
                                   ),
                                   if (info.voiceDuration.trim().isNotEmpty) ...[
                                     const SizedBox(height: 14),
                                     factRow(
                                       Icons.mic_rounded,
-                                      'Voice duration',
+                                      l.chatMessageInfoVoiceDuration,
                                       info.voiceDuration.trim(),
                                     ),
                                   ],
@@ -291,7 +298,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                             if (seenByNames.isNotEmpty) ...[
                               const SizedBox(height: 14),
                               peopleCard(
-                                'Seen by',
+                                l.chatMessageInfoSeenBy,
                                 seenByNames,
                                 icon: Icons.visibility_rounded,
                               ),
@@ -299,7 +306,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                             if (deliveredToNames.isNotEmpty) ...[
                               const SizedBox(height: 14),
                               peopleCard(
-                                'Delivered to',
+                                l.chatMessageInfoDeliveredTo,
                                 deliveredToNames,
                                 icon: Icons.mark_email_read_rounded,
                               ),
@@ -342,10 +349,13 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final body = widget.body.trim().isEmpty ? '(empty)' : widget.body.trim();
+    final body = widget.body.trim().isEmpty
+        ? l.chatMessageInfoEmptyBody
+        : widget.body.trim();
     final shouldTruncate = body.length > _truncateAt;
     final visibleText = shouldTruncate && !_expanded
         ? '${body.substring(0, _truncateAt).trimRight()}…'
@@ -415,7 +425,9 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
                     horizontal: 2,
                   ),
                   child: Text(
-                    _expanded ? 'Read less' : 'Read more',
+                    _expanded
+                        ? l.chatMessageInfoReadLess
+                        : l.chatMessageInfoReadMore,
                     style: text.labelMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: scheme.primary,

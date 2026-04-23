@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../ui/glass/liquid_glass_card.dart';
 import '../insights/providers/insights_providers.dart';
 
 class AlertsScreen extends ConsumerWidget {
@@ -10,6 +12,7 @@ class AlertsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(unifiedStudentInsightsProvider);
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -20,33 +23,34 @@ class AlertsScreen extends ConsumerWidget {
             _AlertCard(
               tone: _AlertTone.warning,
               icon: Icons.warning_amber_rounded,
-              title: 'Attendance needs attention',
-              body:
-                  'Your attendance rate is ${data!.attendance.attendanceRate!.toStringAsFixed(1)}%. A couple of missed lessons can snowball fast.',
+              title: l.alertsAttendanceTitle,
+              body: l.alertsAttendanceBody(
+                data!.attendance.attendanceRate!.toStringAsFixed(1),
+              ),
             ),
           if ((data?.grades.weakestSubject ?? '').trim().isNotEmpty)
             _AlertCard(
               tone: _AlertTone.focus,
               icon: Icons.flag_rounded,
-              title: 'Weakest subject signal',
-              body:
-                  '${data!.grades.weakestSubject} currently needs the most attention based on your latest grades.',
+              title: l.alertsWeakestSubjectTitle,
+              body: l.alertsWeakestSubjectBody(data!.grades.weakestSubject!),
             ),
           if (data?.practice.weakTopics.isNotEmpty == true)
             _AlertCard(
               tone: _AlertTone.focus,
               icon: Icons.psychology_rounded,
-              title: 'Practice weak area',
-              body:
-                  '${data!.practice.weakTopics.first.topicLabel} in ${data.practice.weakTopics.first.subject} is the clearest weak topic right now.',
+              title: l.alertsPracticeWeakAreaTitle,
+              body: l.alertsPracticeWeakAreaBody(
+                data!.practice.weakTopics.first.topicLabel,
+                data.practice.weakTopics.first.subject,
+              ),
             ),
           if ((data?.practice.trend?.deltaAccuracy ?? 0) < -5)
             _AlertCard(
               tone: _AlertTone.warning,
               icon: Icons.trending_down_rounded,
-              title: 'Practice trend dropped',
-              body:
-                  'Your 7d performance is below your 30d baseline. Slow down and revisit fundamentals before pushing harder.',
+              title: l.alertsPracticeTrendDroppedTitle,
+              body: l.alertsPracticeTrendDroppedBody,
             ),
         ];
 
@@ -55,32 +59,31 @@ class AlertsScreen extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
-            Container(
+            LiquidGlassCard(
               padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    cs.errorContainer.withValues(alpha: 0.86),
-                    cs.tertiaryContainer.withValues(alpha: 0.66),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(26),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.22),
-                ),
+              borderRadius: BorderRadius.circular(26),
+              blurSigma: 18,
+              gradient: LinearGradient(
+                colors: [
+                  cs.errorContainer.withValues(alpha: 0.86),
+                  cs.tertiaryContainer.withValues(alpha: 0.66),
+                ],
+              ),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.22),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Alerts',
+                    l.alertsTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'This is the page for things that need attention now, not just general updates.',
+                    l.alertsSubtitle,
                     style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
                   ),
                 ],
@@ -88,9 +91,8 @@ class AlertsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (cards.isEmpty)
-              const _EmptyBody(
-                message:
-                    'You’re clear right now. When something needs urgent attention, it’ll show up here.',
+              _EmptyBody(
+                message: l.alertsEmpty,
               )
             else
               ...cards.map(
@@ -134,11 +136,13 @@ class _AlertCardView extends StatelessWidget {
         ? cs.errorContainer.withValues(alpha: 0.72)
         : cs.primaryContainer.withValues(alpha: 0.72);
 
-    return Container(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20),
+      blurSigma: 12,
+      color: bg,
+      border: Border.all(
+        color: cs.outlineVariant.withValues(alpha: 0.16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,12 +183,13 @@ class _EmptyBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(18),
+      blurSigma: 10,
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+      border: Border.all(
+        color: cs.outlineVariant.withValues(alpha: 0.16),
       ),
       child: Text(
         message,

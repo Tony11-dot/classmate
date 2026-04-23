@@ -1,11 +1,11 @@
 {
-    "name": "classmate_mobile",
-    "short_name": "classmate_mobile",
+    "name": "ClassMate",
+    "short_name": "ClassMate",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "ClassMate mobile app for students, teachers, and parents.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

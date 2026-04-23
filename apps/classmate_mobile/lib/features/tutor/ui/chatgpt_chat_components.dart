@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
+import '../../../ui/glass/liquid_glass_card.dart';
+
 bool _isRtlText(String s) {
   // Arabic + Hebrew ranges (broad)
   final rtl = RegExp(r'[\u0590-\u08FF]');
@@ -122,44 +125,45 @@ class ChatGptBubble extends StatelessWidget {
         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxW),
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: bg,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: LiquidGlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(18),
                 topRight: const Radius.circular(18),
                 bottomLeft: Radius.circular(isUser ? 18 : 6),
                 bottomRight: Radius.circular(isUser ? 6 : 18),
               ),
+              blurSigma: 10,
+              color: bg,
               border: Border.all(color: border, width: 1),
-            ),
-            child: Column(
-              crossAxisAlignment: isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!isUser)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: _bidiText(
-                      context,
-                      'NOVA',
-                      theme.textTheme.labelSmall?.copyWith(
-                        letterSpacing: 1.2,
-                        fontWeight: FontWeight.w700,
-                        color: cs.onSurface.withValues(alpha: 0.65),
+              child: Column(
+                crossAxisAlignment: isUser
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!isUser)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: _bidiText(
+                        context,
+                        AppLocalizations.of(context)!.titleNova,
+                        theme.textTheme.labelSmall?.copyWith(
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w700,
+                          color: cs.onSurface.withValues(alpha: 0.65),
+                        ),
                       ),
                     ),
+                  _bidiText(
+                    context,
+                    text,
+                    theme.textTheme.bodyMedium?.copyWith(height: 1.25),
                   ),
-                _bidiText(
-                  context,
-                  text,
-                  theme.textTheme.bodyMedium?.copyWith(height: 1.25),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -174,7 +178,7 @@ class ChatGptComposer extends StatelessWidget {
     required this.controller,
     required this.onSend,
     this.enabled = true,
-    this.hintText = 'Message NOVA…',
+    this.hintText,
     this.isSending = false,
   });
 
@@ -182,24 +186,25 @@ class ChatGptComposer extends StatelessWidget {
   final VoidCallback onSend;
   final bool enabled;
   final bool isSending;
-  final String hintText;
+  final String? hintText;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final effectiveHint =
+        hintText ?? AppLocalizations.of(context)!.tutorMessageNovaHint;
 
     return Align(
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 760),
-        child: Container(
+        child: LiquidGlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: theme.colorScheme.surface.withValues(alpha: 0.55),
-            border: Border.all(
-              color: theme.dividerColor.withValues(alpha: 0.35),
-            ),
+          borderRadius: BorderRadius.circular(18),
+          blurSigma: 12,
+          color: theme.colorScheme.surface.withValues(alpha: 0.55),
+          border: Border.all(
+            color: theme.dividerColor.withValues(alpha: 0.35),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -211,11 +216,11 @@ class ChatGptComposer extends StatelessWidget {
                   minLines: 1,
                   maxLines: 6,
                   textInputAction: TextInputAction.newline,
-                  decoration: const InputDecoration(
-                    hintText: 'Message NOVA…',
+                  decoration: InputDecoration(
+                    hintText: effectiveHint,
                     border: InputBorder.none,
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 6,
                       vertical: 10,
                     ),

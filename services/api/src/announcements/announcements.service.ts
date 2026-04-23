@@ -22,8 +22,8 @@ export class AnnouncementsService {
 
   private ensureCanPost(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['ADMIN','SECRETARY'])) {
-      throw new ForbiddenException('Admin/Secretary only');
+    if (!hasAnyRole({ roles }, ['ADMIN', 'SECRETARY', 'TEACHER'])) {
+      throw new ForbiddenException('Admin/Secretary/Teacher only');
     }
   }
 

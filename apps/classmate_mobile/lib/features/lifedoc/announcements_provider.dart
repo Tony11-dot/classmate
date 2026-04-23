@@ -1,8 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/auth/auth_controller.dart';
+import '../../core/http/cm_api.dart';
 import '../insights/providers/insights_providers.dart';
 import '../solutions/providers/solutions_flow_provider.dart';
 import 'announcements_models.dart';
+
+final announcementsApiProvider = Provider<StudentAnnouncementsApi>((ref) {
+  final session = ref.watch(authSessionProvider);
+  final token = (session.token ?? '').trim();
+  return StudentAnnouncementsApi(token: token);
+});
+
+final publishedAnnouncementsProvider =
+    FutureProvider.autoDispose<List<AnnouncementItem>>((ref) async {
+      final api = ref.watch(announcementsApiProvider);
+      return api.feed();
+    });
 
 final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   final unified = ref
@@ -136,3 +150,43 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
   return list;
 });
+
+class StudentAnnouncementsApi {
+  const StudentAnnouncementsApi({this.token = ''});
+
+  final String token;
+
+  CMApi get _api => CMApi(token: token);
+
+  Future<List<AnnouncementItem>> feed({int take = 50}) async {
+    final raw = await _api.getJson(
+      '/announcements/feed',
+      query: <String, String>{'take': '$take'},
+    );
+
+    final list = raw is Map && raw['announcements'] is List
+        ? raw['announcements'] as List
+        : const <dynamic>[];
+
+    return list.whereType<Map>().map((item) {
+      final map = item.map((k, v) => MapEntry(k.toString(), v));
+      final createdAt = DateTime.tryParse(
+            '${map['publishAt'] ?? map['createdAt'] ?? ''}',
+          ) ??
+          DateTime.now();
+      final body = (map['body'] ?? '').toString().trim();
+
+      return AnnouncementItem(
+        id: '${map['id'] ?? ''}',
+        title: '${map['title'] ?? 'Announcement'}',
+        body: body.isEmpty ? 'No additional details were attached.' : body,
+        severity: map['pinned'] == true
+            ? AnnouncementSeverity.warning
+            : AnnouncementSeverity.info,
+        source: 'system',
+        createdAt: createdAt,
+      );
+    }).toList(growable: false)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+}

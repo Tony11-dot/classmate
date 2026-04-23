@@ -185,6 +185,15 @@ export class TutorController {
     });
   }
 
+  @Post('sessions/:id/followup-suggestions')
+  generateFollowupSuggestions(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.svc.generateFollowupSuggestions(req.user, String(id), body);
+  }
+
   @Post('sessions/:sessionId/upload')
   @UseInterceptors(
     FileInterceptor('file', {

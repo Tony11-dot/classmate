@@ -12,7 +12,9 @@ import { DedupService } from '../common/dedup/dedup.service';
 import { resolveCanonicalPracticeSubject } from './catalog/practice-subject-catalog';
 import {
   resolveCanonicalPracticeTopic,
+  resolveCanonicalPracticeTopicLoose,
   isDeterministicPracticeTopic,
+  isDeterministicPracticeTopicLoose,
 } from './catalog/practice-topic-catalog';
 import { analyzeCustomPracticeTopic } from './intake/custom-topic-intake';
 import { FactualQuizService } from './factual/factual-quiz.service';
@@ -26,6 +28,10 @@ import type {
   AdaptiveSessionSummary,
 } from './adaptive/contracts/adaptive-practice.types';
 import { normalizeQuestionSetShape } from './practice.safety';
+import {
+  assessQuestionSetIntegrity,
+  shouldAcceptConfidenceHeuristic,
+} from './practice.safety';
 import {
   practiceBadRequest,
   practiceGenerationFailed,
@@ -70,6 +76,18 @@ type RawGeneratedQuestion = {
   explanation?: unknown;
   recommendedTimeSeconds?: unknown;
   topicMatchNote?: unknown;
+  answerAudit?: unknown;
+};
+
+type StructuredAnswerType = 'math' | 'physics' | 'text' | 'code';
+
+type StructuredAnswerAudit = {
+  finalAnswer: string;
+  steps: string;
+  confidence: number;
+  type: StructuredAnswerType;
+  validationPassed: boolean;
+  reason: string;
 };
 
 type VerifierDecision = {
@@ -116,6 +134,9 @@ type PracticeRoutingDecision = {
   symbolicReason?: string;
   hasDeterministicCatalogTopic: boolean;
 };
+
+const PRACTICE_OPENAI_TIMEOUT_MS = 15000;
+const PRACTICE_GENERATE_BUDGET_MS = 30000;
 
 
 
@@ -188,7 +209,16 @@ export class PracticeService {
   }
 
   async generate(input: PracticeFilterPayload) {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const allowOpenTopicFallback = Boolean(apiKey);
+    const providedTopicLabel = String(input.topicLabel ?? '').trim();
+    const legacyTopic = String(input.topic ?? '').trim();
+    const topicPath = Array.isArray(input.topicPath)
+      ? input.topicPath.map(String).map((x) => x.trim()).filter(Boolean)
+      : [];
+    const explicitTopicPathText = String(input.topicPathText ?? '').trim();
+    const strictPromptSummary = String(input.strictPromptSummary ?? '').trim();
+    const strictTopicText = this.extractStrictTopicText(strictPromptSummary);
 
     const intake = analyzeCustomPracticeTopic({
       subject: input.subject,
@@ -215,13 +245,61 @@ export class PracticeService {
         )
       );
 
+    const subject = resolveCanonicalPracticeSubject(
+      String(intake.effectiveSubject ?? input.subject ?? 'Math').trim(),
+    );
+
+    const rawTopicLabel =
+      providedTopicLabel ||
+      legacyTopic ||
+      (topicPath.length ? topicPath[topicPath.length - 1] : 'General');
+
+    const responseLanguageHint = this.inferResponseLanguageHint(
+      subject,
+      rawTopicLabel,
+      explicitTopicPathText,
+      strictTopicText,
+    );
+
+    const canonicalTopic =
+      resolveCanonicalPracticeTopic(subject, rawTopicLabel) ||
+      resolveCanonicalPracticeTopic(subject, explicitTopicPathText) ||
+      resolveCanonicalPracticeTopicLoose(
+        subject,
+        rawTopicLabel,
+        explicitTopicPathText,
+        strictTopicText,
+      ) ||
+      null;
+
+    const topicLabel = canonicalTopic?.canonicalTopic ?? rawTopicLabel;
+    const hasDeterministicCatalogTopic =
+      isDeterministicPracticeTopic(subject, rawTopicLabel) ||
+      isDeterministicPracticeTopic(subject, explicitTopicPathText) ||
+      isDeterministicPracticeTopicLoose(
+        subject,
+        rawTopicLabel,
+        explicitTopicPathText,
+        strictTopicText,
+      ) ||
+      Boolean(canonicalTopic?.deterministic);
+    const hasDeterministicTopicCoverage =
+      hasDeterministicCatalogTopic ||
+      this.supportsDeterministicOpenTopicCoverage({
+        subject,
+        topicLabel: rawTopicLabel,
+        topicPathText: explicitTopicPathText,
+        strictTopicText,
+      });
+
     const hardUnsupported =
       intake.topicType === 'unknown' &&
       intake.quizzability === 'low' &&
       intake.breadth !== 'broad' &&
+      !hasDeterministicTopicCoverage &&
       !conceptualBroadEscape;
 
-    if (hardUnsupported) {
+    if (hardUnsupported && !allowOpenTopicFallback) {
       const unsupportedSubject = String(
         intake.effectiveSubject ?? input.subject ?? 'General Knowledge',
       );
@@ -242,43 +320,16 @@ export class PracticeService {
       } as any);
     }
 
-    const subject = resolveCanonicalPracticeSubject(
-      String(intake.effectiveSubject ?? input.subject ?? 'Math').trim(),
-    );
-
     const strictCatalogSubject =
       subject === 'Math' || subject === 'Physics' || subject === 'Electronics';
-    const providedTopicLabel = String(input.topicLabel ?? '').trim();
-    const legacyTopic = String(input.topic ?? '').trim();
-    const topicPath = Array.isArray(input.topicPath)
-      ? input.topicPath.map(String).map((x) => x.trim()).filter(Boolean)
-      : [];
-    const explicitTopicPathText = String(input.topicPathText ?? '').trim();
-    const strictPromptSummary = String(input.strictPromptSummary ?? '').trim();
-
-    const rawTopicLabel =
-      providedTopicLabel ||
-      legacyTopic ||
-      (topicPath.length ? topicPath[topicPath.length - 1] : 'General');
-
-    const canonicalTopic =
-      resolveCanonicalPracticeTopic(subject, rawTopicLabel) ||
-      resolveCanonicalPracticeTopic(subject, explicitTopicPathText) ||
-      null;
-
-    const topicLabel = canonicalTopic?.canonicalTopic ?? rawTopicLabel;
-    const hasDeterministicCatalogTopic =
-      isDeterministicPracticeTopic(subject, rawTopicLabel) ||
-      isDeterministicPracticeTopic(subject, explicitTopicPathText) ||
-      Boolean(canonicalTopic?.deterministic);
 
     const strictCatalogUnsupported =
       strictCatalogSubject &&
-      !hasDeterministicCatalogTopic &&
+      !hasDeterministicTopicCoverage &&
       intake.topicType === 'unknown' &&
       intake.quizzability === 'low';
 
-    if (strictCatalogUnsupported) {
+    if (strictCatalogUnsupported && !allowOpenTopicFallback) {
       const unsupportedTopic = String(
         intake.rawTopic ??
           input.topicLabel ??
@@ -329,6 +380,46 @@ export class PracticeService {
 
     const useAiTiming = Boolean(input.useAiTiming ?? true);
     const maxLives = Number(input.maxLives ?? 3);
+    const expectedTopicAnchorTokens = this.topicAnchorTokens(topicLabel);
+    const requiredTopicAnchorCount = this.requiredTopicAnchorCount(
+      expectedTopicAnchorTokens,
+    );
+
+    const requestPayload = {
+      subject,
+      topicLabel,
+      topicPath,
+      topicPathText,
+      strictPromptSummary,
+      responseLanguageHint,
+      questionCount,
+      mode,
+      difficulty,
+      timePreferenceSeconds,
+      useAiTiming,
+      maxLives,
+      constraints: {
+        exactTopicMatch: true,
+        noTopicDrift: true,
+        uniqueQuestions: true,
+        fourOptionsExactly: true,
+        correctAnswerMustMatchIndexedOption: true,
+        requireBodyTopicAnchor:
+          !hasDeterministicTopicCoverage &&
+          !canonicalTopic &&
+          expectedTopicAnchorTokens.length >= 1,
+        topicAnchorTokens:
+          !hasDeterministicTopicCoverage && !canonicalTopic
+            ? expectedTopicAnchorTokens
+            : [],
+        topicAnchorMinCount:
+          !hasDeterministicTopicCoverage && !canonicalTopic
+            ? requiredTopicAnchorCount
+            : 0,
+        relaxDifficultyValidation:
+          hasDeterministicTopicCoverage && !hasDeterministicCatalogTopic,
+      },
+    };
 
     if (!subject) {
       throw new BadRequestException('subject is required');
@@ -336,7 +427,7 @@ export class PracticeService {
 
     const engineRegistry = this.getEngineRegistry();
     const deterministic =
-      hasDeterministicCatalogTopic &&
+      hasDeterministicTopicCoverage &&
       engineRegistry &&
       typeof (engineRegistry as any).generate === 'function'
         ? await (engineRegistry as any).generate({
@@ -344,7 +435,7 @@ export class PracticeService {
             topicLabel,
             topicPath,
             topicPathText,
-            strictPromptSummary,
+            strictPromptSummary: strictTopicText,
             questionCount,
             mode,
             difficulty,
@@ -353,6 +444,12 @@ export class PracticeService {
             maxLives,
           })
         : [];
+
+    const validatedDeterministic = this.validateQuestionSet(
+      Array.isArray(deterministic) ? deterministic : [],
+      questionCount,
+      requestPayload,
+    );
 
     const conceptual =
       this.conceptualTopicService &&
@@ -388,18 +485,15 @@ export class PracticeService {
           };
 
     
-    // =========================
-    // HARD SYMBOLIC STOP (NO AI FALLBACK EVER)
-    // =========================
-    const isSymbolicTopic =
-      !hasDeterministicCatalogTopic &&
+    const isUnsupportedSymbolicTopic =
+      !hasDeterministicTopicCoverage &&
       (
         intake.generationStrategy === 'symbolic' ||
         intake.topicType === 'symbolic' ||
         isLikelySymbolicBoundaryTopic(topicLabel)
       );
 
-    if (isSymbolicTopic && !symbolic.ready) {
+    if (isUnsupportedSymbolicTopic && !symbolic.ready && !apiKey) {
       return {
         questions: [],
         symbolic: {
@@ -415,19 +509,39 @@ export class PracticeService {
     const routing = this.buildRoutingDecision({
       intake,
       topicLabel,
-      deterministicQuestions: deterministic ?? [],
+      deterministicQuestions: validatedDeterministic,
       conceptual,
       symbolic,
-      hasDeterministicCatalogTopic,
+      hasDeterministicCatalogTopic: hasDeterministicTopicCoverage,
     });
 
-    if (routing.route === 'deterministic' && deterministic && deterministic.length === questionCount) {
+    if (
+      routing.route === 'ai_fallback' &&
+      this.shouldRejectAmbiguousAiFallback({
+        intake,
+        hasDeterministicCatalogTopic: hasDeterministicTopicCoverage,
+        allowOpenTopicFallback,
+      })
+    ) {
+      throw practiceBadRequest({
+        message: `Topic "${topicLabel}" is too broad or ambiguous for exact practice generation.`,
+        userMessage:
+          'Make the topic more specific so we can generate an exact session without topic drift.',
+        reasonCode: 'TOPIC_NEEDS_CLARIFICATION',
+        suggestions: this.buildClarificationSuggestions(subject, topicLabel),
+      });
+    }
+
+    if (
+      routing.route === 'deterministic' &&
+      validatedDeterministic.length === questionCount
+    ) {
       const base = this.buildDeterministicResponse({
         subject,
         topicLabel,
         mode,
         difficulty,
-        deterministic,
+        deterministic: validatedDeterministic,
       });
 
       const shouldAttachSymbolicMeta =
@@ -459,7 +573,7 @@ export class PracticeService {
     const conceptualBoundary =
       intake.generationStrategy === 'conceptual' || conceptualBoundaryKeyword;
 
-    if (conceptualBoundary && !conceptual.ready) {
+    if (conceptualBoundary && !conceptual.ready && !apiKey) {
       return {
         questions: [],
         conceptual: {
@@ -487,7 +601,7 @@ export class PracticeService {
 
 
     if (routing.route === 'grounded_factual') {
-      return await this.buildFactualResponse({
+      const factualResponse = await this.buildFactualResponse({
         subject,
         topicLabel,
         questionCount,
@@ -495,9 +609,13 @@ export class PracticeService {
         difficulty,
         intake,
       });
+
+      if ((factualResponse.questions?.length ?? 0) === questionCount || !apiKey) {
+        return factualResponse;
+      }
     }
 
-    if (routing.route === 'conceptual') {
+    if (routing.route === 'conceptual' && conceptual.ready) {
       return this.buildConceptualResponse({
         subject,
         topicLabel,
@@ -510,28 +628,37 @@ export class PracticeService {
 
     if (routing.route === 'symbolic') {
       if (symbolic.ready && symbolic.seeds.length > 0) {
+        if (symbolic.seeds.length !== questionCount && apiKey) {
+          // Fall through to verified AI rather than returning a partial symbolic set.
+        } else {
         const now = Date.now();
 
         return {
-          questions: symbolic.seeds.slice(0, questionCount).map((seed, i) => ({
-            id: `${subject}-${topicLabel}-${mode}-${difficulty}-symbolic-${now}-${i}`,
+          questions: this.materializeQuestions({
             subject,
             topicLabel: symbolic.topic,
             mode,
             difficulty,
-            prompt: seed.stem,
-            options: seed.options,
-            correctIndex: seed.correctIndex,
-            explanation: seed.explanation,
-            recommendedTimeSeconds: seed.recommendedTimeSeconds ?? 35,
-          })),
+            routeTag: 'symbolic',
+            now,
+            questions: symbolic.seeds.slice(0, questionCount).map((seed) => ({
+              prompt: seed.stem,
+              options: seed.options,
+              correctIndex: seed.correctIndex,
+              explanation: seed.explanation,
+              recommendedTimeSeconds: seed.recommendedTimeSeconds ?? 35,
+            })),
+          }),
           symbolic: {
             ready: true,
             topic: symbolic.topic,
             gaps: [],
           },
         };
+        }
       }
+
+      if (!apiKey) {
 
       return {
         questions: [],
@@ -546,32 +673,18 @@ export class PracticeService {
           ),
         },
       };
+      }
     }
 
     if (!apiKey) {
-      throw new InternalServerErrorException('OPENAI_API_KEY is missing');
+      throw practiceBadRequest({
+        message: `Topic "${topicLabel}" currently needs AI-backed exact-topic generation, but that path is unavailable.`,
+        userMessage:
+          'We cannot generate this exact custom topic right now without AI-backed fallback. Try a more specific topic or use a covered catalog topic.',
+        reasonCode: 'UNSUPPORTED_TOPIC',
+        suggestions: this.buildClarificationSuggestions(subject, topicLabel),
+      });
     }
-
-    const requestPayload = {
-      subject,
-      topicLabel,
-      topicPath,
-      topicPathText,
-      strictPromptSummary,
-      questionCount,
-      mode,
-      difficulty,
-      timePreferenceSeconds,
-      useAiTiming,
-      maxLives,
-      constraints: {
-        exactTopicMatch: true,
-        noTopicDrift: true,
-        uniqueQuestions: true,
-        fourOptionsExactly: true,
-        correctAnswerMustMatchIndexedOption: true,
-      },
-    };
 
     const attemptNotes = [
       '',
@@ -581,17 +694,62 @@ export class PracticeService {
     ];
 
     let finalQuestions: RawGeneratedQuestion[] = [];
-    let bestLocalValid: RawGeneratedQuestion[] = [];
+    let bestLocalValidCount = 0;
+    let bestStrictLocalValid: RawGeneratedQuestion[] = [];
+    let bestTopicFirstValid: RawGeneratedQuestion[] = [];
+    const generationDeadlineAt = Date.now() + this.practiceGenerationBudgetMs();
+    let lastAiFailure: unknown = null;
 
     for (let attempt = 0; attempt < attemptNotes.length; attempt++) {
-      const raw = await this.requestQuestionSet({
-        apiKey,
-        requestPayload,
-        questionCount,
-        repairNote: attemptNotes[attempt],
-      });
+      const attemptTimeoutMs = this.remainingPracticeBudgetMs(generationDeadlineAt);
+      if (attemptTimeoutMs <= 0) {
+        this.logPracticeEvent('generation_budget_exhausted', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+        });
+        break;
+      }
 
-      const locallyValid = this.validateQuestionSet(raw, questionCount);
+      let raw: any[];
+      try {
+        raw = await this.requestQuestionSet({
+          apiKey,
+          requestPayload,
+          questionCount,
+          repairNote: attemptNotes[attempt],
+          timeoutMs: attemptTimeoutMs,
+        });
+      } catch (error) {
+        lastAiFailure = error;
+        this.logPracticeEvent('generation_request_failed', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+          reason: this.practiceErrorMessage(error),
+        });
+        break;
+      }
+
+      const locallyValid = this.validateQuestionSet(raw, questionCount, requestPayload);
+      const topicFirstValid = this.validateQuestionSet(
+        raw,
+        questionCount,
+        requestPayload,
+        { ignoreDifficultyMode: true },
+      );
+
+      if (topicFirstValid.length === questionCount) {
+        bestTopicFirstValid = normalizeQuestionSetShape(
+          topicFirstValid as any,
+        ) as any;
+      }
 
       this.logPracticeEvent('attempt_local_validation', {
         attempt: attempt + 1,
@@ -606,13 +764,116 @@ export class PracticeService {
 
       if (locallyValid.length !== questionCount) continue;
 
-      bestLocalValid = locallyValid;
+      if (this.remainingPracticeBudgetMs(generationDeadlineAt) <= 0) {
+        this.logPracticeEvent('generation_budget_exhausted', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+          phase: 'self_verify',
+        });
+        break;
+      }
 
-      const verified = await this.verifyQuestionSet({
-        apiKey,
-        requestPayload,
-        questions: locallyValid,
+      let selfVerified: RawGeneratedQuestion[];
+      try {
+        selfVerified = await this.selfVerifyQuestionSet({
+          apiKey,
+          requestPayload,
+          questions: locallyValid,
+          timeoutMs: this.remainingPracticeBudgetMs(generationDeadlineAt),
+        });
+      } catch (error) {
+        lastAiFailure = error;
+        this.logPracticeEvent('generation_self_verify_failed', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+          reason: this.practiceErrorMessage(error),
+        });
+        break;
+      }
+
+      this.logPracticeEvent('attempt_self_verified', {
+        attempt: attempt + 1,
+        maxAttempts: attemptNotes.length,
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        selfVerified: selfVerified.length,
+        requested: questionCount,
       });
+
+      if (selfVerified.length !== questionCount) continue;
+
+      const deterministicallyValid = this.deterministicallyValidateQuestionSet({
+        questions: selfVerified,
+        requestPayload,
+      });
+
+      this.logPracticeEvent('attempt_deterministic_validation', {
+        attempt: attempt + 1,
+        maxAttempts: attemptNotes.length,
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        deterministicValid: deterministicallyValid.length,
+        requested: questionCount,
+      });
+
+      if (deterministicallyValid.length !== questionCount) continue;
+
+      if (this.remainingPracticeBudgetMs(generationDeadlineAt) <= 0) {
+        this.logPracticeEvent('generation_budget_exhausted', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+          phase: 'verify',
+        });
+        break;
+      }
+
+      bestLocalValidCount = Math.max(
+        bestLocalValidCount,
+        deterministicallyValid.length,
+      );
+      if (deterministicallyValid.length === questionCount) {
+        bestStrictLocalValid = normalizeQuestionSetShape(
+          deterministicallyValid as any,
+        ) as any;
+      }
+
+      let verified: RawGeneratedQuestion[];
+      try {
+        verified = await this.verifyQuestionSet({
+          apiKey,
+          requestPayload,
+          questions: deterministicallyValid,
+          timeoutMs: this.remainingPracticeBudgetMs(generationDeadlineAt),
+        });
+      } catch (error) {
+        lastAiFailure = error;
+        this.logPracticeEvent('generation_verify_failed', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          attempt: attempt + 1,
+          reason: this.practiceErrorMessage(error),
+        });
+        break;
+      }
 
       this.logPracticeEvent('attempt_verified', {
         attempt: attempt + 1,
@@ -631,15 +892,32 @@ export class PracticeService {
       }
     }
 
-    if (finalQuestions.length !== questionCount && bestLocalValid.length === questionCount) {
-      this.logPracticeEvent('verifier_fallback_using_local_valid', {
+    if (
+      finalQuestions.length !== questionCount &&
+      bestStrictLocalValid.length === questionCount
+    ) {
+      this.logPracticeEvent('generation_strict_local_fallback', {
         subject,
         topicLabel,
         mode,
         difficulty,
-        count: bestLocalValid.length,
+        questionCount,
       });
-      finalQuestions = normalizeQuestionSetShape(bestLocalValid as any) as any;
+      finalQuestions = bestStrictLocalValid;
+    }
+
+    if (
+      finalQuestions.length !== questionCount &&
+      bestTopicFirstValid.length === questionCount
+    ) {
+      this.logPracticeEvent('generation_topic_first_fallback', {
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        questionCount,
+      });
+      finalQuestions = bestTopicFirstValid;
     }
 
     if (finalQuestions.length !== questionCount) {
@@ -649,37 +927,31 @@ export class PracticeService {
         mode,
         difficulty,
         questionCount,
-        bestLocalValidCount: bestLocalValid.length,
+        bestLocalValidCount,
         finalQuestionsCount: finalQuestions.length,
+        lastFailure: lastAiFailure
+          ? this.practiceErrorMessage(lastAiFailure)
+          : undefined,
       });
 
       throw practiceGenerationFailed({
-        message: 'Model returned an invalid question set',
+        message: lastAiFailure
+          ? this.practiceErrorMessage(lastAiFailure)
+          : 'Model returned an invalid question set',
       });
     }
 
     const now = Date.now();
 
     return {
-      questions: finalQuestions.map((q, i) => {
-        const safe = this.sanitizeQuestion(q);
-        const shuffled = this.shuffleOptions(
-          (safe.options as string[]).map(String).slice(0, 4),
-          Number(safe.correctIndex),
-        );
-
-        return {
-          id: `${subject}-${topicLabel}-${mode}-${difficulty}-${now}-${i}`,
-          subject,
-          topicLabel,
-          mode,
-          difficulty,
-          prompt: String(safe.prompt).trim(),
-          options: shuffled.options,
-          correctIndex: shuffled.correctIndex,
-          explanation: String(safe.explanation).trim(),
-          recommendedTimeSeconds: Number(safe.recommendedTimeSeconds ?? 30),
-        };
+      questions: this.materializeQuestions({
+        subject,
+        topicLabel,
+        mode,
+        difficulty,
+        routeTag: 'ai',
+        now,
+        questions: finalQuestions,
       }),
     };
   }
@@ -788,16 +1060,7 @@ export class PracticeService {
       /(derivative|derivatives|partial derivative|partial derivatives|limit|limits|integral|integrals|matrix|matrices|matrix multiplication|vector|vectors|eigenvalue|eigenvalues|eigenvector|eigenvectors|determinant|determinants|gradient|gradients|jacobian|jacobians|taylor series|maclaurin series|sequence and series|series expansion|differential equation|differential equations|laplace transform|laplace transforms|fourier series|fourier transform|complex number|complex numbers|complex analysis|linear algebra|calculus|tensor|tensors|theorem|theorems|proof|proofs|series|transform|transforms)/i
         .test(args.topicLabel);
 
-    const isSymbolic =
-      args.symbolic.ok ||
-      (
-        !args.hasDeterministicCatalogTopic &&
-        (
-          args.intake.generationStrategy === 'symbolic' ||
-          args.intake.topicType === 'symbolic' ||
-          symbolicKeyword
-        )
-      );
+    const isSymbolic = args.symbolic.ready || args.symbolic.ok;
 
     if (isSymbolic) {
       return {
@@ -812,6 +1075,69 @@ export class PracticeService {
       route: 'ai_fallback',
       hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
     };
+  }
+
+  private shouldRejectAmbiguousAiFallback(args: {
+    intake: ReturnType<typeof analyzeCustomPracticeTopic>;
+    hasDeterministicCatalogTopic: boolean;
+    allowOpenTopicFallback: boolean;
+  }): boolean {
+    if (args.hasDeterministicCatalogTopic) return false;
+    if (args.allowOpenTopicFallback) return false;
+
+    return (
+      args.intake.generationStrategy === 'fallback' &&
+      args.intake.needsClarification
+    );
+  }
+
+  private buildClarificationSuggestions(subject: string, topicLabel: string): string[] {
+    const rawTopic = String(topicLabel ?? '').trim();
+    const normalizedSubject = String(subject ?? '').trim().toLowerCase();
+
+    const suggestions = [
+      rawTopic
+        ? `Specify the exact chapter or skill inside "${rawTopic}"`
+        : 'Specify the exact chapter or skill you want to practice',
+      'Add the exact concept, theorem, era, or problem type instead of a broad label',
+    ];
+
+    if (normalizedSubject === 'computer science') {
+      suggestions.push('Include the exact language or construct, such as Python loops or C# nested conditions');
+    } else if (normalizedSubject === 'math' || normalizedSubject === 'physics' || normalizedSubject === 'electronics') {
+      suggestions.push('Name the exact formula, law, equation type, or subtopic you want');
+    } else {
+      suggestions.push('Use a narrower topic, for example a specific vocabulary skill, grammar concept, event, or unit');
+    }
+
+    return suggestions.slice(0, 3);
+  }
+
+  private supportsDeterministicOpenTopicCoverage(args: {
+    subject: string;
+    topicLabel: string;
+    topicPathText?: string;
+    strictTopicText?: string;
+  }): boolean {
+    const subject = String(args.subject ?? '').trim().toLowerCase();
+    if (subject !== 'computer science') {
+      return false;
+    }
+
+    const descriptor = `${args.topicLabel} ${args.topicPathText ?? ''} ${args.strictTopicText ?? ''}`
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    const hasKnownLanguage =
+      /(c#|c sharp|csharp|python|javascript|java|html|hypertext markup)/i.test(
+        descriptor,
+      );
+    const hasBasicsSignal =
+      /\b(basic|basics|fundamental|fundamentals|intro|introduction|syntax|starter|getting started|beginner)\b/i.test(
+        descriptor,
+      );
+
+    return hasKnownLanguage && hasBasicsSignal;
   }
 
   private buildConceptualResponse(args: {
@@ -835,26 +1161,28 @@ export class PracticeService {
     }
 
     const now = Date.now();
-    const built = args.conceptual.seeds.slice(0, args.questionCount).map((seed, i) => ({
-      id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-conceptual-${now}-${i}`,
-      subject: args.subject,
-      topicLabel: args.conceptual.topic,
-      mode: args.mode,
-      difficulty: args.difficulty,
-      prompt: seed.stem,
-      options: [
-        seed.acceptedAnswers[0],
-        'An unrelated statement',
-        'A contradictory statement',
-        'A vague incorrect statement',
-      ],
-      correctIndex: 0,
-      explanation: seed.explanation,
-      recommendedTimeSeconds: 30,
-    }));
 
     return {
-      questions: built,
+      questions: this.materializeQuestions({
+        subject: args.subject,
+        topicLabel: args.conceptual.topic,
+        mode: args.mode,
+        difficulty: args.difficulty,
+        routeTag: 'conceptual',
+        now,
+        questions: args.conceptual.seeds.slice(0, args.questionCount).map((seed) => ({
+          prompt: seed.stem,
+          options: [
+            seed.acceptedAnswers[0],
+            'An unrelated statement',
+            'A contradictory statement',
+            'A vague incorrect statement',
+          ],
+          correctIndex: 0,
+          explanation: seed.explanation,
+          recommendedTimeSeconds: 30,
+        })),
+      }),
       conceptual: {
         ready: true,
         gaps: [],
@@ -872,25 +1200,14 @@ export class PracticeService {
     const now = Date.now();
 
     return {
-      questions: (args.deterministic as RawGeneratedQuestion[]).map((q, i) => {
-        const safe = this.sanitizeQuestion(q);
-        const shuffled = this.shuffleOptions(
-          (safe.options as string[]).map(String).slice(0, 4),
-          Number(safe.correctIndex),
-        );
-
-        return {
-          id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-${now}-${i}`,
-          subject: args.subject,
-          topicLabel: args.topicLabel,
-          mode: args.mode,
-          difficulty: args.difficulty,
-          prompt: safe.prompt,
-          options: shuffled.options,
-          correctIndex: shuffled.correctIndex,
-          explanation: safe.explanation,
-          recommendedTimeSeconds: safe.recommendedTimeSeconds,
-        };
+      questions: this.materializeQuestions({
+        subject: args.subject,
+        topicLabel: args.topicLabel,
+        mode: args.mode,
+        difficulty: args.difficulty,
+        routeTag: 'deterministic',
+        now,
+        questions: args.deterministic as RawGeneratedQuestion[],
       }),
     };
   }
@@ -938,31 +1255,31 @@ export class PracticeService {
         const now = Date.now();
 
         return {
-          questions: seeded.seeds.map((seed, i) => {
-            const accepted = seed.acceptedAnswers[0] ?? 'Unknown';
-            const distractorBase = [
-              'Not enough information',
-              'A different era',
-              'A different concept',
-              'A different historical milestone',
-              'An incorrect alternative',
-            ].filter((x) => x !== accepted);
+          questions: this.materializeQuestions({
+            subject: seeded.subject,
+            topicLabel: seeded.topic,
+            mode: args.mode,
+            difficulty: args.difficulty,
+            routeTag: 'factual',
+            now,
+            questions: seeded.seeds.map((seed) => {
+              const accepted = seed.acceptedAnswers[0] ?? 'Unknown';
+              const distractorBase = [
+                'Not enough information',
+                'A different era',
+                'A different concept',
+                'A different historical milestone',
+                'An incorrect alternative',
+              ].filter((x) => x !== accepted);
 
-            const options = [accepted, ...distractorBase].slice(0, 4);
-            const shuffled = this.shuffleOptions(options, 0);
-
-            return {
-              id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-${now}-factual-${i}`,
-              subject: seeded.subject,
-              topicLabel: seeded.topic,
-              mode: args.mode,
-              difficulty: args.difficulty,
-              prompt: seed.stem,
-              options: shuffled.options,
-              correctIndex: shuffled.correctIndex,
-              explanation: seed.explanation,
-              recommendedTimeSeconds: 30,
-            };
+              return {
+                prompt: seed.stem,
+                options: [accepted, ...distractorBase].slice(0, 4),
+                correctIndex: 0,
+                explanation: seed.explanation,
+                recommendedTimeSeconds: 30,
+              };
+            }),
           }),
           factual: {
             ready: true,
@@ -992,13 +1309,15 @@ export class PracticeService {
     requestPayload: Record<string, unknown>;
     questionCount: number;
     repairNote: string;
+    timeoutMs?: number;
   }): Promise<any[]> {
-    const { apiKey, requestPayload, questionCount, repairNote } = args;
+    const { apiKey, requestPayload, questionCount, repairNote, timeoutMs } = args;
 
     const rp: any = requestPayload;
     const system = [
       'You generate high-quality school practice questions for a mobile app.',
-      'Return STRICT JSON ONLY. No markdown. No commentary.',
+      'Return STRICT JSON ONLY. No commentary outside the JSON payload.',
+      'Markdown and LaTeX are allowed inside JSON string fields when needed for correct rendering.',
       'Generate questions EXACTLY for the requested subject and EXACT requested topic. Do not drift.',
       'The topicLabel, topicPathText, topicPath, and strictPromptSummary are all hard constraints.',
       'If any of those fields specify a narrower topic than your instinct, obey the narrower topic.',
@@ -1018,6 +1337,24 @@ export class PracticeService {
       'Within one set, keep formatting, granularity, and tone stable.',
       'Explanations must be concise, final, teacher-style solutions.',
       'Explanations must be option-agnostic and must not narrate self-correction.',
+      'If a prompt or explanation contains source code, put the code snippet in a fenced markdown code block inside the JSON string, with a language tag when obvious.',
+      'If code spans multiple lines, it must still be fenced as a markdown code block. Never leave raw multi-line code unfenced.',
+      'When you use fenced code blocks, prefer explicit language tags such as python, javascript, typescript, dart, java, csharp, bash, sql, html, css, or json.',
+      'If a prompt or explanation contains math notation such as \\frac, \\lim, or \\sqrt, wrap inline math in $...$ and display math in $$...$$. Do not leave raw LaTeX commands outside delimiters.',
+      'Render symbolic math cleanly and conventionally when needed: fractions, powers, roots, trig functions, logs, limits, derivatives, integrals, summations, matrices, vectors, set notation, subscripts, and superscripts should use proper LaTeX inside math delimiters.',
+      'For matrices, determinants, or vectors, prefer standard LaTeX structures such as bmatrix, pmatrix, vmatrix, or aligned inline vector notation when appropriate. For piecewise definitions, prefer LaTeX cases notation.',
+      'Never fake math with plain-text approximations when proper math notation is appropriate, and never emit malformed markdown fences or malformed LaTeX delimiters.',
+      rp.responseLanguageHint
+        ? `Write prompts, options, explanations, and topicMatchNote in ${String(rp.responseLanguageHint)} when natural for the requested topic. Preserve the same human language/script consistently across the whole set, except for literal code keywords and math notation.`
+        : '',
+      Array.isArray(rp.constraints?.topicAnchorTokens) &&
+      rp.constraints.topicAnchorTokens.length > 0
+        ? `Open-topic anchor rule: each item's prompt or explanation must explicitly include at least ${Math.max(1, Number(rp.constraints?.topicAnchorMinCount ?? 1))} of these topic anchors: ${rp.constraints.topicAnchorTokens.join(', ')}.`
+        : '',
+      Array.isArray(rp.constraints?.topicAnchorTokens) &&
+      rp.constraints.topicAnchorTokens.length > 0
+        ? 'Do not substitute neighboring concepts, examples, or related APIs unless the required anchor tokens still appear explicitly in the item body.'
+        : '',
       this.modeInstruction(String(rp.mode ?? 'practice') as any),
       this.difficultyInstruction(String(rp.difficulty ?? 'medium') as any),
       this.timingInstruction(
@@ -1036,6 +1373,7 @@ export class PracticeService {
 
     const parsed = await this.callResponsesJson({
       apiKey,
+      timeoutMs,
       schemaName: 'practice_questions',
       schema: {
         type: 'object',
@@ -1091,18 +1429,177 @@ export class PracticeService {
     return Array.isArray(parsed?.questions) ? parsed.questions : [];
   }
 
+  private async selfVerifyQuestionSet(args: {
+    apiKey: string;
+    requestPayload: Record<string, unknown>;
+    questions: RawGeneratedQuestion[];
+    timeoutMs?: number;
+  }): Promise<RawGeneratedQuestion[]> {
+    const { apiKey, requestPayload, questions, timeoutMs } = args;
+    const confidenceThreshold = this.confidenceThreshold(requestPayload);
+
+    const system = [
+      'You are the self-verification layer for a school practice generator.',
+      'Return STRICT JSON ONLY.',
+      'For each item, solve it again from scratch before deciding anything.',
+      'Recompute the result, compare it against the keyed option, and check whether the explanation is consistent with the final answer.',
+      'If the keyed answer, final answer, steps, formatting, or reasoning is inconsistent, set validation_passed to false.',
+      'Use the following structured contract for every item:',
+      '{ "final_answer": string, "steps": string, "confidence": number, "type": "math" | "physics" | "text" | "code", "validation_passed": boolean }',
+      'Keep steps concise, teacher-style, and cleanly formatted.',
+      'Math steps and final_answer must use proper LaTeX when symbolic notation is needed.',
+      'Code in steps must be inside fenced markdown code blocks with a language tag when obvious.',
+      'Do not emit confident approvals for uncertain items. Low-confidence or inconsistent items must fail validation.',
+      'JSON shape:',
+      '{ "audits": [ { "index": number, "final_answer": string, "steps": string, "confidence": number, "type": "math" | "physics" | "text" | "code", "validation_passed": boolean, "reason": string } ] }',
+    ].join('\n');
+
+    const user = JSON.stringify(
+      {
+        requestPayload,
+        questions: questions.map((q, index) => ({
+          index,
+          prompt: q.prompt,
+          options: q.options,
+          correctIndex: q.correctIndex,
+          correctAnswerText: q.correctAnswerText,
+          explanation: q.explanation,
+          topicMatchNote: q.topicMatchNote,
+          recommendedTimeSeconds: q.recommendedTimeSeconds,
+        })),
+      },
+      null,
+      2,
+    );
+
+    const parsed = await this.callResponsesJson({
+      apiKey,
+      timeoutMs,
+      schemaName: 'practice_self_verify',
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          audits: {
+            type: 'array',
+            minItems: questions.length,
+            maxItems: questions.length,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                index: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: Math.max(0, questions.length - 1),
+                },
+                final_answer: { type: 'string' },
+                steps: { type: 'string' },
+                confidence: {
+                  type: 'number',
+                  minimum: 0,
+                  maximum: 1,
+                },
+                type: {
+                  type: 'string',
+                  enum: ['math', 'physics', 'text', 'code'],
+                },
+                validation_passed: { type: 'boolean' },
+                reason: { type: 'string' },
+              },
+              required: [
+                'index',
+                'final_answer',
+                'steps',
+                'confidence',
+                'type',
+                'validation_passed',
+                'reason',
+              ],
+            },
+          },
+        },
+        required: ['audits'],
+      },
+      system,
+      user,
+    });
+
+    const audits = Array.isArray(parsed?.audits) ? parsed.audits : [];
+    if (audits.length === 0) {
+      return questions.map((question) => ({
+        ...question,
+        answerAudit: this.buildLegacyStructuredAudit(question, requestPayload),
+      }));
+    }
+
+    const accepted = new Map<number, StructuredAnswerAudit>();
+    const seenIndexes = new Set<number>();
+    const reasonCounts = new Map<string, number>();
+
+    for (const raw of audits) {
+      const parsedAudit = this.parseStructuredAnswerAudit(raw, requestPayload);
+      if (!parsedAudit) continue;
+      const { index, audit } = parsedAudit;
+      if (seenIndexes.has(index)) continue;
+      seenIndexes.add(index);
+
+      if (!audit.validationPassed) {
+        reasonCounts.set(
+          audit.reason || 'self_validation_failed',
+          (reasonCounts.get(audit.reason || 'self_validation_failed') ?? 0) + 1,
+        );
+        continue;
+      }
+
+      if (audit.confidence < confidenceThreshold) {
+        reasonCounts.set(
+          'confidence_below_threshold',
+          (reasonCounts.get('confidence_below_threshold') ?? 0) + 1,
+        );
+        continue;
+      }
+
+      accepted.set(index, audit);
+    }
+
+    if (reasonCounts.size > 0) {
+      console.log(
+        `[practice.self_verify] reject_summary ${JSON.stringify(Object.fromEntries(reasonCounts))}`,
+      );
+    }
+
+    return questions.flatMap((question, index) => {
+      const audit = accepted.get(index);
+      if (!audit) return [];
+
+      return [
+        {
+          ...question,
+          explanation: audit.steps || question.explanation,
+          answerAudit: audit,
+        },
+      ];
+    });
+  }
+
   private async verifyQuestionSet(args: {
     apiKey: string;
     requestPayload: Record<string, unknown>;
     questions: RawGeneratedQuestion[];
+    timeoutMs?: number;
   }): Promise<RawGeneratedQuestion[]> {
-    const { apiKey, requestPayload, questions } = args;
+    const { apiKey, requestPayload, questions, timeoutMs } = args;
 
     const system = [
       'You are a strict academic verifier for a school practice generator.',
       'Return STRICT JSON ONLY.',
       'Solve each item independently from scratch.',
       'Reject any item with wrong math, wrong logic, wrong keyed answer, ambiguous wording, option mismatch, unsupported explanation, weak explanation, topic drift, or hidden self-correction.',
+      'Reject any item whose actual complexity or recommendedTimeSeconds clearly does not match the requested difficulty.',
+      'Easy should feel direct and short; hard should materially increase reasoning or time demand; olympiad should require genuinely harder insight, not cosmetic difficulty.',
+      'Reject any item whose reading load, pacing, or style clearly does not match the requested mode.',
+      'Flashcards should be short and recognition-oriented. speedRound should be especially fast and low-reading-load. examPrep should feel more formal and substantial than a quick drill item.',
       'Reject any item if the explanation mentions mismatch, adjustment, correction, reconsideration, closest option, approximation, repair, or uncertainty.',
       'Accept only if the keyed answer is exactly correct and the explanation is clean, final, teacher-style, and actually supports that answer.',
       'Be conservative. If uncertain, reject.',
@@ -1131,6 +1628,7 @@ export class PracticeService {
 
     const parsed = await this.callResponsesJson({
       apiKey,
+      timeoutMs,
       schemaName: 'practice_verifier',
       schema: {
         type: 'object',
@@ -1218,59 +1716,81 @@ export class PracticeService {
     };
   }
 
+  private parseStructuredAnswerAudit(
+    raw: any,
+    requestPayload: Record<string, unknown>,
+  ): { index: number; audit: StructuredAnswerAudit } | null {
+    if (!raw || typeof raw !== 'object') return null;
+
+    const index = Number(raw.index ?? -1);
+    const finalAnswer = this.sanitizeText(raw.final_answer ?? raw.finalAnswer);
+    const steps = this.sanitizeText(raw.steps);
+    const confidence = Number(raw.confidence ?? -1);
+    const type = String(raw.type ?? '').trim() as StructuredAnswerType;
+    const validationPassed = Boolean(
+      raw.validation_passed ?? raw.validationPassed,
+    );
+    const reason = this.sanitizeText(raw.reason) || 'ok';
+
+    if (!Number.isInteger(index) || index < 0) return null;
+    if (!finalAnswer) return null;
+    if (!steps) return null;
+    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      return null;
+    }
+    if (!['math', 'physics', 'text', 'code'].includes(type)) return null;
+
+    return {
+      index,
+      audit: {
+        finalAnswer,
+        steps,
+        confidence,
+        type,
+        validationPassed,
+        reason,
+      },
+    };
+  }
+
   private async callResponsesJson(args: {
     apiKey: string;
+    timeoutMs?: number;
     schemaName: string;
     schema: Record<string, unknown>;
     system: string;
     user: string;
   }): Promise<any> {
-    const { apiKey, schemaName, schema, system, user } = args;
+    const { apiKey, schema, system, user, timeoutMs } = args;
+    const resolvedTimeoutMs = this.resolveOpenAiTimeoutMs(timeoutMs);
 
-    const res = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: [
-          {
-            role: 'system',
-            content: [{ type: 'input_text', text: system }],
-          },
-          {
-            role: 'user',
-            content: [{ type: 'input_text', text: user }],
-          },
-        ],
-        max_output_tokens: 4000,
-        text: {
-          format: {
-            type: 'json_schema',
-            name: schemaName,
-            strict: true,
-            schema,
-          },
-        },
-      }),
-    });
+    const Anthropic = require('@anthropic-ai/sdk').default ?? require('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new InternalServerErrorException(`OpenAI error: ${text}`);
+    let res: any;
+    try {
+      res = await Promise.race([
+        client.messages.create({
+          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          system: `${system}\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation. The JSON must conform to this schema:\n${JSON.stringify(schema)}`,
+          messages: [{ role: 'user', content: user }],
+          temperature: 0,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('ANTHROPIC_TIMEOUT')), resolvedTimeoutMs),
+        ),
+      ]);
+    } catch (error: any) {
+      if (String(error?.message).includes('ANTHROPIC_TIMEOUT')) {
+        throw new InternalServerErrorException(
+          `Anthropic request timed out after ${resolvedTimeoutMs}ms`,
+        );
+      }
+      throw error;
     }
 
-    const data: any = await res.json();
-    const jsonText =
-      data?.output_text ??
-      data?.output
-        ?.map((x: any) =>
-          x?.content?.map((c: any) => c?.text ?? '').join(''),
-        )
-        .join('') ??
-      '';
+    const jsonText = res?.content?.[0]?.type === 'text' ? res.content[0].text : '';
 
     try {
       return JSON.parse(jsonText);
@@ -1279,16 +1799,80 @@ export class PracticeService {
     }
   }
 
+  private practiceGenerationBudgetMs(): number {
+    const raw = Number(process.env.PRACTICE_GENERATE_BUDGET_MS);
+    if (!Number.isFinite(raw)) return PRACTICE_GENERATE_BUDGET_MS;
+    return Math.max(5000, Math.min(120000, Math.round(raw)));
+  }
+
+  private resolveOpenAiTimeoutMs(requestedTimeoutMs?: number): number {
+    const envRaw = Number(process.env.PRACTICE_OPENAI_TIMEOUT_MS);
+    const envTimeoutMs = Number.isFinite(envRaw)
+      ? Math.max(3000, Math.min(60000, Math.round(envRaw)))
+      : PRACTICE_OPENAI_TIMEOUT_MS;
+
+    if (!Number.isFinite(requestedTimeoutMs as number)) {
+      return envTimeoutMs;
+    }
+
+    if ((requestedTimeoutMs as number) <= 0) {
+      return 1;
+    }
+
+    return Math.max(1000, Math.min(envTimeoutMs, Math.round(requestedTimeoutMs as number)));
+  }
+
+  private remainingPracticeBudgetMs(deadlineAt: number): number {
+    return deadlineAt - Date.now();
+  }
+
+  private isAbortTimeoutError(error: unknown): boolean {
+    const name = String((error as { name?: unknown })?.name ?? '');
+    const message = String((error as { message?: unknown })?.message ?? '');
+    return (
+      name === 'AbortError' ||
+      name === 'TimeoutError' ||
+      /aborted|timed out/i.test(message)
+    );
+  }
+
+  private practiceErrorMessage(error: unknown): string {
+    if (error instanceof HttpException) {
+      const response = error.getResponse();
+      if (typeof response === 'string' && response.trim()) {
+        return response;
+      }
+      if (
+        response &&
+        typeof response === 'object' &&
+        'message' in response &&
+        typeof (response as { message?: unknown }).message === 'string'
+      ) {
+        return String((response as { message: string }).message);
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return 'Practice generation failed';
+  }
+
   private validateQuestionSet(
     questions: any[],
     expectedCount: number,
+    requestPayload?: Record<string, unknown>,
+    options?: {
+      ignoreDifficultyMode?: boolean;
+    },
   ): RawGeneratedQuestion[] {
     const out: RawGeneratedQuestion[] = [];
     const seen = new Set<string>();
     const reasonCounts = new Map<string, number>();
 
     for (const [index, raw] of questions.entries()) {
-      const reason = this.invalidReason(raw);
+      const reason = this.invalidReason(raw, requestPayload, options);
       if (reason != null) {
         reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
 
@@ -1331,6 +1915,105 @@ export class PracticeService {
     return out.length > 0 ? out : [];
   }
 
+  private deterministicallyValidateQuestionSet(args: {
+    questions: RawGeneratedQuestion[];
+    requestPayload: Record<string, unknown>;
+  }): RawGeneratedQuestion[] {
+    const { questions, requestPayload } = args;
+    const heuristicQuestions = questions.map((question) => ({
+      prompt: String(question.prompt ?? ''),
+      explanation: String(question.explanation ?? ''),
+      correctAnswer: String(question.correctAnswerText ?? ''),
+      options: Array.isArray(question.options) ? question.options : [],
+    }));
+    const assessment = assessQuestionSetIntegrity(heuristicQuestions);
+    if (!assessment.ok) {
+      console.log(
+        `[practice.deterministic] reject_summary ${JSON.stringify({ set_integrity_failed: assessment.issues.length })}`,
+      );
+      return [];
+    }
+
+    if (!shouldAcceptConfidenceHeuristic(heuristicQuestions)) {
+      console.log(
+        `[practice.deterministic] reject_summary ${JSON.stringify({ confidence_heuristic_failed: 1 })}`,
+      );
+      return [];
+    }
+
+    const out: RawGeneratedQuestion[] = [];
+    const reasonCounts = new Map<string, number>();
+
+    for (const [index, raw] of questions.entries()) {
+      const reason = this.deterministicValidationReason(raw, requestPayload);
+      if (reason) {
+        reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
+        console.log(
+          `[practice.deterministic] reject index=${index} reason=${reason} prompt="${String(raw?.prompt ?? '').replace(/\s+/g, ' ').slice(0, 140)}"`,
+        );
+        continue;
+      }
+
+      out.push(raw);
+    }
+
+    if (reasonCounts.size > 0) {
+      console.log(
+        `[practice.deterministic] reject_summary ${JSON.stringify(Object.fromEntries(reasonCounts))}`,
+      );
+    }
+
+    return out;
+  }
+
+  private deterministicValidationReason(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): string | null {
+    const audit = this.extractStructuredAnswerAudit(raw, requestPayload);
+    const prompt = String(raw.prompt ?? '').trim();
+    const explanation = String(raw.explanation ?? '').trim();
+    const correctAnswerText = String(raw.correctAnswerText ?? '').trim();
+    const subject = String(requestPayload.subject ?? '').trim().toLowerCase();
+
+    if (!audit.validationPassed) return 'structured_validation_failed';
+    if (audit.confidence < this.confidenceThreshold(requestPayload)) {
+      return 'confidence_below_threshold';
+    }
+    if (!this.structuredAnswerMatches(raw, audit.finalAnswer)) {
+      return 'structured_final_answer_mismatch';
+    }
+    if (this.hasDivisionByZeroSignal(`${prompt} ${explanation} ${audit.finalAnswer}`)) {
+      return 'division_by_zero_detected';
+    }
+    if (
+      (audit.type === 'physics' || subject === 'physics') &&
+      this.hasImpossiblePhysicsValue(`${prompt} ${explanation} ${audit.finalAnswer}`)
+    ) {
+      return 'impossible_physics_value';
+    }
+
+    const numericExpectation = this.extractSimpleArithmeticExpectation(prompt);
+    if (
+      numericExpectation &&
+      this.normalizeComparableAnswer(correctAnswerText) !==
+        this.normalizeComparableAnswer(numericExpectation)
+    ) {
+      return 'deterministic_numeric_mismatch';
+    }
+
+    const linearExpectation = this.extractOneStepLinearExpectation(prompt);
+    if (
+      linearExpectation &&
+      this.normalizeComparableAnswer(correctAnswerText) !==
+        this.normalizeComparableAnswer(linearExpectation)
+    ) {
+      return 'deterministic_linear_mismatch';
+    }
+
+    return null;
+  }
+
   private questionFingerprint(raw: RawGeneratedQuestion) {
     const prompt = String(raw.prompt ?? '')
       .trim()
@@ -1349,11 +2032,16 @@ export class PracticeService {
   }
 
   private sanitizeText(value: unknown): string {
-    return String(value ?? '')
+    const normalized = String(value ?? '')
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
-      .replace(/\\r\\n/g, '\n')
-      .replace(/\\r/g, '\n')
-      .replace(/\s+/g, ' ')
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n');
+
+    return normalized
+      .split('\n')
+      .map((line) => line.replace(/[ \t]+/g, ' ').trimRight())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
   }
 
@@ -1407,6 +2095,7 @@ export class PracticeService {
       topicMatchNote,
       correctAnswerText,
       recommendedTimeSeconds,
+      answerAudit: q?.answerAudit,
     };
   }
 
@@ -1429,7 +2118,13 @@ export class PracticeService {
     };
   }
 
-  private invalidReason(raw: any): string | null {
+  private invalidReason(
+    raw: any,
+    requestPayload?: Record<string, unknown>,
+    options?: {
+      ignoreDifficultyMode?: boolean;
+    },
+  ): string | null {
     if (!raw || typeof raw !== 'object') return 'not_object';
 
     const prompt = String(raw.prompt ?? '').trim();
@@ -1459,16 +2154,16 @@ export class PracticeService {
     if (!Array.isArray(raw.options)) return 'options_not_array';
     if (raw.options.length !== 4) return 'options_length_not_4';
 
-    const options = raw.options.map((x: any) => String(x ?? '').trim());
-    if (options.some((x: string) => !x)) return 'empty_option';
+    const optionValues = raw.options.map((x: any) => String(x ?? '').trim());
+    if (optionValues.some((x: string) => !x)) return 'empty_option';
 
-    const normalizedOptions = options.map((x) =>
+    const normalizedOptions = optionValues.map((x) =>
       x.toLowerCase().replace(/\s+/g, ' '),
     );
     if (new Set(normalizedOptions).size !== 4) return 'duplicate_options';
 
     if (!correctAnswerText) return 'missing_correct_answer_text';
-    if (options[correctIndex] !== correctAnswerText) {
+    if (optionValues[correctIndex] !== correctAnswerText) {
       return 'correct_answer_text_mismatch';
     }
 
@@ -1540,10 +2235,551 @@ export class PracticeService {
       return 'topic_match_note_too_short';
     }
 
+    if (requestPayload) {
+      const topicReason = this.topicIntegrityReason(raw, requestPayload);
+      if (topicReason) return topicReason;
+
+      if (!options?.ignoreDifficultyMode) {
+        const difficultyReason = this.difficultyIntegrityReason(raw, requestPayload);
+        if (difficultyReason) return difficultyReason;
+
+        const modeReason = this.modeIntegrityReason(raw, requestPayload);
+        if (modeReason) return modeReason;
+      }
+    }
+
+    if (this.containsUnfencedCodeBlock(prompt) || this.containsUnfencedCodeBlock(explanation)) {
+      return 'unfenced_code_block';
+    }
+
+    if (this.containsRawLatexOutsideMath(prompt) || this.containsRawLatexOutsideMath(explanation)) {
+      return 'raw_latex_outside_math';
+    }
+
     return null;
   }
 
   private isValidQuestion(raw: any): raw is RawGeneratedQuestion {
     return this.invalidReason(raw) == null;
+  }
+
+  private materializeQuestions(args: {
+    subject: string;
+    topicLabel: string;
+    mode: PracticeMode;
+    difficulty: PracticeDifficulty;
+    routeTag: string;
+    now: number;
+    questions: RawGeneratedQuestion[];
+  }) {
+    const normalized = normalizeQuestionSetShape(args.questions as any) as RawGeneratedQuestion[];
+
+    return normalized.map((q, i) => {
+      const safe = this.sanitizeQuestion(q);
+      const shuffled = this.shuffleOptions(
+        (safe.options as string[]).map(String).slice(0, 4),
+        Number(safe.correctIndex),
+      );
+
+      return {
+        id: `${args.subject}-${args.topicLabel}-${args.mode}-${args.difficulty}-${args.routeTag}-${args.now}-${i}`,
+        subject: args.subject,
+        topicLabel: args.topicLabel,
+        mode: args.mode,
+        difficulty: args.difficulty,
+        prompt: String(safe.prompt).trim(),
+        options: shuffled.options,
+        correctIndex: shuffled.correctIndex,
+        explanation: String(safe.explanation).trim(),
+        recommendedTimeSeconds: Number(safe.recommendedTimeSeconds ?? 30),
+      };
+    });
+  }
+
+  private extractStrictTopicText(strictPromptSummary: string): string {
+    return String(strictPromptSummary ?? '')
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => /^topic\s*:/i.test(line))
+      ?.replace(/^topic\s*:/i, '')
+      .trim() ?? '';
+  }
+
+  private topicIntegrityReason(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): string | null {
+    const strictTopicText = this.extractStrictTopicText(
+      String(requestPayload.strictPromptSummary ?? ''),
+    );
+    const expectedTopics = [
+      String(requestPayload.topicLabel ?? ''),
+      String(requestPayload.topicPathText ?? ''),
+      strictTopicText,
+    ]
+      .flatMap((value) => this.topicVariants(value))
+      .filter(Boolean);
+
+    if (!expectedTopics.length) return null;
+
+    const topicMatchNote = String(raw.topicMatchNote ?? '').trim();
+    if (!topicMatchNote) return 'missing_topic_match_note';
+
+    const noteVariants = this.topicVariants(topicMatchNote);
+    const aligned = noteVariants.some((note) =>
+      expectedTopics.some((expected) => this.topicVariantsAlign(note, expected)),
+    );
+
+    if (!aligned) return 'topic_drift';
+
+    const requireBodyTopicAnchor = Boolean(
+      (requestPayload.constraints as Record<string, unknown> | undefined)
+        ?.requireBodyTopicAnchor,
+    );
+
+    if (requireBodyTopicAnchor) {
+      const bodyText = `${String(raw.prompt ?? '')} ${String(raw.explanation ?? '')}`;
+      const bodyTokens = new Set(this.topicTokenSet(bodyText));
+      const configuredAnchorTokens = Array.isArray(
+        (requestPayload.constraints as Record<string, unknown> | undefined)
+          ?.topicAnchorTokens,
+      )
+        ? ((requestPayload.constraints as Record<string, unknown>).topicAnchorTokens as unknown[])
+            .map((token) => this.normalizeTopicToken(String(token ?? '')))
+            .filter((token): token is string => Boolean(token))
+        : [];
+      const expectedTokens = configuredAnchorTokens.length
+        ? Array.from(new Set(configuredAnchorTokens))
+        : this.topicAnchorTokens(expectedTopics.join(' '));
+
+      if (expectedTokens.length > 0) {
+        const anchoredCount = expectedTokens.filter((token) => bodyTokens.has(token)).length;
+        const configuredMinAnchorCount = Number(
+          (requestPayload.constraints as Record<string, unknown> | undefined)
+            ?.topicAnchorMinCount,
+        );
+        const minAnchorCount = Number.isFinite(configuredMinAnchorCount)
+          ? Math.max(1, Math.round(configuredMinAnchorCount))
+          : this.requiredTopicAnchorCount(expectedTokens);
+        if (anchoredCount < minAnchorCount) {
+          return 'topic_anchor_missing_from_body';
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private difficultyIntegrityReason(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): string | null {
+    const relaxDifficultyValidation = Boolean(
+      (requestPayload.constraints as Record<string, unknown> | undefined)
+        ?.relaxDifficultyValidation,
+    );
+    if (relaxDifficultyValidation) {
+      return null;
+    }
+
+    const requestedDifficulty = String(
+      requestPayload.difficulty ?? 'medium',
+    ).trim().toLowerCase();
+    const recommendedTimeSeconds = Number(raw.recommendedTimeSeconds ?? 0);
+    const prompt = String(raw.prompt ?? '');
+    const explanation = String(raw.explanation ?? '');
+    const bodyText = `${prompt} ${explanation}`.toLowerCase();
+
+    if (!Number.isFinite(recommendedTimeSeconds) || recommendedTimeSeconds <= 0) {
+      return null;
+    }
+
+    const obviouslyAdvancedForEasy =
+      /\b(prove|proof|theorem|rigorous|epsilon[- ]delta|jacobian|eigen(?:value|vector)?|fourier|laplace|tensor|diagonaliz(?:e|ation)|integration by parts|partial fraction(?:s)?|asymptotic|induction|contradiction)\b/i.test(
+        bodyText,
+      );
+    const obviouslyTrivialForHard =
+      /\b(?:what is|compute|evaluate|find|calculate)\s+\(?\s*-?\d+(?:\.\d+)?\s*[+\-*/]\s*-?\d+(?:\.\d+)?\s*\)?\b/i.test(
+        bodyText,
+      ) ||
+      /\bsolve\s+for\s+[a-z]\s*:?\s*(?:[a-z]\s*[+\-]\s*\d+\s*=\s*\d+|\d+\s*[a-z]\s*=\s*\d+|[a-z]\s*\/\s*\d+\s*=\s*\d+)\b/i.test(
+        bodyText,
+      ) ||
+      /\b(?:what is|find)\s+the\s+(?:value|derivative|capital|union|intersection)\s+of\s+[A-Za-z0-9]+\b/i.test(
+        bodyText,
+      );
+
+    if (requestedDifficulty === 'easy' && obviouslyAdvancedForEasy) {
+      return 'difficulty_too_hard_for_easy';
+    }
+
+    if (requestedDifficulty === 'easy' && recommendedTimeSeconds > 55) {
+      return 'difficulty_too_hard_for_easy';
+    }
+
+    if (requestedDifficulty === 'hard' && recommendedTimeSeconds < 35) {
+      return 'difficulty_too_easy_for_hard';
+    }
+
+    if (requestedDifficulty === 'hard' && obviouslyTrivialForHard) {
+      return 'difficulty_too_easy_for_hard';
+    }
+
+    if (requestedDifficulty === 'olympiad' && recommendedTimeSeconds < 50) {
+      return 'difficulty_too_easy_for_olympiad';
+    }
+
+    if (requestedDifficulty === 'olympiad' && obviouslyTrivialForHard) {
+      return 'difficulty_too_easy_for_olympiad';
+    }
+
+    return null;
+  }
+
+  private modeIntegrityReason(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): string | null {
+    const requestedMode = String(requestPayload.mode ?? 'practice')
+      .trim()
+      .toLowerCase();
+    const prompt = String(raw.prompt ?? '').trim();
+    const recommendedTimeSeconds = Number(raw.recommendedTimeSeconds ?? 0);
+    const promptLength = prompt.length;
+
+    if (!Number.isFinite(recommendedTimeSeconds) || recommendedTimeSeconds <= 0) {
+      return null;
+    }
+
+    if (requestedMode === 'flashcards') {
+      if (recommendedTimeSeconds > 35) return 'mode_too_slow_for_flashcards';
+      if (promptLength > 180) return 'mode_too_wordy_for_flashcards';
+    }
+
+    if (requestedMode === 'speedround') {
+      if (recommendedTimeSeconds > 25) return 'mode_too_slow_for_speedround';
+      if (promptLength > 140) return 'mode_too_wordy_for_speedround';
+    }
+
+    if (requestedMode === 'examprep') {
+      if (recommendedTimeSeconds < 30) return 'mode_too_light_for_examprep';
+      if (promptLength < 24) return 'mode_too_brief_for_examprep';
+    }
+
+    return null;
+  }
+
+  private topicVariants(value: string): string[] {
+    const normalized = String(value ?? '')
+      .toLowerCase()
+      .replace(/[>\/·•,:;()[\]{}|_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!normalized) return [];
+
+    const parts = normalized
+      .split(/\s{2,}|\s>\s|\s/)
+      .filter(Boolean);
+
+    const segmentSplit = String(value ?? '')
+      .toLowerCase()
+      .split(/[>\/·•]+/)
+      .map((part) =>
+        part
+          .replace(/[,:;()[\]{}|_-]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim(),
+      )
+      .filter(Boolean);
+
+    const variants = new Set<string>([normalized, ...segmentSplit]);
+    if (segmentSplit.length > 0) {
+      variants.add(segmentSplit[segmentSplit.length - 1]);
+    }
+    if (parts.length >= 2) {
+      variants.add(parts.slice(-2).join(' '));
+    }
+
+    return Array.from(variants).filter(Boolean);
+  }
+
+  private topicVariantsAlign(a: string, b: string): boolean {
+    const left = this.topicTokenSet(a);
+    const right = this.topicTokenSet(b);
+    if (!left.length || !right.length) return false;
+
+    const overlap = left.filter((token) => right.includes(token));
+    const minRequired = Math.min(left.length, right.length);
+    if (overlap.length >= minRequired) return true;
+
+    return ` ${a} `.includes(` ${b} `) || ` ${b} `.includes(` ${a} `);
+  }
+
+  private topicTokenSet(value: string): string[] {
+    return String(value ?? '')
+      .toLowerCase()
+      .replace(/[^a-z0-9+# ]+/g, ' ')
+      .split(/\s+/)
+      .map((token) => this.normalizeTopicToken(token))
+      .filter((token): token is string => Boolean(token));
+  }
+
+  private topicAnchorTokens(value: string): string[] {
+    const genericAnchorWords = new Set([
+      'basic',
+      'basics',
+      'beginner',
+      'beginners',
+      'confusion',
+      'example',
+      'examples',
+      'exercise',
+      'exercises',
+      'guide',
+      'guides',
+      'help',
+      'issue',
+      'issues',
+      'intro',
+      'introduction',
+      'note',
+      'notes',
+      'overview',
+      'practice',
+      'problem',
+      'problems',
+      'question',
+      'questions',
+      'topic',
+      'tutorial',
+      'tutorials',
+    ]);
+
+    return Array.from(
+      new Set(
+        this.topicTokenSet(value).filter(
+          (token) => token.length >= 4 && !genericAnchorWords.has(token),
+        ),
+      ),
+    );
+  }
+
+  private normalizeTopicToken(token: string): string | null {
+    const trimmed = String(token ?? '').trim().toLowerCase();
+    if (trimmed.length < 3) return null;
+
+    if (trimmed.endsWith('ies') && trimmed.length > 4) {
+      return `${trimmed.slice(0, -3)}y`;
+    }
+    if (trimmed.endsWith('s') && trimmed.length > 4) {
+      return trimmed.slice(0, -1);
+    }
+    return trimmed;
+  }
+
+  private requiredTopicAnchorCount(expectedTokens: string[]): number {
+    if (expectedTokens.length <= 1) return 1;
+    if (expectedTokens.length === 2) return 2;
+    return 2;
+  }
+
+  private inferResponseLanguageHint(
+    subject: string,
+    topicLabel: string,
+    topicPathText: string,
+    strictTopicText: string,
+  ): string | null {
+    const normalizedSubject = String(subject ?? '').trim().toLowerCase();
+    if (normalizedSubject === 'arabic') return 'Arabic';
+    if (normalizedSubject === 'hebrew') return 'Hebrew';
+    if (normalizedSubject === 'english') return 'English';
+
+    const text = `${topicLabel} ${topicPathText} ${strictTopicText}`;
+    if (/[\u0600-\u06FF]/.test(text)) return 'Arabic';
+    if (/[\u0590-\u05FF]/.test(text)) return 'Hebrew';
+    return null;
+  }
+
+  private containsUnfencedCodeBlock(text: string): boolean {
+    const value = String(text ?? '');
+    if (!value.includes('\n')) return false;
+    if (value.includes('```') || value.includes('~~~')) return false;
+
+    const lines = value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (lines.length < 2) return false;
+
+    const codeLikeLines = lines.filter((line) =>
+      /(^|\s)(if|else if|else|for|while|switch|case|def|class|function|return|print|console\.|System\.out|Console\.WriteLine|let |const |var |int |double |String |public |private )/.test(
+        line,
+      ) || /[{};]|=>/.test(line),
+    );
+
+    return codeLikeLines.length >= 2;
+  }
+
+  private containsRawLatexOutsideMath(text: string): boolean {
+    const stripped = String(text ?? '')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/~~~[\s\S]*?~~~/g, ' ')
+      .replace(/\$\$[\s\S]*?\$\$/g, ' ')
+      .replace(/\$[^$\n]+\$/g, ' ')
+      .replace(/\\\([\s\S]*?\\\)/g, ' ')
+      .replace(/\\\[[\s\S]*?\\\]/g, ' ');
+
+    return /\\(frac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|left|right|alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma|lim|int|sum|prod)\b/.test(
+      stripped,
+    );
+  }
+
+  private extractStructuredAnswerAudit(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): StructuredAnswerAudit {
+    const existing = raw.answerAudit;
+    if (existing && typeof existing === 'object') {
+      const parsed = this.parseStructuredAnswerAudit(
+        { index: 0, ...(existing as Record<string, unknown>) },
+        requestPayload,
+      );
+      if (parsed) return parsed.audit;
+    }
+
+    return this.buildLegacyStructuredAudit(raw, requestPayload);
+  }
+
+  private buildLegacyStructuredAudit(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): StructuredAnswerAudit {
+    return {
+      finalAnswer: this.sanitizeText(raw.correctAnswerText),
+      steps:
+        this.sanitizeText(raw.explanation) || 'No verified steps were provided.',
+      confidence: 0.93,
+      type: this.inferStructuredAnswerType(raw, requestPayload),
+      validationPassed: true,
+      reason: 'legacy_fallback',
+    };
+  }
+
+  private inferStructuredAnswerType(
+    raw: RawGeneratedQuestion,
+    requestPayload: Record<string, unknown>,
+  ): StructuredAnswerType {
+    const text = `${String(raw.prompt ?? '')}\n${String(raw.explanation ?? '')}`;
+    const subject = String(requestPayload.subject ?? '').trim().toLowerCase();
+    if (text.includes('```') || text.includes('~~~')) return 'code';
+    if (subject === 'physics') return 'physics';
+    if (/[∫∑ΣΠ√]|\\(frac|sqrt|lim|int|sum|prod)\b|\b(?:sin|cos|tan|log|ln)\b|[_^]/.test(text)) {
+      return subject === 'physics' ? 'physics' : 'math';
+    }
+    return 'text';
+  }
+
+  private confidenceThreshold(requestPayload: Record<string, unknown>): number {
+    const difficulty = String(requestPayload.difficulty ?? 'medium')
+      .trim()
+      .toLowerCase();
+
+    switch (difficulty) {
+      case 'easy':
+        return 0.72;
+      case 'hard':
+        return 0.82;
+      case 'olympiad':
+        return 0.86;
+      case 'medium':
+      default:
+        return 0.78;
+    }
+  }
+
+  private structuredAnswerMatches(
+    raw: RawGeneratedQuestion,
+    finalAnswer: string,
+  ): boolean {
+    const normalizedFinal = this.normalizeComparableAnswer(finalAnswer);
+    const normalizedCorrect = this.normalizeComparableAnswer(
+      String(raw.correctAnswerText ?? ''),
+    );
+
+    if (!normalizedFinal || !normalizedCorrect) return false;
+    if (normalizedFinal === normalizedCorrect) return true;
+
+    const letter = normalizedFinal.replace(/[^a-d]/g, '');
+    const correctIndex = Number(raw.correctIndex ?? -1);
+    if (letter.length === 1 && correctIndex >= 0) {
+      return 'abcd'.indexOf(letter) === correctIndex;
+    }
+
+    return false;
+  }
+
+  private normalizeComparableAnswer(value: string): string {
+    return String(value ?? '')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/~~~[\s\S]*?~~~/g, ' ')
+      .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
+      .replace(/\$([^$\n]+)\$/g, '$1')
+      .replace(/\\text\{([^{}]+)\}/g, '$1')
+      .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1/$2')
+      .replace(/[^\p{L}\p{N}+\-*/.=()/ ]+/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  private hasDivisionByZeroSignal(text: string): boolean {
+    const normalized = String(text ?? '').replace(/\s+/g, ' ');
+    return /\/\s*0(?:\D|$)/.test(normalized) || /\\frac\{[^{}]+\}\{0\}/.test(normalized);
+  }
+
+  private hasImpossiblePhysicsValue(text: string): boolean {
+    const normalized = String(text ?? '').toLowerCase();
+    return /-\d+(?:\.\d+)?\s*k\b/.test(normalized) || /negative\s+kelvin/.test(normalized);
+  }
+
+  private extractSimpleArithmeticExpectation(prompt: string): string | null {
+    const match = String(prompt ?? '')
+      .trim()
+      .match(/\b(?:what is|compute|evaluate|find|calculate)\s+\(?\s*(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)\s*\)?\??/i);
+    if (!match) return null;
+
+    const left = Number(match[1]);
+    const op = match[2];
+    const right = Number(match[3]);
+    if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+    if (op === '/' && right === 0) return null;
+
+    const value =
+      op === '+'
+        ? left + right
+        : op === '-'
+          ? left - right
+          : op === '*'
+            ? left * right
+            : left / right;
+
+    return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
+  }
+
+  private extractOneStepLinearExpectation(prompt: string): string | null {
+    const match = String(prompt ?? '')
+      .trim()
+      .match(/\bsolve\s+for\s+([a-z])\s*:?\s*\1\s*([+\-])\s*(\d+(?:\.\d+)?)\s*=\s*(-?\d+(?:\.\d+)?)\.?/i);
+    if (!match) return null;
+
+    const sign = match[2];
+    const term = Number(match[3]);
+    const rhs = Number(match[4]);
+    if (!Number.isFinite(term) || !Number.isFinite(rhs)) return null;
+
+    const value = sign === '+' ? rhs - term : rhs + term;
+    return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../ui/math/math_view.dart';
+import '../../../common/widgets/cm_ai_message.dart';
+import '../../../l10n/app_localizations.dart';
 import '../providers/practice_providers.dart';
+import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
 
 Color _subjectAccent(String subject) {
@@ -90,67 +92,74 @@ class PracticeAnalyticsDebugScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analytics = ref.watch(practiceAnalyticsProvider);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
-        title: const Text('Practice Analytics'),
+        title: Text(l.practiceAnalyticsTitle),
       ),
       body: analytics.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(
+          child: Text('${l.practiceHistoryErrorPrefix} $e'),
+        ),
         data: (snapshot) {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [
-              _SectionTitle(title: 'Overall'),
+              _SectionTitle(title: l.practiceAnalyticsSectionOverall),
               _TopicTile(
-                title: 'Recent sessions',
-                subtitle:
-                    '${snapshot.overall.sessions} sessions • '
-                    '${snapshot.overall.correct}/${snapshot.overall.answered} correct • '
-                    '${snapshot.overall.accuracyPercent}% • '
-                    'XP ${snapshot.overall.xp}',
+                title: l.practiceAnalyticsRecentSessionsTitle,
+                subtitle: l.practiceAnalyticsRecentSessionsSummary(
+                  snapshot.overall.sessions,
+                  snapshot.overall.correct,
+                  snapshot.overall.answered,
+                  snapshot.overall.accuracyPercent,
+                  snapshot.overall.xp,
+                ),
               ),
               const SizedBox(height: 16),
-              _SectionTitle(title: 'Weakest topics'),
+              _SectionTitle(title: l.practiceAnalyticsSectionWeakestTopics),
               if (snapshot.weakestTopics.isEmpty)
-                const Card(child: ListTile(title: Text('No topic data yet'))),
+                Card(child: ListTile(title: Text(l.practiceAnalyticsNoTopicData))),
               ...snapshot.weakestTopics.map(
                 (t) => _TopicTile(
-                  title: t.topicLabel,
+                  title: localizedPracticeTopicLabel(context, t.topicLabel),
                   subtitle:
                       '${t.correct}/${t.totalQuestions} • '
                       '${t.accuracyPercent}% • '
-                      '${t.totalQuestions}Q',
+                      '${l.practiceSetupQuestionsCount(t.totalQuestions)}',
                 ),
               ),
               const SizedBox(height: 16),
-              _SectionTitle(title: 'Strongest topics'),
+              _SectionTitle(title: l.practiceAnalyticsSectionStrongestTopics),
               if (snapshot.strongestTopics.isEmpty)
-                const Card(child: ListTile(title: Text('No topic data yet'))),
+                Card(child: ListTile(title: Text(l.practiceAnalyticsNoTopicData))),
               ...snapshot.strongestTopics.map(
                 (t) => _TopicTile(
-                  title: t.topicLabel,
+                  title: localizedPracticeTopicLabel(context, t.topicLabel),
                   subtitle:
                       '${t.correct}/${t.totalQuestions} • '
                       '${t.accuracyPercent}% • '
-                      '${t.totalQuestions}Q',
+                      '${l.practiceSetupQuestionsCount(t.totalQuestions)}',
                 ),
               ),
               const SizedBox(height: 16),
-              _SectionTitle(title: 'Mode performance'),
+              _SectionTitle(title: l.practiceAnalyticsSectionModePerformance),
               if (snapshot.modeStats.isEmpty)
-                const Card(child: ListTile(title: Text('No mode data yet'))),
+                Card(child: ListTile(title: Text(l.practiceAnalyticsNoModeData))),
               ...snapshot.modeStats.map(
                 (m) => _ModeTile(
                   icon: practiceModeIcon(m.mode),
-                  label: practiceModeLabel(m.mode),
-                  subtitle:
-                      '${m.sessions} sessions • '
-                      '${m.correct}/${m.answered} • '
-                      '${m.accuracyPercent}% • '
-                      'XP ${m.xp}',
+                  label: practiceModeLabel(context, m.mode),
+                  subtitle: l.practiceAnalyticsRecentSessionsSummary(
+                    m.sessions,
+                    m.correct,
+                    m.answered,
+                    m.accuracyPercent,
+                    m.xp,
+                  ),
                 ),
               ),
             ],
@@ -200,15 +209,19 @@ class _TopicTile extends StatelessWidget {
           backgroundColor: accent.withValues(alpha: 0.18),
           child: Icon(icon, color: accent, size: 18),
         ),
-        title: MathView(
+        title: CMAiMessage(
           title,
           compact: true,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w800,
             color: accent,
           ),
         ),
-        subtitle: MathView(subtitle, compact: true),
+        subtitle: CMAiMessage(
+          subtitle,
+          compact: true,
+          textStyle: Theme.of(context).textTheme.bodyMedium,
+        ),
       ),
     );
   }
@@ -230,8 +243,16 @@ class _ModeTile extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: Icon(icon),
-        title: MathView(label, compact: true),
-        subtitle: MathView(subtitle, compact: true),
+        title: CMAiMessage(
+          label,
+          compact: true,
+          textStyle: Theme.of(context).textTheme.bodyLarge,
+        ),
+        subtitle: CMAiMessage(
+          subtitle,
+          compact: true,
+          textStyle: Theme.of(context).textTheme.bodyMedium,
+        ),
       ),
     );
   }

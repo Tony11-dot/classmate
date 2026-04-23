@@ -28,27 +28,25 @@ import { PhysicsRelativityDeterministicEngine } from './physics-relativity-deter
 import { PolynomialsDeterministicEngine } from './polynomials-deterministic.engine';
 import { SetTheoryDeterministicEngine } from './set-theory-deterministic.engine';
 import { ElectronicsDeterministicEngine } from './electronics-deterministic.engine';
+import { BroadCatalogDeterministicEngine } from './broad-catalog-deterministic.engine';
 
 @Injectable()
 export class PracticeEngineRegistry {
+  private supportsRequestedMode(
+    engine: PracticeEngine,
+    mode: PracticeEngineRequest['mode'],
+  ) {
+    const supportedModes = engine.supportedModes;
+    if (!Array.isArray(supportedModes) || supportedModes.length === 0) {
+      return mode === 'practice';
+    }
+
+    return supportedModes.includes(mode);
+  }
 
   private ensureQuestionCount(questions: any[], requested: number) {
     if (!Array.isArray(questions)) return [];
-    if (questions.length >= requested) return questions.slice(0, requested);
-
-    const padded = [...questions];
-    let i = 0;
-
-    while (padded.length < requested && questions.length > 0) {
-      const base = questions[i % questions.length];
-      padded.push({
-        ...base,
-        _padded: true,
-      });
-      i++;
-    }
-
-    return padded;
+    return questions.slice(0, requested);
   }
 
   private readonly engines: PracticeEngine[];
@@ -67,6 +65,7 @@ export class PracticeEngineRegistry {
     private readonly trigonometryEngine: TrigonometryDeterministicEngine,
     private readonly polynomialsEngine: PolynomialsDeterministicEngine,
     private readonly setTheoryEngine: SetTheoryDeterministicEngine,
+    private readonly broadCatalogEngine: BroadCatalogDeterministicEngine,
     private readonly physicsKinematicsEngine: PhysicsKinematicsDeterministicEngine,
     private readonly physicsNewtonLawsEngine: PhysicsNewtonLawsDeterministicEngine,
     private readonly physicsForcesEngine: PhysicsForcesDeterministicEngine,
@@ -96,6 +95,7 @@ export class PracticeEngineRegistry {
       this.trigonometryEngine,
       this.polynomialsEngine,
       this.setTheoryEngine,
+      this.broadCatalogEngine,
       this.physicsKinematicsEngine,
       this.physicsNewtonLawsEngine,
       this.physicsForcesEngine,
@@ -115,6 +115,10 @@ export class PracticeEngineRegistry {
 
   async generate(req: PracticeEngineRequest): Promise<GeneratedQuestion[] | null> {
     for (const engine of this.engines) {
+      if (!this.supportsRequestedMode(engine, req.mode)) {
+        continue;
+      }
+
       if (engine.supports(req)) {
         const questions = await engine.generate(req);
         return this.ensureQuestionCount(questions, req.questionCount ?? 2);

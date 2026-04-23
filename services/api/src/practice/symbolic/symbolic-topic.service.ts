@@ -38,6 +38,49 @@ function isLikelySymbolicTopicText(topic: string): boolean {
   return explicit || symbolicStyle;
 }
 
+function isBasicSymbolicSeedTopic(topic: string): boolean {
+  const tokens = String(topic ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(
+      (token) =>
+        ![
+          'a',
+          'an',
+          'and',
+          'by',
+          'for',
+          'in',
+          'of',
+          'on',
+          'the',
+          'to',
+          'with',
+          'math',
+          'mathematics',
+          'calculus',
+          'algebra',
+          'basic',
+          'basics',
+          'intro',
+          'introduction',
+          'overview',
+          'practice',
+          'review',
+          'foundation',
+          'foundations',
+          'beginner',
+          'beginners',
+          'elementary',
+        ].includes(token),
+    );
+
+  return tokens.length <= 2;
+}
+
 @Injectable()
 export class SymbolicTopicService {
   resolve(input: {
@@ -74,7 +117,7 @@ export class SymbolicTopicService {
       };
     }
 
-    if (/derivative|derivatives/i.test(lower)) {
+    if (/derivative|derivatives/i.test(lower) && isBasicSymbolicSeedTopic(topic)) {
       return {
         ok: true,
         ready: true,
@@ -88,7 +131,7 @@ export class SymbolicTopicService {
       };
     }
 
-    if (/limit|limits/i.test(lower)) {
+    if (/limit|limits/i.test(lower) && isBasicSymbolicSeedTopic(topic)) {
       return {
         ok: true,
         ready: true,
@@ -102,7 +145,7 @@ export class SymbolicTopicService {
       };
     }
 
-    if (/matrix|matrices/i.test(lower)) {
+    if (/matrix|matrices/i.test(lower) && isBasicSymbolicSeedTopic(topic)) {
       const seeds: SymbolicQuestionSeed[] = [
         {
           stem: 'If A and B are 2×2 matrices, what is the size of A + B ?',
@@ -147,7 +190,7 @@ export class SymbolicTopicService {
       };
     }
 
-    if (/integral|integrals/i.test(lower)) {
+    if (/integral|integrals/i.test(lower) && isBasicSymbolicSeedTopic(topic)) {
       const seeds: SymbolicQuestionSeed[] = [
         {
           stem: 'What is ∫ x dx ?',

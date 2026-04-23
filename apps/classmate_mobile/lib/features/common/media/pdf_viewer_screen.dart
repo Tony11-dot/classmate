@@ -98,33 +98,42 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   fitPolicy: FitPolicy.BOTH,
                   preventLinkNavigation: false,
                 )
-              : Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.picture_as_pdf_outlined, size: 56),
-                        const SizedBox(height: 12),
-                        Text(
-                          resolvedTitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium,
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight - 48,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _error ?? 'Unable to preview PDF.',
-                          textAlign: TextAlign.center,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.picture_as_pdf_outlined, size: 56),
+                              const SizedBox(height: 12),
+                              Text(
+                                resolvedTitle,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _error ?? 'Unable to preview PDF.',
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton.icon(
+                                onPressed: _openExternally,
+                                icon: const Icon(Icons.open_in_new),
+                                label: const Text('Open externally'),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        FilledButton.icon(
-                          onPressed: _openExternally,
-                          icon: const Icon(Icons.open_in_new),
-                          label: const Text('Open externally'),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 )),
     );
   }
