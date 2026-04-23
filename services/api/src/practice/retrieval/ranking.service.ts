@@ -54,17 +54,4 @@ export class RankingService {
     return dot / (magA * magB);
   }
 
-  debug(items: any[]) {
-    console.log(
-      'RANKING_DEBUG',
-      items.map((i: any) => ({
-        score: i.score,
-        topic: i.metadata?.topic,
-        correct: i.metadata?.correct,
-        signals: i.signals,
-      }))
-    );
-
-    console.log('WEIGHTS', this.weights.get());
-  }
 }

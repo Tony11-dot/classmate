@@ -32,8 +32,6 @@ export class AdminService {
       });
       return out;
     } catch (e: any) {
-      // TEMP DEBUG (remove after): surface prisma error in server logs
-      console.error('createCohort prisma error:', e?.code, e?.message, e?.meta);
       if (e?.code === 'P2002') {
         throw new HttpException('Cohort name already exists', HttpStatus.CONFLICT);
       }

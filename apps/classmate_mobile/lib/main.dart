@@ -8,10 +8,5 @@ import 'core/config/env.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
-  // ignore: avoid_print
-  // ignore: avoid_print
-  print(
-    'DEV_TOKEN_LEN=${devTokenLen()} ENV_DEV_TOKEN_LEN=${Env.devToken.trim().length}',
-  );
   runApp(const ProviderScope(child: ClassMateApp()));
 }
