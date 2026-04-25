@@ -1765,57 +1765,24 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    // Minimal Claude-style: centered avatar + tagline + suggestion chips
+    // Just the avatar + one muted line. No text block, no chips.
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const _NovaAvatar(animating: false, size: 56),
-              const SizedBox(height: 20),
-              Text(
-                l.tutorEmptyStateTitle,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const _NovaAvatar(animating: false, size: 52),
+            const SizedBox(height: 16),
+            Text(
+              l.tutorEmptyStateTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
               ),
-              const SizedBox(height: 8),
-              Text(
-                l.tutorEmptyStateBody,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: [
-                  _PromptSuggestionChip(
-                    label: l.tutorPromptSuggestionSummarizeNotes,
-                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionSummarizeNotes),
-                  ),
-                  _PromptSuggestionChip(
-                    label: l.tutorPromptSuggestionRevisionTable,
-                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionRevisionTable),
-                  ),
-                  _PromptSuggestionChip(
-                    label: l.tutorPromptSuggestionQuizMe,
-                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionQuizMe),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1828,9 +1795,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       child: NativeGlassView(
         borderRadius: 28,
         style: NativeGlassStyle.ultraThin,
-        fallbackColor: isDark
-            ? Colors.black.withValues(alpha: 0.12)
-            : Colors.white.withValues(alpha: 0.36),
+        fallbackColor: Platform.isIOS
+            ? Colors.transparent
+            : (isDark
+                ? Colors.black.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.18)),
         child: ChatComposer(
         controller: _controller,
         topContent: _novaComposerTopContent(),

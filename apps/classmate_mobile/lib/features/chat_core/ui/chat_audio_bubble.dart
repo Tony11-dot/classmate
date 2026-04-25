@@ -294,7 +294,10 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       children: [
         Expanded(
           child: Container(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            // Extra bottom padding when timestamp is shown inside.
+            padding: EdgeInsets.fromLTRB(
+              8, 8, 8, (widget.timeLabel != null || widget.isMine) ? 22 : 8,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -310,7 +313,10 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
             ),
-            child: Row(
+            child: Stack(
+              children: [
+                // ── Waveform row ─────────────────────────────────────────
+                Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 InkWell(
@@ -499,43 +505,47 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                 const SizedBox(width: 8),
                 speedChip,
               ],
-            ),
-          ),
-        ),
-        // Timestamp + delivery status inside the bubble
-        if (widget.timeLabel != null || widget.isMine)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 2, 4, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (widget.timeLabel != null)
-                  Text(
-                    widget.timeLabel!,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.white.withValues(alpha: 0.70),
-                      fontWeight: FontWeight.w500,
+                ), // end waveform Row
+
+                // ── Timestamp + delivery checks — bottom-right inside bubble ─
+                if (widget.timeLabel != null || widget.isMine)
+                  Positioned(
+                    bottom: 0,
+                    right: 2,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (widget.timeLabel != null)
+                          Text(
+                            widget.timeLabel!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white.withValues(alpha: 0.65),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        if (widget.isMine) ...[
+                          const SizedBox(width: 3),
+                          Icon(
+                            widget.seen
+                                ? Icons.done_all_rounded
+                                : widget.delivered
+                                    ? Icons.done_all_rounded
+                                    : Icons.done_rounded,
+                            size: 12,
+                            color: widget.seen
+                                ? Colors.lightBlueAccent.withValues(alpha: 0.90)
+                                : Colors.white.withValues(alpha: 0.55),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                if (widget.isMine) ...[
-                  const SizedBox(width: 3),
-                  Icon(
-                    widget.seen
-                        ? Icons.done_all_rounded
-                        : widget.delivered
-                            ? Icons.done_all_rounded
-                            : Icons.done_rounded,
-                    size: 13,
-                    color: widget.seen
-                        ? Colors.lightBlueAccent.withValues(alpha: 0.90)
-                        : Colors.white.withValues(alpha: 0.60),
-                  ),
-                ],
-              ],
-            ),
+              ], // end Stack children
+            ), // end Stack
           ),
+        ),
       ],
     );
   }

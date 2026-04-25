@@ -2897,9 +2897,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   child: NativeGlassView(
                     borderRadius: 28,
                     style: NativeGlassStyle.ultraThin,
-                    fallbackColor: isDark
-                        ? Colors.black.withValues(alpha: 0.12)
-                        : Colors.white.withValues(alpha: 0.36),
+                    fallbackColor: Platform.isIOS
+                        ? Colors.transparent
+                        : (isDark
+                            ? Colors.black.withValues(alpha: 0.12)
+                            : Colors.white.withValues(alpha: 0.18)),
                     child: ChatComposer(
                   controller: _controller,
                   replyingTo: _replyIndex == null

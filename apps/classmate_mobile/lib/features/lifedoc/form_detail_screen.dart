@@ -66,59 +66,100 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   Widget _buildScaffold(BuildContext context, StudentFormItem form) {
     final cs = Theme.of(context).colorScheme;
 
+    // NestedScrollView: SliverAppBar pins only the TabBar at the top.
+    // The hero card lives inside each tab's CustomScrollView and scrolls away
+    // naturally — the user no longer sees it as a "stuck" block.
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(form.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          bottom: const TabBar(
-            tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Hero is the FIRST item in the Questions list — scrolls with content.
-            ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                _FormHero(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _QuestionCard(
-                        question: q,
-                        answer: _answers[q.id],
-                        onChanged: (value) {
-                          setState(() { _answers[q.id] = value; });
-                        },
-                      ),
-                    )),
-                const SizedBox(height: 8),
-                FilledButton.icon(
-                  onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
-                  icon: const Icon(Icons.send_rounded),
-                  label: Text(_submitted ? 'Submitted' : 'Submit form'),
-                ),
-                if (!form.acceptingResponses) ...[
-                  const SizedBox(height: 10),
-                  Text('This form is closed.', style: TextStyle(color: cs.onSurfaceVariant)),
-                ],
-              ],
-            ),
-            ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _ResponsesSummaryCard(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _StatsCard(question: q),
-                    )),
-              ],
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              expandedHeight: 0,
+              forceElevated: innerBoxIsScrolled,
+              // No title — hero card shows form info; AppBar is just a back
+              // button + the pinned TabBar below it.
+              bottom: const TabBar(
+                tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
+              ),
             ),
           ],
+          body: TabBarView(
+            children: [
+              // ── Questions tab ────────────────────────────────────────────
+              CustomScrollView(
+                key: const PageStorageKey<String>('questions'),
+                slivers: [
+                  // Hero scrolls with the list; disappears under the TabBar
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: _FormHero(form: form),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      const SizedBox(height: 16),
+                      ...form.questions.map((q) => Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                            child: _QuestionCard(
+                              question: q,
+                              answer: _answers[q.id],
+                              onChanged: (value) =>
+                                  setState(() => _answers[q.id] = value),
+                            ),
+                          )),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            FilledButton.icon(
+                              onPressed: form.acceptingResponses
+                                  ? () => _submit(context, form)
+                                  : null,
+                              icon: const Icon(Icons.send_rounded),
+                              label: Text(_submitted ? 'Submitted' : 'Submit form'),
+                            ),
+                            if (!form.acceptingResponses) ...[
+                              const SizedBox(height: 10),
+                              Text('This form is closed.',
+                                  style: TextStyle(color: cs.onSurfaceVariant)),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+
+              // ── Responses tab ────────────────────────────────────────────
+              CustomScrollView(
+                key: const PageStorageKey<String>('responses'),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: _ResponsesSummaryCard(form: form),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      const SizedBox(height: 16),
+                      ...form.questions.map((q) => Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                            child: _StatsCard(question: q),
+                          )),
+                      const SizedBox(height: 32),
+                    ]),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

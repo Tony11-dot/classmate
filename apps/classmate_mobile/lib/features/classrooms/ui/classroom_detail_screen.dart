@@ -3253,9 +3253,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
 
       if (text.isNotEmpty) {
         _recentOwnMessageTexts.add(composedText.trim());
-        await repo.sendChatText(widget.courseId, composedText);
-        _chatCtl.clear();
-        // Optimistic: show message immediately before the server re-fetch lands.
+        // Show optimistic message instantly, THEN send + re-fetch.
         if (mounted) {
           setState(() {
             _optimisticMessages.add(<String, dynamic>{
@@ -3269,6 +3267,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             });
           });
         }
+        await repo.sendChatText(widget.courseId, composedText);
+        _chatCtl.clear();
       }
 
       if (text.isNotEmpty || sentAnyMedia) {
@@ -3285,10 +3285,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         });
       }
 
-      ref.invalidate(
-        classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
-      );
-      _pinClassroomToBottom(jump: true);
+      // Delay re-fetch slightly so the optimistic message has time to render
+      // before the provider refreshes and clears it.
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (!mounted) return;
+        ref.invalidate(
+          classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
+        );
+        _pinClassroomToBottom(jump: true);
+      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3805,12 +3810,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       child: NativeGlassView(
         borderRadius: 28,
         style: NativeGlassStyle.ultraThin,
-        fallbackColor: isDark
-            ? Colors.black.withValues(alpha: 0.12)
-            : Colors.white.withValues(alpha: 0.36),
-        child: SafeArea(
-      top: false,
-      child: ChatComposer(
+        // On iOS, UIVisualEffectView provides all visual styling — zero overlay.
+        // On Android, use a very light tint so the BackdropFilter has some depth.
+        fallbackColor: Platform.isIOS
+            ? Colors.transparent
+            : (isDark
+                ? Colors.black.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.18)),
+        child: ChatComposer(
         controller: _chatCtl,
         replyingTo: _replyToMessageId == null
             ? null
@@ -3884,10 +3891,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         showAttach: true,
         showMic: true,
         forceMicOnlyTap: false,
-          ),    // ChatComposer
-        ),      // SafeArea
-      ),        // NativeGlassView
-  );            // Padding
+        ),    // ChatComposer
+      ),      // NativeGlassView
+  );          // Padding
   }
 
   Future<void> _showClassroomWaActionsAt(
@@ -4311,25 +4317,21 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               subtitle: '$e',
             ),
             data: (m) {
-              // Clear optimistic messages now that fresh data has arrived.
-              if (_optimisticMessages.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted && _optimisticMessages.isNotEmpty) {
-                    setState(() => _optimisticMessages.clear());
-                  }
-                });
-              }
               final serverItems = (m['items'] is List)
                   ? (m['items'] as List)
                   : const [];
-              // Merge server items + any optimistic messages not yet in server list
-              final serverTexts = serverItems
-                  .map((i) => (_pick(i as dynamic, 'text') as String).trim())
-                  .toSet();
-              final pendingNew = _optimisticMessages
-                  .where((o) => !serverTexts.contains((o['text'] as String).trim()))
-                  .toList();
-              final rawItems = [...serverItems, ...pendingNew];
+              // Optimistic messages have IDs starting with 'optimistic-'.
+              // Server items have real IDs — no overlap. Show both; clear
+              // optimistics after a short grace period so the real server
+              // message is already visible before the local one disappears.
+              if (_optimisticMessages.isNotEmpty && serverItems.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (mounted) setState(() => _optimisticMessages.clear());
+                  });
+                });
+              }
+              final rawItems = [...serverItems, ..._optimisticMessages];
 
               final filtered =
                   rawItems

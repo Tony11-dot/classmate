@@ -359,32 +359,37 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
   ) {
     final mathText = element.textContent;
     final style = preferredStyle ?? parentStyle;
+    // SingleChildScrollView gives Math.tex an unbounded horizontal budget so
+    // it never overflows the Wrap that MarkdownBody places inline elements in.
+    // NeverScrollableScrollPhysics keeps it non-interactive (it's inline text).
     return Transform.translate(
       offset: const Offset(0, 1.5),
-      child: Math.tex(
-        mathText,
-        mathStyle: MathStyle.text,
-        textStyle: style,
-        // Try display mode as a secondary attempt before giving up.
-        onErrorFallback: (_) => Math.tex(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        child: Math.tex(
           mathText,
-          mathStyle: MathStyle.display,
-          textStyle: style?.copyWith(
-            fontSize: (style.fontSize ?? 14) * 0.88,
+          mathStyle: MathStyle.text,
+          textStyle: style,
+          onErrorFallback: (_) => Math.tex(
+            mathText,
+            mathStyle: MathStyle.display,
+            textStyle: style?.copyWith(
+              fontSize: (style.fontSize ?? 14) * 0.88,
+            ),
+            onErrorFallback: (_) {
+              final clean = mathText
+                  .replaceAllMapped(
+                      RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
+                  .replaceAll(RegExp(r'[{}]'), ' ')
+                  .replaceAll('_', '')
+                  .replaceAll('^', '');
+              return Text(
+                clean.trim(),
+                style: style?.copyWith(fontStyle: FontStyle.italic),
+              );
+            },
           ),
-          onErrorFallback: (_) {
-            // Both render modes failed — show cleaned text so no raw \commands
-            final clean = mathText
-                .replaceAllMapped(
-                    RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
-                .replaceAll(RegExp(r'[{}]'), ' ')
-                .replaceAll('_', '')
-                .replaceAll('^', '');
-            return Text(
-              clean.trim(),
-              style: style?.copyWith(fontStyle: FontStyle.italic),
-            );
-          },
         ),
       ),
     );

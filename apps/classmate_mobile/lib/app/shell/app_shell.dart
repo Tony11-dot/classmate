@@ -167,34 +167,26 @@ class _PlatformCoreBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
-    final tint = brightness == Brightness.dark
-        ? Colors.black.withValues(alpha: 0.45)
-        : Colors.white.withValues(alpha: 0.72);
-    final separatorColor = brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.12)
-        : Colors.black.withValues(alpha: 0.10);
+    final isDark = brightness == Brightness.dark;
 
-    return Stack(
-      children: [
-        // Native UIVisualEffectView glass fills the entire bar area
-        Positioned.fill(
-          child: NativeGlassView(
-            borderRadius: 0,
-            style: NativeGlassStyle.thin,
-            fallbackColor: tint,
-            child: const SizedBox.expand(),
-          ),
-        ),
-        // Native iOS hairline separator at the very top
-        Positioned(
-          top: 0, left: 0, right: 0,
-          child: Container(height: 0.5, color: separatorColor),
-        ),
-        // Tab buttons inside safe area at native iOS height (49pt)
-        SafeArea(
-          top: false,
+    // Apple Music iOS 26: floating frosted-glass pill with per-tab inner capsule.
+    final pillTint = isDark
+        ? Colors.black.withValues(alpha: 0.45)
+        : Colors.white.withValues(alpha: 0.65);
+
+    return SafeArea(
+      top: false,
+      left: false,
+      right: false,
+      bottom: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        child: NativeGlassView(
+          borderRadius: 28,
+          style: NativeGlassStyle.thin,
+          fallbackColor: pillTint,
           child: SizedBox(
-            height: 49,
+            height: 54,
             child: Row(
               children: [
                 for (var i = 0; i < items.length; i++)
@@ -203,6 +195,7 @@ class _PlatformCoreBottomNav extends StatelessWidget {
                       item: items[i],
                       selected: i == index,
                       activeColor: cs.primary,
+                      isDark: isDark,
                       onTap: () {
                         HapticFeedback.selectionClick();
                         onTap(i);
@@ -213,24 +206,26 @@ class _PlatformCoreBottomNav extends StatelessWidget {
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
 
-/// Single tab button matching Apple's native UITabBar item exactly:
-/// icon (24pt filled/outline), 3pt gap, label (10pt), color-only selection.
+/// Apple Music iOS 26 tab button: selected tab gets an inner frosted-glass
+/// capsule; unselected tabs show icon + gray label with no background.
 class _IOSTabButton extends StatefulWidget {
   const _IOSTabButton({
     required this.item,
     required this.selected,
     required this.activeColor,
+    required this.isDark,
     required this.onTap,
   });
 
   final _NavItem item;
   final bool selected;
   final Color activeColor;
+  final bool isDark;
   final VoidCallback onTap;
 
   @override
@@ -271,6 +266,13 @@ class _IOSTabButtonState extends State<_IOSTabButton>
     final color = widget.selected ? activeColor : inactiveColor;
     final iconData = widget.selected ? widget.item.selectedIcon : widget.item.icon;
 
+    // Inner capsule background for selected tab (matches Apple Music iOS 26).
+    final capsuleColor = widget.selected
+        ? (widget.isDark
+            ? Colors.white.withValues(alpha: 0.14)
+            : Colors.white.withValues(alpha: 0.78))
+        : Colors.transparent;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _pressCtrl.forward(),
@@ -281,38 +283,47 @@ class _IOSTabButtonState extends State<_IOSTabButton>
       onTapCancel: () => _pressCtrl.reverse(),
       child: ScaleTransition(
         scale: _scaleAnim,
-        child: SizedBox.expand(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                switchInCurve: Curves.easeOut,
-                child: Icon(
-                  iconData,
-                  key: ValueKey(iconData),
-                  size: 24,
-                  color: color,
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: capsuleColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  switchInCurve: Curves.easeOut,
+                  child: Icon(
+                    iconData,
+                    key: ValueKey(iconData),
+                    size: 22,
+                    color: color,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 150),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight:
-                      widget.selected ? FontWeight.w600 : FontWeight.w400,
-                  color: color,
-                  height: 1.0,
-                  letterSpacing: -0.1,
+                const SizedBox(height: 2),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 150),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight:
+                        widget.selected ? FontWeight.w600 : FontWeight.w400,
+                    color: color,
+                    height: 1.0,
+                    letterSpacing: -0.1,
+                  ),
+                  child: Text(
+                    widget.item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                child: Text(
-                  widget.item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
