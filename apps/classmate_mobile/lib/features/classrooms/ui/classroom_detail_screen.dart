@@ -1,7 +1,6 @@
 import 'dart:async';
 // ignore_for_file: unused_element, unused_local_variable, use_build_context_synchronously, annotate_overrides, unnecessary_import
 import 'dart:convert';
-import 'dart:ui';
 import '../../../ui/glass/native_glass_view.dart';
 import 'package:classmate_mobile/features/classrooms/data/classrooms_repository.dart';
 
@@ -3877,10 +3876,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         showAttach: true,
         showMic: true,
         forceMicOnlyTap: false,
-          ),
-        ),
-      ),
-    );
+          ),    // ChatComposer
+        ),      // SafeArea
+      ),        // NativeGlassView
+    ),          // DecoratedBox
+  );            // Padding
   }
 
   Future<void> _showClassroomWaActionsAt(

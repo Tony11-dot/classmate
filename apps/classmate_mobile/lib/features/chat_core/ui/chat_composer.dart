@@ -357,7 +357,6 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _idle(BuildContext context, bool hasText) {
-    final scheme = Theme.of(context).colorScheme;
     final canSend =
         enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
     final showAddButton =

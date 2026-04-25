@@ -102,18 +102,18 @@ String _prepareRenderableChunk(String input) {
     // Protect existing math regions so the x^2 / fraction auto-wraps don't
     // inject $...$ markers *inside* an already-delimited math span.
     // Without this, $\frac{x^2 + 1}{2}$ becomes $\frac{$x^2$ + 1}{2}$ — broken.
-    final _autoProtected = <String>[];
-    void _autoProtect(RegExp re) {
+    final autoProtected = <String>[];
+    void autoProtect(RegExp re) {
       text = text.replaceAllMapped(re, (m) {
-        final idx = _autoProtected.length;
-        _autoProtected.add(m.group(0)!);
+        final idx = autoProtected.length;
+        autoProtected.add(m.group(0)!);
         return '\x02AP$idx\x02';
       });
     }
-    _autoProtect(RegExp(r'INLINE_OPEN[\s\S]*?INLINE_CLOSE'));
-    _autoProtect(RegExp(r'BLOCK_OPEN[\s\S]*?BLOCK_CLOSE'));
-    _autoProtect(RegExp(r'\$\$[\s\S]+?\$\$'));
-    _autoProtect(RegExp(r'\$[^$\n]+?\$'));
+    autoProtect(RegExp(r'INLINE_OPEN[\s\S]*?INLINE_CLOSE'));
+    autoProtect(RegExp(r'BLOCK_OPEN[\s\S]*?BLOCK_CLOSE'));
+    autoProtect(RegExp(r'\$\$[\s\S]+?\$\$'));
+    autoProtect(RegExp(r'\$[^$\n]+?\$'));
 
     text = text.replaceAllMapped(
       RegExp(r'(?<![$\\])([a-zA-Z0-9]+\^[0-9]+)(?![$\\])'),
@@ -129,8 +129,8 @@ String _prepareRenderableChunk(String input) {
     );
 
     // Restore protected regions
-    for (var i = 0; i < _autoProtected.length; i++) {
-      text = text.replaceFirst('\x02AP$i\x02', _autoProtected[i]);
+    for (var i = 0; i < autoProtected.length; i++) {
+      text = text.replaceFirst('\x02AP$i\x02', autoProtected[i]);
     }
   }
 
