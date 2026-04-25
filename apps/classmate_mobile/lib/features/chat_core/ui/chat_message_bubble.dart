@@ -550,9 +550,11 @@ class ChatMessageBubble extends StatelessWidget {
               durationSeconds: voiceDurationSeconds,
               isUnread: voiceUnread,
               onPlayed: onVoicePlayed,
+              timeLabel: timeLabel,
+              delivered: delivered,
+              seen: seen,
             ),
-            const SizedBox(height: 3),
-            timeRow,
+            // timeRow removed — timestamp now inside the bubble
           ],
         );
       } else {
@@ -821,6 +823,9 @@ class ChatMessageBubble extends StatelessWidget {
                     durationSeconds: voiceDurationSeconds,
                     isUnread: voiceUnread,
                     onPlayed: onVoicePlayed,
+                    timeLabel: timeLabel,
+                    delivered: delivered,
+                    seen: seen,
                   ),
                   if (showRealUserCaption &&
                       !lowerBody.startsWith('[voice]')) ...[

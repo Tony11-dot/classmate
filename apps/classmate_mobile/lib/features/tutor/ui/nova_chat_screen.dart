@@ -417,9 +417,11 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     }
   }
 
-  Widget _assistantRichContent(String text) {
+  Widget _assistantRichContent(String text, {bool isStreaming = false}) {
+    // Append blinking cursor while streaming for a live-typing feel.
+    final display = isStreaming ? '$text▋' : text;
     return CMAiMessage(
-      text,
+      display,
       textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
     );
   }
@@ -1516,20 +1518,21 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    // ── Animated typing dots while NOVA generates a reply ──────────────────
+    // ── NOVA thinking: animated avatar + typing dots (Claude style) ──────────
     if (!mine && m.content == _thinkingSentinel) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 2, 84, 2),
-          child: LiquidGlassCard(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            borderRadius: BorderRadius.circular(18),
-            blurSigma: 12,
-            color: cs.surfaceContainerHigh.withValues(alpha: 0.92),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-            child: const TypingBubble(),
-          ),
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(14, 6, 84, 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const _NovaAvatar(animating: true),
+            const SizedBox(width: 10),
+            TypingDots(
+              color: cs.onSurfaceVariant,
+              dotSize: 6,
+              gap: 5,
+            ),
+          ],
         ),
       );
     }
@@ -1578,90 +1581,89 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   deleteState: 'VISIBLE',
                   maxWidth: 316,
                 )
-              : LiquidGlassCard(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-                  borderRadius: BorderRadius.circular(20),
-                  blurSigma: 12,
-                  color: cs.surfaceContainerHigh.withValues(alpha: 0.88),
-                  border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.26),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: cs.shadow.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _assistantRichContent(m.content),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+              // Claude-style: avatar + plain text, no bubble
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _NovaAvatar(animating: false),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _AssistantActionChip(
-                            icon: Icons.copy_rounded,
-                            label: l.tutorCopy,
-                            onTap: () async {
-                              await Clipboard.setData(
-                                ClipboardData(text: m.content),
-                              );
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.tutorCopied)),
-                              );
-                            },
+                          _assistantRichContent(
+                            m.content,
+                            isStreaming: _sending &&
+                                index == _messages.length - 1 &&
+                                !m.isUser,
                           ),
-                          _AssistantActionChip(
-                            icon: Icons.refresh_rounded,
-                            label: l.tutorRegenerate,
-                            onTap: _sending
-                                ? null
-                                : () => _regenerateFromAssistantRow(m),
-                          ),
-                        ],
-                      ),
-                      if (showFollowUpChips) ...[
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.auto_awesome_rounded,
-                              size: 13,
-                              color: cs.primary.withValues(alpha: 0.7),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              'Follow-up',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: cs.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.2,
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _AssistantActionChip(
+                                icon: Icons.copy_rounded,
+                                label: l.tutorCopy,
+                                onTap: () async {
+                                  await Clipboard.setData(
+                                    ClipboardData(text: m.content),
+                                  );
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l.tutorCopied)),
+                                  );
+                                },
                               ),
+                              _AssistantActionChip(
+                                icon: Icons.refresh_rounded,
+                                label: l.tutorRegenerate,
+                                onTap: _sending
+                                    ? null
+                                    : () => _regenerateFromAssistantRow(m),
+                              ),
+                            ],
+                          ),
+                          if (showFollowUpChips) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.auto_awesome_rounded,
+                                  size: 13,
+                                  color: cs.primary.withValues(alpha: 0.7),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'Follow-up',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _followUpPromptsFor(m, l)
+                                  .map(
+                                    (prompt) => _PromptSuggestionChip(
+                                      label: prompt,
+                                      onTap: _sending
+                                          ? null
+                                          : () => _sendQuickPrompt(prompt),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _followUpPromptsFor(m, l)
-                              .map(
-                                (prompt) => _PromptSuggestionChip(
-                                  label: prompt,
-                                  onTap: _sending
-                                      ? null
-                                      : () => _sendQuickPrompt(prompt),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ],
-                  ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
       ],
     );
@@ -1763,73 +1765,59 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 96),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight - 114,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: LiquidGlassCard(
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-                  borderRadius: BorderRadius.circular(24),
-                  blurSigma: 16,
-                  gradient: LinearGradient(
-                    colors: [
-                      cs.primaryContainer.withValues(alpha: 0.64),
-                      cs.surfaceContainerHigh.withValues(alpha: 0.94),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: cs.shadow.withValues(alpha: 0.06),
-                      blurRadius: 28,
-                      offset: const Offset(0, 14),
-                    ),
-                  ],
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l.tutorEmptyStateTitle,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l.tutorEmptyStateBody,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: cs.onSurfaceVariant,
-                          height: 1.32,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          _PromptSuggestionChip(label: l.tutorPromptSuggestionSummarizeNotes),
-                          _PromptSuggestionChip(label: l.tutorPromptSuggestionRevisionTable),
-                          _PromptSuggestionChip(label: l.tutorPromptSuggestionQuizMe),
-                        ],
-                      ),
-                    ],
-                  ),
+    // Minimal Claude-style: centered avatar + tagline + suggestion chips
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const _NovaAvatar(animating: false, size: 56),
+              const SizedBox(height: 20),
+              Text(
+                l.tutorEmptyStateTitle,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                l.tutorEmptyStateBody,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: [
+                  _PromptSuggestionChip(
+                    label: l.tutorPromptSuggestionSummarizeNotes,
+                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionSummarizeNotes),
+                  ),
+                  _PromptSuggestionChip(
+                    label: l.tutorPromptSuggestionRevisionTable,
+                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionRevisionTable),
+                  ),
+                  _PromptSuggestionChip(
+                    label: l.tutorPromptSuggestionQuizMe,
+                    onTap: () => _sendQuickPrompt(l.tutorPromptSuggestionQuizMe),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -1837,23 +1825,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
-            width: 0.8,
-          ),
-        ),
-        child: NativeGlassView(
-          borderRadius: 28,
-          style: NativeGlassStyle.ultraThin,
-          fallbackColor: isDark
-              ? Colors.black.withValues(alpha: 0.18)
-              : Colors.white.withValues(alpha: 0.42),
-            child: Padding(
-            padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-            child: ChatComposer(
+      child: NativeGlassView(
+        borderRadius: 28,
+        style: NativeGlassStyle.ultraThin,
+        fallbackColor: isDark
+            ? Colors.black.withValues(alpha: 0.12)
+            : Colors.white.withValues(alpha: 0.36),
+        child: ChatComposer(
         controller: _controller,
         topContent: _novaComposerTopContent(),
         enabled: !_sending,
@@ -1896,8 +1874,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         showCamera: true,
         showAttach: true,
         showMic: true,
-            ),
-          ),
         ),
       ),
     );
@@ -1919,21 +1895,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            cs.primaryContainer.withValues(alpha: 0.18),
-                            cs.surface,
-                            cs.tertiaryContainer.withValues(alpha: 0.10),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Clean minimal background — no gradient overlay.
                   NotificationListener<ScrollUpdateNotification>(
                     onNotification: (notification) {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -2195,6 +2157,90 @@ class _PromptSuggestionChip extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── NOVA animated avatar ──────────────────────────────────────────────────────
+
+class _NovaAvatar extends StatefulWidget {
+  const _NovaAvatar({this.animating = false, this.size = 28});
+
+  final bool animating;
+  final double size;
+
+  @override
+  State<_NovaAvatar> createState() => _NovaAvatarState();
+}
+
+class _NovaAvatarState extends State<_NovaAvatar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _pulse = Tween<double>(begin: 1.0, end: 1.18).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    if (widget.animating) _ctrl.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(_NovaAvatar old) {
+    super.didUpdateWidget(old);
+    if (widget.animating && !_ctrl.isAnimating) {
+      _ctrl.repeat(reverse: true);
+    } else if (!widget.animating && _ctrl.isAnimating) {
+      _ctrl.stop();
+      _ctrl.animateTo(0, duration: const Duration(milliseconds: 300));
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ScaleTransition(
+      scale: _pulse,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [cs.primary, cs.tertiary],
+          ),
+          boxShadow: widget.animating
+              ? [
+                  BoxShadow(
+                    color: cs.primary.withValues(alpha: 0.38),
+                    blurRadius: 12,
+                    spreadRadius: -4,
+                  ),
+                ]
+              : const [],
+        ),
+        child: Center(
+          child: Icon(
+            Icons.auto_awesome_rounded,
+            size: widget.size * 0.5,
+            color: Colors.white,
+          ),
         ),
       ),
     );

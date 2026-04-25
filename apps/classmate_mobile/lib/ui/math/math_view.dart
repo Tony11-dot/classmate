@@ -108,7 +108,22 @@ class MathView extends StatelessWidget {
       value,
       mathStyle: MathStyle.text,
       textStyle: textStyle,
-      onErrorFallback: (_) => Text(value, style: textStyle),
+      onErrorFallback: (_) => Math.tex(
+        value,
+        mathStyle: MathStyle.display,
+        textStyle: textStyle?.copyWith(
+          fontSize: (textStyle.fontSize ?? 14) * 0.88,
+        ),
+        onErrorFallback: (_) {
+          final clean = value
+              .replaceAllMapped(RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
+              .replaceAll(RegExp(r'[{}]'), ' ')
+              .replaceAll('_', '')
+              .replaceAll('^', '');
+          return Text(clean.trim(),
+              style: textStyle?.copyWith(fontStyle: FontStyle.italic));
+        },
+      ),
     );
   }
 

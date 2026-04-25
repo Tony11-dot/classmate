@@ -234,15 +234,11 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
       ? items.length - 1 - displayIndex
       : displayIndex;
 
-    // Apple liquid-glass tints: very transparent so blurred content shows through.
+    // Apple liquid-glass tint: very transparent so blurred content shows through.
     final pillTint =
         brightness == Brightness.dark
             ? Colors.white.withValues(alpha: 0.07)
             : Colors.white.withValues(alpha: 0.55);
-    final pillBorder =
-        brightness == Brightness.dark
-            ? Colors.white.withValues(alpha: 0.14)
-            : Colors.white.withValues(alpha: 0.50);
 
     return SafeArea(
       top: false,
@@ -293,24 +289,11 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
               },
               onPointerUp: (_) => _endInteraction(),
               onPointerCancel: (_) => _endInteraction(),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: pillBorder, width: 0.8),
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 32,
-                      spreadRadius: -6,
-                      offset: const Offset(0, 12),
-                      color: Colors.black.withValues(alpha: 0.22),
-                    ),
-                  ],
-                ),
-                child: NativeGlassView(
-                  borderRadius: 28,
-                  style: NativeGlassStyle.thin,
-                  fallbackColor: pillTint,
-                  child: SizedBox(
+              child: NativeGlassView(
+                borderRadius: 28,
+                style: NativeGlassStyle.thin,
+                fallbackColor: pillTint,
+                child: SizedBox(
                     height: compact ? barHeight - 2 : barHeight,
                     child: Stack(
                       children: [
@@ -411,7 +394,6 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
                     ),
                   ),
                 ),
-              ),
             );
           },
         ),

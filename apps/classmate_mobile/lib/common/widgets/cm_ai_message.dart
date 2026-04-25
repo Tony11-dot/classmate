@@ -359,14 +359,33 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
   ) {
     final mathText = element.textContent;
     final style = preferredStyle ?? parentStyle;
-    // Small downward offset aligns the math baseline with surrounding text.
     return Transform.translate(
       offset: const Offset(0, 1.5),
       child: Math.tex(
         mathText,
         mathStyle: MathStyle.text,
         textStyle: style,
-        onErrorFallback: (_) => Text(mathText, style: style),
+        // Try display mode as a secondary attempt before giving up.
+        onErrorFallback: (_) => Math.tex(
+          mathText,
+          mathStyle: MathStyle.display,
+          textStyle: style?.copyWith(
+            fontSize: (style.fontSize ?? 14) * 0.88,
+          ),
+          onErrorFallback: (_) {
+            // Both render modes failed — show cleaned text so no raw \commands
+            final clean = mathText
+                .replaceAllMapped(
+                    RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
+                .replaceAll(RegExp(r'[{}]'), ' ')
+                .replaceAll('_', '')
+                .replaceAll('^', '');
+            return Text(
+              clean.trim(),
+              style: style?.copyWith(fontStyle: FontStyle.italic),
+            );
+          },
+        ),
       ),
     );
   }

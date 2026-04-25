@@ -641,6 +641,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   final AudioPlayer _draftVoicePlayer = AudioPlayer();
   final List<Map<String, String>> _draftAttachments = <Map<String, String>>[];
   final Set<String> _recentOwnMessageTexts = <String>{};
+  // Optimistic messages appended immediately after send, cleared on re-fetch.
+  final List<Map<String, dynamic>> _optimisticMessages = <Map<String, dynamic>>[];
   final Set<String> _pinnedMessageIds = <String>{};
   final Set<String> _deleteSelection = <String>{};
   final Set<String> _forwardSelectedMessageIds = <String>{};
@@ -3253,6 +3255,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         _recentOwnMessageTexts.add(composedText.trim());
         await repo.sendChatText(widget.courseId, composedText);
         _chatCtl.clear();
+        // Optimistic: show message immediately before the server re-fetch lands.
+        if (mounted) {
+          setState(() {
+            _optimisticMessages.add(<String, dynamic>{
+              'id': 'optimistic-${DateTime.now().millisecondsSinceEpoch}',
+              'text': composedText.trim(),
+              'body': composedText.trim(),
+              'senderName': 'You',
+              'isMine': true,
+              'kind': 'TEXT',
+              'createdAt': DateTime.now().toUtc().toIso8601String(),
+            });
+          });
+        }
       }
 
       if (text.isNotEmpty || sentAnyMedia) {
@@ -3786,21 +3802,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
-            width: 0.8,
-          ),
-        ),
-        child: NativeGlassView(
-          borderRadius: 28,
-          style: NativeGlassStyle.ultraThin,
-          fallbackColor: isDark
-              ? Colors.black.withValues(alpha: 0.18)
-              : Colors.white.withValues(alpha: 0.42),
-          child: SafeArea(
+      child: NativeGlassView(
+        borderRadius: 28,
+        style: NativeGlassStyle.ultraThin,
+        fallbackColor: isDark
+            ? Colors.black.withValues(alpha: 0.12)
+            : Colors.white.withValues(alpha: 0.36),
+        child: SafeArea(
       top: false,
       child: ChatComposer(
         controller: _chatCtl,
@@ -3879,7 +3887,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           ),    // ChatComposer
         ),      // SafeArea
       ),        // NativeGlassView
-    ),          // DecoratedBox
   );            // Padding
   }
 
@@ -4296,6 +4303,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         Flexible(
           fit: FlexFit.loose,
           child: value.when(
+            skipLoadingOnRefresh: true,
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => _CenteredState(
               icon: Icons.chat_bubble_outline_rounded,
@@ -4303,9 +4311,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               subtitle: '$e',
             ),
             data: (m) {
-              final rawItems = (m['items'] is List)
+              // Clear optimistic messages now that fresh data has arrived.
+              if (_optimisticMessages.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && _optimisticMessages.isNotEmpty) {
+                    setState(() => _optimisticMessages.clear());
+                  }
+                });
+              }
+              final serverItems = (m['items'] is List)
                   ? (m['items'] as List)
                   : const [];
+              // Merge server items + any optimistic messages not yet in server list
+              final serverTexts = serverItems
+                  .map((i) => (_pick(i as dynamic, 'text') as String).trim())
+                  .toSet();
+              final pendingNew = _optimisticMessages
+                  .where((o) => !serverTexts.contains((o['text'] as String).trim()))
+                  .toList();
+              final rawItems = [...serverItems, ...pendingNew];
 
               final filtered =
                   rawItems

@@ -12,6 +12,9 @@ class ChatAudioBubble extends StatefulWidget {
     this.durationSeconds,
     this.isUnread = false,
     this.onPlayed,
+    this.timeLabel,
+    this.delivered = false,
+    this.seen = false,
   });
 
   final String url;
@@ -20,6 +23,12 @@ class ChatAudioBubble extends StatefulWidget {
   final int? durationSeconds;
   final bool isUnread;
   final VoidCallback? onPlayed;
+  /// Timestamp string to show inside the bubble (e.g. "14:32").
+  final String? timeLabel;
+  /// Whether the message has been delivered.
+  final bool delivered;
+  /// Whether the message has been seen/read.
+  final bool seen;
 
   @override
   State<ChatAudioBubble> createState() => _ChatAudioBubbleState();
@@ -493,6 +502,40 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
             ),
           ),
         ),
+        // Timestamp + delivery status inside the bubble
+        if (widget.timeLabel != null || widget.isMine)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 4, 0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (widget.timeLabel != null)
+                  Text(
+                    widget.timeLabel!,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.white.withValues(alpha: 0.70),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                if (widget.isMine) ...[
+                  const SizedBox(width: 3),
+                  Icon(
+                    widget.seen
+                        ? Icons.done_all_rounded
+                        : widget.delivered
+                            ? Icons.done_all_rounded
+                            : Icons.done_rounded,
+                    size: 13,
+                    color: widget.seen
+                        ? Colors.lightBlueAccent.withValues(alpha: 0.90)
+                        : Colors.white.withValues(alpha: 0.60),
+                  ),
+                ],
+              ],
+            ),
+          ),
       ],
     );
   }

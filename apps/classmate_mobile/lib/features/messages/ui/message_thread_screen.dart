@@ -497,7 +497,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   int? _replyIndex;
   bool _sending = false;
   bool _peerTyping = false;
-  Timer? _peerTypingTimer;
   bool _recording = false;
   bool _voiceLocked = false;
   bool _voicePaused = false;
@@ -1863,14 +1862,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     });
   }
 
-  void _showPeerTypingBriefly() {
-    if (!mounted) return;
-    setState(() => _peerTyping = true);
-    _peerTypingTimer?.cancel();
-    _peerTypingTimer = Timer(const Duration(seconds: 4), () {
-      if (mounted) setState(() => _peerTyping = false);
-    });
-  }
+
 
   Future<void> _toggleMic(MessageThreadDetail? detail) async {
     if (_sending) return;
@@ -2902,21 +2894,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   final isDark = Theme.of(ctx).brightness == Brightness.dark;
                   return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
-                        width: 0.8,
-                      ),
-                    ),
-                    child: NativeGlassView(
-                      borderRadius: 28,
-                      style: NativeGlassStyle.ultraThin,
-                      fallbackColor: isDark
-                          ? Colors.black.withValues(alpha: 0.18)
-                          : Colors.white.withValues(alpha: 0.42),
-                      child: ChatComposer(
+                  child: NativeGlassView(
+                    borderRadius: 28,
+                    style: NativeGlassStyle.ultraThin,
+                    fallbackColor: isDark
+                        ? Colors.black.withValues(alpha: 0.12)
+                        : Colors.white.withValues(alpha: 0.36),
+                    child: ChatComposer(
                   controller: _controller,
                   replyingTo: _replyIndex == null
                       ? null
@@ -2981,7 +2965,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         : AppLocalizations.of(context)!.chatComposerDefaultHint)
                       : AppLocalizations.of(context)!.messagesThreadWaitingForApproval,
                   forceMicOnlyTap: false,
-                      ),
                     ),
                   ),
                   );

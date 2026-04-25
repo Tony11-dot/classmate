@@ -69,65 +69,56 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverAppBar(
-              title: Text(form.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-              pinned: true,
-              floating: false,
-              forceElevated: innerBoxIsScrolled,
-              bottom: const TabBar(
-                tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
-              ),
+        appBar: AppBar(
+          title: Text(form.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          bottom: const TabBar(
+            tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // Hero is the FIRST item in the Questions list — scrolls with content.
+            ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              children: [
+                _FormHero(form: form),
+                const SizedBox(height: 16),
+                ...form.questions.map((q) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _QuestionCard(
+                        question: q,
+                        answer: _answers[q.id],
+                        onChanged: (value) {
+                          setState(() { _answers[q.id] = value; });
+                        },
+                      ),
+                    )),
+                const SizedBox(height: 8),
+                FilledButton.icon(
+                  onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
+                  icon: const Icon(Icons.send_rounded),
+                  label: Text(_submitted ? 'Submitted' : 'Submit form'),
+                ),
+                if (!form.acceptingResponses) ...[
+                  const SizedBox(height: 10),
+                  Text('This form is closed.', style: TextStyle(color: cs.onSurfaceVariant)),
+                ],
+              ],
             ),
-            // Hero scrolls with the page (pins off-screen when scrolling)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                child: _FormHero(form: form),
-              ),
+            ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                _ResponsesSummaryCard(form: form),
+                const SizedBox(height: 16),
+                ...form.questions.map((q) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _StatsCard(question: q),
+                    )),
+              ],
             ),
           ],
-          body: TabBarView(
-            children: [
-              ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                children: [
-                  ...form.questions.map((q) => Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: _QuestionCard(
-                          question: q,
-                          answer: _answers[q.id],
-                          onChanged: (value) {
-                            setState(() { _answers[q.id] = value; });
-                          },
-                        ),
-                      )),
-                  const SizedBox(height: 8),
-                  FilledButton.icon(
-                    onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
-                    icon: const Icon(Icons.send_rounded),
-                    label: Text(_submitted ? 'Submitted' : 'Submit form'),
-                  ),
-                  if (!form.acceptingResponses) ...[
-                    const SizedBox(height: 10),
-                    Text('This form is closed.', style: TextStyle(color: cs.onSurfaceVariant)),
-                  ],
-                ],
-              ),
-              ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                children: [
-                  _ResponsesSummaryCard(form: form),
-                  const SizedBox(height: 16),
-                  ...form.questions.map((q) => Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: _StatsCard(question: q),
-                      )),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );

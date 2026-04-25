@@ -421,24 +421,10 @@ class ChatComposer extends StatelessWidget {
                 : const SizedBox(key: ValueKey('left_add_button_empty')),
           ),
           Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic,
+            child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 42),
+              child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              decoration: BoxDecoration(
-                // Transparent fill so the outer blur shows through (liquid glass).
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: enabled ? 0.07 : 0.04)
-                    : Colors.white.withValues(alpha: enabled ? 0.60 : 0.40),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withValues(alpha: 0.10)
-                      : Colors.white.withValues(alpha: 0.40),
-                  width: 0.8,
-                ),
-              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -458,6 +444,7 @@ class ChatComposer extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
               ),
             ),
           ),
@@ -651,24 +638,13 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _shell(BuildContext context, {required Widget child, Key? key}) {
-    final brightness = Theme.of(context).brightness;
-    return AnimatedContainer(
-      key: key,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      decoration: BoxDecoration(
-        // Fully transparent — the outer BackdropFilter provides the glass background.
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: brightness == Brightness.dark
-              ? Colors.white.withValues(alpha: 0.10)
-              : Colors.white.withValues(alpha: 0.45),
-          width: 0.8,
-        ),
+    // Fully transparent passthrough — NativeGlassView handles all visual styling.
+    return KeyedSubtree(
+      key: key ?? const ValueKey('_shell'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: child,
       ),
-      child: child,
     );
   }
 
