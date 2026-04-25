@@ -3251,13 +3251,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         }
       }
 
+      String? optimisticId;
       if (text.isNotEmpty) {
         _recentOwnMessageTexts.add(composedText.trim());
-        // Show optimistic message instantly, THEN send + re-fetch.
+        // Add optimistic message so it appears instantly before server round-trip.
+        optimisticId = 'optimistic-${DateTime.now().millisecondsSinceEpoch}';
         if (mounted) {
           setState(() {
             _optimisticMessages.add(<String, dynamic>{
-              'id': 'optimistic-${DateTime.now().millisecondsSinceEpoch}',
+              'id': optimisticId,
               'text': composedText.trim(),
               'body': composedText.trim(),
               'senderName': 'You',
@@ -3267,8 +3269,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             });
           });
         }
-        await repo.sendChatText(widget.courseId, composedText);
         _chatCtl.clear();
+        await repo.sendChatText(widget.courseId, composedText);
       }
 
       if (text.isNotEmpty || sentAnyMedia) {
@@ -3285,20 +3287,24 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         });
       }
 
-      // Delay re-fetch slightly so the optimistic message has time to render
-      // before the provider refreshes and clears it.
-      Future.delayed(const Duration(milliseconds: 600), () {
+      _pinClassroomToBottom(jump: true);
+      // Re-fetch after a short delay; provider is non-autoDispose so the
+      // previous data stays visible until the fresh list arrives.
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
         ref.invalidate(
           classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
         );
-        _pinClassroomToBottom(jump: true);
       });
     } catch (e) {
+      // Send failed — remove the optimistic message so it doesn't linger.
       if (mounted) {
+        setState(() => _optimisticMessages.removeWhere(
+            (m) => m['id']?.toString().startsWith('optimistic-') == true));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not send message. Please try again.'),
+            content: Text('Could not send. Please try again.'),
+            duration: Duration(seconds: 4),
           ),
         );
       }
@@ -4320,18 +4326,23 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               final serverItems = (m['items'] is List)
                   ? (m['items'] as List)
                   : const [];
-              // Optimistic messages have IDs starting with 'optimistic-'.
-              // Server items have real IDs — no overlap. Show both; clear
-              // optimistics after a short grace period so the real server
-              // message is already visible before the local one disappears.
-              if (_optimisticMessages.isNotEmpty && serverItems.isNotEmpty) {
+              // Keep showing optimistic messages alongside server items until
+              // the server list is clearly updated (has more items than before).
+              // Use ID-prefix check — real messages have non-'optimistic-' IDs.
+              final serverIds = serverItems
+                  .map((i) => _pick(i as dynamic, 'id').toString())
+                  .toSet();
+              final stillPending = _optimisticMessages
+                  .where((o) => !serverIds.contains(o['id'].toString()))
+                  .toList();
+              if (stillPending.length < _optimisticMessages.length) {
+                // Some optimistics matched server items — clear them.
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    if (mounted) setState(() => _optimisticMessages.clear());
-                  });
+                  if (mounted) setState(() => _optimisticMessages
+                      .removeWhere((o) => serverIds.contains(o['id'].toString())));
                 });
               }
-              final rawItems = [...serverItems, ..._optimisticMessages];
+              final rawItems = [...serverItems, ...stillPending];
 
               final filtered =
                   rawItems

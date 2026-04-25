@@ -23,8 +23,10 @@ final classroomPeopleProvider = FutureProvider.autoDispose
       return repo.people(id);
     });
 
-final classroomChatProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, ({String id, int limit, String? cursor})>((
+// NOT autoDispose — keeps the last fetched value in memory between visits so
+// messages don't vanish when the user leaves and re-enters the classroom.
+final classroomChatProvider =
+    FutureProvider.family<Map<String, dynamic>, ({String id, int limit, String? cursor})>((
       ref,
       args,
     ) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -156,7 +157,14 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-class _PlatformCoreBottomNav extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+//  Liquid-glass floating pill nav — Apple Music iOS 26 style
+//  • Slide finger across → switches tabs with haptics
+//  • Hold + drag any direction → pill stretches with rubber-band physics
+//  • Release → spring snaps back
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PlatformCoreBottomNav extends StatefulWidget {
   const _PlatformCoreBottomNav({required this.items, required this.index, required this.onTap});
 
   final List<_NavItem> items;
@@ -164,168 +172,271 @@ class _PlatformCoreBottomNav extends StatelessWidget {
   final ValueChanged<int> onTap;
 
   @override
+  State<_PlatformCoreBottomNav> createState() => _PlatformCoreBottomNavState();
+}
+
+class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
+    with TickerProviderStateMixin {
+  // Raw drag offset (drives stretch transform)
+  double _dragDx = 0;
+  double _dragDy = 0;
+
+  bool _pressing = false;
+  Offset? _pressOrigin;
+  int? _hoveredIndex; // index currently under finger during drag
+  int? _lastHapticIndex;
+
+  // Spring animation for release snap-back
+  late final AnimationController _snapCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _snapCtrl = AnimationController.unbounded(vsync: this)
+      ..addListener(() {
+        if (!_pressing) {
+          setState(() {
+            _dragDx = _snapCtrl.value;
+          });
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _snapCtrl.dispose();
+    super.dispose();
+  }
+
+  // Apple rubber-band: resistance increases as you drag further
+  static double _rubberBand(double x) {
+    if (x.abs() < 0.5) return 0;
+    const c = 120.0;
+    final sign = x < 0 ? -1.0 : 1.0;
+    return sign * (1 - 1 / (x.abs() / c + 1)) * c;
+  }
+
+  int _indexForLocalDx(double localDx, double totalWidth) {
+    if (widget.items.isEmpty) return 0;
+    final slot = totalWidth / widget.items.length;
+    return (localDx / slot).floor().clamp(0, widget.items.length - 1);
+  }
+
+  void _onPointerDown(PointerDownEvent e, double width) {
+    _snapCtrl.stop();
+    _pressing = true;
+    _pressOrigin = e.localPosition;
+    _dragDx = 0;
+    _dragDy = 0;
+    _hoveredIndex = _indexForLocalDx(e.localPosition.dx, width);
+    _lastHapticIndex = _hoveredIndex;
+    HapticFeedback.selectionClick();
+    setState(() {});
+  }
+
+  void _onPointerMove(PointerMoveEvent e, double width) {
+    if (!_pressing || _pressOrigin == null) return;
+    final dx = e.localPosition.dx - _pressOrigin!.dx;
+    final dy = e.localPosition.dy - _pressOrigin!.dy;
+    final newHovered = _indexForLocalDx(e.localPosition.dx, width);
+
+    setState(() {
+      _dragDx = _rubberBand(dx);
+      _dragDy = _rubberBand(dy);
+      _hoveredIndex = newHovered;
+    });
+
+    if (newHovered != _lastHapticIndex) {
+      HapticFeedback.selectionClick();
+      _lastHapticIndex = newHovered;
+    }
+  }
+
+  void _onPointerUp(PointerUpEvent e, double width) {
+    if (!_pressing) return;
+    final tappedIndex = _indexForLocalDx(e.localPosition.dx, width);
+    _pressing = false;
+
+    if (tappedIndex != widget.index) {
+      widget.onTap(tappedIndex);
+      HapticFeedback.selectionClick();
+    }
+
+    // Spring snap-back: stiffness=500, damping=30 → fast crisp rebound
+    const spring = SpringDescription(mass: 1, stiffness: 500, damping: 30);
+    _snapCtrl.animateWith(SpringSimulation(spring, _dragDx, 0, 0));
+
+    setState(() {
+      _dragDy = 0;
+      _hoveredIndex = null;
+      _pressOrigin = null;
+    });
+  }
+
+  void _onPointerCancel(PointerCancelEvent e) {
+    _pressing = false;
+    const spring = SpringDescription(mass: 1, stiffness: 500, damping: 30);
+    _snapCtrl.animateWith(SpringSimulation(spring, _dragDx, 0, 0));
+    setState(() { _dragDy = 0; _hoveredIndex = null; _pressOrigin = null; });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
-
-    // Apple Music iOS 26: floating frosted-glass pill with per-tab inner capsule.
     final pillTint = isDark
         ? Colors.black.withValues(alpha: 0.45)
         : Colors.white.withValues(alpha: 0.65);
 
+    // Stretch factors: rubber-band units → visual scale delta
+    final sx = 1.0 + (_dragDx.abs() / 400).clamp(0.0, 0.08);
+    final sy = 1.0 + (_dragDy.abs() / 300).clamp(0.0, 0.06);
+
     return SafeArea(
-      top: false,
-      left: false,
-      right: false,
-      bottom: true,
+      top: false, left: false, right: false, bottom: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-        child: NativeGlassView(
-          borderRadius: 28,
-          style: NativeGlassStyle.thin,
-          fallbackColor: pillTint,
-          child: SizedBox(
-            height: 54,
-            child: Row(
-              children: [
-                for (var i = 0; i < items.length; i++)
-                  Expanded(
-                    child: _IOSTabButton(
-                      item: items[i],
-                      selected: i == index,
-                      activeColor: cs.primary,
-                      isDark: isDark,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        onTap(i);
-                      },
-                    ),
+        child: LayoutBuilder(builder: (context, box) {
+          final width = box.maxWidth;
+          return Listener(
+            behavior: HitTestBehavior.opaque,
+            onPointerDown: (e) => _onPointerDown(e, width),
+            onPointerMove: (e) => _onPointerMove(e, width),
+            onPointerUp: (e) => _onPointerUp(e, width),
+            onPointerCancel: _onPointerCancel,
+            child: Transform(
+              alignment: Alignment.center,
+              // Translate pill horizontally with drag; scale in drag direction
+              transform: Matrix4.identity()
+                ..translate(_dragDx * 0.18, _dragDy * 0.12)
+                ..scale(sx, sy),
+              child: NativeGlassView(
+                borderRadius: 28,
+                style: NativeGlassStyle.thin,
+                fallbackColor: pillTint,
+                child: SizedBox(
+                  height: 54,
+                  child: Stack(
+                    children: [
+                      // ── Animated selection capsule ────────────────────────
+                      _SelectionCapsule(
+                        itemCount: widget.items.length,
+                        selectedIndex: _hoveredIndex ?? widget.index,
+                        isDark: isDark,
+                      ),
+                      // ── Tab icons + labels ────────────────────────────────
+                      Row(
+                        children: [
+                          for (var i = 0; i < widget.items.length; i++)
+                            Expanded(
+                              child: _TabLabel(
+                                item: widget.items[i],
+                                selected: i == widget.index,
+                                hovered: i == (_hoveredIndex ?? widget.index),
+                                activeColor: cs.primary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
 }
 
-/// Apple Music iOS 26 tab button: selected tab gets an inner frosted-glass
-/// capsule; unselected tabs show icon + gray label with no background.
-class _IOSTabButton extends StatefulWidget {
-  const _IOSTabButton({
-    required this.item,
-    required this.selected,
-    required this.activeColor,
+// Animated capsule that slides between tab positions
+class _SelectionCapsule extends StatelessWidget {
+  const _SelectionCapsule({
+    required this.itemCount,
+    required this.selectedIndex,
     required this.isDark,
-    required this.onTap,
   });
-
-  final _NavItem item;
-  final bool selected;
-  final Color activeColor;
+  final int itemCount;
+  final int selectedIndex;
   final bool isDark;
-  final VoidCallback onTap;
-
-  @override
-  State<_IOSTabButton> createState() => _IOSTabButtonState();
-}
-
-class _IOSTabButtonState extends State<_IOSTabButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pressCtrl;
-  late final Animation<double> _scaleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _pressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 200),
-    );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.88).animate(
-      CurvedAnimation(parent: _pressCtrl, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressCtrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    // Use native CupertinoColors so it respects the system's dark/light mode
-    // exactly like UITabBar does on iOS.
-    final activeColor = widget.activeColor;
-    final inactiveColor =
-        CupertinoColors.inactiveGray.resolveFrom(context);
-    final color = widget.selected ? activeColor : inactiveColor;
-    final iconData = widget.selected ? widget.item.selectedIcon : widget.item.icon;
-
-    // Inner capsule background for selected tab (matches Apple Music iOS 26).
-    final capsuleColor = widget.selected
-        ? (widget.isDark
-            ? Colors.white.withValues(alpha: 0.14)
-            : Colors.white.withValues(alpha: 0.78))
-        : Colors.transparent;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _pressCtrl.forward(),
-      onTapUp: (_) {
-        _pressCtrl.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _pressCtrl.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnim,
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: capsuleColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 150),
-                  switchInCurve: Curves.easeOut,
-                  child: Icon(
-                    iconData,
-                    key: ValueKey(iconData),
-                    size: 22,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 150),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight:
-                        widget.selected ? FontWeight.w600 : FontWeight.w400,
-                    color: color,
-                    height: 1.0,
-                    letterSpacing: -0.1,
-                  ),
-                  child: Text(
-                    widget.item.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+    return LayoutBuilder(builder: (context, box) {
+      final slotW = box.maxWidth / itemCount;
+      final capsuleW = slotW - 8;
+      final left = slotW * selectedIndex + 4;
+      return AnimatedPositioned(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        left: left,
+        top: 5,
+        bottom: 5,
+        width: capsuleW,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.14)
+                : Colors.white.withValues(alpha: 0.80),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
         ),
+      );
+    });
+  }
+}
+
+// Single tab icon + label (no press animations — handled by parent Listener)
+class _TabLabel extends StatelessWidget {
+  const _TabLabel({
+    required this.item,
+    required this.selected,
+    required this.hovered,
+    required this.activeColor,
+  });
+  final _NavItem item;
+  final bool selected;
+  final bool hovered; // finger is currently over this tab
+  final Color activeColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final inactiveColor = CupertinoColors.inactiveGray.resolveFrom(context);
+    final color = (selected || hovered) ? activeColor : inactiveColor;
+    final iconData = selected ? item.selectedIcon : item.icon;
+
+    return SizedBox.expand(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 140),
+            child: Icon(iconData, key: ValueKey('${item.label}_$selected'), size: 22, color: color),
+          ),
+          const SizedBox(height: 2),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 140),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              color: color,
+              height: 1.0,
+              letterSpacing: -0.1,
+            ),
+            child: Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
       ),
     );
   }
