@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_session.dart';
+import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -292,30 +293,25 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
               },
               onPointerUp: (_) => _endInteraction(),
               onPointerCancel: (_) => _endInteraction(),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                  child: Container(
-                    height: compact ? barHeight - 2 : barHeight,
-                    decoration: BoxDecoration(
-                      color: pillTint,
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: pillBorder, width: 0.8),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 32,
-                          spreadRadius: -6,
-                          offset: const Offset(0, 12),
-                          color: Colors.black.withValues(alpha: 0.22),
-                        ),
-                        BoxShadow(
-                          blurRadius: 1,
-                          offset: const Offset(0, -0.5),
-                          color: Colors.white.withValues(alpha: 0.30),
-                        ),
-                      ],
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: pillBorder, width: 0.8),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 32,
+                      spreadRadius: -6,
+                      offset: const Offset(0, 12),
+                      color: Colors.black.withValues(alpha: 0.22),
                     ),
+                  ],
+                ),
+                child: NativeGlassView(
+                  borderRadius: 28,
+                  style: NativeGlassStyle.thin,
+                  fallbackColor: pillTint,
+                  child: SizedBox(
+                    height: compact ? barHeight - 2 : barHeight,
                     child: Stack(
                       children: [
                         // Specular highlight at top edge (liquid glass refraction)

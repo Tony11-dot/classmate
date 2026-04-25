@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
+import '../../../ui/glass/native_glass_view.dart';
 import '../../chat_core/ui/chat_recording_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
@@ -1837,22 +1838,20 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 36, sigmaY: 36),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.18)
-                  : Colors.white.withValues(alpha: 0.42),
-              border: Border(
-                top: BorderSide(
-                  color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.white.withValues(alpha: 0.55),
-                  width: 0.8,
-                ),
-              ),
-            ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
+            width: 0.8,
+          ),
+        ),
+        child: NativeGlassView(
+          borderRadius: 28,
+          style: NativeGlassStyle.ultraThin,
+          fallbackColor: isDark
+              ? Colors.black.withValues(alpha: 0.18)
+              : Colors.white.withValues(alpha: 0.42),
             child: Padding(
             padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
             child: ChatComposer(
@@ -1899,7 +1898,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         showAttach: true,
         showMic: true,
             ),
-          ),
           ),
         ),
       ),

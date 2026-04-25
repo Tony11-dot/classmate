@@ -2,6 +2,7 @@ import 'dart:async';
 // ignore_for_file: unused_element, unused_local_variable, use_build_context_synchronously, annotate_overrides, unnecessary_import
 import 'dart:convert';
 import 'dart:ui';
+import '../../../ui/glass/native_glass_view.dart';
 import 'package:classmate_mobile/features/classrooms/data/classrooms_repository.dart';
 
 import 'package:flutter/foundation.dart';
@@ -3786,22 +3787,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 36, sigmaY: 36),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.18)
-                  : Colors.white.withValues(alpha: 0.42),
-              border: Border(
-                top: BorderSide(
-                  color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.white.withValues(alpha: 0.55),
-                  width: 0.8,
-                ),
-              ),
-            ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
+            width: 0.8,
+          ),
+        ),
+        child: NativeGlassView(
+          borderRadius: 28,
+          style: NativeGlassStyle.ultraThin,
+          fallbackColor: isDark
+              ? Colors.black.withValues(alpha: 0.18)
+              : Colors.white.withValues(alpha: 0.42),
           child: SafeArea(
       top: false,
       child: ChatComposer(
@@ -3878,8 +3877,6 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         showAttach: true,
         showMic: true,
         forceMicOnlyTap: false,
-          ),
-        ),
           ),
         ),
       ),

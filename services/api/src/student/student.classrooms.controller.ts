@@ -210,12 +210,23 @@ export class StudentClassroomsController {
     @Param('id') id: string,
     @Body() body: { text?: string },
   ) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
-
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
+    const role = String(req?.user?.role ?? req?.user?.roles?.[0] ?? '').toUpperCase();
     const text = String(body?.text ?? '').trim();
-    if (!text) throw new Error('Missing text');
+    if (!text) throw new BadRequestException('Missing text');
+
+    if (role === 'STUDENT') {
+      // Students must belong to the course cohort
+      const cohortId = await this.cohortIdFromUser(req);
+      await this.assertCourseInCohort(String(id), cohortId);
+    } else {
+      // Teachers and admins: just verify the course exists
+      const exists = await this.prisma.course.findUnique({
+        where: { id: String(id) },
+        select: { id: true },
+      });
+      if (!exists) throw new BadRequestException('Classroom not found');
+    }
 
     const msg = await this.prisma.classroomMessage.create({
       data: {

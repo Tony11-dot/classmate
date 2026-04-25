@@ -2,6 +2,7 @@ import 'dart:async';
 // ignore_for_file: use_build_context_synchronously
 import 'dart:io';
 import 'dart:ui';
+import '../../../ui/glass/native_glass_view.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -2902,23 +2903,21 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   final isDark = Theme.of(ctx).brightness == Brightness.dark;
                   return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 36, sigmaY: 36),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.black.withValues(alpha: 0.18)
-                              : Colors.white.withValues(alpha: 0.42),
-                          border: Border(
-                            top: BorderSide(
-                              color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.white.withValues(alpha: 0.55),
-                              width: 0.8,
-                            ),
-                          ),
-                        ),
-                        child: ChatComposer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.50),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: NativeGlassView(
+                      borderRadius: 28,
+                      style: NativeGlassStyle.ultraThin,
+                      fallbackColor: isDark
+                          ? Colors.black.withValues(alpha: 0.18)
+                          : Colors.white.withValues(alpha: 0.42),
+                      child: ChatComposer(
                   controller: _controller,
                   replyingTo: _replyIndex == null
                       ? null
@@ -2983,7 +2982,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         : AppLocalizations.of(context)!.chatComposerDefaultHint)
                       : AppLocalizations.of(context)!.messagesThreadWaitingForApproval,
                   forceMicOnlyTap: false,
-                        ),
                       ),
                     ),
                   ),

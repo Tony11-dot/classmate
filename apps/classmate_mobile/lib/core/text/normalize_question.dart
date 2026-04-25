@@ -99,15 +99,39 @@ String _prepareRenderableChunk(String input) {
   text = _mergeInlineMathRuns(text);
 
   if (!containsBareLatex) {
+    // Protect existing math regions so the x^2 / fraction auto-wraps don't
+    // inject $...$ markers *inside* an already-delimited math span.
+    // Without this, $\frac{x^2 + 1}{2}$ becomes $\frac{$x^2$ + 1}{2}$ — broken.
+    final _autoProtected = <String>[];
+    void _autoProtect(RegExp re) {
+      text = text.replaceAllMapped(re, (m) {
+        final idx = _autoProtected.length;
+        _autoProtected.add(m.group(0)!);
+        return '\x02AP$idx\x02';
+      });
+    }
+    _autoProtect(RegExp(r'INLINE_OPEN[\s\S]*?INLINE_CLOSE'));
+    _autoProtect(RegExp(r'BLOCK_OPEN[\s\S]*?BLOCK_CLOSE'));
+    _autoProtect(RegExp(r'\$\$[\s\S]+?\$\$'));
+    _autoProtect(RegExp(r'\$[^$\n]+?\$'));
+
     text = text.replaceAllMapped(
       RegExp(r'(?<![$\\])([a-zA-Z0-9]+\^[0-9]+)(?![$\\])'),
       (m) => 'INLINE_OPEN${m.group(1) ?? ''}INLINE_CLOSE',
     );
 
+    // Only wrap numeric-only fractions (e.g. 2/3, 7/8). Units like m/s, km/h
+    // and English slash-phrases like "and/or" must NOT be wrapped — doing so
+    // changes their font and removes spaces in surrounding sentences.
     text = text.replaceAllMapped(
-      RegExp(r'(?<![$\\])([0-9a-zA-Z]+/[0-9a-zA-Z]+)(?![$\\])'),
+      RegExp(r'(?<![/$\\a-zA-Z])([0-9]+/[0-9]+)(?![/$\\a-zA-Z])'),
       (m) => 'INLINE_OPEN${m.group(1) ?? ''}INLINE_CLOSE',
     );
+
+    // Restore protected regions
+    for (var i = 0; i < _autoProtected.length; i++) {
+      text = text.replaceFirst('\x02AP$i\x02', _autoProtected[i]);
+    }
   }
 
   return text

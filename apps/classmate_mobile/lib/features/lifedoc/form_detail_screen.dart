@@ -64,67 +64,70 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   }
 
   Widget _buildScaffold(BuildContext context, StudentFormItem form) {
-
     final cs = Theme.of(context).colorScheme;
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(form.title),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Questions'),
-              Tab(text: 'Responses'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                _FormHero(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _QuestionCard(
-                        question: q,
-                        answer: _answers[q.id],
-                        onChanged: (value) {
-                          setState(() {
-                            _answers[q.id] = value;
-                          });
-                        },
-                      ),
-                    )),
-                const SizedBox(height: 8),
-                FilledButton.icon(
-                  onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
-                  icon: const Icon(Icons.send_rounded),
-                  label: Text(_submitted ? 'Submitted' : 'Submit form'),
-                ),
-                if (!form.acceptingResponses) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    'This form is closed and no longer accepts responses.',
-                    style: TextStyle(color: cs.onSurfaceVariant),
-                  ),
-                ],
-              ],
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverAppBar(
+              title: Text(form.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+              pinned: true,
+              floating: false,
+              forceElevated: innerBoxIsScrolled,
+              bottom: const TabBar(
+                tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
+              ),
             ),
-            ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _ResponsesSummaryCard(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _StatsCard(question: q),
-                    )),
-              ],
+            // Hero scrolls with the page (pins off-screen when scrolling)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                child: _FormHero(form: form),
+              ),
             ),
           ],
+          body: TabBarView(
+            children: [
+              ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                children: [
+                  ...form.questions.map((q) => Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _QuestionCard(
+                          question: q,
+                          answer: _answers[q.id],
+                          onChanged: (value) {
+                            setState(() { _answers[q.id] = value; });
+                          },
+                        ),
+                      )),
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
+                    icon: const Icon(Icons.send_rounded),
+                    label: Text(_submitted ? 'Submitted' : 'Submit form'),
+                  ),
+                  if (!form.acceptingResponses) ...[
+                    const SizedBox(height: 10),
+                    Text('This form is closed.', style: TextStyle(color: cs.onSurfaceVariant)),
+                  ],
+                ],
+              ),
+              ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                children: [
+                  _ResponsesSummaryCard(form: form),
+                  const SizedBox(height: 16),
+                  ...form.questions.map((q) => Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _StatsCard(question: q),
+                      )),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -181,75 +184,62 @@ class _FormHero extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return LiquidGlassCard(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
       blurSigma: 16,
       color: cs.surfaceContainerHigh.withValues(alpha: 0.82),
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 320),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      form.title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerHighest)
-                              .withValues(alpha: 0.94),
-                          cs.surface.withValues(alpha: 0.58),
-                        ],
+              Expanded(
+                child: Text(
+                  form.title,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
                       ),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
-                    ),
-                    child: Text(
-                      form.acceptingResponses ? 'Accepting responses' : 'Closed',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-              const SizedBox(height: 10),
-              Text(form.description, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _MetaChip(icon: Icons.subject_rounded, label: form.subject),
-                  _MetaChip(icon: Icons.person_outline_rounded, label: form.teacher),
-                  _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
-                  _MetaChip(icon: Icons.quiz_outlined, label: '${form.questionCount} questions'),
-                  _MetaChip(icon: Icons.publish_rounded, label: form.summary.publishedLabel),
-                  _MetaChip(
-                    icon: Icons.repeat_rounded,
-                    label: form.allowMultipleResponses ? 'Multiple submissions allowed' : '1 response per student',
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerHighest)
+                      .withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+                ),
+                child: Text(
+                  form.acceptingResponses ? 'Accepting' : 'Closed',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 10),
+          Text(form.description, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _MetaChip(icon: Icons.subject_rounded, label: form.subject),
+              _MetaChip(icon: Icons.person_outline_rounded, label: form.teacher),
+              _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
+              _MetaChip(icon: Icons.quiz_outlined, label: '${form.questionCount} questions'),
+              _MetaChip(icon: Icons.publish_rounded, label: form.summary.publishedLabel),
+              _MetaChip(
+                icon: Icons.repeat_rounded,
+                label: form.allowMultipleResponses ? 'Multi-submit' : '1 per student',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
