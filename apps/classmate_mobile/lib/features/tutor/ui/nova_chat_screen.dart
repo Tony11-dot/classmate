@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -344,7 +345,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         v.endsWith('.jpeg') ||
         v.endsWith('.png') ||
         v.endsWith('.webp') ||
-        v.endsWith('.gif')) {
+        v.endsWith('.gif') ||
+        v.endsWith('.heic') ||
+        v.endsWith('.heif')) {
       return 'IMAGE';
     }
     if (v.endsWith('.pdf')) return 'PDF';
@@ -445,15 +448,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Future<void> _pickGalleryMedia() async {
     if (_sending || _recording) return;
-    final picked = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.media,
-    );
-    if (!mounted || picked == null || picked.files.isEmpty) return;
-    final initialPaths = picked.files
-        .map((e) => e.path ?? '')
-        .where((e) => e.trim().isNotEmpty)
-        .toList();
+    // pickMultipleMedia auto-converts HEIC → JPEG on iOS via imageQuality,
+    // avoiding unsupported format issues in Image.network and Anthropic vision.
+    final picked = await _imagePicker.pickMultipleMedia(imageQuality: 92);
+    if (!mounted || picked.isEmpty) return;
+    final initialPaths =
+        picked.map((e) => e.path).where((e) => e.trim().isNotEmpty).toList();
     if (initialPaths.isEmpty) return;
     await _previewAndSendMedia(initialPaths);
   }
@@ -1835,8 +1835,14 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   Widget _composer() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      child: ChatComposer(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+            child: ChatComposer(
         controller: _controller,
         topContent: _novaComposerTopContent(),
         enabled: !_sending,
@@ -1879,6 +1885,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         showCamera: true,
         showAttach: true,
         showMic: true,
+            ),
+          ),
+        ),
       ),
     );
   }

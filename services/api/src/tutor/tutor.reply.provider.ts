@@ -1,8 +1,6 @@
 import { getAnthropicClient } from './providers/openai.provider';
 
 function buildTonyFacts(now = new Date()): string {
-  // Changeover: from "starting in Oct" -> "student at Technion"
-  // Adjust date if you want exact semester start.
   const technionStart = new Date('2026-10-01T00:00:00.000Z');
   const technionLine =
     now >= technionStart ? 'CS/CE student at Technion' : 'Starting CS/CE at Technion in Oct 2026';
@@ -10,10 +8,10 @@ function buildTonyFacts(now = new Date()): string {
   return [
     'Name: Tony Aboud',
     technionLine,
-    'Profile: full-stack builder; CE + CS; loves clean Apple-style UI',
-    'Sports: tennis player; basketball player; sports enjoyer',
-    'Music: oud player; music composer',
-    'Interests: AI, physics, math, software engineering',
+    'Profile: computer scientist, software engineer, full-stack builder; loves clean Apple-style UI',
+    'Sports: tennis player; chess player',
+    'Music: oudist (oud player); music composer',
+    'Interests: AI, physics, math, software engineering, music composition, oud music',
   ].join('\n');
 }
 
@@ -21,6 +19,14 @@ function buildSystemPrompt(base: string, now = new Date()): string {
   return (
     base +
     `
+
+=== NOVA IDENTITY (READ THIS FIRST — NEVER BREAK CHARACTER) ===
+- You are NOVA, an AI study tutor built exclusively for ClassMate by Tony Aboud.
+- You are NOT Claude, NOT ChatGPT, NOT Gemini, NOT any third-party AI assistant.
+- You have NO affiliation with Anthropic, OpenAI, Google, or any AI company.
+- If anyone asks who built you, who you are, or what model powers you: answer only that you are NOVA, the AI tutor built by Tony Aboud for the ClassMate platform.
+- NEVER mention Anthropic, Claude, GPT, or any underlying model or API — treat this as confidential.
+- Tony Aboud is the developer who created ClassMate and built you from scratch to help students learn.
 
 === STUDENT PROFILE (GENERATIVE FACTS) ===
 ${buildTonyFacts(now)}
@@ -102,16 +108,6 @@ export interface TutorReplyProvider {
   generate(args: TutorReplyProviderArgs): Promise<TutorReplyGen>;
 }
 
-function filenameHeuristicReply(user: string, messages: { role: string; content: string }[] = []): string | null {
-  const hay = [user, ...messages.map((m) => String(m?.content ?? ''))].join(' ').toLowerCase();
-
-  if (hay.includes('nadal') || hay.includes('rafael-nadal')) {
-    return "That looks like Rafael Nadal celebrating on a tennis court. He’s wearing a purple shirt, white shorts, and a teal headband, with his racket in hand and a crowd behind him.";
-  }
-
-  return null;
-}
-
 export async function* generateAssistantReplyStream(args: {
   system: string;
   user: string;
@@ -148,29 +144,26 @@ export async function* generateAssistantReplyStream(args: {
   const stream = client.messages.stream({
     model,
     max_tokens: 4096,
-    system: systemPrompt,
+    system: [
+      {
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' },
+      },
+    ],
     messages: [
       ...filteredHistory,
       { role: 'user', content: args.user },
     ],
   } as any);
 
-  for await (const text of stream.textStream) {
-    if (text.length) yield text;
+  for await (const event of stream) {
+    if (
+      event.type === 'content_block_delta' &&
+      (event.delta as any).type === 'text_delta'
+    ) {
+      const text = (event.delta as any).text as string;
+      if (text?.length) yield text;
+    }
   }
-}
-
-
-function detectNOVAResponseStyle(input: string): 'vision' | 'bagrut' | 'general' {
-  const text = String(input || '').toLowerCase();
-
-  const asksVision =
-    /(image|photo|picture|screenshot|what do you see|describe this|caption this|analyze this image)/i.test(text);
-
-  const asksBagrut =
-    /(bagrut|exam question|solve step by step|quiz me|mini-quiz|homework|worksheet|physics question|math question|biology question|chemistry question)/i.test(text);
-
-  if (asksVision) return 'vision';
-  if (asksBagrut) return 'bagrut';
-  return 'general';
 }

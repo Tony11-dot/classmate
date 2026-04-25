@@ -1,6 +1,7 @@
 import 'dart:async';
 // ignore_for_file: unused_element, unused_local_variable, use_build_context_synchronously, annotate_overrides, unnecessary_import
 import 'dart:convert';
+import 'dart:ui';
 import 'package:classmate_mobile/features/classrooms/data/classrooms_repository.dart';
 
 import 'package:flutter/foundation.dart';
@@ -3272,6 +3273,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
       );
       _pinClassroomToBottom(jump: true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not send message. Please try again.'),
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _sending = false);
@@ -3774,7 +3783,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       );
     }
 
-    return SafeArea(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+          child: SafeArea(
       top: false,
       child: ChatComposer(
         controller: _chatCtl,
@@ -3850,6 +3865,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         showAttach: true,
         showMic: true,
         forceMicOnlyTap: false,
+          ),
+        ),
+        ),
       ),
     );
   }

@@ -127,6 +127,34 @@ class ClassroomsRepository {
     return null;
   }
 
+  // POST variant that tries each base candidate (same logic as _getJson).
+  // Needed because some base URLs have an /api suffix that doesn't exist on the
+  // server — trying candidates ensures the real URL is hit.
+  Future<dynamic> _postJson(
+    String path,
+    Map<String, dynamic> body, {
+    required String label,
+  }) async {
+    final hdrs = await _headers();
+    hdrs['Content-Type'] = 'application/json';
+    final encoded = jsonEncode(body);
+    late http.Response res;
+
+    for (var index = 0; index < _baseCandidates.length; index++) {
+      res = await _client
+          .post(_uriWithBase(_baseCandidates[index], path), headers: hdrs, body: encoded)
+          .timeout(_timeout);
+      if (res.statusCode != 404 || index == _baseCandidates.length - 1) {
+        if (!_ok(res)) _fail(label, res);
+        if (res.body.trim().isEmpty) return null;
+        final j = jsonDecode(res.body);
+        return j;
+      }
+    }
+
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>> list() async {
     final j = await _getJson('/student/classrooms', label: 'classrooms.list');
 
@@ -304,27 +332,15 @@ class ClassroomsRepository {
     required String messageId,
     required List<String> targetThreadIds,
   }) async {
-    final uri = _uri('/student/classrooms/$courseId/chat/forward');
-    final res = await _client
-        .post(
-          uri,
-          headers: {...(await _headers()), 'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'messageId': messageId,
-            'targetThreadIds': targetThreadIds,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(res)) {
-      _fail('classrooms.forwardChatMessage', res);
-    }
-
-    if (res.body.trim().isEmpty) {
-      return <String, dynamic>{'ok': true};
-    }
-
-    final j = jsonDecode(res.body);
+    final j = await _postJson(
+      '/student/classrooms/$courseId/chat/forward',
+      <String, dynamic>{
+        'messageId': messageId,
+        'targetThreadIds': targetThreadIds,
+      },
+      label: 'classrooms.forwardChatMessage',
+    );
+    if (j == null) return <String, dynamic>{'ok': true};
     if (j is! Map) return <String, dynamic>{'ok': true};
     return Map<String, dynamic>.from(j);
   }
@@ -387,44 +403,13 @@ class ClassroomsRepository {
     String courseId,
     String text,
   ) async {
-    final headers = await _headers();
-    headers['Content-Type'] = 'application/json';
-
-    final res = await _client
-        .post(
-          _uri('/student/classrooms/$courseId/chat/text'),
-          headers: headers,
-          body: jsonEncode(<String, dynamic>{'text': text}),
-        )
-        .timeout(_timeout);
-
-    if (res.statusCode == 404) {
-      return <String, dynamic>{
-        'ok': true,
-        'message': <String, dynamic>{
-          'id': 'local-${DateTime.now().microsecondsSinceEpoch}',
-          'text': text,
-          'body': text,
-          'createdAt': DateTime.now().toUtc().toIso8601String(),
-          'senderName': 'You',
-          'mine': true,
-        },
-      };
-    }
-
-    if (!_ok(res)) {
-      _fail('classrooms.sendChatText', res);
-    }
-
-    if (res.body.trim().isEmpty) {
-      return <String, dynamic>{'ok': true};
-    }
-
-    final j = jsonDecode(res.body);
-    if (j is! Map) {
-      return <String, dynamic>{'ok': true};
-    }
-
+    final j = await _postJson(
+      '/student/classrooms/$courseId/chat/text',
+      <String, dynamic>{'text': text},
+      label: 'classrooms.sendChatText',
+    );
+    if (j == null) return <String, dynamic>{'ok': true};
+    if (j is! Map) return <String, dynamic>{'ok': true};
     return Map<String, dynamic>.from(j);
   }
 
@@ -500,31 +485,30 @@ class ClassroomsRepository {
       throw ArgumentError('filePath cannot be empty');
     }
 
-    final uri = _uri('/student/classrooms/$courseId/chat/media');
-    final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(await _headers());
-
-    if ((messageId ?? '').trim().isNotEmpty) {
-      req.fields['messageId'] = messageId!.trim();
-    }
-    if ((text ?? '').trim().isNotEmpty) {
-      req.fields['text'] = text!.trim();
-    }
-    if ((mimeType ?? '').trim().isNotEmpty) {
-      req.fields['mimeType'] = mimeType!.trim();
-    }
-
     final resolvedName = (fileName ?? '').trim().isNotEmpty
         ? fileName!.trim()
         : path.split('/').last;
-    req.files.add(
-      await http.MultipartFile.fromPath('file', path, filename: resolvedName),
-    );
+    final hdrs = await _headers();
 
-    final streamed = await req.send().timeout(_timeout);
-    final res = await http.Response.fromStream(streamed);
-    if (!_ok(res)) {
-      _fail('classrooms.sendChatMedia', res);
+    for (var index = 0; index < _baseCandidates.length; index++) {
+      final uri = _uriWithBase(_baseCandidates[index], '/student/classrooms/$courseId/chat/media');
+      final req = http.MultipartRequest('POST', uri);
+      req.headers.addAll(hdrs);
+
+      if ((messageId ?? '').trim().isNotEmpty) req.fields['messageId'] = messageId!.trim();
+      if ((text ?? '').trim().isNotEmpty) req.fields['text'] = text!.trim();
+      if ((mimeType ?? '').trim().isNotEmpty) req.fields['mimeType'] = mimeType!.trim();
+
+      req.files.add(
+        await http.MultipartFile.fromPath('file', path, filename: resolvedName),
+      );
+
+      final streamed = await req.send().timeout(_timeout);
+      final res = await http.Response.fromStream(streamed);
+
+      if (res.statusCode == 404 && index < _baseCandidates.length - 1) continue;
+      if (!_ok(res)) _fail('classrooms.sendChatMedia', res);
+      return;
     }
   }
 }

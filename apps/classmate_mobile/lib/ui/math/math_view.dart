@@ -89,17 +89,30 @@ class MathView extends StatelessWidget {
   }
 
   Widget _inlineMath(String value, TextStyle? textStyle) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 0, maxWidth: double.infinity),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.hardEdge,
-        child: Math.tex(
-          value,
-          mathStyle: MathStyle.text,
-          textStyle: textStyle,
-          onErrorFallback: (_) => SelectableText(value, style: textStyle),
-        ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.hardEdge,
+      child: Math.tex(
+        value,
+        mathStyle: MathStyle.text,
+        textStyle: textStyle,
+        onErrorFallback: (_) => SelectableText(value, style: textStyle),
+      ),
+    );
+  }
+
+  // Inline math variant for use inside Text.rich WidgetSpan — no scroll wrapper
+  // because the text layout manages line breaks and the OverflowBox suppresses
+  // the RenderLine overflow warning from flutter_math_fork.
+  Widget _inlineMathSpan(String value, TextStyle? textStyle) {
+    return OverflowBox(
+      alignment: Alignment.centerLeft,
+      maxWidth: double.infinity,
+      child: Math.tex(
+        value,
+        mathStyle: MathStyle.text,
+        textStyle: textStyle,
+        onErrorFallback: (_) => Text(value, style: textStyle),
       ),
     );
   }
@@ -184,17 +197,23 @@ class MathView extends StatelessWidget {
     final hasBlock = chunks.any((c) => !c.isText && c.isBlock);
 
     if (!hasBlock) {
-      return Wrap(
-        spacing: compact ? 4 : 6,
-        runSpacing: compact ? 2 : 4,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          for (final chunk in chunks)
-            if (chunk.isText)
-              _plainText(chunk.value, textStyle)
-            else
-              _inlineMath(chunk.value, textStyle),
-        ],
+      // Use Text.rich so math tokens and text flow inline on the same line
+      // without extra newlines between them.
+      return Text.rich(
+        TextSpan(
+          style: textStyle,
+          children: [
+            for (final chunk in chunks)
+              if (chunk.isText)
+                TextSpan(text: chunk.value)
+              else
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: _inlineMathSpan(chunk.value, textStyle),
+                ),
+          ],
+        ),
+        textDirection: _hasRtl(value) ? TextDirection.rtl : TextDirection.ltr,
       );
     }
 

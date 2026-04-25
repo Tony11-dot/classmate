@@ -48,7 +48,7 @@ class CMAiMessage extends StatelessWidget {
     for (final m in re.allMatches(src)) {
       if (m.start > cursor) {
         final prose = src.substring(cursor, m.start).trim();
-        if (prose.isNotEmpty) out.add(_Block.prose(prose));
+        if (prose.isNotEmpty) _addProseOrMath(out, prose);
       }
 
       if (m.group(3) != null) {
@@ -66,7 +66,7 @@ class CMAiMessage extends StatelessWidget {
 
     if (cursor < src.length) {
       final prose = src.substring(cursor).trim();
-      if (prose.isNotEmpty) out.add(_Block.prose(prose));
+      if (prose.isNotEmpty) _addProseOrMath(out, prose);
     }
 
     if (out.isEmpty && src.trim().isNotEmpty) {
@@ -96,7 +96,7 @@ class CMAiMessage extends StatelessWidget {
         for (var i = 0; i < blocks.length; i++) ...[
           _buildBlock(context, blocks[i], baseStyle),
           if (i < blocks.length - 1)
-            SizedBox(height: compact ? 6 : 10),
+            SizedBox(height: _blockGap(blocks, i, compact)),
         ],
       ],
     );
@@ -113,6 +113,34 @@ class CMAiMessage extends StatelessWidget {
       case _BlockType.prose:
         return _ProseWidget(block.value, baseStyle: base, compact: compact);
     }
+  }
+
+  // If the entire prose string is a single $...$ expression, render it as a
+  // horizontally-scrollable block-math widget instead of inline text. This
+  // prevents RenderLine overflow when an answer option is purely a math tuple.
+  static final _soleInlineMathRe = RegExp(r'^\$([^\$]+)\$$');
+
+  static void _addProseOrMath(List<_Block> out, String prose) {
+    final trimmed = prose.trim();
+    final m = _soleInlineMathRe.firstMatch(trimmed);
+    if (m != null) {
+      out.add(_Block.blockMath(m.group(1)!.trim()));
+    } else {
+      out.add(_Block.prose(prose));
+    }
+  }
+
+  // Spacing between adjacent blocks. Prose↔blockMath uses a tight gap so that
+  // a formula displayed below a sentence doesn't look like a blank paragraph.
+  static double _blockGap(List<_Block> blocks, int i, bool compact) {
+    if (compact) return 3;
+    final a = blocks[i].type;
+    final b = blocks[i + 1].type;
+    if ((a == _BlockType.prose && b == _BlockType.blockMath) ||
+        (a == _BlockType.blockMath && b == _BlockType.prose)) {
+      return 2;
+    }
+    return 8;
   }
 
   // Complex LaTeX commands that produce wide output — keep as block math.
@@ -274,7 +302,7 @@ class _ProseWidget extends StatelessWidget {
       h1Padding: EdgeInsets.only(top: compact ? 6 : 12, bottom: 4),
       h2Padding: EdgeInsets.only(top: compact ? 4 : 10, bottom: 4),
       h3Padding: EdgeInsets.only(top: compact ? 4 : 8, bottom: 2),
-      pPadding: EdgeInsets.only(bottom: compact ? 2 : 4),
+      pPadding: EdgeInsets.zero,
       listIndent: 20,
       listBulletPadding: const EdgeInsets.only(right: 6),
     );
@@ -331,18 +359,19 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
   ) {
     final mathText = element.textContent;
     final style = preferredStyle ?? parentStyle;
-    // Shift down slightly to align the math baseline with surrounding text.
-    // flutter_math_fork renders inline math a little high relative to Flutter's
-    // text baseline; a small downward offset corrects this visually.
+    // OverflowBox gives Math.tex unlimited horizontal width so it renders at
+    // its natural size without triggering a RenderLine overflow warning.
+    // The small downward translate aligns the math baseline with the text.
     return Transform.translate(
       offset: const Offset(0, 1.5),
-      child: Math.tex(
-        mathText,
-        mathStyle: MathStyle.text,
-        textStyle: style,
-        onErrorFallback: (_) => Text(
+      child: OverflowBox(
+        alignment: Alignment.centerLeft,
+        maxWidth: double.infinity,
+        child: Math.tex(
           mathText,
-          style: style?.copyWith(fontFamily: 'monospace'),
+          mathStyle: MathStyle.text,
+          textStyle: style,
+          onErrorFallback: (_) => Text(mathText, style: style),
         ),
       ),
     );

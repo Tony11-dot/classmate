@@ -1,6 +1,7 @@
 import 'dart:async';
 // ignore_for_file: use_build_context_synchronously
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -1506,8 +1507,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       ref.invalidate(messageThreadProvider(widget.threadId));
       ref.invalidate(messagesInboxProvider);
       _pinToBottom();
-      // Show brief "peer is typing" dots — optimistic live feedback after send
-      _showPeerTypingBriefly();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not send message. Please try again.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -2501,8 +2506,27 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(8, 6, 8, 24),
-                    itemCount: rows.length,
+                    itemCount: rows.length + (_peerTyping ? 1 : 0),
                     itemBuilder: (context, index) {
+                      // Typing bubble as the last item in the list
+                      if (index == rows.length) {
+                        final peerRows = rows.where((r) => !r.isMine);
+                        final peerName = peerRows.isEmpty ? null : peerRows.last.senderName;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 2, bottom: 4),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 36,
+                                child: _senderAvatar(peerName ?? ''),
+                              ),
+                              const SizedBox(width: 6),
+                              TypingBubble(senderName: peerName),
+                            ],
+                          ),
+                        );
+                      }
                       final row = rows[index];
                       final showDaySeparator =
                           index == 0 || !_sameMessageDay(rows[index - 1], row);
@@ -2725,7 +2749,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                                 mediaUrl: row.mediaUrl ?? '',
                                                 isMine: row.isMine,
                                                 showName:
-                                                    detail.isGroup &&
                                                     startsGroup &&
                                                     !row.isMine,
                                                 senderLabel: row.senderName,
@@ -2790,8 +2813,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     },
                   ),
                 ),
-                if (_peerTyping && !_recording)
-                  const TypingIndicatorRow(label: 'typing...'),
                 if (_deleteSelection.isNotEmpty)
                   SafeArea(
                     top: false,
@@ -2877,7 +2898,13 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                     ),
                   ),
                 if (_deleteSelection.isEmpty)
-                ChatComposer(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                      child: ChatComposer(
                   controller: _controller,
                   replyingTo: _replyIndex == null
                       ? null
@@ -2942,6 +2969,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         : AppLocalizations.of(context)!.chatComposerDefaultHint)
                       : AppLocalizations.of(context)!.messagesThreadWaitingForApproval,
                   forceMicOnlyTap: false,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             );

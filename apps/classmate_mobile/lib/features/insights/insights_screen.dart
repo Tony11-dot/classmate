@@ -150,7 +150,7 @@ class InsightsScreen extends ConsumerWidget {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 160),
         children: [
           unifiedAsync.when(
             loading: () => _StateCard(
@@ -333,14 +333,34 @@ class InsightsScreen extends ConsumerWidget {
                     error: (error, _) => _StateCard(
                       title: l.insightsAiCoachTitle,
                       subtitle: error.toString(),
-                      child: const SizedBox.shrink(),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FilledButton.icon(
+                          onPressed: () {
+                            ref.invalidate(aiInsightsSummaryProvider);
+                            ref.invalidate(serverInsightsProvider);
+                          },
+                          icon: const Icon(Icons.auto_awesome_rounded),
+                          label: const Text('Generate Insights'),
+                        ),
+                      ),
                     ),
                     data: (ai) {
                       if (ai == null) {
                         return _StateCard(
                           title: l.insightsAiCoachTitle,
                           subtitle: l.insightsAiCoachUnavailableSubtitle,
-                          child: const SizedBox.shrink(),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: FilledButton.icon(
+                              onPressed: () {
+                                ref.invalidate(aiInsightsSummaryProvider);
+                                ref.invalidate(serverInsightsProvider);
+                              },
+                              icon: const Icon(Icons.auto_awesome_rounded),
+                              label: const Text('Generate Insights'),
+                            ),
+                          ),
                         );
                       }
 
@@ -363,19 +383,29 @@ class InsightsScreen extends ConsumerWidget {
                                   ),
                                 ),
                             const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: FilledButton.icon(
-                                onPressed: () => _openTutorFromInsights(
-                                  context,
-                                  prompt: ai.suggestedPrompt.isEmpty
-                                      ? l.insightsAskNovaPrompt
-                                      : ai.suggestedPrompt,
-                                  title: l.insightsAiStudyCoachTitle,
+                            Row(
+                              children: [
+                                FilledButton.icon(
+                                  onPressed: () => _openTutorFromInsights(
+                                    context,
+                                    prompt: ai.suggestedPrompt.isEmpty
+                                        ? l.insightsAskNovaPrompt
+                                        : ai.suggestedPrompt,
+                                    title: l.insightsAiStudyCoachTitle,
+                                  ),
+                                  icon: const Icon(Icons.psychology_alt_rounded),
+                                  label: Text(l.insightsAskNova),
                                 ),
-                                icon: const Icon(Icons.psychology_alt_rounded),
-                                label: Text(l.insightsAskNova),
-                              ),
+                                const SizedBox(width: 10),
+                                FilledButton.tonalIcon(
+                                  onPressed: () {
+                                    ref.invalidate(aiInsightsSummaryProvider);
+                                    ref.invalidate(serverInsightsProvider);
+                                  },
+                                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                                  label: const Text('Refresh'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -474,6 +504,8 @@ class _PredictiveCard extends StatelessWidget {
                 Text(
                   item.body,
                   style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 4,
                 ),
               ],
             ),
@@ -540,7 +572,12 @@ class _HeroMetric extends StatelessWidget {
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(color: cs.onSurfaceVariant),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -575,6 +612,8 @@ class _StateCard extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 4,
           ),
           const SizedBox(height: 14),
           child,

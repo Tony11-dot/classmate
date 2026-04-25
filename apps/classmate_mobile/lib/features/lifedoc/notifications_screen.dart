@@ -608,9 +608,9 @@ class _NotificationDetailScreenState
             );
           }
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _markReadIfNeeded(item);
-          });
+          // Do NOT call _markReadIfNeeded here — it fires on every rebuild
+          // (including after mark-unread), causing the unread state to flip
+          // back to read immediately. initState handles the initial mark-read.
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -809,6 +809,8 @@ class _MetaPill extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

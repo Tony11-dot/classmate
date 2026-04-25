@@ -82,7 +82,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         body: TabBarView(
           children: [
             ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
                 _FormHero(form: form),
                 const SizedBox(height: 16),
@@ -181,68 +181,74 @@ class _FormHero extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return LiquidGlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(24),
       blurSigma: 16,
       color: cs.surfaceContainerHigh.withValues(alpha: 0.82),
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 340),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  form.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      form.title,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w900,
+                          ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerHighest)
+                              .withValues(alpha: 0.94),
+                          cs.surface.withValues(alpha: 0.58),
+                        ],
                       ),
-                ),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+                    ),
+                    child: Text(
+                      form.acceptingResponses ? 'Accepting responses' : 'Closed',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerHighest)
-                          .withValues(alpha: 0.94),
-                      cs.surface.withValues(alpha: 0.58),
-                    ],
+              const SizedBox(height: 10),
+              Text(form.description, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _MetaChip(icon: Icons.subject_rounded, label: form.subject),
+                  _MetaChip(icon: Icons.person_outline_rounded, label: form.teacher),
+                  _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
+                  _MetaChip(icon: Icons.quiz_outlined, label: '${form.questionCount} questions'),
+                  _MetaChip(icon: Icons.publish_rounded, label: form.summary.publishedLabel),
+                  _MetaChip(
+                    icon: Icons.repeat_rounded,
+                    label: form.allowMultipleResponses ? 'Multiple submissions allowed' : '1 response per student',
                   ),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
-                ),
-                child: Text(
-                  form.acceptingResponses ? 'Accepting responses' : 'Closed',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-                  ),
-                ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(form.description, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _MetaChip(icon: Icons.subject_rounded, label: form.subject),
-              _MetaChip(icon: Icons.person_outline_rounded, label: form.teacher),
-              _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
-              _MetaChip(icon: Icons.quiz_outlined, label: '${form.questionCount} questions'),
-              _MetaChip(icon: Icons.publish_rounded, label: form.summary.publishedLabel),
-              _MetaChip(
-                icon: Icons.repeat_rounded,
-                label: form.allowMultipleResponses ? 'Multiple submissions allowed' : '1 response per student',
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -276,7 +282,14 @@ class _MetaChip extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: cs.primary),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
