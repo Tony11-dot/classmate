@@ -101,28 +101,33 @@ class MathView extends StatelessWidget {
     );
   }
 
-  // Inline math variant for use inside Text.rich WidgetSpan.
-  // Renders Math.tex directly — the text layout handles line flow.
+  // Inline math variant for Text.rich WidgetSpan.
+  // Wraps in horizontal SingleChildScrollView so wide expressions don't
+  // overflow the WidgetSpan's line budget.
   Widget _inlineMathSpan(String value, TextStyle? textStyle) {
-    return Math.tex(
-      value,
-      mathStyle: MathStyle.text,
-      textStyle: textStyle,
-      onErrorFallback: (_) => Math.tex(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      child: Math.tex(
         value,
-        mathStyle: MathStyle.display,
-        textStyle: textStyle?.copyWith(
-          fontSize: (textStyle.fontSize ?? 14) * 0.88,
+        mathStyle: MathStyle.text,
+        textStyle: textStyle,
+        onErrorFallback: (_) => Math.tex(
+          value,
+          mathStyle: MathStyle.display,
+          textStyle: textStyle?.copyWith(
+            fontSize: (textStyle.fontSize ?? 14) * 0.88,
+          ),
+          onErrorFallback: (_) {
+            final clean = value
+                .replaceAllMapped(RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
+                .replaceAll(RegExp(r'[{}]'), ' ')
+                .replaceAll('_', '')
+                .replaceAll('^', '');
+            return Text(clean.trim(),
+                style: textStyle?.copyWith(fontStyle: FontStyle.italic));
+          },
         ),
-        onErrorFallback: (_) {
-          final clean = value
-              .replaceAllMapped(RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
-              .replaceAll(RegExp(r'[{}]'), ' ')
-              .replaceAll('_', '')
-              .replaceAll('^', '');
-          return Text(clean.trim(),
-              style: textStyle?.copyWith(fontStyle: FontStyle.italic));
-        },
       ),
     );
   }

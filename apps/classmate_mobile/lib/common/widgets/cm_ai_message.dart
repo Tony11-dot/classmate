@@ -307,21 +307,37 @@ class _ProseWidget extends StatelessWidget {
       listBulletPadding: const EdgeInsets.only(right: 6),
     );
 
+    // Pre-extract every $...$ and \(...\) span into [mathExprs] and replace
+    // each with a control-char placeholder \x02M{index}\x02.  This prevents
+    // MarkdownBody's emphasis parser from mangling underscore-heavy subscripts
+    // like \lim_{x \to 1} before the math extension can consume them.
+    final mathExprs = <String>[];
+    final safeText = text.replaceAllMapped(
+      RegExp(r'\$([^$\n]+?)\$|\\\((.+?)\\\)', dotAll: false),
+      (m) {
+        final expr = (m.group(1) ?? m.group(2) ?? '').trim();
+        if (expr.isEmpty) return m.group(0)!;
+        final idx = mathExprs.length;
+        mathExprs.add(expr);
+        return '\x02M$idx\x02';
+      },
+    );
+
     return Directionality(
       textDirection: textDirection,
       child: MarkdownBody(
-        data: text,
+        data: safeText,
         selectable: true,
         softLineBreak: false,
         extensionSet: md.ExtensionSet(
           md.ExtensionSet.gitHubFlavored.blockSyntaxes,
           [
-            _InlineMathSyntax(),
+            _MathPlaceholderSyntax(),
             ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
           ],
         ),
         builders: {
-          'inlinemath': _InlineMathBuilder(),
+          'mathph': _MathPlaceholderBuilder(mathExprs),
         },
         styleSheet: styleSheet,
       ),
@@ -329,24 +345,25 @@ class _ProseWidget extends StatelessWidget {
   }
 }
 
-// ── Inline math markdown extension ───────────────────────────────────────────
+// ── Inline math via pre-extracted placeholder ─────────────────────────────────
+// _ProseWidget replaces $...$ with \x02M{i}\x02 before passing to MarkdownBody.
+// This syntax matches those placeholders and delegates to _MathPlaceholderBuilder.
 
-/// Recognises $...$ and \(...\) as inline math.
-class _InlineMathSyntax extends md.InlineSyntax {
-  // Match $...$  OR  \(...\)
-  _InlineMathSyntax()
-      : super(r'\$([^\$\n]+?)\$|\\\((.+?)\\\)');
+class _MathPlaceholderSyntax extends md.InlineSyntax {
+  _MathPlaceholderSyntax() : super('\x02M(\\d+)\x02');
 
   @override
   bool onMatch(md.InlineParser parser, Match match) {
-    final content = match.group(1) ?? match.group(2) ?? '';
-    final el = md.Element.text('inlinemath', content);
+    final el = md.Element.text('mathph', match.group(1)!);
     parser.addNode(el);
     return true;
   }
 }
 
-class _InlineMathBuilder extends MarkdownElementBuilder {
+class _MathPlaceholderBuilder extends MarkdownElementBuilder {
+  _MathPlaceholderBuilder(this.exprs);
+  final List<String> exprs;
+
   @override
   bool isBlockElement() => false;
 
@@ -357,11 +374,11 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
     TextStyle? preferredStyle,
     TextStyle? parentStyle,
   ) {
-    final mathText = element.textContent;
+    final idx = int.tryParse(element.textContent) ?? -1;
+    if (idx < 0 || idx >= exprs.length) return null;
+    final mathText = exprs[idx];
     final style = preferredStyle ?? parentStyle;
-    // SingleChildScrollView gives Math.tex an unbounded horizontal budget so
-    // it never overflows the Wrap that MarkdownBody places inline elements in.
-    // NeverScrollableScrollPhysics keeps it non-interactive (it's inline text).
+
     return Transform.translate(
       offset: const Offset(0, 1.5),
       child: SingleChildScrollView(
@@ -374,13 +391,10 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
           onErrorFallback: (_) => Math.tex(
             mathText,
             mathStyle: MathStyle.display,
-            textStyle: style?.copyWith(
-              fontSize: (style.fontSize ?? 14) * 0.88,
-            ),
+            textStyle: style?.copyWith(fontSize: (style.fontSize ?? 14) * 0.88),
             onErrorFallback: (_) {
               final clean = mathText
-                  .replaceAllMapped(
-                      RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
+                  .replaceAllMapped(RegExp(r'\\([a-zA-Z]+)'), (m) => m.group(1)!)
                   .replaceAll(RegExp(r'[{}]'), ' ')
                   .replaceAll('_', '')
                   .replaceAll('^', '');
