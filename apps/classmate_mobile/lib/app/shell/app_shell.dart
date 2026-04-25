@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -285,9 +287,13 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
-    final pillTint = isDark
-        ? Colors.black.withValues(alpha: 0.45)
-        : Colors.white.withValues(alpha: 0.65);
+    // Transparent on iOS — UIVisualEffectView is the only visual layer.
+    // Android needs a slight tint so BackdropFilter has visible depth.
+    final pillTint = Platform.isIOS
+        ? Colors.transparent
+        : (isDark
+            ? Colors.black.withValues(alpha: 0.45)
+            : Colors.white.withValues(alpha: 0.65));
 
     // Stretch factors: rubber-band units → visual scale delta
     final sx = 1.0 + (_dragDx.abs() / 400).clamp(0.0, 0.08);
@@ -320,10 +326,15 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                   child: Stack(
                     children: [
                       // ── Animated selection capsule ────────────────────────
+                      // totalWidth passed from the outer LayoutBuilder so the
+                      // capsule computes slot positions without a nested
+                      // LayoutBuilder (Positioned must be a direct Stack child).
                       _SelectionCapsule(
                         itemCount: widget.items.length,
                         selectedIndex: _hoveredIndex ?? widget.index,
                         isDark: isDark,
+                        totalWidth: width,
+                        dragDx: _dragDx,
                       ),
                       // ── Tab icons + labels ────────────────────────────────
                       Row(
@@ -351,49 +362,57 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
   }
 }
 
-// Animated capsule that slides between tab positions
+// Animated capsule — direct child of Stack (no LayoutBuilder inside).
+// Receives totalWidth from parent LayoutBuilder so it can compute slot positions.
+// Also stretches horizontally with the current dragDx for a liquid feel.
 class _SelectionCapsule extends StatelessWidget {
   const _SelectionCapsule({
     required this.itemCount,
     required this.selectedIndex,
     required this.isDark,
+    required this.totalWidth,
+    required this.dragDx,
   });
   final int itemCount;
   final int selectedIndex;
   final bool isDark;
+  final double totalWidth;
+  final double dragDx; // rubber-band horizontal offset
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, box) {
-      final slotW = box.maxWidth / itemCount;
-      final capsuleW = slotW - 8;
-      final left = slotW * selectedIndex + 4;
-      return AnimatedPositioned(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        left: left,
-        top: 5,
-        bottom: 5,
-        width: capsuleW,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          decoration: BoxDecoration(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.14)
-                : Colors.white.withValues(alpha: 0.80),
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+    final slotW = totalWidth / itemCount;
+    final baseW = slotW - 8;
+    // Capsule widens slightly in the drag direction (same feel as the pill).
+    final stretch = (dragDx.abs() / 300).clamp(0.0, 0.12);
+    final capsuleW = baseW * (1 + stretch);
+    // Shift left so the capsule stays centred in its slot while wider.
+    final offset = (capsuleW - baseW) / 2;
+    final left = slotW * selectedIndex + 4 - offset;
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      left: left,
+      top: 5,
+      bottom: 5,
+      width: capsuleW,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.07),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
 
