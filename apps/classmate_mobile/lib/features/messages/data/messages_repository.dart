@@ -150,6 +150,15 @@ class ApiMessagesRepository implements MessagesRepository {
     return lastResponse;
   }
 
+  // Convenience: POST JSON body with base-candidate fallback.
+  Future<http.Response> _post(String path, Map<String, dynamic> body) async {
+    final hdrs = await _headers();
+    return _sendWithFallback(
+      (uri) async => _client.post(uri, headers: hdrs, body: jsonEncode(body)),
+      path,
+    );
+  }
+
   Future<Map<String, String>> _headers() async {
     final token = await _readToken();
     return <String, String>{
@@ -554,28 +563,14 @@ class ApiMessagesRepository implements MessagesRepository {
 
   @override
   Future<void> approveRequest({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/requests/approve'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.approveRequest', response);
+    final r = await _post('/messages/requests/approve', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.approveRequest', r);
   }
 
   @override
   Future<void> blockRequest({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/requests/block'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.blockRequest', response);
+    final r = await _post('/messages/requests/block', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.blockRequest', r);
   }
 
   @override
@@ -583,94 +578,47 @@ class ApiMessagesRepository implements MessagesRepository {
     required String title,
     required List<String> memberIds,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/threads/group'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'title': title,
-            'memberIds': memberIds,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.createGroup', response);
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final r = await _post('/messages/threads/group', {'title': title, 'memberIds': memberIds});
+    if (!_ok(r)) _fail('messages.createGroup', r);
+    final body = jsonDecode(r.body) as Map<String, dynamic>;
     return _detailFromJson(Map<String, dynamic>.from(body['thread'] as Map));
   }
 
   @override
   Future<void> leaveGroup({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/groups/leave'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.leaveGroup', response);
+    final r = await _post('/messages/groups/leave', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.leaveGroup', r);
   }
-
 
   @override
   Future<void> blockThread({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/threads/block'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.blockThread', response);
+    final r = await _post('/messages/threads/block', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.blockThread', r);
   }
 
   @override
   Future<List<Map<String, dynamic>>> listBlockedPeople() async {
-    final response = await _client
-        .get(
-          _uri('/messages/blocked'),
-          headers: await _headers(),
-        )
-        .timeout(_timeout);
-
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/blocked',
+    );
     if (!_ok(response)) _fail('messages.listBlockedPeople', response);
     if (response.body.trim().isEmpty) return <Map<String, dynamic>>[];
-
     final json = jsonDecode(response.body);
     final raw = json is Map ? (json['items'] as List? ?? const []) : const [];
-    return raw
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
+    return raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   @override
   Future<void> unblockDirectThread({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/threads/unblock'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.unblockDirectThread', response);
+    final r = await _post('/messages/threads/unblock', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.unblockDirectThread', r);
   }
 
   @override
   Future<void> blockDirectThread({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/threads/block'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.blockDirectThread', response);
+    final r = await _post('/messages/threads/block', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.blockDirectThread', r);
   }
 
   @override
@@ -682,24 +630,19 @@ class ApiMessagesRepository implements MessagesRepository {
     String? mediaUrl,
     String? mediaMimeType,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/send'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'threadId': threadId,
-            'text': text,
-            if ((kind ?? '').trim().isNotEmpty) 'kind': kind!.trim(),
-            if ((mediaUrl ?? '').trim().isNotEmpty)
-              'mediaUrl': mediaUrl!.trim(),
-            if ((mediaMimeType ?? '').trim().isNotEmpty)
-              'mediaMimeType': mediaMimeType!.trim(),
-            if ((replyToMessageId ?? '').trim().isNotEmpty)
-              'replyToMessageId': replyToMessageId!.trim(),
-          }),
-        )
-        .timeout(_timeout);
-
+    final body = jsonEncode(<String, dynamic>{
+      'threadId': threadId,
+      'text': text,
+      if ((kind ?? '').trim().isNotEmpty) 'kind': kind!.trim(),
+      if ((mediaUrl ?? '').trim().isNotEmpty) 'mediaUrl': mediaUrl!.trim(),
+      if ((mediaMimeType ?? '').trim().isNotEmpty) 'mediaMimeType': mediaMimeType!.trim(),
+      if ((replyToMessageId ?? '').trim().isNotEmpty) 'replyToMessageId': replyToMessageId!.trim(),
+    });
+    final hdrs = await _headers();
+    final response = await _sendWithFallback(
+      (uri) async => _client.post(uri, headers: hdrs, body: body),
+      '/messages/send',
+    );
     if (!_ok(response)) _fail('messages.sendMessage', response);
   }
 
@@ -749,19 +692,8 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     required String text,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/edit'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'threadId': threadId,
-            'messageId': messageId,
-            'text': text,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.editMessage', response);
+    final r = await _post('/messages/edit', {'threadId': threadId, 'messageId': messageId, 'text': text});
+    if (!_ok(r)) _fail('messages.editMessage', r);
   }
 
   @override
@@ -770,19 +702,8 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     String mode = 'deleteForMe',
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/delete'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'threadId': threadId,
-            'messageId': messageId,
-            'mode': mode,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.deleteMessage', response);
+    final r = await _post('/messages/delete', {'threadId': threadId, 'messageId': messageId, 'mode': mode});
+    if (!_ok(r)) _fail('messages.deleteMessage', r);
   }
 
   @override
@@ -791,19 +712,12 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     required List<String> targetThreadIds,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/forward'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'fromThreadId': fromThreadId,
-            'messageId': messageId,
-            'targetThreadIds': targetThreadIds,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.forwardMessage', response);
+    final r = await _post('/messages/forward', {
+      'fromThreadId': fromThreadId,
+      'messageId': messageId,
+      'targetThreadIds': targetThreadIds,
+    });
+    if (!_ok(r)) _fail('messages.forwardMessage', r);
   }
 
   @override
@@ -811,18 +725,8 @@ class ApiMessagesRepository implements MessagesRepository {
     required String threadId,
     required String messageId,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/pin/toggle'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'threadId': threadId,
-            'messageId': messageId,
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.togglePin', response);
+    final r = await _post('/messages/pin/toggle', {'threadId': threadId, 'messageId': messageId});
+    if (!_ok(r)) _fail('messages.togglePin', r);
   }
 
   @override
@@ -831,31 +735,17 @@ class ApiMessagesRepository implements MessagesRepository {
     required String messageId,
     String? emoji,
   }) async {
-    final response = await _client
-        .post(
-          _uri('/messages/react'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{
-            'threadId': threadId,
-            'messageId': messageId,
-            if ((emoji ?? '').trim().isNotEmpty) 'emoji': emoji!.trim(),
-          }),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.reactMessage', response);
+    final r = await _post('/messages/react', {
+      'threadId': threadId,
+      'messageId': messageId,
+      if ((emoji ?? '').trim().isNotEmpty) 'emoji': emoji!.trim(),
+    });
+    if (!_ok(r)) _fail('messages.reactMessage', r);
   }
 
   @override
   Future<void> markThreadRead({required String threadId}) async {
-    final response = await _client
-        .post(
-          _uri('/messages/read'),
-          headers: await _headers(),
-          body: jsonEncode(<String, dynamic>{'threadId': threadId}),
-        )
-        .timeout(_timeout);
-
-    if (!_ok(response)) _fail('messages.markThreadRead', response);
+    final r = await _post('/messages/read', {'threadId': threadId});
+    if (!_ok(r)) _fail('messages.markThreadRead', r);
   }
 }

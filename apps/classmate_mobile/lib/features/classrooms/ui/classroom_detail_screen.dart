@@ -3783,12 +3783,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+          filter: ImageFilter.blur(sigmaX: 36, sigmaY: 36),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.18)
+                  : Colors.white.withValues(alpha: 0.42),
+              border: Border(
+                top: BorderSide(
+                  color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.white.withValues(alpha: 0.55),
+                  width: 0.8,
+                ),
+              ),
+            ),
           child: SafeArea(
       top: false,
       child: ChatComposer(
@@ -3867,6 +3880,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         forceMicOnlyTap: false,
           ),
         ),
+          ),
         ),
       ),
     );

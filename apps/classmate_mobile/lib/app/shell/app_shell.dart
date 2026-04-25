@@ -233,15 +233,15 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
       ? items.length - 1 - displayIndex
       : displayIndex;
 
-    final surface =
+    // Apple liquid-glass tints: very transparent so blurred content shows through.
+    final pillTint =
         brightness == Brightness.dark
-            ? Colors.white.withValues(alpha: 0.10)
-            : Colors.white.withValues(alpha: 0.72);
-
-    final border =
+            ? Colors.white.withValues(alpha: 0.07)
+            : Colors.white.withValues(alpha: 0.55);
+    final pillBorder =
         brightness == Brightness.dark
-            ? Colors.white.withValues(alpha: 0.12)
-            : Colors.white.withValues(alpha: 0.34);
+            ? Colors.white.withValues(alpha: 0.14)
+            : Colors.white.withValues(alpha: 0.50);
 
     return SafeArea(
       top: false,
@@ -293,26 +293,48 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
               onPointerUp: (_) => _endInteraction(),
               onPointerCancel: (_) => _endInteraction(),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(28),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
                   child: Container(
                     height: compact ? barHeight - 2 : barHeight,
                     decoration: BoxDecoration(
-                      color: surface,
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(color: border),
+                      color: pillTint,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: pillBorder, width: 0.8),
                       boxShadow: [
                         BoxShadow(
-                          blurRadius: 24,
-                          spreadRadius: -8,
-                          offset: const Offset(0, 10),
-                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 32,
+                          spreadRadius: -6,
+                          offset: const Offset(0, 12),
+                          color: Colors.black.withValues(alpha: 0.22),
+                        ),
+                        BoxShadow(
+                          blurRadius: 1,
+                          offset: const Offset(0, -0.5),
+                          color: Colors.white.withValues(alpha: 0.30),
                         ),
                       ],
                     ),
                     child: Stack(
                       children: [
+                        // Specular highlight at top edge (liquid glass refraction)
+                        Positioned(
+                          top: 0, left: 6, right: 6,
+                          height: 1.5,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withValues(alpha: 0),
+                                  Colors.white.withValues(alpha: brightness == Brightness.dark ? 0.22 : 0.60),
+                                  Colors.white.withValues(alpha: 0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         AnimatedPositioned(
                           duration: const Duration(milliseconds: 220),
                           curve: Curves.easeOutCubic,
@@ -321,45 +343,46 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav> {
                           width: indicatorWidth,
                           height: barHeight - 18,
                           child: IgnorePointer(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(22),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    cs.primary.withValues(
-                                      alpha: brightness == Brightness.dark ? 0.22 : 0.17,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(22),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(22),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        cs.primary.withValues(alpha: brightness == Brightness.dark ? 0.28 : 0.22),
+                                        cs.primaryContainer.withValues(alpha: brightness == Brightness.dark ? 0.38 : 0.28),
+                                      ],
                                     ),
-                                    cs.primaryContainer.withValues(
-                                      alpha: brightness == Brightness.dark ? 0.34 : 0.22,
+                                    border: Border.all(
+                                      color: cs.primary.withValues(alpha: brightness == Brightness.dark ? 0.28 : 0.20),
+                                      width: 0.8,
                                     ),
-                                  ],
-                                ),
-                                border: Border.all(
-                                  color: cs.primary.withValues(
-                                    alpha: brightness == Brightness.dark ? 0.22 : 0.16,
-                                  ),
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 22,
-                                    spreadRadius: -8,
-                                    offset: const Offset(0, 9),
-                                    color: cs.primary.withValues(alpha: 0.22),
-                                  ),
-                                ],
-                              ),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(22),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.18),
-                                      Colors.white.withValues(alpha: 0.02),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 18,
+                                        spreadRadius: -6,
+                                        offset: const Offset(0, 6),
+                                        color: cs.primary.withValues(alpha: 0.28),
+                                      ),
                                     ],
+                                  ),
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(22),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.white.withValues(alpha: 0.24),
+                                          Colors.white.withValues(alpha: 0.02),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

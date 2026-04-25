@@ -359,20 +359,14 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
   ) {
     final mathText = element.textContent;
     final style = preferredStyle ?? parentStyle;
-    // OverflowBox gives Math.tex unlimited horizontal width so it renders at
-    // its natural size without triggering a RenderLine overflow warning.
-    // The small downward translate aligns the math baseline with the text.
+    // Small downward offset aligns the math baseline with surrounding text.
     return Transform.translate(
       offset: const Offset(0, 1.5),
-      child: OverflowBox(
-        alignment: Alignment.centerLeft,
-        maxWidth: double.infinity,
-        child: Math.tex(
-          mathText,
-          mathStyle: MathStyle.text,
-          textStyle: style,
-          onErrorFallback: (_) => Text(mathText, style: style),
-        ),
+      child: Math.tex(
+        mathText,
+        mathStyle: MathStyle.text,
+        textStyle: style,
+        onErrorFallback: (_) => Text(mathText, style: style),
       ),
     );
   }

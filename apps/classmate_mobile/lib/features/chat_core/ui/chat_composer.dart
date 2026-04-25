@@ -428,30 +428,17 @@ class ChatComposer extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 42),
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    enabled
-                        ? scheme.surface.withValues(alpha: 0.96)
-                        : scheme.surface.withValues(alpha: 0.82),
-                    enabled
-                        ? scheme.surfaceContainerHighest.withValues(alpha: 0.88)
-                        : scheme.surfaceContainerHighest.withValues(alpha: 0.54),
-                  ],
-                ),
+                // Transparent fill so the outer blur shows through (liquid glass).
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: enabled ? 0.07 : 0.04)
+                    : Colors.white.withValues(alpha: enabled ? 0.60 : 0.40),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: scheme.outlineVariant.withValues(alpha: 0.12),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Colors.white.withValues(alpha: 0.40),
+                  width: 0.8,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.14),
-                    blurRadius: 24,
-                    spreadRadius: -14,
-                    offset: const Offset(0, 14),
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -665,26 +652,22 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _shell(BuildContext context, {required Widget child, Key? key}) {
-    final scheme = Theme.of(context).colorScheme;
+    final brightness = Theme.of(context).brightness;
     return AnimatedContainer(
       key: key,
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(24),
+        // Fully transparent — the outer BackdropFilter provides the glass background.
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.06),
+          color: brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.10)
+              : Colors.white.withValues(alpha: 0.45),
+          width: 0.8,
         ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 18,
-            spreadRadius: -12,
-            offset: const Offset(0, 10),
-            color: Colors.black.withValues(alpha: 0.14),
-          ),
-        ],
       ),
       child: child,
     );

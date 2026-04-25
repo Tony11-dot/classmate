@@ -187,8 +187,9 @@ class _FormHero extends StatelessWidget {
       color: cs.surfaceContainerHigh.withValues(alpha: 0.82),
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 340),
+        constraints: const BoxConstraints(maxHeight: 320),
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

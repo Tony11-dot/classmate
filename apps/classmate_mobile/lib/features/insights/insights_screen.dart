@@ -574,8 +574,8 @@ class _HeroMetric extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(color: cs.onSurfaceVariant),
-            maxLines: 2,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ],

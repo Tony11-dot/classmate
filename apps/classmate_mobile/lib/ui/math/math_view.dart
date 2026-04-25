@@ -101,19 +101,14 @@ class MathView extends StatelessWidget {
     );
   }
 
-  // Inline math variant for use inside Text.rich WidgetSpan — no scroll wrapper
-  // because the text layout manages line breaks and the OverflowBox suppresses
-  // the RenderLine overflow warning from flutter_math_fork.
+  // Inline math variant for use inside Text.rich WidgetSpan.
+  // Renders Math.tex directly — the text layout handles line flow.
   Widget _inlineMathSpan(String value, TextStyle? textStyle) {
-    return OverflowBox(
-      alignment: Alignment.centerLeft,
-      maxWidth: double.infinity,
-      child: Math.tex(
-        value,
-        mathStyle: MathStyle.text,
-        textStyle: textStyle,
-        onErrorFallback: (_) => Text(value, style: textStyle),
-      ),
+    return Math.tex(
+      value,
+      mathStyle: MathStyle.text,
+      textStyle: textStyle,
+      onErrorFallback: (_) => Text(value, style: textStyle),
     );
   }
 
