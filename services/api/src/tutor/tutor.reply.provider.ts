@@ -133,13 +133,16 @@ export async function* generateAssistantReplyStream(args: {
   // before the final user message is not also 'user'.
   const filteredHistory = history.filter((m) => m.role !== 'system' as any);
 
-  const systemPrompt = buildSystemPrompt(
-    `${args.system}` +
-      `\n\n=== USER CONTEXT ===\n` +
-      `- displayName: ${args.displayName ?? ''}\n` +
-      `\n=== NOVA SETTINGS (CUSTOMIZABLE) ===\n` +
-      `${args.novaSettings ?? ''}\n`,
-  );
+  // Static NOVA instructions (large, shared across all users) — cached.
+  const staticPrompt = buildSystemPrompt(args.system);
+
+  // Dynamic per-user context (small, changes per user) — NOT cached so the
+  // static block above remains cache-stable across different users.
+  const dynamicContext = [
+    `=== USER CONTEXT ===`,
+    `- displayName: ${args.displayName ?? ''}`,
+    args.novaSettings ? `\n=== NOVA SETTINGS (CUSTOMIZABLE) ===\n${args.novaSettings}` : '',
+  ].filter(Boolean).join('\n');
 
   const stream = client.messages.stream({
     model,
@@ -147,9 +150,13 @@ export async function* generateAssistantReplyStream(args: {
     system: [
       {
         type: 'text',
-        text: systemPrompt,
+        text: staticPrompt,
         cache_control: { type: 'ephemeral' },
       },
+      ...(dynamicContext.trim() ? [{
+        type: 'text' as const,
+        text: dynamicContext,
+      }] : []),
     ],
     messages: [
       ...filteredHistory,

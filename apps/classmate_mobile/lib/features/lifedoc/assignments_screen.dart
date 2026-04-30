@@ -540,6 +540,8 @@ class AssignmentDetailScreen extends ConsumerStatefulWidget {
   final String assignmentId;
   final Map<String, dynamic>? initialAssignment;
 
+  String get _courseId => _stringValue(initialAssignment ?? {}, '_courseId');
+
   @override
   ConsumerState<AssignmentDetailScreen> createState() => _AssignmentDetailScreenState();
 }
@@ -582,8 +584,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     if (_submitting) return;
 
     final l = AppLocalizations.of(context)!;
-
     final note = _noteController.text.trim();
+
     if (note.isEmpty && _draftAttachments.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -593,23 +595,44 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     }
 
     setState(() => _submitting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    if (!mounted) return;
 
-    setState(() {
-      _submitting = false;
-      _lastPreparedAt = DateTime.now();
-    });
+    try {
+      final courseId = widget._courseId;
+      if (courseId.isNotEmpty) {
+        final repo = ref.read(classroomsRepoProvider);
+        await repo.submitAssignment(
+          courseId,
+          widget.assignmentId,
+          note: note.isNotEmpty ? note : null,
+        );
+      }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _draftAttachments.isEmpty
-              ? l.assignmentsWorkDraftPrepared
-              : l.assignmentsWorkDraftPreparedWithFiles,
+      if (!mounted) return;
+      setState(() => _lastPreparedAt = DateTime.now());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _draftAttachments.isEmpty
+                ? l.assignmentsWorkDraftPrepared
+                : l.assignmentsWorkDraftPreparedWithFiles,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _lastPreparedAt = DateTime.now());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _draftAttachments.isEmpty
+                ? l.assignmentsWorkDraftPrepared
+                : l.assignmentsWorkDraftPreparedWithFiles,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override

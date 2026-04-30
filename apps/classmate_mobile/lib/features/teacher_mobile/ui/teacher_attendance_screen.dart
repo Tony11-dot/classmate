@@ -35,7 +35,16 @@ String _statusLabel(BuildContext context, String status) {
 }
 
 class TeacherAttendanceScreen extends ConsumerStatefulWidget {
-  const TeacherAttendanceScreen({super.key});
+  const TeacherAttendanceScreen({
+    super.key,
+    this.initialCohortId,
+    this.initialPeriod,
+    this.initialDate,
+  });
+
+  final String? initialCohortId;
+  final int? initialPeriod;
+  final String? initialDate;
 
   @override
   ConsumerState<TeacherAttendanceScreen> createState() => _TeacherAttendanceScreenState();
@@ -50,10 +59,58 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
   bool _loading = true;
   bool _saving = false;
   String? _error;
+  DateTime _selectedDate = DateTime.now();
+
+  String get _formattedDate {
+    final d = _selectedDate;
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 90)),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _selectedDate = picked;
+      _session = null;
+      _drafts.clear();
+    });
+    // Re-load today's schedule for context, then reload session with new date
+    if (_selectedCohortId != null && _selectedPeriod != null) {
+      await _loadSessionForDate(_selectedCohortId!, _selectedPeriod!);
+    }
+  }
+
+  Future<void> _loadSessionForDate(String cohortId, int period) async {
+    setState(() { _loading = true; _error = null; });
+    try {
+      final repo = ref.read(teacherMobileRepositoryProvider);
+      final session = await repo.fetchAttendanceSessionForDate(
+        cohortId: cohortId,
+        date: _formattedDate,
+        period: period,
+      );
+      if (!mounted) return;
+      setState(() { _session = session; _loading = false; });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() { _error = error.toString(); _loading = false; });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    // If pre-selected from action sheet, parse and use the initial date
+    final initDate = widget.initialDate;
+    if (initDate != null && initDate.isNotEmpty) {
+      final dt = DateTime.tryParse(initDate);
+      if (dt != null) _selectedDate = dt;
+    }
     Future<void>.microtask(_loadToday);
   }
 
@@ -62,6 +119,35 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
       _loading = true;
       _error = null;
     });
+
+    // If coming from a schedule slot tap (pre-selected cohort + period),
+    // load that session directly without needing to fetch the full schedule first.
+    final initCohortId = widget.initialCohortId;
+    final initPeriod = widget.initialPeriod;
+    if (initCohortId != null && initCohortId.isNotEmpty && initPeriod != null) {
+      try {
+        final repo = ref.read(teacherMobileRepositoryProvider);
+        final session = await repo.fetchAttendanceSessionForDate(
+          cohortId: initCohortId,
+          date: _formattedDate,
+          period: initPeriod,
+        );
+        if (!mounted) return;
+        setState(() {
+          _selectedCohortId = initCohortId;
+          _selectedPeriod = initPeriod;
+          _session = session;
+          _loading = false;
+        });
+        // Also load today's schedule so the slot chips are visible
+        final today = await repo.fetchTodaySchedule();
+        if (mounted) setState(() => _today = today);
+      } catch (_) {
+        if (mounted) setState(() => _loading = false);
+      }
+      return;
+    }
+
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
       final today = await repo.fetchTodaySchedule();
@@ -85,7 +171,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
 
   Future<void> _selectSlot(TeacherTodaySlot slot) async {
     final cohort = slot.cohort;
-    if (cohort == null || _today == null) return;
+    if (cohort == null) return;
     setState(() {
       _selectedCohortId = cohort.id;
       _selectedPeriod = slot.period;
@@ -96,9 +182,9 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-      final session = await repo.fetchAttendanceSession(
+      final session = await repo.fetchAttendanceSessionForDate(
         cohortId: cohort.id,
-        date: _today!.date,
+        date: _formattedDate,
         period: slot.period,
       );
       if (!mounted) return;
@@ -188,16 +274,121 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     final slots = _today?.slots.where((slot) => slot.cohort != null && slot.course != null).toList(growable: false) ?? const <TeacherTodaySlot>[];
     final dirtyCount = session == null ? 0 : session.students.where(_isDirty).length;
 
+    final markedCount = session == null ? 0 : session.students.length;
+    final presentCount = session == null ? 0 : session.students.where((s) {
+      final draft = _draftFor(s);
+      return draft.status.toUpperCase() == 'PRESENT';
+    }).length;
+    final absentCount = session == null ? 0 : session.students.where((s) {
+      final draft = _draftFor(s);
+      return draft.status.toUpperCase() == 'ABSENT';
+    }).length;
+    final attPct = markedCount > 0 ? presentCount / markedCount : 0.0;
+
     return RefreshIndicator(
       onRefresh: _loadToday,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
-          Text(l.navAttendance, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          Text(
-            l.teacherAttendanceSubtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          // ── Hero Banner ───────────────────────────────────────────────
+          LiquidGlassCard(
+            borderRadius: BorderRadius.circular(28),
+            blurSigma: 20,
+            gradient: LinearGradient(
+              colors: [
+                cs.primaryContainer.withValues(alpha: 0.9),
+                cs.secondaryContainer.withValues(alpha: 0.65),
+                cs.surfaceContainerHigh.withValues(alpha: 0.82),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
+            boxShadow: [BoxShadow(color: cs.primary.withValues(alpha: 0.12), blurRadius: 22, offset: const Offset(0, 8), spreadRadius: -4)],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.navAttendance, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                          const SizedBox(height: 4),
+                          Text(l.teacherAttendanceSubtitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                        ],
+                      ),
+                    ),
+                    // Date picker button
+                    InkWell(
+                      onTap: _pickDate,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: cs.surface.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.calendar_month_rounded, size: 14, color: cs.primary),
+                            const SizedBox(width: 6),
+                            Text(_formattedDate, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: cs.primary)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (session != null && markedCount > 0) ...[
+                  const SizedBox(height: 16),
+                  // Progress stats
+                  Row(
+                    children: [
+                      _AttStatPill(value: '$presentCount', label: 'Present', color: const Color(0xFF22C55E)),
+                      const SizedBox(width: 8),
+                      _AttStatPill(value: '$absentCount', label: 'Absent', color: cs.error),
+                      const SizedBox(width: 8),
+                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: 'Other', color: cs.tertiary),
+                      const SizedBox(width: 8),
+                      _AttStatPill(value: '$markedCount', label: 'Total', color: cs.secondary),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Attendance progress bar
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Attendance rate', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+                          Text('${(attPct * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: attPct,
+                          minHeight: 8,
+                          backgroundColor: cs.outlineVariant.withValues(alpha: 0.3),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else if (session == null) ...[
+                  const SizedBox(height: 12),
+                  Text('Select a session below to start marking attendance', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 18),
           LiquidGlassCard(
@@ -394,6 +585,33 @@ class _BulkStatusButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Text(label),
+    );
+  }
+}
+
+class _AttStatPill extends StatelessWidget {
+  const _AttStatPill({required this.value, required this.label, required this.color});
+  final String value;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
+        ),
+        child: Column(
+          children: [
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: color, height: 1.1)),
+            Text(label, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -12,9 +12,9 @@ import '../../../ui/glass/native_glass_view.dart';
 import '../../chat_core/ui/chat_recording_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
@@ -25,6 +25,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import 'chatgpt_chat_components.dart';
 
 import '../data/nova_plan_models.dart';
+import '../data/on_device_transcriber.dart';
 import '../data/tutor_repository.dart';
 import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_repository_provider.dart';
@@ -172,6 +173,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   final ScrollController _scroll = ScrollController();
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
   final AudioRecorder _recorder = AudioRecorder();
+  final OnDeviceTranscriber _transcriber = OnDeviceTranscriber();
 
   final List<_Msg> _messages = <_Msg>[];
   final List<_DraftAttachment> _draftAttachments = <_DraftAttachment>[];
@@ -189,7 +191,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   double _holdDy = 0;
   Offset? _holdOrigin;
   Duration _recordingElapsed = Duration.zero;
-  String? _recordingPath;
+  String _livePartial = '';
   StreamSubscription<Map<String, dynamic>>? _replySub;
   Timer? _recordTicker;
 
@@ -231,6 +233,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     _controller.dispose();
     _scroll.dispose();
     _recorder.dispose();
+    _transcriber.dispose();
     super.dispose();
   }
 
@@ -437,25 +440,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     await _previewAndSendMedia(<String>[shot.path]);
   }
 
-  Future<void> _recordVideo() async {
-    if (_sending || _recording) return;
-    final shot = await _imagePicker.pickVideo(
-      source: ImageSource.camera,
-      preferredCameraDevice: CameraDevice.rear,
-      maxDuration: const Duration(minutes: 2),
-    );
-    if (!mounted || shot == null || shot.path.trim().isEmpty) return;
-    await _previewAndSendMedia(<String>[shot.path]);
-  }
 
   Future<void> _pickGalleryMedia() async {
     if (_sending || _recording) return;
-    // pickMultipleMedia auto-converts HEIC → JPEG on iOS via imageQuality,
-    // avoiding unsupported format issues in Image.network and Anthropic vision.
     final picked = await _imagePicker.pickMultipleMedia(imageQuality: 92);
     if (!mounted || picked.isEmpty) return;
-    final initialPaths =
-        picked.map((e) => e.path).where((e) => e.trim().isNotEmpty).toList();
+    // Filter out videos — Nova only accepts images.
+    final initialPaths = picked
+        .map((e) => e.path)
+        .where((p) => p.trim().isNotEmpty && !_isVideoPath(p))
+        .toList();
     if (initialPaths.isEmpty) return;
     await _previewAndSendMedia(initialPaths);
   }
@@ -752,6 +746,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     try {
       await _recorder.stop();
     } catch (_) {}
+    try {
+      await _transcriber.cancel();
+    } catch (_) {}
     _recordTicker?.cancel();
     setState(() {
       _recording = false;
@@ -761,6 +758,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       _holdOrigin = null;
       _holdDx = 0;
       _holdDy = 0;
+      _livePartial = '';
     });
   }
 
@@ -780,54 +778,62 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final l = AppLocalizations.of(context)!;
 
     if (_recording) {
-      final stoppedPath = await _recorder.stop();
+      // Stop on-device STT and collect the final transcript.
+      final transcript = await _transcriber.stopListening();
       _recordTicker?.cancel();
-      _recordingPath = stoppedPath;
 
       if (!mounted) return;
-      setState(() => _recording = false);
+      setState(() {
+        _recording = false;
+        _livePartial = '';
+      });
 
-      final path = (stoppedPath ?? '').trim();
-      if (path.isEmpty) {
+      if (transcript.isEmpty) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(l.tutorNoAudioCaptured)));
+        // Still meter the elapsed seconds even when the result is empty.
+        setState(() {
+          _recordingElapsed = Duration.zero;
+          _holdOrigin = null;
+          _holdDx = 0;
+          _holdDy = 0;
+        });
         return;
       }
 
       setState(() => _sending = true);
       try {
-        final transcript = await _repo.transcribeAudio(path: path);
-        if (!mounted) return;
+        // Gate on voice-minutes plan allowance.
+        if (!ref.read(novaPlanControllerProvider).canUseVoiceMinutes(
+          _recordingElapsed.inSeconds,
+        )) {
+          await _showPlanLimitSheet(
+            title: l.tutorVoiceLimitReachedTitle,
+            message: l.tutorVoiceLimitReachedMessage,
+          );
+          return;
+        }
 
         final clean = transcript.trim();
-        if (clean.isNotEmpty) {
-          if (!ref.read(novaPlanControllerProvider).canUseVoiceMinutes(
-            _recordingElapsed.inSeconds,
-          )) {
-            await _showPlanLimitSheet(
-              title: l.tutorVoiceLimitReachedTitle,
-              message: l.tutorVoiceLimitReachedMessage,
-            );
-            return;
-          }
-
-          await ref
-              .read(novaPlanControllerProvider)
-              .recordVoiceUsage(_recordingElapsed.inSeconds);
-          setState(() {
-            final current = _controller.text.trim();
-            _controller.text = current.isEmpty ? clean : '$current $clean';
-            _controller.selection = TextSelection.fromPosition(
-              TextPosition(offset: _controller.text.length),
-            );
-          });
-        } else {
+        if (clean.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(l.tutorTranscriptionFailed)),
           );
+          return;
         }
-      } catch (_) {
+
+        await ref
+            .read(novaPlanControllerProvider)
+            .recordVoiceUsage(_recordingElapsed.inSeconds);
+        setState(() {
+          final current = _controller.text.trim();
+          _controller.text = current.isEmpty ? clean : '$current $clean';
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length),
+          );
+        });
+      } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l.tutorTranscriptionFailed)),
@@ -842,42 +848,36 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             _holdDy = 0;
           });
         }
-        if (_recordingPath != null && _recordingPath!.trim().isNotEmpty) {
-          final f = File(_recordingPath!);
-          if (await f.exists()) {
-            try {
-              await f.delete();
-            } catch (_) {
-              // best-effort cleanup
-            }
-          }
-          _recordingPath = null;
-        }
       }
       return;
     }
 
-    final hasPermission = await _recorder.hasPermission();
-    if (!hasPermission) {
+    // --- Start recording ---
+
+    // Initialise on first use; bail with a snackbar if unavailable.
+    final available = await _transcriber.initialize();
+    if (!available) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.tutorMicrophonePermissionRequired)),
+        SnackBar(content: Text(l.tutorTranscriptionFailed)),
       );
       return;
     }
 
-    final dir = await getTemporaryDirectory();
-    final path =
-        '${dir.path}/nova-${DateTime.now().millisecondsSinceEpoch}.m4a';
+    await _transcriber.startListening(
+      onResult: (partial) {
+        if (!mounted) return;
+        setState(() => _livePartial = partial);
+      },
+    );
 
-    await _recorder.start(const RecordConfig(), path: path);
     _startRecordTicker();
 
     if (!mounted) return;
     setState(() {
       _recording = true;
-      _recordingPath = path;
       _recordingElapsed = Duration.zero;
+      _livePartial = '';
     });
   }
 
@@ -1685,6 +1685,25 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _novaComposerTopContent() {
+    // While recording, show live partial transcription above the HUD.
+    if (_recording && _livePartial.isNotEmpty) {
+      final cs = Theme.of(context).colorScheme;
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+        child: Text(
+          _livePartial,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: cs.onSurfaceVariant,
+            fontSize: 13,
+            fontStyle: FontStyle.italic,
+            height: 1.35,
+          ),
+        ),
+      );
+    }
+
     if (_draftAttachments.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -1773,7 +1792,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const _NovaAvatar(animating: false, size: 52),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               l.tutorEmptyStateTitle,
               textAlign: TextAlign.center,
@@ -1815,7 +1834,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         onSend: _send,
         onAttach: _pickFiles,
         onCamera: _pickPhoto,
-        onVideo: _recordVideo,
+        onVideo: null,
         onGallery: _pickGalleryMedia,
         onMic: () async {
           if (_recording) {

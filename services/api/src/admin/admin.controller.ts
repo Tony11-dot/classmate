@@ -216,4 +216,42 @@ export class AdminController {
     return this.admin.getSubjectOverride(req.user, identifier);
   }
 
+  // ---- Schools ----
+
+  @Roles(Role.ADMIN)
+  @Post('schools')
+  createSchool(@Req() req: any, @Body() body: any) {
+    return this.admin.createSchool(req.user, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('schools')
+  listSchools(@Req() req: any) {
+    return this.admin.listSchools(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('schools/:id')
+  getSchool(@Req() req: any, @Param('id') id: string) {
+    return this.admin.getSchool(req.user, id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('schools/:id')
+  updateSchool(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.updateSchool(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete('schools/:id')
+  deleteSchool(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deleteSchool(req.user, id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('schools/:id/assign-user')
+  assignUserToSchool(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.assignUserToSchool(req.user, id, body);
+  }
+
 }

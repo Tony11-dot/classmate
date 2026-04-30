@@ -104,4 +104,161 @@ export class TeacherController {
   deleteAssessment(@Req() req: any, @Param('id') id: string) {
     return this.teacher.deleteAssessment(req.user, id);
   }
+
+  // ---- Classroom management ----
+
+  @Get('classrooms')
+  listClassrooms(@Req() req: any) {
+    return this.teacher.listClassrooms(req.user);
+  }
+
+  @Get('classrooms/:courseId')
+  getClassroom(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.getClassroom(req.user, courseId);
+  }
+
+  @Get('classrooms/:courseId/chat')
+  getClassroomChat(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    return this.teacher.getClassroomChat(req.user, courseId, { limit: limit ? Number(limit) : 30, cursor });
+  }
+
+  @Post('classrooms/:courseId/chat')
+  sendClassroomChat(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
+    return this.teacher.sendClassroomChat(req.user, courseId, body);
+  }
+
+  @Get('classrooms/:courseId/assignments')
+  listClassroomAssignments(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.listClassroomAssignments(req.user, courseId);
+  }
+
+  @Post('classrooms/:courseId/assignments')
+  createClassroomAssignment(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
+    return this.teacher.createClassroomAssignment(req.user, courseId, body);
+  }
+
+  @Patch('classrooms/:courseId/assignments/:id')
+  updateClassroomAssignment(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.teacher.updateClassroomAssignment(req.user, courseId, id, body);
+  }
+
+  @Delete('classrooms/:courseId/assignments/:id')
+  deleteClassroomAssignment(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('id') id: string,
+  ) {
+    return this.teacher.deleteClassroomAssignment(req.user, courseId, id);
+  }
+
+  @Get('classrooms/:courseId/materials')
+  listClassroomMaterials(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.listClassroomMaterials(req.user, courseId);
+  }
+
+  @Post('classrooms/:courseId/materials')
+  createClassroomMaterial(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
+    return this.teacher.createClassroomMaterial(req.user, courseId, body);
+  }
+
+  @Delete('classrooms/:courseId/materials/:id')
+  deleteClassroomMaterial(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('id') id: string,
+  ) {
+    return this.teacher.deleteClassroomMaterial(req.user, courseId, id);
+  }
+
+  @Get('classrooms/:courseId/meetings')
+  listClassroomMeetings(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.listClassroomMeetings(req.user, courseId);
+  }
+
+  @Post('classrooms/:courseId/meetings')
+  createClassroomMeeting(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
+    return this.teacher.createClassroomMeeting(req.user, courseId, body);
+  }
+
+  @Delete('classrooms/:courseId/meetings/:id')
+  deleteClassroomMeeting(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('id') id: string,
+  ) {
+    return this.teacher.deleteClassroomMeeting(req.user, courseId, id);
+  }
+
+  @Get('classrooms/:courseId/people')
+  getClassroomPeople(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.getClassroomPeople(req.user, courseId);
+  }
+
+  // ---- Submissions ----
+
+  @Get('classrooms/:courseId/assignments/:assignmentId/submissions')
+  listSubmissions(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('assignmentId') assignmentId: string,
+  ) {
+    return this.teacher.listAssignmentSubmissions(req.user, courseId, assignmentId);
+  }
+
+  // ---- Analytics ----
+
+  @Get('classrooms/:courseId/analytics')
+  classroomAnalytics(@Req() req: any, @Param('courseId') courseId: string) {
+    return this.teacher.classroomAnalytics(req.user, courseId);
+  }
+
+  @Get('student/:studentId/profile')
+  studentProfile(@Req() req: any, @Param('studentId') studentId: string) {
+    return this.teacher.getStudentProfile(req.user, studentId);
+  }
+
+  @Get('schedule/week')
+  weekSchedule(@Req() req: any, @Query('weekOf') weekOf?: string) {
+    return this.teacher.weekSchedule(req.user, weekOf);
+  }
+
+  // ---- Student management in classrooms ----
+
+  @Post('classrooms/:courseId/students')
+  addStudentToClassroom(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Body() body: any,
+  ) {
+    return this.teacher.addStudentToClassroom(req.user, courseId, body);
+  }
+
+  @Delete('classrooms/:courseId/students/:studentId')
+  removeStudentFromClassroom(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.teacher.removeStudentFromClassroom(req.user, courseId, studentId);
+  }
+
+  @Get('attendance/history')
+  attendanceHistory(
+    @Req() req: any,
+    @Query('cohortId') cohortId: string,
+    @Query('date') date: string,
+    @Query('period', ParseIntPipe) period: number,
+  ) {
+    return this.teacher.getAttendanceSession(req.user, { cohortId, date, period });
+  }
 }

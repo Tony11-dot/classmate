@@ -1,0 +1,904 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../messages/data/messages_repository.dart';
+import '../../messages/domain/message_thread_models.dart';
+import '../../messages/providers/messages_repository_provider.dart';
+import '../domain/chat_delete_mode.dart';
+import '../domain/chat_message.dart';
+import '../domain/chat_message_kind.dart';
+import '../domain/chat_thread_type.dart';
+import '../domain/forward_target.dart';
+import '../ui/forward_target_picker_sheet.dart';
+import 'chat_thread_controller.dart';
+
+class DmChatThreadController extends ChatThreadController {
+  DmChatThreadController({
+    required this.ref,
+    required String threadId,
+    required String currentUserId,
+  })  : _threadId = threadId,
+        _currentUserId = currentUserId {
+    _loadLocalMedia();
+  }
+
+  final WidgetRef ref;
+  final String _threadId;
+  final String _currentUserId;
+
+  @override
+  String get threadId => _threadId;
+
+  @override
+  ChatThreadType get threadType => ChatThreadType.direct;
+
+  @override
+  String get currentUserId => _currentUserId;
+
+  MessagesRepository get _repo => ref.read(messagesRepositoryProvider);
+
+  final List<ChatMessage> _optimisticMessages = [];
+  List<ChatMessage> _cachedMessages = [];
+
+  // Local deletion state — persisted so deletions survive exit + re-entry.
+  // key: messageId (server or local), value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
+  Map<String, String> _localDeleted = {};
+
+  // Static set of CDN URLs for media WE have sent.  Never pruned within a
+  // session — used to determine isOwn even after _localMediaMessages is cleared.
+  static final Map<String, Set<String>> _staticSentUrls = {};
+
+  Set<String> get _sentUrls =>
+      _staticSentUrls.putIfAbsent(_threadId, () => {});
+
+  String _deletedKey() => 'dm_deleted:$_threadId';
+  String _sentUrlsKey() => 'dm_sent_urls:$_threadId';
+
+  Future<void> _persistLocalDeleted() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_deletedKey(), jsonEncode(_localDeleted));
+    } catch (_) {}
+  }
+
+  // ── Media URL persistence ─────────────────────────────────────────────────
+  //
+  // TWO STATIC LAYERS so data is always available synchronously on re-entry
+  // (no async race with SharedPreferences loading).
+  //
+  // Layer 1 — _sessionCache  (messageId → CDN URL, per thread)
+  //   Populated whenever any URL is seen (upload or server GET).
+  //   Static: survives controller recreations within the same app session.
+  //   Also persisted to SharedPreferences for cross-session availability.
+  //
+  // Layer 2 — _staticLocalMedia  (outgoing media messages, per thread)
+  //   Populated in sendMedia/sendVoice after a successful upload.
+  //   Used as timestamp-based fallback when the session cache is empty.
+  //   Static: immediately available to a new controller instance on re-entry.
+  //   Also persisted to SharedPreferences (48-hour TTL).
+
+  static final Map<String, String> _sessionCache = {};
+
+  // Outgoing media messages keyed by threadId — static so a new controller
+  // instance sees data from the previous instance without any async wait.
+  static final Map<String, List<ChatMessage>> _staticLocalMedia = {};
+
+  List<ChatMessage> get _localMediaMessages =>
+      _staticLocalMedia.putIfAbsent(_threadId, () => []);
+  set _localMediaMessages(List<ChatMessage> value) =>
+      _staticLocalMedia[_threadId] = value;
+
+  String _localKey() => 'dm_local_media:$_threadId';
+  String _urlCacheKey() => 'dm_media_url_cache:$_threadId';
+  String _sk(String msgId) => '$_threadId:$msgId';
+
+  /// Returns the cached CDN URL for [messageId], or null.
+  /// Checks the static session cache first (synchronous, always up-to-date),
+  /// then the per-instance map populated from SharedPreferences.
+  String? _cachedUrl(String messageId) => _sessionCache[_sk(messageId)];
+
+  /// Records [url] for [messageId] in both the session cache and persists it
+  /// asynchronously to SharedPreferences for cross-session availability.
+  void _recordUrl(String messageId, String url) {
+    if (messageId.isEmpty || url.isEmpty) return;
+    // Reject real local device file paths (temp recordings, camera captures).
+    // Server-relative paths like /uploads/dm/... ARE valid and must be cached.
+    if (url.startsWith('file://') ||
+        url.startsWith('/private/') ||
+        url.startsWith('/var/') ||
+        url.startsWith('/tmp/')) {
+      return;
+    }
+    final key = _sk(messageId);
+    if (_sessionCache[key] == url) return; // already known
+    _sessionCache[key] = url;
+    _persistUrlCache(); // fire-and-forget
+  }
+
+  Future<void> _persistUrlCache() async {
+    try {
+      // Collect only entries belonging to this thread.
+      final prefix = '$_threadId:';
+      final threadEntries = <String, String>{
+        for (final e in _sessionCache.entries)
+          if (e.key.startsWith(prefix))
+            e.key.substring(prefix.length): e.value,
+      };
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_urlCacheKey(), jsonEncode(threadEntries));
+    } catch (_) {}
+  }
+
+  Future<void> _loadLocalMedia() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Restore message-ID → CDN URL cache from SharedPreferences into the
+      // static session cache (only for entries not already present).
+      final urlMapRaw = prefs.getString(_urlCacheKey()) ?? '{}';
+      final urlDecoded = jsonDecode(urlMapRaw);
+      if (urlDecoded is Map) {
+        for (final e in urlDecoded.entries) {
+          final key = _sk(e.key.toString());
+          _sessionCache.putIfAbsent(key, () => e.value.toString());
+        }
+      }
+
+      // Restore persisted local deletion state.
+      final deletedRaw = prefs.getString(_deletedKey()) ?? '{}';
+      final deletedDecoded = jsonDecode(deletedRaw);
+      if (deletedDecoded is Map) {
+        _localDeleted = deletedDecoded.map(
+          (k, v) => MapEntry(k.toString(), v.toString()),
+        );
+      }
+
+      // Restore sent CDN URLs (for isOwn detection even after list is pruned).
+      final sentRaw = prefs.getString(_sentUrlsKey()) ?? '[]';
+      final sentDecoded = jsonDecode(sentRaw);
+      if (sentDecoded is List) {
+        _sentUrls.addAll(sentDecoded.whereType<String>());
+      }
+
+      // Restore outgoing media messages (timestamp fallback, 48-hour TTL).
+      final raw = prefs.getString(_localKey()) ?? '[]';
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        final cutoff = DateTime.now().subtract(const Duration(hours: 48));
+        _localMediaMessages = decoded
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .where((m) {
+              final ts = DateTime.tryParse(
+                  (m['savedAt'] ?? m['createdAt'] ?? '').toString());
+              return ts != null && ts.isAfter(cutoff);
+            })
+            .map(_fromLocalMap)
+            .whereType<ChatMessage>()
+            .toList();
+      }
+    } catch (_) {
+      _localMediaMessages = [];
+    }
+
+    // Trigger a re-merge when we have local media data OR pending deletions
+    // so the correct deleted/visible state is applied immediately.
+    if (_localMediaMessages.isNotEmpty ||
+        _localDeleted.isNotEmpty ||
+        _sessionCache.keys.any((k) => k.startsWith('$_threadId:'))) {
+      invalidate();
+    }
+  }
+
+  /// Returns true only for real on-device file paths (temp recordings, camera
+  /// captures).  Server-relative paths like /uploads/dm/... start with / but
+  /// are NOT local files — they must be resolved via the API base URL.
+  static bool _isDeviceLocalPath(String url) {
+    if (url.startsWith('file://')) return true;
+    if (!url.startsWith('/')) return false;
+    return url.startsWith('/private/') ||
+        url.startsWith('/var/') ||
+        url.startsWith('/tmp/') ||
+        url.startsWith('/Users/');
+  }
+
+  /// Extracts the CDN URL from an upload response map, trying every field
+  /// name the server might use. This is the fix for the root bug: if the
+  /// server returns the URL under 'mediaUrl' instead of 'url', the old
+  /// `uploadResult['url'] as String?` returned null and nothing was stored.
+  static String? _pickUploadUrl(Map<String, dynamic> result) {
+    const topKeys = ['url', 'mediaUrl', 'fileUrl', 'cdnUrl', 'attachmentUrl', 'src', 'location'];
+    for (final k in topKeys) {
+      final v = result[k];
+      if (v is String && v.trim().isNotEmpty) return v.trim();
+    }
+    const nestKeys = ['data', 'media', 'file', 'attachment', 'result', 'upload'];
+    for (final nk in nestKeys) {
+      final obj = result[nk];
+      if (obj is Map) {
+        for (final k in topKeys) {
+          final v = obj[k];
+          if (v is String && v.trim().isNotEmpty) return v.trim();
+        }
+      }
+    }
+    return null;
+  }
+
+  static String? _pickUploadMime(Map<String, dynamic> result) {
+    const keys = ['mimeType', 'mime_type', 'contentType', 'content_type', 'type', 'mediaType'];
+    for (final k in keys) {
+      final v = result[k];
+      if (v is String && v.trim().isNotEmpty) return v.trim();
+    }
+    for (final nk in const ['data', 'media', 'file', 'attachment']) {
+      final obj = result[nk];
+      if (obj is Map) {
+        for (final k in keys) {
+          final v = obj[k];
+          if (v is String && v.trim().isNotEmpty) return v.trim();
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<void> _saveLocalMedia(ChatMessage msg) async {
+    try {
+      _localMediaMessages
+        ..removeWhere((m) =>
+            m.kind == msg.kind &&
+            m.createdAt.difference(msg.createdAt).inSeconds.abs() < 5)
+        ..add(msg);
+      if (_localMediaMessages.length > 200) {
+        _localMediaMessages.removeRange(0, _localMediaMessages.length - 200);
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _localKey(),
+        jsonEncode(_localMediaMessages.map(_toLocalMap).toList()),
+      );
+
+      // Record the CDN URL in the static sent-URLs set so isOwn stays correct
+      // even after _localMediaMessages is pruned.
+      final url = msg.mediaUrl ?? '';
+      if (url.isNotEmpty && !_isDeviceLocalPath(url)) {
+        _sentUrls.add(url);
+        await prefs.setString(
+          _sentUrlsKey(),
+          jsonEncode(_sentUrls.toList()),
+        );
+      }
+    } catch (_) {}
+  }
+
+  /// Persists the current _localMediaMessages list (after removal).
+  Future<void> _flushLocalMedia() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _localKey(),
+        jsonEncode(_localMediaMessages.map(_toLocalMap).toList()),
+      );
+    } catch (_) {}
+  }
+
+  Map<String, dynamic> _toLocalMap(ChatMessage m) => {
+        'id': m.id,
+        'senderId': m.senderId,
+        'senderName': m.senderName,
+        'text': m.text,
+        'kind': m.kind.name,
+        'mediaUrl': m.mediaUrl ?? '',
+        'mediaMimeType': m.mediaMimeType ?? '',
+        'voiceDurationSeconds': m.voiceDurationSeconds ?? 0,
+        'createdAt': m.createdAt.toIso8601String(),
+        'isOwn': m.isOwn,
+        'savedAt': DateTime.now().toIso8601String(),
+      };
+
+  ChatMessage? _fromLocalMap(Map<String, dynamic> m) {
+    try {
+      return ChatMessage(
+        id: m['id'].toString(),
+        senderId: m['senderId'].toString(),
+        senderName: m['senderName'].toString(),
+        text: m['text'].toString(),
+        kind: ChatMessageKind.values.firstWhere(
+          (k) => k.name == m['kind'].toString(),
+          orElse: () => ChatMessageKind.text,
+        ),
+        mediaUrl: (m['mediaUrl'] as String?)?.isEmpty == false
+            ? m['mediaUrl'].toString()
+            : null,
+        mediaMimeType: (m['mediaMimeType'] as String?)?.isEmpty == false
+            ? m['mediaMimeType'].toString()
+            : null,
+        voiceDurationSeconds: m['voiceDurationSeconds'] as int?,
+        createdAt: DateTime.tryParse(m['createdAt'].toString()) ?? DateTime.now(),
+        isOwn: m['isOwn'] == true,
+        isOptimistic: false,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<ChatMessage> _mergeWithOptimistic(List<ChatMessage> server) {
+    final serverIds = server.map((m) => m.id).toSet();
+    final now = DateTime.now();
+
+    // Prune confirmed/stale optimistics.
+    // IMPORTANT: No kind-match requirement — the server may return kind:'TEXT'
+    // for messages that were sent as images/voice, so we match media optimistics
+    // by (isOwn + timestamp) rather than (kind + timestamp).
+    _optimisticMessages.removeWhere((o) {
+      if (serverIds.contains(o.id)) return true;
+      if (now.difference(o.createdAt).inMinutes > 5) return true;
+      for (final s in server) {
+        if (o.kind == ChatMessageKind.text) {
+          if (s.text == o.text && s.text.isNotEmpty) return true;
+        } else {
+          // Media optimistic: match any own server message within 60s
+          if (s.isOwn &&
+              s.createdAt.difference(o.createdAt).inSeconds.abs() <= 60) {
+            return true;
+          }
+        }
+      }
+      return false;
+    });
+
+    // Inject CDN URLs into server messages that lack them.
+    //
+    // Strategy 1 — session cache by ID (synchronous, no async, survives
+    //   controller recreations within the same app session).
+    // Strategy 2 — timestamp proximity from locally saved outgoing media
+    //   (fallback when the server never returned the URL at all).
+    //
+    // Neither strategy requires a specific `kind` value — the server may
+    // return kind:'TEXT' even for image/voice messages.
+    // No `isOwn` restriction on patching — the session cache holds URLs for
+    // any message that was ever seen with one, and the local media list only
+    // contains our own outgoing messages anyway.
+    final patchedServer = server.map((s) {
+      if ((s.mediaUrl ?? '').isNotEmpty) return s;
+
+      // Strategy 1: O(1) session-cache lookup (available synchronously).
+      final byId = _cachedUrl(s.id);
+      if ((byId ?? '').isNotEmpty) {
+        return s.copyWith(mediaUrl: byId);
+      }
+
+      // Strategy 2: closest-timestamp match from locally saved outgoing media.
+      ChatMessage? best;
+      var bestDiff = const Duration(seconds: 121);
+      for (final local in _localMediaMessages) {
+        final localUrl = local.mediaUrl ?? '';
+        if (localUrl.isEmpty || _isDeviceLocalPath(localUrl)) continue;
+        final diff = s.createdAt.difference(local.createdAt).abs();
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          best = local;
+        }
+      }
+      if (best != null) {
+        // Promote match to session cache (+ SharedPreferences) for O(1) future.
+        _recordUrl(s.id, best.mediaUrl!);
+        return s.copyWith(
+          mediaUrl: best.mediaUrl,
+          mediaMimeType: (best.mediaMimeType ?? '').isNotEmpty
+              ? best.mediaMimeType
+              : s.mediaMimeType,
+          // Local media list only holds our own sent messages → definitely ours.
+          isOwn: true,
+        );
+      }
+      return s;
+    }).toList();
+
+    // Prune local media entries only when the EXACT CDN URL appears in a
+    // confirmed server message. Timestamp-based pruning caused false positives:
+    // a nearby text or image from someone else would silently delete a voice
+    // entry that was still needed.
+    _localMediaMessages.removeWhere((local) {
+      final localUrl = local.mediaUrl ?? '';
+      if (localUrl.isEmpty || _isDeviceLocalPath(localUrl)) return true;
+      return patchedServer.any((s) => s.mediaUrl == localUrl);
+    });
+
+    // CDN URLs already covered by an active optimistic — don't show the local
+    // entry separately while the optimistic is still in the list.
+    final optimisticCdnUrls = _optimisticMessages
+        .map((o) => o.mediaUrl ?? '')
+        .where((u) => u.isNotEmpty && !_isDeviceLocalPath(u))
+        .toSet();
+
+    final localIds = patchedServer.map((m) => m.id).toSet();
+
+    // Build localOnly: apply local deletion state correctly.
+    // DELETED_FOR_ME   → exclude entirely (hidden, same as classroom).
+    // DELETED_FOR_EVERYONE → include but mark so the stamp shows (same as classroom).
+    final localOnly = _localMediaMessages
+        .where((m) {
+          if (localIds.contains(m.id)) return false;
+          final del = _localDeleted[m.id];
+          // DELETED_FOR_ME: hide completely.
+          if (del == 'DELETED_FOR_ME') return false;
+          final url = m.mediaUrl ?? '';
+          if (url.isNotEmpty && !_isDeviceLocalPath(url)) {
+            if (optimisticCdnUrls.contains(url)) return false;
+            // If the server version of this URL is DELETED_FOR_ME, hide.
+            if (patchedServer.any((s) =>
+                s.mediaUrl == url && _localDeleted[s.id] == 'DELETED_FOR_ME')) {
+              return false;
+            }
+          }
+          return true; // DELETED_FOR_EVERYONE or normal → keep
+        })
+        .map((m) {
+          // Apply DELETED_FOR_EVERYONE stamp to local entries.
+          final del = _localDeleted[m.id];
+          if (del == 'DELETED_FOR_EVERYONE') {
+            return m.copyWith(deletedForEveryone: true, mediaUrl: null);
+          }
+          // Check if server version with same URL is DELETED_FOR_EVERYONE.
+          final url = m.mediaUrl ?? '';
+          if (url.isNotEmpty) {
+            final serverDel = patchedServer
+                .where((s) => s.mediaUrl == url)
+                .map((s) => _localDeleted[s.id])
+                .firstWhere((d) => d != null, orElse: () => null);
+            if (serverDel == 'DELETED_FOR_EVERYONE') {
+              return m.copyWith(deletedForEveryone: true, mediaUrl: null);
+            }
+          }
+          return m;
+        })
+        .toList();
+
+    final merged = [...patchedServer, ...localOnly, ..._optimisticMessages];
+    merged.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    // Deduplicate by message ID to prevent GlobalKey conflicts when the same
+    // message appears in both patchedServer and localOnly.
+    final seen = <String>{};
+    final deduped = merged.where((m) => seen.add(m.id)).toList();
+
+    _cachedMessages = deduped;
+    return deduped;
+  }
+
+  @override
+  AsyncValue<List<ChatMessage>> watchMessages(WidgetRef ref) {
+    final provider = messageThreadProvider(_threadId);
+    final threadAsync = ref.watch(provider);
+
+    // skipLoadingOnRefresh: true means: while the provider is refreshing after
+    // invalidate(), still call data() with the PREVIOUS thread value so that
+    // _mergeWithOptimistic() can inject newly added optimistics into the list.
+    // The manual _cachedMessages check was removed because it returned stale
+    // data (without the new optimistic) and bypassed this mechanism.
+    return threadAsync.when(
+      skipLoadingOnRefresh: true,
+      data: (thread) {
+        final server = thread.messages.map(_convertMessageItem).toList();
+        return AsyncValue.data(_mergeWithOptimistic(server));
+      },
+      loading: () => _cachedMessages.isNotEmpty
+          ? AsyncValue.data(_cachedMessages)
+          : const AsyncValue.loading(),
+      error: (err, stack) => _cachedMessages.isNotEmpty
+          ? AsyncValue.data(_cachedMessages)
+          : AsyncValue.error(err, stack),
+    );
+  }
+
+  ChatMessage _convertMessageItem(MessageItem item) {
+    final kind = _parseKind(item.kind);
+    final deletedForMe = item.deleteState == 'DELETED_FOR_ME';
+    final deletedForEveryone = item.deleteState == 'DELETED_FOR_EVERYONE';
+
+    // Resolve the media URL using a two-way cache:
+    // • If the server returns a CDN URL → store it so future re-entries can
+    //   recover it even if the server omits it later.
+    // • If the server omits the URL → inject it from the cache.
+    String? mediaUrl = item.mediaUrl;
+
+    if ((mediaUrl ?? '').isNotEmpty && !_isDeviceLocalPath(mediaUrl!)) {
+      _recordUrl(item.id, mediaUrl);
+    } else {
+      final cached = _cachedUrl(item.id);
+      if ((cached ?? '').isNotEmpty) mediaUrl = cached;
+    }
+
+    // Apply immediate local deletion state (set before server confirmation).
+    final localDelete = _localDeleted[item.id];
+    final resolvedDeletedForMe =
+        deletedForMe || localDelete == 'DELETED_FOR_ME';
+    final resolvedDeletedForEveryone =
+        deletedForEveryone || localDelete == 'DELETED_FOR_EVERYONE';
+
+    // Resolve ownership: the server occasionally returns isMine:false for voice
+    // messages even when we sent them.  Check the static sent-URLs set which
+    // is never pruned (unlike _localMediaMessages which gets cleared).
+    bool isOwn = item.isMine;
+    if (!isOwn && (mediaUrl ?? '').isNotEmpty && !_isDeviceLocalPath(mediaUrl!)) {
+      isOwn = _sentUrls.contains(mediaUrl);
+    }
+
+    return ChatMessage(
+      id: item.id,
+      senderId: item.senderId,
+      senderName: item.senderName,
+      text: item.text,
+      kind: kind,
+      mediaUrl: mediaUrl,
+      mediaMimeType: item.mediaMimeType,
+      voiceDurationSeconds: item.voiceDurationSeconds,
+      voicePlayed: item.voicePlayed,
+      createdAt: item.sentAtDate ?? DateTime.now(),
+      editedAt: item.edited ? DateTime.now() : null,
+      replyToMessageId: item.replyToMessageId,
+      replyToSenderName: item.replyPreview?.senderName,
+      replyToText: item.replyPreview?.text,
+      replyToKind: item.replyPreview?.kind,
+      replyToMediaUrl: item.replyPreview?.mediaUrl,
+      reactions: item.reactions,
+      deletedForMe: resolvedDeletedForMe,
+      deletedForEveryone: resolvedDeletedForEveryone,
+      pinned: item.isPinned,
+      isOwn: isOwn,
+      forwarded: item.forwarded,
+      delivered: item.delivered,
+      seen: item.seen,
+      deliveredAt: item.deliveredAtDate,
+      seenAt: item.seenAtDate,
+    );
+  }
+
+  ChatMessageKind _parseKind(String kind) {
+    final upper = kind.toUpperCase();
+    switch (upper) {
+      case 'IMAGE':
+        return ChatMessageKind.image;
+      case 'FILE':
+        return ChatMessageKind.file;
+      case 'VOICE':
+        return ChatMessageKind.voice;
+      case 'POLL':
+        return ChatMessageKind.poll;
+      case 'EVENT':
+        return ChatMessageKind.event;
+      case 'SYSTEM':
+        return ChatMessageKind.system;
+      default:
+        return ChatMessageKind.text;
+    }
+  }
+
+  @override
+  Future<void> sendText(String text, {String? replyToMessageId}) async {
+    final optimistic = ChatMessage(
+      id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}',
+      senderId: _currentUserId,
+      senderName: 'You',
+      text: text,
+      kind: ChatMessageKind.text,
+      createdAt: DateTime.now(),
+      isOwn: true,
+      isOptimistic: true,
+    );
+    _optimisticMessages.add(optimistic);
+    // Trigger an immediate rebuild so the optimistic message appears in the list
+    // before the network round-trip completes.  The view's .then() calls
+    // invalidate() again once the server confirms.
+    invalidate();
+    try {
+      await _repo.sendMessage(
+        threadId: _threadId,
+        text: text,
+        replyToMessageId: replyToMessageId,
+      );
+    } finally {
+      _optimisticMessages.remove(optimistic);
+    }
+  }
+
+  @override
+  Future<void> sendMedia(
+    List<File> files, {
+    String? caption,
+    String? replyToMessageId,
+  }) async {
+    // Show optimistic messages immediately (local file paths shown while uploading).
+    final optimistics = <ChatMessage>[];
+    for (var i = 0; i < files.length; i++) {
+      final file = files[i];
+      final optimistic = ChatMessage(
+        id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}-$i',
+        senderId: _currentUserId,
+        senderName: 'You',
+        text: i == 0 ? (caption ?? '') : '',
+        kind: ChatMessageKind.image,
+        mediaUrl: file.path,
+        createdAt: DateTime.now(),
+        isOwn: true,
+        isOptimistic: true,
+      );
+      optimistics.add(optimistic);
+      _optimisticMessages.add(optimistic);
+    }
+    invalidate(); // show optimistic bubbles immediately
+
+    // No finally removal — _mergeWithOptimistic() prunes once server confirms.
+    for (var i = 0; i < files.length; i++) {
+      final file = files[i];
+      final optimistic = optimistics[i];
+      final uploadResult = await _repo.uploadDmMedia(file.path);
+      final mediaUrl = _pickUploadUrl(uploadResult);
+      final mimeType = _pickUploadMime(uploadResult);
+
+      if (mediaUrl != null) {
+        // Persist BEFORE sendMessage so the CDN URL is saved even if
+        // sendMessage fails or the outer catchError swallows the exception.
+        await _saveLocalMedia(ChatMessage(
+          id: 'local-${DateTime.now().millisecondsSinceEpoch}-media-$i',
+          senderId: _currentUserId,
+          senderName: 'You',
+          text: i == 0 ? (caption ?? '') : '',
+          kind: ChatMessageKind.image,
+          mediaUrl: mediaUrl,
+          mediaMimeType: mimeType,
+          createdAt: optimistic.createdAt,
+          isOwn: true,
+        ));
+
+        // Swap local path → CDN URL so image is immediately viewable.
+        final idx = _optimisticMessages.indexOf(optimistic);
+        if (idx >= 0) {
+          _optimisticMessages[idx] =
+              optimistic.copyWith(mediaUrl: mediaUrl, mediaMimeType: mimeType);
+          invalidate();
+        }
+
+        await _repo.sendMessage(
+          threadId: _threadId,
+          text: i == 0 ? (caption ?? '') : '',
+          replyToMessageId: replyToMessageId,
+          mediaUrl: mediaUrl,
+          mediaMimeType: mimeType,
+        );
+      }
+    }
+  }
+
+  @override
+  Future<void> sendVoice(
+    File file,
+    Duration duration, {
+    String? replyToMessageId,
+  }) async {
+    // Optimistic voice bubble shown immediately using the local file path.
+    final optimistic = ChatMessage(
+      id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}-voice',
+      senderId: _currentUserId,
+      senderName: 'You',
+      text: '',
+      kind: ChatMessageKind.voice,
+      mediaUrl: file.path,
+      voiceDurationSeconds: duration.inSeconds,
+      createdAt: DateTime.now(),
+      isOwn: true,
+      isOptimistic: true,
+    );
+    _optimisticMessages.add(optimistic);
+    invalidate(); // show optimistic immediately; .then() will invalidate again post-upload
+
+    // No finally removal — _mergeWithOptimistic() prunes once server confirms.
+    final uploadResult = await _repo.uploadDmMedia(file.path);
+    final mediaUrl = _pickUploadUrl(uploadResult);
+    final mimeType = _pickUploadMime(uploadResult);
+
+    if (mediaUrl != null) {
+      // Persist BEFORE sendMessage so the CDN URL is saved even if sendMessage
+      // fails or the caller's catchError swallows the exception.
+      await _saveLocalMedia(ChatMessage(
+        id: 'local-${DateTime.now().millisecondsSinceEpoch}-voice',
+        senderId: _currentUserId,
+        senderName: 'You',
+        text: '',
+        kind: ChatMessageKind.voice,
+        mediaUrl: mediaUrl,
+        mediaMimeType: mimeType,
+        voiceDurationSeconds: duration.inSeconds,
+        createdAt: optimistic.createdAt,
+        isOwn: true,
+      ));
+
+      // Swap optimistic local path → CDN URL so the bubble is immediately playable.
+      final idx = _optimisticMessages.indexOf(optimistic);
+      if (idx >= 0) {
+        _optimisticMessages[idx] =
+            optimistic.copyWith(mediaUrl: mediaUrl, mediaMimeType: mimeType);
+        invalidate();
+      }
+
+      await _repo.sendMessage(
+        threadId: _threadId,
+        text: '',
+        replyToMessageId: replyToMessageId,
+        kind: 'voice',
+        mediaUrl: mediaUrl,
+        mediaMimeType: mimeType,
+      );
+    }
+  }
+
+  @override
+  Future<void> editMessage(String messageId, String newText) async {
+    await _repo.editMessage(
+      threadId: _threadId,
+      messageId: messageId,
+      text: newText,
+    );
+  }
+
+  @override
+  Future<void> deleteMessage(String messageId,
+      {required ChatDeleteMode mode}) async {
+    // Apply deletion immediately so the UI updates without waiting for a refetch.
+    _optimisticMessages.removeWhere((m) => m.id == messageId);
+    _localDeleted[messageId] = mode == ChatDeleteMode.deleteForEveryone
+        ? 'DELETED_FOR_EVERYONE'
+        : 'DELETED_FOR_ME';
+
+    // Find the CDN URL of the deleted message.  The visible bubble may be a
+    // local entry (id = 'local-xxx-voice') while the server knows it by a
+    // different real ID — we need the URL as the stable cross-ID identifier.
+    final deletedUrl = _cachedMessages
+        .where((m) => m.id == messageId)
+        .map((m) => m.mediaUrl ?? '')
+        .firstWhere((u) => u.isNotEmpty, orElse: () => '');
+
+    final modeLabel = mode == ChatDeleteMode.deleteForEveryone
+        ? 'DELETED_FOR_EVERYONE'
+        : 'DELETED_FOR_ME';
+
+    if (deletedUrl.isNotEmpty) {
+      // Mark ALL messages (by ID) that share this CDN URL as deleted.
+      // This covers both the server message ID AND any local IDs like
+      // 'local-xxx-voice' — local IDs persist in SharedPreferences and will
+      // be matched on re-entry to keep the message hidden.
+      for (final m in _cachedMessages) {
+        if (m.mediaUrl == deletedUrl) {
+          _localDeleted[m.id] = modeLabel;
+        }
+      }
+      for (final l in _localMediaMessages) {
+        if (l.mediaUrl == deletedUrl) {
+          _localDeleted[l.id] = modeLabel;
+        }
+      }
+      _optimisticMessages.removeWhere((m) => m.mediaUrl == deletedUrl);
+      // DELETED_FOR_ME → remove entirely so the message is invisible.
+      // DELETED_FOR_EVERYONE → keep in list so the stamp can be rendered;
+      //   the localOnly .map() step transforms it to deletedForEveryone: true.
+      if (mode == ChatDeleteMode.deleteForMe) {
+        _localMediaMessages.removeWhere((l) => l.mediaUrl == deletedUrl);
+        _flushLocalMedia();
+      }
+    }
+
+    // Persist the deletion state so it survives exit + re-entry.
+    _persistLocalDeleted();
+
+    invalidate();
+
+    // Find the real server-assigned message ID to use for the API call.
+    // The incoming messageId might be a local ID like 'local-xxx-voice' (for
+    // messages that came from _localMediaMessages).  The server doesn't know
+    // about those IDs and returns 404, which would leave the message undeleted
+    // on the server — meaning it reappears (with no stamp) on the next re-entry.
+    String serverMessageId = messageId;
+    if (deletedUrl.isNotEmpty &&
+        (messageId.startsWith('local-') || messageId.startsWith('optimistic-'))) {
+      // Look for a server-confirmed message with the same URL.
+      for (final m in _cachedMessages) {
+        if (m.mediaUrl == deletedUrl &&
+            !m.id.startsWith('local-') &&
+            !m.id.startsWith('optimistic-')) {
+          serverMessageId = m.id;
+          break;
+        }
+      }
+    }
+
+    final modeStr = mode == ChatDeleteMode.deleteForEveryone
+        ? 'deleteForEveryone'
+        : 'deleteForMe';
+    try {
+      await _repo.deleteMessage(
+        threadId: _threadId,
+        messageId: serverMessageId,
+        mode: modeStr,
+      );
+    } catch (e) {
+      // 404 = message was never confirmed server-side (optimistic/local-only).
+      // Local deletion is still correct — the message won't come back from server.
+      if (e.toString().contains('404') ||
+          e.toString().toLowerCase().contains('not found')) {
+        return;
+      }
+      // Other errors: revert local state.
+      _localDeleted.remove(messageId);
+      _persistLocalDeleted();
+      invalidate();
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> togglePin(String messageId) async {
+    await _repo.togglePin(threadId: _threadId, messageId: messageId);
+  }
+
+  @override
+  Future<void> react(String messageId, String? emoji) async {
+    await _repo.reactMessage(
+      threadId: _threadId,
+      messageId: messageId,
+      emoji: emoji,
+    );
+  }
+
+  @override
+  Future<void> markRead() async {
+    await _repo.markThreadRead(threadId: _threadId);
+  }
+
+  @override
+  Future<void> markVoicePlayed(String messageId) async {
+    try {
+      await _repo.markThreadRead(threadId: _threadId);
+    } catch (_) {}
+  }
+
+  @override
+  Future<List<ForwardTarget>?> showForwardPicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    return showForwardTargetPicker(
+      context,
+      ref,
+      sourceThreadType: ChatThreadType.direct,
+      sourceThreadId: _threadId,
+    );
+  }
+
+  @override
+  Future<void> forwardMessages(
+    List<String> messageIds,
+    List<ForwardTarget> targets,
+  ) async {
+    if (targets.isEmpty) return;
+    final targetThreadIds = targets.map((t) => t.id).toList();
+    for (final messageId in messageIds) {
+      await _repo.forwardMessage(
+        fromThreadId: _threadId,
+        messageId: messageId,
+        targetThreadIds: targetThreadIds,
+      );
+    }
+  }
+
+  @override
+  void invalidate() {
+    ref.invalidate(messageThreadProvider(_threadId));
+  }
+}

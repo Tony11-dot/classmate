@@ -1,7 +1,0 @@
-NEXT NOVA FINISH PLAN:
-1) ChatGPT-style layout polish
-2) image input / photo understanding
-3) voice message flow
-4) starter chips from insights
-5) initial prompt auto-send
-6) final polish + checkpoint tag nova-ux-v1

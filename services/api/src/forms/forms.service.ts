@@ -58,6 +58,29 @@ export class FormsService {
     return { ok: true, form };
   }
 
+  submit(user: any, id: string, body: any) {
+    const form = this.visibleForms(user).find((item) => item.id === id);
+    if (!form) throw new NotFoundException('Form not found');
+    if (!form.acceptingResponses) {
+      return { ok: false, error: 'This form is closed and no longer accepting responses.' };
+    }
+    const answers = body?.answers ?? body ?? {};
+    // Validate required fields
+    for (const question of form.questions) {
+      if (!question.required) continue;
+      const value = answers[question.id];
+      const empty =
+        value === null ||
+        value === undefined ||
+        (typeof value === 'string' && value.trim() === '') ||
+        (Array.isArray(value) && value.length === 0);
+      if (empty) {
+        return { ok: false, error: `Required: ${question.title}` };
+      }
+    }
+    return { ok: true, message: 'Response recorded. Thank you!' };
+  }
+
   private visibleForms(user: any): PublishedForm[] {
     const roles = new Set<string>((user?.roles ?? []).map((role: any) => `${role}`.toUpperCase()));
     const teacherLike = roles.has('TEACHER') || roles.has('ADMIN');

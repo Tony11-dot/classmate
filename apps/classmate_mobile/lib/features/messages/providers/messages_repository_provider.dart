@@ -25,3 +25,13 @@ final messageRequestProvider =
       final repo = ref.read(messagesRepositoryProvider);
       return repo.fetchRequest(threadId: threadId);
     });
+
+/// Total unread message count across all threads (for badge on nav tab).
+final unreadMessagesCountProvider = Provider<int>((ref) {
+  final inbox = ref.watch(messagesInboxProvider);
+  return inbox.maybeWhen(
+    data: (threads) => threads.fold<int>(0, (sum, t) => sum + t.unreadCount),
+    orElse: () => 0,
+  );
+});
+

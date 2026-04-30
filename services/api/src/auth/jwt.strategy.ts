@@ -137,7 +137,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
         const existing = await this.prisma.user.findUnique({
           where: { email },
           select: { id: true, email: true, name: true, displayName: true },
-        });
+        }) as any;
 
         let userId = existing?.id;
         let userEmail = existing?.email ?? email;
@@ -186,6 +186,8 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           cohortId = provisioned.cohortId;
         }
 
+        const resolvedSchoolId = existing?.schoolId ?? schoolId ?? null;
+
         return {
           sub: userId,
           id: userId,
@@ -198,7 +200,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           fullName: userName,
           ...(cohortId ? { cohortId } : {}),
           ...(actingStudentId ? { actingStudentId } : {}),
-          ...(schoolId ? { schoolId } : {}),
+          ...(resolvedSchoolId ? { schoolId: resolvedSchoolId } : {}),
         };
       } catch (error: any) {
         console.error('DEV_TOKEN_VALIDATE_ERROR', {

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -118,9 +121,24 @@ class ChatMessageBubble extends StatelessWidget {
         m.contains('webm');
   }
 
+  static bool _isLocalPath(String url) {
+    if (url.startsWith('file://')) return true;
+    if (!url.startsWith('/')) return false;
+    // Server returns relative URLs like /uploads/dm/... which start with /
+    // but are NOT local device files.  Only treat as local if it's a real
+    // device path (iOS temp/cache/app directories).
+    return url.startsWith('/private/') ||
+        url.startsWith('/var/') ||
+        url.startsWith('/tmp/') ||
+        url.startsWith('/Users/');
+  }
+
   String _resolveMediaUrl(String raw) {
     final value = raw.trim().replaceAll(',', '');
     if (value.isEmpty) return '';
+
+    // Local file paths: keep as-is (optimistic messages, camera captures, etc.)
+    if (_isLocalPath(value)) return value;
 
     final uri = Uri.tryParse(value);
     if (uri != null && uri.hasScheme) return value;
@@ -131,6 +149,44 @@ class ChatMessageBubble extends StatelessWidget {
 
     final normalizedPath = value.startsWith('/') ? value : '/$value';
     return '$normalizedBase$normalizedPath';
+  }
+
+  Widget _buildImageWidget(String url, {required bool previewMode}) {
+    if (_isLocalPath(url)) {
+      final path = url.startsWith('file://') ? Uri.parse(url).toFilePath() : url;
+      return Image.file(
+        File(path),
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (ctx, err, _) => Container(
+          height: previewMode ? 132 : 180,
+          alignment: Alignment.center,
+          color: Colors.white.withValues(alpha: 0.06),
+          child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
+        ),
+      );
+    }
+    return CachedNetworkImage(
+      imageUrl: url,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      placeholder: (ctx, url) => Container(
+        height: previewMode ? 132 : 180,
+        alignment: Alignment.center,
+        color: Colors.white.withValues(alpha: 0.06),
+        child: const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+        ),
+      ),
+      errorWidget: (ctx, url, err) => Container(
+        height: previewMode ? 132 : 180,
+        alignment: Alignment.center,
+        color: Colors.white.withValues(alpha: 0.06),
+        child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
+      ),
+    );
   }
 
   String _displayFileName(String resolvedMediaUrl) {
@@ -518,17 +574,7 @@ class ChatMessageBubble extends StatelessWidget {
                     minHeight: previewMode ? 132 : 96,
                     maxHeight: previewMode ? 132 : 280,
                   ),
-                  child: Image.network(
-                    resolvedMediaUrl,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (ctx, err, trace) => Container(
-                      height: previewMode ? 132 : 180,
-                      alignment: Alignment.center,
-                      color: Colors.white.withValues(alpha: 0.06),
-                      child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
-                    ),
-                  ),
+                  child: _buildImageWidget(resolvedMediaUrl, previewMode: previewMode),
                 ),
               ),
             ),
@@ -787,21 +833,7 @@ class ChatMessageBubble extends StatelessWidget {
                           minHeight: previewMode ? 132 : 96,
                           maxHeight: previewMode ? 132 : 260,
                         ),
-                        child: Image.network(
-                          resolvedMediaUrl,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                height: previewMode ? 132 : 180,
-                                alignment: Alignment.center,
-                                color: Colors.white.withValues(alpha: 0.06),
-                                child: const Icon(
-                                  Icons.broken_image_outlined,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                        ),
+                        child: _buildImageWidget(resolvedMediaUrl, previewMode: previewMode),
                       ),
                     ),
                   ),

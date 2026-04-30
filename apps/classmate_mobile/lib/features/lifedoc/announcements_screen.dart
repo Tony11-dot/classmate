@@ -47,6 +47,9 @@ class AnnouncementReadController extends Notifier<Set<String>> {
     final next = <String>{...state, cleanId};
     state = next;
     await _persist(next);
+    // Sync to server for real announcements (UUIDs from /announcements/feed).
+    // Locally-generated insight IDs are silently ignored by the server.
+    ref.read(announcementsApiProvider).markSeen(cleanId).ignore();
   }
 
   Future<void> markUnread(String id) async {

@@ -189,4 +189,15 @@ class StudentAnnouncementsApi {
     }).toList(growable: false)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
+
+  Future<void> markSeen(String announcementId) async {
+    try {
+      await _api.postJson(
+        '/announcements/mark-seen',
+        body: <String, dynamic>{'announcementId': announcementId},
+      );
+    } catch (_) {
+      // Fire-and-forget — local read state is already updated.
+    }
+  }
 }

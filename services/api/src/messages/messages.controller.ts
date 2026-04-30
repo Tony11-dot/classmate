@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -122,5 +124,37 @@ export class MessagesController {
   @Post('react')
   react(@Req() req: any, @Body() body: ReactMessageDto) {
     return this.service.reactMessage(req.user, body);
+  }
+
+  // ── Group management ──────────────────────────────────────────────────────
+
+  @Get('threads/:threadId/info')
+  threadInfo(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.getThreadInfo(req.user, threadId);
+  }
+
+  @Post('threads/:threadId/members')
+  addMember(@Req() req: any, @Param('threadId') threadId: string, @Body() body: any) {
+    return this.service.addGroupMember(req.user, threadId, body);
+  }
+
+  @Delete('threads/:threadId/members/:userId')
+  removeMember(@Req() req: any, @Param('threadId') threadId: string, @Param('userId') userId: string) {
+    return this.service.removeGroupMember(req.user, threadId, userId);
+  }
+
+  @Patch('threads/:threadId/members/:userId/role')
+  updateMemberRole(@Req() req: any, @Param('threadId') threadId: string, @Param('userId') userId: string, @Body() body: any) {
+    return this.service.updateGroupMemberRole(req.user, threadId, userId, body);
+  }
+
+  @Post('threads/:threadId/mute')
+  muteThread(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.toggleMuteThread(req.user, threadId);
+  }
+
+  @Patch('threads/:threadId/title')
+  updateTitle(@Req() req: any, @Param('threadId') threadId: string, @Body() body: any) {
+    return this.service.updateGroupTitle(req.user, threadId, body);
   }
 }

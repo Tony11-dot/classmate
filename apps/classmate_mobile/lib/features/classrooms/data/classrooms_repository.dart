@@ -71,9 +71,29 @@ class ClassroomsRepository {
     );
   }
 
+  Future<void> joinByCode(String code) async {
+    final j = await _postJson(
+      '/student/classrooms/join',
+      <String, dynamic>{'code': code.trim()},
+      label: 'classrooms.joinByCode',
+    );
+    if (j is Map && j['ok'] != true) {
+      throw Exception((j['message'] ?? 'Invalid or expired code').toString());
+    }
+  }
+
   Future<void> leaveClassroom(String courseId) async {
     final id = courseId.trim();
     if (id.isEmpty) return;
+
+    // Server-side leave (remove enrollment)
+    try {
+      await _postJson('/student/classrooms/$id/leave', <String, dynamic>{}, label: 'classrooms.leave');
+    } catch (_) {
+      // Fall through — still hide locally even if server fails
+    }
+
+    // Local hide so the classroom disappears immediately from the list
     final hidden = await _readHiddenClassrooms();
     hidden.add(id);
     await _writeHiddenClassrooms(hidden);
@@ -399,6 +419,23 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
+  Future<Map<String, dynamic>> submitAssignment(
+    String courseId,
+    String assignmentId, {
+    String? note,
+  }) async {
+    final j = await _postJson(
+      '/student/classrooms/$courseId/assignments/$assignmentId/submit',
+      <String, dynamic>{
+        if ((note ?? '').trim().isNotEmpty) 'note': note!.trim(),
+      },
+      label: 'classrooms.submitAssignment',
+    );
+    if (j == null) return <String, dynamic>{'ok': true};
+    if (j is! Map) return <String, dynamic>{'ok': true};
+    return Map<String, dynamic>.from(j);
+  }
+
   Future<Map<String, dynamic>> sendChatText(
     String courseId,
     String text,
@@ -472,7 +509,10 @@ class ClassroomsRepository {
     throw Exception('classrooms.editChatMessage failed: no edit endpoint matched');
   }
 
-  Future<void> sendChatMedia(
+  /// Uploads a media file to the classroom chat.
+  /// Returns a map that may contain `url`, `mimeType`, and similar fields
+  /// extracted from the server response body (empty map if body is not JSON).
+  Future<Map<String, dynamic>> sendChatMedia(
     String courseId,
     String filePath, {
     String? messageId,
@@ -508,8 +548,16 @@ class ClassroomsRepository {
 
       if (res.statusCode == 404 && index < _baseCandidates.length - 1) continue;
       if (!_ok(res)) _fail('classrooms.sendChatMedia', res);
-      return;
+
+      // Parse the response body for the CDN URL (best-effort).
+      try {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map<String, dynamic>) return decoded;
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      } catch (_) {}
+      return const {};
     }
+    return const {};
   }
 }
 

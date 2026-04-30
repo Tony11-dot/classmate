@@ -121,10 +121,8 @@ class ChatContextOverlay extends StatelessWidget {
                               onReact: (emoji) =>
                                   Navigator.of(context).pop('react:$emoji'),
                               onOpenPicker: () async {
-                                final picked = await ChatEmojiPickerSheet.show(
-                                  context,
-                                  allowedEmojis: pickerAllowedEmojis,
-                                );
+                                // No filter — full picker shows all emojis.
+                                final picked = await ChatEmojiPickerSheet.show(context);
                                 if (!context.mounted) return;
                                 if ((picked ?? '').trim().isEmpty) return;
                                 Navigator.of(context)
@@ -183,7 +181,7 @@ class _ReactionStrip extends StatelessWidget {
   final ValueChanged<String> onReact;
   final VoidCallback onOpenPicker;
 
-  static const _reactions = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
+  static const _reactions = ['❤️', '👍', '😂', '😮', '😢', '🙏', '🔥', '🎉'];
 
   @override
   Widget build(BuildContext context) {
@@ -201,34 +199,38 @@ class _ReactionStrip extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final r in _reactions)
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final r in _reactions)
+              GestureDetector(
+                onTap: () => onReact(r),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                  child: Text(r, style: const TextStyle(fontSize: 26)),
+                ),
+              ),
+            const SizedBox(width: 2),
             GestureDetector(
-              onTap: () => onReact(r),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                child: Text(r, style: const TextStyle(fontSize: 26)),
+              onTap: onOpenPicker,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Icon(
+                  Icons.add_rounded,
+                  size: 20,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
               ),
             ),
-          const SizedBox(width: 2),
-          GestureDetector(
-            onTap: onOpenPicker,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Icon(
-                Icons.add_rounded,
-                size: 20,
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -333,39 +333,6 @@ extension TutorRepositoryCompat on TutorRepository {
     return (json.decode(res.body) as Map<String, dynamic>);
   }
 
-  Future<String> transcribeAudio({
-    required String path,
-  }) async {
-    final headers = await _headers();
-    final multipartHeaders = Map<String, String>.from(headers)
-      ..remove('Content-Type');
-    final uri = _uri('/tutor/transcribe');
-
-    final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(multipartHeaders);
-    req.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        path,
-        filename: path.split('/').last,
-      ),
-    );
-
-    final streamed = await req.send().timeout(TutorRepository._timeout);
-    final res = await http.Response.fromStream(streamed);
-    if (!_isOk(res)) {
-      _fail('transcribeAudio', res);
-    }
-
-    if (res.body.trim().isEmpty) return '';
-    final body = json.decode(res.body);
-    if (body is Map<String, dynamic>) {
-      final text = body['text'] ?? body['transcript'] ?? body['content'];
-      return text?.toString().trim() ?? '';
-    }
-    return '';
-  }
-
   Future<List<String>> fetchFollowupSuggestions({
     required String sessionId,
     required String userMessage,

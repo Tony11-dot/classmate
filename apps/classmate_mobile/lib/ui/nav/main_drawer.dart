@@ -16,6 +16,8 @@ class MainDrawer extends ConsumerWidget {
     final isTeacherLike = session.isTeacherLike;
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
+    final schoolName = session.schoolName.trim();
+    final schoolLogoUrl = session.schoolLogoUrl.trim();
     final loc = GoRouterState.of(context).matchedLocation;
     final roleLabel = switch (session.primaryRole) {
       'TEACHER' => l.roleTeacher,
@@ -141,6 +143,53 @@ class MainDrawer extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
+            // ── School branding ─────────────────────────────────────────
+            if (schoolName.isNotEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: cs.outlineVariant.withValues(alpha: 0.25),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // School logo or placeholder icon
+                    if (schoolLogoUrl.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          schoolLogoUrl,
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => _schoolLogoPlaceholder(cs),
+                        ),
+                      )
+                    else
+                      _schoolLogoPlaceholder(cs),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        schoolName,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: cs.onSurface,
+                          letterSpacing: 0.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             // ── User header ──────────────────────────────────────────────
             Container(
               width: double.infinity,
@@ -250,9 +299,19 @@ class MainDrawer extends ConsumerWidget {
                       route: '/teacher/classrooms',
                     ),
                     navItem(
-                      icon: Icons.quiz_rounded,
-                      label: l.navExams,
-                      route: '/exams',
+                      icon: Icons.grade_rounded,
+                      label: l.navTeacherAssessments,
+                      route: '/teacher/grades',
+                    ),
+                    navItem(
+                      icon: Icons.fact_check_rounded,
+                      label: l.navAttendance,
+                      route: '/teacher/attendance',
+                    ),
+                    navItem(
+                      icon: Icons.calendar_view_week_rounded,
+                      label: 'Week Schedule',
+                      route: '/teacher/schedule/week',
                     ),
                     navItem(
                       icon: Icons.chat_bubble_rounded,
@@ -295,14 +354,9 @@ class MainDrawer extends ConsumerWidget {
                   sectionHeader(l.sectionSchoolTools),
                   if (isTeacherLike) ...[
                     navItem(
-                      icon: Icons.fact_check_rounded,
-                      label: l.navAttendance,
-                      route: '/teacher/attendance',
-                    ),
-                    navItem(
-                      icon: Icons.grade_rounded,
-                      label: l.navTeacherAssessments,
-                      route: '/teacher/grades',
+                      icon: Icons.quiz_rounded,
+                      label: l.navExams,
+                      route: '/exams',
                     ),
                     navItem(
                       icon: Icons.assignment_turned_in_rounded,
@@ -313,6 +367,11 @@ class MainDrawer extends ConsumerWidget {
                       icon: Icons.campaign_rounded,
                       label: l.navAnnouncements,
                       route: '/announcements',
+                    ),
+                    navItem(
+                      icon: Icons.add_comment_rounded,
+                      label: 'Post Announcement',
+                      route: '/teacher/announcements/new',
                     ),
                     navItem(
                       icon: Icons.notifications_rounded,
@@ -452,5 +511,21 @@ String _initials(String name) {
   final parts = name.trim().split(RegExp(r'\s+'));
   if (parts.length == 1) return parts[0][0].toUpperCase();
   return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+}
+
+Widget _schoolLogoPlaceholder(ColorScheme cs) {
+  return Container(
+    width: 36,
+    height: 36,
+    decoration: BoxDecoration(
+      color: cs.primaryContainer.withValues(alpha: 0.5),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Icon(
+      Icons.school_rounded,
+      size: 20,
+      color: cs.primary,
+    ),
+  );
 }
 

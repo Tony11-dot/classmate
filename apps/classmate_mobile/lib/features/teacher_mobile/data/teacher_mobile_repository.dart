@@ -174,6 +174,233 @@ class TeacherMobileRepository {
       },
     );
   }
+
+  // ── Classroom management ────────────────────────────────────────────────
+
+  Future<List<TeacherCourse>> fetchClassrooms() async {
+    final raw = await _api.getJson('/teacher/classrooms');
+    final map = _asMap(raw);
+    return _asList(map['classrooms'])
+        .map((item) {
+          final m = _asMap(item);
+          final cohortMap = _asMap(m['cohort']);
+          return TeacherCourse(
+            id: _asString(m['id']),
+            name: _asString(m['name']),
+            subject: _asString(m['subject']),
+            cohortId: _asString(m['cohortId']),
+            cohort: cohortMap.isEmpty ? null : TeacherCohort.fromJson(cohortMap),
+          );
+        })
+        .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClassroomChat(
+    String courseId, {
+    int limit = 30,
+    String? cursor,
+  }) async {
+    final q = <String, String>{'limit': '$limit'};
+    if ((cursor ?? '').isNotEmpty) q['cursor'] = cursor!;
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/chat', query: q);
+    final map = _asMap(raw);
+    return _asList(map['items'])
+        .map((item) => Map<String, dynamic>.from(_asMap(item)))
+        .toList(growable: false);
+  }
+
+  Future<void> sendClassroomChat(String courseId, String text) async {
+    await _api.postJson(
+      '/teacher/classrooms/$courseId/chat',
+      body: <String, dynamic>{'text': text.trim()},
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClassroomAssignments(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/assignments');
+    final map = _asMap(raw);
+    return _asList(map['items'])
+        .map((item) => Map<String, dynamic>.from(_asMap(item)))
+        .toList(growable: false);
+  }
+
+  Future<void> createClassroomAssignment({
+    required String courseId,
+    required String title,
+    String? body,
+    String? dueAt,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$courseId/assignments',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        if ((body ?? '').trim().isNotEmpty) 'body': body!.trim(),
+        if ((dueAt ?? '').trim().isNotEmpty) 'dueAt': dueAt!.trim(),
+      },
+    );
+  }
+
+  Future<void> updateClassroomAssignment({
+    required String courseId,
+    required String id,
+    String? title,
+    String? body,
+    String? dueAt,
+  }) async {
+    await _api.patchJson(
+      '/teacher/classrooms/$courseId/assignments/$id',
+      body: <String, dynamic>{
+        if (title != null) 'title': title.trim(),
+        if (body != null) 'body': body.trim(),
+        if (dueAt != null) 'dueAt': dueAt.trim(),
+      },
+    );
+  }
+
+  Future<void> deleteClassroomAssignment(String courseId, String id) async {
+    await _api.deleteJson('/teacher/classrooms/$courseId/assignments/$id');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClassroomMaterials(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/materials');
+    final map = _asMap(raw);
+    return _asList(map['items'])
+        .map((item) => Map<String, dynamic>.from(_asMap(item)))
+        .toList(growable: false);
+  }
+
+  Future<void> createClassroomMaterial({
+    required String courseId,
+    required String title,
+    required String url,
+    String? description,
+    String? mime,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$courseId/materials',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        'url': url.trim(),
+        if ((description ?? '').trim().isNotEmpty) 'description': description!.trim(),
+        if ((mime ?? '').trim().isNotEmpty) 'mime': mime!.trim(),
+      },
+    );
+  }
+
+  Future<void> deleteClassroomMaterial(String courseId, String id) async {
+    await _api.deleteJson('/teacher/classrooms/$courseId/materials/$id');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClassroomMeetings(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/meetings');
+    final map = _asMap(raw);
+    return _asList(map['items'])
+        .map((item) => Map<String, dynamic>.from(_asMap(item)))
+        .toList(growable: false);
+  }
+
+  Future<void> createClassroomMeeting({
+    required String courseId,
+    required String title,
+    required String link,
+    required String startsAt,
+    String? endsAt,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$courseId/meetings',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        'link': link.trim(),
+        'startsAt': startsAt.trim(),
+        if ((endsAt ?? '').trim().isNotEmpty) 'endsAt': endsAt!.trim(),
+      },
+    );
+  }
+
+  Future<void> deleteClassroomMeeting(String courseId, String id) async {
+    await _api.deleteJson('/teacher/classrooms/$courseId/meetings/$id');
+  }
+
+  Future<Map<String, dynamic>> fetchClassroomPeople(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/people');
+    return _asMap(raw);
+  }
+
+  Future<Map<String, dynamic>> fetchClassroomAnalytics(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/analytics');
+    return _asMap(raw);
+  }
+
+  Future<Map<String, dynamic>> fetchAssignmentSubmissions(String courseId, String assignmentId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/assignments/$assignmentId/submissions');
+    return _asMap(raw);
+  }
+
+  Future<Map<String, dynamic>> fetchStudentProfile(String studentId) async {
+    final raw = await _api.getJson('/teacher/student/$studentId/profile');
+    return _asMap(raw);
+  }
+
+  Future<Map<String, dynamic>> fetchWeekSchedule({String? weekOf}) async {
+    final q = <String, String>{};
+    if ((weekOf ?? '').isNotEmpty) q['weekOf'] = weekOf!;
+    final raw = await _api.getJson('/teacher/schedule/week', query: q);
+    return _asMap(raw);
+  }
+
+  Future<void> addStudentToClassroom(String courseId, String emailOrId) async {
+    final body = <String, dynamic>{};
+    if (emailOrId.contains('@')) {
+      body['email'] = emailOrId;
+    } else {
+      body['userId'] = emailOrId;
+    }
+    await _api.postJson('/teacher/classrooms/$courseId/students', body: body);
+  }
+
+  Future<void> removeStudentFromClassroom(String courseId, String studentId) async {
+    await _api.deleteJson('/teacher/classrooms/$courseId/students/$studentId');
+  }
+
+  Future<void> createAnnouncement({
+    required String title,
+    required String body,
+    String? targetRole,
+    String? targetCohortId,
+    bool pinned = false,
+  }) async {
+    await _api.postJson(
+      '/announcements',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        'body': body.trim(),
+        'pinned': pinned,
+        if ((targetRole ?? '').isNotEmpty) 'targets': [<String, dynamic>{'role': targetRole}],
+        if ((targetCohortId ?? '').isNotEmpty) 'targets': [<String, dynamic>{'cohortId': targetCohortId}],
+      },
+    );
+  }
+
+  Future<TeacherAttendanceSession> fetchAttendanceSessionForDate({
+    required String cohortId,
+    required String date,
+    required int period,
+  }) async {
+    final raw = await _api.getJson(
+      '/teacher/attendance/history',
+      query: <String, String>{'cohortId': cohortId, 'date': date, 'period': '$period'},
+    );
+    final map = _asMap(raw);
+    return TeacherAttendanceSession(
+      cohort: TeacherCohort.fromJson(_asMap(map['cohort'])),
+      date: _asString(map['date']),
+      period: _asInt(map['period']),
+      course: TeacherCourse.fromJson(_asMap(map['course'])),
+      students: _asList(map['students'])
+          .map((item) => TeacherAttendanceStudent.fromJson(_asMap(item)))
+          .toList(growable: false),
+    );
+  }
 }
 
 Map<String, dynamic> _asMap(dynamic value) {
@@ -250,14 +477,17 @@ class TeacherCourse {
     required this.name,
     required this.subject,
     required this.cohortId,
+    this.cohort,
   });
 
   factory TeacherCourse.fromJson(Map<String, dynamic> json) {
+    final cohortMap = _asMap(json['cohort']);
     return TeacherCourse(
       id: _asString(json['id']),
       name: _asString(json['name']),
       subject: _asString(json['subject']),
       cohortId: _asString(json['cohortId']),
+      cohort: cohortMap.isEmpty ? null : TeacherCohort.fromJson(cohortMap),
     );
   }
 
@@ -265,6 +495,15 @@ class TeacherCourse {
   final String name;
   final String subject;
   final String cohortId;
+  final TeacherCohort? cohort;
+
+  String get displayName {
+    final grade = cohort?.grade;
+    final cohortName = cohort?.name ?? '';
+    if (grade != null && grade > 0) return '$subject — Grade $grade ($cohortName)';
+    if (cohortName.isNotEmpty) return '$subject — $cohortName';
+    return name.isNotEmpty ? name : subject;
+  }
 }
 
 class TeacherAssessmentBundle {

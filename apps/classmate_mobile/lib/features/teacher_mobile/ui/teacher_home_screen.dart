@@ -9,6 +9,137 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 
+Future<void> _showSlotActionSheet(
+  BuildContext context,
+  TeacherTodaySlot slot,
+  String date,
+) async {
+  final course = slot.course;
+  final cohort = slot.cohort;
+  if (course == null || cohort == null) return;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    useRootNavigator: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      final cs = Theme.of(ctx).colorScheme;
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: LiquidGlassCard(
+            borderRadius: BorderRadius.circular(24),
+            blurSigma: 18,
+            color: cs.surface.withValues(alpha: 0.96),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                Container(width: 36, height: 4,
+                    decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(course.name.isNotEmpty ? course.name : course.subject,
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                      Text('${cohort.name} · Period ${slot.period}',
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Divider(height: 1),
+                _SheetAction(
+                  icon: Icons.class_rounded,
+                  label: 'Go to Classroom',
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
+                      'name': course.name,
+                      'subject': course.subject,
+                      'cohortName': cohort.name,
+                      'grade': cohort.grade,
+                    });
+                  },
+                ),
+                _SheetAction(
+                  icon: Icons.fact_check_rounded,
+                  label: 'Mark Attendance',
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/teacher/attendance', extra: <String, dynamic>{
+                      'cohortId': cohort.id,
+                      'period': slot.period,
+                      'date': date,
+                      'courseId': course.id,
+                    });
+                  },
+                ),
+                _SheetAction(
+                  icon: Icons.assignment_rounded,
+                  label: 'Post Assignment',
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
+                      'name': course.name,
+                      'subject': course.subject,
+                      'cohortName': cohort.name,
+                      'grade': cohort.grade,
+                    });
+                  },
+                ),
+                _SheetAction(
+                  icon: Icons.campaign_rounded,
+                  label: 'New Announcement',
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/teacher/announcements/new');
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class _SheetAction extends StatelessWidget {
+  const _SheetAction({required this.icon, required this.label, required this.onTap});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, size: 18, color: cs.primary),
+            ),
+            const SizedBox(width: 14),
+            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class TeacherHomeScreen extends ConsumerStatefulWidget {
   const TeacherHomeScreen({super.key});
 
@@ -66,11 +197,31 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     }
   }
 
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  Color _subjectColor(String subject, ColorScheme cs) {
+    final s = subject.toLowerCase();
+    if (s.contains('math')) return cs.primary;
+    if (s.contains('phys') || s.contains('science')) return const Color(0xFF60A5FA);
+    if (s.contains('english') || s.contains('lit')) return const Color(0xFF34D399);
+    if (s.contains('arabic') || s.contains('hebrew')) return const Color(0xFFF59E0B);
+    if (s.contains('hist') || s.contains('geo')) return const Color(0xFFA78BFA);
+    if (s.contains('bio') || s.contains('chem')) return const Color(0xFF22D3EE);
+    if (s.contains('cs') || s.contains('comp')) return const Color(0xFFF472B6);
+    return cs.secondary;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
+    final session = ref.read(authSessionProvider);
     final bundle = _bundle;
     final today = _today;
     final scheduledSlots = today?.slots
@@ -79,60 +230,158 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
         const <TeacherTodaySlot>[];
     final upcoming = (bundle?.assessments ?? const <TeacherAssessment>[]).take(4).toList(growable: false);
     final teachingGroups = (bundle?.courses.map((c) => c.cohortId).where((id) => id.isNotEmpty).toSet().length) ?? 0;
+    final teacherName = session.displayName.trim().split(' ').first;
+    final now = DateTime.now();
+    final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    final days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    final dateLabel = '${days[now.weekday % 7]}, ${months[now.month - 1]} ${now.day}';
 
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          Text(
-            l.navTeacherWorkspace,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l.teacherWorkspaceSubtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              _MetricCard(label: l.teacherMetricSessionsToday, value: '${scheduledSlots.length}', accent: cs.primaryContainer),
-              _MetricCard(label: l.teacherMetricTeachingGroups, value: '$teachingGroups', accent: cs.secondaryContainer),
-              _MetricCard(label: l.teacherMetricAssessments, value: '${bundle?.assessments.length ?? 0}', accent: cs.tertiaryContainer),
-            ],
-          ),
-          const SizedBox(height: 18),
+          // ── Hero Banner ──────────────────────────────────────────────────
           LiquidGlassCard(
-            color: cs.surface.withValues(alpha: 0.74),
+            borderRadius: BorderRadius.circular(28),
+            blurSigma: 20,
             gradient: LinearGradient(
               colors: [
-                cs.primaryContainer.withValues(alpha: 0.26),
-                cs.surface.withValues(alpha: 0.78),
+                cs.primaryContainer.withValues(alpha: 0.92),
+                cs.tertiaryContainer.withValues(alpha: 0.72),
+                cs.surfaceContainerHigh.withValues(alpha: 0.85),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
+            boxShadow: [BoxShadow(color: cs.primary.withValues(alpha: 0.14), blurRadius: 24, offset: const Offset(0, 10), spreadRadius: -6)],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            teacherName.isNotEmpty ? '${_greeting()}, $teacherName' : _greeting(),
+                            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(dateLabel, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: cs.primary.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(Icons.school_rounded, size: 26, color: cs.primary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Stat pills
+                Row(
+                  children: [
+                    _StatPill(
+                      icon: Icons.today_rounded,
+                      value: '${scheduledSlots.length}',
+                      label: 'Today',
+                      color: cs.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    _StatPill(
+                      icon: Icons.groups_rounded,
+                      value: '$teachingGroups',
+                      label: 'Groups',
+                      color: cs.tertiary,
+                    ),
+                    const SizedBox(width: 8),
+                    _StatPill(
+                      icon: Icons.grade_rounded,
+                      value: '${bundle?.assessments.length ?? 0}',
+                      label: 'Tests',
+                      color: cs.secondary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Week schedule shortcut
+                InkWell(
+                  onTap: () => context.push('/teacher/schedule/week'),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.55),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_view_week_rounded, size: 16, color: cs.primary),
+                        const SizedBox(width: 8),
+                        Text('View full week schedule', style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13)),
+                        const Spacer(),
+                        Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // ── Quick Actions ───────────────────────────────────────────────
+          LiquidGlassCard(
+            borderRadius: BorderRadius.circular(24),
+            blurSigma: 14,
+            gradient: LinearGradient(
+              colors: [cs.primaryContainer.withValues(alpha: 0.22), cs.surface.withValues(alpha: 0.76)],
+              begin: Alignment.topLeft, end: Alignment.bottomRight,
             ),
             border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.teacherQuickActions, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                Text('Quick Actions', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
                 const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+                // Row 1 — daily actions
+                Row(
                   children: [
-                    _ActionChip(icon: Icons.fact_check_rounded, label: l.navAttendance, onTap: () => context.go('/teacher/attendance')),
-                    _ActionChip(icon: Icons.groups_rounded, label: l.navClassrooms, onTap: () => context.go('/teacher/classrooms')),
-                    _ActionChip(icon: Icons.assignment_turned_in_rounded, label: l.navTeacherAssessments, onTap: () => context.go('/teacher/grades')),
+                    Expanded(child: _BigActionButton(icon: Icons.fact_check_rounded, label: 'Attendance', color: cs.primary, onTap: () => context.go('/teacher/attendance'))),
+                    const SizedBox(width: 10),
+                    Expanded(child: _BigActionButton(icon: Icons.grade_rounded, label: 'Grades', color: cs.secondary, onTap: () => context.go('/teacher/grades'))),
+                    const SizedBox(width: 10),
+                    Expanded(child: _BigActionButton(icon: Icons.groups_rounded, label: 'Classrooms', color: cs.tertiary, onTap: () => context.go('/teacher/classrooms'))),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Row 2 — communication
+                Row(
+                  children: [
+                    Expanded(child: _BigActionButton(icon: Icons.chat_bubble_rounded, label: 'Messages', color: cs.primary, onTap: () => context.go('/messages'))),
+                    const SizedBox(width: 10),
+                    Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: 'Announce', color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
+                    const SizedBox(width: 10),
+                    Expanded(child: _BigActionButton(icon: Icons.psychology_rounded, label: 'NOVA', color: cs.tertiary, onTap: () => context.go('/tutor'))),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Row 3 — more
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
                     _ActionChip(icon: Icons.quiz_rounded, label: l.navExams, onTap: () => context.go('/exams')),
                     _ActionChip(icon: Icons.article_rounded, label: l.navForms, onTap: () => context.go('/forms')),
-                    _ActionChip(icon: Icons.chat_bubble_rounded, label: l.navMessages, onTap: () => context.go('/messages')),
-                    _ActionChip(icon: Icons.psychology_rounded, label: l.navNova, onTap: () => context.go('/tutor')),
-                    _ActionChip(icon: Icons.campaign_rounded, label: l.navAnnouncements, onTap: () => context.go('/announcements')),
                     _ActionChip(icon: Icons.notifications_rounded, label: l.navNotifications, onTap: () => context.go('/notifications')),
                   ],
                 ),
@@ -140,50 +389,154 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             ),
           ),
           const SizedBox(height: 18),
+
           if (_loading)
             const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
           else if (_error != null)
             _ErrorCard(message: _error!, onRetry: _load)
           else ...[
-            _SectionCard(
-              title: l.today,
-              subtitle: today?.date.isNotEmpty == true ? today!.date : l.teacherNoDateAvailable,
-              child: scheduledSlots.isEmpty
-                  ? Text(ScheduleEmptyStateCopy.subtitle(l, l.today))
-                  : Column(
-                      children: scheduledSlots
-                          .map(
-                            (slot) => _AgendaRow(
-                              title: slot.course?.name ?? l.teacherUnassignedSlot,
-                              subtitle: '${slot.cohort?.name ?? l.teacherNoCohort} • ${l.teacherPeriod(slot.period.toString())}',
-                              trailing: slot.course?.subject ?? slot.source,
+            // ── Today's Classes ────────────────────────────────────────────
+            _SectionHeader(title: "Today's Classes", subtitle: today?.date.isNotEmpty == true ? today!.date : 'No date'),
+            const SizedBox(height: 10),
+            scheduledSlots.isEmpty
+                ? _EmptySlotCard(l: l)
+                : Column(
+                    children: scheduledSlots.asMap().entries.map((entry) {
+                      final slot = entry.value;
+                      final subject = slot.course?.subject ?? '';
+                      final color = _subjectColor(subject, cs);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () => _showSlotActionSheet(context, slot, today?.date ?? ''),
+                          borderRadius: BorderRadius.circular(20),
+                          child: LiquidGlassCard(
+                            padding: const EdgeInsets.all(14),
+                            borderRadius: BorderRadius.circular(20),
+                            blurSigma: 10,
+                            gradient: LinearGradient(
+                              colors: [cs.surface.withValues(alpha: 0.84), cs.surfaceContainerHigh.withValues(alpha: 0.68)],
+                              begin: Alignment.topLeft, end: Alignment.bottomRight,
                             ),
-                          )
-                          .toList(growable: false),
-                    ),
-            ),
-            const SizedBox(height: 14),
-            _SectionCard(
-              title: l.teacherUpcomingAssessments,
-              subtitle: l.teacherUpcomingAssessmentsSubtitle,
-              child: upcoming.isEmpty
-                ? Text(l.teacherNoAssessmentsYet)
-                  : Column(
-                      children: upcoming
-                          .map(
-                            (assessment) => _AgendaRow(
-                              title: assessment.title,
-                              subtitle: (bundle?.courses.firstWhere(
-                                        (course) => course.id == assessment.courseId,
-                                        orElse: () => TeacherCourse(id: '', name: l.teacherCourseFallback, subject: '', cohortId: ''),
-                                      ).name ??
-                                      l.teacherCourseFallback),
-                              trailing: assessment.date.split('T').first,
+                            border: Border.all(color: color.withValues(alpha: 0.18)),
+                            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 12, spreadRadius: -4)],
+                            child: Row(
+                              children: [
+                                // Period badge
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('P${slot.period}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: color)),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        subject.isNotEmpty ? subject : (slot.course?.name ?? l.teacherUnassignedSlot),
+                                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        '${slot.cohort?.name ?? ''} · Grade ${slot.cohort?.grade ?? ''}',
+                                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+                                      child: Text(subject.isNotEmpty ? subject : 'Class', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Icon(Icons.more_horiz_rounded, size: 16, color: cs.onSurfaceVariant),
+                                  ],
+                                ),
+                              ],
                             ),
-                          )
-                          .toList(growable: false),
-                    ),
-            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+            const SizedBox(height: 18),
+
+            // ── Upcoming Assessments ───────────────────────────────────────
+            _SectionHeader(title: 'Upcoming Assessments', subtitle: 'Next tests & quizzes'),
+            const SizedBox(height: 10),
+            upcoming.isEmpty
+                ? LiquidGlassCard(
+                    padding: const EdgeInsets.all(16),
+                    borderRadius: BorderRadius.circular(16),
+                    blurSigma: 8,
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+                    child: Row(children: [
+                      Icon(Icons.event_busy_rounded, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 12),
+                      Text(l.teacherNoAssessmentsYet, style: TextStyle(color: cs.onSurfaceVariant)),
+                    ]),
+                  )
+                : Column(
+                    children: upcoming.map((assessment) {
+                      final courseName = bundle?.courses.firstWhere(
+                        (c) => c.id == assessment.courseId,
+                        orElse: () => TeacherCourse(id: '', name: '', subject: '', cohortId: ''),
+                      ).name ?? '';
+                      final dateStr = assessment.date.split('T').first;
+                      final dt = DateTime.tryParse(dateStr);
+                      final months2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                      final dateLabel2 = dt != null ? '${months2[dt.month-1]} ${dt.day}' : dateStr;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () => context.go('/teacher/grades'),
+                          borderRadius: BorderRadius.circular(18),
+                          child: LiquidGlassCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            borderRadius: BorderRadius.circular(18),
+                            blurSigma: 10,
+                            color: cs.surface.withValues(alpha: 0.82),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(color: cs.tertiaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(12)),
+                                  child: Icon(Icons.quiz_rounded, size: 20, color: cs.tertiary),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(assessment.title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                                      if (courseName.isNotEmpty) Text(courseName, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                    ],
+                                  ),
+                                ),
+                                Text(dateLabel2, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: cs.tertiary)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
           ],
         ],
       ),
@@ -191,35 +544,106 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({required this.label, required this.value, required this.accent});
-
-  final String label;
+class _StatPill extends StatelessWidget {
+  const _StatPill({required this.icon, required this.value, required this.label, required this.color});
+  final IconData icon;
   final String value;
-  final Color accent;
+  final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final width = (MediaQuery.of(context).size.width - 56) / 2;
-    return SizedBox(
-      width: width < 140 ? double.infinity : width,
-      child: LiquidGlassCard(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-        gradient: LinearGradient(
-          colors: [accent.withValues(alpha: 0.45), Colors.white.withValues(alpha: 0.2)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
         ),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: Theme.of(context).textTheme.labelMedium),
-            const SizedBox(height: 8),
-            Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+            Icon(icon, size: 16, color: color),
+            const SizedBox(height: 6),
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: color, height: 1)),
+            Text(label, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BigActionButton extends StatelessWidget {
+  const _BigActionButton({required this.icon, required this.label, required this.color, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.20)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 22, color: color),
+            const SizedBox(height: 6),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color), textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.subtitle});
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+        Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+      ],
+    );
+  }
+}
+
+class _EmptySlotCard extends StatelessWidget {
+  const _EmptySlotCard({required this.l});
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return LiquidGlassCard(
+      padding: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(18),
+      blurSigma: 8,
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+      child: Row(children: [
+        Icon(Icons.event_available_rounded, color: cs.onSurfaceVariant),
+        const SizedBox(width: 12),
+        Text(ScheduleEmptyStateCopy.subtitle(l, l.today), style: TextStyle(color: cs.onSurfaceVariant)),
+      ]),
     );
   }
 }
@@ -266,87 +690,6 @@ class _ActionChip extends StatelessWidget {
             Icon(icon, size: 18, color: cs.primary),
             const SizedBox(width: 8),
             Text(label, style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.subtitle, required this.child});
-
-  final String title;
-  final String subtitle;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      color: cs.surface.withValues(alpha: 0.76),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.surface.withValues(alpha: 0.82),
-          cs.surfaceContainerHigh.withValues(alpha: 0.66),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _AgendaRow extends StatelessWidget {
-  const _AgendaRow({required this.title, required this.subtitle, required this.trailing});
-
-  final String title;
-  final String subtitle;
-  final String trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: LiquidGlassCard(
-        padding: const EdgeInsets.all(12),
-        borderRadius: BorderRadius.circular(18),
-        blurSigma: 10,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.surface.withValues(alpha: 0.78),
-            cs.surfaceContainerHighest.withValues(alpha: 0.58),
-          ],
-        ),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.16)),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(trailing, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.primary, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

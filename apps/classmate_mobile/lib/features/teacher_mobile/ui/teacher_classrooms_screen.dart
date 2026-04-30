@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -160,20 +161,106 @@ class _TeacherClassroomsScreenState extends ConsumerState<TeacherClassroomsScree
                           ],
                   ),
                   border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(24),
-                    onTap: () => _openCohort(entry.key),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.teacherClassroomsCohort(entry.key),
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () => _openCohort(entry.key),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l.teacherClassroomsCohort(entry.key),
+                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                  Text(
+                                    '${entry.value.length} ${entry.value.length == 1 ? 'course' : 'courses'}',
+                                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              active ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        Text(entry.value.map((course) => '${course.name}${course.subject.isEmpty ? '' : ' • ${course.subject}'}').join('   ·   '), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                      ...entry.value.map((course) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: cs.secondaryContainer.withValues(alpha: 0.7),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.class_rounded, size: 16, color: cs.secondary),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    course.subject.isNotEmpty ? course.subject : course.name,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                                  ),
+                                  if (course.name.isNotEmpty && course.name != course.subject)
+                                    Text(course.name, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FilledButton.tonal(
+                                  onPressed: () {
+                                    context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
+                                      'name': course.name,
+                                      'subject': course.subject,
+                                      'cohortName': entry.value.first.cohortId,
+                                      'grade': 0,
+                                    });
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.open_in_new_rounded, size: 14),
+                                      SizedBox(width: 4),
+                                      Text('Open', style: TextStyle(fontSize: 12)),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                IconButton(
+                                  icon: const Icon(Icons.bar_chart_rounded, size: 18),
+                                  onPressed: () => context.push(
+                                    '/teacher/classroom/${course.id}/analytics',
+                                    extra: <String, dynamic>{'name': course.name, 'subject': course.subject},
+                                  ),
+                                  style: IconButton.styleFrom(padding: const EdgeInsets.all(6), minimumSize: const Size(32, 32)),
+                                  tooltip: 'Analytics',
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )),
+                    ],
                   ),
                 ),
               );

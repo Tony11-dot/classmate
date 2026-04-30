@@ -22,6 +22,7 @@ class FormDetailScreen extends ConsumerStatefulWidget {
 class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   final Map<String, dynamic> _answers = <String, dynamic>{};
   bool _submitted = false;
+  bool _submitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
       data: (forms) {
         final form = forms.cast<StudentFormItem?>().firstWhere(
           (item) => item?.id == widget.formId,
-          orElse: () => ref.read(formsRepositoryProvider).byId(widget.formId),
+          orElse: () => null,
         );
         if (form == null) {
           return Scaffold(
@@ -97,9 +98,23 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
                     )),
                 const SizedBox(height: 8),
                 FilledButton.icon(
-                  onPressed: form.acceptingResponses ? () => _submit(context, form) : null,
-                  icon: const Icon(Icons.send_rounded),
-                  label: Text(_submitted ? 'Submitted' : 'Submit form'),
+                  onPressed: (form.acceptingResponses && !_submitted && !_submitting)
+                      ? () => _submit(context, form)
+                      : null,
+                  icon: _submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send_rounded),
+                  label: Text(
+                    _submitting
+                        ? 'Submitting…'
+                        : _submitted
+                        ? 'Submitted'
+                        : 'Submit form',
+                  ),
                 ),
                 if (!form.acceptingResponses) ...[
                   const SizedBox(height: 10),
@@ -125,7 +140,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     );
   }
 
-  void _submit(BuildContext context, StudentFormItem form) {
+  Future<void> _submit(BuildContext context, StudentFormItem form) async {
     for (final question in form.questions) {
       final value = _answers[question.id];
       if (!question.required) continue;
@@ -151,12 +166,42 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
       }
     }
 
-    setState(() {
-      _submitted = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Form submitted')),
-    );
+    setState(() => _submitting = true);
+
+    try {
+      final serialized = Map<String, dynamic>.fromEntries(
+        _answers.entries.map((e) {
+          final v = e.value;
+          return MapEntry(e.key, v is Set ? v.toList() : v);
+        }),
+      );
+      final result = await ref
+          .read(formsRepositoryProvider)
+          .submit(form.id, serialized);
+      if (!mounted) return;
+      if (result['ok'] == true) {
+        setState(() => _submitted = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (result['message'] ?? 'Form submitted').toString(),
+            ),
+          ),
+        );
+      } else {
+        final error = (result['error'] ?? 'Submission failed').toString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not submit: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   void _showRequired(BuildContext context, String title) {
@@ -353,20 +398,18 @@ class _QuestionCard extends StatelessWidget {
           decoration: const InputDecoration(hintText: 'Long answer text'),
         );
       case StudentFormQuestionType.multipleChoice:
-        return RadioGroup<String>(
-          groupValue: answer?.toString(),
-          onChanged: (value) => onChanged(value),
-          child: Column(
-            children: question.options
-                .map(
-                  (option) => RadioListTile<String>(
-                    value: option,
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(option),
-                  ),
-                )
-                .toList(),
-          ),
+        return Column(
+          children: question.options
+              .map(
+                (option) => RadioListTile<String>(
+                  value: option,
+                  groupValue: answer?.toString(),
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(option),
+                  onChanged: (value) => onChanged(value),
+                ),
+              )
+              .toList(),
         );
       case StudentFormQuestionType.checkboxes:
         final selected = answer is Set<String> ? answer : <String>{};

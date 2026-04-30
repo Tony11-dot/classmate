@@ -26,12 +26,26 @@ enum ParentChildStatus {
   APPROVED
 }
 
+model School {
+  id        String   @id @default(uuid())
+  name      String
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
 model User {
   id                      String                   @id @default(uuid())
   email                   String                   @unique
   password                String
   name                    String
   parentNotificationState ParentNotificationState?
+
+  // school affiliation
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
 
   // NEW: identity/profile
   displayName String?
@@ -73,6 +87,7 @@ model User {
   messageReactions         MessageReaction[]
   messageRequestDecisions  MessageThread[]       @relation("MessageRequestDecisionUser")
   messageThreads           MessageThread[]
+  assignmentSubmissions    AssignmentSubmission[]
 }
 
 model UserRole {
@@ -1055,10 +1070,27 @@ model ClassroomAssignment {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
 
   @@index([courseId, createdAt])
   @@index([courseId, dueAt])
+}
+
+model AssignmentSubmission {
+  id           String   @id @default(cuid())
+  assignmentId String
+  studentId    String
+  note         String?
+  submittedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignment ClassroomAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
 }
 
 // Materials: teacher posts materials (files/links)

@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../data/classrooms_repository.dart';
 import '../providers/classrooms_providers.dart';
+import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
@@ -25,6 +28,135 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
   void dispose() {
     _searchCtl.dispose();
     super.dispose();
+  }
+
+  Future<void> _showJoinSheet(BuildContext context) async {
+    final codeCtrl = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return StatefulBuilder(
+          builder: (ctx, setS) {
+            bool joining = false;
+            String? errorMsg;
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: LiquidGlassCard(
+                    borderRadius: BorderRadius.circular(24),
+                    blurSigma: 18,
+                    color: cs.surface.withValues(alpha: 0.97),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 8),
+                        Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 44, height: 44,
+                                    decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(14)),
+                                    child: Icon(Icons.class_rounded, color: cs.primary, size: 22),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Join a Classroom', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                      Text('Enter the code your teacher gave you', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              TextField(
+                                controller: codeCtrl,
+                                autofocus: true,
+                                textCapitalization: TextCapitalization.characters,
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 6),
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText: '• • • • • •',
+                                  hintStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.4), letterSpacing: 6),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                                  filled: true,
+                                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                                  errorText: errorMsg,
+                                ),
+                                onSubmitted: (_) async {
+                                  final code = codeCtrl.text.trim();
+                                  if (code.isEmpty) return;
+                                  setS(() { joining = true; errorMsg = null; });
+                                  try {
+                                    await ClassroomsRepository().joinByCode(code);
+                                    if (!mounted) return;
+                                    ref.invalidate(orderedStudentClassroomsProvider);
+                                    ref.invalidate(studentClassroomsProvider);
+                                    Navigator.of(ctx).pop();
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('You joined the classroom!')),
+                                    );
+                                  } catch (e) {
+                                    setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton.icon(
+                                  onPressed: joining ? null : () async {
+                                    final code = codeCtrl.text.trim();
+                                    if (code.isEmpty) return;
+                                    setS(() { joining = true; errorMsg = null; });
+                                    try {
+                                      await ClassroomsRepository().joinByCode(code);
+                                      if (!mounted) return;
+                                      ref.invalidate(orderedStudentClassroomsProvider);
+                                      ref.invalidate(studentClassroomsProvider);
+                                      Navigator.of(ctx).pop();
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('You joined the classroom!')),
+                                      );
+                                    } catch (e) {
+                                      setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
+                                    }
+                                  },
+                                  icon: joining
+                                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                      : const Icon(Icons.login_rounded),
+                                  label: Text(joining ? 'Joining…' : 'Join Classroom'),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -124,6 +256,11 @@ backgroundColor: cs.surface,
                                                   fontWeight: FontWeight.w900,
                                                 ),
                                           ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Join a classroom',
+                                          onPressed: () => _showJoinSheet(context),
+                                          icon: const Icon(Icons.add_rounded),
                                         ),
                                         IconButton(
                                           tooltip: l.classroomsReorder,
@@ -383,9 +520,25 @@ class _ClassroomAppleCard extends ConsumerWidget {
                             return _s(b, 'id').compareTo(_s(a, 'id'));
                           });
 
-                        final latest = sortedMessages.isNotEmpty
+                        // Server GET always returns items:[]. Fall back to the
+                        // last locally-sent message tracked by the controller.
+                        final serverLatest = sortedMessages.isNotEmpty
                             ? Map<String, dynamic>.from(sortedMessages.first)
                             : null;
+                        final localLatest =
+                            ClassroomChatThreadController.lastMessage(courseId);
+
+                        // Pick whichever is more recent.
+                        Map<String, dynamic>? latest;
+                        if (serverLatest != null && localLatest != null) {
+                          final st = parseFirstChatTimestamp([_s(serverLatest, 'createdAt')]);
+                          final lt = parseFirstChatTimestamp([_s(localLatest, 'createdAt')]);
+                          latest = (lt != null && st != null && lt.isAfter(st))
+                              ? localLatest
+                              : serverLatest;
+                        } else {
+                          latest = serverLatest ?? localLatest;
+                        }
 
                         final preview = latest == null
                           ? l.classroomsNoMessagesYet

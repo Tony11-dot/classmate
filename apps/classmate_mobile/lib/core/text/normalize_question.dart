@@ -1,155 +1,260 @@
 String normalizeQuestionText(String input) {
   var s = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-
+  // Collapse 3+ consecutive newlines to a single paragraph break.
+  s = s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+  // Single newlines within a paragraph → space.
   s = s.replaceAllMapped(RegExp(r'(?<!\n)\n(?!\n)'), (_) => ' ');
   s = s.replaceAll(RegExp(r'[ \t]{2,}'), ' ');
   return s.trim();
 }
-
-const _latexCommandAlternation =
-  'frac|sqrt|sum|prod|int|oint|lim|inf|sup|alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega|partial|nabla|infty|cdot|times|div|pm|mp|leq|geq|neq|approx|equiv|propto|sim|simeq|subset|supset|in|notin|cup|cap|emptyset|forall|exists|neg|wedge|vee|oplus|otimes|circ|bullet|vec|hat|bar|tilde|dot|ddot|overline|underline|overleftarrow|overrightarrow|mathbf|mathrm|mathit|mathbb|mathcal|text|big|Big|bigg|Bigg|begin|end|pmatrix|bmatrix|vmatrix|cases|ldots|cdots|vdots|ddots|to|rightarrow|leftarrow|Rightarrow|Leftarrow|leftrightarrow|Leftrightarrow|sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln|exp|det|dim|ker|mod|max|min|gcd|lcm|deg';
-
-// For auto-prefixing bare commands: excludes common English words that collide
-// with LaTeX command names, to prevent prose like "x is in the set" from
-// becoming "x is \in the set" (→ ∈ symbol).
-final _latexAutoPrefixAlternation = _latexCommandAlternation
-    .split('|')
-    .where((cmd) => !const {
-      'to',  // \to → →
-      'text', 'mod', 'dim', 'ker', 'deg',
-      'in',  // \in → ∈
-      'inf', // \inf → infimum
-      'sup', // \sup → supremum
-      'exp', // \exp → e^x
-      'det', // \det → det()
-      'max', 'min', 'log', 'gcd', 'lcm',
-    }.contains(cmd))
-    .join('|');
 
 final RegExp _renderableCodeFenceRe = RegExp(
   r'(```|~~~)[^\n]*\n[\s\S]*?\1',
   multiLine: true,
 );
 
-final RegExp _bareLatexRe = RegExp(
-  r'(?<![\\$])\\(' + _latexCommandAlternation + r')(?=[^a-zA-Z]|$)',
+// Unambiguous math commands — can ONLY appear in LaTeX, never in plain prose.
+final _unambiguousMathRe = RegExp(
+  r'(?<![\\$a-zA-Z])\\'
+  r'(?:frac|dfrac|tfrac|cfrac|sqrt|int|oint|iint|iiint|sum|prod|coprod|'
+  r'lim|limsup|liminf|partial|nabla|infty|binom|tbinom|dbinom|'
+  r'alpha|beta|gamma|delta|epsilon|varepsilon|zeta|eta|theta|vartheta|'
+  r'iota|kappa|lambda|mu|nu|xi|pi|rho|sigma|varsigma|tau|upsilon|'
+  r'phi|varphi|chi|psi|omega|'
+  r'Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega|'
+  r'hbar|ell|cdot|cdots|ldots|vdots|ddots|'
+  r'times|div|pm|mp|oplus|otimes|'
+  r'leq|le|geq|ge|neq|ne|approx|equiv|propto|sim|simeq|cong|'
+  r'subset|supset|subseteq|supseteq|in|notin|cup|cap|setminus|emptyset|'
+  r'forall|exists|neg|vec|hat|bar|tilde|dot|ddot|'
+  r'overline|underline|widehat|widetilde|overbrace|underbrace|'
+  r'overrightarrow|overleftarrow|'
+  r'mathbf|mathbb|mathcal|mathrm|mathit|boldsymbol|'
+  r'rightarrow|leftarrow|Rightarrow|Leftarrow|leftrightarrow|Leftrightarrow|'
+  r'uparrow|downarrow|'
+  r'sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|'
+  r'log|ln|exp|det|ker|dim|gcd|min|max|sup|inf|arg)'
+  r'(?=[^a-zA-Z]|$)',
 );
 
-final RegExp _inlineCodeQuestionTailRe = RegExp(
-  r'^(.+?\?)\s+(.+)$',
-  dotAll: true,
+// LaTeX math run: \command + any {args}, [args], subscripts, superscripts.
+final _mathRunRe = RegExp(
+  r'\\[a-zA-Z]+'
+  r'(?:'
+    r'\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}[^{}]*)?\}'
+    r'|\[[^\]]*\]'
+    r'|[_^]\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}[^{}]*)?\}'
+    r'|[_^][a-zA-Z0-9]'
+  r')*',
 );
 
-String prepareRenderableText(String input) {
-  final normalized = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-  if (!_renderableCodeFenceRe.hasMatch(normalized)) {
-    return _prepareRenderableChunk(normalized);
-  }
+/// Converts Unicode math symbols to their LaTeX equivalents so
+/// flutter_math_fork can render them. Called on raw math content (without
+/// surrounding $ delimiters).
+String sanitizeMathLatex(String math) {
+  var s = math;
 
+  // Convert bare numeric fractions written with / to \frac{}{}.
+  // e.g.  3/4  →  \frac{3}{4}   (only when both sides are pure digits)
+  s = s.replaceAllMapped(
+    RegExp(r'(?<![\\{])\b(\d+)\s*/\s*(\d+)\b(?![}])'),
+    (m) => '\\frac{${m.group(1)!}}{${m.group(2)!}}',
+  );
+
+  // Degree symbol: 75° → 75^\circ, or bare ° → ^\circ
+  s = s.replaceAllMapped(RegExp(r'(\d+)°'), (m) => '${m.group(1)!}^\\circ');
+  s = s.replaceAll('°', '^\\circ');
+
+  // Square root: √6 → \sqrt{6}, √{x} → \sqrt{x}, √n → \sqrt{n}
+  s = s.replaceAllMapped(RegExp(r'√\{([^}]+)\}'), (m) => '\\sqrt{${m.group(1)!}}');
+  s = s.replaceAllMapped(RegExp(r'√(\d+(?:\.\d+)?)'), (m) => '\\sqrt{${m.group(1)!}}');
+  s = s.replaceAllMapped(RegExp(r'√([a-zA-Z])'), (m) => '\\sqrt{${m.group(1)!}}');
+
+  // Arithmetic & algebra
+  s = s.replaceAll('×', '\\times ');
+  s = s.replaceAll('÷', '\\div ');
+  s = s.replaceAll('·', '\\cdot ');
+  s = s.replaceAll('⋅', '\\cdot ');
+  s = s.replaceAll('±', '\\pm ');
+  s = s.replaceAll('∓', '\\mp ');
+
+  // Comparison
+  s = s.replaceAll('≤', '\\le ');
+  s = s.replaceAll('≥', '\\ge ');
+  s = s.replaceAll('≠', '\\ne ');
+  s = s.replaceAll('≈', '\\approx ');
+  s = s.replaceAll('≡', '\\equiv ');
+  s = s.replaceAll('≃', '\\simeq ');
+  s = s.replaceAll('≅', '\\cong ');
+  s = s.replaceAll('∼', '\\sim ');
+  s = s.replaceAll('∝', '\\propto ');
+
+  // Set / logic
+  s = s.replaceAll('∈', '\\in ');
+  s = s.replaceAll('∉', '\\notin ');
+  s = s.replaceAll('⊂', '\\subset ');
+  s = s.replaceAll('⊃', '\\supset ');
+  s = s.replaceAll('⊆', '\\subseteq ');
+  s = s.replaceAll('⊇', '\\supseteq ');
+  s = s.replaceAll('∪', '\\cup ');
+  s = s.replaceAll('∩', '\\cap ');
+  s = s.replaceAll('∅', '\\emptyset ');
+  s = s.replaceAll('∀', '\\forall ');
+  s = s.replaceAll('∃', '\\exists ');
+  s = s.replaceAll('¬', '\\neg ');
+  s = s.replaceAll('∧', '\\land ');
+  s = s.replaceAll('∨', '\\lor ');
+
+  // Calculus / analysis
+  s = s.replaceAll('∫', '\\int ');
+  s = s.replaceAll('∮', '\\oint ');
+  s = s.replaceAll('∂', '\\partial ');
+  s = s.replaceAll('∇', '\\nabla ');
+  s = s.replaceAll('∞', '\\infty ');
+  s = s.replaceAll('Σ', '\\Sigma ');
+  s = s.replaceAll('Π', '\\Pi ');
+
+  // Arrows
+  s = s.replaceAll('→', '\\rightarrow ');
+  s = s.replaceAll('←', '\\leftarrow ');
+  s = s.replaceAll('↔', '\\leftrightarrow ');
+  s = s.replaceAll('⇒', '\\Rightarrow ');
+  s = s.replaceAll('⇐', '\\Leftarrow ');
+  s = s.replaceAll('⇔', '\\Leftrightarrow ');
+  s = s.replaceAll('↑', '\\uparrow ');
+  s = s.replaceAll('↓', '\\downarrow ');
+
+  // Greek lowercase
+  s = s.replaceAll('α', '\\alpha ');
+  s = s.replaceAll('β', '\\beta ');
+  s = s.replaceAll('γ', '\\gamma ');
+  s = s.replaceAll('δ', '\\delta ');
+  s = s.replaceAll('ε', '\\varepsilon ');
+  s = s.replaceAll('ζ', '\\zeta ');
+  s = s.replaceAll('η', '\\eta ');
+  s = s.replaceAll('θ', '\\theta ');
+  s = s.replaceAll('ι', '\\iota ');
+  s = s.replaceAll('κ', '\\kappa ');
+  s = s.replaceAll('λ', '\\lambda ');
+  s = s.replaceAll('μ', '\\mu ');
+  s = s.replaceAll('ν', '\\nu ');
+  s = s.replaceAll('ξ', '\\xi ');
+  s = s.replaceAll('π', '\\pi ');
+  s = s.replaceAll('ρ', '\\rho ');
+  s = s.replaceAll('σ', '\\sigma ');
+  s = s.replaceAll('τ', '\\tau ');
+  s = s.replaceAll('υ', '\\upsilon ');
+  s = s.replaceAll('φ', '\\phi ');
+  s = s.replaceAll('χ', '\\chi ');
+  s = s.replaceAll('ψ', '\\psi ');
+  s = s.replaceAll('ω', '\\omega ');
+
+  // Greek uppercase (Σ and Π already handled above for sum/product context)
+  s = s.replaceAll('Γ', '\\Gamma ');
+  s = s.replaceAll('Δ', '\\Delta ');
+  s = s.replaceAll('Θ', '\\Theta ');
+  s = s.replaceAll('Λ', '\\Lambda ');
+  s = s.replaceAll('Ξ', '\\Xi ');
+  s = s.replaceAll('Υ', '\\Upsilon ');
+  s = s.replaceAll('Φ', '\\Phi ');
+  s = s.replaceAll('Ψ', '\\Psi ');
+  s = s.replaceAll('Ω', '\\Omega ');
+
+  // Number sets
+  s = s.replaceAll('ℝ', '\\mathbb{R}');
+  s = s.replaceAll('ℤ', '\\mathbb{Z}');
+  s = s.replaceAll('ℕ', '\\mathbb{N}');
+  s = s.replaceAll('ℚ', '\\mathbb{Q}');
+  s = s.replaceAll('ℂ', '\\mathbb{C}');
+  s = s.replaceAll('ℏ', '\\hbar ');
+
+  // Misc
+  s = s.replaceAll('…', '\\ldots ');
+  s = s.replaceAll('‖', '\\|');
+
+  return s;
+}
+
+/// Applies [fn] to the content inside every $...$ and $$...$$ region.
+String applyToMathRegions(String text, String Function(String) fn) {
+  final mathRe = RegExp(r'\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$');
   final out = StringBuffer();
   var cursor = 0;
-  for (final match in _renderableCodeFenceRe.allMatches(normalized)) {
-    if (match.start > cursor) {
-      out.write(_prepareRenderableChunk(normalized.substring(cursor, match.start)));
+  for (final m in mathRe.allMatches(text)) {
+    if (m.start > cursor) out.write(text.substring(cursor, m.start));
+    if (m.group(1) != null) {
+      // Block math $$...$$
+      out.write('\$\$${fn(m.group(1)!)}\$\$');
+    } else {
+      // Inline math $...$
+      out.write('\$${fn(m.group(2)!)}\$');
     }
-    out.write(match.group(0)!);
-    cursor = match.end;
+    cursor = m.end;
   }
-  if (cursor < normalized.length) {
-    out.write(_prepareRenderableChunk(normalized.substring(cursor)));
-  }
+  if (cursor < text.length) out.write(text.substring(cursor));
   return out.toString();
 }
 
-String _prepareRenderableChunk(String input) {
-  // Step 1: normalize prose connectors (-> to "to", etc.)
-  // math regions are protected inside this call
-  var text = _normalizeProseConnectors(_maybeFenceInlineCodeTail(input));
+/// Normalises LaTeX delimiters and wraps bare LaTeX as a safety net.
+/// Run order matters: delimiter normalisation first, then bare-command wrapping.
+String prepareRenderableText(String input) {
+  var text = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
 
-  // Step 2: wrap bare \begin{env}...\end{env} blocks that aren't inside \[...\]
-  text = _wrapBareEnvironments(text);
+  // Protect code fences — never touch LaTeX inside ``` blocks.
+  final fences = <String>[];
+  text = text.replaceAllMapped(_renderableCodeFenceRe, (m) {
+    final idx = fences.length;
+    fences.add(m.group(0)!);
+    return '\x00F$idx\x00';
+  });
 
-  final containsBareLatex = _bareLatexRe.hasMatch(text);
-
-  text = text.replaceAllMapped(RegExp(r'\\([.,!?;:])'), (m) => m.group(1) ?? '');
-  // Remove lone backslash before whitespace, but NOT the second \ in LaTeX \\
-  // line-breaks (e.g. inside \begin{cases}...\end{cases}).
-  text = text.replaceAllMapped(RegExp(r'(?<!\\)\\(?=\s)'), (_) => '');
-
-  text = text.replaceAllMapped(
-    RegExp(r'\\\(([^\n]+?)\\\)'),
-    (m) => 'INLINE_OPEN${m.group(1) ?? ''}INLINE_CLOSE',
-  );
+  // \[...\] → $$...$$ when on its own line (display math)
+  //         → $...$  when mid-sentence (inline math)
+  final sourceForContext = text;
   text = text.replaceAllMapped(
     RegExp(r'\\\[([\s\S]*?)\\\]'),
-    (m) => 'BLOCK_OPEN${m.group(1) ?? ''}BLOCK_CLOSE',
+    (m) {
+      final content = m.group(1)!;
+      final charBefore = m.start > 0 ? sourceForContext[m.start - 1] : '\n';
+      final charAfter =
+          m.end < sourceForContext.length ? sourceForContext[m.end] : '\n';
+      final standaloneLeft = charBefore == '\n' || m.start == 0;
+      final standaloneRight =
+          charAfter == '\n' || m.end == sourceForContext.length;
+      return (standaloneLeft && standaloneRight)
+          ? '\$\$$content\$\$'
+          : '\$$content\$';
+    },
   );
 
-  // Only auto-prefix bare LaTeX command names when the text already contains
-  // real LaTeX markers — otherwise common English words like "to", "sin",
-  // "max" get silently rewritten to \to, \sin, \max and rendered as symbols.
-  if (containsBareLatex) {
-    text = text.replaceAllMapped(
-      RegExp(r'(^|[^A-Za-z\\])(' + _latexAutoPrefixAlternation + r')(?=[^A-Za-z]|$)'),
-      (m) => '${m.group(1) ?? ''}\\${m.group(2) ?? ''}',
-    );
+  // \(...\) → $...$
+  text = text.replaceAllMapped(
+    RegExp(r'\\\((.+?)\\\)', dotAll: true),
+    (m) => '\$${m.group(1)!}\$',
+  );
+
+  // Wrap bare \begin{env}...\end{env} not already inside delimiters.
+  text = _wrapBareEnvironments(text);
+
+  // Safety net: wrap any remaining bare \command{args} runs outside delimiters.
+  text = _wrapBareMathCommands(text);
+
+  // Sanitize Unicode math symbols inside all math regions.
+  text = applyToMathRegions(text, sanitizeMathLatex);
+
+  // Restore code fences.
+  for (var i = 0; i < fences.length; i++) {
+    text = text.replaceFirst('\x00F$i\x00', fences[i]);
   }
 
-  text = _autoWrapBareLatex(text);
-  text = _mergeInlineMathRuns(text);
-
-  if (!containsBareLatex) {
-    // Protect existing math regions so the x^2 / fraction auto-wraps don't
-    // inject $...$ markers *inside* an already-delimited math span.
-    // Without this, $\frac{x^2 + 1}{2}$ becomes $\frac{$x^2$ + 1}{2}$ — broken.
-    final autoProtected = <String>[];
-    void autoProtect(RegExp re) {
-      text = text.replaceAllMapped(re, (m) {
-        final idx = autoProtected.length;
-        autoProtected.add(m.group(0)!);
-        return '\x02AP$idx\x02';
-      });
-    }
-    autoProtect(RegExp(r'INLINE_OPEN[\s\S]*?INLINE_CLOSE'));
-    autoProtect(RegExp(r'BLOCK_OPEN[\s\S]*?BLOCK_CLOSE'));
-    autoProtect(RegExp(r'\$\$[\s\S]+?\$\$'));
-    autoProtect(RegExp(r'\$[^$\n]+?\$'));
-
-    text = text.replaceAllMapped(
-      RegExp(r'(?<![$\\])([a-zA-Z0-9]+\^[0-9]+)(?![$\\])'),
-      (m) => 'INLINE_OPEN${m.group(1) ?? ''}INLINE_CLOSE',
-    );
-
-    // Only wrap numeric-only fractions (e.g. 2/3, 7/8). Units like m/s, km/h
-    // and English slash-phrases like "and/or" must NOT be wrapped — doing so
-    // changes their font and removes spaces in surrounding sentences.
-    text = text.replaceAllMapped(
-      RegExp(r'(?<![/$\\a-zA-Z])([0-9]+/[0-9]+)(?![/$\\a-zA-Z])'),
-      (m) => 'INLINE_OPEN${m.group(1) ?? ''}INLINE_CLOSE',
-    );
-
-    // Restore protected regions
-    for (var i = 0; i < autoProtected.length; i++) {
-      text = text.replaceFirst('\x02AP$i\x02', autoProtected[i]);
-    }
-  }
-
-  return text
-      .replaceAll('BLOCK_OPEN', r'$$')
-      .replaceAll('BLOCK_CLOSE', r'$$')
-      .replaceAll('INLINE_OPEN', r'$')
-      .replaceAll('INLINE_CLOSE', r'$');
+  return text;
 }
 
-// ── Bare environment wrapping ─────────────────────────────────────────────────
-
-/// Wraps `\begin{env}...\end{env}` blocks not already inside `\[...\]` or `$$`
-/// in proper `\[...\]` delimiters so the LaTeX renderer can handle them.
+/// Wraps `\begin{env}...\end{env}` not already inside $$...$$ in `$$...$$`.
 String _wrapBareEnvironments(String text) {
-  // Protect already-delimited regions so we don't double-wrap
   final protected = <String>[];
   var t = text.replaceAllMapped(
-    RegExp(r'\$\$[\s\S]+?\$\$|\\\[[\s\S]*?\\\]|\\\([^\n]*?\\\)|\$[^$\n]+?\$'),
+    RegExp(r'\$\$[\s\S]+?\$\$|\$[^$\n]+?\$'),
     (m) {
       final idx = protected.length;
       protected.add(m.group(0)!);
@@ -157,236 +262,69 @@ String _wrapBareEnvironments(String text) {
     },
   );
 
-  // Wrap bare \begin{env}...\end{env}
   t = t.replaceAllMapped(
     RegExp(r'\\begin(\{[a-zA-Z*]+\}[\s\S]*?\\end\{[a-zA-Z*]+\})'),
-    (m) => r'\[' '\begin${m.group(1)!}' r'\]',
+    (m) => '\$\$\\begin${m.group(1)!}\$\$',
   );
 
-  // Restore protected regions
   for (var i = 0; i < protected.length; i++) {
     t = t.replaceFirst('\x00ENV$i\x00', protected[i]);
   }
   return t;
 }
 
-// ── Prose connector normalization ─────────────────────────────────────────────
+/// Safety-net wrapper for bare \command{args} runs outside delimiters.
+String _wrapBareMathCommands(String text) {
+  if (!_unambiguousMathRe.hasMatch(text)) return text;
 
-String _normalizeProseConnectors(String input) {
-  var text = input;
-
-  // Protect inline code spans AND math regions before any substitution
-  final placeholders = <String>[];
-
-  void protectPattern(RegExp re) {
-    text = text.replaceAllMapped(re, (m) {
-      final idx = placeholders.length;
-      placeholders.add(m.group(0)!);
-      return '\x00PROT$idx\x00';
-    });
-  }
-
-  protectPattern(RegExp(r'`[^`\n]+`'));             // `inline code`
-  protectPattern(RegExp(r'\$\$[\s\S]+?\$\$'));      // $$block math$$
-  protectPattern(RegExp(r'\$[^$\n]+?\$'));           // $inline math$
-  protectPattern(RegExp(r'\\\[[\s\S]*?\\\]'));       // \[...\]
-  protectPattern(RegExp(r'\\\([^\n]*?\\\)'));        // \(...\)
-
-  // Arrow connectors → "to" (covers -> => → ⇒ used as prose connectors)
-  text = text.replaceAllMapped(
-    RegExp(r'(?<=\w)\s*(?:->|=>|→|⇒)\s*(?=\w)'),
-    (_) => ' to ',
-  );
-  text = text.replaceAllMapped(
-    RegExp(r'(^|\n)[ \t]*(?:->|=>|→|⇒)[ \t]+'),
-    (m) => '${m.group(1) ?? ''}\u2022 ',
-  );
-  text = text.replaceAllMapped(
-    RegExp(r'\s*(?:->|→|⇒|=>)\s*'),
-    (_) => ' to ',
+  // Protect already-delimited regions.
+  final prot = <String>[];
+  var t = text.replaceAllMapped(
+    RegExp(r'\$\$[\s\S]+?\$\$|\$[^$\n]+?\$'),
+    (m) {
+      final i = prot.length;
+      prot.add(m.group(0)!);
+      return '\x00P$i\x00';
+    },
   );
 
-  // Restore protected spans
-  for (var i = 0; i < placeholders.length; i++) {
-    text = text.replaceFirst('\x00PROT$i\x00', placeholders[i]);
-  }
+  // Process paragraph by paragraph.
+  final paras = t.split(RegExp(r'\n{2,}'));
+  final result = paras.map((para) {
+    if (!_unambiguousMathRe.hasMatch(para)) return para;
 
-  return text;
-}
-
-// ── LaTeX auto-wrap helpers ───────────────────────────────────────────────────
-
-String _autoWrapBareLatex(String src) {
-  if (!_bareLatexRe.hasMatch(src)) return src;
-
-  // Protect already-delimited regions (including BLOCK/INLINE placeholders
-  // that have already been substituted for \[...\] and \(...\)).
-  final delimRe = RegExp(
-    r'BLOCK_OPEN[\s\S]*?BLOCK_CLOSE'
-    r'|INLINE_OPEN[^\n]*?INLINE_CLOSE'
-    r'|\$\$[\s\S]+?\$\$'
-    r'|\$[^$\n]+?\$'
-    r'|\\\[[\s\S]+?\\\]'
-    r'|\\\(.+?\\\)',
-  );
-
-  final out = StringBuffer();
-  var cursor = 0;
-  for (final match in delimRe.allMatches(src)) {
-    if (match.start > cursor) {
-      out.write(_wrapBareInChunk(src.substring(cursor, match.start)));
+    if (_isPureMathParagraph(para)) {
+      return '\$\$${para.trim()}\$\$';
     }
-    out.write(match.group(0)!);
-    cursor = match.end;
+
+    // Mixed paragraph: wrap each bare run individually.
+    final buf = StringBuffer();
+    var cursor = 0;
+    for (final m in _mathRunRe.allMatches(para)) {
+      if (m.start > cursor) buf.write(para.substring(cursor, m.start));
+      buf.write('\$${m.group(0)!}\$');
+      cursor = m.end;
+    }
+    if (cursor < para.length) buf.write(para.substring(cursor));
+    return buf.toString();
+  }).join('\n\n');
+
+  var out = result;
+  for (var i = 0; i < prot.length; i++) {
+    out = out.replaceFirst('\x00P$i\x00', prot[i]);
   }
-  if (cursor < src.length) {
-    out.write(_wrapBareInChunk(src.substring(cursor)));
-  }
-  return out.toString();
+  return out;
 }
 
-String _wrapBareInChunk(String chunk) {
-  if (!_bareLatexRe.hasMatch(chunk)) return chunk;
+/// Returns true when [para] is entirely mathematical content.
+bool _isPureMathParagraph(String para) {
+  final trimmed = para.trim();
+  if (trimmed.isEmpty) return false;
+  if (!_unambiguousMathRe.hasMatch(trimmed)) return false;
 
-  final runRe = RegExp(
-    r'\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}|\[[^\]]*\]|[_^]\{[^{}]*\}|[_^][a-zA-Z0-9]|\s*)*',
-  );
+  final stripped = trimmed
+      .replaceAll(_mathRunRe, '')
+      .replaceAll(RegExp(r'[\d+\-*/=<>()\[\]^_,.|;:!?\\\s{}]'), '');
 
-  final out = StringBuffer();
-  var cursor = 0;
-  for (final match in runRe.allMatches(chunk)) {
-    if (match.start > cursor) out.write(chunk.substring(cursor, match.start));
-    final rawRun = match.group(0)!;
-    final run = rawRun.trimRight();
-    final trailing = rawRun.substring(run.length);
-    out.write(r'$' + run + r'$' + trailing);
-    cursor = match.end;
-  }
-  if (cursor < chunk.length) out.write(chunk.substring(cursor));
-  return out.toString();
-}
-
-// ── Inline code tail fencing ──────────────────────────────────────────────────
-
-String _maybeFenceInlineCodeTail(String input) {
-  if (input.contains('```') || input.contains('~~~')) return input;
-
-  final match = _inlineCodeQuestionTailRe.firstMatch(input.trim());
-  if (match == null) return input;
-
-  final stem = (match.group(1) ?? '').trim();
-  final tail = (match.group(2) ?? '').trim();
-  if (!_looksLikeInlineCodeTail(tail)) return input;
-
-  final formatted = _formatInlineCodeTail(tail);
-  if (formatted.isEmpty) return input;
-
-  final language = _inferInlineCodeLanguage(tail);
-  final fence = language.isEmpty ? '```' : '```$language';
-
-  return '$stem\n\n$fence\n$formatted\n```';
-}
-
-bool _looksLikeInlineCodeTail(String tail) {
-  if (!tail.contains('(') || !tail.contains(')')) return false;
-  if (!tail.contains(';') && !tail.contains('{') && !tail.contains('}')) {
-    return false;
-  }
-
-  return RegExp(
-    r'\b(if|else|for|while|switch|case|return|print|console\.log|System\.out\.println|int|double|float|bool|boolean|String|var|const|let|def|function|class)\b',
-    caseSensitive: false,
-  ).hasMatch(tail);
-}
-
-String _formatInlineCodeTail(String code) {
-  var formatted = code.trim();
-  formatted = formatted.replaceAllMapped(RegExp(r';\s*'), (_) => ';\n');
-  formatted = formatted.replaceAllMapped(
-    RegExp(r'\s+else if\s+', caseSensitive: false),
-    (_) => '\nelse if ',
-  );
-  formatted = formatted.replaceAllMapped(
-    RegExp(r'\s+else\s+', caseSensitive: false),
-    (_) => '\nelse ',
-  );
-  formatted = formatted.replaceAllMapped(
-    RegExp(
-      r'^(if|else if)\s*(\([^\n]+?\))\s+([^{}\n].*;)$',
-      caseSensitive: false,
-      multiLine: true,
-    ),
-    (m) => '${m.group(1)} ${m.group(2)}\n  ${(m.group(3) ?? '').trim()}',
-  );
-  formatted = formatted.replaceAllMapped(
-    RegExp(
-      r'^else\s+([^{}\n].*;)$',
-      caseSensitive: false,
-      multiLine: true,
-    ),
-    (m) => 'else\n  ${(m.group(1) ?? '').trim()}',
-  );
-  formatted = formatted.replaceAllMapped(
-    RegExp(r'\s*(\{)\s*'),
-    (_) => ' {\n',
-  );
-  formatted = formatted.replaceAllMapped(
-    RegExp(r'\s*(\})\s*'),
-    (_) => '\n}\n',
-  );
-  formatted = formatted.replaceAllMapped(RegExp(r'\n{3,}'), (_) => '\n\n');
-  return formatted.trim();
-}
-
-String _inferInlineCodeLanguage(String code) {
-  final lower = code.toLowerCase();
-  if (lower.contains('console.log')) return 'javascript';
-  if (lower.contains('system.out.println')) return 'java';
-  if (lower.contains('print(')) return 'dart';
-  return '';
-}
-
-// ── Inline math merging ───────────────────────────────────────────────────────
-
-String _mergeInlineMathRuns(String input) {
-  var out = input;
-  final adjacentRe = RegExp(r'\$([^$\n]+)\$\s+\$([^$\n]+)\$');
-  while (adjacentRe.hasMatch(out)) {
-    out = out.replaceAllMapped(
-      adjacentRe,
-      (m) => 'MATH_OPEN${_joinInlineMathRuns(m.group(1) ?? '', m.group(2) ?? '')}MATH_CLOSE',
-    );
-  }
-
-  final limitTargetRe = RegExp(
-    r'\$((?:\\lim|\\sum|\\prod|\\int|\\oint)[^$\n]*)\$\s+([A-Za-z][A-Za-z0-9]*\([^\n)]*\)|[A-Za-z][A-Za-z0-9]*)',
-  );
-  while (limitTargetRe.hasMatch(out)) {
-    out = out.replaceAllMapped(
-      limitTargetRe,
-      (m) => 'MATH_OPEN${m.group(1)} ${m.group(2)}MATH_CLOSE',
-    );
-  }
-
-  return out
-      .replaceAll('MATH_OPEN', r'$')
-      .replaceAll('MATH_CLOSE', r'$');
-}
-
-String _joinInlineMathRuns(String left, String right) {
-  final lhs = left.trimRight();
-  final rhs = right.trimLeft();
-  if (lhs.isEmpty) return rhs;
-  if (rhs.isEmpty) return lhs;
-
-  final leftEndsWithCommand = RegExp(r'\\[A-Za-z]+$').hasMatch(lhs);
-  final rightStartsWithCommand = RegExp(r'^\\[A-Za-z]+').hasMatch(rhs);
-  final leftEndsTight = RegExp(r'[({\[_^]$').hasMatch(lhs);
-  final rightStartsTight = RegExp(r'^[)}\]_^,.;:]').hasMatch(rhs);
-
-  if (leftEndsWithCommand || rightStartsWithCommand || leftEndsTight || rightStartsTight) {
-    return '$lhs$rhs';
-  }
-
-  return '$lhs $rhs';
+  return !RegExp(r'[a-zA-Z]{3,}').hasMatch(stripped);
 }

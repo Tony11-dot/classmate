@@ -991,11 +991,589 @@ export class TeacherService {
     if (existing.course.teacherId !== teacherId)
       throw new ForbiddenException('Not your course');
 
-    // If Prisma schema doesn't cascade grade records, delete them first
     await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: id } });
-
     await this.prisma.assessment.delete({ where: { id } });
 
     return { ok: true };
+  }
+
+  // ---- Classroom management ----
+
+  private async assertTeacherOwnsCourse(teacherId: string, courseId: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true, teacherId: true, name: true, subject: true, cohortId: true, cohort: { select: { id: true, name: true, grade: true } } },
+    });
+    if (!course) throw new NotFoundException('Course not found');
+    if (course.teacherId !== teacherId) throw new ForbiddenException('Not your course');
+    return course;
+  }
+
+  private async notifyCohortStudents(cohortId: string | null | undefined, title: string, body: string, data?: any) {
+    if (!cohortId) return;
+    try {
+      const enrollments = await this.prisma.studentProfile.findMany({
+        where: { cohortId },
+        select: { userId: true },
+      });
+      const notifications = enrollments.map((e) => ({
+        userId: e.userId,
+        type: 'CLASSROOM_UPDATE',
+        title,
+        body,
+        data: data ?? {},
+        severity: 'info',
+      }));
+      if (notifications.length) {
+        await this.prisma.notification.createMany({ data: notifications as any[], skipDuplicates: true });
+      }
+    } catch {}
+  }
+
+  async listClassrooms(user: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const courses = await this.prisma.course.findMany({
+      where: { teacherId },
+      select: {
+        id: true, name: true, subject: true, cohortId: true,
+        cohort: { select: { id: true, name: true, grade: true } },
+      },
+      orderBy: [{ cohortId: 'asc' }, { name: 'asc' }],
+    });
+    return { ok: true, classrooms: courses };
+  }
+
+  async getClassroom(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const [assignmentCount, materialCount, meetingCount, messageCount] = await Promise.all([
+      this.prisma.classroomAssignment.count({ where: { courseId } }),
+      this.prisma.classroomMaterial.count({ where: { courseId } }),
+      this.prisma.classroomMeeting.count({ where: { courseId } }),
+      this.prisma.classroomMessage.count({ where: { courseId } }),
+    ]);
+
+    return {
+      ok: true,
+      course: {
+        id: course.id,
+        name: course.name,
+        subject: course.subject,
+        cohortId: course.cohortId,
+        cohort: course.cohort,
+      },
+      stats: { assignmentCount, materialCount, meetingCount, messageCount },
+    };
+  }
+
+  async getClassroomChat(user: any, courseId: string, opts: { limit: number; cursor?: string }) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const take = Math.min(Math.max(opts.limit ?? 30, 1), 100);
+    const rows = await this.prisma.classroomMessage.findMany({
+      where: {
+        courseId,
+        ...(opts.cursor ? { id: { lt: opts.cursor } } : {}),
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+    });
+
+    return { ok: true, items: rows.reverse() };
+  }
+
+  async sendClassroomChat(user: any, courseId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const text = String(body?.text ?? '').trim();
+    if (!text) throw new BadRequestException('text is required');
+
+    const msg = await this.prisma.classroomMessage.create({
+      data: {
+        courseId,
+        senderUserId: teacherId,
+        kind: 'TEXT' as any,
+        text,
+      },
+    });
+
+    return { ok: true, message: msg };
+  }
+
+  async listClassroomAssignments(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const items = await this.prisma.classroomAssignment.findMany({
+      where: { courseId },
+      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+    });
+
+    return { ok: true, items };
+  }
+
+  async createClassroomAssignment(user: any, courseId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const title = String(body?.title ?? '').trim();
+    if (!title) throw new BadRequestException('title is required');
+
+    const dueAt = body?.dueAt ? new Date(String(body.dueAt)) : null;
+    const bodyText = body?.body ? String(body.body).trim() : null;
+
+    const item = await this.prisma.classroomAssignment.create({
+      data: { courseId, title, body: bodyText ?? undefined, dueAt: dueAt ?? undefined, createdBy: teacherId },
+    });
+
+    const dueLabel = dueAt ? ` — due ${dueAt.toLocaleDateString()}` : '';
+    await this.notifyCohortStudents(
+      course.cohortId,
+      `New assignment: ${title}`,
+      `${course.name}${dueLabel}`,
+      { type: 'NEW_ASSIGNMENT', assignmentId: item.id, courseId },
+    );
+
+    return { ok: true, item };
+  }
+
+  async updateClassroomAssignment(user: any, courseId: string, id: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const data: any = {};
+    if (body?.title !== undefined) data.title = String(body.title).trim();
+    if (body?.body !== undefined) data.body = body.body ? String(body.body).trim() : null;
+    if (body?.dueAt !== undefined) data.dueAt = body.dueAt ? new Date(String(body.dueAt)) : null;
+
+    const item = await this.prisma.classroomAssignment.update({ where: { id }, data });
+    return { ok: true, item };
+  }
+
+  async deleteClassroomAssignment(user: any, courseId: string, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+    await this.prisma.classroomAssignment.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async listClassroomMaterials(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const items = await this.prisma.classroomMaterial.findMany({
+      where: { courseId },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+
+    return { ok: true, items };
+  }
+
+  async createClassroomMaterial(user: any, courseId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const title = String(body?.title ?? '').trim();
+    const url = String(body?.url ?? '').trim();
+    if (!title || !url) throw new BadRequestException('title and url are required');
+
+    const item = await this.prisma.classroomMaterial.create({
+      data: {
+        courseId,
+        title,
+        url,
+        description: body?.description ? String(body.description).trim() : undefined,
+        mime: body?.mime ? String(body.mime).trim() : undefined,
+        createdBy: teacherId,
+      },
+    });
+
+    await this.notifyCohortStudents(
+      course.cohortId,
+      `New material: ${title}`,
+      course.name,
+      { type: 'NEW_MATERIAL', materialId: item.id, courseId },
+    );
+
+    return { ok: true, item };
+  }
+
+  async deleteClassroomMaterial(user: any, courseId: string, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+    await this.prisma.classroomMaterial.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async listClassroomMeetings(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const items = await this.prisma.classroomMeeting.findMany({
+      where: { courseId },
+      orderBy: [{ startsAt: 'asc' }],
+      select: { id: true, title: true, startsAt: true, endsAt: true, link: true, createdAt: true },
+    });
+
+    return { ok: true, items };
+  }
+
+  async createClassroomMeeting(user: any, courseId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const title = String(body?.title ?? '').trim();
+    const link = String(body?.link ?? '').trim();
+    const startsAt = body?.startsAt ? new Date(String(body.startsAt)) : new Date();
+    if (!title || !link) throw new BadRequestException('title and link are required');
+
+    const endsAt = body?.endsAt ? new Date(String(body.endsAt)) : null;
+
+    const item = await this.prisma.classroomMeeting.create({
+      data: {
+        courseId,
+        title,
+        link,
+        startsAt,
+        endsAt: endsAt ?? undefined,
+        createdBy: teacherId,
+      },
+    });
+
+    const timeLabel = startsAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    await this.notifyCohortStudents(
+      course.cohortId,
+      `Meeting scheduled: ${title}`,
+      `${course.name} — ${timeLabel}`,
+      { type: 'NEW_MEETING', meetingId: item.id, courseId },
+    );
+
+    return { ok: true, item };
+  }
+
+  async deleteClassroomMeeting(user: any, courseId: string, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+    await this.prisma.classroomMeeting.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async listAssignmentSubmissions(user: any, courseId: string, assignmentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const submissions = await this.prisma.assignmentSubmission.findMany({
+      where: { assignmentId },
+      select: {
+        id: true,
+        studentId: true,
+        note: true,
+        submittedAt: true,
+        student: { select: { name: true } },
+      },
+      orderBy: { submittedAt: 'desc' },
+    }).catch((err: any) => {
+      console.error('[teacher.submissions] query failed — schema may need migration', { assignmentId, error: err?.message });
+      return [];
+    });
+
+    const students = await this.prisma.classroomAssignment.findUnique({
+      where: { id: assignmentId },
+      select: { courseId: true, course: { select: { cohortId: true } } },
+    });
+
+    const cohortId = students?.course?.cohortId;
+    const roster = cohortId
+      ? await this.prisma.studentProfile.findMany({
+          where: { cohortId },
+          select: { userId: true, user: { select: { name: true } } },
+        })
+      : [];
+
+    const submittedIds = new Set(submissions.map((s: any) => s.studentId));
+
+    return {
+      ok: true,
+      assignmentId,
+      submissions,
+      pending: roster
+        .filter((r) => !submittedIds.has(r.userId))
+        .map((r) => ({ studentId: r.userId, name: r.user?.name ?? '' })),
+      submittedCount: submissions.length,
+      totalCount: roster.length,
+    };
+  }
+
+  async classroomAnalytics(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+    const cohortId = course.cohortId;
+
+    const [assignments, assessments, attendance30, students] = await Promise.all([
+      this.prisma.classroomAssignment.count({ where: { courseId } }),
+      this.prisma.assessment.findMany({
+        where: { courseId },
+        select: { id: true, title: true, maxGrade: true, date: true },
+        orderBy: { date: 'desc' },
+        take: 10,
+      }),
+      cohortId ? this.prisma.attendanceRecord.findMany({
+        where: {
+          session: { courseId, date: { gte: new Date(Date.now() - 30 * 86400000) } },
+        },
+        select: { status: true },
+      }) : Promise.resolve([]),
+      cohortId ? this.prisma.studentProfile.count({ where: { cohortId } }) : Promise.resolve(0),
+    ]);
+
+    // Grade averages per assessment
+    const gradeStats: any[] = [];
+    for (const a of assessments) {
+      const grades = await this.prisma.gradeRecord.findMany({
+        where: { assessmentId: a.id },
+        select: { grade: true },
+      });
+      const max = a.maxGrade ?? 100;
+      const pcts = grades.map((g) => Math.round((Number(g.grade) / max) * 100));
+      const avg = pcts.length ? Math.round(pcts.reduce((s, v) => s + v, 0) / pcts.length) : null;
+      const below60 = pcts.filter((v) => v < 60).length;
+      gradeStats.push({
+        assessmentId: a.id,
+        title: a.title,
+        date: a.date,
+        gradedCount: grades.length,
+        totalStudents: students,
+        avg,
+        below60,
+        distribution: {
+          '0-39': pcts.filter((v) => v < 40).length,
+          '40-59': pcts.filter((v) => v >= 40 && v < 60).length,
+          '60-79': pcts.filter((v) => v >= 60 && v < 80).length,
+          '80-100': pcts.filter((v) => v >= 80).length,
+        },
+      });
+    }
+
+    // Attendance summary last 30 days
+    const attCounts: Record<string, number> = {};
+    for (const r of attendance30 as any[]) {
+      attCounts[String(r.status)] = (attCounts[String(r.status)] ?? 0) + 1;
+    }
+    const total = (attendance30 as any[]).length;
+    const present = (attCounts['PRESENT'] ?? 0) + (attCounts['LATE'] ?? 0) + (attCounts['EXCUSED'] ?? 0);
+    const attendanceRate = total > 0 ? Math.round((present / total) * 100) : null;
+
+    return {
+      ok: true,
+      courseId,
+      courseName: course.name,
+      subject: course.subject,
+      totalStudents: students,
+      totalAssignments: assignments,
+      attendanceRate,
+      gradeStats,
+    };
+  }
+
+  async getStudentProfile(user: any, studentId: string) {
+    this.ensureTeacher(user);
+
+    const [profile, recentGrades, recentAttendance, submissions] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { cohortId: true, user: { select: { name: true, email: true } } },
+      }),
+      this.prisma.gradeRecord.findMany({
+        where: { studentId },
+        select: {
+          grade: true,
+          assessment: { select: { title: true, maxGrade: true, date: true, course: { select: { name: true, subject: true } } } },
+        },
+        orderBy: { assessment: { date: 'desc' } },
+        take: 20,
+      }),
+      this.prisma.attendanceRecord.findMany({
+        where: { studentId, markedAt: { gte: new Date(Date.now() - 30 * 86400000) } },
+        select: { status: true },
+      }),
+      this.prisma.assignmentSubmission.findMany({
+        where: { studentId },
+        select: { assignmentId: true, submittedAt: true },
+      }).catch(() => []),
+    ]);
+
+    const normGrades = recentGrades.map((g) => {
+      const max = g.assessment?.maxGrade ?? 100;
+      return {
+        title: g.assessment?.title ?? '',
+        subject: g.assessment?.course?.subject ?? '',
+        courseName: g.assessment?.course?.name ?? '',
+        date: g.assessment?.date ?? null,
+        pct: Math.round((Number(g.grade) / max) * 100),
+        raw: Number(g.grade),
+        max,
+      };
+    });
+    const avg = normGrades.length
+      ? Math.round(normGrades.reduce((s, g) => s + g.pct, 0) / normGrades.length)
+      : null;
+
+    const attCounts: Record<string, number> = {};
+    for (const r of recentAttendance) attCounts[String(r.status)] = (attCounts[String(r.status)] ?? 0) + 1;
+    const total = recentAttendance.length;
+    const present = (attCounts['PRESENT'] ?? 0) + (attCounts['LATE'] ?? 0) + (attCounts['EXCUSED'] ?? 0);
+    const attRate = total > 0 ? Math.round((present / total) * 100) : null;
+
+    return {
+      ok: true,
+      student: { id: studentId, name: profile?.user?.name ?? '', email: profile?.user?.email ?? '', cohortId: profile?.cohortId ?? null },
+      grades: normGrades,
+      gradeAverage: avg,
+      attendanceRate: attRate,
+      attendanceBreakdown: attCounts,
+      submissionsCount: (submissions as any[]).length,
+    };
+  }
+
+  async weekSchedule(user: any, weekOf?: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+
+    const tz = 'Asia/Jerusalem';
+    const now = new Date();
+    let anchor: Date;
+    if (weekOf) {
+      anchor = new Date(weekOf + 'T00:00:00');
+    } else {
+      anchor = new Date(now.toLocaleDateString('en-CA', { timeZone: tz }) + 'T00:00:00');
+    }
+
+    const dow = anchor.getDay();
+    // Week starts Sunday
+    const weekStart = new Date(anchor);
+    weekStart.setDate(anchor.getDate() - dow);
+
+    const days: any[] = [];
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(weekStart);
+      day.setDate(weekStart.getDate() + d);
+      const dayOfWeek = day.getDay();
+      const dateStr = day.toLocaleDateString('en-CA');
+
+      const slots = await this.prisma.scheduleSlot.findMany({
+        where: {
+          dayOfWeek,
+          course: { teacherId },
+        },
+        select: {
+          period: true,
+          cohort: { select: { id: true, name: true, grade: true } },
+          course: { select: { id: true, name: true, subject: true } },
+        },
+        orderBy: { period: 'asc' },
+      });
+
+      if (slots.length > 0) {
+        days.push({ date: dateStr, dayOfWeek, slots });
+      }
+    }
+
+    return { ok: true, weekOf: weekStart.toLocaleDateString('en-CA'), days };
+  }
+
+  async addStudentToClassroom(user: any, courseId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const identifier = String(body?.email ?? body?.userId ?? '').trim();
+    if (!identifier) throw new BadRequestException('email or userId required');
+
+    // Find the student by email or userId
+    const student = identifier.includes('@')
+      ? await this.prisma.user.findUnique({ where: { email: identifier }, select: { id: true, name: true } })
+      : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true, name: true } });
+    if (!student) throw new BadRequestException('Student not found');
+
+    // Ensure student has a profile
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: student.id }, select: { userId: true, cohortId: true } });
+    if (!sp) throw new BadRequestException('User has no student profile');
+
+    await this.prisma.enrollment.upsert({
+      where: { courseId_studentId: { courseId, studentId: student.id } },
+      update: {},
+      create: { courseId, studentId: student.id, source: 'MANUAL' as any },
+    });
+
+    // Notify the student
+    await this.prisma.notification.create({
+      data: {
+        userId: student.id,
+        type: 'CLASSROOM_INVITE',
+        title: 'You were added to a classroom',
+        body: `A teacher added you to a new classroom.`,
+        data: { courseId } as any,
+        severity: 'info',
+      },
+    });
+
+    return { ok: true, student: { id: student.id, name: student.name } };
+  }
+
+  async removeStudentFromClassroom(user: any, courseId: string, studentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    await this.prisma.enrollment.deleteMany({ where: { courseId, studentId } });
+    return { ok: true };
+  }
+
+  async getClassroomPeople(user: any, courseId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const course = await this.assertTeacherOwnsCourse(teacherId, courseId);
+
+    const cohortId = course.cohortId;
+    if (!cohortId) return { ok: true, items: { teacherUserId: teacherId, students: [], teacher: null } };
+
+    const students = await this.prisma.studentProfile.findMany({
+      where: { cohortId },
+      select: { userId: true, user: { select: { name: true } } },
+    });
+
+    const teacher = await this.prisma.user.findUnique({
+      where: { id: teacherId },
+      select: { id: true, name: true },
+    });
+
+    return {
+      ok: true,
+      items: {
+        teacherUserId: teacherId,
+        teacher: teacher ? { id: teacher.id, name: teacher.name } : null,
+        students: students.map((s) => ({ id: s.userId, name: s.user?.name ?? '' })),
+        studentUserIds: students.map((s) => s.userId),
+      },
+    };
   }
 }

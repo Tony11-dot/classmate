@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../common/media/image_viewer_screen.dart';
+import '../common/media/pdf_viewer_screen.dart';
 
 // ─── helpers (duplicated locally so the detail screen is self-contained) ─────
 
@@ -462,7 +464,7 @@ class _Section extends StatelessWidget {
                   ),
                 ),
               ),
-              ?trailing,
+              if (trailing != null) trailing!,
             ],
           ),
           const SizedBox(height: 12),
@@ -492,9 +494,30 @@ class _MaterialTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: hasUrl
             ? () async {
-                final uri = Uri.tryParse(material.url!.trim());
-                if (uri != null && await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                final url = material.url!.trim();
+                final kind = material.kind.toLowerCase();
+                final isImage = kind.contains('image') || kind.contains('photo') ||
+                    url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.jpeg') ||
+                    url.toLowerCase().endsWith('.png') || url.toLowerCase().endsWith('.webp');
+                final isPdf = kind.contains('pdf') || url.toLowerCase().endsWith('.pdf');
+
+                if (isImage) {
+                  await Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ImageViewerScreen(url: url, title: material.name),
+                    ),
+                  );
+                } else if (isPdf) {
+                  await Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PdfViewerScreen(url: url, title: material.name),
+                    ),
+                  );
+                } else {
+                  final uri = Uri.tryParse(url);
+                  if (uri != null && await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
                 }
               }
             : null,

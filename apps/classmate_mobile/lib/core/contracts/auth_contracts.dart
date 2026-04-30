@@ -6,6 +6,8 @@ class AuthMe {
     required this.actingStudentId,
     required this.schoolId,
     required this.cohortId,
+    required this.schoolName,
+    required this.schoolLogoUrl,
   });
 
   final String? id;
@@ -14,6 +16,8 @@ class AuthMe {
   final String? actingStudentId;
   final String? schoolId;
   final String? cohortId;
+  final String? schoolName;
+  final String? schoolLogoUrl;
 
   static AuthMe fromJson(Map<String, dynamic> j) {
     final roles0 =
@@ -26,6 +30,8 @@ class AuthMe {
       actingStudentId: j['actingStudentId']?.toString(),
       schoolId: j['schoolId']?.toString(),
       cohortId: j['cohortId']?.toString(),
+      schoolName: j['schoolName']?.toString(),
+      schoolLogoUrl: j['schoolLogoUrl']?.toString(),
     );
   }
 }

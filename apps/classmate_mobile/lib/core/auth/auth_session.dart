@@ -15,6 +15,8 @@ class AuthSession extends ChangeNotifier {
   static const _kEmail = 'auth_email_v1';
   static const _kSchoolId = 'auth_school_id_v1';
   static const _kCohortId = 'auth_cohort_id_v1';
+  static const _kSchoolName = 'auth_school_name_v1';
+  static const _kSchoolLogoUrl = 'auth_school_logo_url_v1';
 
   AuthSession() {
     _init();
@@ -28,6 +30,8 @@ class AuthSession extends ChangeNotifier {
   String? _email;
   String? _schoolId;
   String? _cohortId;
+  String? _schoolName;
+  String? _schoolLogoUrl;
   List<String> _roles = const <String>[];
 
   String? get token {
@@ -41,6 +45,8 @@ class AuthSession extends ChangeNotifier {
   String get email => (_email ?? '').trim();
   String get schoolId => (_schoolId ?? '').trim();
   String get cohortId => (_cohortId ?? '').trim();
+  String get schoolName => (_schoolName ?? '').trim();
+  String get schoolLogoUrl => (_schoolLogoUrl ?? '').trim();
   List<String> get roles => List<String>.unmodifiable(_roles);
 
   String get primaryRole {
@@ -62,6 +68,8 @@ class AuthSession extends ChangeNotifier {
     _email = (prefs.getString(_kEmail) ?? '').trim();
     _schoolId = (prefs.getString(_kSchoolId) ?? '').trim();
     _cohortId = (prefs.getString(_kCohortId) ?? '').trim();
+    _schoolName = (prefs.getString(_kSchoolName) ?? '').trim();
+    _schoolLogoUrl = (prefs.getString(_kSchoolLogoUrl) ?? '').trim();
     _roles = (prefs.getStringList(_kRoles) ?? const <String>[])
         .map((role) => role.trim().toUpperCase())
         .where((role) => role.isNotEmpty)
@@ -82,14 +90,15 @@ class AuthSession extends ChangeNotifier {
       _token = null;
     }
 
-    // DEV: only auto-fill when Env.devToken is a real JWT-ish token.
-    // If Env.devToken is empty (or email-ish), keep token empty and let
-    // authenticated APIs fail normally instead of falling back to dev headers.
+    // DEV: auto-fill token from CM_DEV_TOKEN.
+    // Accepts full JWTs (3 dot-separated segments) AND dev-token-* prefixed
+    // tokens (accepted by the backend when ALLOW_DEV_TOKEN=1).
     if (_token == null || _token!.isEmpty || _token == 'SIM_TOKEN') {
       final dt = Env.devToken.trim();
       final dtIsJwtish = dt.split('.').length >= 3;
       final dtIsEmailish = dt.contains('@') && dt.contains('.');
-      if (dt.isNotEmpty && dtIsJwtish && !dtIsEmailish) {
+      final dtIsDevToken = dt.startsWith('dev-token-');
+      if (dt.isNotEmpty && ((dtIsJwtish && !dtIsEmailish) || dtIsDevToken)) {
         _token = dt;
         await prefs.setString(_kToken, _token!);
       } else {
@@ -170,6 +179,30 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setSchoolName(String? name) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (name ?? '').trim();
+    _schoolName = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kSchoolName);
+    } else {
+      await prefs.setString(_kSchoolName, value);
+    }
+    notifyListeners();
+  }
+
+  Future<void> setSchoolLogoUrl(String? url) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (url ?? '').trim();
+    _schoolLogoUrl = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kSchoolLogoUrl);
+    } else {
+      await prefs.setString(_kSchoolLogoUrl, value);
+    }
+    notifyListeners();
+  }
+
   Future<void> setCohortId(String? cohortId) async {
     final prefs = await SharedPreferences.getInstance();
     final value = (cohortId ?? '').trim();
@@ -188,6 +221,8 @@ class AuthSession extends ChangeNotifier {
     await setEmail(null);
     await setSchoolId(null);
     await setCohortId(null);
+    await setSchoolName(null);
+    await setSchoolLogoUrl(null);
     await setRoles(const <String>[]);
   }
 
@@ -235,6 +270,8 @@ class AuthSession extends ChangeNotifier {
       await setEmail(me.email);
       await setSchoolId(me.schoolId);
       await setCohortId(me.cohortId);
+      await setSchoolName(me.schoolName);
+      await setSchoolLogoUrl(me.schoolLogoUrl);
       if ((_displayName ?? '').trim().isEmpty && (me.email ?? '').trim().isNotEmpty) {
         await setDisplayName(_displayNameFromEmail(me.email!));
       }

@@ -23,9 +23,9 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
   String? _error;
 
   final TextEditingController _titleCtrl = TextEditingController();
-  final TextEditingController _dateCtrl = TextEditingController();
   final TextEditingController _maxGradeCtrl = TextEditingController();
   String? _selectedCourseId;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -36,7 +36,6 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
   @override
   void dispose() {
     _titleCtrl.dispose();
-    _dateCtrl.dispose();
     _maxGradeCtrl.dispose();
     super.dispose();
   }
@@ -73,15 +72,18 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     });
     try {
       final maxGrade = int.tryParse(_maxGradeCtrl.text.trim());
+      final dateStr = _selectedDate != null
+          ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
+          : '';
       await ref.read(teacherMobileRepositoryProvider).createAssessment(
             courseId: courseId,
             title: _titleCtrl.text,
-            date: _dateCtrl.text,
+            date: dateStr,
             maxGrade: maxGrade,
           );
       _titleCtrl.clear();
-      _dateCtrl.clear();
       _maxGradeCtrl.clear();
+      setState(() => _selectedDate = null);
       await _load();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -304,23 +306,70 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     final bundle = _bundle;
     final dirtyCount = _grades.entries.where((entry) => entry.value != null && entry.value != _initialGrades[entry.key]).length;
 
+    final totalCourses = bundle?.courses.length ?? 0;
+    final totalStudents = bundle?.courses.map((c) => c.cohortId).where((id) => id.isNotEmpty).toSet().length ?? 0;
+    final totalAssessments = bundle?.assessments.length ?? 0;
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
-          Text(
-            l.navTeacherAssessments,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l.teacherGradesSubtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          // ── Hero Banner ──────────────────────────────────────────────────
+          LiquidGlassCard(
+            borderRadius: BorderRadius.circular(28),
+            blurSigma: 20,
+            gradient: LinearGradient(
+              colors: [
+                cs.secondaryContainer.withValues(alpha: 0.92),
+                cs.primaryContainer.withValues(alpha: 0.68),
+                cs.surfaceContainerHigh.withValues(alpha: 0.82),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: cs.secondary.withValues(alpha: 0.2)),
+            boxShadow: [BoxShadow(color: cs.secondary.withValues(alpha: 0.12), blurRadius: 22, offset: const Offset(0, 8), spreadRadius: -4)],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.navTeacherAssessments, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                          const SizedBox(height: 4),
+                          Text(l.teacherGradesSubtitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(color: cs.secondary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
+                      child: Icon(Icons.grade_rounded, size: 24, color: cs.secondary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _GradeStatPill(value: '$totalCourses', label: 'Classes', color: cs.primary),
+                    const SizedBox(width: 8),
+                    _GradeStatPill(value: '$totalAssessments', label: 'Tests', color: cs.secondary),
+                    const SizedBox(width: 8),
+                    _GradeStatPill(value: '$totalStudents', label: 'Groups', color: cs.tertiary),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 18),
           if (_error != null)
             LiquidGlassCard(color: cs.errorContainer.withValues(alpha: 0.72), child: Text(_error!)),
+          const SizedBox(height: 4),
           LiquidGlassCard(
             color: cs.surface.withValues(alpha: 0.76),
             gradient: LinearGradient(
@@ -354,9 +403,45 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                   decoration: InputDecoration(labelText: l.teacherGradesFieldTitle),
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _dateCtrl,
-                  decoration: InputDecoration(labelText: l.teacherGradesFieldDate),
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate ?? DateTime.now(),
+                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) setState(() => _selectedDate = picked);
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: cs.outlineVariant),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _selectedDate == null
+                                ? l.teacherGradesFieldDate
+                                : MaterialLocalizations.of(context).formatMediumDate(_selectedDate!),
+                            style: TextStyle(
+                              color: _selectedDate == null ? cs.onSurfaceVariant : cs.onSurface,
+                            ),
+                          ),
+                        ),
+                        if (_selectedDate != null)
+                          InkWell(
+                            onTap: () => setState(() => _selectedDate = null),
+                            child: Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -526,6 +611,34 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
             ],
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _GradeStatPill extends StatelessWidget {
+  const _GradeStatPill({required this.value, required this.label, required this.color});
+  final String value;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color, height: 1.1)),
+            Text(label, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+          ],
+        ),
       ),
     );
   }

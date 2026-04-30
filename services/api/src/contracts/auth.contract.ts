@@ -21,6 +21,8 @@ export const AuthMeResponseSchema = z.object({
   actingStudentId: z.string().nullable(),
   schoolId: z.string().nullable(),
   cohortId: z.string().nullable(),
+  schoolName: z.string().nullable(),
+  schoolLogoUrl: z.string().nullable(),
 }).passthrough();
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;

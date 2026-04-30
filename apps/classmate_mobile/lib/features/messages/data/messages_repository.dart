@@ -82,6 +82,10 @@ abstract class MessagesRepository {
   Future<void> markThreadRead({required String threadId});
 }
 
+// NOTE: The group management methods (fetchThreadInfo, addGroupMember, etc.)
+// are concrete methods on ApiMessagesRepository, not on the abstract interface,
+// since they're only used via cast in _ThreadInfoSheet.
+
 class ApiMessagesRepository implements MessagesRepository {
   ApiMessagesRepository({http.Client? client, String? baseUrl, String? token})
     : _client = client ?? http.Client(),
@@ -373,7 +377,24 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   MessageItem _messageFromJson(Map<String, dynamic> json) {
-    final rawMedia = (json['mediaUrl'] ?? '').toString().trim();
+    // Try every field name and nested object the server might use for the URL.
+    String rawMedia = '';
+    for (final key in const ['mediaUrl', 'fileUrl', 'url', 'attachmentUrl', 'cdnUrl', 'src']) {
+      final v = (json[key] ?? '').toString().trim();
+      if (v.isNotEmpty) { rawMedia = v; break; }
+    }
+    if (rawMedia.isEmpty) {
+      for (final nk in const ['media', 'attachment', 'file', 'upload', 'content']) {
+        final obj = json[nk];
+        if (obj is Map) {
+          for (final key in const ['url', 'mediaUrl', 'fileUrl', 'cdnUrl', 'src']) {
+            final v = (obj[key] ?? '').toString().trim();
+            if (v.isNotEmpty) { rawMedia = v; break; }
+          }
+          if (rawMedia.isNotEmpty) break;
+        }
+      }
+    }
     final rawReply = (json['replyToMessageId'] ?? '').toString().trim();
     final originalTimeLabel = (json['timeLabel'] ?? '').toString();
     final rawSentAt = _pickDeepFirstNonEmpty(json, const [
@@ -747,5 +768,59 @@ class ApiMessagesRepository implements MessagesRepository {
   Future<void> markThreadRead({required String threadId}) async {
     final r = await _post('/messages/read', {'threadId': threadId});
     if (!_ok(r)) _fail('messages.markThreadRead', r);
+  }
+
+  // ── Group management ────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> fetchThreadInfo({required String threadId}) async {
+    final response = await _sendWithFallback(
+      (uri) async => _client.get(uri, headers: await _headers()),
+      '/messages/threads/$threadId/info',
+    );
+    if (!_ok(response)) _fail('messages.fetchThreadInfo', response);
+    final body = jsonDecode(response.body);
+    if (body is Map) return Map<String, dynamic>.from(body);
+    return <String, dynamic>{};
+  }
+
+  Future<void> addGroupMember({required String threadId, String? userId, String? email}) async {
+    final r = await _post('/messages/threads/$threadId/members', {
+      if (userId != null) 'userId': userId,
+      if (email != null) 'email': email,
+    });
+    if (!_ok(r)) _fail('messages.addGroupMember', r);
+  }
+
+  Future<void> removeGroupMember({required String threadId, required String userId}) async {
+    final response = await _sendWithFallback(
+      (uri) async => _client.delete(uri, headers: await _headers()),
+      '/messages/threads/$threadId/members/$userId',
+    );
+    if (!_ok(response)) _fail('messages.removeGroupMember', response);
+  }
+
+  Future<void> updateMemberRole({required String threadId, required String userId, required String role}) async {
+    final hdrs = await _headers();
+    final response = await _sendWithFallback(
+      (uri) async => _client.patch(uri, headers: hdrs, body: jsonEncode({'role': role})),
+      '/messages/threads/$threadId/members/$userId/role',
+    );
+    if (!_ok(response)) _fail('messages.updateMemberRole', response);
+  }
+
+  Future<bool> toggleMuteThread({required String threadId}) async {
+    final r = await _post('/messages/threads/$threadId/mute', {});
+    if (!_ok(r)) _fail('messages.toggleMuteThread', r);
+    final body = jsonDecode(r.body);
+    return body is Map ? (body['isMuted'] == true) : false;
+  }
+
+  Future<void> updateGroupTitle({required String threadId, required String title}) async {
+    final hdrs = await _headers();
+    final response = await _sendWithFallback(
+      (uri) async => _client.patch(uri, headers: hdrs, body: jsonEncode({'title': title})),
+      '/messages/threads/$threadId/title',
+    );
+    if (!_ok(response)) _fail('messages.updateGroupTitle', response);
   }
 }

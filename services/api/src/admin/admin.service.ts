@@ -611,14 +611,65 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
   async getSubjectOverride(user: any, identifier: string) {
     this.requireAdminOrSecretary(user);
-  
+
     const userId = await this.resolveUserId(identifier);
-  
+
     const row = await this.prisma.studentSubjectOverride.findUnique({
       where: { userId },
       select: { userId: true, enabled: true, subjects: true },
     });
-  
+
     return { ok: true, override: row ?? null };
+  }
+
+  // ---- School CRUD ----
+
+  async createSchool(user: any, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const name = String(dto?.name ?? '').trim();
+    if (!name) throw new BadRequestException('name required');
+    const logoUrl = dto?.logoUrl ? String(dto.logoUrl).trim() : null;
+    const row = await this.prisma.school.create({
+      data: { name, ...(logoUrl ? { logoUrl } : {}) },
+    });
+    return { ok: true, school: row };
+  }
+
+  async listSchools(user: any) {
+    this.requireAdminOrSecretary(user);
+    const rows = await this.prisma.school.findMany({
+      orderBy: { name: 'asc' },
+    });
+    return { ok: true, schools: rows };
+  }
+
+  async getSchool(user: any, id: string) {
+    this.requireAdminOrSecretary(user);
+    const row = await this.prisma.school.findUnique({ where: { id } });
+    return { ok: true, school: row ?? null };
+  }
+
+  async updateSchool(user: any, id: string, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const data: any = {};
+    if (dto?.name !== undefined) data.name = String(dto.name).trim();
+    if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
+    const row = await this.prisma.school.update({ where: { id }, data });
+    return { ok: true, school: row };
+  }
+
+  async deleteSchool(user: any, id: string) {
+    this.requireAdminOrSecretary(user);
+    await this.prisma.school.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async assignUserToSchool(user: any, schoolId: string, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const identifier = String(dto?.userId ?? dto?.email ?? '').trim();
+    if (!identifier) throw new BadRequestException('userId or email required');
+    const userId = await this.resolveUserId(identifier);
+    await this.prisma.user.update({ where: { id: userId }, data: { schoolId } as any });
+    return { ok: true };
   }
 }

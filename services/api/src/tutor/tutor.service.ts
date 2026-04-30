@@ -43,10 +43,19 @@ export class TutorService {
       return { text: '' };
     }
 
-    // Audio transcription requires OpenAI Whisper (Claude has no audio API).
-    // Set OPENAI_API_KEY to enable; otherwise returns empty transcript.
+    // NOTE: As of Apr 2026, the mobile app transcribes on-device via the
+    // platform speech recognizer (see apps/classmate_mobile OnDeviceTranscriber),
+    // so this endpoint is dormant. It remains as a fallback for any future
+    // server-side caller. Anthropic has no audio API, so a Whisper-compatible
+    // provider (OpenAI / Groq / etc.) is required to enable it.
     const openaiKey = process.env.OPENAI_API_KEY;
-    if (!openaiKey) return { text: '' };
+    if (!openaiKey) {
+      console.warn('[tutor.transcribe] OPENAI_API_KEY missing — server-side transcription disabled. Mobile clients should use on-device STT.');
+      throw new HttpException(
+        'Server-side transcription is disabled. Configure OPENAI_API_KEY or use on-device transcription.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
 
     try {
       const fs = require('fs');

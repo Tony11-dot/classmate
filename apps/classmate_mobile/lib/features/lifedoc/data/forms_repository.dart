@@ -73,6 +73,18 @@ class StudentFormsRepository {
     }
     return null;
   }
+
+  Future<Map<String, dynamic>> submit(
+    String formId,
+    Map<String, dynamic> answers,
+  ) async {
+    final raw = await _api.postJson(
+      '/forms/$formId/submit',
+      body: <String, dynamic>{'answers': answers},
+    );
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return <String, dynamic>{'ok': true};
+  }
 }
 
 StudentFormItem _mapToFormItem(Map<String, dynamic> json) {

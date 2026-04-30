@@ -37,6 +37,8 @@
 	<string>ClassMate uses your local network to reach the development API while testing.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>ClassMate uses the microphone for voice notes and NOVA transcription.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Used to transcribe your voice into text inside NOVA tutoring chats.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>ClassMate saves edited or captured media when needed.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

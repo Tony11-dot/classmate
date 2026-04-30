@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
-import '../classrooms/ui/classroom_detail_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 
@@ -508,13 +508,7 @@ class _ScheduleTile extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(24),
-      onTap: courseId.isEmpty
-          ? null
-          : () => Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ClassroomDetailScreen(courseId: courseId),
-              ),
-            ),
+      onTap: courseId.isEmpty ? null : () => context.push('/classrooms/$courseId'),
       child: LiquidGlassCard(
         borderRadius: BorderRadius.circular(24),
         blurSigma: 12,

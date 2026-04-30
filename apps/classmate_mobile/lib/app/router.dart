@@ -28,9 +28,14 @@ import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
 import '../features/schedule/schedule_screen.dart' as schedule_ui;
 import '../features/teacher_mobile/ui/teacher_attendance_screen.dart';
+import '../features/teacher_mobile/ui/teacher_classroom_analytics_screen.dart';
+import '../features/teacher_mobile/ui/teacher_classroom_detail_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classrooms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
+import '../features/teacher_mobile/ui/teacher_new_announcement_screen.dart';
+import '../features/teacher_mobile/ui/teacher_student_profile_screen.dart';
+import '../features/teacher_mobile/ui/teacher_week_schedule_screen.dart';
 import '../features/solutions/solutions_screen.dart';
 import '../features/solutions/ui/filter/solutions_books_screen.dart';
 import '../features/solutions/ui/filter/solutions_pages_screen.dart';
@@ -198,26 +203,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
-        path: '/assignments/:id',
-        builder: (context, state) => AssignmentDetailScreen(
-          assignmentId: state.pathParameters['id']!,
-          initialAssignment: state.extra is Map
-              ? Map<String, dynamic>.from(state.extra as Map)
-              : null,
-        ),
-      ),
-
-      GoRoute(
-        path: '/exams/:id',
-        builder: (context, state) => ExamDetailScreen(
-          examId: state.pathParameters['id']!,
-          initialExam: state.extra is StudentExamItem
-              ? state.extra as StudentExamItem
-              : null,
-        ),
-      ),
-
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
@@ -231,7 +216,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/teacher/attendance',
-            builder: (context, state) => const TeacherAttendanceScreen(),
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return TeacherAttendanceScreen(
+                initialCohortId: extra['cohortId']?.toString(),
+                initialPeriod: extra['period'] is int ? extra['period'] as int : null,
+                initialDate: extra['date']?.toString(),
+              );
+            },
           ),
           GoRoute(
             path: '/teacher/classrooms',
@@ -240,6 +232,51 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/grades',
             builder: (context, state) => const TeacherGradesScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/classroom/:courseId',
+            builder: (context, state) {
+              final courseId = state.pathParameters['courseId'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return TeacherClassroomDetailScreen(
+                courseId: courseId,
+                courseName: (extra['name'] ?? '').toString(),
+                subject: (extra['subject'] ?? '').toString(),
+                cohortName: extra['cohortName']?.toString(),
+                grade: extra['grade'] is int ? extra['grade'] as int : null,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/announcements/new',
+            builder: (context, state) => const TeacherNewAnnouncementScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/schedule/week',
+            builder: (context, state) => const TeacherWeekScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/classroom/:courseId/analytics',
+            builder: (context, state) {
+              final courseId = state.pathParameters['courseId'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return TeacherClassroomAnalyticsScreen(
+                courseId: courseId,
+                courseName: (extra['name'] ?? '').toString(),
+                subject: (extra['subject'] ?? '').toString(),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/student/:studentId',
+            builder: (context, state) {
+              final studentId = state.pathParameters['studentId'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return TeacherStudentProfileScreen(
+                studentId: studentId,
+                studentName: (extra['name'] ?? 'Student').toString(),
+              );
+            },
           ),
           GoRoute(
             path: '/practice',

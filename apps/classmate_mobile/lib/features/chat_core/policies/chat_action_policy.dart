@@ -11,6 +11,9 @@ class ChatActionPolicy {
   final bool canDeleteOwn;
   final bool canDeleteForEveryone;
   final bool canModeratorDelete;
+  final bool canEditOthers;
+  final bool canDeleteOthers;
+  final bool canPinForEveryone;
   final bool canSendVoiceNotes;
   final bool canSendFiles;
   final bool canSendImages;
@@ -29,6 +32,9 @@ class ChatActionPolicy {
     required this.canDeleteOwn,
     required this.canDeleteForEveryone,
     required this.canModeratorDelete,
+    required this.canEditOthers,
+    required this.canDeleteOthers,
+    required this.canPinForEveryone,
     required this.canSendVoiceNotes,
     required this.canSendFiles,
     required this.canSendImages,
@@ -48,6 +54,9 @@ class ChatActionPolicy {
         canDeleteOwn: true,
         canDeleteForEveryone: true,
         canModeratorDelete: true,
+        canEditOthers: false,
+        canDeleteOthers: false,
+        canPinForEveryone: false,
         canSendVoiceNotes: true,
         canSendFiles: true,
         canSendImages: true,
@@ -56,7 +65,8 @@ class ChatActionPolicy {
         canBlockUsers: true,
       );
 
-  factory ChatActionPolicy.classroom() => const ChatActionPolicy(
+  factory ChatActionPolicy.classroom({bool isTeacher = false}) =>
+      ChatActionPolicy(
         contextType: ChatContextType.classroom,
         canReply: true,
         canReact: true,
@@ -65,8 +75,11 @@ class ChatActionPolicy {
         canViewInfo: true,
         canEditOwnText: true,
         canDeleteOwn: true,
-        canDeleteForEveryone: false,
-        canModeratorDelete: true,
+        canDeleteForEveryone: true,
+        canModeratorDelete: isTeacher,
+        canEditOthers: isTeacher,
+        canDeleteOthers: isTeacher,
+        canPinForEveryone: isTeacher,
         canSendVoiceNotes: true,
         canSendFiles: true,
         canSendImages: true,
@@ -86,6 +99,9 @@ class ChatActionPolicy {
         canDeleteOwn: false,
         canDeleteForEveryone: false,
         canModeratorDelete: false,
+        canEditOthers: false,
+        canDeleteOthers: false,
+        canPinForEveryone: false,
         canSendVoiceNotes: false,
         canSendFiles: true,
         canSendImages: true,

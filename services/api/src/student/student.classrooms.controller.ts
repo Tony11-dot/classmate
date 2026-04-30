@@ -2,7 +2,9 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
 import {
   Controller,
+  Delete,
   Get,
+  ForbiddenException,
   Param,
   Query,
   Req,
@@ -12,9 +14,11 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -31,10 +35,15 @@ function safeClassroomName(raw: string) {
 }
 
 @UseGuards(JwtAuthGuard)
-@Roles(Role.STUDENT, Role.ADMIN)
+@Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
 @Controller('student/classrooms')
 export class StudentClassroomsController {
   constructor(private readonly prisma: PrismaService) {}
+
+  private isTeacherOrAdmin(req: any): boolean {
+    const roles: string[] = Array.isArray(req?.user?.roles) ? req.user.roles : [];
+    return roles.includes('TEACHER') || roles.includes('ADMIN');
+  }
 
   private async cohortIdFromUser(req: any): Promise<string> {
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
@@ -63,8 +72,31 @@ export class StudentClassroomsController {
     return course;
   }
 
+  /** Verifies course read access for both students (cohort check) and teachers (course exists check). */
+  private async assertCourseReadAccess(req: any, courseId: string) {
+    if (this.isTeacherOrAdmin(req)) {
+      const course = await this.prisma.course.findUnique({
+        where: { id: courseId },
+        select: { id: true, name: true, subject: true, teacherId: true, cohortId: true, groupTag: true },
+      });
+      if (!course) throw new Error('Classroom not found');
+      return course;
+    }
+    const cohortId = await this.cohortIdFromUser(req);
+    return this.assertCourseInCohort(courseId, cohortId);
+  }
+
   @Get()
   async list(@Req() req: any) {
+    if (this.isTeacherOrAdmin(req)) {
+      const teacherId = String(req?.user?.sub ?? req?.user?.id ?? '');
+      const courses = await this.prisma.course.findMany({
+        where: { teacherId },
+        select: { id: true, name: true, subject: true, teacherId: true, cohortId: true, groupTag: true },
+        orderBy: [{ subject: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+      });
+      return courses;
+    }
     const cohortId = await this.cohortIdFromUser(req);
     const courses = await this.prisma.course.findMany({
       where: { cohortId },
@@ -83,8 +115,7 @@ export class StudentClassroomsController {
 
   @Get(':id')
   async detail(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    const course = await this.assertCourseInCohort(String(id), cohortId);
+    const course = await this.assertCourseReadAccess(req, String(id));
 
     // Optional: include schedule template for the classroom (existing schedule template slots)
     const scheduleTemplate = await this.prisma.scheduleSlot.findMany({
@@ -108,11 +139,10 @@ export class StudentClassroomsController {
   // --- People tab (minimal v1: cohort classmates + teacher) ---
   @Get(':id/people')
   async people(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    const course = await this.assertCourseInCohort(String(id), cohortId);
+    const course = await this.assertCourseReadAccess(req, String(id));
 
     const students = await this.prisma.studentProfile.findMany({
-      where: { cohortId },
+      where: { cohortId: course.cohortId ?? '' },
       select: {
         userId: true,
         user: {
@@ -160,8 +190,7 @@ export class StudentClassroomsController {
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: string,
   ) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
 
     const take = Math.min(Math.max(parseInt(limit ?? '30', 10) || 30, 1), 100);
 
@@ -195,7 +224,12 @@ export class StudentClassroomsController {
       : null;
 
     // Return oldest->newest for easier UI rendering
-    const items = itemsDesc.reverse();
+    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
+    const items = itemsDesc.reverse().map((row) => ({
+      ...row,
+      isMine: row.senderUserId === uid,
+      senderName: null, // resolved client-side
+    }));
 
     return {
       ok: true,
@@ -258,8 +292,8 @@ export class StudentClassroomsController {
     @Param('id') id: string,
     @Body() body: { messageId?: string; targetThreadIds?: string[] },
   ) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    const accessedCourse = await this.assertCourseReadAccess(req, String(id));
+    const cohortId = accessedCourse.cohortId ?? '';
 
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
     const messageId = String(body?.messageId ?? '').trim();
@@ -400,8 +434,7 @@ export class StudentClassroomsController {
       originalName?: string;
     },
   ) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
 
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
 
@@ -483,8 +516,7 @@ export class StudentClassroomsController {
   // --- Assignments tab ---
   @Get(':id/assignments')
   async assignments(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
 
     const items = await this.prisma.classroomAssignment.findMany({
       where: { courseId: String(id) },
@@ -503,11 +535,66 @@ export class StudentClassroomsController {
     return { ok: true, items };
   }
 
+  // --- Assignment submission ---
+  @Post(':courseId/assignments/:assignmentId/submit')
+  async submitAssignment(
+    @Req() req: any,
+    @Param('courseId') courseId: string,
+    @Param('assignmentId') assignmentId: string,
+    @Body() body: any,
+  ) {
+    await this.assertCourseReadAccess(req, String(courseId));
+    const studentId = String(req.user?.sub ?? req.user?.id ?? '');
+    if (!studentId) throw new BadRequestException('Missing student identity');
+
+    const note = body?.note ? String(body.note).trim().slice(0, 4000) : null;
+
+    const isFirstSubmission = !(await this.prisma.assignmentSubmission.findUnique({
+      where: { assignmentId_studentId: { assignmentId: String(assignmentId), studentId } },
+      select: { id: true },
+    }).catch(() => null));
+
+    const submission = await this.prisma.assignmentSubmission.upsert({
+      where: { assignmentId_studentId: { assignmentId: String(assignmentId), studentId } },
+      update: { note, updatedAt: new Date() },
+      create: { assignmentId: String(assignmentId), studentId, note },
+      select: { id: true, assignmentId: true, studentId: true, submittedAt: true, note: true },
+    });
+
+    // Notify the teacher when a student submits for the first time
+    if (isFirstSubmission) {
+      try {
+        const [assignment, student] = await Promise.all([
+          this.prisma.classroomAssignment.findUnique({
+            where: { id: String(assignmentId) },
+            select: { title: true, course: { select: { teacherId: true, name: true } } },
+          }),
+          this.prisma.user.findUnique({ where: { id: studentId }, select: { name: true, displayName: true } }),
+        ]);
+        const teacherId = assignment?.course?.teacherId;
+        if (teacherId) {
+          const studentName = student?.displayName ?? student?.name ?? 'A student';
+          await this.prisma.notification.create({
+            data: {
+              userId: teacherId,
+              type: 'ASSIGNMENT_SUBMITTED',
+              title: `${studentName} submitted "${assignment!.title}"`,
+              body: assignment?.course?.name ?? '',
+              data: { assignmentId, courseId, studentId } as any,
+              severity: 'info',
+            },
+          });
+        }
+      } catch {}
+    }
+
+    return { ok: true, submission };
+  }
+
   // --- Materials tab ---
   @Get(':id/materials')
   async materials(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
 
     const items = await this.prisma.classroomMaterial.findMany({
       where: { courseId: String(id) },
@@ -530,8 +617,7 @@ export class StudentClassroomsController {
   // --- Meetings tab ---
   @Get(':id/meetings')
   async meetings(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
 
     const items = await this.prisma.classroomMeeting.findMany({
       where: { courseId: String(id) },
@@ -540,6 +626,8 @@ export class StudentClassroomsController {
         id: true,
         title: true,
         link: true,
+        startsAt: true,
+        endsAt: true,
         createdBy: true,
         createdAt: true,
         updatedAt: true,
@@ -552,8 +640,76 @@ export class StudentClassroomsController {
   // Back-compat routes you already called earlier:
   @Get(':id/announcements')
   async announcements(@Req() req: any, @Param('id') id: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    await this.assertCourseInCohort(String(id), cohortId);
+    await this.assertCourseReadAccess(req, String(id));
     return { ok: true, items: [] };
+  }
+
+  // ── Join classroom by code ────────────────────────────────────────────────
+
+  @Post('join')
+  async joinByCode(@Req() req: any, @Body() body: { code?: string }) {
+    const studentId = String(req?.user?.sub ?? req?.user?.id ?? '');
+    if (!studentId) throw new BadRequestException('Missing student identity');
+    const code = String(body?.code ?? '').trim();
+    if (!code) throw new BadRequestException('code is required');
+
+    // Find all active, non-expired join codes and check bcrypt match
+    const activeCodes = await this.prisma.cohortJoinCode.findMany({
+      where: {
+        active: true,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      select: { id: true, cohortId: true, codeHash: true },
+    });
+
+    let matchedCohortId: string | null = null;
+    for (const candidate of activeCodes) {
+      const ok = await bcrypt.compare(code, candidate.codeHash);
+      if (ok) { matchedCohortId = candidate.cohortId; break; }
+    }
+
+    if (!matchedCohortId) throw new NotFoundException('Invalid or expired code');
+
+    // Ensure the student has a profile in this school
+    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId }, select: { cohortId: true } });
+    if (!sp) throw new BadRequestException('Student profile not found');
+
+    // Get all courses for this cohort
+    const courses = await this.prisma.course.findMany({
+      where: { cohortId: matchedCohortId },
+      select: { id: true, name: true, subject: true },
+    });
+
+    // Enroll student in all cohort courses (upsert to avoid duplicates)
+    for (const course of courses) {
+      await this.prisma.enrollment.upsert({
+        where: { courseId_studentId: { courseId: course.id, studentId } },
+        update: {},
+        create: { courseId: course.id, studentId, source: 'MANUAL' as any },
+      });
+    }
+
+    // Update studentProfile.cohortId if not already set (or if joining a new cohort)
+    if (!sp.cohortId) {
+      await this.prisma.studentProfile.update({ where: { userId: studentId }, data: { cohortId: matchedCohortId } });
+    }
+
+    const cohort = await this.prisma.cohort.findUnique({ where: { id: matchedCohortId }, select: { id: true, name: true, grade: true } });
+    return { ok: true, cohort, courses };
+  }
+
+  // ── Leave classroom (server-side) ─────────────────────────────────────────
+
+  @Post(':id/leave')
+  async leaveClassroom(@Req() req: any, @Param('id') id: string) {
+    const studentId = String(req?.user?.sub ?? req?.user?.id ?? '');
+    if (!studentId) throw new BadRequestException('Missing student identity');
+
+    // Remove enrollment from this specific course
+    await this.prisma.enrollment.deleteMany({
+      where: { courseId: String(id), studentId },
+    });
+
+    return { ok: true };
   }
 }

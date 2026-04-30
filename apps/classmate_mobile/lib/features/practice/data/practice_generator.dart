@@ -24,6 +24,108 @@ bool shouldTopUpRemotePracticeResults(PracticeFilter filter) {
   return catalogTopics.any((topicPath) => _matchesTopicPath(topicPath, filter.topicPath));
 }
 
+// ── Math normalisation ─────────────────────────────────────────────────────────
+
+// Unambiguous LaTeX commands: can ONLY appear in math, never in plain English prose.
+// Used as the trigger condition before wrapping bare expressions.
+final _unambiguousMathRe = RegExp(
+  r'(?<![\\$a-zA-Z])\\'
+  r'(?:frac|dfrac|tfrac|cfrac|sqrt|int|oint|iint|iiint|sum|prod|coprod|'
+  r'lim|limsup|liminf|partial|nabla|infty|binom|tbinom|dbinom|'
+  r'alpha|beta|gamma|delta|epsilon|varepsilon|zeta|eta|theta|vartheta|'
+  r'iota|kappa|lambda|mu|nu|xi|pi|varpi|rho|varrho|sigma|varsigma|'
+  r'tau|upsilon|phi|varphi|chi|psi|omega|'
+  r'Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega|'
+  r'hbar|ell|cdot|cdots|ldots|vdots|ddots|'
+  r'times|div|pm|mp|oplus|otimes|'
+  r'leq|le|geq|ge|neq|ne|approx|equiv|propto|sim|simeq|cong|'
+  r'subset|supset|subseteq|supseteq|in|notin|cup|cap|setminus|emptyset|'
+  r'forall|exists|neg|vec|hat|bar|tilde|dot|ddot|'
+  r'overline|underline|widehat|widetilde|overbrace|underbrace|'
+  r'overrightarrow|overleftarrow|'
+  r'mathbf|mathbb|mathcal|mathrm|mathit|boldsymbol|'
+  r'rightarrow|leftarrow|Rightarrow|Leftarrow|leftrightarrow|Leftrightarrow|'
+  r'uparrow|downarrow|'
+  r'sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|'
+  r'log|ln|exp|det|ker|dim|gcd|min|max|sup|inf|arg)'
+  r'(?=[^a-zA-Z]|$)',
+);
+
+// A LaTeX math run: \command followed by any combination of {args}, [args], _x, ^x.
+// Supports 3 levels of brace nesting — handles \frac{\sqrt{x}}{y} and similar.
+final _mathRunRe = RegExp(
+  r'\\[a-zA-Z]+'
+  r'(?:'
+    r'\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}[^{}]*)?\}'
+    r'|\[[^\]]*\]'
+    r'|[_^]\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}[^{}]*)?\}'
+    r'|[_^][a-zA-Z0-9]'
+  r')*',
+);
+
+/// Returns true if [line] (already stripped of protected placeholders) is
+/// entirely math — LaTeX command runs + operators/digits/single-letter vars,
+/// with no English prose words of 3+ letters outside of LaTeX arguments.
+bool _isPureMathParagraph(String line) {
+  final trimmed = line.trim();
+  if (trimmed.isEmpty) return false;
+  if (!_unambiguousMathRe.hasMatch(trimmed)) return false;
+
+  // Strip LaTeX runs, then check what's left for prose words.
+  final stripped = trimmed
+      .replaceAll(_mathRunRe, '')
+      .replaceAll(RegExp(r'[\d+\-*/=<>()\[\]^_,.|;:!?\\\s{}]'), '');
+
+  // Any remaining sequence of 3+ letters = prose word → not pure math.
+  return !RegExp(r'[a-zA-Z]{3,}').hasMatch(stripped);
+}
+
+/// Wraps bare LaTeX command runs (backslash present, no \$ delimiter) in
+/// \$...\$ (inline) or \$\$...\$\$ (display, when the whole paragraph is math).
+String _wrapBareMathCommands(String text) {
+  if (!_unambiguousMathRe.hasMatch(text)) return text;
+
+  // Protect already-delimited regions.
+  final prot = <String>[];
+  var t = text.replaceAllMapped(
+    RegExp(r'\$\$[\s\S]+?\$\$|\$[^$\n]+?\$'),
+    (m) {
+      final i = prot.length;
+      prot.add(m.group(0)!);
+      return '\x00P$i\x00';
+    },
+  );
+
+  // Process paragraph by paragraph (double-newline boundaries).
+  final paras = t.split(RegExp(r'\n{2,}'));
+  final result = paras.map((para) {
+    if (!_unambiguousMathRe.hasMatch(para)) return para;
+
+    if (_isPureMathParagraph(para)) {
+      // Whole paragraph is math → display block.
+      return '\$\$${para.trim()}\$\$';
+    }
+
+    // Mixed paragraph: wrap each bare LaTeX run in \$...\$ individually.
+    final buf = StringBuffer();
+    var cursor = 0;
+    for (final m in _mathRunRe.allMatches(para)) {
+      if (m.start > cursor) buf.write(para.substring(cursor, m.start));
+      buf.write('\$${m.group(0)!}\$');
+      cursor = m.end;
+    }
+    if (cursor < para.length) buf.write(para.substring(cursor));
+    return buf.toString();
+  }).join('\n\n');
+
+  // Restore protected regions.
+  var out = result;
+  for (var i = 0; i < prot.length; i++) {
+    out = out.replaceFirst('\x00P$i\x00', prot[i]);
+  }
+  return out;
+}
+
 String normalizeMathInline(String text) {
   final normalizedText = text
       .replaceAll(RegExp(r'\\n'), '\n')
@@ -33,6 +135,7 @@ String normalizeMathInline(String text) {
     return _normalizeMathInlineChunk(normalizedText);
   }
 
+  // Process non-fence segments; pass code fences through unchanged.
   final out = StringBuffer();
   var cursor = 0;
   for (final match in fenceRe.allMatches(normalizedText)) {
@@ -53,64 +156,112 @@ String normalizeMathInline(String text) {
 String _normalizeMathInlineChunk(String text) {
   var t = text;
 
-  // Convert \( ... \) → $...$
+  // ── Pre-pass: fix common server-side AI formatting errors ────────────────
+
+  // 1. Unicode square root → \sqrt{}: √6 → \sqrt{6}, √n → \sqrt{n}
   t = t.replaceAllMapped(
-    RegExp(r'\\\(([\s\S]*?)\\\)'),
-    (m) => '\$${m.group(1) ?? m.group(0) ?? ''}\$',
+    RegExp(r'√\{([^}]+)\}'),
+    (m) => '\\sqrt{${m.group(1)!}}',
+  );
+  t = t.replaceAllMapped(
+    RegExp(r'√(\d+(?:\.\d+)?)'),
+    (m) => '\\sqrt{${m.group(1)!}}',
+  );
+  t = t.replaceAllMapped(
+    RegExp(r'√([a-zA-Z])'),
+    (m) => '\\sqrt{${m.group(1)!}}',
   );
 
-  // Convert \[ ... \] → $$...$$
+  // 2. Degree symbol → LaTeX: 75° → 75^\circ (inside and outside math)
   t = t.replaceAllMapped(
-    RegExp(r'\\\[([\s\S]*?)\\\]'),
-    (m) => '\$\$${m.group(1) ?? m.group(0) ?? ''}\$\$',
+    RegExp(r'(\d+)°'),
+    (m) => '${m.group(1)!}^\\circ',
   );
 
-  // Repair lost leading backslashes on common latex commands inside math/text.
+  // 3a. ($A$+$B$)/n → $\frac{A+B}{n}$  (slash OUTSIDE closing paren)
+  t = t.replaceAllMapped(
+    RegExp(r'\(\$([^$\n]+)\$([+\-×·])\$([^$\n]+)\$\)\/(\d+)'),
+    (m) =>
+        '\$\\frac{${m.group(1)!}${m.group(2)!}${m.group(3)!}}{${m.group(4)!}}\$',
+  );
+  // 3b. ($A$)/n → $\frac{A}{n}$  (slash OUTSIDE closing paren)
+  t = t.replaceAllMapped(
+    RegExp(r'\(\$([^$\n]+)\$\)\/(\d+)'),
+    (m) => '\$\\frac{${m.group(1)!}}{${m.group(2)!}}\$',
+  );
+  // 3c. ($A$/n) → $\frac{A}{n}$  (slash INSIDE closing paren — server style)
+  t = t.replaceAllMapped(
+    RegExp(r'\(\$([^$\n]+)\$\/(\d+)\)'),
+    (m) => '\$\\frac{${m.group(1)!}}{${m.group(2)!}}\$',
+  );
+
+  // 4. Bare trig/log function names without backslash inside $…$:
+  //    $sin(x)$ → $\sin(x)$
   t = t.replaceAllMapped(
     RegExp(
-      r'(^|[^A-Za-z\\])(frac|dfrac|tfrac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|left|right|alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma|lim|int|sum|prod|sin|cos|tan|sec|csc|cot|log|ln|exp|partial|infty|begin|end)(?=[^A-Za-z]|$)',
+      r'\$((?:sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln)\()',
+      caseSensitive: true,
     ),
-    (m) => '${m.group(1) ?? ''}\\${m.group(2) ?? ''}',
+    (m) => '\$\\${m.group(1)!}',
   );
 
-  // Wrap raw LaTeX environments as display math when they are not already delimited.
+  // ── Step 1: Normalise alternate LaTeX delimiters → $...$ / $$...$$ ───────
+  t = t.replaceAllMapped(
+    RegExp(r'\\\(([\s\S]*?)\\\)'),
+    (m) => '\$${m.group(1)!}\$',
+  );
+  t = t.replaceAllMapped(
+    RegExp(r'\\\[([\s\S]*?)\\\]'),
+    (m) => '\$\$${m.group(1)!}\$\$',
+  );
+
+  // Step 2: Repair missing backslashes on common LaTeX command names written
+  // as plain text (e.g. AI writes "frac" instead of "\frac").
+  t = t.replaceAllMapped(
+    RegExp(
+      r'(^|[^A-Za-z\\])'
+      r'(frac|dfrac|tfrac|sqrt|cdot|times|leq|geq|neq|pm|mp|approx|'
+      r'alpha|beta|gamma|delta|theta|lambda|mu|pi|sigma|'
+      r'lim|int|sum|prod|partial|infty|begin|end)'
+      r'(?=[^A-Za-z]|$)',
+    ),
+    (m) => '${m.group(1)!}\\${m.group(2)!}',
+  );
+
+  // Step 3: Wrap bare \begin{env}...\end{env} not already delimited.
   t = t.replaceAllMapped(
     RegExp(
       r'(?<!\$)(\\begin\{[a-zA-Z*]+\}[\s\S]*?\\end\{[a-zA-Z*]+\})(?!\$)',
       multiLine: true,
     ),
-    (m) => '\$\$${m.group(1) ?? ''}\$\$',
+    (m) => '\$\$${m.group(1)!}\$\$',
   );
 
-  // Wrap common bare symbolic runs that should render as math.
-  t = t.replaceAllMapped(
-    RegExp(
-      r'(?<!\$)((?:\\)?(?:int|sum|prod|lim)\s*(?:_[^\s,.;:!?]+)?(?:\^[^\s,.;:!?]+)?\s*[^,.;:!?\n]+)(?!\$)',
-    ),
-    (m) => '\$${m.group(1)}\$',
-  );
+  // Step 4: Wrap bare \command{args} runs not yet delimited.
+  // This catches the most important failure mode: AI writes \frac{x}{y}
+  // with backslash but without surrounding $...$.
+  t = _wrapBareMathCommands(t);
 
-  // Wrap simple powers if they are still plain text.
+  // Step 5: Wrap plain-text powers (x^2, a^3) not yet inside $...$.
   t = _replaceOutsideMathDelimiters(
     t,
-    RegExp(r'(?<!\$)([a-zA-Z0-9]+\^[0-9]+)(?!\$)'),
-    (m) => '\$${m.group(1)}\$',
+    RegExp(r'[a-zA-Z0-9]\^[0-9]+'),
+    (m) => '\$${m.group(0)!}\$',
   );
 
-  // Wrap simple subscripts/superscripts if they are still plain text.
+  // Step 6: Wrap plain-text subscripts/superscripts (a_1, x_{n+1}).
   t = _replaceOutsideMathDelimiters(
     t,
-    RegExp(
-      r'(?<!\$)([a-zA-Z][a-zA-Z0-9]*\s*[_^]\s*(?:\{[^{}]+\}|[a-zA-Z0-9+-]+))(?!\$)',
-    ),
-    (m) => '\$${m.group(1)}\$',
+    RegExp(r'[a-zA-Z][a-zA-Z0-9]*\s*[_^]\s*(?:\{[^{}]+\}|[a-zA-Z0-9+\-]+)'),
+    (m) => '\$${m.group(0)!}\$',
   );
 
-  // Wrap simple slash fractions if they are still plain text.
+  // Step 7: Wrap numeric-only fractions (1/2, 3/4).
+  // Explicitly excludes unit fractions like m/s, km/h by requiring digits on both sides.
   t = _replaceOutsideMathDelimiters(
     t,
-    RegExp(r'(?<!\$)([0-9a-zA-Z]+/[0-9a-zA-Z]+)(?!\$)'),
-    (m) => '\$${m.group(1)}\$',
+    RegExp(r'[0-9]+/[0-9]+'),
+    (m) => '\$${m.group(0)!}\$',
   );
 
   return t;
@@ -152,6 +303,28 @@ class PracticeGenerator {
 
   final BagrutRepository _bagrutRepo = BagrutRepository();
 
+  // Rolling list of recent question prompts per (subject+topic) key.
+  // Sent to the server as context so it generates genuinely different questions.
+  static final Map<String, List<String>> _recentPrompts = {};
+  static const _maxRecentPrompts = 30;
+
+  static String _recentKey(PracticeFilter f) =>
+      '${f.subject}:${f.topicLabel}:${f.mode.name}';
+
+  static List<String> _getRecent(PracticeFilter f) =>
+      _recentPrompts[_recentKey(f)] ?? const [];
+
+  static void _recordPrompts(PracticeFilter f, List<PracticeQuestion> qs) {
+    final key = _recentKey(f);
+    final list = _recentPrompts.putIfAbsent(key, () => []);
+    for (final q in qs) {
+      list.add(q.prompt);
+    }
+    if (list.length > _maxRecentPrompts) {
+      list.removeRange(0, list.length - _maxRecentPrompts);
+    }
+  }
+
   Future<List<PracticeQuestion>> generate(PracticeFilter filter) async {
     if (filter.mode == PracticeMode.bagrut) {
       final bagrut = await _generateBagrutQuestion(filter);
@@ -160,7 +333,10 @@ class PracticeGenerator {
     }
 
     final remote = await _generateFromApiWithRetry(filter);
-    if (remote.isNotEmpty) return remote;
+    if (remote.isNotEmpty) {
+      _recordPrompts(filter, remote);
+      return remote;
+    }
 
     return generateFallback(filter);
   }
@@ -243,6 +419,7 @@ class PracticeGenerator {
         req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_devToken');
       }
 
+      final recent = _getRecent(filter);
       final payload = <String, Object?>{
         'subject': filter.subject,
         'topicLabel': filter.topicLabel,
@@ -256,7 +433,11 @@ class PracticeGenerator {
         'timePreferenceSeconds': filter.timePreferenceSeconds,
         'useAiTiming': filter.useAiTiming,
         'maxLives': filter.maxLives,
+        'sessionSeed': DateTime.now().millisecondsSinceEpoch,
         'strictPromptSummary': buildStrictPracticeFilterSection(filter),
+        // Anti-repetition: tell the server which question prompts were already
+        // shown so it generates genuinely new ones.
+        if (recent.isNotEmpty) 'recentPrompts': recent,
       };
 
       debugPrint('practice.generate payload=${jsonEncode(payload)}');

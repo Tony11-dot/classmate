@@ -1506,4 +1506,125 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
 
     return { ok: true };
   }
+
+  // ── Group member management ─────────────────────────────────────────────
+
+  async getThreadInfo(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    const member = await this.prisma.messageThreadMember.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      include: {
+        thread: {
+          include: {
+            members: {
+              include: { user: { select: { id: true, name: true, displayName: true, email: true } } },
+              orderBy: { joinedAt: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    if (!member) throw new BadRequestException('Not a member of this thread');
+    const thread = member.thread;
+    return {
+      ok: true,
+      thread: {
+        id: thread.id,
+        type: thread.type,
+        title: thread.title,
+        groupAvatarUrl: (thread as any).groupAvatarUrl ?? null,
+        createdAt: thread.createdAt,
+        myRole: member.role,
+        isMuted: member.isMuted,
+        members: thread.members.map((m: any) => ({
+          userId: m.userId,
+          name: m.user?.displayName ?? m.user?.name ?? m.user?.email ?? '',
+          role: m.role,
+          joinedAt: m.joinedAt,
+          isMuted: m.isMuted,
+        })),
+      },
+    };
+  }
+
+  async addGroupMember(user: AppUser, threadId: string, body: { userId?: string; email?: string }) {
+    const requesterId = this.viewerId(user);
+    const member = await this.prisma.messageThreadMember.findUnique({
+      where: { threadId_userId: { threadId, userId: requesterId } },
+      select: { role: true },
+    });
+    if (!member) throw new BadRequestException('Not a member');
+    if (member.role !== 'ADMIN') throw new ForbiddenException('Admin only');
+    const identifier = String(body?.email ?? body?.userId ?? '').trim();
+    if (!identifier) throw new BadRequestException('userId or email required');
+    const targetUser = identifier.includes('@')
+      ? await this.prisma.user.findUnique({ where: { email: identifier }, select: { id: true } })
+      : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true } });
+    if (!targetUser) throw new BadRequestException('User not found');
+    await this.prisma.messageThreadMember.upsert({
+      where: { threadId_userId: { threadId, userId: targetUser.id } },
+      update: {},
+      create: { threadId, userId: targetUser.id, role: 'MEMBER' },
+    });
+    return { ok: true };
+  }
+
+  async removeGroupMember(user: AppUser, threadId: string, targetUserId: string) {
+    const requesterId = this.viewerId(user);
+    if (requesterId !== targetUserId) {
+      const member = await this.prisma.messageThreadMember.findUnique({
+        where: { threadId_userId: { threadId, userId: requesterId } },
+        select: { role: true },
+      });
+      if (!member) throw new BadRequestException('Not a member');
+      if (member.role !== 'ADMIN') throw new ForbiddenException('Admin only');
+    }
+    await this.prisma.messageThreadMember.deleteMany({ where: { threadId, userId: targetUserId } });
+    return { ok: true };
+  }
+
+  async updateGroupMemberRole(user: AppUser, threadId: string, targetUserId: string, body: { role?: string }) {
+    const requesterId = this.viewerId(user);
+    const member = await this.prisma.messageThreadMember.findUnique({
+      where: { threadId_userId: { threadId, userId: requesterId } },
+      select: { role: true },
+    });
+    if (!member) throw new BadRequestException('Not a member');
+    if (member.role !== 'ADMIN') throw new ForbiddenException('Admin only');
+    const role = (body?.role ?? '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER';
+    await this.prisma.messageThreadMember.update({
+      where: { threadId_userId: { threadId, userId: targetUserId } },
+      data: { role },
+    });
+    return { ok: true, role };
+  }
+
+  async toggleMuteThread(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    const member = await this.prisma.messageThreadMember.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      select: { isMuted: true },
+    });
+    if (!member) throw new BadRequestException('Not a member');
+    const isMuted = !member.isMuted;
+    await this.prisma.messageThreadMember.update({
+      where: { threadId_userId: { threadId, userId } },
+      data: { isMuted },
+    });
+    return { ok: true, isMuted };
+  }
+
+  async updateGroupTitle(user: AppUser, threadId: string, body: { title?: string }) {
+    const userId = this.viewerId(user);
+    const member = await this.prisma.messageThreadMember.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      select: { role: true },
+    });
+    if (!member) throw new BadRequestException('Not a member');
+    if (member.role !== 'ADMIN') throw new ForbiddenException('Admin only');
+    const title = String(body?.title ?? '').trim();
+    if (!title) throw new BadRequestException('title required');
+    await this.prisma.messageThread.update({ where: { id: threadId }, data: { title } });
+    return { ok: true };
+  }
 }

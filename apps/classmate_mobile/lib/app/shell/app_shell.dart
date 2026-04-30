@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_session.dart';
+import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
 import '../../l10n/app_localizations.dart';
@@ -23,9 +24,9 @@ const _coreBottomNavPaths = <String>{
 const _teacherBottomNavPaths = <String>{
   '/teacher/home',
   '/teacher/classrooms',
-  '/exams',
+  '/teacher/grades',
+  '/teacher/attendance',
   '/messages',
-  '/tutor',
 };
 
 String _routePathOnly(String loc) {
@@ -39,6 +40,10 @@ bool _hideTopBarForRoute(String loc) {
       l.startsWith('/messages/request/') ||
       l.startsWith('/tutor/chat/') ||
       l.startsWith('/nova/chat/') ||
+      l.startsWith('/teacher/classroom/') ||
+      l.startsWith('/teacher/announcements/') ||
+      l.startsWith('/teacher/schedule/week') ||
+      l.startsWith('/teacher/student/') ||
       (l.startsWith('/classrooms/') && l != '/classrooms');
 }
 
@@ -65,19 +70,19 @@ class AppShell extends ConsumerWidget {
   };
 
   int _teacherIndexFor(String loc) {
-    if (loc.startsWith('/teacher/classrooms')) return 1;
-    if (loc.startsWith('/exams')) return 2;
-    if (loc.startsWith('/messages')) return 3;
-    if (loc.startsWith('/tutor')) return 4;
+    if (loc.startsWith('/teacher/classrooms') || loc.startsWith('/teacher/classroom/')) return 1;
+    if (loc.startsWith('/teacher/grades')) return 2;
+    if (loc.startsWith('/teacher/attendance')) return 3;
+    if (loc.startsWith('/messages')) return 4;
     return 0;
   }
 
   String _teacherLocFor(int index) => switch (index) {
     0 => '/teacher/home',
     1 => '/teacher/classrooms',
-    2 => '/exams',
-    3 => '/messages',
-    4 => '/tutor',
+    2 => '/teacher/grades',
+    3 => '/teacher/attendance',
+    4 => '/messages',
     _ => '/teacher/home',
   };
 
@@ -119,10 +124,10 @@ class AppShell extends ConsumerWidget {
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
     final loc = GoRouterState.of(context).matchedLocation;
+    final unreadMessages = ref.watch(unreadMessagesCountProvider);
     final idx = isTeacherLike ? _teacherIndexFor(loc) : _studentIndexFor(loc);
     final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
     final hideTopBar = _hideTopBarForRoute(loc);
-    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       extendBody: true,
@@ -135,18 +140,18 @@ class AppShell extends ConsumerWidget {
           : _PlatformCoreBottomNav(
               items: isTeacherLike
                   ? <_NavItem>[
-                      _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
-                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navExams),
-                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages),
-                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                      const _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, 'Home'),
+                      const _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classrooms'),
+                      const _NavItem(Icons.grade_outlined, Icons.grade_rounded, 'Grades'),
+                      const _NavItem(Icons.fact_check_outlined, Icons.fact_check_rounded, 'Attendance'),
+                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Messages', badge: unreadMessages),
                     ]
                   : <_NavItem>[
-                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
-                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                      const _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, 'Schedule'),
+                      const _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classrooms'),
+                      const _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, 'Practice'),
+                      const _NavItem(Icons.insights_outlined, Icons.insights_rounded, 'Insights'),
+                      const _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'NOVA'),
                     ],
               index: idx,
               onTap: (i) {
@@ -434,14 +439,39 @@ class _TabLabel extends StatelessWidget {
     final inactiveColor = CupertinoColors.inactiveGray.resolveFrom(context);
     final color = (selected || hovered) ? activeColor : inactiveColor;
     final iconData = selected ? item.selectedIcon : item.icon;
+    final hasBadge = item.badge > 0;
 
     return SizedBox.expand(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 140),
-            child: Icon(iconData, key: ValueKey('${item.label}_$selected'), size: 22, color: color),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 140),
+                child: Icon(iconData, key: ValueKey('${item.label}_$selected'), size: 22, color: color),
+              ),
+              if (hasBadge)
+                Positioned(
+                  right: -6,
+                  top: -4,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Text(
+                      item.badge > 99 ? '99+' : '${item.badge}',
+                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 2),
           AnimatedDefaultTextStyle(
@@ -462,11 +492,12 @@ class _TabLabel extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem(this.icon, this.selectedIcon, this.label);
+  const _NavItem(this.icon, this.selectedIcon, this.label, {this.badge = 0});
 
   final IconData icon;
   final IconData selectedIcon;
   final String label;
+  final int badge;
 }
 
 class _TopBar extends StatelessWidget implements PreferredSizeWidget {
