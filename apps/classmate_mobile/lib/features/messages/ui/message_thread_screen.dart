@@ -427,22 +427,11 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   String? _error;
   String? _inviteCode;
   bool _generatingCode = false;
-  // People search for adding members
-  List<MessageDirectoryPerson> _allPeople = const [];
-  bool _loadingPeople = false;
-  final TextEditingController _searchCtl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _load();
-    if (widget.detail.isGroup) _loadPeople();
-  }
-
-  @override
-  void dispose() {
-    _searchCtl.dispose();
-    super.dispose();
   }
 
   Future<void> _load() async {
@@ -462,32 +451,11 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     }
   }
 
-  Future<void> _loadPeople() async {
-    setState(() => _loadingPeople = true);
-    try {
-      final people = await widget.repo.fetchSameSchoolPeople();
-      if (!mounted) return;
-      setState(() { _allPeople = people; _loadingPeople = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loadingPeople = false);
-    }
-  }
-
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-  }
-
-  List<MessageDirectoryPerson> get _filteredPeople {
-    final q = _searchCtl.text.trim().toLowerCase();
-    final members = _memberIds;
-    return _allPeople.where((p) {
-      if (members.contains(p.userId)) return false;
-      if (q.isEmpty) return true;
-      return p.displayName.toLowerCase().contains(q) || p.gradeLabel.toLowerCase().contains(q);
-    }).toList();
   }
 
   Set<String> get _memberIds {
@@ -563,15 +531,32 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     }
   }
 
-  Future<void> _addMember(String userId) async {
-    try {
-      await (widget.repo as ApiMessagesRepository).addGroupMember(threadId: widget.threadId, userId: userId);
+  Future<void> _openAddParticipants() async {
+    final added = await showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      builder: (ctx) => _AddParticipantsSheet(
+        existingMemberIds: _memberIds,
+        repo: widget.repo as ApiMessagesRepository,
+      ),
+    );
+    if (!mounted || added == null || added.isEmpty) return;
+    int successCount = 0;
+    for (final uid in added) {
+      try {
+        await (widget.repo as ApiMessagesRepository).addGroupMember(threadId: widget.threadId, userId: uid);
+        successCount++;
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    if (successCount > 0) {
       _load();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Member added')));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$successCount participant${successCount == 1 ? '' : 's'} added')),
+      );
     }
   }
 
@@ -691,6 +676,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                       color: cs.error,
                     ),
                   if (isGroup) ...[
+                    if (isAdmin) ...[
+                      _ActionPill(
+                        icon: Icons.person_add_rounded,
+                        label: 'Add',
+                        onTap: _openAddParticipants,
+                      ),
+                      const SizedBox(width: 10),
+                    ],
                     _ActionPill(
                       icon: Icons.link_rounded,
                       label: _inviteCode != null ? 'Copy code' : 'Invite code',
@@ -773,47 +766,6 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                               controller: scrollCtrl,
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                               children: [
-                                // Add member search (admin only)
-                                if (isAdmin) ...[
-                                  Text('Add people', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: 0.8)),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: _searchCtl,
-                                    onChanged: (_) => setState(() {}),
-                                    decoration: InputDecoration(
-                                      hintText: 'Search by name…',
-                                      prefixIcon: const Icon(Icons.search_rounded),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                      filled: true,
-                                      fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                                      isDense: true,
-                                    ),
-                                  ),
-                                  if (_searchCtl.text.isNotEmpty) ...[
-                                    const SizedBox(height: 6),
-                                    if (_loadingPeople)
-                                      const Padding(padding: EdgeInsets.all(8), child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
-                                    else
-                                      ..._filteredPeople.take(5).map((p) => ListTile(
-                                        dense: true,
-                                        leading: CircleAvatar(
-                                          radius: 16,
-                                          backgroundColor: cs.primaryContainer,
-                                          child: Text(_initials(p.displayName), style: TextStyle(fontSize: 11, color: cs.onPrimaryContainer, fontWeight: FontWeight.w700)),
-                                        ),
-                                        title: Text(p.displayName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                                        subtitle: p.gradeLabel.isNotEmpty ? Text(p.gradeLabel, style: const TextStyle(fontSize: 11)) : null,
-                                        trailing: FilledButton.tonal(
-                                          onPressed: () { _searchCtl.clear(); _addMember(p.userId); },
-                                          style: FilledButton.styleFrom(minimumSize: Size.zero, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                          child: const Text('Add', style: TextStyle(fontSize: 12)),
-                                        ),
-                                      )),
-                                  ],
-                                  const SizedBox(height: 12),
-                                  const Divider(height: 1),
-                                  const SizedBox(height: 8),
-                                ],
                                 // Member list
                                 Text('${members.length} members', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: 0.8)),
                                 const SizedBox(height: 6),
@@ -900,6 +852,305 @@ class _ActionPill extends StatelessWidget {
             Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 11)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Add Participants Sheet ────────────────────────────────────────────────────
+// Mirrors the forward-target picker style: searchable list, multi-select,
+// confirm button that returns the selected user IDs.
+
+class _AddParticipantsSheet extends StatefulWidget {
+  const _AddParticipantsSheet({
+    required this.existingMemberIds,
+    required this.repo,
+  });
+  final Set<String> existingMemberIds;
+  final ApiMessagesRepository repo;
+
+  @override
+  State<_AddParticipantsSheet> createState() => _AddParticipantsSheetState();
+}
+
+class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
+  final TextEditingController _search = TextEditingController();
+  List<MessageDirectoryPerson> _people = const [];
+  final Set<String> _selected = {};
+  bool _loading = true;
+  bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    _search.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final people = await widget.repo.fetchSameSchoolPeople();
+      if (!mounted) return;
+      setState(() {
+        _people = people.where((p) => !widget.existingMemberIds.contains(p.userId)).toList();
+        _loading = false;
+      });
+    } catch (e) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  List<MessageDirectoryPerson> get _filtered {
+    final q = _search.text.trim().toLowerCase();
+    if (q.isEmpty) return _people;
+    return _people.where((p) =>
+      p.displayName.toLowerCase().contains(q) ||
+      p.gradeLabel.toLowerCase().contains(q) ||
+      p.schoolName.toLowerCase().contains(q),
+    ).toList();
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
+  void _toggle(String userId) {
+    setState(() {
+      if (_selected.contains(userId)) {
+        _selected.remove(userId);
+      } else {
+        _selected.add(userId);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final filtered = _filtered;
+    final n = _selected.length;
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.88,
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle + header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Column(
+              children: [
+                Center(
+                  child: Container(
+                    width: 36, height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.outlineVariant.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Add participants',
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    if (n > 0)
+                      FilledButton(
+                        onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
+                        child: Text(_submitting ? 'Adding…' : 'Add $n'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Search bar
+                TextField(
+                  controller: _search,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Search by name or grade…',
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: _search.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded),
+                            onPressed: () => _search.clear(),
+                          )
+                        : null,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // List
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : filtered.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant.withValues(alpha: 0.35)),
+                            const SizedBox(height: 12),
+                            Text(
+                              _search.text.isEmpty ? 'No people to add' : 'No results for "${_search.text}"',
+                              style: TextStyle(color: cs.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, i) {
+                          final p = filtered[i];
+                          final selected = _selected.contains(p.userId);
+                          final subtitle = [
+                            if (p.gradeLabel.isNotEmpty) p.gradeLabel,
+                            if (p.schoolName.isNotEmpty) p.schoolName,
+                          ].join(' · ');
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () => _toggle(p.userId),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 120),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? cs.primary.withValues(alpha: 0.10)
+                                      : cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: selected
+                                        ? cs.primary.withValues(alpha: 0.30)
+                                        : cs.outlineVariant.withValues(alpha: 0.18),
+                                    width: selected ? 1.5 : 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Avatar with gradient
+                                    Container(
+                                      width: 42, height: 42,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: selected
+                                              ? [cs.primary, cs.tertiary]
+                                              : [cs.primaryContainer, cs.secondaryContainer],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(13),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          p.initials.trim().isNotEmpty ? p.initials.trim() : _initials(p.displayName),
+                                          style: TextStyle(
+                                            color: selected ? cs.onPrimary : cs.onPrimaryContainer,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            p.displayName,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: selected ? cs.primary : cs.onSurface,
+                                            ),
+                                          ),
+                                          if (subtitle.isNotEmpty)
+                                            Text(
+                                              subtitle,
+                                              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Checkmark
+                                    AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 150),
+                                      child: selected
+                                          ? Container(
+                                              key: const ValueKey('check'),
+                                              width: 28, height: 28,
+                                              decoration: BoxDecoration(
+                                                color: cs.primary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(Icons.check_rounded, size: 16, color: cs.onPrimary),
+                                            )
+                                          : Container(
+                                              key: const ValueKey('empty'),
+                                              width: 28, height: 28,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(color: cs.outlineVariant),
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+          // Bottom confirm bar when items selected
+          if (n > 0)
+            SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  border: Border(top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.25))),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
+                    icon: _submitting
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.person_add_rounded),
+                    label: Text(_submitting ? 'Adding…' : 'Add $n participant${n == 1 ? '' : 's'}'),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
