@@ -170,10 +170,15 @@ String _normalizeMathInlineChunk(String text) {
     (m) => '\\sqrt{${m.group(1)!}}',
   );
 
-  // 2. Degree symbol → LaTeX: 75° → 75^\circ (inside and outside math)
+  // 2. Degree symbol → LaTeX: 75° → 75^\circ  (handle decimal too: 37.5°)
   t = t.replaceAllMapped(
-    RegExp(r'(\d+)°'),
+    RegExp(r'(\d+(?:\.\d+)?)°'),
     (m) => '${m.group(1)!}^\\circ',
+  );
+  // Bare ° not following a digit (edge case: e.g. "° C")
+  t = t.replaceAllMapped(
+    RegExp(r'(?<!\d)°'),
+    (_) => '^\\circ',
   );
 
   // 3a. ($A$+$B$)/n → $\frac{A+B}{n}$  (slash OUTSIDE closing paren)
@@ -193,8 +198,7 @@ String _normalizeMathInlineChunk(String text) {
     (m) => '\$\\frac{${m.group(1)!}}{${m.group(2)!}}\$',
   );
 
-  // 4. Bare trig/log function names without backslash inside $…$:
-  //    $sin(x)$ → $\sin(x)$
+  // 4a. Bare trig/log INSIDE $…$: $sin(x)$ → $\sin(x)$
   t = t.replaceAllMapped(
     RegExp(
       r'\$((?:sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln)\()',
@@ -203,14 +207,45 @@ String _normalizeMathInlineChunk(String text) {
     (m) => '\$\\${m.group(1)!}',
   );
 
+  // 4b. Bare trig/log OUTSIDE any math delimiter (e.g. "sin(x) = 0.5")
+  //     Add backslash so step 4 (_wrapBareMathCommands) picks it up later.
+  t = _replaceOutsideMathDelimiters(
+    t,
+    RegExp(
+      r'\b(sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln)\s*\(',
+      caseSensitive: true,
+    ),
+    (m) => '\\${m.group(1)!}(',
+  );
+
+  // 4c. Ohm symbol Ω → \Omega outside math delimiters
+  t = _replaceOutsideMathDelimiters(
+    t,
+    RegExp(r'(\d+(?:\.\d+)?)\s*Ω'),
+    (m) => '\$${m.group(1)!}\\,\\Omega\$',
+  );
+
+  // 4d. Micro prefix µ → \mu
+  t = t.replaceAll('µ', '\\mu ');
+
   // ── Step 1: Normalise alternate LaTeX delimiters → $...$ / $$...$$ ───────
+  // \(...\) → $...$  (inline)
   t = t.replaceAllMapped(
     RegExp(r'\\\(([\s\S]*?)\\\)'),
     (m) => '\$${m.group(1)!}\$',
   );
+  // \[...\] → $$...$$ when standalone, $...$ when embedded mid-sentence.
+  final srcForCtx = t;
   t = t.replaceAllMapped(
     RegExp(r'\\\[([\s\S]*?)\\\]'),
-    (m) => '\$\$${m.group(1)!}\$\$',
+    (m) {
+      final content = m.group(1)!;
+      final before = m.start > 0 ? srcForCtx[m.start - 1] : '\n';
+      final after = m.end < srcForCtx.length ? srcForCtx[m.end] : '\n';
+      final standalone = (before == '\n' || m.start == 0) &&
+          (after == '\n' || m.end == srcForCtx.length);
+      return standalone ? '\$\$$content\$\$' : '\$$content\$';
+    },
   );
 
   // Step 2: Repair missing backslashes on common LaTeX command names written

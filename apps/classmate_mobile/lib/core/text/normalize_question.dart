@@ -1,9 +1,15 @@
+/// Cleans up plain text for rendering inside MathView or plain text widgets.
+/// Preserves intentional line breaks — does NOT convert single newlines to
+/// spaces, because step-by-step explanations need those breaks.
 String normalizeQuestionText(String input) {
   var s = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-  // Collapse 3+ consecutive newlines to a single paragraph break.
-  s = s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
-  // Single newlines within a paragraph → space.
-  s = s.replaceAllMapped(RegExp(r'(?<!\n)\n(?!\n)'), (_) => ' ');
+  // Collapse 4+ consecutive newlines to a paragraph break.
+  s = s.replaceAll(RegExp(r'\n{4,}'), '\n\n\n');
+  // Collapse 3 consecutive newlines to two.
+  s = s.replaceAll(RegExp(r'\n{3}'), '\n\n');
+  // Remove trailing whitespace on each line.
+  s = s.split('\n').map((line) => line.trimRight()).join('\n');
+  // Collapse multiple inline spaces (but not newlines).
   s = s.replaceAll(RegExp(r'[ \t]{2,}'), ' ');
   return s.trim();
 }
@@ -29,7 +35,7 @@ final _unambiguousMathRe = RegExp(
   r'forall|exists|neg|vec|hat|bar|tilde|dot|ddot|'
   r'overline|underline|widehat|widetilde|overbrace|underbrace|'
   r'overrightarrow|overleftarrow|'
-  r'mathbf|mathbb|mathcal|mathrm|mathit|boldsymbol|'
+  r'mathbf|mathbb|mathcal|mathrm|mathit|boldsymbol|text|'
   r'rightarrow|leftarrow|Rightarrow|Leftarrow|leftrightarrow|Leftrightarrow|'
   r'uparrow|downarrow|'
   r'sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|'
@@ -48,9 +54,8 @@ final _mathRunRe = RegExp(
   r')*',
 );
 
-/// Converts Unicode math symbols to their LaTeX equivalents so
-/// flutter_math_fork can render them. Called on raw math content (without
-/// surrounding $ delimiters).
+/// Converts Unicode math symbols to their LaTeX equivalents.
+/// Called on raw math content (without surrounding delimiters).
 String sanitizeMathLatex(String math) {
   var s = math;
 
@@ -61,9 +66,10 @@ String sanitizeMathLatex(String math) {
     (m) => '\\frac{${m.group(1)!}}{${m.group(2)!}}',
   );
 
-  // Degree symbol: 75° → 75^\circ, or bare ° → ^\circ
-  s = s.replaceAllMapped(RegExp(r'(\d+)°'), (m) => '${m.group(1)!}^\\circ');
-  s = s.replaceAll('°', '^\\circ');
+  // Degree symbol: 75° → 75^\circ  (must come before bare ° replacement)
+  s = s.replaceAllMapped(RegExp(r'(\d+(?:\.\d+)?)°'), (m) => '${m.group(1)!}^\\circ');
+  // Bare ° not following a digit (rare edge case)
+  s = s.replaceAllMapped(RegExp(r'(?<!\d)°'), (_) => '^\\circ');
 
   // Square root: √6 → \sqrt{6}, √{x} → \sqrt{x}, √n → \sqrt{n}
   s = s.replaceAllMapped(RegExp(r'√\{([^}]+)\}'), (m) => '\\sqrt{${m.group(1)!}}');
@@ -149,7 +155,7 @@ String sanitizeMathLatex(String math) {
   s = s.replaceAll('ψ', '\\psi ');
   s = s.replaceAll('ω', '\\omega ');
 
-  // Greek uppercase (Σ and Π already handled above for sum/product context)
+  // Greek uppercase (Σ and Π handled above for sum/product context)
   s = s.replaceAll('Γ', '\\Gamma ');
   s = s.replaceAll('Δ', '\\Delta ');
   s = s.replaceAll('Θ', '\\Theta ');
@@ -172,10 +178,15 @@ String sanitizeMathLatex(String math) {
   s = s.replaceAll('…', '\\ldots ');
   s = s.replaceAll('‖', '\\|');
 
+  // Ohm symbol (electronics)
+  s = s.replaceAll('Ω', '\\Omega ');
+  // Micro prefix
+  s = s.replaceAll('µ', '\\mu ');
+
   return s;
 }
 
-/// Applies [fn] to the content inside every $...$ and $$...$$ region.
+/// Applies [fn] to the content inside every \$...\$ and \$\$...\$\$ region.
 String applyToMathRegions(String text, String Function(String) fn) {
   final mathRe = RegExp(r'\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$');
   final out = StringBuffer();
@@ -183,10 +194,8 @@ String applyToMathRegions(String text, String Function(String) fn) {
   for (final m in mathRe.allMatches(text)) {
     if (m.start > cursor) out.write(text.substring(cursor, m.start));
     if (m.group(1) != null) {
-      // Block math $$...$$
       out.write('\$\$${fn(m.group(1)!)}\$\$');
     } else {
-      // Inline math $...$
       out.write('\$${fn(m.group(2)!)}\$');
     }
     cursor = m.end;
@@ -196,9 +205,12 @@ String applyToMathRegions(String text, String Function(String) fn) {
 }
 
 /// Normalises LaTeX delimiters and wraps bare LaTeX as a safety net.
-/// Run order matters: delimiter normalisation first, then bare-command wrapping.
+/// Run order matters — delimiter normalisation first, then bare-command wrapping.
 String prepareRenderableText(String input) {
   var text = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+
+  // Collapse 4+ newlines to 3 (preserve up to one paragraph break max).
+  text = text.replaceAll(RegExp(r'\n{4,}'), '\n\n\n');
 
   // Protect code fences — never touch LaTeX inside ``` blocks.
   final fences = <String>[];
@@ -208,7 +220,7 @@ String prepareRenderableText(String input) {
     return '\x00F$idx\x00';
   });
 
-  // \[...\] → $$...$$ when on its own line (display math)
+  // \[...\] → $$...$$ when standalone on its own line (display math)
   //         → $...$  when mid-sentence (inline math)
   final sourceForContext = text;
   text = text.replaceAllMapped(
@@ -218,7 +230,8 @@ String prepareRenderableText(String input) {
       final charBefore = m.start > 0 ? sourceForContext[m.start - 1] : '\n';
       final charAfter =
           m.end < sourceForContext.length ? sourceForContext[m.end] : '\n';
-      final standaloneLeft = charBefore == '\n' || m.start == 0;
+      final standaloneLeft =
+          charBefore == '\n' || charBefore == ' ' && m.start <= 1 || m.start == 0;
       final standaloneRight =
           charAfter == '\n' || m.end == sourceForContext.length;
       return (standaloneLeft && standaloneRight)
@@ -227,7 +240,7 @@ String prepareRenderableText(String input) {
     },
   );
 
-  // \(...\) → $...$
+  // \(...\) → $...$  (inline math)
   text = text.replaceAllMapped(
     RegExp(r'\\\((.+?)\\\)', dotAll: true),
     (m) => '\$${m.group(1)!}\$',
@@ -236,17 +249,33 @@ String prepareRenderableText(String input) {
   // Wrap bare \begin{env}...\end{env} not already inside delimiters.
   text = _wrapBareEnvironments(text);
 
-  // Safety net: wrap any remaining bare \command{args} runs outside delimiters.
+  // Safety net: wrap any remaining bare \command{args} outside delimiters.
   text = _wrapBareMathCommands(text);
 
   // Sanitize Unicode math symbols inside all math regions.
   text = applyToMathRegions(text, sanitizeMathLatex);
+
+  // Remove blank lines that were inserted directly before/after inline math.
+  // (Inline math must not create paragraph breaks.)
+  text = _removeBlankLinesAroundInlineMath(text);
 
   // Restore code fences.
   for (var i = 0; i < fences.length; i++) {
     text = text.replaceFirst('\x00F$i\x00', fences[i]);
   }
 
+  return text;
+}
+
+/// Removes stray blank lines that appear immediately before/after an inline
+/// \$...\$ span (not \$\$...\$\$). These cause inline math to become a
+/// paragraph, which breaks rendering.
+String _removeBlankLinesAroundInlineMath(String text) {
+  // Collapse blank line immediately before an inline-math-only line.
+  text = text.replaceAllMapped(
+    RegExp(r'\n\n(\$(?!\$)[^$\n]+?\$)\n\n'),
+    (m) => ' ${m.group(1)!} ',
+  );
   return text;
 }
 
@@ -274,6 +303,9 @@ String _wrapBareEnvironments(String text) {
 }
 
 /// Safety-net wrapper for bare \command{args} runs outside delimiters.
+/// Conservative: only wraps when a paragraph contains LaTeX math commands.
+/// A paragraph is treated as "pure math" (→ $$...$$) only when it contains
+/// NO prose words at all — otherwise individual runs are wrapped as inline.
 String _wrapBareMathCommands(String text) {
   if (!_unambiguousMathRe.hasMatch(text)) return text;
 
@@ -288,16 +320,18 @@ String _wrapBareMathCommands(String text) {
     },
   );
 
-  // Process paragraph by paragraph.
+  // Process paragraph by paragraph (split on 2+ newlines).
   final paras = t.split(RegExp(r'\n{2,}'));
   final result = paras.map((para) {
     if (!_unambiguousMathRe.hasMatch(para)) return para;
 
+    // Only wrap as display ($$...$$) when the paragraph is PURELY math —
+    // no prose words whatsoever, no sentence structure.
     if (_isPureMathParagraph(para)) {
       return '\$\$${para.trim()}\$\$';
     }
 
-    // Mixed paragraph: wrap each bare run individually.
+    // Mixed paragraph: wrap each bare run individually as inline ($...$).
     final buf = StringBuffer();
     var cursor = 0;
     for (final m in _mathRunRe.allMatches(para)) {
@@ -316,15 +350,26 @@ String _wrapBareMathCommands(String text) {
   return out;
 }
 
-/// Returns true when [para] is entirely mathematical content.
+/// Returns true ONLY when [para] is entirely mathematical content with
+/// absolutely no prose. Stricter than before — requires the content to be
+/// devoid of any sentence fragments, articles, or plain-English words.
 bool _isPureMathParagraph(String para) {
   final trimmed = para.trim();
   if (trimmed.isEmpty) return false;
   if (!_unambiguousMathRe.hasMatch(trimmed)) return false;
 
+  // Strip all math runs and all non-letter chars.
   final stripped = trimmed
       .replaceAll(_mathRunRe, '')
       .replaceAll(RegExp(r'[\d+\-*/=<>()\[\]^_,.|;:!?\\\s{}]'), '');
 
-  return !RegExp(r'[a-zA-Z]{3,}').hasMatch(stripped);
+  // If anything with 2+ letters remains, treat as mixed prose — NOT pure math.
+  // This is stricter than the old 3-letter threshold, preventing sentences
+  // like "at x = 5" from being classified as pure math.
+  if (RegExp(r'[a-zA-Z]{2,}').hasMatch(stripped)) return false;
+
+  // Also reject if the paragraph looks like a sentence (ends with . ? !)
+  if (RegExp(r'[.?!]\s*$').hasMatch(trimmed)) return false;
+
+  return true;
 }

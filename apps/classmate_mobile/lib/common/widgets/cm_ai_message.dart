@@ -112,14 +112,19 @@ class CMAiMessage extends StatelessWidget {
   }
 
   static double _blockGap(List<_Block> blocks, int i, bool compact) {
-    if (compact) return 3;
+    if (compact) return 4;
     final a = blocks[i].type;
     final b = blocks[i + 1].type;
+    // Tight gap between prose and display math — they belong together visually.
     if ((a == _BlockType.prose && b == _BlockType.blockMath) ||
         (a == _BlockType.blockMath && b == _BlockType.prose)) {
-      return 4;
+      return 6;
     }
-    return 10;
+    // Generous gap between code and anything else.
+    if (a == _BlockType.code || b == _BlockType.code) return 12;
+    // Between two display math blocks.
+    if (a == _BlockType.blockMath && b == _BlockType.blockMath) return 8;
+    return 12;
   }
 }
 
@@ -135,15 +140,18 @@ class _BlockMathWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final fontSize = (style?.fontSize ?? 15) + (compact ? 0 : 2);
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 2 : 6),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
-        child: Math.tex(
-          math,
-          mathStyle: MathStyle.display,
-          textStyle: style?.copyWith(fontSize: fontSize),
-          onErrorFallback: (_) => _MathFallback(math, style: style),
+      padding: EdgeInsets.symmetric(vertical: compact ? 3 : 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.hardEdge,
+          child: Math.tex(
+            math,
+            mathStyle: MathStyle.display,
+            textStyle: style?.copyWith(fontSize: fontSize),
+            onErrorFallback: (_) => _MathFallback(math, style: style),
+          ),
         ),
       ),
     );
@@ -231,13 +239,10 @@ class _ProseWidget extends StatelessWidget {
     // \lim_{x \to 0} before the math builder can consume them.
     //
     // The regex matches inline math: $ not preceded or followed by $,
-    // containing no newlines or bare $ characters.
+    // content may span multiple tokens but NOT multiple lines.
     final mathExprs = <String>[];
     final safeText = text.replaceAllMapped(
-      // (?<!\$)\$(?!\$) — dollar not part of $$
-      // ([^$\n]+?)      — content: no dollar, no newline, lazy
-      // (?<!\$)\$(?!\$) — closing dollar not part of $$
-      RegExp(r'(?<!\$)\$(?!\$)((?:[^$\n\\]|\\.)+)(?<!\$)\$(?!\$)'),
+      RegExp(r'(?<!\$)\$(?!\$)((?:[^$\n\\]|\\.)+?)(?<!\$)\$(?!\$)'),
       (m) {
         final raw = (m.group(1) ?? '').trim();
         if (raw.isEmpty) return m.group(0)!;
@@ -314,9 +319,9 @@ class _InlineMathWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const NeverScrollableScrollPhysics(),
+    // Render inline math at text style. Clip horizontally if it overflows —
+    // never use a scroll view here since that breaks baseline alignment.
+    return ClipRect(
       child: Math.tex(
         math,
         mathStyle: MathStyle.text,
@@ -338,11 +343,12 @@ class _MathFallback extends StatelessWidget {
   final bool inline;
 
   String _tryRepair(String src) {
-    // Try removing unsupported Unicode that wasn't caught earlier.
     var s = src
-        .replaceAll('​', '')   // zero-width space
-        .replaceAll(' ', ' ')  // non-breaking space
-        .replaceAll(RegExp(r'[^\x00-\x7Fα-ωΑ-Ω]'), '');
+        .replaceAll('​', '')  // zero-width space
+        .replaceAll(' ', ' ') // non-breaking space
+        .replaceAll(RegExp(r'[^\x00-\x7Fα-ωΑ-Ω∀-⋿]'), '');
+    // Drop dangling ^ or _ at end (causes parse error)
+    s = s.replaceAll(RegExp(r'[_^]\s*$'), '');
     return s.trim();
   }
 
