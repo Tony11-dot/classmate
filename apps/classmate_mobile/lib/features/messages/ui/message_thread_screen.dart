@@ -788,10 +788,26 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                                         if (value == 'promote') _toggleAdmin(mId, mName, mIsAdmin);
                                         if (value == 'kick') _kickMember(mId, mName);
                                       },
-                                      itemBuilder: (_) => [
-                                        PopupMenuItem(value: 'promote', child: Text(mIsAdmin ? 'Remove admin' : 'Make admin')),
-                                        const PopupMenuItem(value: 'kick', child: Text('Remove from group')),
-                                      ],
+                                      itemBuilder: (_) {
+                                        final adminCount = members.where((m) => (m['role'] ?? 'MEMBER').toString() == 'ADMIN').length;
+                                        final isLastAdmin = mIsAdmin && adminCount <= 1;
+                                        return [
+                                          if (!isLastAdmin)
+                                            PopupMenuItem(
+                                              value: 'promote',
+                                              child: Text(mIsAdmin ? 'Remove admin' : 'Make admin'),
+                                            ),
+                                          if (isLastAdmin)
+                                            PopupMenuItem(
+                                              enabled: false,
+                                              child: Text(
+                                                'Only admin — promote another first',
+                                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+                                              ),
+                                            ),
+                                          const PopupMenuItem(value: 'kick', child: Text('Remove from group')),
+                                        ];
+                                      },
                                     ) : null,
                                   );
                                 }),

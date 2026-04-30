@@ -1609,6 +1609,19 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const requesterId = this.viewerId(user);
     await this._assertDmAdmin(threadId, requesterId);
     const role = (body?.role ?? '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER';
+
+    // Prevent demoting the last admin — would leave the group unmanageable
+    if (role === 'MEMBER') {
+      const adminCount = await this.prisma.dmParticipant.count({
+        where: { threadId, role: 'ADMIN' as any, state: { not: 'BLOCKED' as any } },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Cannot remove the only admin. Promote another member first.',
+        );
+      }
+    }
+
     await this.prisma.dmParticipant.update({
       where: { threadId_userId: { threadId, userId: targetUserId } },
       data: { role: role as any },
