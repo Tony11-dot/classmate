@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -398,18 +399,20 @@ class _QuestionCard extends StatelessWidget {
           decoration: const InputDecoration(hintText: 'Long answer text'),
         );
       case StudentFormQuestionType.multipleChoice:
-        return Column(
-          children: question.options
-              .map(
-                (option) => RadioListTile<String>(
-                  value: option,
-                  groupValue: answer?.toString(),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(option),
-                  onChanged: (value) => onChanged(value),
-                ),
-              )
-              .toList(),
+        return RadioGroup<String>(
+          groupValue: answer?.toString(),
+          onChanged: (value) => onChanged(value),
+          child: Column(
+            children: question.options
+                .map(
+                  (option) => RadioListTile<String>(
+                    value: option,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(option),
+                  ),
+                )
+                .toList(),
+          ),
         );
       case StudentFormQuestionType.checkboxes:
         final selected = answer is Set<String> ? answer : <String>{};

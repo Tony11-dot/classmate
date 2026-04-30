@@ -640,10 +640,10 @@ class _ErrorState extends StatelessWidget {
         children: [
           const Icon(Icons.cloud_off_rounded, size: 34),
           const SizedBox(height: 10),
-          const Text(
-            '',
+          Text(
+            AppLocalizations.of(context)!.scheduleLoadError,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
           ),
           const SizedBox(height: 8),
           Text(

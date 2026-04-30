@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 
 import '../domain/practice_models.dart';
 import 'practice_prompt_builder.dart';
@@ -18,7 +17,6 @@ bool _matchesTopicPath(List<String> left, List<String> right) {
   return true;
 }
 
-@visibleForTesting
 bool shouldTopUpRemotePracticeResults(PracticeFilter filter) {
   final catalogTopics = practiceSubjectCatalog[filter.subject] ?? const <List<String>>[];
   return catalogTopics.any((topicPath) => _matchesTopicPath(topicPath, filter.topicPath));
@@ -402,8 +400,6 @@ class PracticeGenerator {
 
     try {
       final uri = Uri.parse('$_apiBase/practice/generate');
-      debugPrint('practice.generate uri=$uri');
-      debugPrint('practice.generate devTokenLen=${_devToken.length}');
       final req = await client
           .postUrl(uri)
           .timeout(
@@ -440,7 +436,6 @@ class PracticeGenerator {
         if (recent.isNotEmpty) 'recentPrompts': recent,
       };
 
-      debugPrint('practice.generate payload=${jsonEncode(payload)}');
       req.write(jsonEncode(payload));
 
       final res = await req.close().timeout(
@@ -457,13 +452,8 @@ class PracticeGenerator {
               'practice.generate body timeout after 180s',
             ),
           );
-      debugPrint('practice.generate status=${res.statusCode}');
-      debugPrint(
-        'practice.generate bodyPreview=${body.replaceAll(RegExp(r'\s+'), ' ').substring(0, body.length > 600 ? 600 : body.length)}',
-      );
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        debugPrint('practice.generate http ${res.statusCode}: $body');
         return const [];
       }
 
@@ -497,9 +487,7 @@ class PracticeGenerator {
       }
 
       return out;
-    } catch (e, st) {
-      debugPrint('practice.generate failed: $e');
-      debugPrint('$st');
+    } catch (e) {
       return const [];
     } finally {
       client.close(force: true);

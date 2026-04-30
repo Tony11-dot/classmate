@@ -44,6 +44,11 @@ bool _hideTopBarForRoute(String loc) {
       l.startsWith('/teacher/announcements/') ||
       l.startsWith('/teacher/schedule/week') ||
       l.startsWith('/teacher/student/') ||
+      l.startsWith('/assignments/') ||
+      l.startsWith('/exams/') ||
+      l.startsWith('/forms/') ||
+      l.startsWith('/meetings/') ||
+      l.startsWith('/solutions/') ||
       (l.startsWith('/classrooms/') && l != '/classrooms');
 }
 
@@ -319,9 +324,9 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
             child: Transform(
               alignment: Alignment.center,
               // Translate pill horizontally with drag; scale in drag direction
-              transform: Matrix4.identity()
-                ..translate(_dragDx * 0.18, _dragDy * 0.12)
-                ..scale(sx, sy),
+              transform: (Matrix4.translationValues(_dragDx * 0.18, _dragDy * 0.12, 0.0)
+                ..setEntry(0, 0, sx)
+                ..setEntry(1, 1, sy)),
               child: NativeGlassView(
                 borderRadius: 28,
                 style: NativeGlassStyle.thin,

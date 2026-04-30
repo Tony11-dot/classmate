@@ -143,7 +143,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final title = detail.isGroup
-        ? l.messagesThreadLeaveGroupTitle.replaceFirst('?', '').trim() + '?'
+        ? '${l.messagesThreadLeaveGroupTitle.replaceFirst('?', '').trim()}?'
         : l.messagesRequestBannerIncoming;
     final subtitle = detail.isGroup
         ? 'You were invited to join this group.'
@@ -893,7 +893,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
   List<MessageDirectoryPerson> _people = const [];
   final Set<String> _selected = {};
   bool _loading = true;
-  bool _submitting = false;
+  final bool _submitting = false;
 
   @override
   void initState() {
