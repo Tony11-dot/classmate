@@ -1390,6 +1390,7 @@ model DmThread {
   id           String          @id @default(cuid())
   type         DmThreadType    @default(DIRECT)
   title        String?
+  inviteCode   String?         @unique
   createdById  String
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
@@ -1403,6 +1404,7 @@ model DmParticipant {
   userId     String
   role       DmParticipantRole  @default(MEMBER)
   state      DmParticipantState @default(ACCEPTED)
+  isMuted    Boolean            @default(false)
   lastSeenAt DateTime?
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt

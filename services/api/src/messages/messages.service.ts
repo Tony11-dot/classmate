@@ -1527,7 +1527,11 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
 
   async getThreadInfo(user: AppUser, threadId: string) {
     const userId = this.viewerId(user);
-    const me = await this._assertDmMember(threadId, userId);
+    const meRaw = await this.prisma.dmParticipant.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      select: { role: true, state: true, isMuted: true },
+    });
+    if (!meRaw || meRaw.state === 'BLOCKED') throw new BadRequestException('Not a member of this thread');
 
     const thread = await this.prisma.dmThread.findUnique({
       where: { id: threadId },
@@ -1556,8 +1560,9 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         title: thread.title ?? null,
         groupAvatarUrl: null,
         createdAt: thread.createdAt,
-        myRole: me.role,
-        isMuted: false,
+        inviteCode: thread.inviteCode ?? null,
+        myRole: meRaw.role,
+        isMuted: meRaw.isMuted,
         members: (thread as any).participants.map((p: any) => {
           const u = userMap.get(p.userId);
           return {
@@ -1612,9 +1617,75 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
   }
 
   async toggleMuteThread(user: AppUser, threadId: string) {
-    // DmParticipant has no isMuted — toggle via state for now
-    await this._assertDmMember(threadId, this.viewerId(user));
-    return { ok: true, isMuted: false };
+    const userId = this.viewerId(user);
+    await this._assertDmMember(threadId, userId);
+    const current = await this.prisma.dmParticipant.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      select: { isMuted: true },
+    });
+    const isMuted = !(current?.isMuted ?? false);
+    await this.prisma.dmParticipant.update({
+      where: { threadId_userId: { threadId, userId } },
+      data: { isMuted },
+    });
+    return { ok: true, isMuted };
+  }
+
+  async blockGroupMember(user: AppUser, threadId: string, targetUserId: string) {
+    const requesterId = this.viewerId(user);
+    await this._assertDmAdmin(threadId, requesterId);
+    // Set the target's state to BLOCKED so they can't see messages
+    await this.prisma.dmParticipant.update({
+      where: { threadId_userId: { threadId, userId: targetUserId } },
+      data: { state: 'BLOCKED' as any },
+    });
+    return { ok: true };
+  }
+
+  async generateGroupInviteCode(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    const me = await this._assertDmMember(threadId, userId);
+    if (me.role !== 'ADMIN') throw new ForbiddenException('Admin only');
+
+    const thread = await this.prisma.dmThread.findUnique({
+      where: { id: threadId },
+      select: { type: true, inviteCode: true },
+    });
+    if (!thread) throw new BadRequestException('Thread not found');
+    if (thread.type !== 'GROUP') throw new BadRequestException('Only groups have invite codes');
+
+    // Return existing code or generate a new 8-char alphanumeric one
+    if (thread.inviteCode) return { ok: true, inviteCode: thread.inviteCode };
+
+    const code = Array.from({ length: 8 }, () =>
+      'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'[
+        Math.floor(Math.random() * 55)
+      ],
+    ).join('');
+
+    await this.prisma.dmThread.update({ where: { id: threadId }, data: { inviteCode: code } });
+    return { ok: true, inviteCode: code };
+  }
+
+  async joinGroupByCode(user: AppUser, body: { code?: string }) {
+    const userId = this.viewerId(user);
+    const code = String(body?.code ?? '').trim();
+    if (!code) throw new BadRequestException('code is required');
+
+    const thread = await (this.prisma as any).dmThread.findUnique({
+      where: { inviteCode: code },
+      select: { id: true, type: true, title: true },
+    });
+    if (!thread) throw new BadRequestException('Invalid or expired invite code');
+    if (thread.type !== 'GROUP') throw new BadRequestException('This code is not for a group');
+
+    await this.prisma.dmParticipant.upsert({
+      where: { threadId_userId: { threadId: thread.id, userId } },
+      update: { state: 'ACCEPTED' as any },
+      create: { threadId: thread.id, userId, role: 'MEMBER' as any, state: 'ACCEPTED' as any },
+    });
+
+    return { ok: true, threadId: thread.id, title: thread.title };
   }
 
   async updateGroupTitle(user: AppUser, threadId: string, body: { title?: string }) {

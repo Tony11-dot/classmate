@@ -157,4 +157,19 @@ export class MessagesController {
   updateTitle(@Req() req: any, @Param('threadId') threadId: string, @Body() body: any) {
     return this.service.updateGroupTitle(req.user, threadId, body);
   }
+
+  @Post('threads/:threadId/members/:userId/block')
+  blockMember(@Req() req: any, @Param('threadId') threadId: string, @Param('userId') userId: string) {
+    return this.service.blockGroupMember(req.user, threadId, userId);
+  }
+
+  @Post('threads/:threadId/invite-code')
+  generateInviteCode(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.generateGroupInviteCode(req.user, threadId);
+  }
+
+  @Post('groups/join')
+  joinByInviteCode(@Req() req: any, @Body() body: any) {
+    return this.service.joinGroupByCode(req.user, body);
+  }
 }

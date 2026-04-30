@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/messages_repository.dart';
@@ -121,6 +122,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
           ref.invalidate(messageThreadProvider(widget.threadId));
           ref.invalidate(messagesInboxProvider);
         },
+        onLeave: _leaveGroup,
       ),
     );
   }
@@ -407,11 +409,13 @@ class _ThreadInfoSheet extends StatefulWidget {
     required this.detail,
     required this.repo,
     required this.onRefresh,
+    required this.onLeave,
   });
   final String threadId;
   final MessageThreadDetail detail;
   final MessagesRepository repo;
   final VoidCallback onRefresh;
+  final VoidCallback onLeave;
 
   @override
   State<_ThreadInfoSheet> createState() => _ThreadInfoSheetState();
@@ -421,11 +425,24 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Map<String, dynamic>? _info;
   bool _loading = true;
   String? _error;
+  String? _inviteCode;
+  bool _generatingCode = false;
+  // People search for adding members
+  List<MessageDirectoryPerson> _allPeople = const [];
+  bool _loadingPeople = false;
+  final TextEditingController _searchCtl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _load();
+    if (widget.detail.isGroup) _loadPeople();
+  }
+
+  @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -433,10 +450,26 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     try {
       final info = await (widget.repo as ApiMessagesRepository).fetchThreadInfo(threadId: widget.threadId);
       if (!mounted) return;
-      setState(() { _info = info; _loading = false; });
+      final threadInfo = info['thread'] is Map ? Map<String, dynamic>.from(info['thread'] as Map) : <String, dynamic>{};
+      setState(() {
+        _info = info;
+        _inviteCode = threadInfo['inviteCode']?.toString();
+        _loading = false;
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() { _error = e.toString(); _loading = false; });
+    }
+  }
+
+  Future<void> _loadPeople() async {
+    setState(() => _loadingPeople = true);
+    try {
+      final people = await widget.repo.fetchSameSchoolPeople();
+      if (!mounted) return;
+      setState(() { _allPeople = people; _loadingPeople = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loadingPeople = false);
     }
   }
 
@@ -447,13 +480,59 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 
+  List<MessageDirectoryPerson> get _filteredPeople {
+    final q = _searchCtl.text.trim().toLowerCase();
+    final members = _memberIds;
+    return _allPeople.where((p) {
+      if (members.contains(p.userId)) return false;
+      if (q.isEmpty) return true;
+      return p.displayName.toLowerCase().contains(q) || p.gradeLabel.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  Set<String> get _memberIds {
+    final threadInfo = _info?['thread'] is Map ? Map<String, dynamic>.from(_info!['thread'] as Map) : <String, dynamic>{};
+    final members = threadInfo['members'] is List ? (threadInfo['members'] as List) : [];
+    return members.map((m) => (m is Map ? m['userId'] : '').toString()).toSet();
+  }
+
   Future<void> _toggleMute() async {
     try {
       final muted = await (widget.repo as ApiMessagesRepository).toggleMuteThread(threadId: widget.threadId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(muted ? 'Muted' : 'Unmuted')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(muted ? 'Notifications muted' : 'Notifications unmuted')),
+      );
       _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  Future<void> _blockDm() async {
+    final cs = Theme.of(context).colorScheme;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Block this person?', style: TextStyle(fontWeight: FontWeight.w800)),
+        content: const Text('They won\'t be able to message you and you won\'t see their messages.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: cs.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Block'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await widget.repo.blockDirectThread(threadId: widget.threadId);
       widget.onRefresh();
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -484,32 +563,26 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     }
   }
 
-  Future<void> _addMember() async {
-    final ctrl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add member', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: TextField(controller: ctrl, decoration: const InputDecoration(labelText: 'Email or user ID', border: OutlineInputBorder()), autofocus: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-    final identifier = ctrl.text.trim();
-    if (identifier.isEmpty) return;
+  Future<void> _addMember(String userId) async {
     try {
-      await (widget.repo as ApiMessagesRepository).addGroupMember(
-        threadId: widget.threadId,
-        email: identifier.contains('@') ? identifier : null,
-        userId: identifier.contains('@') ? null : identifier,
-      );
+      await (widget.repo as ApiMessagesRepository).addGroupMember(threadId: widget.threadId, userId: userId);
       _load();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Member added')));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  Future<void> _generateInviteCode() async {
+    setState(() => _generatingCode = true);
+    try {
+      final code = await (widget.repo as ApiMessagesRepository).generateGroupInviteCode(threadId: widget.threadId);
+      if (!mounted) return;
+      setState(() { _inviteCode = code; _generatingCode = false; });
+    } catch (e) {
+      if (mounted) setState(() => _generatingCode = false);
     }
   }
 
@@ -537,9 +610,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Future<void> _toggleAdmin(String userId, String name, bool isAdmin) async {
     try {
       await (widget.repo as ApiMessagesRepository).updateMemberRole(
-        threadId: widget.threadId,
-        userId: userId,
-        role: isAdmin ? 'MEMBER' : 'ADMIN',
+        threadId: widget.threadId, userId: userId, role: isAdmin ? 'MEMBER' : 'ADMIN',
       );
       _load();
     } catch (e) {
@@ -557,12 +628,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     final isAdmin = myRole == 'ADMIN';
     final isMuted = threadInfo['isMuted'] == true;
     final isGroup = widget.detail.isGroup;
-    final members = threadInfo['members'] is List ? (threadInfo['members'] as List).map((m) => Map<String, dynamic>.from(m is Map ? m : {})).toList() : <Map<String, dynamic>>[];
+    final members = threadInfo['members'] is List
+        ? (threadInfo['members'] as List).map((m) => Map<String, dynamic>.from(m is Map ? m : {})).toList()
+        : <Map<String, dynamic>>[];
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      maxChildSize: 0.92,
-      minChildSize: 0.3,
+      initialChildSize: isGroup ? 0.75 : 0.55,
+      maxChildSize: 0.95,
+      minChildSize: 0.35,
       builder: (ctx, scrollCtrl) => Container(
         decoration: BoxDecoration(
           color: cs.surface,
@@ -570,6 +643,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
         ),
         child: Column(
           children: [
+            // Handle
             const SizedBox(height: 8),
             Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
@@ -577,100 +651,211 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
             CircleAvatar(
               radius: 36,
               backgroundColor: cs.primaryContainer,
-              child: Text(
-                _initials(widget.detail.title),
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: cs.onPrimaryContainer),
-              ),
+              child: Text(_initials(widget.detail.title), style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: cs.onPrimaryContainer)),
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(widget.detail.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                Flexible(
+                  child: Text(widget.detail.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+                ),
                 if (isGroup && isAdmin)
-                  IconButton(onPressed: _renameGroup, icon: const Icon(Icons.edit_rounded, size: 18)),
+                  IconButton(onPressed: _renameGroup, icon: const Icon(Icons.edit_rounded, size: 18), visualDensity: VisualDensity.compact),
               ],
             ),
             if (isGroup)
-              Text('${members.length} members', style: TextStyle(color: cs.onSurfaceVariant)),
-            const SizedBox(height: 8),
-            // Action pills
+              Text('${members.length} members', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+            const SizedBox(height: 12),
+
+            // Action pills row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _ActionPill(icon: isMuted ? Icons.volume_up_rounded : Icons.volume_off_rounded, label: isMuted ? 'Unmute' : 'Mute', onTap: _toggleMute),
-                  if (isGroup && isAdmin)
-                    _ActionPill(icon: Icons.person_add_rounded, label: 'Add', onTap: _addMember),
-                  if (isGroup)
-                    _ActionPill(icon: Icons.logout_rounded, label: 'Leave', color: cs.error, onTap: () {
-                      Navigator.of(context).pop();
-                      // Let the parent handle leave
-                    }),
+                  // Mute / Unmute
+                  _ActionPill(
+                    icon: isMuted ? Icons.notifications_off_rounded : Icons.notifications_rounded,
+                    label: isMuted ? 'Unmute' : 'Mute',
+                    onTap: _toggleMute,
+                    active: isMuted,
+                  ),
+                  const SizedBox(width: 10),
+                  // Block (DM only) or Block member
+                  if (!isGroup)
+                    _ActionPill(
+                      icon: Icons.block_rounded,
+                      label: 'Block',
+                      onTap: _blockDm,
+                      color: cs.error,
+                    ),
+                  if (isGroup) ...[
+                    _ActionPill(
+                      icon: Icons.link_rounded,
+                      label: _inviteCode != null ? 'Copy code' : 'Invite code',
+                      onTap: _inviteCode != null
+                          ? () {
+                              Clipboard.setData(
+                                ClipboardData(text: _inviteCode!),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Code copied: $_inviteCode')),
+                              );
+                            }
+                          : (isAdmin ? _generateInviteCode : null),
+                      loading: _generatingCode,
+                    ),
+                    const SizedBox(width: 10),
+                    _ActionPill(
+                      icon: Icons.logout_rounded,
+                      label: 'Leave',
+                      color: cs.error,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        widget.onLeave();
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
-            const Divider(),
-            // Members list (for groups)
+
+            // Invite code display
+            if (_inviteCode != null && isGroup)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.vpn_key_rounded, size: 16, color: cs.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _inviteCode!,
+                          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 3, color: cs.primary, fontSize: 15),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy_rounded, size: 16),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: _inviteCode!));
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invite code copied')));
+                        },
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+
+            // Content: members or participants + people search for add
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
                   : _error != null
-                      ? Center(child: Text(_error!, style: TextStyle(color: cs.error)))
+                      ? Center(child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(_error!, style: TextStyle(color: cs.error), textAlign: TextAlign.center),
+                        ))
                       : isGroup
-                          ? ListView.builder(
+                          ? ListView(
                               controller: scrollCtrl,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              itemCount: members.length,
-                              itemBuilder: (ctx2, i) {
-                                final m = members[i];
-                                final mId = (m['userId'] ?? '').toString();
-                                final mName = (m['name'] ?? '').toString();
-                                final mRole = (m['role'] ?? 'MEMBER').toString();
-                                final mIsAdmin = mRole == 'ADMIN';
-
-                                return ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: cs.primaryContainer,
-                                    child: Text(_initials(mName), style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700)),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                              children: [
+                                // Add member search (admin only)
+                                if (isAdmin) ...[
+                                  Text('Add people', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: 0.8)),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: _searchCtl,
+                                    onChanged: (_) => setState(() {}),
+                                    decoration: InputDecoration(
+                                      hintText: 'Search by name…',
+                                      prefixIcon: const Icon(Icons.search_rounded),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      filled: true,
+                                      fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                                      isDense: true,
+                                    ),
                                   ),
-                                  title: Text(mName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                  subtitle: mIsAdmin ? Text('Admin', style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700, fontSize: 11)) : null,
-                                  trailing: isAdmin ? PopupMenuButton<String>(
-                                    onSelected: (value) {
-                                      if (value == 'promote') _toggleAdmin(mId, mName, mIsAdmin);
-                                      if (value == 'kick') _kickMember(mId, mName);
-                                    },
-                                    itemBuilder: (_) => [
-                                      PopupMenuItem(value: 'promote', child: Text(mIsAdmin ? 'Demote' : 'Make Admin')),
-                                      const PopupMenuItem(value: 'kick', child: Text('Remove from group')),
-                                    ],
-                                  ) : null,
-                                );
-                              },
+                                  if (_searchCtl.text.isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    if (_loadingPeople)
+                                      const Padding(padding: EdgeInsets.all(8), child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
+                                    else
+                                      ..._filteredPeople.take(5).map((p) => ListTile(
+                                        dense: true,
+                                        leading: CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: cs.primaryContainer,
+                                          child: Text(_initials(p.displayName), style: TextStyle(fontSize: 11, color: cs.onPrimaryContainer, fontWeight: FontWeight.w700)),
+                                        ),
+                                        title: Text(p.displayName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                        subtitle: p.gradeLabel.isNotEmpty ? Text(p.gradeLabel, style: const TextStyle(fontSize: 11)) : null,
+                                        trailing: FilledButton.tonal(
+                                          onPressed: () { _searchCtl.clear(); _addMember(p.userId); },
+                                          style: FilledButton.styleFrom(minimumSize: Size.zero, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                          child: const Text('Add', style: TextStyle(fontSize: 12)),
+                                        ),
+                                      )),
+                                  ],
+                                  const SizedBox(height: 12),
+                                  const Divider(height: 1),
+                                  const SizedBox(height: 8),
+                                ],
+                                // Member list
+                                Text('${members.length} members', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: 0.8)),
+                                const SizedBox(height: 6),
+                                ...members.map((m) {
+                                  final mId = (m['userId'] ?? '').toString();
+                                  final mName = (m['name'] ?? '').toString();
+                                  final mRole = (m['role'] ?? 'MEMBER').toString();
+                                  final mIsAdmin = mRole == 'ADMIN';
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                    leading: CircleAvatar(
+                                      backgroundColor: mIsAdmin ? cs.primary : cs.primaryContainer,
+                                      child: Text(_initials(mName), style: TextStyle(color: mIsAdmin ? cs.onPrimary : cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 13)),
+                                    ),
+                                    title: Text(mName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    subtitle: mIsAdmin ? Text('Admin', style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700, fontSize: 11)) : null,
+                                    trailing: isAdmin ? PopupMenuButton<String>(
+                                      icon: const Icon(Icons.more_vert_rounded),
+                                      onSelected: (value) {
+                                        if (value == 'promote') _toggleAdmin(mId, mName, mIsAdmin);
+                                        if (value == 'kick') _kickMember(mId, mName);
+                                      },
+                                      itemBuilder: (_) => [
+                                        PopupMenuItem(value: 'promote', child: Text(mIsAdmin ? 'Remove admin' : 'Make admin')),
+                                        const PopupMenuItem(value: 'kick', child: Text('Remove from group')),
+                                      ],
+                                    ) : null,
+                                  );
+                                }),
+                              ],
                             )
                           : ListView(
                               controller: scrollCtrl,
                               padding: const EdgeInsets.all(16),
                               children: [
-                                LiquidGlassCard(
-                                  padding: const EdgeInsets.all(16),
-                                  borderRadius: BorderRadius.circular(16),
-                                  blurSigma: 10,
-                                  color: cs.surface.withValues(alpha: 0.8),
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-                                  child: Column(
-                                    children: [
-                                      for (final p in widget.detail.participants)
-                                        ListTile(
-                                          leading: CircleAvatar(child: Text(_initials(p.displayName))),
-                                          title: Text(p.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                          subtitle: p.isAdmin ? Text('Admin', style: TextStyle(color: cs.primary, fontSize: 11, fontWeight: FontWeight.w700)) : null,
-                                        ),
-                                    ],
+                                for (final p in widget.detail.participants) ...[
+                                  ListTile(
+                                    leading: CircleAvatar(child: Text(_initials(p.displayName))),
+                                    title: Text(p.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    subtitle: p.isAdmin ? Text('Admin', style: TextStyle(color: cs.primary, fontSize: 11, fontWeight: FontWeight.w700)) : null,
                                   ),
-                                ),
+                                ],
                               ],
                             ),
             ),
@@ -682,31 +867,37 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
 }
 
 class _ActionPill extends StatelessWidget {
-  const _ActionPill({required this.icon, required this.label, required this.onTap, this.color});
+  const _ActionPill({required this.icon, required this.label, required this.onTap, this.color, this.active = false, this.loading = false});
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color? color;
+  final bool active;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tint = color ?? cs.primary;
+    final tint = color ?? (active ? cs.primary : cs.onSurfaceVariant);
+    final bg = active ? cs.primaryContainer.withValues(alpha: 0.5) : cs.surfaceContainerHighest.withValues(alpha: 0.5);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: tint.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: tint.withValues(alpha: 0.2)),
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: tint.withValues(alpha: active ? 0.4 : 0.2)),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: tint, size: 22),
+            loading
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: tint))
+                : Icon(icon, color: tint, size: 20),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 12)),
+            Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 11)),
           ],
         ),
       ),

@@ -1,8 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../data/messages_repository.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
@@ -40,9 +42,110 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
   void _openBlockedPeople() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const BlockedPeopleScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const BlockedPeopleScreen()),
+    );
+  }
+
+  Future<void> _joinGroupByCode() async {
+    var joining = false;
+    String? errorMsg;
+    final codeCtrl = TextEditingController();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return StatefulBuilder(
+          builder: (ctx, setS) => Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: cs.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Container(
+                            width: 44, height: 44,
+                            decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(14)),
+                            child: Icon(Icons.group_add_rounded, color: cs.primary, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Join a Group', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                Text('Enter the invite code from the group admin', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: codeCtrl,
+                        autofocus: true,
+                        textCapitalization: TextCapitalization.characters,
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 4),
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          hintText: '• • • • • • • •',
+                          hintStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                          filled: true,
+                          fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                          errorText: errorMsg,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: joining ? null : () async {
+                            final code = codeCtrl.text.trim();
+                            if (code.isEmpty) return;
+                            joining = true;
+                            setS(() { errorMsg = null; });
+                            try {
+                              final threadId = await (ref.read(messagesRepositoryProvider) as ApiMessagesRepository).joinGroupByCode(code: code);
+                              if (!mounted) return;
+                              ref.invalidate(messagesInboxProvider);
+                              Navigator.of(ctx).pop();
+                              if (threadId != null && threadId.isNotEmpty) {
+                                context.pushNamed('dm_thread', pathParameters: {'id': threadId});
+                              }
+                            } catch (e) {
+                              joining = false;
+                              setS(() { errorMsg = e.toString().replaceFirst('Exception: ', ''); });
+                            }
+                          },
+                          icon: joining
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.group_add_rounded),
+                          label: Text(joining ? 'Joining…' : 'Join Group'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -61,6 +164,11 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                 fontWeight: FontWeight.w900,
               ),
             ),
+          ),
+          IconButton(
+            tooltip: 'Join group by code',
+            onPressed: _joinGroupByCode,
+            icon: const Icon(Icons.group_add_rounded),
           ),
           IconButton(
             tooltip: l.messagesBlockedPeopleTitle,

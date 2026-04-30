@@ -823,4 +823,30 @@ class ApiMessagesRepository implements MessagesRepository {
     );
     if (!_ok(response)) _fail('messages.updateGroupTitle', response);
   }
+
+  Future<void> blockGroupMember({required String threadId, required String userId}) async {
+    final r = await _post('/messages/threads/$threadId/members/$userId/block', {});
+    if (!_ok(r)) _fail('messages.blockGroupMember', r);
+  }
+
+  Future<String> generateGroupInviteCode({required String threadId}) async {
+    final r = await _post('/messages/threads/$threadId/invite-code', {});
+    if (!_ok(r)) _fail('messages.generateGroupInviteCode', r);
+    final body = jsonDecode(r.body);
+    return (body is Map ? body['inviteCode'] : null)?.toString() ?? '';
+  }
+
+  Future<String?> joinGroupByCode({required String code}) async {
+    final r = await _post('/messages/groups/join', {'code': code.trim()});
+    if (!_ok(r)) {
+      // Parse error message
+      try {
+        final body = jsonDecode(r.body);
+        if (body is Map && body['message'] != null) throw Exception(body['message'].toString());
+      } catch (_) {}
+      _fail('messages.joinGroupByCode', r);
+    }
+    final body = jsonDecode(r.body);
+    return body is Map ? body['threadId']?.toString() : null;
+  }
 }
