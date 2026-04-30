@@ -361,7 +361,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
             ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               itemCount: _items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (ctx, idx) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final item = _items[i];
                 final title = (item['title'] ?? '').toString();
@@ -589,7 +589,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
             ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               itemCount: _items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (ctx, idx) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final item = _items[i];
                 final title = (item['title'] ?? '').toString();
@@ -878,7 +878,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
             ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               itemCount: _items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (ctx, idx) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final item = _items[i];
                 final title = (item['title'] ?? '').toString();

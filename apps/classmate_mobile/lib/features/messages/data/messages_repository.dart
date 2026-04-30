@@ -785,7 +785,9 @@ class ApiMessagesRepository implements MessagesRepository {
 
   Future<void> addGroupMember({required String threadId, String? userId, String? email}) async {
     final r = await _post('/messages/threads/$threadId/members', {
+      // ignore: use_null_aware_elements
       if (userId != null) 'userId': userId,
+      // ignore: use_null_aware_elements
       if (email != null) 'email': email,
     });
     if (!_ok(r)) _fail('messages.addGroupMember', r);

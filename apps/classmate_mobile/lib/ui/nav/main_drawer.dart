@@ -168,7 +168,7 @@ class MainDrawer extends ConsumerWidget {
                           width: 36,
                           height: 36,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => _schoolLogoPlaceholder(cs),
+                          errorBuilder: (ctx, err, stack) => _schoolLogoPlaceholder(cs),
                         ),
                       )
                     else

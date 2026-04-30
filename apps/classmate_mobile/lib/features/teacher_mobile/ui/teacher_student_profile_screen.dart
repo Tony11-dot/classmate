@@ -58,17 +58,17 @@ class _TeacherStudentProfileScreenState
         ? Map<String, dynamic>.from(_data['attendanceBreakdown'] as Map)
         : <String, dynamic>{};
 
-    String _initials() {
+    String initials() {
       final parts = widget.studentName.trim().split(RegExp(r'\s+'));
       if (parts.isEmpty) return '?';
       if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
 
-    Color _gradeColor(int? pct) {
+    Color gradeColor(int? pct) {
       if (pct == null) return cs.onSurfaceVariant;
-      if (pct >= 80) return const Color(0xFF22C55E); // green
-      if (pct >= 60) return const Color(0xFFF59E0B); // amber
+      if (pct >= 80) return const Color(0xFF22C55E);
+      if (pct >= 60) return const Color(0xFFF59E0B);
       return cs.error;
     }
 
@@ -98,7 +98,7 @@ class _TeacherStudentProfileScreenState
                   CircleAvatar(
                     radius: 22,
                     backgroundColor: cs.primary,
-                    child: Text(_initials(), style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w800, fontSize: 16)),
+                    child: Text(initials(), style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w800, fontSize: 16)),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -142,7 +142,7 @@ class _TeacherStudentProfileScreenState
                                     label: 'Grade Avg',
                                     value: gradeAvg != null ? '$gradeAvg%' : '—',
                                     icon: Icons.grade_rounded,
-                                    color: _gradeColor(gradeAvg),
+                                    color: gradeColor(gradeAvg),
                                   )),
                                   const SizedBox(width: 10),
                                   Expanded(child: _SummaryCard(
@@ -236,7 +236,7 @@ class _TeacherStudentProfileScreenState
                                             children: [
                                               Text(
                                                 pct != null ? '$pct%' : '—',
-                                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: _gradeColor(pct)),
+                                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: gradeColor(pct)),
                                               ),
                                               if (raw != null && max != null)
                                                 Text('$raw/$max', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
