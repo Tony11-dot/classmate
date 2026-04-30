@@ -72,13 +72,29 @@ class ClassroomsRepository {
   }
 
   Future<void> joinByCode(String code) async {
-    final j = await _postJson(
-      '/student/classrooms/join',
-      <String, dynamic>{'code': code.trim()},
-      label: 'classrooms.joinByCode',
-    );
-    if (j is Map && j['ok'] != true) {
-      throw Exception((j['message'] ?? 'Invalid or expired code').toString());
+    try {
+      final j = await _postJson(
+        '/student/classrooms/join',
+        <String, dynamic>{'code': code.trim()},
+        label: 'classrooms.joinByCode',
+      );
+      if (j is Map && j['ok'] != true) {
+        throw Exception((j['message'] ?? 'Invalid or expired code').toString());
+      }
+    } on Exception catch (e) {
+      // Parse NestJS error body: "label failed (404): {"message":"..."}"
+      final raw = e.toString();
+      final bodyMatch = RegExp(r'\{.*\}').firstMatch(raw);
+      if (bodyMatch != null) {
+        try {
+          final decoded = jsonDecode(bodyMatch.group(0)!);
+          final msg = (decoded is Map ? decoded['message'] : null)?.toString().trim() ?? '';
+          if (msg.isNotEmpty) throw Exception(msg);
+        } catch (parseErr) {
+          if (parseErr is Exception && parseErr.toString() != 'Exception: $raw') rethrow;
+        }
+      }
+      rethrow;
     }
   }
 

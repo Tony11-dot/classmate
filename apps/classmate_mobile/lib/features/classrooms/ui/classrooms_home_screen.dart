@@ -38,10 +38,11 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
+        // State vars OUTSIDE the builder so they persist across setS() rebuilds
+        var joining = false;
+        String? errorMsg;
         return StatefulBuilder(
           builder: (ctx, setS) {
-            bool joining = false;
-            String? errorMsg;
 
             return Padding(
               padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
@@ -72,12 +73,14 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                     child: Icon(Icons.class_rounded, color: cs.primary, size: 22),
                                   ),
                                   const SizedBox(width: 14),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Join a Classroom', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                                      Text('Enter the code your teacher gave you', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-                                    ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Join a Classroom', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                        Text('Enter the code your teacher gave you', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
