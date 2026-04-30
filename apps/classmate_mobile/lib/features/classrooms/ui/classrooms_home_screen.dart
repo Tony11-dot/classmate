@@ -89,6 +89,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                 controller: codeCtrl,
                                 autofocus: true,
                                 textCapitalization: TextCapitalization.characters,
+                                maxLength: 10,
                                 style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 6),
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
@@ -98,6 +99,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                   filled: true,
                                   fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
                                   errorText: errorMsg,
+                                  counterText: '',
                                 ),
                                 onSubmitted: (_) async {
                                   final code = codeCtrl.text.trim();

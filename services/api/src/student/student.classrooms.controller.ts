@@ -670,9 +670,15 @@ export class StudentClassroomsController {
 
     if (!matchedCohortId) throw new NotFoundException('Invalid or expired code');
 
-    // Ensure the student has a profile in this school
+    // Ensure the student has a profile
     const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId }, select: { cohortId: true } });
     if (!sp) throw new BadRequestException('Student profile not found');
+
+    // Prevent rejoining a cohort the student is already fully in
+    if (sp.cohortId === matchedCohortId) {
+      const cohort = await this.prisma.cohort.findUnique({ where: { id: matchedCohortId }, select: { id: true, name: true, grade: true } });
+      return { ok: true, cohort, courses: [], message: 'Already a member of this cohort' };
+    }
 
     // Get all courses for this cohort
     const courses = await this.prisma.course.findMany({
@@ -705,11 +711,13 @@ export class StudentClassroomsController {
     const studentId = String(req?.user?.sub ?? req?.user?.id ?? '');
     if (!studentId) throw new BadRequestException('Missing student identity');
 
-    // Remove enrollment from this specific course
-    await this.prisma.enrollment.deleteMany({
-      where: { courseId: String(id), studentId },
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { courseId_studentId: { courseId: String(id), studentId } },
+      select: { id: true },
     });
+    if (!enrollment) throw new NotFoundException('Not enrolled in this course');
 
+    await this.prisma.enrollment.delete({ where: { courseId_studentId: { courseId: String(id), studentId } } });
     return { ok: true };
   }
 }

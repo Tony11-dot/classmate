@@ -1588,6 +1588,13 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true } });
     if (!targetUser) throw new BadRequestException('User not found');
 
+    // Blocked members cannot be re-added
+    const existing = await this.prisma.dmParticipant.findUnique({
+      where: { threadId_userId: { threadId, userId: targetUser.id } },
+      select: { state: true },
+    });
+    if (existing?.state === 'BLOCKED') throw new ForbiddenException('This user is blocked from the group');
+
     await this.prisma.dmParticipant.upsert({
       where: { threadId_userId: { threadId, userId: targetUser.id } },
       update: { state: 'ACCEPTED' as any },
@@ -1692,6 +1699,13 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     if (!thread) throw new BadRequestException('Invalid or expired invite code');
     if (thread.type !== 'GROUP') throw new BadRequestException('This code is not for a group');
 
+    // Blocked users cannot rejoin
+    const existing = await this.prisma.dmParticipant.findUnique({
+      where: { threadId_userId: { threadId: thread.id, userId } },
+      select: { state: true },
+    });
+    if (existing?.state === 'BLOCKED') throw new ForbiddenException('You have been removed from this group');
+
     await this.prisma.dmParticipant.upsert({
       where: { threadId_userId: { threadId: thread.id, userId } },
       update: { state: 'ACCEPTED' as any },
@@ -1704,6 +1718,8 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
   async updateGroupTitle(user: AppUser, threadId: string, body: { title?: string }) {
     const userId = this.viewerId(user);
     await this._assertDmAdmin(threadId, userId);
+    const thread = await this.prisma.dmThread.findUnique({ where: { id: threadId }, select: { type: true } });
+    if (thread?.type !== 'GROUP') throw new BadRequestException('Only group threads can have their title updated');
     const title = String(body?.title ?? '').trim();
     if (!title) throw new BadRequestException('title required');
     await this.prisma.dmThread.update({ where: { id: threadId }, data: { title } });

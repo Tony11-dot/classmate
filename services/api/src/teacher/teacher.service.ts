@@ -1164,6 +1164,10 @@ export class TeacherService {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsCourse(teacherId, courseId);
+    // Verify item belongs to this course (prevent cross-course deletion)
+    const item = await this.prisma.classroomAssignment.findUnique({ where: { id }, select: { courseId: true } });
+    if (!item) throw new NotFoundException('Assignment not found');
+    if (item.courseId !== courseId) throw new ForbiddenException('Assignment does not belong to this course');
     await this.prisma.classroomAssignment.delete({ where: { id } });
     return { ok: true };
   }
@@ -1189,6 +1193,7 @@ export class TeacherService {
     const title = String(body?.title ?? '').trim();
     const url = String(body?.url ?? '').trim();
     if (!title || !url) throw new BadRequestException('title and url are required');
+    try { new URL(url); } catch { throw new BadRequestException('url must be a valid URL (include https://)'); }
 
     const item = await this.prisma.classroomMaterial.create({
       data: {
@@ -1215,6 +1220,9 @@ export class TeacherService {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsCourse(teacherId, courseId);
+    const item = await this.prisma.classroomMaterial.findUnique({ where: { id }, select: { courseId: true } });
+    if (!item) throw new NotFoundException('Material not found');
+    if (item.courseId !== courseId) throw new ForbiddenException('Material does not belong to this course');
     await this.prisma.classroomMaterial.delete({ where: { id } });
     return { ok: true };
   }
@@ -1242,6 +1250,7 @@ export class TeacherService {
     const link = String(body?.link ?? '').trim();
     const startsAt = body?.startsAt ? new Date(String(body.startsAt)) : new Date();
     if (!title || !link) throw new BadRequestException('title and link are required');
+    try { new URL(link); } catch { throw new BadRequestException('link must be a valid URL (include https://)'); }
 
     const endsAt = body?.endsAt ? new Date(String(body.endsAt)) : null;
 
@@ -1271,6 +1280,9 @@ export class TeacherService {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsCourse(teacherId, courseId);
+    const item = await this.prisma.classroomMeeting.findUnique({ where: { id }, select: { courseId: true } });
+    if (!item) throw new NotFoundException('Meeting not found');
+    if (item.courseId !== courseId) throw new ForbiddenException('Meeting does not belong to this course');
     await this.prisma.classroomMeeting.delete({ where: { id } });
     return { ok: true };
   }
@@ -1544,7 +1556,13 @@ export class TeacherService {
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsCourse(teacherId, courseId);
 
-    await this.prisma.enrollment.deleteMany({ where: { courseId, studentId } });
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { courseId_studentId: { courseId, studentId } },
+      select: { id: true },
+    });
+    if (!enrollment) throw new NotFoundException('Student is not enrolled in this course');
+
+    await this.prisma.enrollment.delete({ where: { courseId_studentId: { courseId, studentId } } });
     return { ok: true };
   }
 

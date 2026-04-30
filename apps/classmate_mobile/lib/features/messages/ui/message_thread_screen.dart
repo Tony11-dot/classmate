@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/messages_repository.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -117,7 +116,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       builder: (ctx) => _ThreadInfoSheet(
         threadId: widget.threadId,
         detail: detail,
-        repo: ref.read(messagesRepositoryProvider),
+        repo: ref.read(messagesRepositoryProvider) as ApiMessagesRepository,
         onRefresh: () {
           ref.invalidate(messageThreadProvider(widget.threadId));
           ref.invalidate(messagesInboxProvider);
@@ -413,7 +412,7 @@ class _ThreadInfoSheet extends StatefulWidget {
   });
   final String threadId;
   final MessageThreadDetail detail;
-  final MessagesRepository repo;
+  final ApiMessagesRepository repo;
   final VoidCallback onRefresh;
   final VoidCallback onLeave;
 
@@ -437,7 +436,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final info = await (widget.repo as ApiMessagesRepository).fetchThreadInfo(threadId: widget.threadId);
+      final info = await widget.repo.fetchThreadInfo(threadId: widget.threadId);
       if (!mounted) return;
       final threadInfo = info['thread'] is Map ? Map<String, dynamic>.from(info['thread'] as Map) : <String, dynamic>{};
       setState(() {
@@ -466,7 +465,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
 
   Future<void> _toggleMute() async {
     try {
-      final muted = await (widget.repo as ApiMessagesRepository).toggleMuteThread(threadId: widget.threadId);
+      final muted = await widget.repo.toggleMuteThread(threadId: widget.threadId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(muted ? 'Notifications muted' : 'Notifications unmuted')),
@@ -522,7 +521,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     );
     if (ok != true || !mounted) return;
     try {
-      await (widget.repo as ApiMessagesRepository).updateGroupTitle(threadId: widget.threadId, title: ctrl.text.trim());
+      await widget.repo.updateGroupTitle(threadId: widget.threadId, title: ctrl.text.trim());
       widget.onRefresh();
       _load();
     } catch (e) {
@@ -540,14 +539,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
       useRootNavigator: true,
       builder: (ctx) => _AddParticipantsSheet(
         existingMemberIds: _memberIds,
-        repo: widget.repo as ApiMessagesRepository,
+        repo: widget.repo,
       ),
     );
     if (!mounted || added == null || added.isEmpty) return;
     int successCount = 0;
     for (final uid in added) {
       try {
-        await (widget.repo as ApiMessagesRepository).addGroupMember(threadId: widget.threadId, userId: uid);
+        await widget.repo.addGroupMember(threadId: widget.threadId, userId: uid);
         successCount++;
       } catch (_) {}
     }
@@ -563,7 +562,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Future<void> _generateInviteCode() async {
     setState(() => _generatingCode = true);
     try {
-      final code = await (widget.repo as ApiMessagesRepository).generateGroupInviteCode(threadId: widget.threadId);
+      final code = await widget.repo.generateGroupInviteCode(threadId: widget.threadId);
       if (!mounted) return;
       setState(() { _inviteCode = code; _generatingCode = false; });
     } catch (e) {
@@ -584,7 +583,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     );
     if (ok != true || !mounted) return;
     try {
-      await (widget.repo as ApiMessagesRepository).removeGroupMember(threadId: widget.threadId, userId: userId);
+      await widget.repo.removeGroupMember(threadId: widget.threadId, userId: userId);
       _load();
     } catch (e) {
       if (!mounted) return;
@@ -594,7 +593,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
 
   Future<void> _toggleAdmin(String userId, String name, bool isAdmin) async {
     try {
-      await (widget.repo as ApiMessagesRepository).updateMemberRole(
+      await widget.repo.updateMemberRole(
         threadId: widget.threadId, userId: userId, role: isAdmin ? 'MEMBER' : 'ADMIN',
       );
       _load();
