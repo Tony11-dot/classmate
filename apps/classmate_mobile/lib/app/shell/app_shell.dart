@@ -198,6 +198,9 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
   int? _hoveredIndex; // index currently under finger during drag
   int? _lastHapticIndex;
 
+  // Cached RTL state — updated every build so event handlers stay in sync
+  bool _isRtl = false;
+
   // Spring animation for release snap-back
   late final AnimationController _snapCtrl;
 
@@ -228,10 +231,12 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     return sign * (1 - 1 / (x.abs() / c + 1)) * c;
   }
 
+  // In RTL the Row reverses tab order, so physical dx maps to the mirror index.
   int _indexForLocalDx(double localDx, double totalWidth) {
     if (widget.items.isEmpty) return 0;
     final slot = totalWidth / widget.items.length;
-    return (localDx / slot).floor().clamp(0, widget.items.length - 1);
+    final raw = (localDx / slot).floor().clamp(0, widget.items.length - 1);
+    return _isRtl ? (widget.items.length - 1 - raw) : raw;
   }
 
   void _onPointerDown(PointerDownEvent e, double width) {
@@ -294,6 +299,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
 
   @override
   Widget build(BuildContext context) {
+    _isRtl = Directionality.of(context) == TextDirection.rtl;
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
@@ -345,6 +351,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                         isDark: isDark,
                         totalWidth: width,
                         dragDx: _dragDx,
+                        isRtl: _isRtl,
                       ),
                       // ── Tab icons + labels ────────────────────────────────
                       Row(
@@ -382,47 +389,62 @@ class _SelectionCapsule extends StatelessWidget {
     required this.isDark,
     required this.totalWidth,
     required this.dragDx,
+    required this.isRtl,
   });
   final int itemCount;
   final int selectedIndex;
   final bool isDark;
   final double totalWidth;
   final double dragDx; // rubber-band horizontal offset
+  final bool isRtl;
 
   @override
   Widget build(BuildContext context) {
     final slotW = totalWidth / itemCount;
     final baseW = slotW - 8;
-    // Capsule widens slightly in the drag direction (same feel as the pill).
     final stretch = (dragDx.abs() / 300).clamp(0.0, 0.12);
     final capsuleW = baseW * (1 + stretch);
-    // Shift left so the capsule stays centred in its slot while wider.
+    // Keep capsule centred in its slot as it widens.
     final offset = (capsuleW - baseW) / 2;
-    final left = slotW * selectedIndex + 4 - offset;
+    // In RTL the Row renders item 0 on the right, so we position from the
+    // right edge — symmetrically matching the visual tab order.
+    final edge = slotW * selectedIndex + 4 - offset;
 
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
-      left: left,
-      top: 5,
-      bottom: 5,
-      width: capsuleW,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.82),
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.07),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+    final child = DecoratedBox(
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.07),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
     );
+
+    return isRtl
+        ? AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            right: edge,
+            top: 5,
+            bottom: 5,
+            width: capsuleW,
+            child: child,
+          )
+        : AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            left: edge,
+            top: 5,
+            bottom: 5,
+            width: capsuleW,
+            child: child,
+          );
   }
 }
 
