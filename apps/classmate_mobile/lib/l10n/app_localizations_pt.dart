@@ -4038,4 +4038,371 @@ class AppLocalizationsPt extends AppLocalizations {
   String gradesRecentAverage(Object average) {
     return 'Média recente: $average';
   }
+
+  @override
+  String get actionCancel => 'Cancelar';
+
+  @override
+  String get actionSave => 'Salvar';
+
+  @override
+  String get actionDelete => 'Excluir';
+
+  @override
+  String get actionRemove => 'Remover';
+
+  @override
+  String get actionBlock => 'Bloquear';
+
+  @override
+  String get actionCreate => 'Criar';
+
+  @override
+  String get actionShare => 'Compartilhar';
+
+  @override
+  String get actionScheduleVerb => 'Agendar';
+
+  @override
+  String get actionAdd => 'Adicionar';
+
+  @override
+  String get actionKeep => 'Manter';
+
+  @override
+  String get actionOpen => 'Abrir';
+
+  @override
+  String get actionPublish => 'Publicar';
+
+  @override
+  String get actionPublishing => 'Publicando…';
+
+  @override
+  String get actionRefresh => 'Atualizar';
+
+  @override
+  String get msgBlockTitle => 'Bloquear esta pessoa?';
+
+  @override
+  String get msgBlockContent =>
+      'Ela não poderá te enviar mensagens e você não verá as mensagens dela.';
+
+  @override
+  String get msgRenameGroup => 'Renomear grupo';
+
+  @override
+  String get msgGroupName => 'Nome do grupo';
+
+  @override
+  String get msgMute => 'Silenciar';
+
+  @override
+  String get msgUnmute => 'Ativar som';
+
+  @override
+  String get msgInviteCode => 'Código de convite';
+
+  @override
+  String get msgCopyCode => 'Copiar código';
+
+  @override
+  String get msgLeave => 'Sair';
+
+  @override
+  String get msgInviteCodeCopied => 'Código de convite copiado';
+
+  @override
+  String msgCodeCopied(Object code) {
+    return 'Código copiado: $code';
+  }
+
+  @override
+  String msgParticipantsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count participantes adicionados',
+      one: '1 participante adicionado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count membros',
+      one: '1 membro',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgAdmin => 'Admin';
+
+  @override
+  String get msgRemoveFromGroup => 'Remover do grupo';
+
+  @override
+  String get msgMakeAdmin => 'Tornar admin';
+
+  @override
+  String get msgRemoveAdmin => 'Remover admin';
+
+  @override
+  String get msgOnlyAdmin => 'Único admin — promova outro primeiro';
+
+  @override
+  String msgRemoveMemberTitle(Object name) {
+    return 'Remover $name?';
+  }
+
+  @override
+  String get msgNotificationsMuted => 'Notificações silenciadas';
+
+  @override
+  String get msgNotificationsUnmuted => 'Notificações ativadas';
+
+  @override
+  String get msgJoinGroupTitle => 'Entrar em um Grupo';
+
+  @override
+  String get msgJoinGroupSubtitle =>
+      'Digite o código de convite do administrador do grupo';
+
+  @override
+  String get examTitle => 'Exame';
+
+  @override
+  String get examNotFound => 'Exame não encontrado';
+
+  @override
+  String get examStudyWithNova => 'Estudar com NOVA';
+
+  @override
+  String get examOpenInsights => 'Abrir análises';
+
+  @override
+  String get examAddToCalendar => 'Adicionar ao calendário';
+
+  @override
+  String get examCouldNotOpenCalendar => 'Não foi possível abrir o calendário.';
+
+  @override
+  String get formTitle => 'Formulário';
+
+  @override
+  String get formNotFound => 'Formulário não encontrado';
+
+  @override
+  String get formClosed => 'Este formulário está fechado.';
+
+  @override
+  String get formCompletion => 'Conclusão';
+
+  @override
+  String get formNoTextResponses => 'Nenhuma resposta de texto ainda.';
+
+  @override
+  String get meetingsCouldNotLoad => 'Não foi possível carregar as reuniões';
+
+  @override
+  String get meetingCouldNotLoad => 'Não foi possível carregar a reunião';
+
+  @override
+  String get insightsGenerateAction => 'Gerar análises';
+
+  @override
+  String get insightsRefreshAction => 'Atualizar';
+
+  @override
+  String get teacherGoToClassroom => 'Ir para a sala de aula';
+
+  @override
+  String get teacherMarkAttendance => 'Marcar presença';
+
+  @override
+  String get teacherPostAssignment => 'Publicar tarefa';
+
+  @override
+  String get teacherNewAnnouncementAction => 'Novo aviso';
+
+  @override
+  String get teacherViewFullWeekSchedule => 'Ver horário semanal completo';
+
+  @override
+  String get teacherGroupsLabel => 'Grupos';
+
+  @override
+  String get teacherTestsLabel => 'Testes';
+
+  @override
+  String get teacherAnnounceLabel => 'Anunciar';
+
+  @override
+  String get teacherTitleAndMessageRequired =>
+      'Título e mensagem são obrigatórios';
+
+  @override
+  String get teacherAnnouncementPublished => 'Aviso publicado';
+
+  @override
+  String teacherFailedToPublish(Object error) {
+    return 'Falha ao publicar: $error';
+  }
+
+  @override
+  String get teacherAnnouncementSectionTitle => 'Aviso';
+
+  @override
+  String get teacherAudienceSectionTitle => 'Público';
+
+  @override
+  String get teacherPinAnnouncement => 'Fixar aviso';
+
+  @override
+  String get teacherPinnedAtTop => 'Avisos fixados aparecem no topo';
+
+  @override
+  String get teacherPublishAction => 'Publicar';
+
+  @override
+  String get teacherPublishingAction => 'Publicando…';
+
+  @override
+  String get teacherAnnounceTitleLabel => 'Título *';
+
+  @override
+  String get teacherAnnounceTitleHint => 'ex. Evento escolar amanhã';
+
+  @override
+  String get teacherAnnounceMessageLabel => 'Mensagem *';
+
+  @override
+  String get teacherAnnounceMessageHint => 'Escreva o aviso completo aqui…';
+
+  @override
+  String get teacherStudentsLabel => 'Alunos';
+
+  @override
+  String get teacherParentsLabel => 'Pais';
+
+  @override
+  String get teacherTeachersLabel => 'Professores';
+
+  @override
+  String get teacherWeekScheduleTitle => 'Horário semanal';
+
+  @override
+  String get teacherCouldNotLoadSchedule =>
+      'Não foi possível carregar o horário';
+
+  @override
+  String get teacherAttendanceLast30 => 'Presença (últimos 30 dias)';
+
+  @override
+  String get teacherRecentGrades => 'Notas recentes';
+
+  @override
+  String get teacherNoGradesRecorded => 'Nenhuma nota registrada ainda';
+
+  @override
+  String get teacherGradeAvg => 'Média de notas';
+
+  @override
+  String get teacherSubmittedLabel => 'Entregue';
+
+  @override
+  String get teacherAnalyticsTitle => 'Análises';
+
+  @override
+  String get teacherGradeReports => 'Relatórios de notas';
+
+  @override
+  String get teacherAvgLabel => 'méd.';
+
+  @override
+  String teacherBelow60(Object count) {
+    return '$count abaixo de 60%';
+  }
+
+  @override
+  String teacherGradedFraction(Object graded, Object total) {
+    return '$graded/$total avaliado(s)';
+  }
+
+  @override
+  String get teacherNoGradesEntered => 'Nenhuma nota inserida ainda';
+
+  @override
+  String get teacherNewAssignment => 'Nova tarefa';
+
+  @override
+  String get teacherDeleteAssignment => 'Excluir tarefa?';
+
+  @override
+  String get teacherDeleteAssignmentContent =>
+      'Isso a removerá para todos os alunos.';
+
+  @override
+  String get teacherShareMaterialTitle => 'Compartilhar material';
+
+  @override
+  String get teacherRemoveMaterial => 'Remover material?';
+
+  @override
+  String get teacherScheduleMeetingTitle => 'Agendar reunião';
+
+  @override
+  String get teacherCancelMeetingTitle => 'Cancelar reunião?';
+
+  @override
+  String get teacherCancelMeetingAction => 'Cancelar reunião';
+
+  @override
+  String get teacherJoinMeeting => 'Entrar na reunião';
+
+  @override
+  String get teacherAddStudentTitle => 'Adicionar aluno';
+
+  @override
+  String teacherRemoveStudentTitle(Object name) {
+    return 'Remover $name?';
+  }
+
+  @override
+  String get teacherRemoveStudentContent =>
+      'Este aluno será removido desta turma.';
+
+  @override
+  String get teacherStudentAdded => 'Aluno adicionado';
+
+  @override
+  String get teacherClassroomAnalyticsTitle => 'Análises da turma';
+
+  @override
+  String get teacherOpenAnalyticsAction => 'Abrir análises';
+
+  @override
+  String teacherStudentsCount(Object count) {
+    return 'Alunos ($count)';
+  }
+
+  @override
+  String get teacherAssignmentLabel => 'Tarefa';
+
+  @override
+  String get teacherShareMaterialLabel => 'Compartilhar material';
+
+  @override
+  String get teacherAttendanceRateLabel => 'Taxa de presença';
+
+  @override
+  String get teacherSelectSessionPrompt =>
+      'Selecione uma sessão abaixo para começar a marcar a presença';
+
+  @override
+  String get teacherOpenAction => 'Abrir';
 }

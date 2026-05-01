@@ -3970,4 +3970,367 @@ class AppLocalizationsHe extends AppLocalizations {
   String gradesRecentAverage(Object average) {
     return 'ממוצע אחרון: $average';
   }
+
+  @override
+  String get actionCancel => 'ביטול';
+
+  @override
+  String get actionSave => 'שמור';
+
+  @override
+  String get actionDelete => 'מחק';
+
+  @override
+  String get actionRemove => 'הסר';
+
+  @override
+  String get actionBlock => 'חסום';
+
+  @override
+  String get actionCreate => 'צור';
+
+  @override
+  String get actionShare => 'שתף';
+
+  @override
+  String get actionScheduleVerb => 'תזמן';
+
+  @override
+  String get actionAdd => 'הוסף';
+
+  @override
+  String get actionKeep => 'שמור';
+
+  @override
+  String get actionOpen => 'פתח';
+
+  @override
+  String get actionPublish => 'פרסם';
+
+  @override
+  String get actionPublishing => 'מפרסם…';
+
+  @override
+  String get actionRefresh => 'רענן';
+
+  @override
+  String get msgBlockTitle => 'לחסום משתמש זה?';
+
+  @override
+  String get msgBlockContent =>
+      'הוא לא יוכל לשלוח לך הודעות ולא תראה את הודעותיו.';
+
+  @override
+  String get msgRenameGroup => 'שנה שם קבוצה';
+
+  @override
+  String get msgGroupName => 'שם הקבוצה';
+
+  @override
+  String get msgMute => 'השתק';
+
+  @override
+  String get msgUnmute => 'בטל השתקה';
+
+  @override
+  String get msgInviteCode => 'קוד הזמנה';
+
+  @override
+  String get msgCopyCode => 'העתק קוד';
+
+  @override
+  String get msgLeave => 'עזוב';
+
+  @override
+  String get msgInviteCodeCopied => 'קוד ההזמנה הועתק';
+
+  @override
+  String msgCodeCopied(Object code) {
+    return 'קוד הועתק: $code';
+  }
+
+  @override
+  String msgParticipantsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתתפים נוספו',
+      one: 'משתתף אחד נוסף',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count חברים',
+      one: 'חבר אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgAdmin => 'מנהל';
+
+  @override
+  String get msgRemoveFromGroup => 'הסר מהקבוצה';
+
+  @override
+  String get msgMakeAdmin => 'הפוך למנהל';
+
+  @override
+  String get msgRemoveAdmin => 'הסר הרשאות מנהל';
+
+  @override
+  String get msgOnlyAdmin => 'מנהל יחיד — קדם אחר קודם';
+
+  @override
+  String msgRemoveMemberTitle(Object name) {
+    return 'להסיר את $name?';
+  }
+
+  @override
+  String get msgNotificationsMuted => 'ההתראות הושתקו';
+
+  @override
+  String get msgNotificationsUnmuted => 'ההתראות הופעלו';
+
+  @override
+  String get msgJoinGroupTitle => 'הצטרף לקבוצה';
+
+  @override
+  String get msgJoinGroupSubtitle => 'הזן את קוד ההזמנה ממנהל הקבוצה';
+
+  @override
+  String get examTitle => 'בחינה';
+
+  @override
+  String get examNotFound => 'הבחינה לא נמצאה';
+
+  @override
+  String get examStudyWithNova => 'לימוד עם NOVA';
+
+  @override
+  String get examOpenInsights => 'פתח תובנות';
+
+  @override
+  String get examAddToCalendar => 'הוסף ליומן';
+
+  @override
+  String get examCouldNotOpenCalendar => 'לא ניתן לפתוח את היומן.';
+
+  @override
+  String get formTitle => 'טופס';
+
+  @override
+  String get formNotFound => 'הטופס לא נמצא';
+
+  @override
+  String get formClosed => 'טופס זה סגור.';
+
+  @override
+  String get formCompletion => 'השלמה';
+
+  @override
+  String get formNoTextResponses => 'אין תשובות טקסט עדיין.';
+
+  @override
+  String get meetingsCouldNotLoad => 'לא ניתן לטעון פגישות';
+
+  @override
+  String get meetingCouldNotLoad => 'לא ניתן לטעון פגישה';
+
+  @override
+  String get insightsGenerateAction => 'צור תובנות';
+
+  @override
+  String get insightsRefreshAction => 'רענן';
+
+  @override
+  String get teacherGoToClassroom => 'עבור לכיתה';
+
+  @override
+  String get teacherMarkAttendance => 'סמן נוכחות';
+
+  @override
+  String get teacherPostAssignment => 'פרסם מטלה';
+
+  @override
+  String get teacherNewAnnouncementAction => 'הודעה חדשה';
+
+  @override
+  String get teacherViewFullWeekSchedule => 'הצג לוח שבועי מלא';
+
+  @override
+  String get teacherGroupsLabel => 'קבוצות';
+
+  @override
+  String get teacherTestsLabel => 'בחינות';
+
+  @override
+  String get teacherAnnounceLabel => 'הכרז';
+
+  @override
+  String get teacherTitleAndMessageRequired => 'נדרשים כותרת והודעה';
+
+  @override
+  String get teacherAnnouncementPublished => 'ההודעה פורסמה';
+
+  @override
+  String teacherFailedToPublish(Object error) {
+    return 'הפרסום נכשל: $error';
+  }
+
+  @override
+  String get teacherAnnouncementSectionTitle => 'הודעה';
+
+  @override
+  String get teacherAudienceSectionTitle => 'קהל יעד';
+
+  @override
+  String get teacherPinAnnouncement => 'נעץ הודעה';
+
+  @override
+  String get teacherPinnedAtTop => 'הודעות מנועצות מופיעות בראש';
+
+  @override
+  String get teacherPublishAction => 'פרסם';
+
+  @override
+  String get teacherPublishingAction => 'מפרסם…';
+
+  @override
+  String get teacherAnnounceTitleLabel => 'כותרת *';
+
+  @override
+  String get teacherAnnounceTitleHint => 'לדוגמה: אירוע בית ספר מחר';
+
+  @override
+  String get teacherAnnounceMessageLabel => 'הודעה *';
+
+  @override
+  String get teacherAnnounceMessageHint => 'כתוב את ההודעה המלאה כאן…';
+
+  @override
+  String get teacherStudentsLabel => 'תלמידים';
+
+  @override
+  String get teacherParentsLabel => 'הורים';
+
+  @override
+  String get teacherTeachersLabel => 'מורים';
+
+  @override
+  String get teacherWeekScheduleTitle => 'לוח שבועי';
+
+  @override
+  String get teacherCouldNotLoadSchedule => 'לא ניתן לטעון את הלוח';
+
+  @override
+  String get teacherAttendanceLast30 => 'נוכחות (30 ימים אחרונים)';
+
+  @override
+  String get teacherRecentGrades => 'ציונים אחרונים';
+
+  @override
+  String get teacherNoGradesRecorded => 'לא נרשמו ציונים עדיין';
+
+  @override
+  String get teacherGradeAvg => 'ממוצע ציונים';
+
+  @override
+  String get teacherSubmittedLabel => 'הוגש';
+
+  @override
+  String get teacherAnalyticsTitle => 'ניתוחים';
+
+  @override
+  String get teacherGradeReports => 'דוחות ציונים';
+
+  @override
+  String get teacherAvgLabel => 'ממוצע';
+
+  @override
+  String teacherBelow60(Object count) {
+    return '$count מתחת ל-60%';
+  }
+
+  @override
+  String teacherGradedFraction(Object graded, Object total) {
+    return '$graded/$total עם ציון';
+  }
+
+  @override
+  String get teacherNoGradesEntered => 'לא הוזנו ציונים עדיין';
+
+  @override
+  String get teacherNewAssignment => 'מטלה חדשה';
+
+  @override
+  String get teacherDeleteAssignment => 'למחוק מטלה?';
+
+  @override
+  String get teacherDeleteAssignmentContent =>
+      'פעולה זו תסיר אותה לכל התלמידים.';
+
+  @override
+  String get teacherShareMaterialTitle => 'שתף חומר';
+
+  @override
+  String get teacherRemoveMaterial => 'להסיר חומר?';
+
+  @override
+  String get teacherScheduleMeetingTitle => 'תזמן פגישה';
+
+  @override
+  String get teacherCancelMeetingTitle => 'לבטל פגישה?';
+
+  @override
+  String get teacherCancelMeetingAction => 'בטל פגישה';
+
+  @override
+  String get teacherJoinMeeting => 'הצטרף לפגישה';
+
+  @override
+  String get teacherAddStudentTitle => 'הוסף תלמיד';
+
+  @override
+  String teacherRemoveStudentTitle(Object name) {
+    return 'להסיר את $name?';
+  }
+
+  @override
+  String get teacherRemoveStudentContent => 'תלמיד זה יוסר מכיתה זו.';
+
+  @override
+  String get teacherStudentAdded => 'התלמיד נוסף';
+
+  @override
+  String get teacherClassroomAnalyticsTitle => 'ניתוחי כיתה';
+
+  @override
+  String get teacherOpenAnalyticsAction => 'פתח ניתוחים';
+
+  @override
+  String teacherStudentsCount(Object count) {
+    return 'תלמידים ($count)';
+  }
+
+  @override
+  String get teacherAssignmentLabel => 'מטלה';
+
+  @override
+  String get teacherShareMaterialLabel => 'שתף חומר';
+
+  @override
+  String get teacherAttendanceRateLabel => 'שיעור נוכחות';
+
+  @override
+  String get teacherSelectSessionPrompt =>
+      'בחר סשן למטה כדי להתחיל לסמן נוכחות';
+
+  @override
+  String get teacherOpenAction => 'פתח';
 }

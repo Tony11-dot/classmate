@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -127,7 +128,7 @@ class _TeacherStudentProfileScreenState
                             const SizedBox(height: 16),
                             Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
                             const SizedBox(height: 20),
-                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
+                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
                           ]),
                         ))
                       : RefreshIndicator(
@@ -139,14 +140,14 @@ class _TeacherStudentProfileScreenState
                               Row(
                                 children: [
                                   Expanded(child: _SummaryCard(
-                                    label: 'Grade Avg',
+                                    label: AppLocalizations.of(context)!.teacherGradeAvg,
                                     value: gradeAvg != null ? '$gradeAvg%' : '—',
                                     icon: Icons.grade_rounded,
                                     color: gradeColor(gradeAvg),
                                   )),
                                   const SizedBox(width: 10),
                                   Expanded(child: _SummaryCard(
-                                    label: 'Attendance',
+                                    label: AppLocalizations.of(context)!.navAttendance,
                                     value: attRate != null ? '$attRate%' : '—',
                                     icon: Icons.fact_check_rounded,
                                     color: attRate == null ? cs.onSurfaceVariant
@@ -156,7 +157,7 @@ class _TeacherStudentProfileScreenState
                                   )),
                                   const SizedBox(width: 10),
                                   Expanded(child: _SummaryCard(
-                                    label: 'Submitted',
+                                    label: AppLocalizations.of(context)!.teacherSubmittedLabel,
                                     value: '$submissionsCount',
                                     icon: Icons.upload_file_rounded,
                                     color: cs.secondary,
@@ -176,17 +177,17 @@ class _TeacherStudentProfileScreenState
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Attendance (last 30 days)', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                                      Text(AppLocalizations.of(context)!.teacherAttendanceLast30, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                                       const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          _AttPill(label: 'Present', count: (attBreakdown['PRESENT'] ?? 0) as int, color: const Color(0xFF22C55E)),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusPresent, count: (attBreakdown['PRESENT'] ?? 0) as int, color: const Color(0xFF22C55E)),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: 'Absent', count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusAbsent, count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: 'Late', count: (attBreakdown['LATE'] ?? 0) as int, color: const Color(0xFFF59E0B)),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusLate, count: (attBreakdown['LATE'] ?? 0) as int, color: const Color(0xFFF59E0B)),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: 'Excused', count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusExcused, count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary),
                                         ],
                                       ),
                                     ],
@@ -197,7 +198,7 @@ class _TeacherStudentProfileScreenState
 
                               // Grades list
                               if (grades.isNotEmpty) ...[
-                                Text('Recent Grades', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
+                                Text(AppLocalizations.of(context)!.teacherRecentGrades, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
                                 const SizedBox(height: 10),
                                 ...grades.map((g) {
                                   final item = Map<String, dynamic>.from(g is Map ? g : {});
@@ -260,7 +261,7 @@ class _TeacherStudentProfileScreenState
                                     children: [
                                       Icon(Icons.grade_outlined, color: cs.onSurfaceVariant),
                                       const SizedBox(width: 12),
-                                      Text('No grades recorded yet', style: TextStyle(color: cs.onSurfaceVariant)),
+                                      Text(AppLocalizations.of(context)!.teacherNoGradesRecorded, style: TextStyle(color: cs.onSurfaceVariant)),
                                     ],
                                   ),
                                 ),

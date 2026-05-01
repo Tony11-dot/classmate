@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -30,11 +31,12 @@ class _TeacherNewAnnouncementScreenState
   }
 
   Future<void> _publish() async {
+    final l = AppLocalizations.of(context)!;
     final title = _titleCtrl.text.trim();
     final body = _bodyCtrl.text.trim();
     if (title.isEmpty || body.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title and message are required')),
+        SnackBar(content: Text(l.teacherTitleAndMessageRequired)),
       );
       return;
     }
@@ -49,13 +51,13 @@ class _TeacherNewAnnouncementScreenState
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Announcement published')),
+        SnackBar(content: Text(l.teacherAnnouncementPublished)),
       );
       if (context.canPop()) context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to publish: $e')),
+        SnackBar(content: Text(l.teacherFailedToPublish(e.toString()))),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -66,6 +68,7 @@ class _TeacherNewAnnouncementScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -95,7 +98,7 @@ class _TeacherNewAnnouncementScreenState
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'New Announcement',
+                      l.teacherNewAnnouncementAction,
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -104,7 +107,7 @@ class _TeacherNewAnnouncementScreenState
                     icon: _saving
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.send_rounded, size: 18),
-                    label: Text(_saving ? 'Publishing…' : 'Publish'),
+                    label: Text(_saving ? l.teacherPublishingAction : l.teacherPublishAction),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     ),
@@ -127,13 +130,13 @@ class _TeacherNewAnnouncementScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Announcement', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(l.teacherAnnouncementSectionTitle, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                         const SizedBox(height: 14),
                         TextField(
                           controller: _titleCtrl,
                           decoration: InputDecoration(
-                            labelText: 'Title *',
-                            hintText: 'e.g. School event tomorrow',
+                            labelText: l.teacherAnnounceTitleLabel,
+                            hintText: l.teacherAnnounceTitleHint,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             filled: true,
                             fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
@@ -145,8 +148,8 @@ class _TeacherNewAnnouncementScreenState
                         TextField(
                           controller: _bodyCtrl,
                           decoration: InputDecoration(
-                            labelText: 'Message *',
-                            hintText: 'Write the full announcement here…',
+                            labelText: l.teacherAnnounceMessageLabel,
+                            hintText: l.teacherAnnounceMessageHint,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             filled: true,
                             fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
@@ -170,26 +173,26 @@ class _TeacherNewAnnouncementScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Audience', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(l.teacherAudienceSectionTitle, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                         const SizedBox(height: 14),
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
                           children: [
                             _AudienceChip(
-                              label: 'Students',
+                              label: l.teacherStudentsLabel,
                               icon: Icons.school_rounded,
                               selected: _targetRole == 'STUDENT',
                               onTap: () => setState(() => _targetRole = 'STUDENT'),
                             ),
                             _AudienceChip(
-                              label: 'Parents',
+                              label: l.teacherParentsLabel,
                               icon: Icons.family_restroom_rounded,
                               selected: _targetRole == 'PARENT',
                               onTap: () => setState(() => _targetRole = 'PARENT'),
                             ),
                             _AudienceChip(
-                              label: 'Teachers',
+                              label: l.teacherTeachersLabel,
                               icon: Icons.person_rounded,
                               selected: _targetRole == 'TEACHER',
                               onTap: () => setState(() => _targetRole = 'TEACHER'),
@@ -206,8 +209,8 @@ class _TeacherNewAnnouncementScreenState
                         SwitchListTile(
                           value: _pinned,
                           onChanged: (v) => setState(() => _pinned = v),
-                          title: const Text('Pin announcement', style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Pinned announcements appear at the top'),
+                          title: Text(l.teacherPinAnnouncement, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text(l.teacherPinnedAtTop),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ],

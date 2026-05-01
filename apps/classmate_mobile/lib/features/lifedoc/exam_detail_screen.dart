@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
@@ -50,7 +51,7 @@ Future<void> _addToCalendar(
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   } else if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not open calendar.')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.examCouldNotOpenCalendar)),
     );
   }
 }
@@ -101,7 +102,7 @@ class ExamDetailScreen extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: const Text('Exam')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -120,8 +121,8 @@ class ExamDetailScreen extends ConsumerWidget {
         );
         if (exam == null || exam.id.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Exam')),
-            body: const Center(child: Text('Exam not found')),
+            appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
+            body: Center(child: Text(AppLocalizations.of(context)!.examNotFound)),
           );
         }
         return _ExamDetailBody(exam: exam);
@@ -137,10 +138,11 @@ class _ExamDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     if (exam.id.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Exam')),
-        body: const Center(child: Text('Exam not found')),
+        appBar: AppBar(title: Text(l.examTitle)),
+        body: Center(child: Text(l.examNotFound)),
       );
     }
     final cs = Theme.of(context).colorScheme;
@@ -409,19 +411,19 @@ class _ExamDetailBody extends StatelessWidget {
                     ).toString(),
                   ),
                   icon: const Icon(Icons.psychology_rounded),
-                  label: const Text('Study with NOVA'),
+                  label: Text(l.examStudyWithNova),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   onPressed: () => context.push('/insights'),
                   icon: const Icon(Icons.insights_rounded),
-                  label: const Text('Open Insights'),
+                  label: Text(l.examOpenInsights),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   onPressed: () => _addToCalendar(context, exam),
                   icon: const Icon(Icons.event_available_rounded),
-                  label: const Text('Add to calendar'),
+                  label: Text(l.examAddToCalendar),
                 ),
               ],
             ),

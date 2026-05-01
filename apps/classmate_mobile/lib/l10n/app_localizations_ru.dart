@@ -4002,4 +4002,372 @@ class AppLocalizationsRu extends AppLocalizations {
   String gradesRecentAverage(Object average) {
     return 'Recent average: $average';
   }
+
+  @override
+  String get actionCancel => 'Отмена';
+
+  @override
+  String get actionSave => 'Сохранить';
+
+  @override
+  String get actionDelete => 'Удалить';
+
+  @override
+  String get actionRemove => 'Убрать';
+
+  @override
+  String get actionBlock => 'Заблокировать';
+
+  @override
+  String get actionCreate => 'Создать';
+
+  @override
+  String get actionShare => 'Поделиться';
+
+  @override
+  String get actionScheduleVerb => 'Запланировать';
+
+  @override
+  String get actionAdd => 'Добавить';
+
+  @override
+  String get actionKeep => 'Оставить';
+
+  @override
+  String get actionOpen => 'Открыть';
+
+  @override
+  String get actionPublish => 'Опубликовать';
+
+  @override
+  String get actionPublishing => 'Публикация…';
+
+  @override
+  String get actionRefresh => 'Обновить';
+
+  @override
+  String get msgBlockTitle => 'Заблокировать этого пользователя?';
+
+  @override
+  String get msgBlockContent =>
+      'Он не сможет писать вам, и вы не будете видеть его сообщения.';
+
+  @override
+  String get msgRenameGroup => 'Переименовать группу';
+
+  @override
+  String get msgGroupName => 'Название группы';
+
+  @override
+  String get msgMute => 'Отключить звук';
+
+  @override
+  String get msgUnmute => 'Включить звук';
+
+  @override
+  String get msgInviteCode => 'Код приглашения';
+
+  @override
+  String get msgCopyCode => 'Скопировать код';
+
+  @override
+  String get msgLeave => 'Выйти';
+
+  @override
+  String get msgInviteCodeCopied => 'Код приглашения скопирован';
+
+  @override
+  String msgCodeCopied(Object code) {
+    return 'Код скопирован: $code';
+  }
+
+  @override
+  String msgParticipantsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавлено $count участников',
+      one: 'Добавлен 1 участник',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count участников',
+      one: '1 участник',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgAdmin => 'Администратор';
+
+  @override
+  String get msgRemoveFromGroup => 'Удалить из группы';
+
+  @override
+  String get msgMakeAdmin => 'Назначить администратором';
+
+  @override
+  String get msgRemoveAdmin => 'Снять права администратора';
+
+  @override
+  String get msgOnlyAdmin =>
+      'Единственный администратор — сначала повысьте другого';
+
+  @override
+  String msgRemoveMemberTitle(Object name) {
+    return 'Удалить $name?';
+  }
+
+  @override
+  String get msgNotificationsMuted => 'Уведомления отключены';
+
+  @override
+  String get msgNotificationsUnmuted => 'Уведомления включены';
+
+  @override
+  String get msgJoinGroupTitle => 'Вступить в группу';
+
+  @override
+  String get msgJoinGroupSubtitle =>
+      'Введите код приглашения от администратора группы';
+
+  @override
+  String get examTitle => 'Экзамен';
+
+  @override
+  String get examNotFound => 'Экзамен не найден';
+
+  @override
+  String get examStudyWithNova => 'Учиться с NOVA';
+
+  @override
+  String get examOpenInsights => 'Открыть аналитику';
+
+  @override
+  String get examAddToCalendar => 'Добавить в календарь';
+
+  @override
+  String get examCouldNotOpenCalendar => 'Не удалось открыть календарь.';
+
+  @override
+  String get formTitle => 'Форма';
+
+  @override
+  String get formNotFound => 'Форма не найдена';
+
+  @override
+  String get formClosed => 'Эта форма закрыта.';
+
+  @override
+  String get formCompletion => 'Завершение';
+
+  @override
+  String get formNoTextResponses => 'Текстовых ответов пока нет.';
+
+  @override
+  String get meetingsCouldNotLoad => 'Не удалось загрузить встречи';
+
+  @override
+  String get meetingCouldNotLoad => 'Не удалось загрузить встречу';
+
+  @override
+  String get insightsGenerateAction => 'Создать аналитику';
+
+  @override
+  String get insightsRefreshAction => 'Обновить';
+
+  @override
+  String get teacherGoToClassroom => 'Перейти в класс';
+
+  @override
+  String get teacherMarkAttendance => 'Отметить посещаемость';
+
+  @override
+  String get teacherPostAssignment => 'Опубликовать задание';
+
+  @override
+  String get teacherNewAnnouncementAction => 'Новое объявление';
+
+  @override
+  String get teacherViewFullWeekSchedule => 'Просмотреть недельное расписание';
+
+  @override
+  String get teacherGroupsLabel => 'Группы';
+
+  @override
+  String get teacherTestsLabel => 'Тесты';
+
+  @override
+  String get teacherAnnounceLabel => 'Объявить';
+
+  @override
+  String get teacherTitleAndMessageRequired =>
+      'Заголовок и сообщение обязательны';
+
+  @override
+  String get teacherAnnouncementPublished => 'Объявление опубликовано';
+
+  @override
+  String teacherFailedToPublish(Object error) {
+    return 'Ошибка публикации: $error';
+  }
+
+  @override
+  String get teacherAnnouncementSectionTitle => 'Объявление';
+
+  @override
+  String get teacherAudienceSectionTitle => 'Аудитория';
+
+  @override
+  String get teacherPinAnnouncement => 'Закрепить объявление';
+
+  @override
+  String get teacherPinnedAtTop =>
+      'Закреплённые объявления отображаются вверху';
+
+  @override
+  String get teacherPublishAction => 'Опубликовать';
+
+  @override
+  String get teacherPublishingAction => 'Публикация…';
+
+  @override
+  String get teacherAnnounceTitleLabel => 'Заголовок *';
+
+  @override
+  String get teacherAnnounceTitleHint => 'напр. Школьное мероприятие завтра';
+
+  @override
+  String get teacherAnnounceMessageLabel => 'Сообщение *';
+
+  @override
+  String get teacherAnnounceMessageHint => 'Напишите полное объявление здесь…';
+
+  @override
+  String get teacherStudentsLabel => 'Ученики';
+
+  @override
+  String get teacherParentsLabel => 'Родители';
+
+  @override
+  String get teacherTeachersLabel => 'Учителя';
+
+  @override
+  String get teacherWeekScheduleTitle => 'Недельное расписание';
+
+  @override
+  String get teacherCouldNotLoadSchedule => 'Не удалось загрузить расписание';
+
+  @override
+  String get teacherAttendanceLast30 => 'Посещаемость (последние 30 дней)';
+
+  @override
+  String get teacherRecentGrades => 'Последние оценки';
+
+  @override
+  String get teacherNoGradesRecorded => 'Оценок пока нет';
+
+  @override
+  String get teacherGradeAvg => 'Средний балл';
+
+  @override
+  String get teacherSubmittedLabel => 'Сдано';
+
+  @override
+  String get teacherAnalyticsTitle => 'Аналитика';
+
+  @override
+  String get teacherGradeReports => 'Отчёты об оценках';
+
+  @override
+  String get teacherAvgLabel => 'ср.';
+
+  @override
+  String teacherBelow60(Object count) {
+    return '$count ниже 60%';
+  }
+
+  @override
+  String teacherGradedFraction(Object graded, Object total) {
+    return '$graded/$total оценено';
+  }
+
+  @override
+  String get teacherNoGradesEntered => 'Оценки ещё не введены';
+
+  @override
+  String get teacherNewAssignment => 'Новое задание';
+
+  @override
+  String get teacherDeleteAssignment => 'Удалить задание?';
+
+  @override
+  String get teacherDeleteAssignmentContent =>
+      'Задание будет удалено для всех учеников.';
+
+  @override
+  String get teacherShareMaterialTitle => 'Поделиться материалом';
+
+  @override
+  String get teacherRemoveMaterial => 'Убрать материал?';
+
+  @override
+  String get teacherScheduleMeetingTitle => 'Запланировать встречу';
+
+  @override
+  String get teacherCancelMeetingTitle => 'Отменить встречу?';
+
+  @override
+  String get teacherCancelMeetingAction => 'Отменить встречу';
+
+  @override
+  String get teacherJoinMeeting => 'Присоединиться к встрече';
+
+  @override
+  String get teacherAddStudentTitle => 'Добавить ученика';
+
+  @override
+  String teacherRemoveStudentTitle(Object name) {
+    return 'Удалить $name?';
+  }
+
+  @override
+  String get teacherRemoveStudentContent =>
+      'Этот ученик будет удалён из класса.';
+
+  @override
+  String get teacherStudentAdded => 'Ученик добавлен';
+
+  @override
+  String get teacherClassroomAnalyticsTitle => 'Аналитика класса';
+
+  @override
+  String get teacherOpenAnalyticsAction => 'Открыть аналитику';
+
+  @override
+  String teacherStudentsCount(Object count) {
+    return 'Ученики ($count)';
+  }
+
+  @override
+  String get teacherAssignmentLabel => 'Задание';
+
+  @override
+  String get teacherShareMaterialLabel => 'Поделиться материалом';
+
+  @override
+  String get teacherAttendanceRateLabel => 'Уровень посещаемости';
+
+  @override
+  String get teacherSelectSessionPrompt =>
+      'Выберите сессию ниже, чтобы начать отмечать посещаемость';
+
+  @override
+  String get teacherOpenAction => 'Открыть';
 }

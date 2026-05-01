@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
@@ -37,7 +38,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: const Text('Form')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.formTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -56,8 +57,8 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         );
         if (form == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Form')),
-            body: const Center(child: Text('Form not found')),
+            appBar: AppBar(title: Text(AppLocalizations.of(context)!.formTitle)),
+            body: Center(child: Text(AppLocalizations.of(context)!.formNotFound)),
           );
         }
         return _buildScaffold(context, form);
@@ -119,7 +120,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
                 ),
                 if (!form.acceptingResponses) ...[
                   const SizedBox(height: 10),
-                  Text('This form is closed.', style: TextStyle(color: cs.onSurfaceVariant)),
+                  Text(AppLocalizations.of(context)!.formClosed, style: TextStyle(color: cs.onSurfaceVariant)),
                 ],
               ],
             ),
@@ -500,7 +501,7 @@ class _ResponsesSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Text('Completion', style: TextStyle(color: cs.onSurfaceVariant)),
+          Text(AppLocalizations.of(context)!.formCompletion, style: TextStyle(color: cs.onSurfaceVariant)),
           const SizedBox(height: 6),
           LinearProgressIndicator(value: form.summary.completionRate, minHeight: 10),
           const SizedBox(height: 6),
@@ -561,7 +562,7 @@ class _StatsCard extends StatelessWidget {
           if (question.type == StudentFormQuestionType.paragraph ||
               question.type == StudentFormQuestionType.shortAnswer) ...[
             if (question.stats.textSamples.isEmpty)
-              Text('No text responses yet.', style: TextStyle(color: cs.onSurfaceVariant)),
+              Text(AppLocalizations.of(context)!.formNoTextResponses, style: TextStyle(color: cs.onSurfaceVariant)),
             ...question.stats.textSamples.map(
               (sample) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),

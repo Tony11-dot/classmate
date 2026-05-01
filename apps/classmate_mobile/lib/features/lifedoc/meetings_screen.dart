@@ -1313,7 +1313,7 @@ class _MeetingsErrorBody extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline_rounded, size: 36),
             const SizedBox(height: 12),
-            const Text('Could not load meetings', style: TextStyle(fontWeight: FontWeight.w900)),
+            Text(AppLocalizations.of(context)!.meetingsCouldNotLoad, style: const TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             Text(
               subtitle,
@@ -1321,7 +1321,7 @@ class _MeetingsErrorBody extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
             ),
             const SizedBox(height: 14),
-            FilledButton(onPressed: onRetry, child: const Text('Retry')),
+            FilledButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.retry)),
           ],
         ),
       ),
@@ -1354,14 +1354,14 @@ class _DetailErrorBody extends StatelessWidget {
           children: [
             _DetailTopBar(onBack: () => Navigator.of(context).maybePop()),
             const SizedBox(height: 24),
-            const Text('Could not load meeting', style: TextStyle(fontWeight: FontWeight.w900)),
+            Text(AppLocalizations.of(context)!.meetingCouldNotLoad, style: const TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             Text(
               subtitle,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
             ),
             const SizedBox(height: 14),
-            FilledButton(onPressed: onRetry, child: const Text('Retry')),
+            FilledButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.retry)),
           ],
         ),
       ),

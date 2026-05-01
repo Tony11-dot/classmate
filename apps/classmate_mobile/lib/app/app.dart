@@ -37,7 +37,8 @@ class ClassMateApp extends ConsumerWidget {
       ],
       supportedLocales: const [
         Locale('en'), Locale('ar'), Locale('he'),
-        Locale('fr'), Locale('ru'),
+        Locale('fr'), Locale('ru'), Locale('de'),
+        Locale('pt'), Locale('tr'),
       ],
       themeMode: t.mode,
       theme: buildTheme(brightness: Brightness.light, s: t),

@@ -18,6 +18,8 @@ Future<void> _showSlotActionSheet(
   final cohort = slot.cohort;
   if (course == null || cohort == null) return;
 
+  final l = AppLocalizations.of(context)!;
+
   await showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
@@ -55,7 +57,7 @@ Future<void> _showSlotActionSheet(
                 const Divider(height: 1),
                 _SheetAction(
                   icon: Icons.class_rounded,
-                  label: 'Go to Classroom',
+                  label: l.teacherGoToClassroom,
                   onTap: () {
                     Navigator.of(ctx).pop();
                     context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
@@ -68,7 +70,7 @@ Future<void> _showSlotActionSheet(
                 ),
                 _SheetAction(
                   icon: Icons.fact_check_rounded,
-                  label: 'Mark Attendance',
+                  label: l.teacherMarkAttendance,
                   onTap: () {
                     Navigator.of(ctx).pop();
                     context.push('/teacher/attendance', extra: <String, dynamic>{
@@ -81,7 +83,7 @@ Future<void> _showSlotActionSheet(
                 ),
                 _SheetAction(
                   icon: Icons.assignment_rounded,
-                  label: 'Post Assignment',
+                  label: l.teacherPostAssignment,
                   onTap: () {
                     Navigator.of(ctx).pop();
                     context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
@@ -94,7 +96,7 @@ Future<void> _showSlotActionSheet(
                 ),
                 _SheetAction(
                   icon: Icons.campaign_rounded,
-                  label: 'New Announcement',
+                  label: l.teacherNewAnnouncementAction,
                   onTap: () {
                     Navigator.of(ctx).pop();
                     context.push('/teacher/announcements/new');
@@ -292,21 +294,21 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     _StatPill(
                       icon: Icons.today_rounded,
                       value: '${scheduledSlots.length}',
-                      label: 'Today',
+                      label: l.today,
                       color: cs.primary,
                     ),
                     const SizedBox(width: 8),
                     _StatPill(
                       icon: Icons.groups_rounded,
                       value: '$teachingGroups',
-                      label: 'Groups',
+                      label: l.teacherGroupsLabel,
                       color: cs.tertiary,
                     ),
                     const SizedBox(width: 8),
                     _StatPill(
                       icon: Icons.grade_rounded,
                       value: '${bundle?.assessments.length ?? 0}',
-                      label: 'Tests',
+                      label: l.teacherTestsLabel,
                       color: cs.secondary,
                     ),
                   ],
@@ -327,7 +329,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       children: [
                         Icon(Icons.calendar_view_week_rounded, size: 16, color: cs.primary),
                         const SizedBox(width: 8),
-                        Text('View full week schedule', style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13)),
+                        Text(l.teacherViewFullWeekSchedule, style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13)),
                         const Spacer(),
                         Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
                       ],
@@ -351,27 +353,27 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Quick Actions', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
+                Text(l.teacherQuickActions, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
                 const SizedBox(height: 14),
                 // Row 1 — daily actions
                 Row(
                   children: [
-                    Expanded(child: _BigActionButton(icon: Icons.fact_check_rounded, label: 'Attendance', color: cs.primary, onTap: () => context.go('/teacher/attendance'))),
+                    Expanded(child: _BigActionButton(icon: Icons.fact_check_rounded, label: l.navAttendance, color: cs.primary, onTap: () => context.go('/teacher/attendance'))),
                     const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.grade_rounded, label: 'Grades', color: cs.secondary, onTap: () => context.go('/teacher/grades'))),
+                    Expanded(child: _BigActionButton(icon: Icons.grade_rounded, label: l.navGrades, color: cs.secondary, onTap: () => context.go('/teacher/grades'))),
                     const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.groups_rounded, label: 'Classrooms', color: cs.tertiary, onTap: () => context.go('/teacher/classrooms'))),
+                    Expanded(child: _BigActionButton(icon: Icons.groups_rounded, label: l.navClassrooms, color: cs.tertiary, onTap: () => context.go('/teacher/classrooms'))),
                   ],
                 ),
                 const SizedBox(height: 10),
                 // Row 2 — communication
                 Row(
                   children: [
-                    Expanded(child: _BigActionButton(icon: Icons.chat_bubble_rounded, label: 'Messages', color: cs.primary, onTap: () => context.go('/messages'))),
+                    Expanded(child: _BigActionButton(icon: Icons.chat_bubble_rounded, label: l.navMessages, color: cs.primary, onTap: () => context.go('/messages'))),
                     const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: 'Announce', color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
+                    Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: l.teacherAnnounceLabel, color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
                     const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.psychology_rounded, label: 'NOVA', color: cs.tertiary, onTap: () => context.go('/tutor'))),
+                    Expanded(child: _BigActionButton(icon: Icons.psychology_rounded, label: l.navNova, color: cs.tertiary, onTap: () => context.go('/tutor'))),
                   ],
                 ),
                 const SizedBox(height: 10),

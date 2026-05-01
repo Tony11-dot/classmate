@@ -7068,6 +7068,666 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent average: {average}'**
   String gradesRecentAverage(Object average);
+
+  /// No description provided for @actionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get actionCancel;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
+
+  /// No description provided for @actionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get actionRemove;
+
+  /// No description provided for @actionBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get actionBlock;
+
+  /// No description provided for @actionCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get actionCreate;
+
+  /// No description provided for @actionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get actionShare;
+
+  /// No description provided for @actionScheduleVerb.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get actionScheduleVerb;
+
+  /// No description provided for @actionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get actionAdd;
+
+  /// No description provided for @actionKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get actionKeep;
+
+  /// No description provided for @actionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get actionOpen;
+
+  /// No description provided for @actionPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get actionPublish;
+
+  /// No description provided for @actionPublishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get actionPublishing;
+
+  /// No description provided for @actionRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get actionRefresh;
+
+  /// No description provided for @msgBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this person?'**
+  String get msgBlockTitle;
+
+  /// No description provided for @msgBlockContent.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be able to message you and you won\'t see their messages.'**
+  String get msgBlockContent;
+
+  /// No description provided for @msgRenameGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename group'**
+  String get msgRenameGroup;
+
+  /// No description provided for @msgGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get msgGroupName;
+
+  /// No description provided for @msgMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get msgMute;
+
+  /// No description provided for @msgUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get msgUnmute;
+
+  /// No description provided for @msgInviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code'**
+  String get msgInviteCode;
+
+  /// No description provided for @msgCopyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get msgCopyCode;
+
+  /// No description provided for @msgLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get msgLeave;
+
+  /// No description provided for @msgInviteCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code copied'**
+  String get msgInviteCodeCopied;
+
+  /// No description provided for @msgCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied: {code}'**
+  String msgCodeCopied(Object code);
+
+  /// No description provided for @msgParticipantsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 participant added} other{{count} participants added}}'**
+  String msgParticipantsAdded(int count);
+
+  /// No description provided for @msgMembersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String msgMembersCount(int count);
+
+  /// No description provided for @msgAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get msgAdmin;
+
+  /// No description provided for @msgRemoveFromGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from group'**
+  String get msgRemoveFromGroup;
+
+  /// No description provided for @msgMakeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Make admin'**
+  String get msgMakeAdmin;
+
+  /// No description provided for @msgRemoveAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove admin'**
+  String get msgRemoveAdmin;
+
+  /// No description provided for @msgOnlyAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admin — promote another first'**
+  String get msgOnlyAdmin;
+
+  /// No description provided for @msgRemoveMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String msgRemoveMemberTitle(Object name);
+
+  /// No description provided for @msgNotificationsMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications muted'**
+  String get msgNotificationsMuted;
+
+  /// No description provided for @msgNotificationsUnmuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications unmuted'**
+  String get msgNotificationsUnmuted;
+
+  /// No description provided for @msgJoinGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Group'**
+  String get msgJoinGroupTitle;
+
+  /// No description provided for @msgJoinGroupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the invite code from the group admin'**
+  String get msgJoinGroupSubtitle;
+
+  /// No description provided for @examTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get examTitle;
+
+  /// No description provided for @examNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam not found'**
+  String get examNotFound;
+
+  /// No description provided for @examStudyWithNova.
+  ///
+  /// In en, this message translates to:
+  /// **'Study with NOVA'**
+  String get examStudyWithNova;
+
+  /// No description provided for @examOpenInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Insights'**
+  String get examOpenInsights;
+
+  /// No description provided for @examAddToCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get examAddToCalendar;
+
+  /// No description provided for @examCouldNotOpenCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open calendar.'**
+  String get examCouldNotOpenCalendar;
+
+  /// No description provided for @formTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get formTitle;
+
+  /// No description provided for @formNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Form not found'**
+  String get formNotFound;
+
+  /// No description provided for @formClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This form is closed.'**
+  String get formClosed;
+
+  /// No description provided for @formCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion'**
+  String get formCompletion;
+
+  /// No description provided for @formNoTextResponses.
+  ///
+  /// In en, this message translates to:
+  /// **'No text responses yet.'**
+  String get formNoTextResponses;
+
+  /// No description provided for @meetingsCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load meetings'**
+  String get meetingsCouldNotLoad;
+
+  /// No description provided for @meetingCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load meeting'**
+  String get meetingCouldNotLoad;
+
+  /// No description provided for @insightsGenerateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Insights'**
+  String get insightsGenerateAction;
+
+  /// No description provided for @insightsRefreshAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get insightsRefreshAction;
+
+  /// No description provided for @teacherGoToClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Classroom'**
+  String get teacherGoToClassroom;
+
+  /// No description provided for @teacherMarkAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Attendance'**
+  String get teacherMarkAttendance;
+
+  /// No description provided for @teacherPostAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Assignment'**
+  String get teacherPostAssignment;
+
+  /// No description provided for @teacherNewAnnouncementAction.
+  ///
+  /// In en, this message translates to:
+  /// **'New Announcement'**
+  String get teacherNewAnnouncementAction;
+
+  /// No description provided for @teacherViewFullWeekSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'View full week schedule'**
+  String get teacherViewFullWeekSchedule;
+
+  /// No description provided for @teacherGroupsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get teacherGroupsLabel;
+
+  /// No description provided for @teacherTestsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests'**
+  String get teacherTestsLabel;
+
+  /// No description provided for @teacherAnnounceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce'**
+  String get teacherAnnounceLabel;
+
+  /// No description provided for @teacherTitleAndMessageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and message are required'**
+  String get teacherTitleAndMessageRequired;
+
+  /// No description provided for @teacherAnnouncementPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcement published'**
+  String get teacherAnnouncementPublished;
+
+  /// No description provided for @teacherFailedToPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to publish: {error}'**
+  String teacherFailedToPublish(Object error);
+
+  /// No description provided for @teacherAnnouncementSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcement'**
+  String get teacherAnnouncementSectionTitle;
+
+  /// No description provided for @teacherAudienceSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Audience'**
+  String get teacherAudienceSectionTitle;
+
+  /// No description provided for @teacherPinAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin announcement'**
+  String get teacherPinAnnouncement;
+
+  /// No description provided for @teacherPinnedAtTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned announcements appear at the top'**
+  String get teacherPinnedAtTop;
+
+  /// No description provided for @teacherPublishAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get teacherPublishAction;
+
+  /// No description provided for @teacherPublishingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get teacherPublishingAction;
+
+  /// No description provided for @teacherAnnounceTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title *'**
+  String get teacherAnnounceTitleLabel;
+
+  /// No description provided for @teacherAnnounceTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. School event tomorrow'**
+  String get teacherAnnounceTitleHint;
+
+  /// No description provided for @teacherAnnounceMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message *'**
+  String get teacherAnnounceMessageLabel;
+
+  /// No description provided for @teacherAnnounceMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the full announcement here…'**
+  String get teacherAnnounceMessageHint;
+
+  /// No description provided for @teacherStudentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get teacherStudentsLabel;
+
+  /// No description provided for @teacherParentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get teacherParentsLabel;
+
+  /// No description provided for @teacherTeachersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get teacherTeachersLabel;
+
+  /// No description provided for @teacherWeekScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Week Schedule'**
+  String get teacherWeekScheduleTitle;
+
+  /// No description provided for @teacherCouldNotLoadSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load schedule'**
+  String get teacherCouldNotLoadSchedule;
+
+  /// No description provided for @teacherAttendanceLast30.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance (last 30 days)'**
+  String get teacherAttendanceLast30;
+
+  /// No description provided for @teacherRecentGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Grades'**
+  String get teacherRecentGrades;
+
+  /// No description provided for @teacherNoGradesRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades recorded yet'**
+  String get teacherNoGradesRecorded;
+
+  /// No description provided for @teacherGradeAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade Avg'**
+  String get teacherGradeAvg;
+
+  /// No description provided for @teacherSubmittedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get teacherSubmittedLabel;
+
+  /// No description provided for @teacherAnalyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get teacherAnalyticsTitle;
+
+  /// No description provided for @teacherGradeReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade Reports'**
+  String get teacherGradeReports;
+
+  /// No description provided for @teacherAvgLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'avg'**
+  String get teacherAvgLabel;
+
+  /// No description provided for @teacherBelow60.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} below 60%'**
+  String teacherBelow60(Object count);
+
+  /// No description provided for @teacherGradedFraction.
+  ///
+  /// In en, this message translates to:
+  /// **'{graded}/{total} graded'**
+  String teacherGradedFraction(Object graded, Object total);
+
+  /// No description provided for @teacherNoGradesEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades entered yet'**
+  String get teacherNoGradesEntered;
+
+  /// No description provided for @teacherNewAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'New Assignment'**
+  String get teacherNewAssignment;
+
+  /// No description provided for @teacherDeleteAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete assignment?'**
+  String get teacherDeleteAssignment;
+
+  /// No description provided for @teacherDeleteAssignmentContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove it for all students.'**
+  String get teacherDeleteAssignmentContent;
+
+  /// No description provided for @teacherShareMaterialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Material'**
+  String get teacherShareMaterialTitle;
+
+  /// No description provided for @teacherRemoveMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove material?'**
+  String get teacherRemoveMaterial;
+
+  /// No description provided for @teacherScheduleMeetingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Meeting'**
+  String get teacherScheduleMeetingTitle;
+
+  /// No description provided for @teacherCancelMeetingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel meeting?'**
+  String get teacherCancelMeetingTitle;
+
+  /// No description provided for @teacherCancelMeetingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel meeting'**
+  String get teacherCancelMeetingAction;
+
+  /// No description provided for @teacherJoinMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Join meeting'**
+  String get teacherJoinMeeting;
+
+  /// No description provided for @teacherAddStudentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Student'**
+  String get teacherAddStudentTitle;
+
+  /// No description provided for @teacherRemoveStudentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String teacherRemoveStudentTitle(Object name);
+
+  /// No description provided for @teacherRemoveStudentContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This student will be removed from this classroom.'**
+  String get teacherRemoveStudentContent;
+
+  /// No description provided for @teacherStudentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Student added'**
+  String get teacherStudentAdded;
+
+  /// No description provided for @teacherClassroomAnalyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom Analytics'**
+  String get teacherClassroomAnalyticsTitle;
+
+  /// No description provided for @teacherOpenAnalyticsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Analytics'**
+  String get teacherOpenAnalyticsAction;
+
+  /// No description provided for @teacherStudentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Students ({count})'**
+  String teacherStudentsCount(Object count);
+
+  /// No description provided for @teacherAssignmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get teacherAssignmentLabel;
+
+  /// No description provided for @teacherShareMaterialLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share material'**
+  String get teacherShareMaterialLabel;
+
+  /// No description provided for @teacherAttendanceRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance rate'**
+  String get teacherAttendanceRateLabel;
+
+  /// No description provided for @teacherSelectSessionPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a session below to start marking attendance'**
+  String get teacherSelectSessionPrompt;
+
+  /// No description provided for @teacherOpenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get teacherOpenAction;
 }
 
 class _AppLocalizationsDelegate

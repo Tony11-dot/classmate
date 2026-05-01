@@ -3990,4 +3990,365 @@ class AppLocalizationsAr extends AppLocalizations {
   String gradesRecentAverage(Object average) {
     return 'المتوسط الأخير: $average';
   }
+
+  @override
+  String get actionCancel => 'إلغاء';
+
+  @override
+  String get actionSave => 'حفظ';
+
+  @override
+  String get actionDelete => 'حذف';
+
+  @override
+  String get actionRemove => 'إزالة';
+
+  @override
+  String get actionBlock => 'حظر';
+
+  @override
+  String get actionCreate => 'إنشاء';
+
+  @override
+  String get actionShare => 'مشاركة';
+
+  @override
+  String get actionScheduleVerb => 'جدولة';
+
+  @override
+  String get actionAdd => 'إضافة';
+
+  @override
+  String get actionKeep => 'الإبقاء';
+
+  @override
+  String get actionOpen => 'فتح';
+
+  @override
+  String get actionPublish => 'نشر';
+
+  @override
+  String get actionPublishing => 'جارٍ النشر…';
+
+  @override
+  String get actionRefresh => 'تحديث';
+
+  @override
+  String get msgBlockTitle => 'حظر هذا الشخص؟';
+
+  @override
+  String get msgBlockContent => 'لن يتمكن من مراسلتك ولن ترى رسائله.';
+
+  @override
+  String get msgRenameGroup => 'إعادة تسمية المجموعة';
+
+  @override
+  String get msgGroupName => 'اسم المجموعة';
+
+  @override
+  String get msgMute => 'كتم';
+
+  @override
+  String get msgUnmute => 'إلغاء الكتم';
+
+  @override
+  String get msgInviteCode => 'رمز الدعوة';
+
+  @override
+  String get msgCopyCode => 'نسخ الرمز';
+
+  @override
+  String get msgLeave => 'مغادرة';
+
+  @override
+  String get msgInviteCodeCopied => 'تم نسخ رمز الدعوة';
+
+  @override
+  String msgCodeCopied(Object code) {
+    return 'تم نسخ الرمز: $code';
+  }
+
+  @override
+  String msgParticipantsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تمت إضافة $count مشاركين',
+      one: 'تمت إضافة مشارك واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أعضاء',
+      one: 'عضو واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgAdmin => 'مشرف';
+
+  @override
+  String get msgRemoveFromGroup => 'إزالة من المجموعة';
+
+  @override
+  String get msgMakeAdmin => 'تعيين مشرفاً';
+
+  @override
+  String get msgRemoveAdmin => 'إلغاء الإشراف';
+
+  @override
+  String get msgOnlyAdmin => 'المشرف الوحيد — عيّن مشرفاً آخر أولاً';
+
+  @override
+  String msgRemoveMemberTitle(Object name) {
+    return 'إزالة $name؟';
+  }
+
+  @override
+  String get msgNotificationsMuted => 'تم كتم الإشعارات';
+
+  @override
+  String get msgNotificationsUnmuted => 'تم إلغاء كتم الإشعارات';
+
+  @override
+  String get msgJoinGroupTitle => 'الانضمام إلى مجموعة';
+
+  @override
+  String get msgJoinGroupSubtitle => 'أدخل رمز الدعوة من مشرف المجموعة';
+
+  @override
+  String get examTitle => 'الامتحان';
+
+  @override
+  String get examNotFound => 'الامتحان غير موجود';
+
+  @override
+  String get examStudyWithNova => 'الدراسة مع NOVA';
+
+  @override
+  String get examOpenInsights => 'فتح الرؤى';
+
+  @override
+  String get examAddToCalendar => 'إضافة إلى التقويم';
+
+  @override
+  String get examCouldNotOpenCalendar => 'تعذر فتح التقويم.';
+
+  @override
+  String get formTitle => 'النموذج';
+
+  @override
+  String get formNotFound => 'النموذج غير موجود';
+
+  @override
+  String get formClosed => 'هذا النموذج مغلق.';
+
+  @override
+  String get formCompletion => 'الإكمال';
+
+  @override
+  String get formNoTextResponses => 'لا توجد ردود نصية بعد.';
+
+  @override
+  String get meetingsCouldNotLoad => 'تعذر تحميل الاجتماعات';
+
+  @override
+  String get meetingCouldNotLoad => 'تعذر تحميل الاجتماع';
+
+  @override
+  String get insightsGenerateAction => 'إنشاء رؤى';
+
+  @override
+  String get insightsRefreshAction => 'تحديث';
+
+  @override
+  String get teacherGoToClassroom => 'الذهاب إلى الفصل';
+
+  @override
+  String get teacherMarkAttendance => 'تسجيل الحضور';
+
+  @override
+  String get teacherPostAssignment => 'نشر مهمة';
+
+  @override
+  String get teacherNewAnnouncementAction => 'إعلان جديد';
+
+  @override
+  String get teacherViewFullWeekSchedule => 'عرض جدول الأسبوع كاملاً';
+
+  @override
+  String get teacherGroupsLabel => 'المجموعات';
+
+  @override
+  String get teacherTestsLabel => 'الاختبارات';
+
+  @override
+  String get teacherAnnounceLabel => 'إعلان';
+
+  @override
+  String get teacherTitleAndMessageRequired => 'العنوان والرسالة مطلوبان';
+
+  @override
+  String get teacherAnnouncementPublished => 'تم نشر الإعلان';
+
+  @override
+  String teacherFailedToPublish(Object error) {
+    return 'فشل النشر: $error';
+  }
+
+  @override
+  String get teacherAnnouncementSectionTitle => 'إعلان';
+
+  @override
+  String get teacherAudienceSectionTitle => 'الجمهور';
+
+  @override
+  String get teacherPinAnnouncement => 'تثبيت الإعلان';
+
+  @override
+  String get teacherPinnedAtTop => 'تظهر الإعلانات المثبتة في الأعلى';
+
+  @override
+  String get teacherPublishAction => 'نشر';
+
+  @override
+  String get teacherPublishingAction => 'جارٍ النشر…';
+
+  @override
+  String get teacherAnnounceTitleLabel => 'العنوان *';
+
+  @override
+  String get teacherAnnounceTitleHint => 'مثال: حدث مدرسي غداً';
+
+  @override
+  String get teacherAnnounceMessageLabel => 'الرسالة *';
+
+  @override
+  String get teacherAnnounceMessageHint => 'اكتب الإعلان كاملاً هنا…';
+
+  @override
+  String get teacherStudentsLabel => 'الطلاب';
+
+  @override
+  String get teacherParentsLabel => 'أولياء الأمور';
+
+  @override
+  String get teacherTeachersLabel => 'المعلمون';
+
+  @override
+  String get teacherWeekScheduleTitle => 'جدول الأسبوع';
+
+  @override
+  String get teacherCouldNotLoadSchedule => 'تعذر تحميل الجدول';
+
+  @override
+  String get teacherAttendanceLast30 => 'الحضور (آخر 30 يوماً)';
+
+  @override
+  String get teacherRecentGrades => 'الدرجات الأخيرة';
+
+  @override
+  String get teacherNoGradesRecorded => 'لا توجد درجات مسجلة بعد';
+
+  @override
+  String get teacherGradeAvg => 'متوسط الدرجات';
+
+  @override
+  String get teacherSubmittedLabel => 'المُسلَّم';
+
+  @override
+  String get teacherAnalyticsTitle => 'التحليلات';
+
+  @override
+  String get teacherGradeReports => 'تقارير الدرجات';
+
+  @override
+  String get teacherAvgLabel => 'متوسط';
+
+  @override
+  String teacherBelow60(Object count) {
+    return '$count أقل من 60%';
+  }
+
+  @override
+  String teacherGradedFraction(Object graded, Object total) {
+    return '$graded/$total تم تقييمه';
+  }
+
+  @override
+  String get teacherNoGradesEntered => 'لم يتم إدخال درجات بعد';
+
+  @override
+  String get teacherNewAssignment => 'مهمة جديدة';
+
+  @override
+  String get teacherDeleteAssignment => 'حذف المهمة؟';
+
+  @override
+  String get teacherDeleteAssignmentContent => 'سيتم إزالتها لجميع الطلاب.';
+
+  @override
+  String get teacherShareMaterialTitle => 'مشاركة المادة';
+
+  @override
+  String get teacherRemoveMaterial => 'إزالة المادة؟';
+
+  @override
+  String get teacherScheduleMeetingTitle => 'جدولة اجتماع';
+
+  @override
+  String get teacherCancelMeetingTitle => 'إلغاء الاجتماع؟';
+
+  @override
+  String get teacherCancelMeetingAction => 'إلغاء الاجتماع';
+
+  @override
+  String get teacherJoinMeeting => 'الانضمام إلى الاجتماع';
+
+  @override
+  String get teacherAddStudentTitle => 'إضافة طالب';
+
+  @override
+  String teacherRemoveStudentTitle(Object name) {
+    return 'إزالة $name؟';
+  }
+
+  @override
+  String get teacherRemoveStudentContent =>
+      'سيتم إزالة هذا الطالب من هذه الفصل الدراسي.';
+
+  @override
+  String get teacherStudentAdded => 'تمت إضافة الطالب';
+
+  @override
+  String get teacherClassroomAnalyticsTitle => 'تحليلات الفصل';
+
+  @override
+  String get teacherOpenAnalyticsAction => 'فتح التحليلات';
+
+  @override
+  String teacherStudentsCount(Object count) {
+    return 'الطلاب ($count)';
+  }
+
+  @override
+  String get teacherAssignmentLabel => 'مهمة';
+
+  @override
+  String get teacherShareMaterialLabel => 'مشاركة المادة';
+
+  @override
+  String get teacherAttendanceRateLabel => 'معدل الحضور';
+
+  @override
+  String get teacherSelectSessionPrompt => 'اختر جلسة أدناه لبدء تسجيل الحضور';
+
+  @override
+  String get teacherOpenAction => 'فتح';
 }

@@ -341,7 +341,7 @@ class InsightsScreen extends ConsumerWidget {
                             ref.invalidate(serverInsightsProvider);
                           },
                           icon: const Icon(Icons.auto_awesome_rounded),
-                          label: const Text('Generate Insights'),
+                          label: Text(l.insightsGenerateAction),
                         ),
                       ),
                     ),
@@ -358,7 +358,7 @@ class InsightsScreen extends ConsumerWidget {
                                 ref.invalidate(serverInsightsProvider);
                               },
                               icon: const Icon(Icons.auto_awesome_rounded),
-                              label: const Text('Generate Insights'),
+                              label: Text(l.insightsGenerateAction),
                             ),
                           ),
                         );
@@ -403,7 +403,7 @@ class InsightsScreen extends ConsumerWidget {
                                     ref.invalidate(serverInsightsProvider);
                                   },
                                   icon: const Icon(Icons.refresh_rounded, size: 18),
-                                  label: const Text('Refresh'),
+                                  label: Text(l.insightsRefreshAction),
                                 ),
                               ],
                             ),

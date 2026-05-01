@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -103,9 +104,9 @@ class _TeacherWeekScheduleScreenState
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Week Schedule', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        child: Text(AppLocalizations.of(context)!.teacherWeekScheduleTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                       ),
-                      TextButton(onPressed: _goToday, child: const Text('Today')),
+                      TextButton(onPressed: _goToday, child: Text(AppLocalizations.of(context)!.today)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -212,7 +213,7 @@ class _TeacherWeekScheduleScreenState
                                                   color: cs.primary,
                                                   borderRadius: BorderRadius.circular(8),
                                                 ),
-                                                child: Text('Today', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onPrimary)),
+                                                child: Text(AppLocalizations.of(context)!.today, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onPrimary)),
                                               ),
                                             ],
                                           ],
@@ -340,11 +341,11 @@ class _ErrorState extends StatelessWidget {
           children: [
             Icon(Icons.error_outline_rounded, size: 48, color: Theme.of(context).colorScheme.error.withValues(alpha: 0.6)),
             const SizedBox(height: 16),
-            Text('Could not load schedule', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            Text(AppLocalizations.of(context)!.teacherCouldNotLoadSchedule, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 20),
-            FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
+            FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
           ],
         ),
       ),

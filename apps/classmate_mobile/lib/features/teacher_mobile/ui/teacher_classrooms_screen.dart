@@ -236,12 +236,12 @@ class _TeacherClassroomsScreenState extends ConsumerState<TeacherClassroomsScree
                                     minimumSize: Size.zero,
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.open_in_new_rounded, size: 14),
-                                      SizedBox(width: 4),
-                                      Text('Open', style: TextStyle(fontSize: 12)),
+                                      const Icon(Icons.open_in_new_rounded, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text(AppLocalizations.of(context)!.teacherOpenAction, style: const TextStyle(fontSize: 12)),
                                     ],
                                   ),
                                 ),

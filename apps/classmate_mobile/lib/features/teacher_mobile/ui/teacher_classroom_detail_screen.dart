@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import '../../chat_core/policies/chat_action_policy.dart';
@@ -235,11 +236,12 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
     final bodyCtrl = TextEditingController();
     DateTime? dueDate;
 
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setS) => AlertDialog(
-          title: const Text('New Assignment', style: TextStyle(fontWeight: FontWeight.w800)),
+          title: Text(l.teacherNewAssignment, style: const TextStyle(fontWeight: FontWeight.w800)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -289,8 +291,8 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Create')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionCreate)),
           ],
         ),
       ),
@@ -315,17 +317,18 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
   }
 
   Future<void> _delete(String id) async {
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete assignment?'),
-        content: const Text('This will remove it for all students.'),
+        title: Text(l.teacherDeleteAssignment),
+        content: Text(l.teacherDeleteAssignmentContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(l.actionDelete),
           ),
         ],
       ),
@@ -430,7 +433,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
               heroTag: 'add_assignment',
               onPressed: _showCreateDialog,
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Assignment'),
+              label: Text(AppLocalizations.of(context)!.teacherAssignmentLabel),
             ),
           ),
         ],
@@ -477,10 +480,11 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
     final urlCtrl = TextEditingController();
     final descCtrl = TextEditingController();
 
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Share Material', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(l.teacherShareMaterialTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -512,8 +516,8 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Share')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionShare)),
         ],
       ),
     );
@@ -538,16 +542,17 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
   }
 
   Future<void> _delete(String id) async {
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove material?'),
+        title: Text(l.teacherRemoveMaterial),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text(l.actionRemove),
           ),
         ],
       ),
@@ -673,7 +678,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
               heroTag: 'add_material',
               onPressed: _showShareDialog,
               icon: const Icon(Icons.add_link_rounded),
-              label: const Text('Share material'),
+              label: Text(AppLocalizations.of(context)!.teacherShareMaterialLabel),
             ),
           ),
         ],
@@ -721,11 +726,12 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
     DateTime? startDate;
     TimeOfDay? startTime;
 
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setS) => AlertDialog(
-          title: const Text('Schedule Meeting', style: TextStyle(fontWeight: FontWeight.w800)),
+          title: Text(l.teacherScheduleMeetingTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -800,8 +806,8 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Schedule')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionScheduleVerb)),
           ],
         ),
       ),
@@ -833,16 +839,17 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
   }
 
   Future<void> _delete(String id) async {
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancel meeting?'),
+        title: Text(l.teacherCancelMeetingTitle),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Keep')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionKeep)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cancel meeting'),
+            child: Text(l.teacherCancelMeetingAction),
           ),
         ],
       ),
@@ -930,7 +937,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
                                   minimumSize: Size.zero,
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                child: const Text('Join meeting', style: TextStyle(fontSize: 13)),
+                                child: Text(AppLocalizations.of(context)!.teacherJoinMeeting, style: const TextStyle(fontSize: 13)),
                               ),
                             ],
                           ],
@@ -953,7 +960,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
               heroTag: 'add_meeting',
               onPressed: _showScheduleDialog,
               icon: const Icon(Icons.video_call_rounded),
-              label: const Text('Schedule'),
+              label: Text(AppLocalizations.of(context)!.actionScheduleVerb),
             ),
           ),
         ],
@@ -1014,18 +1021,18 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
           if (teacher != null) ...[
-            Text('Teacher', style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12)),
+            Text(AppLocalizations.of(context)!.roleTeacher, style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12)),
             const SizedBox(height: 8),
             _PersonCard(name: (teacher['name'] ?? '').toString(), isTeacher: true),
             const SizedBox(height: 16),
           ],
           Row(
             children: [
-              Expanded(child: Text('Students (${students.length})', style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12))),
+              Expanded(child: Text(AppLocalizations.of(context)!.teacherStudentsCount(students.length), style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12))),
               TextButton.icon(
                 onPressed: () => _showAddStudentDialog(context),
                 icon: const Icon(Icons.person_add_rounded, size: 16),
-                label: const Text('Add'),
+                label: Text(AppLocalizations.of(context)!.actionAdd),
                 style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
               ),
             ],
@@ -1054,11 +1061,12 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
   }
 
   Future<void> _showAddStudentDialog(BuildContext context) async {
+    final l = AppLocalizations.of(context)!;
     final emailCtrl = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Add Student', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(l.teacherAddStudentTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
         content: TextField(
           controller: emailCtrl,
           decoration: const InputDecoration(labelText: 'Student email or ID', border: OutlineInputBorder()),
@@ -1066,8 +1074,8 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionAdd)),
         ],
       ),
     );
@@ -1081,7 +1089,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
       );
       _load();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Student added')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherStudentAdded)));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -1090,17 +1098,18 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
 
   Future<void> _confirmRemoveStudent(BuildContext context, String studentId, String name) async {
     if (studentId.isEmpty) return;
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Remove $name?'),
-        content: const Text('This student will be removed from this classroom.'),
+        title: Text(l.teacherRemoveStudentTitle(name)),
+        content: Text(l.teacherRemoveStudentContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text(l.actionRemove),
           ),
         ],
       ),
@@ -1200,7 +1209,7 @@ class _PersonCard extends StatelessWidget {
                 color: cs.primaryContainer.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text('Teacher', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.primary)),
+              child: Text(AppLocalizations.of(context)!.roleTeacher, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.primary)),
             ),
           ],
         ],
@@ -1235,7 +1244,7 @@ class _AnalyticsTab extends StatelessWidget {
             child: Icon(Icons.bar_chart_rounded, size: 32, color: cs.primary),
           ),
           const SizedBox(height: 20),
-          Text('Classroom Analytics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          Text(AppLocalizations.of(context)!.teacherClassroomAnalyticsTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
           Text(
             'View grade distributions, attendance rates, and performance trends for this class.',
@@ -1249,7 +1258,7 @@ class _AnalyticsTab extends StatelessWidget {
               'subject': subject,
             }),
             icon: const Icon(Icons.open_in_new_rounded),
-            label: const Text('Open Analytics'),
+            label: Text(AppLocalizations.of(context)!.teacherOpenAnalyticsAction),
           ),
         ],
       ),

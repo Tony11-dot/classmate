@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -89,7 +90,7 @@ class _TeacherClassroomAnalyticsScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Analytics', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(AppLocalizations.of(context)!.teacherAnalyticsTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                         Text(widget.subject.isNotEmpty ? widget.subject : widget.courseName,
                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
@@ -109,7 +110,7 @@ class _TeacherClassroomAnalyticsScreenState
                             const SizedBox(height: 16),
                             Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
                             const SizedBox(height: 20),
-                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
+                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
                           ]),
                         ))
                       : RefreshIndicator(
@@ -139,7 +140,7 @@ class _TeacherClassroomAnalyticsScreenState
 
                               // Assessments with grade distribution
                               if (gradeStats.isNotEmpty) ...[
-                                Text('Grade Reports', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
+                                Text(AppLocalizations.of(context)!.teacherGradeReports, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
                                 const SizedBox(height: 10),
                                 ...gradeStats.map((stat) {
                                   final s = Map<String, dynamic>.from(stat is Map ? stat : {});
@@ -189,7 +190,7 @@ class _TeacherClassroomAnalyticsScreenState
                                                     avg != null ? '$avg%' : '—',
                                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: _gradeColor(avg, cs)),
                                                   ),
-                                                  Text('avg', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                                                  Text(AppLocalizations.of(context)!.teacherAvgLabel, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
                                                 ],
                                               ),
                                             ],
@@ -200,7 +201,7 @@ class _TeacherClassroomAnalyticsScreenState
                                           if (graded > 0) ...[
                                             Row(
                                               children: [
-                                                Text('$graded/$total graded', style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                                Text(AppLocalizations.of(context)!.teacherGradedFraction(graded, total), style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                                                 if (below60 > 0) ...[
                                                   const SizedBox(width: 8),
                                                   Container(
@@ -209,7 +210,7 @@ class _TeacherClassroomAnalyticsScreenState
                                                       color: cs.errorContainer.withValues(alpha: 0.7),
                                                       borderRadius: BorderRadius.circular(6),
                                                     ),
-                                                    child: Text('$below60 below 60%', style: TextStyle(fontSize: 11, color: cs.error, fontWeight: FontWeight.w700)),
+                                                    child: Text(AppLocalizations.of(context)!.teacherBelow60(below60), style: TextStyle(fontSize: 11, color: cs.error, fontWeight: FontWeight.w700)),
                                                   ),
                                                 ],
                                               ],
@@ -225,7 +226,7 @@ class _TeacherClassroomAnalyticsScreenState
                                               maxValue: maxBucket == 0 ? 1 : maxBucket,
                                             ),
                                           ] else
-                                            Text('No grades entered yet', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                                            Text(AppLocalizations.of(context)!.teacherNoGradesEntered, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                                         ],
                                       ),
                                     ),
@@ -241,7 +242,7 @@ class _TeacherClassroomAnalyticsScreenState
                                   child: Row(children: [
                                     Icon(Icons.bar_chart_rounded, color: cs.onSurfaceVariant),
                                     const SizedBox(width: 12),
-                                    Text('No assessments yet', style: TextStyle(color: cs.onSurfaceVariant)),
+                                    Text(AppLocalizations.of(context)!.teacherNoAssessmentsYet, style: TextStyle(color: cs.onSurfaceVariant)),
                                   ]),
                                 ),
                               ],

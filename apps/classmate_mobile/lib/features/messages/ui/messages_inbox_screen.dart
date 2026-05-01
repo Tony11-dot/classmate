@@ -87,8 +87,8 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Join a Group', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                                Text('Enter the invite code from the group admin', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                                Text(AppLocalizations.of(ctx)!.msgJoinGroupTitle, style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                Text(AppLocalizations.of(ctx)!.msgJoinGroupSubtitle, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                           ),

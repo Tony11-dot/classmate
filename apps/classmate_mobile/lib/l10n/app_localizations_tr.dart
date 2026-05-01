@@ -4004,4 +4004,368 @@ class AppLocalizationsTr extends AppLocalizations {
   String gradesRecentAverage(Object average) {
     return 'Son ortalama: $average';
   }
+
+  @override
+  String get actionCancel => 'İptal';
+
+  @override
+  String get actionSave => 'Kaydet';
+
+  @override
+  String get actionDelete => 'Sil';
+
+  @override
+  String get actionRemove => 'Kaldır';
+
+  @override
+  String get actionBlock => 'Engelle';
+
+  @override
+  String get actionCreate => 'Oluştur';
+
+  @override
+  String get actionShare => 'Paylaş';
+
+  @override
+  String get actionScheduleVerb => 'Planla';
+
+  @override
+  String get actionAdd => 'Ekle';
+
+  @override
+  String get actionKeep => 'Tut';
+
+  @override
+  String get actionOpen => 'Aç';
+
+  @override
+  String get actionPublish => 'Yayınla';
+
+  @override
+  String get actionPublishing => 'Yayınlanıyor…';
+
+  @override
+  String get actionRefresh => 'Yenile';
+
+  @override
+  String get msgBlockTitle => 'Bu kişiyi engelle?';
+
+  @override
+  String get msgBlockContent =>
+      'Sana mesaj gönderemeyecek ve onun mesajlarını görmeyeceksin.';
+
+  @override
+  String get msgRenameGroup => 'Grubu yeniden adlandır';
+
+  @override
+  String get msgGroupName => 'Grup adı';
+
+  @override
+  String get msgMute => 'Sessiz';
+
+  @override
+  String get msgUnmute => 'Sesi aç';
+
+  @override
+  String get msgInviteCode => 'Davet kodu';
+
+  @override
+  String get msgCopyCode => 'Kodu kopyala';
+
+  @override
+  String get msgLeave => 'Ayrıl';
+
+  @override
+  String get msgInviteCodeCopied => 'Davet kodu kopyalandı';
+
+  @override
+  String msgCodeCopied(Object code) {
+    return 'Kod kopyalandı: $code';
+  }
+
+  @override
+  String msgParticipantsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count katılımcı eklendi',
+      one: '1 katılımcı eklendi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count üye',
+      one: '1 üye',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgAdmin => 'Yönetici';
+
+  @override
+  String get msgRemoveFromGroup => 'Gruptan çıkar';
+
+  @override
+  String get msgMakeAdmin => 'Yönetici yap';
+
+  @override
+  String get msgRemoveAdmin => 'Yöneticilik al';
+
+  @override
+  String get msgOnlyAdmin => 'Tek yönetici — önce başkasını yönetici yap';
+
+  @override
+  String msgRemoveMemberTitle(Object name) {
+    return '$name kaldırılsın mı?';
+  }
+
+  @override
+  String get msgNotificationsMuted => 'Bildirimler sessize alındı';
+
+  @override
+  String get msgNotificationsUnmuted => 'Bildirimler açıldı';
+
+  @override
+  String get msgJoinGroupTitle => 'Gruba Katıl';
+
+  @override
+  String get msgJoinGroupSubtitle => 'Grup yöneticisinden davet kodunu girin';
+
+  @override
+  String get examTitle => 'Sınav';
+
+  @override
+  String get examNotFound => 'Sınav bulunamadı';
+
+  @override
+  String get examStudyWithNova => 'NOVA ile çalış';
+
+  @override
+  String get examOpenInsights => 'Analizleri aç';
+
+  @override
+  String get examAddToCalendar => 'Takvime ekle';
+
+  @override
+  String get examCouldNotOpenCalendar => 'Takvim açılamadı.';
+
+  @override
+  String get formTitle => 'Form';
+
+  @override
+  String get formNotFound => 'Form bulunamadı';
+
+  @override
+  String get formClosed => 'Bu form kapalı.';
+
+  @override
+  String get formCompletion => 'Tamamlama';
+
+  @override
+  String get formNoTextResponses => 'Henüz metin yanıtı yok.';
+
+  @override
+  String get meetingsCouldNotLoad => 'Toplantılar yüklenemedi';
+
+  @override
+  String get meetingCouldNotLoad => 'Toplantı yüklenemedi';
+
+  @override
+  String get insightsGenerateAction => 'Analiz oluştur';
+
+  @override
+  String get insightsRefreshAction => 'Yenile';
+
+  @override
+  String get teacherGoToClassroom => 'Sınıfa git';
+
+  @override
+  String get teacherMarkAttendance => 'Devam işaretle';
+
+  @override
+  String get teacherPostAssignment => 'Ödev yayınla';
+
+  @override
+  String get teacherNewAnnouncementAction => 'Yeni duyuru';
+
+  @override
+  String get teacherViewFullWeekSchedule => 'Haftalık programı görüntüle';
+
+  @override
+  String get teacherGroupsLabel => 'Gruplar';
+
+  @override
+  String get teacherTestsLabel => 'Testler';
+
+  @override
+  String get teacherAnnounceLabel => 'Duyur';
+
+  @override
+  String get teacherTitleAndMessageRequired => 'Başlık ve mesaj gereklidir';
+
+  @override
+  String get teacherAnnouncementPublished => 'Duyuru yayınlandı';
+
+  @override
+  String teacherFailedToPublish(Object error) {
+    return 'Yayınlama başarısız: $error';
+  }
+
+  @override
+  String get teacherAnnouncementSectionTitle => 'Duyuru';
+
+  @override
+  String get teacherAudienceSectionTitle => 'Hedef kitle';
+
+  @override
+  String get teacherPinAnnouncement => 'Duyuruyu sabitle';
+
+  @override
+  String get teacherPinnedAtTop => 'Sabitlenmiş duyurular üstte görünür';
+
+  @override
+  String get teacherPublishAction => 'Yayınla';
+
+  @override
+  String get teacherPublishingAction => 'Yayınlanıyor…';
+
+  @override
+  String get teacherAnnounceTitleLabel => 'Başlık *';
+
+  @override
+  String get teacherAnnounceTitleHint => 'ör. Yarın okul etkinliği';
+
+  @override
+  String get teacherAnnounceMessageLabel => 'Mesaj *';
+
+  @override
+  String get teacherAnnounceMessageHint => 'Duyurunun tamamını buraya yazın…';
+
+  @override
+  String get teacherStudentsLabel => 'Öğrenciler';
+
+  @override
+  String get teacherParentsLabel => 'Veliler';
+
+  @override
+  String get teacherTeachersLabel => 'Öğretmenler';
+
+  @override
+  String get teacherWeekScheduleTitle => 'Haftalık program';
+
+  @override
+  String get teacherCouldNotLoadSchedule => 'Program yüklenemedi';
+
+  @override
+  String get teacherAttendanceLast30 => 'Devam (son 30 gün)';
+
+  @override
+  String get teacherRecentGrades => 'Son notlar';
+
+  @override
+  String get teacherNoGradesRecorded => 'Henüz not kaydedilmedi';
+
+  @override
+  String get teacherGradeAvg => 'Not ort.';
+
+  @override
+  String get teacherSubmittedLabel => 'Teslim edildi';
+
+  @override
+  String get teacherAnalyticsTitle => 'Analizler';
+
+  @override
+  String get teacherGradeReports => 'Not raporları';
+
+  @override
+  String get teacherAvgLabel => 'ort.';
+
+  @override
+  String teacherBelow60(Object count) {
+    return '$count 60% altında';
+  }
+
+  @override
+  String teacherGradedFraction(Object graded, Object total) {
+    return '$graded/$total notlandırıldı';
+  }
+
+  @override
+  String get teacherNoGradesEntered => 'Henüz not girilmedi';
+
+  @override
+  String get teacherNewAssignment => 'Yeni ödev';
+
+  @override
+  String get teacherDeleteAssignment => 'Ödev silinsin mi?';
+
+  @override
+  String get teacherDeleteAssignmentContent =>
+      'Bu, tüm öğrenciler için kaldırılacak.';
+
+  @override
+  String get teacherShareMaterialTitle => 'Materyal paylaş';
+
+  @override
+  String get teacherRemoveMaterial => 'Materyal kaldırılsın mı?';
+
+  @override
+  String get teacherScheduleMeetingTitle => 'Toplantı planla';
+
+  @override
+  String get teacherCancelMeetingTitle => 'Toplantı iptal edilsin mi?';
+
+  @override
+  String get teacherCancelMeetingAction => 'Toplantıyı iptal et';
+
+  @override
+  String get teacherJoinMeeting => 'Toplantıya katıl';
+
+  @override
+  String get teacherAddStudentTitle => 'Öğrenci ekle';
+
+  @override
+  String teacherRemoveStudentTitle(Object name) {
+    return '$name kaldırılsın mı?';
+  }
+
+  @override
+  String get teacherRemoveStudentContent =>
+      'Bu öğrenci bu sınıftan kaldırılacak.';
+
+  @override
+  String get teacherStudentAdded => 'Öğrenci eklendi';
+
+  @override
+  String get teacherClassroomAnalyticsTitle => 'Sınıf analizleri';
+
+  @override
+  String get teacherOpenAnalyticsAction => 'Analizleri aç';
+
+  @override
+  String teacherStudentsCount(Object count) {
+    return 'Öğrenciler ($count)';
+  }
+
+  @override
+  String get teacherAssignmentLabel => 'Ödev';
+
+  @override
+  String get teacherShareMaterialLabel => 'Materyal paylaş';
+
+  @override
+  String get teacherAttendanceRateLabel => 'Devam oranı';
+
+  @override
+  String get teacherSelectSessionPrompt =>
+      'Devamı işaretlemek için aşağıdan bir oturum seçin';
+
+  @override
+  String get teacherOpenAction => 'Aç';
 }

@@ -365,7 +365,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Attendance rate', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+                          Text(AppLocalizations.of(context)!.teacherAttendanceRateLabel, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
                           Text('${(attPct * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error)),
                         ],
                       ),
@@ -385,7 +385,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                   ),
                 ] else if (session == null) ...[
                   const SizedBox(height: 12),
-                  Text('Select a session below to start marking attendance', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                  Text(AppLocalizations.of(context)!.teacherSelectSessionPrompt, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                 ],
               ],
             ),
