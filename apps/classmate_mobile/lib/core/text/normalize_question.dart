@@ -209,8 +209,8 @@ String applyToMathRegions(String text, String Function(String) fn) {
 String prepareRenderableText(String input) {
   var text = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
 
-  // Collapse 4+ newlines to 3 (preserve up to one paragraph break max).
-  text = text.replaceAll(RegExp(r'\n{4,}'), '\n\n\n');
+  // Collapse 3+ newlines to 2 (one paragraph break max — prevents walls of whitespace).
+  text = text.replaceAll(RegExp(r'\n{3,}'), '\n\n');
 
   // Protect code fences — never touch LaTeX inside ``` blocks.
   final fences = <String>[];

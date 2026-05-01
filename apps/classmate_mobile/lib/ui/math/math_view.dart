@@ -75,9 +75,9 @@ class MathView extends StatelessWidget {
         textDirection: _hasRtl(value) ? TextDirection.rtl : TextDirection.ltr,
       );
 
-  Widget _inlineMath(String value, TextStyle? ts) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.hardEdge,
+  Widget _inlineMath(String value, TextStyle? ts) => FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
         child: Math.tex(
           value,
           mathStyle: MathStyle.text,
@@ -90,14 +90,18 @@ class MathView extends StatelessWidget {
         ),
       );
 
-  Widget _inlineMathSpan(String value, TextStyle? ts) => Math.tex(
-        value,
-        mathStyle: MathStyle.text,
-        textStyle: ts,
-        onErrorFallback: (_) => Text(
+  Widget _inlineMathSpan(String value, TextStyle? ts) => FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Math.tex(
           value,
-          style: ts?.copyWith(
-              fontFamily: 'monospace', fontStyle: FontStyle.italic),
+          mathStyle: MathStyle.text,
+          textStyle: ts,
+          onErrorFallback: (_) => Text(
+            value,
+            style: ts?.copyWith(
+                fontFamily: 'monospace', fontStyle: FontStyle.italic),
+          ),
         ),
       );
 

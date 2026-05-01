@@ -231,6 +231,16 @@ class _ProseWidget extends StatelessWidget {
       pPadding: EdgeInsets.zero,
       listIndent: 20,
       listBulletPadding: const EdgeInsets.only(right: 6),
+      // Tighter paragraph spacing — prevents NOVA responses feeling too spaced out.
+      blockSpacing: compact ? 4.0 : 8.0,
+      // Tables: distribute column widths proportionally so text never gets
+      // squeezed into a single-character column.
+      tableColumnWidth: const FlexColumnWidth(),
+      tableCellsPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      tableBorder: TableBorder.all(
+        color: cs.outlineVariant.withValues(alpha: 0.35),
+        width: 0.5,
+      ),
     );
 
     // Pre-extract every $...$ span into [mathExprs] and replace each with a
@@ -319,9 +329,13 @@ class _InlineMathWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Render inline math at text style. Clip horizontally if it overflows —
-    // never use a scroll view here since that breaks baseline alignment.
-    return ClipRect(
+    // FittedBox.scaleDown: renders at natural size when space allows;
+    // shrinks proportionally when the parent is too narrow (e.g. table cells).
+    // This prevents RenderLine overflow errors from flutter_math_fork while
+    // keeping math legible — never clips or causes overflow assertions.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
       child: Math.tex(
         math,
         mathStyle: MathStyle.text,
