@@ -52,30 +52,30 @@ function novaDiskStorage() {
 
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
+@Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.SECRETARY)
 @Controller('tutor')
 export class TutorController {
   constructor(private svc: TutorService) {}
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Get('me/profile')
   getMyProfile(@Req() req: any) {
     return this.svc.getMyLearningProfile(req.user);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Post('me/profile')
   upsertMyProfile(@Req() req: any, @Body() body: any) {
     return this.svc.upsertMyLearningProfile(req.user, body);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Get('me/academic-context')
   getMyAcademicContext(@Req() req: any) {
     return this.svc.getMyAcademicContext(req.user);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Get('me/brain')
   getMyBrain(@Req() req: any) {
     return this.svc.getMyBrainSnapshot(req.user);
@@ -86,7 +86,7 @@ export class TutorController {
     return this.svc.rebuildMyBrainSnapshot(req.user);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.SECRETARY)
   @Get('materials')
   listMaterials(
     @Query('subject') subject?: string,
@@ -110,31 +110,31 @@ export class TutorController {
     return this.svc.createMaterial(req.user, body);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN, Role.SECRETARY)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.SECRETARY)
   @Get('characters')
   listCharacters(@Req() req: any, @Query('subject') subject?: string) {
     return this.svc.listCharacters(req.user, { subject });
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Post('sessions')
   createSession(@Req() req: any, @Body() body: any) {
     return this.svc.createSession(req.user, body);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Get('sessions')
   listSessions(@Req() req: any, @Query('characterId') characterId?: string) {
     return this.svc.listSessions(req.user, { characterId });
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Get('sessions/:id')
   getSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.getSession(req.user, id);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Post('sessions/:id/messages')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -151,7 +151,7 @@ export class TutorController {
     return this.svc.addMessage(req.user, id, body, file);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Delete('sessions/:id')
   deleteSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.deleteSession(req.user, String(id));
@@ -171,7 +171,7 @@ export class TutorController {
     return this.svc.replyToSession(req.user, id, body);
   }
 
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
   @Sse('sessions/:id/reply/stream')
   replyStream(
     @Req() req: any,

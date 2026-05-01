@@ -101,6 +101,7 @@ class AppShell extends ConsumerWidget {
       if (loc.startsWith('/teacher/grades')) return l.navTeacherAssessments;
       if (loc.startsWith('/exams')) return l.titleExams;
       if (loc.startsWith('/forms')) return l.navForms;
+      if (loc.startsWith('/diplomas')) return l.navDiplomas;
       if (loc.startsWith('/tutor')) return l.titleNova;
       if (loc.startsWith('/announcements')) return l.navAnnouncements;
       if (loc.startsWith('/notifications')) return l.navNotifications;
@@ -117,6 +118,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/solutions')) return l.titleSolutions;
     if (loc.startsWith('/exams')) return l.titleExams;
     if (loc.startsWith('/forms')) return l.navForms;
+    if (loc.startsWith('/diplomas')) return l.navDiplomas;
     return l.titleSchedule;
   }
 
@@ -124,6 +126,26 @@ class AppShell extends ConsumerWidget {
     final path = _routePathOnly(loc);
     final allowed = isTeacherLike ? _teacherBottomNavPaths : _coreBottomNavPaths;
     return !allowed.contains(path);
+  }
+
+  Widget? _buildFab(BuildContext context, String loc, bool isTeacherLike) {
+    final cs = Theme.of(context).colorScheme;
+    if (!isTeacherLike) return null;
+    if (loc.startsWith('/teacher/schedule') ||
+        loc.startsWith('/teacher/classrooms') ||
+        loc.startsWith('/teacher/classroom/')) {
+      return const _TeacherFab();
+    }
+    if (loc == '/announcements') {
+      return FloatingActionButton(
+        heroTag: 'fab_announce',
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
+        onPressed: () => context.push('/teacher/announcements/new'),
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    return null;
   }
 
   @override
@@ -137,18 +159,13 @@ class AppShell extends ConsumerWidget {
     final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
     final hideTopBar = _hideTopBarForRoute(loc);
 
-    final showTeacherFab = isTeacherLike && !hideBottomNav &&
-        (loc.startsWith('/teacher/schedule') ||
-         loc.startsWith('/teacher/classrooms') ||
-         loc.startsWith('/teacher/classroom/'));
-
     return Scaffold(
       extendBody: true,
       drawerEnableOpenDragGesture: !hideTopBar,
       drawer: hideTopBar ? null : const MainDrawer(),
       appBar: hideTopBar ? null : _TopBar(title: _pageTitle(context, loc, isTeacherLike)),
       body: child,
-      floatingActionButton: showTeacherFab ? const _TeacherFab() : null,
+      floatingActionButton: _buildFab(context, loc, isTeacherLike),
       bottomNavigationBar: hideBottomNav
           ? null
           : _PlatformCoreBottomNav(

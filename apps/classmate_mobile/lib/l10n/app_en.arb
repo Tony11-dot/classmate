@@ -1736,5 +1736,23 @@
   "teacherInsightsTitle": "Student Insights",
   "teacherInsightsSubtitle": "Select a student to view their academic insights.",
   "teacherInsightsNoStudents": "No students found.",
-  "teacherInsightsSearchHint": "Search students…"
+  "teacherInsightsSearchHint": "Search students…",
+
+  "navDiplomas": "Diplomas",
+  "diplomasComingSoon": "Diploma management is coming soon.",
+
+  "examDetailsSection": "Details",
+  "examInfoTeacher": "Teacher",
+  "examInfoAudience": "Audience",
+  "examInfoDate": "Date",
+  "examInfoTime": "Time",
+  "examInfoPeriod": "Period",
+  "examInfoDuration": "Duration",
+  "examInfoSubject": "Subject",
+  "examMaterialsSection": "Attached materials",
+  "examNoMaterials": "No materials attached yet.",
+  "examQuickActionsSection": "Quick actions",
+  "examViewGradeTitle": "See your grade",
+  "examViewGradeBody": "This exam is complete. Check the grades tab for your result.",
+  "examViewGradeAction": "Open Grades"
 }

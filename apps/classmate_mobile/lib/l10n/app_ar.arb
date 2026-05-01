@@ -1584,5 +1584,23 @@
   "teacherInsightsTitle": "رؤى الطلاب",
   "teacherInsightsSubtitle": "اختر طالباً لعرض رؤاه الأكاديمية.",
   "teacherInsightsNoStudents": "لم يتم العثور على طلاب.",
-  "teacherInsightsSearchHint": "البحث عن طلاب…"
+  "teacherInsightsSearchHint": "البحث عن طلاب…",
+
+  "navDiplomas": "الشهادات",
+  "diplomasComingSoon": "إدارة الشهادات قادمة قريباً.",
+
+  "examDetailsSection": "التفاصيل",
+  "examInfoTeacher": "المعلم",
+  "examInfoAudience": "الجمهور",
+  "examInfoDate": "التاريخ",
+  "examInfoTime": "الوقت",
+  "examInfoPeriod": "الحصة",
+  "examInfoDuration": "المدة",
+  "examInfoSubject": "المادة",
+  "examMaterialsSection": "المواد المرفقة",
+  "examNoMaterials": "لا توجد مواد مرفقة بعد.",
+  "examQuickActionsSection": "إجراءات سريعة",
+  "examViewGradeTitle": "اطلع على درجتك",
+  "examViewGradeBody": "انتهى هذا الامتحان. تحقق من علامتك في تبويب الدرجات.",
+  "examViewGradeAction": "فتح الدرجات"
 }

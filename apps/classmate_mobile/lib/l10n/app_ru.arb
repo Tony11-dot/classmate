@@ -1730,5 +1730,23 @@
   "teacherInsightsTitle": "Успеваемость студентов",
   "teacherInsightsSubtitle": "Выберите студента для просмотра его академических данных.",
   "teacherInsightsNoStudents": "Студенты не найдены.",
-  "teacherInsightsSearchHint": "Поиск студентов…"
+  "teacherInsightsSearchHint": "Поиск студентов…",
+
+  "navDiplomas": "Дипломы",
+  "diplomasComingSoon": "Управление дипломами скоро появится.",
+
+  "examDetailsSection": "Детали",
+  "examInfoTeacher": "Учитель",
+  "examInfoAudience": "Аудитория",
+  "examInfoDate": "Дата",
+  "examInfoTime": "Время",
+  "examInfoPeriod": "Урок",
+  "examInfoDuration": "Длительность",
+  "examInfoSubject": "Предмет",
+  "examMaterialsSection": "Прикреплённые материалы",
+  "examNoMaterials": "Материалы не прикреплены.",
+  "examQuickActionsSection": "Быстрые действия",
+  "examViewGradeTitle": "Посмотреть оценку",
+  "examViewGradeBody": "Экзамен завершён. Проверьте свою оценку во вкладке оценок.",
+  "examViewGradeAction": "Открыть оценки"
 }

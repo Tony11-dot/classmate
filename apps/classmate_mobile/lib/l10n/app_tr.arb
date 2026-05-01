@@ -1577,5 +1577,23 @@
   "teacherInsightsTitle": "Öğrenci Analizleri",
   "teacherInsightsSubtitle": "Akademik bilgilerini görmek için bir öğrenci seçin.",
   "teacherInsightsNoStudents": "Öğrenci bulunamadı.",
-  "teacherInsightsSearchHint": "Öğrenci ara…"
+  "teacherInsightsSearchHint": "Öğrenci ara…",
+
+  "navDiplomas": "Diplomalar",
+  "diplomasComingSoon": "Diploma yönetimi yakında geliyor.",
+
+  "examDetailsSection": "Ayrıntılar",
+  "examInfoTeacher": "Öğretmen",
+  "examInfoAudience": "Hedef kitle",
+  "examInfoDate": "Tarih",
+  "examInfoTime": "Saat",
+  "examInfoPeriod": "Ders",
+  "examInfoDuration": "Süre",
+  "examInfoSubject": "Ders",
+  "examMaterialsSection": "Ekli materyaller",
+  "examNoMaterials": "Henüz ekli materyal yok.",
+  "examQuickActionsSection": "Hızlı işlemler",
+  "examViewGradeTitle": "Notunu gör",
+  "examViewGradeBody": "Bu sınav tamamlandı. Sonucunuz için notlar sekmesini kontrol edin.",
+  "examViewGradeAction": "Notları Aç"
 }

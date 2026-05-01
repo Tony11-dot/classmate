@@ -4649,4 +4649,53 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'Schüler suchen…';
+
+  @override
+  String get navDiplomas => 'Diplome';
+
+  @override
+  String get diplomasComingSoon => 'Die Diplomverwaltung kommt bald.';
+
+  @override
+  String get examDetailsSection => 'Details';
+
+  @override
+  String get examInfoTeacher => 'Lehrer';
+
+  @override
+  String get examInfoAudience => 'Zielgruppe';
+
+  @override
+  String get examInfoDate => 'Datum';
+
+  @override
+  String get examInfoTime => 'Uhrzeit';
+
+  @override
+  String get examInfoPeriod => 'Stunde';
+
+  @override
+  String get examInfoDuration => 'Dauer';
+
+  @override
+  String get examInfoSubject => 'Fach';
+
+  @override
+  String get examMaterialsSection => 'Angehängte Materialien';
+
+  @override
+  String get examNoMaterials => 'Noch keine Materialien angehängt.';
+
+  @override
+  String get examQuickActionsSection => 'Schnellaktionen';
+
+  @override
+  String get examViewGradeTitle => 'Deine Note ansehen';
+
+  @override
+  String get examViewGradeBody =>
+      'Diese Prüfung ist abgeschlossen. Prüfen Sie Ihre Note im Noten-Tab.';
+
+  @override
+  String get examViewGradeAction => 'Noten öffnen';
 }

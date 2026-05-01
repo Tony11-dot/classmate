@@ -1584,5 +1584,23 @@
   "teacherInsightsTitle": "תובנות תלמידים",
   "teacherInsightsSubtitle": "בחר תלמיד כדי לצפות בתובנות האקדמיות שלו.",
   "teacherInsightsNoStudents": "לא נמצאו תלמידים.",
-  "teacherInsightsSearchHint": "חיפוש תלמידים…"
+  "teacherInsightsSearchHint": "חיפוש תלמידים…",
+
+  "navDiplomas": "תעודות",
+  "diplomasComingSoon": "ניהול תעודות בקרוב.",
+
+  "examDetailsSection": "פרטים",
+  "examInfoTeacher": "מורה",
+  "examInfoAudience": "קהל יעד",
+  "examInfoDate": "תאריך",
+  "examInfoTime": "שעה",
+  "examInfoPeriod": "שיעור",
+  "examInfoDuration": "משך",
+  "examInfoSubject": "מקצוע",
+  "examMaterialsSection": "חומרים מצורפים",
+  "examNoMaterials": "אין חומרים מצורפים עדיין.",
+  "examQuickActionsSection": "פעולות מהירות",
+  "examViewGradeTitle": "צפה בציון שלך",
+  "examViewGradeBody": "הבחינה הסתיימה. בדוק את הציון שלך בלשונית הציונים.",
+  "examViewGradeAction": "פתח ציונים"
 }

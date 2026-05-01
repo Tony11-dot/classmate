@@ -4579,4 +4579,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'البحث عن طلاب…';
+
+  @override
+  String get navDiplomas => 'الشهادات';
+
+  @override
+  String get diplomasComingSoon => 'إدارة الشهادات قادمة قريباً.';
+
+  @override
+  String get examDetailsSection => 'التفاصيل';
+
+  @override
+  String get examInfoTeacher => 'المعلم';
+
+  @override
+  String get examInfoAudience => 'الجمهور';
+
+  @override
+  String get examInfoDate => 'التاريخ';
+
+  @override
+  String get examInfoTime => 'الوقت';
+
+  @override
+  String get examInfoPeriod => 'الحصة';
+
+  @override
+  String get examInfoDuration => 'المدة';
+
+  @override
+  String get examInfoSubject => 'المادة';
+
+  @override
+  String get examMaterialsSection => 'المواد المرفقة';
+
+  @override
+  String get examNoMaterials => 'لا توجد مواد مرفقة بعد.';
+
+  @override
+  String get examQuickActionsSection => 'إجراءات سريعة';
+
+  @override
+  String get examViewGradeTitle => 'اطلع على درجتك';
+
+  @override
+  String get examViewGradeBody =>
+      'انتهى هذا الامتحان. تحقق من علامتك في تبويب الدرجات.';
+
+  @override
+  String get examViewGradeAction => 'فتح الدرجات';
 }

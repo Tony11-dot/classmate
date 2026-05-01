@@ -4601,4 +4601,53 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'Öğrenci ara…';
+
+  @override
+  String get navDiplomas => 'Diplomalar';
+
+  @override
+  String get diplomasComingSoon => 'Diploma yönetimi yakında geliyor.';
+
+  @override
+  String get examDetailsSection => 'Ayrıntılar';
+
+  @override
+  String get examInfoTeacher => 'Öğretmen';
+
+  @override
+  String get examInfoAudience => 'Hedef kitle';
+
+  @override
+  String get examInfoDate => 'Tarih';
+
+  @override
+  String get examInfoTime => 'Saat';
+
+  @override
+  String get examInfoPeriod => 'Ders';
+
+  @override
+  String get examInfoDuration => 'Süre';
+
+  @override
+  String get examInfoSubject => 'Ders';
+
+  @override
+  String get examMaterialsSection => 'Ekli materyaller';
+
+  @override
+  String get examNoMaterials => 'Henüz ekli materyal yok.';
+
+  @override
+  String get examQuickActionsSection => 'Hızlı işlemler';
+
+  @override
+  String get examViewGradeTitle => 'Notunu gör';
+
+  @override
+  String get examViewGradeBody =>
+      'Bu sınav tamamlandı. Sonucunuz için notlar sekmesini kontrol edin.';
+
+  @override
+  String get examViewGradeAction => 'Notları Aç';
 }

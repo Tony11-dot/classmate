@@ -373,6 +373,21 @@ class MainDrawer extends ConsumerWidget {
                       label: l.navNotifications,
                       route: '/notifications',
                     ),
+                    navItem(
+                      icon: Icons.quiz_rounded,
+                      label: l.navExams,
+                      route: '/exams',
+                    ),
+                    navItem(
+                      icon: Icons.assignment_turned_in_rounded,
+                      label: l.navForms,
+                      route: '/forms',
+                    ),
+                    navItem(
+                      icon: Icons.workspace_premium_rounded,
+                      label: l.navDiplomas,
+                      route: '/diplomas',
+                    ),
                   ] else ...[
                     navItem(
                       icon: Icons.chat_bubble_rounded,

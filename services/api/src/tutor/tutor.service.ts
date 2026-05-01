@@ -387,8 +387,8 @@ export class TutorService {
 
   private requireStudent(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['STUDENT', 'ADMIN'])) {
-      throw new ForbiddenException('Student only');
+    if (!hasAnyRole({ roles }, ['STUDENT', 'TEACHER', 'ADMIN'])) {
+      throw new ForbiddenException('Student or teacher access only');
     }
     return user?.sub ?? user?.id;
   }

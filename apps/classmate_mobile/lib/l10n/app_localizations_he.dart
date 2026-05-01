@@ -4561,4 +4561,53 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'חיפוש תלמידים…';
+
+  @override
+  String get navDiplomas => 'תעודות';
+
+  @override
+  String get diplomasComingSoon => 'ניהול תעודות בקרוב.';
+
+  @override
+  String get examDetailsSection => 'פרטים';
+
+  @override
+  String get examInfoTeacher => 'מורה';
+
+  @override
+  String get examInfoAudience => 'קהל יעד';
+
+  @override
+  String get examInfoDate => 'תאריך';
+
+  @override
+  String get examInfoTime => 'שעה';
+
+  @override
+  String get examInfoPeriod => 'שיעור';
+
+  @override
+  String get examInfoDuration => 'משך';
+
+  @override
+  String get examInfoSubject => 'מקצוע';
+
+  @override
+  String get examMaterialsSection => 'חומרים מצורפים';
+
+  @override
+  String get examNoMaterials => 'אין חומרים מצורפים עדיין.';
+
+  @override
+  String get examQuickActionsSection => 'פעולות מהירות';
+
+  @override
+  String get examViewGradeTitle => 'צפה בציון שלך';
+
+  @override
+  String get examViewGradeBody =>
+      'הבחינה הסתיימה. בדוק את הציון שלך בלשונית הציונים.';
+
+  @override
+  String get examViewGradeAction => 'פתח ציונים';
 }

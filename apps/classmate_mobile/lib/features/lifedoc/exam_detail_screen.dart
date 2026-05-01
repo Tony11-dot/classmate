@@ -323,16 +323,16 @@ class _ExamDetailBody extends StatelessWidget {
 
           // ── info section ──
           _Section(
-            title: 'Details',
+            title: l.examDetailsSection,
             child: Column(
               children: [
-                infoRow(Icons.person_outline_rounded, 'Teacher', exam.teacher),
-                infoRow(Icons.group_outlined, 'Audience', exam.audience.label),
-                infoRow(Icons.calendar_today_rounded, 'Date', exam.dateLabel),
-                infoRow(Icons.access_time_rounded, 'Time', exam.hourLabel),
-                infoRow(Icons.schedule_rounded, 'Period', exam.periodLabel),
-                infoRow(Icons.timer_outlined, 'Duration', exam.durationLabel),
-                infoRow(Icons.subject_rounded, 'Subject', exam.subject),
+                infoRow(Icons.person_outline_rounded, l.examInfoTeacher, exam.teacher),
+                infoRow(Icons.group_outlined, l.examInfoAudience, exam.audience.label),
+                infoRow(Icons.calendar_today_rounded, l.examInfoDate, exam.dateLabel),
+                infoRow(Icons.access_time_rounded, l.examInfoTime, exam.hourLabel),
+                infoRow(Icons.schedule_rounded, l.examInfoPeriod, exam.periodLabel),
+                infoRow(Icons.timer_outlined, l.examInfoDuration, exam.durationLabel),
+                infoRow(Icons.subject_rounded, l.examInfoSubject, exam.subject),
                 if (exam.caption != null &&
                     exam.caption!.trim().isNotEmpty) ...[
                   const SizedBox(height: 6),
@@ -361,7 +361,7 @@ class _ExamDetailBody extends StatelessWidget {
 
           // ── materials section ──
           _Section(
-            title: 'Attached materials',
+            title: l.examMaterialsSection,
             trailing: exam.materials.isEmpty
                 ? null
                 : Text(
@@ -375,7 +375,7 @@ class _ExamDetailBody extends StatelessWidget {
                 ? Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'No materials attached yet.',
+                      l.examNoMaterials,
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                   )
@@ -392,9 +392,40 @@ class _ExamDetailBody extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
+          // ── grade result card (past exams only) ──
+          if (status == _ExamStatus.past) ...[
+            _Section(
+              title: l.examViewGradeTitle,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.grade_rounded, size: 20, color: cs.primary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l.examViewGradeBody,
+                          style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: () => context.go('/grades'),
+                    icon: const Icon(Icons.grade_rounded),
+                    label: Text(l.examViewGradeAction),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+          ],
+
           // ── actions section ──
           _Section(
-            title: 'Quick actions',
+            title: l.examQuickActionsSection,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

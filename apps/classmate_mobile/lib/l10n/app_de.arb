@@ -1577,5 +1577,23 @@
   "teacherInsightsTitle": "Schüleranalysen",
   "teacherInsightsSubtitle": "Wählen Sie einen Schüler aus, um seine akademischen Einblicke zu sehen.",
   "teacherInsightsNoStudents": "Keine Schüler gefunden.",
-  "teacherInsightsSearchHint": "Schüler suchen…"
+  "teacherInsightsSearchHint": "Schüler suchen…",
+
+  "navDiplomas": "Diplome",
+  "diplomasComingSoon": "Die Diplomverwaltung kommt bald.",
+
+  "examDetailsSection": "Details",
+  "examInfoTeacher": "Lehrer",
+  "examInfoAudience": "Zielgruppe",
+  "examInfoDate": "Datum",
+  "examInfoTime": "Uhrzeit",
+  "examInfoPeriod": "Stunde",
+  "examInfoDuration": "Dauer",
+  "examInfoSubject": "Fach",
+  "examMaterialsSection": "Angehängte Materialien",
+  "examNoMaterials": "Noch keine Materialien angehängt.",
+  "examQuickActionsSection": "Schnellaktionen",
+  "examViewGradeTitle": "Deine Note ansehen",
+  "examViewGradeBody": "Diese Prüfung ist abgeschlossen. Prüfen Sie Ihre Note im Noten-Tab.",
+  "examViewGradeAction": "Noten öffnen"
 }

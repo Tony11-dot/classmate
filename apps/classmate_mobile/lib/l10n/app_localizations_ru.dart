@@ -4604,4 +4604,53 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'Поиск студентов…';
+
+  @override
+  String get navDiplomas => 'Дипломы';
+
+  @override
+  String get diplomasComingSoon => 'Управление дипломами скоро появится.';
+
+  @override
+  String get examDetailsSection => 'Детали';
+
+  @override
+  String get examInfoTeacher => 'Учитель';
+
+  @override
+  String get examInfoAudience => 'Аудитория';
+
+  @override
+  String get examInfoDate => 'Дата';
+
+  @override
+  String get examInfoTime => 'Время';
+
+  @override
+  String get examInfoPeriod => 'Урок';
+
+  @override
+  String get examInfoDuration => 'Длительность';
+
+  @override
+  String get examInfoSubject => 'Предмет';
+
+  @override
+  String get examMaterialsSection => 'Прикреплённые материалы';
+
+  @override
+  String get examNoMaterials => 'Материалы не прикреплены.';
+
+  @override
+  String get examQuickActionsSection => 'Быстрые действия';
+
+  @override
+  String get examViewGradeTitle => 'Посмотреть оценку';
+
+  @override
+  String get examViewGradeBody =>
+      'Экзамен завершён. Проверьте свою оценку во вкладке оценок.';
+
+  @override
+  String get examViewGradeAction => 'Открыть оценки';
 }

@@ -9,6 +9,7 @@ import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
+import '../features/lifedoc/diplomas_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/exam_detail_screen.dart';
@@ -74,6 +75,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/exams/') ||
           loc == '/forms' ||
           loc.startsWith('/forms/') ||
+          loc == '/diplomas' ||
           loc == '/profile' ||
           loc == '/settings' ||
           loc == '/announcements' ||
@@ -346,6 +348,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/diplomas',
+            builder: (context, state) => const DiplomasScreen(),
           ),
           GoRoute(
             path: '/saved-questions',

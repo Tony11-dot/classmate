@@ -1584,5 +1584,23 @@
   "teacherInsightsTitle": "Aperçus des élèves",
   "teacherInsightsSubtitle": "Sélectionnez un élève pour voir ses informations académiques.",
   "teacherInsightsNoStudents": "Aucun élève trouvé.",
-  "teacherInsightsSearchHint": "Rechercher des élèves…"
+  "teacherInsightsSearchHint": "Rechercher des élèves…",
+
+  "navDiplomas": "Diplômes",
+  "diplomasComingSoon": "La gestion des diplômes arrive bientôt.",
+
+  "examDetailsSection": "Détails",
+  "examInfoTeacher": "Professeur",
+  "examInfoAudience": "Audience",
+  "examInfoDate": "Date",
+  "examInfoTime": "Heure",
+  "examInfoPeriod": "Période",
+  "examInfoDuration": "Durée",
+  "examInfoSubject": "Matière",
+  "examMaterialsSection": "Documents joints",
+  "examNoMaterials": "Aucun document joint pour l'instant.",
+  "examQuickActionsSection": "Actions rapides",
+  "examViewGradeTitle": "Voir ta note",
+  "examViewGradeBody": "Cet examen est terminé. Consultez l'onglet notes pour ton résultat.",
+  "examViewGradeAction": "Ouvrir les notes"
 }

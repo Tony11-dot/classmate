@@ -4597,4 +4597,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'Search students…';
+
+  @override
+  String get navDiplomas => 'Diplomas';
+
+  @override
+  String get diplomasComingSoon => 'Diploma management is coming soon.';
+
+  @override
+  String get examDetailsSection => 'Details';
+
+  @override
+  String get examInfoTeacher => 'Teacher';
+
+  @override
+  String get examInfoAudience => 'Audience';
+
+  @override
+  String get examInfoDate => 'Date';
+
+  @override
+  String get examInfoTime => 'Time';
+
+  @override
+  String get examInfoPeriod => 'Period';
+
+  @override
+  String get examInfoDuration => 'Duration';
+
+  @override
+  String get examInfoSubject => 'Subject';
+
+  @override
+  String get examMaterialsSection => 'Attached materials';
+
+  @override
+  String get examNoMaterials => 'No materials attached yet.';
+
+  @override
+  String get examQuickActionsSection => 'Quick actions';
+
+  @override
+  String get examViewGradeTitle => 'See your grade';
+
+  @override
+  String get examViewGradeBody =>
+      'This exam is complete. Check the grades tab for your result.';
+
+  @override
+  String get examViewGradeAction => 'Open Grades';
 }

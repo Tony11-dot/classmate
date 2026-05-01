@@ -8178,6 +8178,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search students…'**
   String get teacherInsightsSearchHint;
+
+  /// No description provided for @navDiplomas.
+  ///
+  /// In en, this message translates to:
+  /// **'Diplomas'**
+  String get navDiplomas;
+
+  /// No description provided for @diplomasComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Diploma management is coming soon.'**
+  String get diplomasComingSoon;
+
+  /// No description provided for @examDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get examDetailsSection;
+
+  /// No description provided for @examInfoTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get examInfoTeacher;
+
+  /// No description provided for @examInfoAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Audience'**
+  String get examInfoAudience;
+
+  /// No description provided for @examInfoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get examInfoDate;
+
+  /// No description provided for @examInfoTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get examInfoTime;
+
+  /// No description provided for @examInfoPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get examInfoPeriod;
+
+  /// No description provided for @examInfoDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get examInfoDuration;
+
+  /// No description provided for @examInfoSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get examInfoSubject;
+
+  /// No description provided for @examMaterialsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached materials'**
+  String get examMaterialsSection;
+
+  /// No description provided for @examNoMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'No materials attached yet.'**
+  String get examNoMaterials;
+
+  /// No description provided for @examQuickActionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get examQuickActionsSection;
+
+  /// No description provided for @examViewGradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See your grade'**
+  String get examViewGradeTitle;
+
+  /// No description provided for @examViewGradeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam is complete. Check the grades tab for your result.'**
+  String get examViewGradeBody;
+
+  /// No description provided for @examViewGradeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Grades'**
+  String get examViewGradeAction;
 }
 
 class _AppLocalizationsDelegate

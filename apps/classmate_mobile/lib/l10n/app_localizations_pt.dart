@@ -4641,4 +4641,54 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get teacherInsightsSearchHint => 'Buscar alunos…';
+
+  @override
+  String get navDiplomas => 'Diplomas';
+
+  @override
+  String get diplomasComingSoon =>
+      'O gerenciamento de diplomas está chegando em breve.';
+
+  @override
+  String get examDetailsSection => 'Detalhes';
+
+  @override
+  String get examInfoTeacher => 'Professor';
+
+  @override
+  String get examInfoAudience => 'Público';
+
+  @override
+  String get examInfoDate => 'Data';
+
+  @override
+  String get examInfoTime => 'Hora';
+
+  @override
+  String get examInfoPeriod => 'Período';
+
+  @override
+  String get examInfoDuration => 'Duração';
+
+  @override
+  String get examInfoSubject => 'Disciplina';
+
+  @override
+  String get examMaterialsSection => 'Materiais anexados';
+
+  @override
+  String get examNoMaterials => 'Nenhum material anexado ainda.';
+
+  @override
+  String get examQuickActionsSection => 'Ações rápidas';
+
+  @override
+  String get examViewGradeTitle => 'Ver sua nota';
+
+  @override
+  String get examViewGradeBody =>
+      'Este exame está completo. Verifique sua nota na aba de notas.';
+
+  @override
+  String get examViewGradeAction => 'Abrir Notas';
 }
