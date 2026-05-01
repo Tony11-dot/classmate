@@ -248,13 +248,13 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
               children: [
                 TextField(
                   controller: titleCtrl,
-                  decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l.teacherTitleFieldLabel, border: const OutlineInputBorder()),
                   textCapitalization: TextCapitalization.sentences,
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: bodyCtrl,
-                  decoration: const InputDecoration(labelText: 'Instructions', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l.teacherInstructionsLabel, border: const OutlineInputBorder()),
                   minLines: 3,
                   maxLines: 5,
                   textCapitalization: TextCapitalization.sentences,
@@ -353,12 +353,12 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
           if (_loading)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            _CenteredMessage(icon: Icons.error_outline_rounded, title: 'Could not load', subtitle: _error!)
+            _CenteredMessage(icon: Icons.error_outline_rounded, title: AppLocalizations.of(context)!.teacherCouldNotLoad, subtitle: _error!)
           else if (_items.isEmpty)
             _CenteredMessage(
               icon: Icons.assignment_outlined,
-              title: 'No assignments yet',
-              subtitle: 'Tap + to create the first assignment',
+              title: AppLocalizations.of(context)!.teacherNoAssignmentsYet,
+              subtitle: AppLocalizations.of(context)!.teacherNoAssignmentsSub,
             )
           else
             ListView.separated(
@@ -491,23 +491,23 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
             children: [
               TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: l.teacherTitleFieldLabel, border: const OutlineInputBorder()),
                 textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: urlCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Link / URL *',
-                  border: OutlineInputBorder(),
-                  hintText: 'https://...',
+                decoration: InputDecoration(
+                  labelText: l.teacherLinkUrlLabel,
+                  border: const OutlineInputBorder(),
+                  hintText: l.teacherLinkUrlHint,
                 ),
                 keyboardType: TextInputType.url,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descCtrl,
-                decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: l.teacherDescriptionLabel, border: const OutlineInputBorder()),
                 minLines: 2,
                 maxLines: 3,
                 textCapitalization: TextCapitalization.sentences,
@@ -583,12 +583,12 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
           if (_loading)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            _CenteredMessage(icon: Icons.error_outline_rounded, title: 'Could not load', subtitle: _error!)
+            _CenteredMessage(icon: Icons.error_outline_rounded, title: AppLocalizations.of(context)!.teacherCouldNotLoad, subtitle: _error!)
           else if (_items.isEmpty)
             _CenteredMessage(
               icon: Icons.folder_open_rounded,
-              title: 'No materials yet',
-              subtitle: 'Share links, documents, or resources with your class',
+              title: AppLocalizations.of(context)!.teacherNoMaterialsYet,
+              subtitle: AppLocalizations.of(context)!.teacherNoMaterialsSub,
             )
           else
             ListView.separated(
@@ -738,16 +738,16 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
               children: [
                 TextField(
                   controller: titleCtrl,
-                  decoration: const InputDecoration(labelText: 'Meeting title *', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l.teacherMeetingTitleLabel, border: const OutlineInputBorder()),
                   textCapitalization: TextCapitalization.sentences,
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: linkCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Meeting link *',
-                    border: OutlineInputBorder(),
-                    hintText: 'Zoom / Meet / Teams link',
+                  decoration: InputDecoration(
+                    labelText: l.teacherMeetingLinkLabel,
+                    border: const OutlineInputBorder(),
+                    hintText: l.teacherMeetingLinkHint,
                   ),
                   keyboardType: TextInputType.url,
                 ),
@@ -874,12 +874,12 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
           if (_loading)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            _CenteredMessage(icon: Icons.error_outline_rounded, title: 'Could not load', subtitle: _error!)
+            _CenteredMessage(icon: Icons.error_outline_rounded, title: AppLocalizations.of(context)!.teacherCouldNotLoad, subtitle: _error!)
           else if (_items.isEmpty)
             _CenteredMessage(
               icon: Icons.video_call_outlined,
-              title: 'No meetings scheduled',
-              subtitle: 'Tap + to schedule a class meeting',
+              title: AppLocalizations.of(context)!.teacherNoMeetingsScheduled,
+              subtitle: AppLocalizations.of(context)!.teacherNoMeetingsSub,
             )
           else
             ListView.separated(
@@ -1007,7 +1007,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
     final cs = Theme.of(context).colorScheme;
 
     if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_error != null) return _CenteredMessage(icon: Icons.error_outline_rounded, title: 'Could not load', subtitle: _error!);
+    if (_error != null) return _CenteredMessage(icon: Icons.error_outline_rounded, title: AppLocalizations.of(context)!.teacherCouldNotLoad, subtitle: _error!);
 
     final items = _data['items'] is Map ? Map<String, dynamic>.from(_data['items'] as Map) : <String, dynamic>{};
     final teacher = items['teacher'] is Map ? Map<String, dynamic>.from(items['teacher'] as Map) : null;
@@ -1069,7 +1069,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         title: Text(l.teacherAddStudentTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
         content: TextField(
           controller: emailCtrl,
-          decoration: const InputDecoration(labelText: 'Student email or ID', border: OutlineInputBorder()),
+          decoration: InputDecoration(labelText: l.teacherStudentEmailLabel, border: const OutlineInputBorder()),
           keyboardType: TextInputType.emailAddress,
           autofocus: true,
         ),
@@ -1161,7 +1161,7 @@ class _PersonCardWithRemove extends StatelessWidget {
             icon: Icon(Icons.person_remove_rounded, size: 18, color: cs.error),
             onPressed: onRemove,
             style: IconButton.styleFrom(padding: const EdgeInsets.all(4), minimumSize: const Size(32, 32)),
-            tooltip: 'Remove from classroom',
+            tooltip: AppLocalizations.of(context)!.teacherTooltipRemoveStudent,
           ),
         ],
       ),

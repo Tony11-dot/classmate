@@ -4433,4 +4433,227 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherOpenAction => 'Ouvrir';
+
+  @override
+  String get chatDeleteForMe => 'Supprimer pour moi';
+
+  @override
+  String get chatDeleteForEveryone => 'Supprimer pour tout le monde';
+
+  @override
+  String get chatMicNeeded => 'Accès au microphone requis';
+
+  @override
+  String get chatMicNeededBody =>
+      'Veuillez autoriser l\'accès au microphone dans les Réglages pour envoyer des messages vocaux.';
+
+  @override
+  String get chatOpenSettings => 'Ouvrir les Réglages';
+
+  @override
+  String get chatCopied => 'Copié';
+
+  @override
+  String get chatCouldNotSendMedia => 'Impossible d\'envoyer le média.';
+
+  @override
+  String get chatCouldNotSendMessage => 'Impossible d\'envoyer le message.';
+
+  @override
+  String get chatCouldNotForward =>
+      'Impossible de transférer les messages sélectionnés';
+
+  @override
+  String get chatSelectAll => 'Tout sélectionner';
+
+  @override
+  String get chatDeselectAll => 'Tout désélectionner';
+
+  @override
+  String get chatEditingMessage => 'Modification du message';
+
+  @override
+  String get chatEditPlaceholder => 'Modifier le message…';
+
+  @override
+  String get chatMessageHint => 'Message';
+
+  @override
+  String get chatPin => 'Épingler';
+
+  @override
+  String get chatUnpin => 'Désépingler';
+
+  @override
+  String get chatPhoto => 'Photo';
+
+  @override
+  String get chatVideo => 'Vidéo';
+
+  @override
+  String get chatMedia => 'Médias';
+
+  @override
+  String get chatAudioFile => 'Fichier audio';
+
+  @override
+  String get chatVideoFile => 'Fichier vidéo';
+
+  @override
+  String get chatAttachedFile => 'Fichier joint';
+
+  @override
+  String get chatFollowUp => 'Suite';
+
+  @override
+  String get chatCancelTooltip => 'Annuler';
+
+  @override
+  String get chatJoinGroup => 'Rejoindre le groupe';
+
+  @override
+  String get chatJoining => 'Connexion…';
+
+  @override
+  String get chatJoinGroupTooltip => 'Rejoindre un groupe par code';
+
+  @override
+  String get chatForwardNoChatAvailable =>
+      'Aucune discussion approuvée disponible';
+
+  @override
+  String get chatFilterAll => 'Tous';
+
+  @override
+  String get novaDisclaimer =>
+      'NOVA peut se tromper. Vérifiez les réponses importantes.';
+
+  @override
+  String get practiceCustomDisclaimer =>
+      'Les sujets personnalisés sont générés par l\'IA à la volée. Les questions peuvent dériver hors sujet ou être inexactes pour des sujets de niche. Vérifiez les réponses inconnues de manière indépendante.';
+
+  @override
+  String get classroomsJoined => 'Vous avez rejoint la classe !';
+
+  @override
+  String get classroomsJoinAction => 'Rejoindre la classe';
+
+  @override
+  String get classroomsJoinTooltip => 'Rejoindre une classe';
+
+  @override
+  String get classroomsJoinTitle => 'Rejoindre une classe';
+
+  @override
+  String get classroomsJoinSubtitle =>
+      'Entrez le code que votre enseignant vous a donné';
+
+  @override
+  String get classroomsCouldNotOpenLink => 'Impossible d\'ouvrir le lien';
+
+  @override
+  String get classroomsReorderTitle => 'Réorganiser les classes';
+
+  @override
+  String get classroomsNoClassroomsToReorder => 'Aucune classe à réorganiser.';
+
+  @override
+  String get teacherPostAnnouncementAction => 'Publier une annonce';
+
+  @override
+  String get announcementAudienceEveryone => 'Tout le monde';
+
+  @override
+  String get teacherGreetingMorning => 'Bonjour';
+
+  @override
+  String get teacherGreetingAfternoon => 'Bon après-midi';
+
+  @override
+  String get teacherGreetingEvening => 'Bonsoir';
+
+  @override
+  String get teacherTodaysClasses => 'Cours d\'aujourd\'hui';
+
+  @override
+  String get teacherNoDate => 'Aucune date';
+
+  @override
+  String get teacherUpcomingTestsSubtitle => 'Prochains tests et contrôles';
+
+  @override
+  String get teacherNoClassesThisWeek => 'Aucun cours cette semaine';
+
+  @override
+  String get teacherNoClassesThisWeekSub =>
+      'Votre emploi du temps de cette semaine est vide';
+
+  @override
+  String get teacherTitleFieldLabel => 'Titre *';
+
+  @override
+  String get teacherInstructionsLabel => 'Instructions';
+
+  @override
+  String get teacherLinkUrlLabel => 'Lien / URL *';
+
+  @override
+  String get teacherLinkUrlHint => 'https://...';
+
+  @override
+  String get teacherDescriptionLabel => 'Description';
+
+  @override
+  String get teacherMeetingTitleLabel => 'Titre de la réunion *';
+
+  @override
+  String get teacherMeetingLinkLabel => 'Lien de la réunion *';
+
+  @override
+  String get teacherMeetingLinkHint => 'Lien Zoom / Meet / Teams';
+
+  @override
+  String get teacherStudentEmailLabel => 'E-mail ou ID de l\'élève';
+
+  @override
+  String get teacherTooltipRemoveStudent => 'Retirer de la classe';
+
+  @override
+  String get teacherCouldNotLoad => 'Impossible de charger';
+
+  @override
+  String get teacherNoAssignmentsYet => 'Aucun devoir pour l\'instant';
+
+  @override
+  String get teacherNoAssignmentsSub =>
+      'Appuyez sur + pour créer le premier devoir';
+
+  @override
+  String get teacherNoMaterialsYet => 'Aucun matériel pour l\'instant';
+
+  @override
+  String get teacherNoMaterialsSub =>
+      'Partagez des liens, des documents ou des ressources avec votre classe';
+
+  @override
+  String get teacherNoMeetingsScheduled => 'Aucune réunion planifiée';
+
+  @override
+  String get teacherNoMeetingsSub =>
+      'Appuyez sur + pour planifier une réunion de classe';
+
+  @override
+  String get teacherAttendanceOther => 'Autre';
+
+  @override
+  String get teacherTotal => 'Total';
+
+  @override
+  String get mediaOpenExternally => 'Ouvrir en externe';
+
+  @override
+  String get mediaUnableToLoad => 'Impossible de charger l\'image';
+
+  @override
+  String get searchHint => 'Rechercher...';
 }

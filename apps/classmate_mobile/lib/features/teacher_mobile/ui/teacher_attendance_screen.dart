@@ -348,13 +348,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                   // Progress stats
                   Row(
                     children: [
-                      _AttStatPill(value: '$presentCount', label: 'Present', color: const Color(0xFF22C55E)),
+                      _AttStatPill(value: '$presentCount', label: AppLocalizations.of(context)!.attendanceStatusPresent, color: const Color(0xFF22C55E)),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '$absentCount', label: 'Absent', color: cs.error),
+                      _AttStatPill(value: '$absentCount', label: AppLocalizations.of(context)!.attendanceStatusAbsent, color: cs.error),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: 'Other', color: cs.tertiary),
+                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: AppLocalizations.of(context)!.teacherAttendanceOther, color: cs.tertiary),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '$markedCount', label: 'Total', color: cs.secondary),
+                      _AttStatPill(value: '$markedCount', label: AppLocalizations.of(context)!.teacherTotal, color: cs.secondary),
                     ],
                   ),
                   const SizedBox(height: 12),

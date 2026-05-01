@@ -297,7 +297,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           .catchError((_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not send media.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.chatCouldNotSendMedia)),
           );
         }
       });
@@ -319,7 +319,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         .catchError((_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not send message.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.chatCouldNotSendMessage)),
         );
       }
     });
@@ -398,13 +398,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
             children: [
               ListTile(
                 leading: const Icon(Icons.delete_outline_rounded),
-                title: const Text('Delete for me'),
+                title: Text(AppLocalizations.of(ctx)!.chatDeleteForMe),
                 onTap: () =>
                     Navigator.of(ctx).pop(ChatDeleteMode.deleteForMe),
               ),
               ListTile(
                 leading: const Icon(Icons.delete_forever_rounded),
-                title: const Text('Delete for everyone'),
+                title: Text(AppLocalizations.of(ctx)!.chatDeleteForEveryone),
                 onTap: () =>
                     Navigator.of(ctx).pop(ChatDeleteMode.deleteForEveryone),
               ),
@@ -465,7 +465,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not forward selected messages')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.chatCouldNotForward)),
       );
       _exitForwardMode();
       return;
@@ -552,7 +552,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: [image.path], title: 'Photo'),
+            ChatMediaPreviewScreen(initialPaths: [image.path], title: AppLocalizations.of(context)!.chatPhoto),
       ),
     );
     if (result == null || !mounted) return;
@@ -568,7 +568,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: [video.path], title: 'Video'),
+            ChatMediaPreviewScreen(initialPaths: [video.path], title: AppLocalizations.of(context)!.chatVideo),
       ),
     );
     if (result == null || !mounted) return;
@@ -589,7 +589,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: paths, title: 'Media'),
+            ChatMediaPreviewScreen(initialPaths: paths, title: AppLocalizations.of(context)!.chatMedia),
       ),
     );
     if (result == null || !mounted) return;
@@ -646,19 +646,18 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       await showDialog<void>(
         context: context,
         builder: (dialogCtx) => AlertDialog(
-          title: const Text('Microphone access needed'),
-          content: const Text(
-              'Please allow microphone access in Settings to send voice notes.'),
+          title: Text(AppLocalizations.of(context)!.chatMicNeeded),
+          content: Text(AppLocalizations.of(context)!.chatMicNeededBody),
           actions: [
             TextButton(
                 onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.of(context)!.actionCancel)),
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogCtx).pop();
                 await launchUrl(Uri.parse('app-settings:'));
               },
-              child: const Text('Open Settings'),
+              child: Text(AppLocalizations.of(context)!.chatOpenSettings),
             ),
           ],
         ),
@@ -849,7 +848,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       canForward: widget.policy.canForward && !message.deletedForEveryone,
       canPin: widget.policy.canPin,
       canViewInfo: widget.policy.canViewInfo,
-      pinLabel: isPinned ? 'Unpin' : 'Pin',
+      pinLabel: isPinned ? AppLocalizations.of(context)!.chatUnpin : AppLocalizations.of(context)!.chatPin,
       pickerAllowedEmojis: widget.allowedEmojis,
     );
 
@@ -866,7 +865,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         await Clipboard.setData(ClipboardData(text: message.text));
         if (!mounted) return;
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Copied')));
+            .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.chatCopied)));
       case 'pin':
         await widget.controller.togglePin(message.id);
         widget.controller.invalidate();
@@ -909,7 +908,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   String _daySeparatorLabel(AppLocalizations l, ChatMessage m) =>
       formatChatDayChipLabel(m.createdAt,
-          includeYear: true, fallback: l.earlier);
+          includeYear: true,
+          fallback: l.earlier,
+          today: l.today,
+          yesterday: l.yesterday);
 
   Widget _buildDaySeparatorChip(BuildContext context, String label) {
     final scheme = Theme.of(context).colorScheme;
@@ -1234,6 +1236,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   Widget _buildForwardActionBar() {
+    final l = AppLocalizations.of(context)!;
     final count = _forwardSelectedMessageIds.length;
     final total = _lastKnownMessages
         .where((m) => !m.deletedForEveryone && !m.deletedForMe)
@@ -1255,7 +1258,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           child: Row(
             children: [
               IconButton(
-                tooltip: 'Cancel',
+                tooltip: l.chatCancelTooltip,
                 onPressed: _exitForwardMode,
                 icon: const Icon(Icons.close_rounded),
               ),
@@ -1264,7 +1267,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               IconButton(
-                tooltip: allSelected ? 'Deselect all' : 'Select all',
+                tooltip: allSelected ? l.chatDeselectAll : l.chatSelectAll,
                 onPressed: allSelected
                     ? () => setState(() => _forwardSelectedMessageIds.clear())
                     : _selectAllForForward,
@@ -1286,6 +1289,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   Widget _buildDeleteActionBar() {
+    final l = AppLocalizations.of(context)!;
     final count = _deleteSelectedMessageIds.length;
     final total = _lastKnownMessages
         .where((m) => !m.deletedForEveryone && !m.deletedForMe)
@@ -1307,7 +1311,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           child: Row(
             children: [
               IconButton(
-                tooltip: 'Cancel',
+                tooltip: l.chatCancelTooltip,
                 onPressed: _exitDeleteMode,
                 icon: const Icon(Icons.close_rounded),
               ),
@@ -1316,7 +1320,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               IconButton(
-                tooltip: allSelected ? 'Deselect all' : 'Select all',
+                tooltip: allSelected ? l.chatDeselectAll : l.chatSelectAll,
                 onPressed: allSelected
                     ? () => setState(() => _deleteSelectedMessageIds.clear())
                     : _selectAllForDelete,
@@ -1344,6 +1348,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   // ─── editing banner ──────────────────────────────────────────────────────
 
   Widget _buildEditingBanner() {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
@@ -1361,7 +1366,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Editing message',
+              l.chatEditingMessage,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: scheme.primary,
                     fontWeight: FontWeight.w700,
@@ -1489,7 +1494,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 onPauseRecording: _pauseVoiceRecord,
                 onResumeRecording: _resumeVoiceRecord,
                 hintText: _editingMessageId != null
-                    ? 'Edit message…'
+                    ? l.chatEditPlaceholder
                     : widget.canSend
                         ? l.chatComposerDefaultHint
                         : l.messagesThreadWaitingForApproval,

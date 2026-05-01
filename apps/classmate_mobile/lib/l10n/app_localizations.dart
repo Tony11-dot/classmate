@@ -7728,6 +7728,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get teacherOpenAction;
+
+  /// No description provided for @chatDeleteForMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete for me'**
+  String get chatDeleteForMe;
+
+  /// No description provided for @chatDeleteForEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete for everyone'**
+  String get chatDeleteForEveryone;
+
+  /// No description provided for @chatMicNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone access needed'**
+  String get chatMicNeeded;
+
+  /// No description provided for @chatMicNeededBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Please allow microphone access in Settings to send voice notes.'**
+  String get chatMicNeededBody;
+
+  /// No description provided for @chatOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get chatOpenSettings;
+
+  /// No description provided for @chatCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get chatCopied;
+
+  /// No description provided for @chatCouldNotSendMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send media.'**
+  String get chatCouldNotSendMedia;
+
+  /// No description provided for @chatCouldNotSendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send message.'**
+  String get chatCouldNotSendMessage;
+
+  /// No description provided for @chatCouldNotForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not forward selected messages'**
+  String get chatCouldNotForward;
+
+  /// No description provided for @chatSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get chatSelectAll;
+
+  /// No description provided for @chatDeselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get chatDeselectAll;
+
+  /// No description provided for @chatEditingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing message'**
+  String get chatEditingMessage;
+
+  /// No description provided for @chatEditPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit message…'**
+  String get chatEditPlaceholder;
+
+  /// No description provided for @chatMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get chatMessageHint;
+
+  /// No description provided for @chatPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get chatPin;
+
+  /// No description provided for @chatUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get chatUnpin;
+
+  /// No description provided for @chatPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPhoto;
+
+  /// No description provided for @chatVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get chatVideo;
+
+  /// No description provided for @chatMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get chatMedia;
+
+  /// No description provided for @chatAudioFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio file'**
+  String get chatAudioFile;
+
+  /// No description provided for @chatVideoFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Video file'**
+  String get chatVideoFile;
+
+  /// No description provided for @chatAttachedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached file'**
+  String get chatAttachedFile;
+
+  /// No description provided for @chatFollowUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up'**
+  String get chatFollowUp;
+
+  /// No description provided for @chatCancelTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chatCancelTooltip;
+
+  /// No description provided for @chatJoinGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Join Group'**
+  String get chatJoinGroup;
+
+  /// No description provided for @chatJoining.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining…'**
+  String get chatJoining;
+
+  /// No description provided for @chatJoinGroupTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Join group by code'**
+  String get chatJoinGroupTooltip;
+
+  /// No description provided for @chatForwardNoChatAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No approved chats available'**
+  String get chatForwardNoChatAvailable;
+
+  /// No description provided for @chatFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get chatFilterAll;
+
+  /// No description provided for @novaDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA can make mistakes. Double-check important answers.'**
+  String get novaDisclaimer;
+
+  /// No description provided for @practiceCustomDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.'**
+  String get practiceCustomDisclaimer;
+
+  /// No description provided for @classroomsJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined the classroom!'**
+  String get classroomsJoined;
+
+  /// No description provided for @classroomsJoinAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Join Classroom'**
+  String get classroomsJoinAction;
+
+  /// No description provided for @classroomsJoinTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a classroom'**
+  String get classroomsJoinTooltip;
+
+  /// No description provided for @classroomsJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Classroom'**
+  String get classroomsJoinTitle;
+
+  /// No description provided for @classroomsJoinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code your teacher gave you'**
+  String get classroomsJoinSubtitle;
+
+  /// No description provided for @classroomsCouldNotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open link'**
+  String get classroomsCouldNotOpenLink;
+
+  /// No description provided for @classroomsReorderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder classrooms'**
+  String get classroomsReorderTitle;
+
+  /// No description provided for @classroomsNoClassroomsToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'No classrooms to reorder.'**
+  String get classroomsNoClassroomsToReorder;
+
+  /// No description provided for @teacherPostAnnouncementAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Announcement'**
+  String get teacherPostAnnouncementAction;
+
+  /// No description provided for @announcementAudienceEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get announcementAudienceEveryone;
+
+  /// No description provided for @teacherGreetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get teacherGreetingMorning;
+
+  /// No description provided for @teacherGreetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get teacherGreetingAfternoon;
+
+  /// No description provided for @teacherGreetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get teacherGreetingEvening;
+
+  /// No description provided for @teacherTodaysClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Classes'**
+  String get teacherTodaysClasses;
+
+  /// No description provided for @teacherNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get teacherNoDate;
+
+  /// No description provided for @teacherUpcomingTestsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next tests & quizzes'**
+  String get teacherUpcomingTestsSubtitle;
+
+  /// No description provided for @teacherNoClassesThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes this week'**
+  String get teacherNoClassesThisWeek;
+
+  /// No description provided for @teacherNoClassesThisWeekSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Your schedule for this week is empty'**
+  String get teacherNoClassesThisWeekSub;
+
+  /// No description provided for @teacherTitleFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title *'**
+  String get teacherTitleFieldLabel;
+
+  /// No description provided for @teacherInstructionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get teacherInstructionsLabel;
+
+  /// No description provided for @teacherLinkUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Link / URL *'**
+  String get teacherLinkUrlLabel;
+
+  /// No description provided for @teacherLinkUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://...'**
+  String get teacherLinkUrlHint;
+
+  /// No description provided for @teacherDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get teacherDescriptionLabel;
+
+  /// No description provided for @teacherMeetingTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting title *'**
+  String get teacherMeetingTitleLabel;
+
+  /// No description provided for @teacherMeetingLinkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting link *'**
+  String get teacherMeetingLinkLabel;
+
+  /// No description provided for @teacherMeetingLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom / Meet / Teams link'**
+  String get teacherMeetingLinkHint;
+
+  /// No description provided for @teacherStudentEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Student email or ID'**
+  String get teacherStudentEmailLabel;
+
+  /// No description provided for @teacherTooltipRemoveStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from classroom'**
+  String get teacherTooltipRemoveStudent;
+
+  /// No description provided for @teacherCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load'**
+  String get teacherCouldNotLoad;
+
+  /// No description provided for @teacherNoAssignmentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignments yet'**
+  String get teacherNoAssignmentsYet;
+
+  /// No description provided for @teacherNoAssignmentsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to create the first assignment'**
+  String get teacherNoAssignmentsSub;
+
+  /// No description provided for @teacherNoMaterialsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No materials yet'**
+  String get teacherNoMaterialsYet;
+
+  /// No description provided for @teacherNoMaterialsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Share links, documents, or resources with your class'**
+  String get teacherNoMaterialsSub;
+
+  /// No description provided for @teacherNoMeetingsScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'No meetings scheduled'**
+  String get teacherNoMeetingsScheduled;
+
+  /// No description provided for @teacherNoMeetingsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to schedule a class meeting'**
+  String get teacherNoMeetingsSub;
+
+  /// No description provided for @teacherAttendanceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get teacherAttendanceOther;
+
+  /// No description provided for @teacherTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get teacherTotal;
+
+  /// No description provided for @mediaOpenExternally.
+  ///
+  /// In en, this message translates to:
+  /// **'Open externally'**
+  String get mediaOpenExternally;
+
+  /// No description provided for @mediaUnableToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load image'**
+  String get mediaUnableToLoad;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get searchHint;
 }
 
 class _AppLocalizationsDelegate

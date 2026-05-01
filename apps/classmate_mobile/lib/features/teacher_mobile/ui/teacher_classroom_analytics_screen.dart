@@ -121,10 +121,10 @@ class _TeacherClassroomAnalyticsScreenState
                               // Top metrics
                               Row(
                                 children: [
-                                  Expanded(child: _StatCard(label: 'Students', value: '$totalStudents', icon: Icons.group_rounded, color: cs.primary)),
+                                  Expanded(child: _StatCard(label: AppLocalizations.of(context)!.teacherStudentsLabel, value: '$totalStudents', icon: Icons.group_rounded, color: cs.primary)),
                                   const SizedBox(width: 10),
                                   Expanded(child: _StatCard(
-                                    label: 'Attendance',
+                                    label: AppLocalizations.of(context)!.navAttendance,
                                     value: attRate != null ? '$attRate%' : '—',
                                     icon: Icons.fact_check_rounded,
                                     color: attRate == null ? cs.onSurfaceVariant
@@ -133,7 +133,7 @@ class _TeacherClassroomAnalyticsScreenState
                                         : cs.error,
                                   )),
                                   const SizedBox(width: 10),
-                                  Expanded(child: _StatCard(label: 'Assignments', value: '$totalAssignments', icon: Icons.assignment_rounded, color: cs.secondary)),
+                                  Expanded(child: _StatCard(label: AppLocalizations.of(context)!.navAssignments, value: '$totalAssignments', icon: Icons.assignment_rounded, color: cs.secondary)),
                                 ],
                               ),
                               const SizedBox(height: 20),

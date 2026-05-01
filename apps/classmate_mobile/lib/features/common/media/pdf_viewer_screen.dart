@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class PdfViewerScreen extends StatefulWidget {
   final String url;
   final String? title;
@@ -126,7 +128,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                               FilledButton.icon(
                                 onPressed: _openExternally,
                                 icon: const Icon(Icons.open_in_new),
-                                label: const Text('Open externally'),
+                                label: Text(AppLocalizations.of(context)!.mediaOpenExternally),
                               ),
                             ],
                           ),

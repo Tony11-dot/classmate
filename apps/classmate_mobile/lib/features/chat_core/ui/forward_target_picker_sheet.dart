@@ -42,7 +42,7 @@ Future<List<ForwardTarget>?> showForwardTargetPicker(
 
   if (!hasApprovedDm && !hasClassrooms) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('No approved chats available')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.chatForwardNoChatAvailable)),
     );
     return null;
   }

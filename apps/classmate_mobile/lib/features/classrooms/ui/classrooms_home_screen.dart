@@ -77,8 +77,8 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Join a Classroom', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                                        Text('Enter the code your teacher gave you', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                                        Text(AppLocalizations.of(ctx)!.classroomsJoinTitle, style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                        Text(AppLocalizations.of(ctx)!.classroomsJoinSubtitle, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                                       ],
                                     ),
                                   ),
@@ -113,7 +113,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                     Navigator.of(ctx).pop();
                                     if (!mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('You joined the classroom!')),
+                                      SnackBar(content: Text(AppLocalizations.of(context)!.classroomsJoined)),
                                     );
                                   } catch (e) {
                                     setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
@@ -136,7 +136,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                       Navigator.of(ctx).pop();
                                       if (!mounted) return;
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('You joined the classroom!')),
+                                        SnackBar(content: Text(AppLocalizations.of(context)!.classroomsJoined)),
                                       );
                                     } catch (e) {
                                       setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
@@ -145,7 +145,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                   icon: joining
                                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                                       : const Icon(Icons.login_rounded),
-                                  label: Text(joining ? 'Joining…' : 'Join Classroom'),
+                                  label: Text(joining ? AppLocalizations.of(ctx)!.chatJoining : AppLocalizations.of(ctx)!.classroomsJoinAction),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -263,7 +263,7 @@ backgroundColor: cs.surface,
                                           ),
                                         ),
                                         IconButton(
-                                          tooltip: 'Join a classroom',
+                                          tooltip: l.classroomsJoinTooltip,
                                           onPressed: () => _showJoinSheet(context),
                                           icon: const Icon(Icons.add_rounded),
                                         ),

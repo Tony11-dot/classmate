@@ -684,8 +684,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                     const SizedBox(height: 10),
                     _AIDisclaimerBanner(
                       icon: Icons.auto_awesome_rounded,
-                      message:
-                          'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.',
+                      message: l.practiceCustomDisclaimer,
                     ),
                   ],
                 ],

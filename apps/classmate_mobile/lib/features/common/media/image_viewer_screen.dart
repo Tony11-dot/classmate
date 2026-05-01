@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class ImageViewerScreen extends StatelessWidget {
   final String imageUrl;
   final String? heroTag;
@@ -38,7 +40,7 @@ class ImageViewerScreen extends StatelessWidget {
             File(path),
             fit: BoxFit.contain,
             errorBuilder: (context, e, _) =>
-                const Center(child: Text('Unable to load image')),
+                Center(child: Text(AppLocalizations.of(context)!.mediaUnableToLoad)),
           ),
         ),
       );
@@ -49,13 +51,13 @@ class ImageViewerScreen extends StatelessWidget {
           imageUrl: url,
           fit: BoxFit.contain,
           placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: Colors.white54)),
-          errorWidget: (ctx, url, err) => const Center(
+          errorWidget: (ctx, url, err) => Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.broken_image_outlined, size: 48, color: Colors.white54),
-                SizedBox(height: 8),
-                Text('Unable to load image', style: TextStyle(color: Colors.white54)),
+                const Icon(Icons.broken_image_outlined, size: 48, color: Colors.white54),
+                const SizedBox(height: 8),
+                Text(AppLocalizations.of(ctx)!.mediaUnableToLoad, style: const TextStyle(color: Colors.white54)),
               ],
             ),
           ),
@@ -79,7 +81,7 @@ class ImageViewerScreen extends StatelessWidget {
         actions: [
           if (isNetwork)
             IconButton(
-              tooltip: 'Open externally',
+              tooltip: AppLocalizations.of(context)!.mediaOpenExternally,
               icon: const Icon(Icons.open_in_new_rounded, color: Colors.white),
               onPressed: () async {
                 final uri = Uri.tryParse(imageUrl);
@@ -89,7 +91,7 @@ class ImageViewerScreen extends StatelessWidget {
               },
             ),
           IconButton(
-            tooltip: 'Share',
+            tooltip: AppLocalizations.of(context)!.actionShare,
             icon: const Icon(Icons.share_rounded, color: Colors.white),
             onPressed: () async {
               if (isNetwork) {

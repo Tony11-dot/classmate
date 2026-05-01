@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class CMSearchableDropdown<T> extends StatelessWidget {
   final String label;
   final T? value;
@@ -81,9 +83,9 @@ class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: "Search...",
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.searchHint,
+                prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (v) => setState(() => query = v),
             ),

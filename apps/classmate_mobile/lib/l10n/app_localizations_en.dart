@@ -4366,4 +4366,222 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherOpenAction => 'Open';
+
+  @override
+  String get chatDeleteForMe => 'Delete for me';
+
+  @override
+  String get chatDeleteForEveryone => 'Delete for everyone';
+
+  @override
+  String get chatMicNeeded => 'Microphone access needed';
+
+  @override
+  String get chatMicNeededBody =>
+      'Please allow microphone access in Settings to send voice notes.';
+
+  @override
+  String get chatOpenSettings => 'Open Settings';
+
+  @override
+  String get chatCopied => 'Copied';
+
+  @override
+  String get chatCouldNotSendMedia => 'Could not send media.';
+
+  @override
+  String get chatCouldNotSendMessage => 'Could not send message.';
+
+  @override
+  String get chatCouldNotForward => 'Could not forward selected messages';
+
+  @override
+  String get chatSelectAll => 'Select all';
+
+  @override
+  String get chatDeselectAll => 'Deselect all';
+
+  @override
+  String get chatEditingMessage => 'Editing message';
+
+  @override
+  String get chatEditPlaceholder => 'Edit message…';
+
+  @override
+  String get chatMessageHint => 'Message';
+
+  @override
+  String get chatPin => 'Pin';
+
+  @override
+  String get chatUnpin => 'Unpin';
+
+  @override
+  String get chatPhoto => 'Photo';
+
+  @override
+  String get chatVideo => 'Video';
+
+  @override
+  String get chatMedia => 'Media';
+
+  @override
+  String get chatAudioFile => 'Audio file';
+
+  @override
+  String get chatVideoFile => 'Video file';
+
+  @override
+  String get chatAttachedFile => 'Attached file';
+
+  @override
+  String get chatFollowUp => 'Follow-up';
+
+  @override
+  String get chatCancelTooltip => 'Cancel';
+
+  @override
+  String get chatJoinGroup => 'Join Group';
+
+  @override
+  String get chatJoining => 'Joining…';
+
+  @override
+  String get chatJoinGroupTooltip => 'Join group by code';
+
+  @override
+  String get chatForwardNoChatAvailable => 'No approved chats available';
+
+  @override
+  String get chatFilterAll => 'All';
+
+  @override
+  String get novaDisclaimer =>
+      'NOVA can make mistakes. Double-check important answers.';
+
+  @override
+  String get practiceCustomDisclaimer =>
+      'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.';
+
+  @override
+  String get classroomsJoined => 'You joined the classroom!';
+
+  @override
+  String get classroomsJoinAction => 'Join Classroom';
+
+  @override
+  String get classroomsJoinTooltip => 'Join a classroom';
+
+  @override
+  String get classroomsJoinTitle => 'Join a Classroom';
+
+  @override
+  String get classroomsJoinSubtitle => 'Enter the code your teacher gave you';
+
+  @override
+  String get classroomsCouldNotOpenLink => 'Could not open link';
+
+  @override
+  String get classroomsReorderTitle => 'Reorder classrooms';
+
+  @override
+  String get classroomsNoClassroomsToReorder => 'No classrooms to reorder.';
+
+  @override
+  String get teacherPostAnnouncementAction => 'Post Announcement';
+
+  @override
+  String get announcementAudienceEveryone => 'Everyone';
+
+  @override
+  String get teacherGreetingMorning => 'Good morning';
+
+  @override
+  String get teacherGreetingAfternoon => 'Good afternoon';
+
+  @override
+  String get teacherGreetingEvening => 'Good evening';
+
+  @override
+  String get teacherTodaysClasses => 'Today\'s Classes';
+
+  @override
+  String get teacherNoDate => 'No date';
+
+  @override
+  String get teacherUpcomingTestsSubtitle => 'Next tests & quizzes';
+
+  @override
+  String get teacherNoClassesThisWeek => 'No classes this week';
+
+  @override
+  String get teacherNoClassesThisWeekSub =>
+      'Your schedule for this week is empty';
+
+  @override
+  String get teacherTitleFieldLabel => 'Title *';
+
+  @override
+  String get teacherInstructionsLabel => 'Instructions';
+
+  @override
+  String get teacherLinkUrlLabel => 'Link / URL *';
+
+  @override
+  String get teacherLinkUrlHint => 'https://...';
+
+  @override
+  String get teacherDescriptionLabel => 'Description';
+
+  @override
+  String get teacherMeetingTitleLabel => 'Meeting title *';
+
+  @override
+  String get teacherMeetingLinkLabel => 'Meeting link *';
+
+  @override
+  String get teacherMeetingLinkHint => 'Zoom / Meet / Teams link';
+
+  @override
+  String get teacherStudentEmailLabel => 'Student email or ID';
+
+  @override
+  String get teacherTooltipRemoveStudent => 'Remove from classroom';
+
+  @override
+  String get teacherCouldNotLoad => 'Could not load';
+
+  @override
+  String get teacherNoAssignmentsYet => 'No assignments yet';
+
+  @override
+  String get teacherNoAssignmentsSub => 'Tap + to create the first assignment';
+
+  @override
+  String get teacherNoMaterialsYet => 'No materials yet';
+
+  @override
+  String get teacherNoMaterialsSub =>
+      'Share links, documents, or resources with your class';
+
+  @override
+  String get teacherNoMeetingsScheduled => 'No meetings scheduled';
+
+  @override
+  String get teacherNoMeetingsSub => 'Tap + to schedule a class meeting';
+
+  @override
+  String get teacherAttendanceOther => 'Other';
+
+  @override
+  String get teacherTotal => 'Total';
+
+  @override
+  String get mediaOpenExternally => 'Open externally';
+
+  @override
+  String get mediaUnableToLoad => 'Unable to load image';
+
+  @override
+  String get searchHint => 'Search...';
 }

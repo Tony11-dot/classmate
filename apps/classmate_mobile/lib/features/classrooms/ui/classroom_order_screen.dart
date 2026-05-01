@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../providers/classroom_order_prefs.dart';
 import '../providers/classrooms_providers.dart';
 
@@ -61,7 +62,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const Text('Reorder classrooms'),
+        title: Text(AppLocalizations.of(context)!.classroomsReorderTitle),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -71,7 +72,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(AppLocalizations.of(context)!.actionSave),
           ),
         ],
       ),
@@ -89,7 +90,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
           }
 
           if (_items.isEmpty) {
-            return const Center(child: Text('No classrooms to reorder.'));
+            return Center(child: Text(AppLocalizations.of(context)!.classroomsNoClassroomsToReorder));
           }
 
           return SafeArea(

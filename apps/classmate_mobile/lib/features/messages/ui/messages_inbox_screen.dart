@@ -135,7 +135,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                           icon: joining
                               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                               : const Icon(Icons.group_add_rounded),
-                          label: Text(joining ? 'Joining…' : 'Join Group'),
+                          label: Text(joining ? AppLocalizations.of(ctx)!.chatJoining : AppLocalizations.of(ctx)!.chatJoinGroup),
                         ),
                       ),
                     ],
@@ -166,7 +166,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Join group by code',
+            tooltip: l.chatJoinGroupTooltip,
             onPressed: _joinGroupByCode,
             icon: const Icon(Icons.group_add_rounded),
           ),
@@ -246,9 +246,11 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   }
 
   String _formatInboxTrailingLabel(MessageThreadSummary item) {
+    final l = AppLocalizations.of(context)!;
     return formatChatInboxTrailingLabel(
       item.lastMessageDate,
       fallback: item.lastMessageAt.trim(),
+      yesterday: l.yesterday,
     );
   }
 

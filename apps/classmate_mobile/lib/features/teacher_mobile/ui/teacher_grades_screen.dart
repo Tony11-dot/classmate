@@ -356,11 +356,11 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    _GradeStatPill(value: '$totalCourses', label: 'Classes', color: cs.primary),
+                    _GradeStatPill(value: '$totalCourses', label: AppLocalizations.of(context)!.titleClasses, color: cs.primary),
                     const SizedBox(width: 8),
-                    _GradeStatPill(value: '$totalAssessments', label: 'Tests', color: cs.secondary),
+                    _GradeStatPill(value: '$totalAssessments', label: AppLocalizations.of(context)!.teacherTestsLabel, color: cs.secondary),
                     const SizedBox(width: 8),
-                    _GradeStatPill(value: '$totalStudents', label: 'Groups', color: cs.tertiary),
+                    _GradeStatPill(value: '$totalStudents', label: AppLocalizations.of(context)!.teacherGroupsLabel, color: cs.tertiary),
                   ],
                 ),
               ],

@@ -198,7 +198,7 @@ class _TeacherNewAnnouncementScreenState
                               onTap: () => setState(() => _targetRole = 'TEACHER'),
                             ),
                             _AudienceChip(
-                              label: 'Everyone',
+                              label: l.announcementAudienceEveryone,
                               icon: Icons.groups_rounded,
                               selected: _targetRole == 'ALL',
                               onTap: () => setState(() => _targetRole = 'ALL'),

@@ -4333,4 +4333,219 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherOpenAction => 'פתח';
+
+  @override
+  String get chatDeleteForMe => 'מחק עבורי';
+
+  @override
+  String get chatDeleteForEveryone => 'מחק עבור כולם';
+
+  @override
+  String get chatMicNeeded => 'נדרשת גישה למיקרופון';
+
+  @override
+  String get chatMicNeededBody =>
+      'אנא אפשר גישה למיקרופון בהגדרות כדי לשלוח הודעות קוליות.';
+
+  @override
+  String get chatOpenSettings => 'פתח הגדרות';
+
+  @override
+  String get chatCopied => 'הועתק';
+
+  @override
+  String get chatCouldNotSendMedia => 'לא ניתן לשלוח מדיה.';
+
+  @override
+  String get chatCouldNotSendMessage => 'לא ניתן לשלוח הודעה.';
+
+  @override
+  String get chatCouldNotForward => 'לא ניתן להעביר את ההודעות שנבחרו';
+
+  @override
+  String get chatSelectAll => 'בחר הכל';
+
+  @override
+  String get chatDeselectAll => 'בטל בחירת הכל';
+
+  @override
+  String get chatEditingMessage => 'עריכת הודעה';
+
+  @override
+  String get chatEditPlaceholder => 'ערוך הודעה…';
+
+  @override
+  String get chatMessageHint => 'הודעה';
+
+  @override
+  String get chatPin => 'נעץ';
+
+  @override
+  String get chatUnpin => 'בטל נעיצה';
+
+  @override
+  String get chatPhoto => 'תמונה';
+
+  @override
+  String get chatVideo => 'וידאו';
+
+  @override
+  String get chatMedia => 'מדיה';
+
+  @override
+  String get chatAudioFile => 'קובץ שמע';
+
+  @override
+  String get chatVideoFile => 'קובץ וידאו';
+
+  @override
+  String get chatAttachedFile => 'קובץ מצורף';
+
+  @override
+  String get chatFollowUp => 'המשך';
+
+  @override
+  String get chatCancelTooltip => 'ביטול';
+
+  @override
+  String get chatJoinGroup => 'הצטרף לקבוצה';
+
+  @override
+  String get chatJoining => 'מצטרף…';
+
+  @override
+  String get chatJoinGroupTooltip => 'הצטרף לקבוצה עם קוד';
+
+  @override
+  String get chatForwardNoChatAvailable => 'אין שיחות מאושרות זמינות';
+
+  @override
+  String get chatFilterAll => 'הכל';
+
+  @override
+  String get novaDisclaimer => 'NOVA עלולה לטעות. בדוק תשובות חשובות.';
+
+  @override
+  String get practiceCustomDisclaimer =>
+      'נושאים מותאמים אישית נוצרים על ידי בינה מלאכותית בזמן אמת. שאלות עלולות לסטות מהנושא או להיות לא מדויקות בנושאים נישתיים. אמת תשובות לא מוכרות באופן עצמאי.';
+
+  @override
+  String get classroomsJoined => 'הצטרפת לכיתה!';
+
+  @override
+  String get classroomsJoinAction => 'הצטרף לכיתה';
+
+  @override
+  String get classroomsJoinTooltip => 'הצטרף לכיתה';
+
+  @override
+  String get classroomsJoinTitle => 'הצטרף לכיתה';
+
+  @override
+  String get classroomsJoinSubtitle => 'הזן את הקוד שהמורה שלך נתן לך';
+
+  @override
+  String get classroomsCouldNotOpenLink => 'לא ניתן לפתוח את הקישור';
+
+  @override
+  String get classroomsReorderTitle => 'סדר מחדש כיתות';
+
+  @override
+  String get classroomsNoClassroomsToReorder => 'אין כיתות לסידור מחדש.';
+
+  @override
+  String get teacherPostAnnouncementAction => 'פרסם הודעה';
+
+  @override
+  String get announcementAudienceEveryone => 'כולם';
+
+  @override
+  String get teacherGreetingMorning => 'בוקר טוב';
+
+  @override
+  String get teacherGreetingAfternoon => 'צהריים טובים';
+
+  @override
+  String get teacherGreetingEvening => 'ערב טוב';
+
+  @override
+  String get teacherTodaysClasses => 'שיעורי היום';
+
+  @override
+  String get teacherNoDate => 'אין תאריך';
+
+  @override
+  String get teacherUpcomingTestsSubtitle => 'מבחנים וחידונים הבאים';
+
+  @override
+  String get teacherNoClassesThisWeek => 'אין שיעורים השבוע';
+
+  @override
+  String get teacherNoClassesThisWeekSub => 'לוח הזמנים שלך לשבוע זה ריק';
+
+  @override
+  String get teacherTitleFieldLabel => 'כותרת *';
+
+  @override
+  String get teacherInstructionsLabel => 'הוראות';
+
+  @override
+  String get teacherLinkUrlLabel => 'קישור / כתובת URL *';
+
+  @override
+  String get teacherLinkUrlHint => 'https://...';
+
+  @override
+  String get teacherDescriptionLabel => 'תיאור';
+
+  @override
+  String get teacherMeetingTitleLabel => 'כותרת הפגישה *';
+
+  @override
+  String get teacherMeetingLinkLabel => 'קישור לפגישה *';
+
+  @override
+  String get teacherMeetingLinkHint => 'קישור Zoom / Meet / Teams';
+
+  @override
+  String get teacherStudentEmailLabel => 'אימייל או מזהה של תלמיד';
+
+  @override
+  String get teacherTooltipRemoveStudent => 'הסר מהכיתה';
+
+  @override
+  String get teacherCouldNotLoad => 'לא ניתן לטעון';
+
+  @override
+  String get teacherNoAssignmentsYet => 'אין מטלות עדיין';
+
+  @override
+  String get teacherNoAssignmentsSub => 'הקש + כדי ליצור את המטלה הראשונה';
+
+  @override
+  String get teacherNoMaterialsYet => 'אין חומרים עדיין';
+
+  @override
+  String get teacherNoMaterialsSub => 'שתף קישורים, מסמכים ומשאבים עם הכיתה';
+
+  @override
+  String get teacherNoMeetingsScheduled => 'אין פגישות מתוזמנות';
+
+  @override
+  String get teacherNoMeetingsSub => 'הקש + כדי לתזמן פגישת כיתה';
+
+  @override
+  String get teacherAttendanceOther => 'אחר';
+
+  @override
+  String get teacherTotal => 'סה״כ';
+
+  @override
+  String get mediaOpenExternally => 'פתח באפליקציה חיצונית';
+
+  @override
+  String get mediaUnableToLoad => 'לא ניתן לטעון את התמונה';
+
+  @override
+  String get searchHint => 'חפש...';
 }

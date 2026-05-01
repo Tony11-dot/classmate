@@ -1420,19 +1420,20 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       return raw;
     }
 
+    final l = AppLocalizations.of(context)!;
     switch (m.kind.toUpperCase()) {
       case 'VOICE':
         return m.fileName?.trim().isNotEmpty == true
             ? m.fileName!.trim()
-            : 'Audio file';
+            : l.chatAudioFile;
       case 'VIDEO':
         return m.fileName?.trim().isNotEmpty == true
             ? m.fileName!.trim()
-            : 'Video file';
+            : l.chatVideoFile;
       default:
         return m.fileName?.trim().isNotEmpty == true
             ? m.fileName!.trim()
-            : 'Attached file';
+            : l.chatAttachedFile;
     }
   }
 
@@ -1635,7 +1636,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  'Follow-up',
+                                  l.chatFollowUp,
                                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: cs.onSurfaceVariant,
                                     fontWeight: FontWeight.w600,
@@ -1816,7 +1817,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'NOVA can make mistakes. Double-check important answers.',
+                      l.novaDisclaimer,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,

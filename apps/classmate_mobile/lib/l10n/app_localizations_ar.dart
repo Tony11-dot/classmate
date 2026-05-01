@@ -4351,4 +4351,220 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherOpenAction => 'فتح';
+
+  @override
+  String get chatDeleteForMe => 'حذف بالنسبة لي';
+
+  @override
+  String get chatDeleteForEveryone => 'حذف للجميع';
+
+  @override
+  String get chatMicNeeded => 'مطلوب الوصول إلى الميكروفون';
+
+  @override
+  String get chatMicNeededBody =>
+      'يرجى السماح بالوصول إلى الميكروفون في الإعدادات لإرسال الرسائل الصوتية.';
+
+  @override
+  String get chatOpenSettings => 'فتح الإعدادات';
+
+  @override
+  String get chatCopied => 'تم النسخ';
+
+  @override
+  String get chatCouldNotSendMedia => 'تعذر إرسال الوسائط.';
+
+  @override
+  String get chatCouldNotSendMessage => 'تعذر إرسال الرسالة.';
+
+  @override
+  String get chatCouldNotForward => 'تعذر إعادة توجيه الرسائل المحددة';
+
+  @override
+  String get chatSelectAll => 'تحديد الكل';
+
+  @override
+  String get chatDeselectAll => 'إلغاء تحديد الكل';
+
+  @override
+  String get chatEditingMessage => 'تحرير الرسالة';
+
+  @override
+  String get chatEditPlaceholder => 'تحرير الرسالة…';
+
+  @override
+  String get chatMessageHint => 'رسالة';
+
+  @override
+  String get chatPin => 'تثبيت';
+
+  @override
+  String get chatUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get chatPhoto => 'صورة';
+
+  @override
+  String get chatVideo => 'فيديو';
+
+  @override
+  String get chatMedia => 'وسائط';
+
+  @override
+  String get chatAudioFile => 'ملف صوتي';
+
+  @override
+  String get chatVideoFile => 'ملف فيديو';
+
+  @override
+  String get chatAttachedFile => 'ملف مرفق';
+
+  @override
+  String get chatFollowUp => 'متابعة';
+
+  @override
+  String get chatCancelTooltip => 'إلغاء';
+
+  @override
+  String get chatJoinGroup => 'الانضمام إلى مجموعة';
+
+  @override
+  String get chatJoining => 'جارٍ الانضمام…';
+
+  @override
+  String get chatJoinGroupTooltip => 'الانضمام إلى مجموعة برمز';
+
+  @override
+  String get chatForwardNoChatAvailable => 'لا توجد محادثات موافق عليها';
+
+  @override
+  String get chatFilterAll => 'الكل';
+
+  @override
+  String get novaDisclaimer => 'قد تُخطئ NOVA. تحقق من الإجابات المهمة.';
+
+  @override
+  String get practiceCustomDisclaimer =>
+      'الموضوعات المخصصة مُولَّدة بالذكاء الاصطناعي فورياً. قد تنحرف الأسئلة عن الموضوع أو تكون غير دقيقة للمواضيع المتخصصة. تحقق من الإجابات غير المألوفة باستقلالية.';
+
+  @override
+  String get classroomsJoined => 'لقد انضممت إلى الفصل الدراسي!';
+
+  @override
+  String get classroomsJoinAction => 'انضم إلى الفصل';
+
+  @override
+  String get classroomsJoinTooltip => 'انضم إلى فصل دراسي';
+
+  @override
+  String get classroomsJoinTitle => 'الانضمام إلى فصل دراسي';
+
+  @override
+  String get classroomsJoinSubtitle => 'أدخل الرمز الذي أعطاك إياه معلمك';
+
+  @override
+  String get classroomsCouldNotOpenLink => 'تعذر فتح الرابط';
+
+  @override
+  String get classroomsReorderTitle => 'إعادة ترتيب الفصول';
+
+  @override
+  String get classroomsNoClassroomsToReorder => 'لا توجد فصول لإعادة ترتيبها.';
+
+  @override
+  String get teacherPostAnnouncementAction => 'نشر إعلان';
+
+  @override
+  String get announcementAudienceEveryone => 'الجميع';
+
+  @override
+  String get teacherGreetingMorning => 'صباح الخير';
+
+  @override
+  String get teacherGreetingAfternoon => 'مساء الخير';
+
+  @override
+  String get teacherGreetingEvening => 'مساء الخير';
+
+  @override
+  String get teacherTodaysClasses => 'فصول اليوم';
+
+  @override
+  String get teacherNoDate => 'لا يوجد تاريخ';
+
+  @override
+  String get teacherUpcomingTestsSubtitle => 'الاختبارات القادمة';
+
+  @override
+  String get teacherNoClassesThisWeek => 'لا توجد فصول هذا الأسبوع';
+
+  @override
+  String get teacherNoClassesThisWeekSub => 'جدولك لهذا الأسبوع فارغ';
+
+  @override
+  String get teacherTitleFieldLabel => 'العنوان *';
+
+  @override
+  String get teacherInstructionsLabel => 'التعليمات';
+
+  @override
+  String get teacherLinkUrlLabel => 'الرابط / الرابط الإلكتروني *';
+
+  @override
+  String get teacherLinkUrlHint => 'https://...';
+
+  @override
+  String get teacherDescriptionLabel => 'الوصف';
+
+  @override
+  String get teacherMeetingTitleLabel => 'عنوان الاجتماع *';
+
+  @override
+  String get teacherMeetingLinkLabel => 'رابط الاجتماع *';
+
+  @override
+  String get teacherMeetingLinkHint => 'رابط Zoom / Meet / Teams';
+
+  @override
+  String get teacherStudentEmailLabel => 'بريد الطالب الإلكتروني أو معرفه';
+
+  @override
+  String get teacherTooltipRemoveStudent => 'إزالة من الفصل الدراسي';
+
+  @override
+  String get teacherCouldNotLoad => 'تعذر التحميل';
+
+  @override
+  String get teacherNoAssignmentsYet => 'لا توجد مهام بعد';
+
+  @override
+  String get teacherNoAssignmentsSub => 'اضغط + لإنشاء أول مهمة';
+
+  @override
+  String get teacherNoMaterialsYet => 'لا توجد مواد بعد';
+
+  @override
+  String get teacherNoMaterialsSub =>
+      'شارك الروابط والمستندات والموارد مع فصلك';
+
+  @override
+  String get teacherNoMeetingsScheduled => 'لا توجد اجتماعات مجدولة';
+
+  @override
+  String get teacherNoMeetingsSub => 'اضغط + لجدولة اجتماع الفصل';
+
+  @override
+  String get teacherAttendanceOther => 'أخرى';
+
+  @override
+  String get teacherTotal => 'الإجمالي';
+
+  @override
+  String get mediaOpenExternally => 'فتح خارجياً';
+
+  @override
+  String get mediaUnableToLoad => 'تعذر تحميل الصورة';
+
+  @override
+  String get searchHint => 'بحث...';
 }

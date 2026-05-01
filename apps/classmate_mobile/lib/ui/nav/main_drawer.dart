@@ -310,7 +310,7 @@ class MainDrawer extends ConsumerWidget {
                     ),
                     navItem(
                       icon: Icons.calendar_view_week_rounded,
-                      label: 'Week Schedule',
+                      label: l.teacherWeekScheduleTitle,
                       route: '/teacher/schedule/week',
                     ),
                     navItem(
@@ -370,7 +370,7 @@ class MainDrawer extends ConsumerWidget {
                     ),
                     navItem(
                       icon: Icons.add_comment_rounded,
-                      label: 'Post Announcement',
+                      label: l.teacherPostAnnouncementAction,
                       route: '/teacher/announcements/new',
                     ),
                     navItem(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../ui/chat_composer.dart';
 
 typedef ClassroomRow = Map<String, dynamic>;
@@ -89,6 +90,7 @@ class ClassroomChatSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final pinnedRows = rows.where((row) {
       final pinned = row['isPinned'] == true;
       return pinned;
@@ -204,7 +206,7 @@ class ClassroomChatSurface extends StatelessWidget {
           isVoiceLocked: isVoiceLocked,
           isVoicePaused: isVoicePaused,
           recordingElapsed: recordingElapsed,
-          hintText: 'Message',
+          hintText: l.chatMessageHint,
           onSend: isSending || isRecording ? () async {} : onSend,
           onCamera: isSending || isRecording ? () async {} : onCamera,
           onAttach: isSending || isRecording ? () async {} : onAttach,

@@ -92,7 +92,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open link')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.classroomsCouldNotOpenLink)),
       );
     }
   }

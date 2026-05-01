@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../core/http/cm_api.dart';
@@ -199,11 +200,11 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     }
   }
 
-  String _greeting() {
+  String _greeting(AppLocalizations l) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return l.teacherGreetingMorning;
+    if (h < 17) return l.teacherGreetingAfternoon;
+    return l.teacherGreetingEvening;
   }
 
   Color _subjectColor(String subject, ColorScheme cs) {
@@ -234,9 +235,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     final teachingGroups = (bundle?.courses.map((c) => c.cohortId).where((id) => id.isNotEmpty).toSet().length) ?? 0;
     final teacherName = session.displayName.trim().split(' ').first;
     final now = DateTime.now();
-    final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    final days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    final dateLabel = '${days[now.weekday % 7]}, ${months[now.month - 1]} ${now.day}';
+    final locale = Localizations.localeOf(context).toString();
+    final dateLabel = '${DateFormat.EEEE(locale).format(now)}, ${DateFormat.MMM(locale).format(now)} ${now.day}';
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -268,7 +268,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            teacherName.isNotEmpty ? '${_greeting()}, $teacherName' : _greeting(),
+                            teacherName.isNotEmpty ? '${_greeting(l)}, $teacherName' : _greeting(l),
                             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
                           ),
                           const SizedBox(height: 4),
@@ -398,7 +398,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             _ErrorCard(message: _error!, onRetry: _load)
           else ...[
             // ── Today's Classes ────────────────────────────────────────────
-            _SectionHeader(title: "Today's Classes", subtitle: today?.date.isNotEmpty == true ? today!.date : 'No date'),
+            _SectionHeader(title: l.teacherTodaysClasses, subtitle: today?.date.isNotEmpty == true ? today!.date : l.teacherNoDate),
             const SizedBox(height: 10),
             scheduledSlots.isEmpty
                 ? _EmptySlotCard(l: l)
@@ -476,7 +476,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             const SizedBox(height: 18),
 
             // ── Upcoming Assessments ───────────────────────────────────────
-            _SectionHeader(title: 'Upcoming Assessments', subtitle: 'Next tests & quizzes'),
+            _SectionHeader(title: l.teacherUpcomingAssessments, subtitle: l.teacherUpcomingTestsSubtitle),
             const SizedBox(height: 10),
             upcoming.isEmpty
                 ? LiquidGlassCard(
@@ -499,8 +499,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       ).name ?? '';
                       final dateStr = assessment.date.split('T').first;
                       final dt = DateTime.tryParse(dateStr);
-                      final months2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                      final dateLabel2 = dt != null ? '${months2[dt.month-1]} ${dt.day}' : dateStr;
+                      final dateLabel2 = dt != null ? '${DateFormat.MMM(locale).format(dt)} ${dt.day}' : dateStr;
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),

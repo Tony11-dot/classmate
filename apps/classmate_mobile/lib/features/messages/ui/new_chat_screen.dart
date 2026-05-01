@@ -141,13 +141,13 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _FilterChip(label: 'All', selected: _filter == 'all', onTap: () => setState(() => _filter = 'all')),
+                          _FilterChip(label: l.chatFilterAll, selected: _filter == 'all', onTap: () => setState(() => _filter = 'all')),
                           const SizedBox(width: 8),
-                          _FilterChip(label: 'Students', selected: _filter == 'students', onTap: () => setState(() => _filter = 'students')),
+                          _FilterChip(label: l.teacherStudentsLabel, selected: _filter == 'students', onTap: () => setState(() => _filter = 'students')),
                           const SizedBox(width: 8),
-                          _FilterChip(label: 'Parents', selected: _filter == 'parents', onTap: () => setState(() => _filter = 'parents')),
+                          _FilterChip(label: l.teacherParentsLabel, selected: _filter == 'parents', onTap: () => setState(() => _filter = 'parents')),
                           const SizedBox(width: 8),
-                          _FilterChip(label: 'Teachers', selected: _filter == 'teachers', onTap: () => setState(() => _filter = 'teachers')),
+                          _FilterChip(label: l.teacherTeachersLabel, selected: _filter == 'teachers', onTap: () => setState(() => _filter = 'teachers')),
                         ],
                       ),
                     ),

@@ -2,12 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
-
-const _dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 class TeacherWeekScheduleScreen extends ConsumerStatefulWidget {
   const TeacherWeekScheduleScreen({super.key});
@@ -74,6 +73,7 @@ class _TeacherWeekScheduleScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
     final days = _data['days'] is List ? _data['days'] as List : <dynamic>[];
     final now = DateTime.now();
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -147,8 +147,8 @@ class _TeacherWeekScheduleScreenState
                       : days.isEmpty
                           ? _EmptyState(
                               icon: Icons.event_busy_rounded,
-                              title: 'No classes this week',
-                              subtitle: 'Your schedule for this week is empty',
+                              title: AppLocalizations.of(context)!.teacherNoClassesThisWeek,
+                              subtitle: AppLocalizations.of(context)!.teacherNoClassesThisWeekSub,
                             )
                           : RefreshIndicator(
                               onRefresh: _load,
@@ -193,14 +193,14 @@ class _TeacherWeekScheduleScreenState
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  _dayNamesFull[dayOfWeek],
+                                                  _dayNameLocalized(dateStr, dayOfWeek, locale),
                                                   style: theme.textTheme.titleSmall?.copyWith(
                                                     fontWeight: FontWeight.w800,
                                                     color: isToday ? cs.primary : cs.onSurface,
                                                   ),
                                                 ),
                                                 Text(
-                                                  _formatDate(dateStr),
+                                                  _formatDate(dateStr, locale),
                                                   style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                                 ),
                                               ],
@@ -304,12 +304,14 @@ class _TeacherWeekScheduleScreenState
   }
 
   String _weekLabel() {
+    final locale = Localizations.localeOf(context).toString();
     final end = _weekAnchor.add(const Duration(days: 6));
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final startMon = DateFormat.MMM(locale).format(_weekAnchor);
     if (_weekAnchor.month == end.month) {
-      return '${months[_weekAnchor.month - 1]} ${_weekAnchor.day}–${end.day}, ${_weekAnchor.year}';
+      return '$startMon ${_weekAnchor.day}–${end.day}, ${_weekAnchor.year}';
     }
-    return '${months[_weekAnchor.month - 1]} ${_weekAnchor.day} – ${months[end.month - 1]} ${end.day}';
+    final endMon = DateFormat.MMM(locale).format(end);
+    return '$startMon ${_weekAnchor.day} – $endMon ${end.day}';
   }
 
   String _dayNum(String dateStr) {
@@ -318,11 +320,21 @@ class _TeacherWeekScheduleScreenState
     return parts[2].replaceFirst(RegExp('^0'), '');
   }
 
-  String _formatDate(String dateStr) {
+  String _dayNameLocalized(String dateStr, int dayOfWeek, String locale) {
+    // Try to parse the actual date for reliable localization
+    final d = DateTime.tryParse(dateStr);
+    if (d != null) {
+      return DateFormat.EEEE(locale).format(d);
+    }
+    // Fallback: use dayOfWeek index (0=Sunday, 1=Monday, ...)
+    final base = DateTime(2023, 1, 1); // Known Sunday
+    return DateFormat.EEEE(locale).format(base.add(Duration(days: dayOfWeek)));
+  }
+
+  String _formatDate(String dateStr, String locale) {
     final d = DateTime.tryParse(dateStr);
     if (d == null) return dateStr;
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${months[d.month - 1]} ${d.day}';
+    return '${DateFormat.MMM(locale).format(d)} ${d.day}';
   }
 }
 

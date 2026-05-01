@@ -4370,4 +4370,225 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherOpenAction => 'Открыть';
+
+  @override
+  String get chatDeleteForMe => 'Удалить для меня';
+
+  @override
+  String get chatDeleteForEveryone => 'Удалить для всех';
+
+  @override
+  String get chatMicNeeded => 'Требуется доступ к микрофону';
+
+  @override
+  String get chatMicNeededBody =>
+      'Пожалуйста, разрешите доступ к микрофону в Настройках для отправки голосовых заметок.';
+
+  @override
+  String get chatOpenSettings => 'Открыть Настройки';
+
+  @override
+  String get chatCopied => 'Скопировано';
+
+  @override
+  String get chatCouldNotSendMedia => 'Не удалось отправить медиафайл.';
+
+  @override
+  String get chatCouldNotSendMessage => 'Не удалось отправить сообщение.';
+
+  @override
+  String get chatCouldNotForward => 'Не удалось переслать выбранные сообщения';
+
+  @override
+  String get chatSelectAll => 'Выбрать все';
+
+  @override
+  String get chatDeselectAll => 'Снять выделение';
+
+  @override
+  String get chatEditingMessage => 'Редактирование сообщения';
+
+  @override
+  String get chatEditPlaceholder => 'Изменить сообщение…';
+
+  @override
+  String get chatMessageHint => 'Сообщение';
+
+  @override
+  String get chatPin => 'Закрепить';
+
+  @override
+  String get chatUnpin => 'Открепить';
+
+  @override
+  String get chatPhoto => 'Фото';
+
+  @override
+  String get chatVideo => 'Видео';
+
+  @override
+  String get chatMedia => 'Медиа';
+
+  @override
+  String get chatAudioFile => 'Аудиофайл';
+
+  @override
+  String get chatVideoFile => 'Видеофайл';
+
+  @override
+  String get chatAttachedFile => 'Прикреплённый файл';
+
+  @override
+  String get chatFollowUp => 'Продолжение';
+
+  @override
+  String get chatCancelTooltip => 'Отмена';
+
+  @override
+  String get chatJoinGroup => 'Вступить в группу';
+
+  @override
+  String get chatJoining => 'Вступление…';
+
+  @override
+  String get chatJoinGroupTooltip => 'Вступить в группу по коду';
+
+  @override
+  String get chatForwardNoChatAvailable => 'Нет доступных одобренных чатов';
+
+  @override
+  String get chatFilterAll => 'Все';
+
+  @override
+  String get novaDisclaimer =>
+      'NOVA может ошибаться. Проверяйте важные ответы.';
+
+  @override
+  String get practiceCustomDisclaimer =>
+      'Пользовательские темы создаются ИИ на лету. Вопросы могут отклоняться от темы или быть неточными для нишевых предметов. Проверяйте незнакомые ответы самостоятельно.';
+
+  @override
+  String get classroomsJoined => 'Вы вошли в класс!';
+
+  @override
+  String get classroomsJoinAction => 'Войти в класс';
+
+  @override
+  String get classroomsJoinTooltip => 'Войти в класс';
+
+  @override
+  String get classroomsJoinTitle => 'Войти в класс';
+
+  @override
+  String get classroomsJoinSubtitle => 'Введите код, который дал вам учитель';
+
+  @override
+  String get classroomsCouldNotOpenLink => 'Не удалось открыть ссылку';
+
+  @override
+  String get classroomsReorderTitle => 'Изменить порядок классов';
+
+  @override
+  String get classroomsNoClassroomsToReorder =>
+      'Нет классов для изменения порядка.';
+
+  @override
+  String get teacherPostAnnouncementAction => 'Опубликовать объявление';
+
+  @override
+  String get announcementAudienceEveryone => 'Все';
+
+  @override
+  String get teacherGreetingMorning => 'Доброе утро';
+
+  @override
+  String get teacherGreetingAfternoon => 'Добрый день';
+
+  @override
+  String get teacherGreetingEvening => 'Добрый вечер';
+
+  @override
+  String get teacherTodaysClasses => 'Сегодняшние занятия';
+
+  @override
+  String get teacherNoDate => 'Нет даты';
+
+  @override
+  String get teacherUpcomingTestsSubtitle => 'Ближайшие тесты и контрольные';
+
+  @override
+  String get teacherNoClassesThisWeek => 'Нет занятий на этой неделе';
+
+  @override
+  String get teacherNoClassesThisWeekSub =>
+      'Ваше расписание на эту неделю пустое';
+
+  @override
+  String get teacherTitleFieldLabel => 'Заголовок *';
+
+  @override
+  String get teacherInstructionsLabel => 'Инструкции';
+
+  @override
+  String get teacherLinkUrlLabel => 'Ссылка / URL *';
+
+  @override
+  String get teacherLinkUrlHint => 'https://...';
+
+  @override
+  String get teacherDescriptionLabel => 'Описание';
+
+  @override
+  String get teacherMeetingTitleLabel => 'Название встречи *';
+
+  @override
+  String get teacherMeetingLinkLabel => 'Ссылка на встречу *';
+
+  @override
+  String get teacherMeetingLinkHint => 'Ссылка Zoom / Meet / Teams';
+
+  @override
+  String get teacherStudentEmailLabel => 'Email или ID студента';
+
+  @override
+  String get teacherTooltipRemoveStudent => 'Удалить из класса';
+
+  @override
+  String get teacherCouldNotLoad => 'Не удалось загрузить';
+
+  @override
+  String get teacherNoAssignmentsYet => 'Заданий пока нет';
+
+  @override
+  String get teacherNoAssignmentsSub =>
+      'Нажмите +, чтобы создать первое задание';
+
+  @override
+  String get teacherNoMaterialsYet => 'Материалов пока нет';
+
+  @override
+  String get teacherNoMaterialsSub =>
+      'Поделитесь ссылками, документами и ресурсами с классом';
+
+  @override
+  String get teacherNoMeetingsScheduled => 'Встреч не запланировано';
+
+  @override
+  String get teacherNoMeetingsSub =>
+      'Нажмите +, чтобы запланировать встречу класса';
+
+  @override
+  String get teacherAttendanceOther => 'Другое';
+
+  @override
+  String get teacherTotal => 'Итого';
+
+  @override
+  String get mediaOpenExternally => 'Открыть во внешнем приложении';
+
+  @override
+  String get mediaUnableToLoad => 'Не удалось загрузить изображение';
+
+  @override
+  String get searchHint => 'Поиск...';
 }

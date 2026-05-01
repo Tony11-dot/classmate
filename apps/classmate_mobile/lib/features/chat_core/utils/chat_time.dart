@@ -69,15 +69,17 @@ String formatChatDayChipLabel(
   DateTime? now,
   bool includeYear = true,
   String fallback = 'Earlier',
+  String today = 'Today',
+  String yesterday = 'Yesterday',
 }) {
   if (dt == null) return fallback;
   final current = now ?? DateTime.now();
-  final today = DateTime(current.year, current.month, current.day);
+  final todayDate = DateTime(current.year, current.month, current.day);
   final that = DateTime(dt.year, dt.month, dt.day);
-  final diff = today.difference(that).inDays;
+  final diff = todayDate.difference(that).inDays;
 
-  if (diff == 0) return 'Today';
-  if (diff == 1) return 'Yesterday';
+  if (diff == 0) return today;
+  if (diff == 1) return yesterday;
 
   final base = '${_monthName(dt.month)} ${dt.day}';
   return includeYear ? '$base, ${dt.year}' : base;
@@ -87,15 +89,16 @@ String formatChatInboxTrailingLabel(
   DateTime? dt, {
   DateTime? now,
   String fallback = '',
+  String yesterday = 'Yesterday',
 }) {
   if (dt == null) return fallback.trim();
 
   final current = now ?? DateTime.now();
-  final today = DateTime(current.year, current.month, current.day);
+  final todayDate = DateTime(current.year, current.month, current.day);
   final that = DateTime(dt.year, dt.month, dt.day);
-  final diff = today.difference(that).inDays;
+  final diff = todayDate.difference(that).inDays;
 
   if (diff == 0) return formatChatTime12(dt);
-  if (diff == 1) return 'Yesterday';
+  if (diff == 1) return yesterday;
   return '${_monthName(dt.month)} ${dt.day}';
 }
