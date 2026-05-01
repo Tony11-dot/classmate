@@ -4567,4 +4567,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchHint => 'بحث...';
+
+  @override
+  String get teacherInsightsTitle => 'رؤى الطلاب';
+
+  @override
+  String get teacherInsightsSubtitle => 'اختر طالباً لعرض رؤاه الأكاديمية.';
+
+  @override
+  String get teacherInsightsNoStudents => 'لم يتم العثور على طلاب.';
+
+  @override
+  String get teacherInsightsSearchHint => 'البحث عن طلاب…';
 }

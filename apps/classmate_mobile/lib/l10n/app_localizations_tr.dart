@@ -4370,220 +4370,235 @@ class AppLocalizationsTr extends AppLocalizations {
   String get teacherOpenAction => 'Aç';
 
   @override
-  String get chatDeleteForMe => 'Delete for me';
+  String get chatDeleteForMe => 'Benim için sil';
 
   @override
-  String get chatDeleteForEveryone => 'Delete for everyone';
+  String get chatDeleteForEveryone => 'Herkes için sil';
 
   @override
-  String get chatMicNeeded => 'Microphone access needed';
+  String get chatMicNeeded => 'Mikrofon erişimi gerekiyor';
 
   @override
   String get chatMicNeededBody =>
-      'Please allow microphone access in Settings to send voice notes.';
+      'Sesli not göndermek için Ayarlar\'da mikrofon erişimine izin verin.';
 
   @override
-  String get chatOpenSettings => 'Open Settings';
+  String get chatOpenSettings => 'Ayarları Aç';
 
   @override
-  String get chatCopied => 'Copied';
+  String get chatCopied => 'Kopyalandı';
 
   @override
-  String get chatCouldNotSendMedia => 'Could not send media.';
+  String get chatCouldNotSendMedia => 'Medya gönderilemedi.';
 
   @override
-  String get chatCouldNotSendMessage => 'Could not send message.';
+  String get chatCouldNotSendMessage => 'Mesaj gönderilemedi.';
 
   @override
-  String get chatCouldNotForward => 'Could not forward selected messages';
+  String get chatCouldNotForward => 'Seçilen mesajlar iletilemedi';
 
   @override
-  String get chatSelectAll => 'Select all';
+  String get chatSelectAll => 'Tümünü seç';
 
   @override
-  String get chatDeselectAll => 'Deselect all';
+  String get chatDeselectAll => 'Seçimi kaldır';
 
   @override
-  String get chatEditingMessage => 'Editing message';
+  String get chatEditingMessage => 'Mesaj düzenleniyor';
 
   @override
-  String get chatEditPlaceholder => 'Edit message…';
+  String get chatEditPlaceholder => 'Mesajı düzenle…';
 
   @override
-  String get chatMessageHint => 'Message';
+  String get chatMessageHint => 'Mesaj';
 
   @override
-  String get chatPin => 'Pin';
+  String get chatPin => 'Sabitle';
 
   @override
-  String get chatUnpin => 'Unpin';
+  String get chatUnpin => 'Sabitlemeyi kaldır';
 
   @override
-  String get chatPhoto => 'Photo';
+  String get chatPhoto => 'Fotoğraf';
 
   @override
   String get chatVideo => 'Video';
 
   @override
-  String get chatMedia => 'Media';
+  String get chatMedia => 'Medya';
 
   @override
-  String get chatAudioFile => 'Audio file';
+  String get chatAudioFile => 'Ses dosyası';
 
   @override
-  String get chatVideoFile => 'Video file';
+  String get chatVideoFile => 'Video dosyası';
 
   @override
-  String get chatAttachedFile => 'Attached file';
+  String get chatAttachedFile => 'Ekli dosya';
 
   @override
-  String get chatFollowUp => 'Follow-up';
+  String get chatFollowUp => 'Takip';
 
   @override
-  String get chatCancelTooltip => 'Cancel';
+  String get chatCancelTooltip => 'İptal';
 
   @override
-  String get chatJoinGroup => 'Join Group';
+  String get chatJoinGroup => 'Gruba Katıl';
 
   @override
-  String get chatJoining => 'Joining…';
+  String get chatJoining => 'Katılınıyor…';
 
   @override
-  String get chatJoinGroupTooltip => 'Join group by code';
+  String get chatJoinGroupTooltip => 'Kodla gruba katıl';
 
   @override
-  String get chatForwardNoChatAvailable => 'No approved chats available';
+  String get chatForwardNoChatAvailable => 'Onaylı sohbet yok';
 
   @override
-  String get chatFilterAll => 'All';
+  String get chatFilterAll => 'Tümü';
 
   @override
   String get novaDisclaimer =>
-      'NOVA can make mistakes. Double-check important answers.';
+      'NOVA hata yapabilir. Önemli yanıtları doğrulayın.';
 
   @override
   String get practiceCustomDisclaimer =>
-      'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.';
+      'Özel konular yapay zeka tarafından anında oluşturulur. Sorular konudan sapabilir veya niş konular için yanlış olabilir. Tanıdık olmayan yanıtları bağımsız olarak doğrulayın.';
 
   @override
-  String get classroomsJoined => 'You joined the classroom!';
+  String get classroomsJoined => 'Sınıfa katıldınız!';
 
   @override
-  String get classroomsJoinAction => 'Join Classroom';
+  String get classroomsJoinAction => 'Sınıfa Katıl';
 
   @override
-  String get classroomsJoinTooltip => 'Join a classroom';
+  String get classroomsJoinTooltip => 'Bir sınıfa katıl';
 
   @override
-  String get classroomsJoinTitle => 'Join a Classroom';
+  String get classroomsJoinTitle => 'Bir Sınıfa Katıl';
 
   @override
-  String get classroomsJoinSubtitle => 'Enter the code your teacher gave you';
+  String get classroomsJoinSubtitle => 'Öğretmeninizin verdiği kodu girin';
 
   @override
-  String get classroomsCouldNotOpenLink => 'Could not open link';
+  String get classroomsCouldNotOpenLink => 'Bağlantı açılamadı';
 
   @override
-  String get classroomsReorderTitle => 'Reorder classrooms';
+  String get classroomsReorderTitle => 'Sınıfları yeniden sırala';
 
   @override
-  String get classroomsNoClassroomsToReorder => 'No classrooms to reorder.';
+  String get classroomsNoClassroomsToReorder =>
+      'Yeniden sıralanacak sınıf yok.';
 
   @override
-  String get teacherPostAnnouncementAction => 'Post Announcement';
+  String get teacherPostAnnouncementAction => 'Duyuru yayınla';
 
   @override
-  String get announcementAudienceEveryone => 'Everyone';
+  String get announcementAudienceEveryone => 'Herkes';
 
   @override
-  String get teacherGreetingMorning => 'Good morning';
+  String get teacherGreetingMorning => 'Günaydın';
 
   @override
-  String get teacherGreetingAfternoon => 'Good afternoon';
+  String get teacherGreetingAfternoon => 'İyi günler';
 
   @override
-  String get teacherGreetingEvening => 'Good evening';
+  String get teacherGreetingEvening => 'İyi akşamlar';
 
   @override
-  String get teacherTodaysClasses => 'Today\'s Classes';
+  String get teacherTodaysClasses => 'Bugünün Dersleri';
 
   @override
-  String get teacherNoDate => 'No date';
+  String get teacherNoDate => 'Tarih yok';
 
   @override
-  String get teacherUpcomingTestsSubtitle => 'Next tests & quizzes';
+  String get teacherUpcomingTestsSubtitle => 'Yaklaşan testler ve quizler';
 
   @override
-  String get teacherNoClassesThisWeek => 'No classes this week';
+  String get teacherNoClassesThisWeek => 'Bu hafta ders yok';
 
   @override
-  String get teacherNoClassesThisWeekSub =>
-      'Your schedule for this week is empty';
+  String get teacherNoClassesThisWeekSub => 'Bu haftaki programınız boş';
 
   @override
-  String get teacherTitleFieldLabel => 'Title *';
+  String get teacherTitleFieldLabel => 'Başlık *';
 
   @override
-  String get teacherInstructionsLabel => 'Instructions';
+  String get teacherInstructionsLabel => 'Talimatlar';
 
   @override
-  String get teacherLinkUrlLabel => 'Link / URL *';
+  String get teacherLinkUrlLabel => 'Bağlantı / URL *';
 
   @override
   String get teacherLinkUrlHint => 'https://...';
 
   @override
-  String get teacherDescriptionLabel => 'Description';
+  String get teacherDescriptionLabel => 'Açıklama';
 
   @override
-  String get teacherMeetingTitleLabel => 'Meeting title *';
+  String get teacherMeetingTitleLabel => 'Toplantı başlığı *';
 
   @override
-  String get teacherMeetingLinkLabel => 'Meeting link *';
+  String get teacherMeetingLinkLabel => 'Toplantı bağlantısı *';
 
   @override
-  String get teacherMeetingLinkHint => 'Zoom / Meet / Teams link';
+  String get teacherMeetingLinkHint => 'Zoom / Meet / Teams bağlantısı';
 
   @override
-  String get teacherStudentEmailLabel => 'Student email or ID';
+  String get teacherStudentEmailLabel => 'Öğrenci e-postası veya kimliği';
 
   @override
-  String get teacherTooltipRemoveStudent => 'Remove from classroom';
+  String get teacherTooltipRemoveStudent => 'Sınıftan kaldır';
 
   @override
-  String get teacherCouldNotLoad => 'Could not load';
+  String get teacherCouldNotLoad => 'Yüklenemedi';
 
   @override
-  String get teacherNoAssignmentsYet => 'No assignments yet';
+  String get teacherNoAssignmentsYet => 'Henüz ödev yok';
 
   @override
-  String get teacherNoAssignmentsSub => 'Tap + to create the first assignment';
+  String get teacherNoAssignmentsSub =>
+      'İlk ödevi oluşturmak için + simgesine dokunun';
 
   @override
-  String get teacherNoMaterialsYet => 'No materials yet';
+  String get teacherNoMaterialsYet => 'Henüz materyal yok';
 
   @override
   String get teacherNoMaterialsSub =>
-      'Share links, documents, or resources with your class';
+      'Sınıfınızla bağlantılar, belgeler veya kaynaklar paylaşın';
 
   @override
-  String get teacherNoMeetingsScheduled => 'No meetings scheduled';
+  String get teacherNoMeetingsScheduled => 'Toplantı planlanmadı';
 
   @override
-  String get teacherNoMeetingsSub => 'Tap + to schedule a class meeting';
+  String get teacherNoMeetingsSub =>
+      'Sınıf toplantısı planlamak için + simgesine dokunun';
 
   @override
-  String get teacherAttendanceOther => 'Other';
+  String get teacherAttendanceOther => 'Diğer';
 
   @override
-  String get teacherTotal => 'Total';
+  String get teacherTotal => 'Toplam';
 
   @override
-  String get mediaOpenExternally => 'Open externally';
+  String get mediaOpenExternally => 'Harici olarak aç';
 
   @override
-  String get mediaUnableToLoad => 'Unable to load image';
+  String get mediaUnableToLoad => 'Görüntü yüklenemedi';
 
   @override
-  String get searchHint => 'Search...';
+  String get searchHint => 'Ara...';
+
+  @override
+  String get teacherInsightsTitle => 'Öğrenci Analizleri';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'Akademik bilgilerini görmek için bir öğrenci seçin.';
+
+  @override
+  String get teacherInsightsNoStudents => 'Öğrenci bulunamadı.';
+
+  @override
+  String get teacherInsightsSearchHint => 'Öğrenci ara…';
 }

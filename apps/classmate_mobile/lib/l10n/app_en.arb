@@ -1732,5 +1732,9 @@
   "mediaOpenExternally": "Open externally",
   "mediaUnableToLoad": "Unable to load image",
 
-  "searchHint": "Search..."
+  "searchHint": "Search...",
+  "teacherInsightsTitle": "Student Insights",
+  "teacherInsightsSubtitle": "Select a student to view their academic insights.",
+  "teacherInsightsNoStudents": "No students found.",
+  "teacherInsightsSearchHint": "Search students…"
 }

@@ -4591,4 +4591,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchHint => 'Поиск...';
+
+  @override
+  String get teacherInsightsTitle => 'Успеваемость студентов';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'Выберите студента для просмотра его академических данных.';
+
+  @override
+  String get teacherInsightsNoStudents => 'Студенты не найдены.';
+
+  @override
+  String get teacherInsightsSearchHint => 'Поиск студентов…';
 }

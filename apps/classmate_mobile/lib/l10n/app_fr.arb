@@ -1580,5 +1580,9 @@
   "mediaOpenExternally": "Ouvrir en externe",
   "mediaUnableToLoad": "Impossible de charger l'image",
 
-  "searchHint": "Rechercher..."
+  "searchHint": "Rechercher...",
+  "teacherInsightsTitle": "Aperçus des élèves",
+  "teacherInsightsSubtitle": "Sélectionnez un élève pour voir ses informations académiques.",
+  "teacherInsightsNoStudents": "Aucun élève trouvé.",
+  "teacherInsightsSearchHint": "Rechercher des élèves…"
 }

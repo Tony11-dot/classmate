@@ -4656,4 +4656,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get searchHint => 'Rechercher...';
+
+  @override
+  String get teacherInsightsTitle => 'Aperçus des élèves';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'Sélectionnez un élève pour voir ses informations académiques.';
+
+  @override
+  String get teacherInsightsNoStudents => 'Aucun élève trouvé.';
+
+  @override
+  String get teacherInsightsSearchHint => 'Rechercher des élèves…';
 }

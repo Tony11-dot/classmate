@@ -88,7 +88,7 @@ class _TeacherNewAnnouncementScreenState
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () => context.canPop() ? context.pop() : context.go('/teacher/home'),
                     icon: const Icon(Icons.close_rounded),
                     style: IconButton.styleFrom(
                       backgroundColor: cs.surface.withValues(alpha: 0.6),

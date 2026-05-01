@@ -33,7 +33,9 @@ import '../features/teacher_mobile/ui/teacher_classroom_detail_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classrooms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
+import '../features/teacher_mobile/ui/teacher_insights_screen.dart';
 import '../features/teacher_mobile/ui/teacher_new_announcement_screen.dart';
+import '../features/teacher_mobile/ui/teacher_schedule_screen.dart';
 import '../features/teacher_mobile/ui/teacher_student_profile_screen.dart';
 import '../features/teacher_mobile/ui/teacher_week_schedule_screen.dart';
 import '../features/solutions/solutions_screen.dart';
@@ -81,10 +83,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (!loggedIn && !isLogin) return '/login';
       if (loggedIn && isLogin) {
-        return session.isTeacherLike ? '/teacher/home' : '/schedule';
+        return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
       }
       if (loggedIn && session.isTeacherLike && !isTeacherRoute && !isCommonTeacherSafe) {
-        return '/teacher/home';
+        return '/teacher/schedule';
       }
       if (loggedIn && !session.isTeacherLike && isTeacherRoute) return '/schedule';
       return null;
@@ -209,6 +211,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/schedule',
+            builder: (context, state) => const TeacherScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/insights',
+            builder: (context, state) => const TeacherInsightsScreen(),
           ),
           GoRoute(
             path: '/teacher/home',

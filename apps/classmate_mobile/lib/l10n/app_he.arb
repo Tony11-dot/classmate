@@ -1580,5 +1580,9 @@
   "mediaOpenExternally": "פתח באפליקציה חיצונית",
   "mediaUnableToLoad": "לא ניתן לטעון את התמונה",
 
-  "searchHint": "חפש..."
+  "searchHint": "חפש...",
+  "teacherInsightsTitle": "תובנות תלמידים",
+  "teacherInsightsSubtitle": "בחר תלמיד כדי לצפות בתובנות האקדמיות שלו.",
+  "teacherInsightsNoStudents": "לא נמצאו תלמידים.",
+  "teacherInsightsSearchHint": "חיפוש תלמידים…"
 }

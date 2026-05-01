@@ -1580,5 +1580,9 @@
   "mediaOpenExternally": "فتح خارجياً",
   "mediaUnableToLoad": "تعذر تحميل الصورة",
 
-  "searchHint": "بحث..."
+  "searchHint": "بحث...",
+  "teacherInsightsTitle": "رؤى الطلاب",
+  "teacherInsightsSubtitle": "اختر طالباً لعرض رؤاه الأكاديمية.",
+  "teacherInsightsNoStudents": "لم يتم العثور على طلاب.",
+  "teacherInsightsSearchHint": "البحث عن طلاب…"
 }

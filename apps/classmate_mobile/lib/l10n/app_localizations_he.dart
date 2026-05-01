@@ -4548,4 +4548,17 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get searchHint => 'חפש...';
+
+  @override
+  String get teacherInsightsTitle => 'תובנות תלמידים';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'בחר תלמיד כדי לצפות בתובנות האקדמיות שלו.';
+
+  @override
+  String get teacherInsightsNoStudents => 'לא נמצאו תלמידים.';
+
+  @override
+  String get teacherInsightsSearchHint => 'חיפוש תלמידים…';
 }

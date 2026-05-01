@@ -289,9 +289,9 @@ class MainDrawer extends ConsumerWidget {
                   sectionHeader(l.sectionCore),
                   if (isTeacherLike) ...[
                     navItem(
-                      icon: Icons.dashboard_rounded,
-                      label: l.navTeacherWorkspace,
-                      route: '/teacher/home',
+                      icon: Icons.event_note_rounded,
+                      label: l.navSchedule,
+                      route: '/teacher/schedule',
                     ),
                     navItem(
                       icon: Icons.groups_rounded,
@@ -299,29 +299,19 @@ class MainDrawer extends ConsumerWidget {
                       route: '/teacher/classrooms',
                     ),
                     navItem(
-                      icon: Icons.grade_rounded,
-                      label: l.navTeacherAssessments,
-                      route: '/teacher/grades',
+                      icon: Icons.psychology_rounded,
+                      label: l.navNova,
+                      route: '/tutor',
                     ),
                     navItem(
-                      icon: Icons.fact_check_rounded,
-                      label: l.navAttendance,
-                      route: '/teacher/attendance',
-                    ),
-                    navItem(
-                      icon: Icons.calendar_view_week_rounded,
-                      label: l.teacherWeekScheduleTitle,
-                      route: '/teacher/schedule/week',
+                      icon: Icons.insights_rounded,
+                      label: l.navInsights,
+                      route: '/teacher/insights',
                     ),
                     navItem(
                       icon: Icons.chat_bubble_rounded,
                       label: l.navMessages,
                       route: '/messages',
-                    ),
-                    navItem(
-                      icon: Icons.psychology_rounded,
-                      label: l.navNova,
-                      route: '/tutor',
                     ),
                   ] else ...[
                     navItem(
@@ -354,24 +344,29 @@ class MainDrawer extends ConsumerWidget {
                   sectionHeader(l.sectionSchoolTools),
                   if (isTeacherLike) ...[
                     navItem(
-                      icon: Icons.quiz_rounded,
-                      label: l.navExams,
-                      route: '/exams',
+                      icon: Icons.dashboard_rounded,
+                      label: l.navTeacherWorkspace,
+                      route: '/teacher/home',
                     ),
                     navItem(
-                      icon: Icons.assignment_turned_in_rounded,
-                      label: l.navForms,
-                      route: '/forms',
+                      icon: Icons.fact_check_rounded,
+                      label: l.navAttendance,
+                      route: '/teacher/attendance',
+                    ),
+                    navItem(
+                      icon: Icons.grade_rounded,
+                      label: l.navTeacherAssessments,
+                      route: '/teacher/grades',
+                    ),
+                    navItem(
+                      icon: Icons.calendar_view_week_rounded,
+                      label: l.teacherWeekScheduleTitle,
+                      route: '/teacher/schedule/week',
                     ),
                     navItem(
                       icon: Icons.campaign_rounded,
                       label: l.navAnnouncements,
                       route: '/announcements',
-                    ),
-                    navItem(
-                      icon: Icons.add_comment_rounded,
-                      label: l.teacherPostAnnouncementAction,
-                      route: '/teacher/announcements/new',
                     ),
                     navItem(
                       icon: Icons.notifications_rounded,

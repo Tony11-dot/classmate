@@ -1726,5 +1726,9 @@
   "mediaOpenExternally": "Открыть во внешнем приложении",
   "mediaUnableToLoad": "Не удалось загрузить изображение",
 
-  "searchHint": "Поиск..."
+  "searchHint": "Поиск...",
+  "teacherInsightsTitle": "Успеваемость студентов",
+  "teacherInsightsSubtitle": "Выберите студента для просмотра его академических данных.",
+  "teacherInsightsNoStudents": "Студенты не найдены.",
+  "teacherInsightsSearchHint": "Поиск студентов…"
 }

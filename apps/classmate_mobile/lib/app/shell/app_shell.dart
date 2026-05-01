@@ -22,10 +22,10 @@ const _coreBottomNavPaths = <String>{
 };
 
 const _teacherBottomNavPaths = <String>{
-  '/teacher/home',
+  '/teacher/schedule',
   '/teacher/classrooms',
-  '/teacher/grades',
-  '/teacher/attendance',
+  '/tutor',
+  '/teacher/insights',
   '/messages',
 };
 
@@ -76,24 +76,26 @@ class AppShell extends ConsumerWidget {
 
   int _teacherIndexFor(String loc) {
     if (loc.startsWith('/teacher/classrooms') || loc.startsWith('/teacher/classroom/')) return 1;
-    if (loc.startsWith('/teacher/grades')) return 2;
-    if (loc.startsWith('/teacher/attendance')) return 3;
+    if (loc.startsWith('/tutor')) return 2;
+    if (loc.startsWith('/teacher/insights')) return 3;
     if (loc.startsWith('/messages')) return 4;
-    return 0;
+    return 0; // /teacher/schedule
   }
 
   String _teacherLocFor(int index) => switch (index) {
-    0 => '/teacher/home',
+    0 => '/teacher/schedule',
     1 => '/teacher/classrooms',
-    2 => '/teacher/grades',
-    3 => '/teacher/attendance',
+    2 => '/tutor',
+    3 => '/teacher/insights',
     4 => '/messages',
-    _ => '/teacher/home',
+    _ => '/teacher/schedule',
   };
 
   String _pageTitle(BuildContext context, String loc, bool isTeacherLike) {
     final l = AppLocalizations.of(context)!;
     if (isTeacherLike) {
+      if (loc.startsWith('/teacher/schedule')) return l.navSchedule;
+      if (loc.startsWith('/teacher/insights')) return l.navInsights;
       if (loc.startsWith('/teacher/attendance')) return l.navAttendance;
       if (loc.startsWith('/teacher/classrooms')) return l.navClassrooms;
       if (loc.startsWith('/teacher/grades')) return l.navTeacherAssessments;
@@ -135,21 +137,27 @@ class AppShell extends ConsumerWidget {
     final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
     final hideTopBar = _hideTopBarForRoute(loc);
 
+    final showTeacherFab = isTeacherLike && !hideBottomNav &&
+        (loc.startsWith('/teacher/schedule') ||
+         loc.startsWith('/teacher/classrooms') ||
+         loc.startsWith('/teacher/classroom/'));
+
     return Scaffold(
       extendBody: true,
       drawerEnableOpenDragGesture: !hideTopBar,
       drawer: hideTopBar ? null : const MainDrawer(),
       appBar: hideTopBar ? null : _TopBar(title: _pageTitle(context, loc, isTeacherLike)),
       body: child,
+      floatingActionButton: showTeacherFab ? const _TeacherFab() : null,
       bottomNavigationBar: hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
               items: isTeacherLike
                   ? <_NavItem>[
-                      _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
+                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
                       _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                      _NavItem(Icons.grade_outlined, Icons.grade_rounded, l.navGrades),
-                      _NavItem(Icons.fact_check_outlined, Icons.fact_check_rounded, l.navAttendance),
+                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
                       _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: unreadMessages),
                     ]
                   : <_NavItem>[
@@ -526,6 +534,93 @@ class _NavItem {
   final IconData selectedIcon;
   final String label;
   final int badge;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Teacher FAB — expandable speed-dial
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TeacherFab extends StatefulWidget {
+  const _TeacherFab();
+  @override
+  State<_TeacherFab> createState() => _TeacherFabState();
+}
+
+class _TeacherFabState extends State<_TeacherFab> with SingleTickerProviderStateMixin {
+  bool _open = false;
+
+  void _toggle() => setState(() => _open = !_open);
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (_open) ...[
+          _FabAction(icon: Icons.campaign_rounded, label: l.navAnnouncements, color: cs.tertiary,
+              onTap: () { _toggle(); context.push('/teacher/announcements/new'); }),
+          const SizedBox(height: 10),
+          _FabAction(icon: Icons.assignment_rounded, label: l.navAssignments, color: cs.secondary,
+              onTap: () { _toggle(); context.go('/teacher/classrooms'); }),
+          const SizedBox(height: 10),
+          _FabAction(icon: Icons.fact_check_rounded, label: l.navAttendance, color: cs.primary,
+              onTap: () { _toggle(); context.go('/teacher/attendance'); }),
+          const SizedBox(height: 10),
+          _FabAction(icon: Icons.grade_rounded, label: l.navGrades, color: cs.secondary,
+              onTap: () { _toggle(); context.go('/teacher/grades'); }),
+          const SizedBox(height: 12),
+        ],
+        FloatingActionButton(
+          onPressed: _toggle,
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
+          elevation: 6,
+          child: AnimatedRotation(
+            turns: _open ? 0.125 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(Icons.add_rounded, size: 28),
+          ),
+        ),
+        const SizedBox(height: 80), // clear bottom nav pill
+      ],
+    );
+  }
+}
+
+class _FabAction extends StatelessWidget {
+  const _FabAction({required this.icon, required this.label, required this.color, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 10),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w700, color: color, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _TopBar extends StatelessWidget implements PreferredSizeWidget {

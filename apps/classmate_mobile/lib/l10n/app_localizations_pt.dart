@@ -4407,161 +4407,164 @@ class AppLocalizationsPt extends AppLocalizations {
   String get teacherOpenAction => 'Abrir';
 
   @override
-  String get chatDeleteForMe => 'Delete for me';
+  String get chatDeleteForMe => 'Excluir para mim';
 
   @override
-  String get chatDeleteForEveryone => 'Delete for everyone';
+  String get chatDeleteForEveryone => 'Excluir para todos';
 
   @override
-  String get chatMicNeeded => 'Microphone access needed';
+  String get chatMicNeeded => 'Acesso ao microfone necessário';
 
   @override
   String get chatMicNeededBody =>
-      'Please allow microphone access in Settings to send voice notes.';
+      'Permita o acesso ao microfone nas Configurações para enviar notas de voz.';
 
   @override
-  String get chatOpenSettings => 'Open Settings';
+  String get chatOpenSettings => 'Abrir Configurações';
 
   @override
-  String get chatCopied => 'Copied';
+  String get chatCopied => 'Copiado';
 
   @override
-  String get chatCouldNotSendMedia => 'Could not send media.';
+  String get chatCouldNotSendMedia => 'Não foi possível enviar a mídia.';
 
   @override
-  String get chatCouldNotSendMessage => 'Could not send message.';
+  String get chatCouldNotSendMessage => 'Não foi possível enviar a mensagem.';
 
   @override
-  String get chatCouldNotForward => 'Could not forward selected messages';
+  String get chatCouldNotForward =>
+      'Não foi possível encaminhar as mensagens selecionadas';
 
   @override
-  String get chatSelectAll => 'Select all';
+  String get chatSelectAll => 'Selecionar tudo';
 
   @override
-  String get chatDeselectAll => 'Deselect all';
+  String get chatDeselectAll => 'Desmarcar tudo';
 
   @override
-  String get chatEditingMessage => 'Editing message';
+  String get chatEditingMessage => 'Editando mensagem';
 
   @override
-  String get chatEditPlaceholder => 'Edit message…';
+  String get chatEditPlaceholder => 'Editar mensagem…';
 
   @override
-  String get chatMessageHint => 'Message';
+  String get chatMessageHint => 'Mensagem';
 
   @override
-  String get chatPin => 'Pin';
+  String get chatPin => 'Fixar';
 
   @override
-  String get chatUnpin => 'Unpin';
+  String get chatUnpin => 'Desafixar';
 
   @override
-  String get chatPhoto => 'Photo';
+  String get chatPhoto => 'Foto';
 
   @override
-  String get chatVideo => 'Video';
+  String get chatVideo => 'Vídeo';
 
   @override
-  String get chatMedia => 'Media';
+  String get chatMedia => 'Mídia';
 
   @override
-  String get chatAudioFile => 'Audio file';
+  String get chatAudioFile => 'Arquivo de áudio';
 
   @override
-  String get chatVideoFile => 'Video file';
+  String get chatVideoFile => 'Arquivo de vídeo';
 
   @override
-  String get chatAttachedFile => 'Attached file';
+  String get chatAttachedFile => 'Arquivo anexado';
 
   @override
-  String get chatFollowUp => 'Follow-up';
+  String get chatFollowUp => 'Acompanhamento';
 
   @override
-  String get chatCancelTooltip => 'Cancel';
+  String get chatCancelTooltip => 'Cancelar';
 
   @override
-  String get chatJoinGroup => 'Join Group';
+  String get chatJoinGroup => 'Entrar no Grupo';
 
   @override
-  String get chatJoining => 'Joining…';
+  String get chatJoining => 'Entrando…';
 
   @override
-  String get chatJoinGroupTooltip => 'Join group by code';
+  String get chatJoinGroupTooltip => 'Entrar no grupo por código';
 
   @override
-  String get chatForwardNoChatAvailable => 'No approved chats available';
+  String get chatForwardNoChatAvailable =>
+      'Nenhuma conversa aprovada disponível';
 
   @override
-  String get chatFilterAll => 'All';
+  String get chatFilterAll => 'Todos';
 
   @override
   String get novaDisclaimer =>
-      'NOVA can make mistakes. Double-check important answers.';
+      'NOVA pode cometer erros. Verifique respostas importantes.';
 
   @override
   String get practiceCustomDisclaimer =>
-      'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.';
+      'Tópicos personalizados são gerados pela IA em tempo real. As perguntas podem sair do tópico ou ser imprecisas para assuntos de nicho. Verifique respostas desconhecidas de forma independente.';
 
   @override
-  String get classroomsJoined => 'You joined the classroom!';
+  String get classroomsJoined => 'Você entrou na turma!';
 
   @override
-  String get classroomsJoinAction => 'Join Classroom';
+  String get classroomsJoinAction => 'Entrar na Turma';
 
   @override
-  String get classroomsJoinTooltip => 'Join a classroom';
+  String get classroomsJoinTooltip => 'Entrar em uma turma';
 
   @override
-  String get classroomsJoinTitle => 'Join a Classroom';
+  String get classroomsJoinTitle => 'Entrar em uma Turma';
 
   @override
-  String get classroomsJoinSubtitle => 'Enter the code your teacher gave you';
+  String get classroomsJoinSubtitle =>
+      'Digite o código que seu professor forneceu';
 
   @override
-  String get classroomsCouldNotOpenLink => 'Could not open link';
+  String get classroomsCouldNotOpenLink => 'Não foi possível abrir o link';
 
   @override
-  String get classroomsReorderTitle => 'Reorder classrooms';
+  String get classroomsReorderTitle => 'Reordenar turmas';
 
   @override
-  String get classroomsNoClassroomsToReorder => 'No classrooms to reorder.';
+  String get classroomsNoClassroomsToReorder => 'Nenhuma turma para reordenar.';
 
   @override
-  String get teacherPostAnnouncementAction => 'Post Announcement';
+  String get teacherPostAnnouncementAction => 'Publicar aviso';
 
   @override
-  String get announcementAudienceEveryone => 'Everyone';
+  String get announcementAudienceEveryone => 'Todos';
 
   @override
-  String get teacherGreetingMorning => 'Good morning';
+  String get teacherGreetingMorning => 'Bom dia';
 
   @override
-  String get teacherGreetingAfternoon => 'Good afternoon';
+  String get teacherGreetingAfternoon => 'Boa tarde';
 
   @override
-  String get teacherGreetingEvening => 'Good evening';
+  String get teacherGreetingEvening => 'Boa noite';
 
   @override
-  String get teacherTodaysClasses => 'Today\'s Classes';
+  String get teacherTodaysClasses => 'Aulas de hoje';
 
   @override
-  String get teacherNoDate => 'No date';
+  String get teacherNoDate => 'Sem data';
 
   @override
-  String get teacherUpcomingTestsSubtitle => 'Next tests & quizzes';
+  String get teacherUpcomingTestsSubtitle => 'Próximas provas e testes';
 
   @override
-  String get teacherNoClassesThisWeek => 'No classes this week';
+  String get teacherNoClassesThisWeek => 'Nenhuma aula esta semana';
 
   @override
   String get teacherNoClassesThisWeekSub =>
-      'Your schedule for this week is empty';
+      'Seu horário desta semana está vazio';
 
   @override
-  String get teacherTitleFieldLabel => 'Title *';
+  String get teacherTitleFieldLabel => 'Título *';
 
   @override
-  String get teacherInstructionsLabel => 'Instructions';
+  String get teacherInstructionsLabel => 'Instruções';
 
   @override
   String get teacherLinkUrlLabel => 'Link / URL *';
@@ -4570,57 +4573,72 @@ class AppLocalizationsPt extends AppLocalizations {
   String get teacherLinkUrlHint => 'https://...';
 
   @override
-  String get teacherDescriptionLabel => 'Description';
+  String get teacherDescriptionLabel => 'Descrição';
 
   @override
-  String get teacherMeetingTitleLabel => 'Meeting title *';
+  String get teacherMeetingTitleLabel => 'Título da reunião *';
 
   @override
-  String get teacherMeetingLinkLabel => 'Meeting link *';
+  String get teacherMeetingLinkLabel => 'Link da reunião *';
 
   @override
-  String get teacherMeetingLinkHint => 'Zoom / Meet / Teams link';
+  String get teacherMeetingLinkHint => 'Link Zoom / Meet / Teams';
 
   @override
-  String get teacherStudentEmailLabel => 'Student email or ID';
+  String get teacherStudentEmailLabel => 'E-mail ou ID do aluno';
 
   @override
-  String get teacherTooltipRemoveStudent => 'Remove from classroom';
+  String get teacherTooltipRemoveStudent => 'Remover da turma';
 
   @override
-  String get teacherCouldNotLoad => 'Could not load';
+  String get teacherCouldNotLoad => 'Não foi possível carregar';
 
   @override
-  String get teacherNoAssignmentsYet => 'No assignments yet';
+  String get teacherNoAssignmentsYet => 'Nenhuma tarefa ainda';
 
   @override
-  String get teacherNoAssignmentsSub => 'Tap + to create the first assignment';
+  String get teacherNoAssignmentsSub =>
+      'Toque em + para criar a primeira tarefa';
 
   @override
-  String get teacherNoMaterialsYet => 'No materials yet';
+  String get teacherNoMaterialsYet => 'Nenhum material ainda';
 
   @override
   String get teacherNoMaterialsSub =>
-      'Share links, documents, or resources with your class';
+      'Compartilhe links, documentos ou recursos com sua turma';
 
   @override
-  String get teacherNoMeetingsScheduled => 'No meetings scheduled';
+  String get teacherNoMeetingsScheduled => 'Nenhuma reunião agendada';
 
   @override
-  String get teacherNoMeetingsSub => 'Tap + to schedule a class meeting';
+  String get teacherNoMeetingsSub =>
+      'Toque em + para agendar uma reunião de turma';
 
   @override
-  String get teacherAttendanceOther => 'Other';
+  String get teacherAttendanceOther => 'Outro';
 
   @override
   String get teacherTotal => 'Total';
 
   @override
-  String get mediaOpenExternally => 'Open externally';
+  String get mediaOpenExternally => 'Abrir externamente';
 
   @override
-  String get mediaUnableToLoad => 'Unable to load image';
+  String get mediaUnableToLoad => 'Não foi possível carregar a imagem';
 
   @override
-  String get searchHint => 'Search...';
+  String get searchHint => 'Pesquisar...';
+
+  @override
+  String get teacherInsightsTitle => 'Análises de Alunos';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'Selecione um aluno para ver suas informações acadêmicas.';
+
+  @override
+  String get teacherInsightsNoStudents => 'Nenhum aluno encontrado.';
+
+  @override
+  String get teacherInsightsSearchHint => 'Buscar alunos…';
 }

@@ -8154,6 +8154,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search...'**
   String get searchHint;
+
+  /// No description provided for @teacherInsightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Insights'**
+  String get teacherInsightsTitle;
+
+  /// No description provided for @teacherInsightsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a student to view their academic insights.'**
+  String get teacherInsightsSubtitle;
+
+  /// No description provided for @teacherInsightsNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found.'**
+  String get teacherInsightsNoStudents;
+
+  /// No description provided for @teacherInsightsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students…'**
+  String get teacherInsightsSearchHint;
 }
 
 class _AppLocalizationsDelegate

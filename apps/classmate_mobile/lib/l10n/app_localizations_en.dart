@@ -4584,4 +4584,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchHint => 'Search...';
+
+  @override
+  String get teacherInsightsTitle => 'Student Insights';
+
+  @override
+  String get teacherInsightsSubtitle =>
+      'Select a student to view their academic insights.';
+
+  @override
+  String get teacherInsightsNoStudents => 'No students found.';
+
+  @override
+  String get teacherInsightsSearchHint => 'Search students…';
 }
