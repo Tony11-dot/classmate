@@ -680,6 +680,14 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       },
                     ),
                   ],
+                  if (inputMode == _PracticeTopicInputMode.custom) ...[
+                    const SizedBox(height: 10),
+                    _AIDisclaimerBanner(
+                      icon: Icons.auto_awesome_rounded,
+                      message:
+                          'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.',
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -2092,6 +2100,43 @@ class _MiniPill extends StatelessWidget {
         style: Theme.of(
           context,
         ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+// ── AI disclaimer banner ────────────────────────────────────────────────────
+
+class _AIDisclaimerBanner extends StatelessWidget {
+  const _AIDisclaimerBanner({required this.icon, required this.message});
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: cs.tertiary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onTertiaryContainer,
+                    height: 1.4,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

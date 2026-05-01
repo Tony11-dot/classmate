@@ -2604,30 +2604,42 @@ export class PracticeService {
   private containsUnfencedCodeBlock(text: string): boolean {
     const value = String(text ?? '');
     if (!value.includes('\n')) return false;
+    // Already fenced — fine.
     if (value.includes('```') || value.includes('~~~')) return false;
 
-    const lines = value
+    // Strip ALL math regions before checking — LaTeX uses {} extensively
+    // and would otherwise produce false positives on every math explanation.
+    const stripped = value
+      .replace(/\\\[[\s\S]*?\\\]/g, ' ')   // \[...\]
+      .replace(/\\\([\s\S]*?\\\)/g, ' ')   // \(...\)
+      .replace(/\$\$[\s\S]*?\$\$/g, ' ')   // $$...$$
+      .replace(/\$[^$\n]+?\$/g, ' ');       // $...$
+
+    const lines = stripped
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 
     if (lines.length < 2) return false;
 
+    // Only flag lines with clear programming syntax (not LaTeX).
+    // Deliberately excludes { } ; since LaTeX uses them constantly.
     const codeLikeLines = lines.filter((line) =>
-      /(^|\s)(if|else if|else|for|while|switch|case|def|class|function|return|print|console\.|System\.out|Console\.WriteLine|let |const |var |int |double |String |public |private )/.test(
-        line,
-      ) || /[{};]|=>/.test(line),
+      /(^|\s)(if\s*\(|else\s*\{|else\s+if|for\s*\(|while\s*\(|switch\s*\(|def\s+\w|class\s+\w|function\s+\w|\breturn\b|print\(|console\.|System\.out|Console\.Write|let\s+\w|const\s+\w|var\s+\w|int\s+\w|double\s+\w|void\s+\w|public\s+\w|private\s+\w)/.test(line)
     );
 
     return codeLikeLines.length >= 2;
   }
 
   private containsRawLatexOutsideMath(text: string): boolean {
+    // Strip ALL valid math delimiter styles before checking for raw LaTeX.
+    // Both \(...\)/\[...\] and $...$ / $$...$$ are valid — the new prompts
+    // use \(...\) and \[...\] which must not be flagged as raw.
     const stripped = String(text ?? '')
       .replace(/```[\s\S]*?```/g, ' ')
       .replace(/~~~[\s\S]*?~~~/g, ' ')
       .replace(/\$\$[\s\S]*?\$\$/g, ' ')
-      .replace(/\$[^$\n]+\$/g, ' ')
+      .replace(/\$[^$\n]+?\$/g, ' ')
       .replace(/\\\([\s\S]*?\\\)/g, ' ')
       .replace(/\\\[[\s\S]*?\\\]/g, ' ');
 

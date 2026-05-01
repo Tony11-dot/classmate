@@ -1784,7 +1784,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    // Just the avatar + one muted line. No text block, no chips.
+    // Avatar + title + subtle AI disclaimer.
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
@@ -1799,6 +1799,32 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: cs.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 14, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'NOVA can make mistakes. Double-check important answers.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
