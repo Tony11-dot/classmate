@@ -1589,6 +1589,46 @@
   "navDiplomas": "الشهادات",
   "diplomasComingSoon": "إدارة الشهادات قادمة قريباً.",
 
+  "teacherExamsTitle": "الامتحانات والتقييمات",
+  "teacherExamsUpcoming": "القادمة",
+  "teacherExamsPast": "السابقة",
+  "teacherExamsEmpty": "لا توجد تقييمات بعد. اضغط + لإنشاء واحد.",
+  "teacherExamsGraded": "{count} مُقيَّم",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "النماذج",
+  "teacherFormsEmpty": "لا توجد نماذج بعد. اضغط + لإنشاء نموذج.",
+  "teacherFormsResponses": "{count} استجابات",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "منشور",
+  "teacherFormsDraft": "مسودة",
+  "teacherFormsCreateTitle": "إنشاء نموذج",
+  "teacherFormsAddQuestion": "إضافة سؤال",
+  "teacherFormsQuestionHint": "نص السؤال",
+  "teacherFormsViewResponses": "عرض الردود",
+  "teacherFormsNoResponses": "لا توجد ردود بعد.",
+
+  "diplomasTitle": "الشهادات والدبلومات",
+  "diplomasEmpty": "لم يتم إصدار أي شهادات بعد. اضغط + لإصدار شهادة.",
+  "diplomasIssueTo": "إصدار إلى",
+  "diplomasStudentName": "اسم الطالب",
+  "diplomasCertificateType": "نوع الشهادة",
+  "diplomasIssueDiploma": "إصدار الشهادة",
+  "diplomasIssuedOn": "صدر في {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "التفاصيل",
   "examInfoTeacher": "المعلم",
   "examInfoAudience": "الجمهور",

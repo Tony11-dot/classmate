@@ -4609,6 +4609,81 @@ class AppLocalizationsTr extends AppLocalizations {
   String get diplomasComingSoon => 'Diploma yönetimi yakında geliyor.';
 
   @override
+  String get teacherExamsTitle => 'Sınavlar ve Değerlendirmeler';
+
+  @override
+  String get teacherExamsUpcoming => 'Yaklaşan';
+
+  @override
+  String get teacherExamsPast => 'Geçmiş';
+
+  @override
+  String get teacherExamsEmpty =>
+      'Henüz değerlendirme yok. Oluşturmak için + tuşuna dokunun.';
+
+  @override
+  String teacherExamsGraded(Object count) {
+    return '$count notlandırıldı';
+  }
+
+  @override
+  String get teacherFormsTitle => 'Formlar';
+
+  @override
+  String get teacherFormsEmpty =>
+      'Henüz form yok. Oluşturmak için + tuşuna dokunun.';
+
+  @override
+  String teacherFormsResponses(Object count) {
+    return '$count yanıt';
+  }
+
+  @override
+  String get teacherFormsPublished => 'Yayınlandı';
+
+  @override
+  String get teacherFormsDraft => 'Taslak';
+
+  @override
+  String get teacherFormsCreateTitle => 'Form oluştur';
+
+  @override
+  String get teacherFormsAddQuestion => 'Soru ekle';
+
+  @override
+  String get teacherFormsQuestionHint => 'Soru metni';
+
+  @override
+  String get teacherFormsViewResponses => 'Yanıtları görüntüle';
+
+  @override
+  String get teacherFormsNoResponses => 'Henüz yanıt yok.';
+
+  @override
+  String get diplomasTitle => 'Diplomalar ve Sertifikalar';
+
+  @override
+  String get diplomasEmpty =>
+      'Henüz sertifika verilmedi. Vermek için + tuşuna dokunun.';
+
+  @override
+  String get diplomasIssueTo => 'Kime verilecek';
+
+  @override
+  String get diplomasStudentName => 'Öğrenci adı';
+
+  @override
+  String get diplomasCertificateType => 'Sertifika türü';
+
+  @override
+  String get diplomasIssueDiploma => 'Sertifika ver';
+
+  @override
+  String diplomasIssuedOn(Object date) {
+    return '$date tarihinde verildi';
+  }
+
+  @override
   String get examDetailsSection => 'Ayrıntılar';
 
   @override

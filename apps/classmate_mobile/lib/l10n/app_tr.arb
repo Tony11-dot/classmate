@@ -1582,6 +1582,46 @@
   "navDiplomas": "Diplomalar",
   "diplomasComingSoon": "Diploma yönetimi yakında geliyor.",
 
+  "teacherExamsTitle": "Sınavlar ve Değerlendirmeler",
+  "teacherExamsUpcoming": "Yaklaşan",
+  "teacherExamsPast": "Geçmiş",
+  "teacherExamsEmpty": "Henüz değerlendirme yok. Oluşturmak için + tuşuna dokunun.",
+  "teacherExamsGraded": "{count} notlandırıldı",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "Formlar",
+  "teacherFormsEmpty": "Henüz form yok. Oluşturmak için + tuşuna dokunun.",
+  "teacherFormsResponses": "{count} yanıt",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "Yayınlandı",
+  "teacherFormsDraft": "Taslak",
+  "teacherFormsCreateTitle": "Form oluştur",
+  "teacherFormsAddQuestion": "Soru ekle",
+  "teacherFormsQuestionHint": "Soru metni",
+  "teacherFormsViewResponses": "Yanıtları görüntüle",
+  "teacherFormsNoResponses": "Henüz yanıt yok.",
+
+  "diplomasTitle": "Diplomalar ve Sertifikalar",
+  "diplomasEmpty": "Henüz sertifika verilmedi. Vermek için + tuşuna dokunun.",
+  "diplomasIssueTo": "Kime verilecek",
+  "diplomasStudentName": "Öğrenci adı",
+  "diplomasCertificateType": "Sertifika türü",
+  "diplomasIssueDiploma": "Sertifika ver",
+  "diplomasIssuedOn": "{date} tarihinde verildi",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "Ayrıntılar",
   "examInfoTeacher": "Öğretmen",
   "examInfoAudience": "Hedef kitle",

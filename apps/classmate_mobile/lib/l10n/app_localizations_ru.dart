@@ -4612,6 +4612,78 @@ class AppLocalizationsRu extends AppLocalizations {
   String get diplomasComingSoon => 'Управление дипломами скоро появится.';
 
   @override
+  String get teacherExamsTitle => 'Экзамены и оценки';
+
+  @override
+  String get teacherExamsUpcoming => 'Предстоящие';
+
+  @override
+  String get teacherExamsPast => 'Прошедшие';
+
+  @override
+  String get teacherExamsEmpty => 'Оценок пока нет. Нажмите + чтобы создать.';
+
+  @override
+  String teacherExamsGraded(Object count) {
+    return '$count оценено';
+  }
+
+  @override
+  String get teacherFormsTitle => 'Формы';
+
+  @override
+  String get teacherFormsEmpty => 'Форм пока нет. Нажмите + для создания.';
+
+  @override
+  String teacherFormsResponses(Object count) {
+    return '$count ответов';
+  }
+
+  @override
+  String get teacherFormsPublished => 'Опубликовано';
+
+  @override
+  String get teacherFormsDraft => 'Черновик';
+
+  @override
+  String get teacherFormsCreateTitle => 'Создать форму';
+
+  @override
+  String get teacherFormsAddQuestion => 'Добавить вопрос';
+
+  @override
+  String get teacherFormsQuestionHint => 'Текст вопроса';
+
+  @override
+  String get teacherFormsViewResponses => 'Посмотреть ответы';
+
+  @override
+  String get teacherFormsNoResponses => 'Ответов пока нет.';
+
+  @override
+  String get diplomasTitle => 'Дипломы и сертификаты';
+
+  @override
+  String get diplomasEmpty => 'Дипломы ещё не выданы. Нажмите + чтобы выдать.';
+
+  @override
+  String get diplomasIssueTo => 'Выдать кому';
+
+  @override
+  String get diplomasStudentName => 'Имя студента';
+
+  @override
+  String get diplomasCertificateType => 'Тип сертификата';
+
+  @override
+  String get diplomasIssueDiploma => 'Выдать сертификат';
+
+  @override
+  String diplomasIssuedOn(Object date) {
+    return 'Выдан $date';
+  }
+
+  @override
   String get examDetailsSection => 'Детали';
 
   @override

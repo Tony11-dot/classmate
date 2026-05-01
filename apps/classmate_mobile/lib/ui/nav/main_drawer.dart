@@ -376,12 +376,12 @@ class MainDrawer extends ConsumerWidget {
                     navItem(
                       icon: Icons.quiz_rounded,
                       label: l.navExams,
-                      route: '/exams',
+                      route: '/teacher/exams',
                     ),
                     navItem(
                       icon: Icons.assignment_turned_in_rounded,
                       label: l.navForms,
-                      route: '/forms',
+                      route: '/teacher/forms',
                     ),
                     navItem(
                       icon: Icons.workspace_premium_rounded,

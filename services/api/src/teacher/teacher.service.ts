@@ -1594,4 +1594,156 @@ export class TeacherService {
       },
     };
   }
+
+  // ---- Forms ----
+
+  async listForms(user: any) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const forms = await this.prisma.schoolForm.findMany({
+      where: { createdBy: teacherId },
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { responses: true } } },
+    });
+    return {
+      forms: forms.map((f) => ({
+        id: f.id,
+        title: f.title,
+        description: f.description ?? '',
+        subject: f.subject ?? '',
+        audienceLabel: f.audienceLabel ?? 'School',
+        acceptingResponses: f.acceptingResponses,
+        allowMultipleResponses: f.allowMultipleResponses,
+        published: f.published,
+        publishedAt: f.publishedAt?.toISOString() ?? null,
+        questionCount: Array.isArray(f.questions) ? (f.questions as any[]).length : 0,
+        responsesCount: f._count.responses,
+        createdAt: f.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  async createForm(user: any, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const u = await this.prisma.user.findUnique({ where: { id: teacherId }, select: { schoolId: true } });
+    if (!u?.schoolId) throw new BadRequestException('No school');
+    const form = await this.prisma.schoolForm.create({
+      data: {
+        schoolId: u.schoolId,
+        createdBy: teacherId,
+        title: String(body.title ?? 'Untitled form'),
+        description: body.description ? String(body.description) : null,
+        subject: body.subject ? String(body.subject) : null,
+        audienceLabel: body.audienceLabel ? String(body.audienceLabel) : 'Class',
+        acceptingResponses: body.acceptingResponses !== false,
+        allowMultipleResponses: body.allowMultipleResponses === true,
+        published: body.published === true,
+        publishedAt: body.published === true ? new Date() : null,
+        questions: Array.isArray(body.questions) ? body.questions : [],
+      },
+    });
+    return { ok: true, form: { id: form.id } };
+  }
+
+  async updateForm(user: any, id: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const form = await this.prisma.schoolForm.findFirst({ where: { id, createdBy: teacherId } });
+    if (!form) throw new NotFoundException('Not found');
+    await this.prisma.schoolForm.update({
+      where: { id },
+      data: {
+        ...(body.title != null && { title: String(body.title) }),
+        ...(body.description != null && { description: String(body.description) }),
+        ...(body.subject != null && { subject: String(body.subject) }),
+        ...(body.acceptingResponses != null && { acceptingResponses: Boolean(body.acceptingResponses) }),
+        ...(body.published != null && {
+          published: Boolean(body.published),
+          publishedAt: body.published ? new Date() : null,
+        }),
+        ...(body.questions != null && { questions: body.questions }),
+      },
+    });
+    return { ok: true };
+  }
+
+  async deleteForm(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    await this.prisma.schoolForm.deleteMany({ where: { id, createdBy: teacherId } });
+    return { ok: true };
+  }
+
+  async formResponses(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const form = await this.prisma.schoolForm.findFirst({ where: { id, createdBy: teacherId }, select: { id: true } });
+    if (!form) throw new NotFoundException('Not found');
+    const responses = await this.prisma.formResponse.findMany({
+      where: { formId: id },
+      orderBy: { submittedAt: 'desc' },
+      include: { student: { select: { user: { select: { displayName: true, name: true } } } } },
+    });
+    return {
+      responses: responses.map((r) => ({
+        id: r.id,
+        studentName: r.student?.user?.displayName ?? r.student?.user?.name ?? 'Student',
+        answers: r.answers,
+        submittedAt: r.submittedAt.toISOString(),
+      })),
+    };
+  }
+
+  // ---- Diplomas ----
+
+  async listDiplomas(user: any) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const diplomas = await this.prisma.teacherDiploma.findMany({
+      where: { issuedBy: teacherId },
+      orderBy: { issuedAt: 'desc' },
+    });
+    return {
+      diplomas: diplomas.map((d) => ({
+        id: d.id,
+        studentName: d.studentName,
+        studentId: d.studentId ?? null,
+        title: d.title,
+        subject: d.subject ?? '',
+        grade: d.grade ?? '',
+        distinction: d.distinction ?? '',
+        notes: d.notes ?? '',
+        issuedAt: d.issuedAt.toISOString(),
+      })),
+    };
+  }
+
+  async createDiploma(user: any, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    const u = await this.prisma.user.findUnique({ where: { id: teacherId }, select: { schoolId: true } });
+    if (!u?.schoolId) throw new BadRequestException('No school');
+    const diploma = await this.prisma.teacherDiploma.create({
+      data: {
+        schoolId: u.schoolId,
+        issuedBy: teacherId,
+        studentId: body.studentId ? String(body.studentId) : null,
+        studentName: String(body.studentName ?? 'Student'),
+        title: String(body.title ?? 'Certificate of Achievement'),
+        subject: body.subject ? String(body.subject) : null,
+        grade: body.grade ? String(body.grade) : null,
+        distinction: body.distinction ? String(body.distinction) : null,
+        notes: body.notes ? String(body.notes) : null,
+      },
+    });
+    return { ok: true, diploma: { id: diploma.id } };
+  }
+
+  async deleteDiploma(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = String(user?.sub ?? user?.id ?? '');
+    await this.prisma.teacherDiploma.deleteMany({ where: { id, issuedBy: teacherId } });
+    return { ok: true };
+  }
 }

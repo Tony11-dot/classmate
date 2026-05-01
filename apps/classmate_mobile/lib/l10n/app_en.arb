@@ -1741,6 +1741,46 @@
   "navDiplomas": "Diplomas",
   "diplomasComingSoon": "Diploma management is coming soon.",
 
+  "teacherExamsTitle": "Exams & Assessments",
+  "teacherExamsUpcoming": "Upcoming",
+  "teacherExamsPast": "Past",
+  "teacherExamsEmpty": "No assessments yet. Tap + to create one.",
+  "teacherExamsGraded": "{count} graded",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "Forms",
+  "teacherFormsEmpty": "No forms yet. Tap + to create one.",
+  "teacherFormsResponses": "{count} responses",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "Published",
+  "teacherFormsDraft": "Draft",
+  "teacherFormsCreateTitle": "Create Form",
+  "teacherFormsAddQuestion": "Add question",
+  "teacherFormsQuestionHint": "Question text",
+  "teacherFormsViewResponses": "View responses",
+  "teacherFormsNoResponses": "No responses yet.",
+
+  "diplomasTitle": "Diplomas & Certificates",
+  "diplomasEmpty": "No certificates issued yet. Tap + to issue one.",
+  "diplomasIssueTo": "Issue to",
+  "diplomasStudentName": "Student name",
+  "diplomasCertificateType": "Certificate type",
+  "diplomasIssueDiploma": "Issue Certificate",
+  "diplomasIssuedOn": "Issued on {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "Details",
   "examInfoTeacher": "Teacher",
   "examInfoAudience": "Audience",

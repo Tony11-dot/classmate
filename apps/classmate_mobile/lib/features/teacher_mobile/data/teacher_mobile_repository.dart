@@ -401,6 +401,65 @@ class TeacherMobileRepository {
           .toList(growable: false),
     );
   }
+
+  // ── Forms ──────────────────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listForms() async {
+    final raw = await _api.getJson('/teacher/forms');
+    if (raw is Map && raw['forms'] is List) {
+      return (raw['forms'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createForm(Map<String, dynamic> body) async {
+    final raw = await _api.postJson('/teacher/forms', body: body);
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> updateForm(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/forms/$id', body: body);
+  }
+
+  Future<void> deleteForm(String id) async {
+    await _api.deleteJson('/teacher/forms/$id');
+  }
+
+  Future<List<Map<String, dynamic>>> formResponses(String id) async {
+    final raw = await _api.getJson('/teacher/forms/$id/responses');
+    if (raw is Map && raw['responses'] is List) {
+      return (raw['responses'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  // ── Diplomas ───────────────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listDiplomas() async {
+    final raw = await _api.getJson('/teacher/diplomas');
+    if (raw is Map && raw['diplomas'] is List) {
+      return (raw['diplomas'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createDiploma(Map<String, dynamic> body) async {
+    final raw = await _api.postJson('/teacher/diplomas', body: body);
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> deleteDiploma(String id) async {
+    await _api.deleteJson('/teacher/diplomas/$id');
+  }
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

@@ -8191,6 +8191,138 @@ abstract class AppLocalizations {
   /// **'Diploma management is coming soon.'**
   String get diplomasComingSoon;
 
+  /// No description provided for @teacherExamsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams & Assessments'**
+  String get teacherExamsTitle;
+
+  /// No description provided for @teacherExamsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get teacherExamsUpcoming;
+
+  /// No description provided for @teacherExamsPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get teacherExamsPast;
+
+  /// No description provided for @teacherExamsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No assessments yet. Tap + to create one.'**
+  String get teacherExamsEmpty;
+
+  /// No description provided for @teacherExamsGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} graded'**
+  String teacherExamsGraded(Object count);
+
+  /// No description provided for @teacherFormsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms'**
+  String get teacherFormsTitle;
+
+  /// No description provided for @teacherFormsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms yet. Tap + to create one.'**
+  String get teacherFormsEmpty;
+
+  /// No description provided for @teacherFormsResponses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} responses'**
+  String teacherFormsResponses(Object count);
+
+  /// No description provided for @teacherFormsPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get teacherFormsPublished;
+
+  /// No description provided for @teacherFormsDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get teacherFormsDraft;
+
+  /// No description provided for @teacherFormsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Form'**
+  String get teacherFormsCreateTitle;
+
+  /// No description provided for @teacherFormsAddQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add question'**
+  String get teacherFormsAddQuestion;
+
+  /// No description provided for @teacherFormsQuestionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Question text'**
+  String get teacherFormsQuestionHint;
+
+  /// No description provided for @teacherFormsViewResponses.
+  ///
+  /// In en, this message translates to:
+  /// **'View responses'**
+  String get teacherFormsViewResponses;
+
+  /// No description provided for @teacherFormsNoResponses.
+  ///
+  /// In en, this message translates to:
+  /// **'No responses yet.'**
+  String get teacherFormsNoResponses;
+
+  /// No description provided for @diplomasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diplomas & Certificates'**
+  String get diplomasTitle;
+
+  /// No description provided for @diplomasEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No certificates issued yet. Tap + to issue one.'**
+  String get diplomasEmpty;
+
+  /// No description provided for @diplomasIssueTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue to'**
+  String get diplomasIssueTo;
+
+  /// No description provided for @diplomasStudentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Student name'**
+  String get diplomasStudentName;
+
+  /// No description provided for @diplomasCertificateType.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate type'**
+  String get diplomasCertificateType;
+
+  /// No description provided for @diplomasIssueDiploma.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue Certificate'**
+  String get diplomasIssueDiploma;
+
+  /// No description provided for @diplomasIssuedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued on {date}'**
+  String diplomasIssuedOn(Object date);
+
   /// No description provided for @examDetailsSection.
   ///
   /// In en, this message translates to:

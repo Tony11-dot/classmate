@@ -1735,6 +1735,46 @@
   "navDiplomas": "Дипломы",
   "diplomasComingSoon": "Управление дипломами скоро появится.",
 
+  "teacherExamsTitle": "Экзамены и оценки",
+  "teacherExamsUpcoming": "Предстоящие",
+  "teacherExamsPast": "Прошедшие",
+  "teacherExamsEmpty": "Оценок пока нет. Нажмите + чтобы создать.",
+  "teacherExamsGraded": "{count} оценено",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "Формы",
+  "teacherFormsEmpty": "Форм пока нет. Нажмите + для создания.",
+  "teacherFormsResponses": "{count} ответов",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "Опубликовано",
+  "teacherFormsDraft": "Черновик",
+  "teacherFormsCreateTitle": "Создать форму",
+  "teacherFormsAddQuestion": "Добавить вопрос",
+  "teacherFormsQuestionHint": "Текст вопроса",
+  "teacherFormsViewResponses": "Посмотреть ответы",
+  "teacherFormsNoResponses": "Ответов пока нет.",
+
+  "diplomasTitle": "Дипломы и сертификаты",
+  "diplomasEmpty": "Дипломы ещё не выданы. Нажмите + чтобы выдать.",
+  "diplomasIssueTo": "Выдать кому",
+  "diplomasStudentName": "Имя студента",
+  "diplomasCertificateType": "Тип сертификата",
+  "diplomasIssueDiploma": "Выдать сертификат",
+  "diplomasIssuedOn": "Выдан {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "Детали",
   "examInfoTeacher": "Учитель",
   "examInfoAudience": "Аудитория",

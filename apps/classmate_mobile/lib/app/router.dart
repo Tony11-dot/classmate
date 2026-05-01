@@ -32,6 +32,8 @@ import '../features/teacher_mobile/ui/teacher_attendance_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_analytics_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_detail_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classrooms_screen.dart';
+import '../features/teacher_mobile/ui/teacher_exams_screen.dart';
+import '../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
 import '../features/teacher_mobile/ui/teacher_insights_screen.dart';
@@ -75,6 +77,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/exams/') ||
           loc == '/forms' ||
           loc.startsWith('/forms/') ||
+          loc == '/teacher/exams' ||
+          loc == '/teacher/forms' ||
           loc == '/diplomas' ||
           loc == '/profile' ||
           loc == '/settings' ||
@@ -244,6 +248,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/grades',
             builder: (context, state) => const TeacherGradesScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/exams',
+            builder: (context, state) => const TeacherExamsScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/forms',
+            builder: (context, state) => const TeacherFormsScreen(),
           ),
           GoRoute(
             path: '/teacher/classroom/:courseId',

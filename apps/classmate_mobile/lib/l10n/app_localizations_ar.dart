@@ -4587,6 +4587,79 @@ class AppLocalizationsAr extends AppLocalizations {
   String get diplomasComingSoon => 'إدارة الشهادات قادمة قريباً.';
 
   @override
+  String get teacherExamsTitle => 'الامتحانات والتقييمات';
+
+  @override
+  String get teacherExamsUpcoming => 'القادمة';
+
+  @override
+  String get teacherExamsPast => 'السابقة';
+
+  @override
+  String get teacherExamsEmpty => 'لا توجد تقييمات بعد. اضغط + لإنشاء واحد.';
+
+  @override
+  String teacherExamsGraded(Object count) {
+    return '$count مُقيَّم';
+  }
+
+  @override
+  String get teacherFormsTitle => 'النماذج';
+
+  @override
+  String get teacherFormsEmpty => 'لا توجد نماذج بعد. اضغط + لإنشاء نموذج.';
+
+  @override
+  String teacherFormsResponses(Object count) {
+    return '$count استجابات';
+  }
+
+  @override
+  String get teacherFormsPublished => 'منشور';
+
+  @override
+  String get teacherFormsDraft => 'مسودة';
+
+  @override
+  String get teacherFormsCreateTitle => 'إنشاء نموذج';
+
+  @override
+  String get teacherFormsAddQuestion => 'إضافة سؤال';
+
+  @override
+  String get teacherFormsQuestionHint => 'نص السؤال';
+
+  @override
+  String get teacherFormsViewResponses => 'عرض الردود';
+
+  @override
+  String get teacherFormsNoResponses => 'لا توجد ردود بعد.';
+
+  @override
+  String get diplomasTitle => 'الشهادات والدبلومات';
+
+  @override
+  String get diplomasEmpty =>
+      'لم يتم إصدار أي شهادات بعد. اضغط + لإصدار شهادة.';
+
+  @override
+  String get diplomasIssueTo => 'إصدار إلى';
+
+  @override
+  String get diplomasStudentName => 'اسم الطالب';
+
+  @override
+  String get diplomasCertificateType => 'نوع الشهادة';
+
+  @override
+  String get diplomasIssueDiploma => 'إصدار الشهادة';
+
+  @override
+  String diplomasIssuedOn(Object date) {
+    return 'صدر في $date';
+  }
+
+  @override
   String get examDetailsSection => 'التفاصيل';
 
   @override

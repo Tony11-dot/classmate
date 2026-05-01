@@ -1582,6 +1582,46 @@
   "navDiplomas": "Diplome",
   "diplomasComingSoon": "Die Diplomverwaltung kommt bald.",
 
+  "teacherExamsTitle": "Prüfungen und Bewertungen",
+  "teacherExamsUpcoming": "Bevorstehend",
+  "teacherExamsPast": "Vergangene",
+  "teacherExamsEmpty": "Noch keine Bewertungen. Tippen Sie auf + um eine zu erstellen.",
+  "teacherExamsGraded": "{count} bewertet",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "Formulare",
+  "teacherFormsEmpty": "Noch keine Formulare. Tippen Sie auf + um eines zu erstellen.",
+  "teacherFormsResponses": "{count} Antworten",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "Veröffentlicht",
+  "teacherFormsDraft": "Entwurf",
+  "teacherFormsCreateTitle": "Formular erstellen",
+  "teacherFormsAddQuestion": "Frage hinzufügen",
+  "teacherFormsQuestionHint": "Fragetext",
+  "teacherFormsViewResponses": "Antworten ansehen",
+  "teacherFormsNoResponses": "Noch keine Antworten.",
+
+  "diplomasTitle": "Diplome und Zertifikate",
+  "diplomasEmpty": "Noch keine Zertifikate ausgestellt. Tippen Sie auf + um eines auszustellen.",
+  "diplomasIssueTo": "Ausstellen für",
+  "diplomasStudentName": "Schülername",
+  "diplomasCertificateType": "Zertifikatstyp",
+  "diplomasIssueDiploma": "Zertifikat ausstellen",
+  "diplomasIssuedOn": "Ausgestellt am {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "Details",
   "examInfoTeacher": "Lehrer",
   "examInfoAudience": "Zielgruppe",

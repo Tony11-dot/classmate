@@ -1589,6 +1589,46 @@
   "navDiplomas": "תעודות",
   "diplomasComingSoon": "ניהול תעודות בקרוב.",
 
+  "teacherExamsTitle": "בחינות והערכות",
+  "teacherExamsUpcoming": "הבאות",
+  "teacherExamsPast": "שעברו",
+  "teacherExamsEmpty": "אין הערכות עדיין. הקש + כדי ליצור.",
+  "teacherExamsGraded": "{count} עם ציון",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "טפסים",
+  "teacherFormsEmpty": "אין טפסים עדיין. הקש + כדי ליצור.",
+  "teacherFormsResponses": "{count} תגובות",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "פורסם",
+  "teacherFormsDraft": "טיוטה",
+  "teacherFormsCreateTitle": "צור טופס",
+  "teacherFormsAddQuestion": "הוסף שאלה",
+  "teacherFormsQuestionHint": "טקסט השאלה",
+  "teacherFormsViewResponses": "צפה בתגובות",
+  "teacherFormsNoResponses": "אין תגובות עדיין.",
+
+  "diplomasTitle": "תעודות ודיפלומות",
+  "diplomasEmpty": "טרם הונפקו תעודות. הקש + להנפקת תעודה.",
+  "diplomasIssueTo": "הנפק עבור",
+  "diplomasStudentName": "שם התלמיד",
+  "diplomasCertificateType": "סוג התעודה",
+  "diplomasIssueDiploma": "הנפק תעודה",
+  "diplomasIssuedOn": "הונפק בתאריך {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "פרטים",
   "examInfoTeacher": "מורה",
   "examInfoAudience": "קהל יעד",

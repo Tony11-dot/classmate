@@ -4569,6 +4569,78 @@ class AppLocalizationsHe extends AppLocalizations {
   String get diplomasComingSoon => 'ניהול תעודות בקרוב.';
 
   @override
+  String get teacherExamsTitle => 'בחינות והערכות';
+
+  @override
+  String get teacherExamsUpcoming => 'הבאות';
+
+  @override
+  String get teacherExamsPast => 'שעברו';
+
+  @override
+  String get teacherExamsEmpty => 'אין הערכות עדיין. הקש + כדי ליצור.';
+
+  @override
+  String teacherExamsGraded(Object count) {
+    return '$count עם ציון';
+  }
+
+  @override
+  String get teacherFormsTitle => 'טפסים';
+
+  @override
+  String get teacherFormsEmpty => 'אין טפסים עדיין. הקש + כדי ליצור.';
+
+  @override
+  String teacherFormsResponses(Object count) {
+    return '$count תגובות';
+  }
+
+  @override
+  String get teacherFormsPublished => 'פורסם';
+
+  @override
+  String get teacherFormsDraft => 'טיוטה';
+
+  @override
+  String get teacherFormsCreateTitle => 'צור טופס';
+
+  @override
+  String get teacherFormsAddQuestion => 'הוסף שאלה';
+
+  @override
+  String get teacherFormsQuestionHint => 'טקסט השאלה';
+
+  @override
+  String get teacherFormsViewResponses => 'צפה בתגובות';
+
+  @override
+  String get teacherFormsNoResponses => 'אין תגובות עדיין.';
+
+  @override
+  String get diplomasTitle => 'תעודות ודיפלומות';
+
+  @override
+  String get diplomasEmpty => 'טרם הונפקו תעודות. הקש + להנפקת תעודה.';
+
+  @override
+  String get diplomasIssueTo => 'הנפק עבור';
+
+  @override
+  String get diplomasStudentName => 'שם התלמיד';
+
+  @override
+  String get diplomasCertificateType => 'סוג התעודה';
+
+  @override
+  String get diplomasIssueDiploma => 'הנפק תעודה';
+
+  @override
+  String diplomasIssuedOn(Object date) {
+    return 'הונפק בתאריך $date';
+  }
+
+  @override
   String get examDetailsSection => 'פרטים';
 
   @override

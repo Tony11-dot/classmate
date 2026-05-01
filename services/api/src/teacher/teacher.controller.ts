@@ -261,4 +261,46 @@ export class TeacherController {
   ) {
     return this.teacher.getAttendanceSession(req.user, { cohortId, date, period });
   }
+
+  // ---- Forms ----
+  @Get('forms')
+  listForms(@Req() req: any) {
+    return this.teacher.listForms(req.user);
+  }
+
+  @Post('forms')
+  createForm(@Req() req: any, @Body() body: any) {
+    return this.teacher.createForm(req.user, body);
+  }
+
+  @Patch('forms/:id')
+  updateForm(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.updateForm(req.user, id, body);
+  }
+
+  @Delete('forms/:id')
+  deleteForm(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.deleteForm(req.user, id);
+  }
+
+  @Get('forms/:id/responses')
+  formResponses(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.formResponses(req.user, id);
+  }
+
+  // ---- Diplomas ----
+  @Get('diplomas')
+  listDiplomas(@Req() req: any) {
+    return this.teacher.listDiplomas(req.user);
+  }
+
+  @Post('diplomas')
+  createDiploma(@Req() req: any, @Body() body: any) {
+    return this.teacher.createDiploma(req.user, body);
+  }
+
+  @Delete('diplomas/:id')
+  deleteDiploma(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.deleteDiploma(req.user, id);
+  }
 }

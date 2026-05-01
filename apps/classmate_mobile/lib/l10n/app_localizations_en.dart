@@ -4605,6 +4605,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diplomasComingSoon => 'Diploma management is coming soon.';
 
   @override
+  String get teacherExamsTitle => 'Exams & Assessments';
+
+  @override
+  String get teacherExamsUpcoming => 'Upcoming';
+
+  @override
+  String get teacherExamsPast => 'Past';
+
+  @override
+  String get teacherExamsEmpty => 'No assessments yet. Tap + to create one.';
+
+  @override
+  String teacherExamsGraded(Object count) {
+    return '$count graded';
+  }
+
+  @override
+  String get teacherFormsTitle => 'Forms';
+
+  @override
+  String get teacherFormsEmpty => 'No forms yet. Tap + to create one.';
+
+  @override
+  String teacherFormsResponses(Object count) {
+    return '$count responses';
+  }
+
+  @override
+  String get teacherFormsPublished => 'Published';
+
+  @override
+  String get teacherFormsDraft => 'Draft';
+
+  @override
+  String get teacherFormsCreateTitle => 'Create Form';
+
+  @override
+  String get teacherFormsAddQuestion => 'Add question';
+
+  @override
+  String get teacherFormsQuestionHint => 'Question text';
+
+  @override
+  String get teacherFormsViewResponses => 'View responses';
+
+  @override
+  String get teacherFormsNoResponses => 'No responses yet.';
+
+  @override
+  String get diplomasTitle => 'Diplomas & Certificates';
+
+  @override
+  String get diplomasEmpty => 'No certificates issued yet. Tap + to issue one.';
+
+  @override
+  String get diplomasIssueTo => 'Issue to';
+
+  @override
+  String get diplomasStudentName => 'Student name';
+
+  @override
+  String get diplomasCertificateType => 'Certificate type';
+
+  @override
+  String get diplomasIssueDiploma => 'Issue Certificate';
+
+  @override
+  String diplomasIssuedOn(Object date) {
+    return 'Issued on $date';
+  }
+
+  @override
   String get examDetailsSection => 'Details';
 
   @override

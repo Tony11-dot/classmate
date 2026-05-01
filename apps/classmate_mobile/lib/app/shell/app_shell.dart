@@ -6,9 +6,13 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../core/auth/auth_session.dart';
+import '../../features/lifedoc/diplomas_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
+import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
+import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
 import '../../l10n/app_localizations.dart';
@@ -99,9 +103,11 @@ class AppShell extends ConsumerWidget {
       if (loc.startsWith('/teacher/attendance')) return l.navAttendance;
       if (loc.startsWith('/teacher/classrooms')) return l.navClassrooms;
       if (loc.startsWith('/teacher/grades')) return l.navTeacherAssessments;
+      if (loc.startsWith('/teacher/exams')) return l.teacherExamsTitle;
+      if (loc.startsWith('/teacher/forms')) return l.teacherFormsTitle;
       if (loc.startsWith('/exams')) return l.titleExams;
       if (loc.startsWith('/forms')) return l.navForms;
-      if (loc.startsWith('/diplomas')) return l.navDiplomas;
+      if (loc.startsWith('/diplomas')) return l.diplomasTitle;
       if (loc.startsWith('/tutor')) return l.titleNova;
       if (loc.startsWith('/announcements')) return l.navAnnouncements;
       if (loc.startsWith('/notifications')) return l.navNotifications;
@@ -128,8 +134,9 @@ class AppShell extends ConsumerWidget {
     return !allowed.contains(path);
   }
 
-  Widget? _buildFab(BuildContext context, String loc, bool isTeacherLike) {
+  Widget? _buildFab(BuildContext context, WidgetRef ref, String loc, bool isTeacherLike) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     if (!isTeacherLike) return null;
     if (loc.startsWith('/teacher/schedule') ||
         loc.startsWith('/teacher/classrooms') ||
@@ -145,7 +152,48 @@ class AppShell extends ConsumerWidget {
         child: const Icon(Icons.add_rounded),
       );
     }
+    if (loc == '/teacher/exams' || loc.startsWith('/teacher/grades')) {
+      return FloatingActionButton(
+        heroTag: 'fab_exams',
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
+        onPressed: () => _showCreateExamSheet(context, ref, l),
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    if (loc == '/teacher/forms') {
+      return FloatingActionButton(
+        heroTag: 'fab_forms',
+        backgroundColor: cs.secondary,
+        foregroundColor: cs.onSecondary,
+        onPressed: () {
+          ref.read(teacherFormsCreateTriggerProvider.notifier).increment();
+        },
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    if (loc == '/diplomas') {
+      return FloatingActionButton(
+        heroTag: 'fab_diplomas',
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          ref.read(diplomasCreateTriggerProvider.notifier).increment();
+        },
+        child: const Icon(Icons.workspace_premium_rounded),
+      );
+    }
     return null;
+  }
+
+  void _showCreateExamSheet(BuildContext context, WidgetRef ref, AppLocalizations l) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CreateExamSheet(ref: ref, l: l),
+    );
   }
 
   @override
@@ -165,7 +213,7 @@ class AppShell extends ConsumerWidget {
       drawer: hideTopBar ? null : const MainDrawer(),
       appBar: hideTopBar ? null : _TopBar(title: _pageTitle(context, loc, isTeacherLike)),
       body: child,
-      floatingActionButton: _buildFab(context, loc, isTeacherLike),
+      floatingActionButton: _buildFab(context, ref, loc, isTeacherLike),
       bottomNavigationBar: hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
@@ -696,6 +744,183 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Create Exam / Assessment sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CreateExamSheet extends ConsumerStatefulWidget {
+  const _CreateExamSheet({required this.ref, required this.l});
+  final WidgetRef ref;
+  final AppLocalizations l;
+
+  @override
+  ConsumerState<_CreateExamSheet> createState() => _CreateExamSheetState();
+}
+
+class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
+  final _titleCtrl = TextEditingController();
+  final _maxGradeCtrl = TextEditingController();
+  String? _selectedCourseId;
+  DateTime? _selectedDate;
+  List<TeacherCourse> _courses = [];
+  bool _loadingCourses = true;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(_loadCourses);
+  }
+
+  Future<void> _loadCourses() async {
+    try {
+      final bundle = await widget.ref.read(teacherMobileRepositoryProvider).fetchAssessments();
+      if (!mounted) return;
+      setState(() {
+        _courses = bundle.courses;
+        _selectedCourseId = bundle.courses.isNotEmpty ? bundle.courses.first.id : null;
+        _loadingCourses = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadingCourses = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _maxGradeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final title = _titleCtrl.text.trim();
+    final courseId = _selectedCourseId;
+    if (title.isEmpty || courseId == null) return;
+    setState(() => _saving = true);
+    try {
+      final dateStr = _selectedDate != null
+          ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
+          : '';
+      await widget.ref.read(teacherMobileRepositoryProvider).createAssessment(
+        courseId: courseId,
+        title: title,
+        date: dateStr,
+        maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Assessment created')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom + 24),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.l.teacherGradesCreateAssessmentTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 16),
+            if (_loadingCourses)
+              const Center(child: CircularProgressIndicator())
+            else
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCourseId,
+                decoration: InputDecoration(labelText: widget.l.teacherGradesFieldCourse, border: const OutlineInputBorder()),
+                items: _courses
+                    .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedCourseId = v),
+              ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _titleCtrl,
+              decoration: InputDecoration(labelText: '${widget.l.teacherGradesFieldTitle} *', border: const OutlineInputBorder()),
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate ?? DateTime.now(),
+                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (picked != null) setState(() => _selectedDate = picked);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: cs.outlineVariant),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _selectedDate == null
+                            ? widget.l.teacherGradesFieldDate
+                            : DateFormat.yMMMd(locale).format(_selectedDate!),
+                        style: TextStyle(color: _selectedDate == null ? cs.onSurfaceVariant : cs.onSurface),
+                      ),
+                    ),
+                    if (_selectedDate != null)
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedDate = null),
+                        child: Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _maxGradeCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: widget.l.teacherGradesFieldMaxGrade, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.add_rounded),
+                label: Text(widget.l.teacherGradesCreateAction),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

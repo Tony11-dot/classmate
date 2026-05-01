@@ -1582,6 +1582,46 @@
   "navDiplomas": "Diplomas",
   "diplomasComingSoon": "O gerenciamento de diplomas está chegando em breve.",
 
+  "teacherExamsTitle": "Exames e avaliações",
+  "teacherExamsUpcoming": "Próximos",
+  "teacherExamsPast": "Anteriores",
+  "teacherExamsEmpty": "Nenhuma avaliação ainda. Toque em + para criar.",
+  "teacherExamsGraded": "{count} avaliado(s)",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "teacherFormsTitle": "Formulários",
+  "teacherFormsEmpty": "Nenhum formulário. Toque em + para criar.",
+  "teacherFormsResponses": "{count} respostas",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "Publicado",
+  "teacherFormsDraft": "Rascunho",
+  "teacherFormsCreateTitle": "Criar formulário",
+  "teacherFormsAddQuestion": "Adicionar pergunta",
+  "teacherFormsQuestionHint": "Texto da pergunta",
+  "teacherFormsViewResponses": "Ver respostas",
+  "teacherFormsNoResponses": "Nenhuma resposta ainda.",
+
+  "diplomasTitle": "Diplomas e certificados",
+  "diplomasEmpty": "Nenhum certificado emitido. Toque em + para emitir.",
+  "diplomasIssueTo": "Emitir para",
+  "diplomasStudentName": "Nome do aluno",
+  "diplomasCertificateType": "Tipo de certificado",
+  "diplomasIssueDiploma": "Emitir certificado",
+  "diplomasIssuedOn": "Emitido em {date}",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
   "examDetailsSection": "Detalhes",
   "examInfoTeacher": "Professor",
   "examInfoAudience": "Público",
