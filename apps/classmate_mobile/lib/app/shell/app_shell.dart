@@ -126,6 +126,7 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
     final loc = GoRouterState.of(context).matchedLocation;
@@ -145,18 +146,18 @@ class AppShell extends ConsumerWidget {
           : _PlatformCoreBottomNav(
               items: isTeacherLike
                   ? <_NavItem>[
-                      const _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, 'Home'),
-                      const _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classrooms'),
-                      const _NavItem(Icons.grade_outlined, Icons.grade_rounded, 'Grades'),
-                      const _NavItem(Icons.fact_check_outlined, Icons.fact_check_rounded, 'Attendance'),
-                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Messages', badge: unreadMessages),
+                      _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
+                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                      _NavItem(Icons.grade_outlined, Icons.grade_rounded, l.navGrades),
+                      _NavItem(Icons.fact_check_outlined, Icons.fact_check_rounded, l.navAttendance),
+                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: unreadMessages),
                     ]
                   : <_NavItem>[
-                      const _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, 'Schedule'),
-                      const _NavItem(Icons.groups_outlined, Icons.groups_rounded, 'Classrooms'),
-                      const _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, 'Practice'),
-                      const _NavItem(Icons.insights_outlined, Icons.insights_rounded, 'Insights'),
-                      const _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'NOVA'),
+                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
+                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
                     ],
               index: idx,
               onTap: (i) {
