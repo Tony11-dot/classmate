@@ -22,11 +22,14 @@ class SolutionBook {
   final String id;
   final String title;
   final String subjectId;
+  /// Total number of pages in the book; used to bound the page drum picker.
+  final int pageCount;
 
   const SolutionBook({
     required this.id,
     required this.title,
     required this.subjectId,
+    this.pageCount = 500,
   });
 }
 

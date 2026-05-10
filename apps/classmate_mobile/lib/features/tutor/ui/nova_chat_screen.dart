@@ -24,6 +24,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import 'chatgpt_chat_components.dart';
 
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/nova_plan_models.dart';
 import '../data/on_device_transcriber.dart';
 import '../data/tutor_repository.dart';
@@ -263,6 +264,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         final mm = Map<String, dynamic>.from(
           item.map((k, v) => MapEntry(k.toString(), v)),
         );
+        // Skip system/meta messages — they're internal and not for display
+        final rawRole = (mm['role'] ?? '').toString().toLowerCase();
+        if (rawRole == 'system' || rawRole == 's') continue;
+
         final msg = _msgFromStored(
           mm,
           voiceFallback: l.tutorVoiceMessageFallback,
@@ -1045,7 +1050,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.12),
+      barrierColor: Colors.black,
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (dialogContext, animation, secondaryAnimation) => SafeArea(
         child: Padding(
@@ -1064,22 +1069,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 child: LiquidGlassCard(
                   padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                   borderRadius: BorderRadius.circular(28),
-                  blurSigma: 18,
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.76),
+                  color: Theme.of(context).colorScheme.surface,
                   border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outlineVariant
-                        .withValues(alpha: 0.20),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
-                      blurRadius: 28,
-                      spreadRadius: -14,
-                      offset: const Offset(0, 18),
-                    ),
-                  ],
                   child: child,
                 ),
               ),
@@ -1363,7 +1356,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             height: 180,
             child: LiquidGlassCard(
               borderRadius: BorderRadius.circular(14),
-              blurSigma: 10,
               color: const Color(0xFF1E242C),
               border: Border.all(color: Colors.white12),
               child: Center(
@@ -1443,8 +1435,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final accent = mine
-        ? cs.primaryContainer.withValues(alpha: 0.78)
-        : cs.surfaceContainerHighest.withValues(alpha: 0.88);
+        ? cs.primaryContainer
+        : cs.surfaceContainerHighest;
     final foreground = mine ? cs.onPrimaryContainer : cs.onSurface;
 
     return Material(
@@ -1457,9 +1449,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           child: LiquidGlassCard(
           padding: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(13),
-            blurSigma: 10,
             color: accent,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+            border: Border.all(color: cs.outlineVariant),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1468,8 +1459,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 height: 32,
                 child: LiquidGlassCard(
                   borderRadius: BorderRadius.circular(12),
-                  blurSigma: 8,
-                  color: cs.surface.withValues(alpha: 0.42),
+                  color: cs.surfaceContainerLow,
                   child: Center(
                     child: Icon(_fileIconFor(m), color: foreground, size: 18),
                   ),
@@ -1632,7 +1622,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                                 Icon(
                                   Icons.auto_awesome_rounded,
                                   size: 13,
-                                  color: cs.primary.withValues(alpha: 0.7),
+                                  color: cs.primary,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
@@ -1729,9 +1719,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         borderRadius: BorderRadius.circular(12),
-        blurSigma: 10,
-        color: cs.surfaceContainerHigh.withValues(alpha: 0.88),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        color: cs.surfaceContainerHigh,
+        border: Border.all(color: cs.outlineVariant),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1740,8 +1729,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               height: 24,
               child: LiquidGlassCard(
                 borderRadius: BorderRadius.circular(7),
-                blurSigma: 8,
-                color: cs.surface.withValues(alpha: 0.84),
+                color: cs.surfaceContainerLow,
                 child: Center(
                   child: Icon(
                     isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
@@ -1806,9 +1794,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1835,18 +1823,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _composer() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: NativeGlassView(
-        borderRadius: 28,
-        style: NativeGlassStyle.ultraThin,
-        fallbackColor: Platform.isIOS
-            ? Colors.transparent
-            : (isDark
-                ? Colors.black.withValues(alpha: 0.12)
-                : Colors.white.withValues(alpha: 0.18)),
-        child: ChatComposer(
+    return ChatComposer(
         controller: _controller,
         topContent: _novaComposerTopContent(),
         enabled: !_sending,
@@ -1889,8 +1866,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         showCamera: true,
         showAttach: true,
         showMic: true,
-        ),
-      ),
     );
   }
 
@@ -1904,7 +1879,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       _headerTitle == _untitledSentinel ? l.tutorUntitledChat : _headerTitle;
     final showPlanButton = _hasEnteredChat;
     final body = _loadingHistory
-        ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
+        ? const Center(child: CmLoading())
         : ValueListenableBuilder<bool>(
             valueListenable: _showScrollToBottom,
             builder: (context, showScroll, child) {
@@ -1950,7 +1925,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       ),
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface.withValues(alpha: 0.94),
+        backgroundColor: cs.surface,
         elevation: 0,
         toolbarHeight: 48,
         centerTitle: true,
@@ -1962,49 +1937,122 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: showPlanButton
-            ? [
-                ListenableBuilder(
-                  listenable: planController,
-                  builder: (context, _) => Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Center(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showPlanLimitSheet(
-                          title: l.tutorYourNovaPlanTitle,
-                          message: l.tutorYourNovaPlanMessage,
-                        ),
-                        icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                        label: Text(_localizedPlanName(l, planController.selectedPlan.id)),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-                          minimumSize: const Size(0, 32),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          textStyle: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 11.5,
-                          ),
-                          side: BorderSide(
-                            color: cs.outlineVariant.withValues(alpha: 0.26),
-                          ),
-                          backgroundColor: cs.surfaceContainerLow.withValues(alpha: 0.92),
-                          foregroundColor: cs.onSurface,
-                        ),
+        actions: [
+          // ⓘ — always visible; tapping shows the AI disclosure sheet.
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded, size: 20),
+            tooltip: 'About NOVA',
+            onPressed: () => _showNovaAboutSheet(context),
+          ),
+          if (showPlanButton)
+            ListenableBuilder(
+              listenable: planController,
+              builder: (context, _) => Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Center(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showPlanLimitSheet(
+                      title: l.tutorYourNovaPlanTitle,
+                      message: l.tutorYourNovaPlanMessage,
+                    ),
+                    icon: const Icon(Icons.workspace_premium_rounded, size: 16),
+                    label: Text(_localizedPlanName(l, planController.selectedPlan.id)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                      visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                      minimumSize: const Size(0, 32),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      textStyle: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11.5,
                       ),
+                      side: BorderSide(color: cs.outlineVariant),
+                      backgroundColor: cs.surfaceContainerLow,
+                      foregroundColor: cs.onSurface,
                     ),
                   ),
                 ),
-              ]
-            : const <Widget>[],
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         top: false,
+        bottom: false, // composer's inner SafeArea handles the home-indicator gap
         child: Column(
           children: [
             Expanded(child: body),
+            // ── Persistent AI disclaimer — always visible above the composer ──
+            // Required for App Store compliance (AI-generated content disclosure).
+            _PersistentDisclaimer(onInfo: () => _showNovaAboutSheet(context)),
             _composer(),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showNovaAboutSheet(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: cs.surfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const _NovaAvatar(animating: false, size: 36),
+                  const SizedBox(width: 12),
+                  Text(
+                    l.titleNova,
+                    style: theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _AboutRow(
+                icon: Icons.psychology_rounded,
+                title: 'AI-powered assistant',
+                body: 'NOVA is built on large language model technology to help '
+                    'you study, understand concepts, and explore ideas.',
+              ),
+              const SizedBox(height: 12),
+              _AboutRow(
+                icon: Icons.warning_amber_rounded,
+                title: 'Can make mistakes',
+                body: 'NOVA may produce inaccurate, incomplete, or outdated '
+                    'information. Always verify important answers with your '
+                    'teacher or a trusted source.',
+              ),
+              const SizedBox(height: 12),
+              _AboutRow(
+                icon: Icons.school_rounded,
+                title: 'Educational use only',
+                body: 'NOVA is designed for learning support and is not a '
+                    'substitute for professional medical, legal, or financial advice.',
+              ),
+              const SizedBox(height: 12),
+              _AboutRow(
+                icon: Icons.lock_outline_rounded,
+                title: 'Your privacy',
+                body: 'Conversations are used to generate responses. '
+                    'Do not share sensitive personal information.',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -2046,9 +2094,8 @@ class _AssistantActionChip extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         borderRadius: BorderRadius.circular(999),
-        blurSigma: 8,
-        color: cs.surface.withValues(alpha: 0.82),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -2097,13 +2144,12 @@ class _GlassMenuAction extends StatelessWidget {
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(12),
-                blurSigma: 8,
-                color: cs.primary.withValues(alpha: 0.10),
+                color: cs.primary,
                 border: Border.all(
-                  color: cs.primary.withValues(alpha: 0.12),
+                  color: cs.outlineVariant,
                 ),
                 child: Center(
-                  child: Icon(icon, size: 18, color: cs.primary),
+                  child: Icon(icon, size: 18, color: cs.onPrimary),
                 ),
               ),
             ),
@@ -2142,10 +2188,9 @@ class _PromptSuggestionChip extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
         borderRadius: BorderRadius.circular(16),
-        blurSigma: 10,
-        color: cs.primaryContainer.withValues(alpha: isDisabled ? 0.25 : 0.38),
+        color: isDisabled ? cs.surfaceContainerLow : cs.primaryContainer,
         border: Border.all(
-          color: cs.primary.withValues(alpha: isDisabled ? 0.10 : 0.22),
+          color: isDisabled ? cs.outlineVariant : cs.primary.withValues(alpha: 0.35),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -2156,7 +2201,7 @@ class _PromptSuggestionChip extends StatelessWidget {
               child: Icon(
                 Icons.arrow_forward_rounded,
                 size: 13,
-                color: cs.primary.withValues(alpha: isDisabled ? 0.4 : 0.75),
+                color: isDisabled ? cs.onSurfaceVariant : cs.primary,
               ),
             ),
             const SizedBox(width: 6),
@@ -2165,7 +2210,7 @@ class _PromptSuggestionChip extends StatelessWidget {
                 cleanLabel,
                 softWrap: true,
                 style: theme.textTheme.labelMedium?.copyWith(
-                  color: cs.onSurface.withValues(alpha: isDisabled ? 0.45 : 0.9),
+                  color: isDisabled ? cs.onSurfaceVariant : cs.onPrimaryContainer,
                   fontWeight: FontWeight.w600,
                   height: 1.35,
                 ),
@@ -2235,29 +2280,96 @@ class _NovaAvatarState extends State<_NovaAvatar>
         height: widget.size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [cs.primary, cs.tertiary],
-          ),
-          boxShadow: widget.animating
-              ? [
-                  BoxShadow(
-                    color: cs.primary.withValues(alpha: 0.38),
-                    blurRadius: 12,
-                    spreadRadius: -4,
-                  ),
-                ]
-              : const [],
+          color: cs.primaryContainer,
         ),
         child: Center(
           child: Icon(
             Icons.auto_awesome_rounded,
             size: widget.size * 0.5,
-            color: Colors.white,
+            color: cs.onPrimaryContainer,
           ),
         ),
       ),
+    );
+  }
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Persistent AI disclaimer — always shown below the composer
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PersistentDisclaimer extends StatelessWidget {
+  const _PersistentDisclaimer({required this.onInfo});
+  final VoidCallback onInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onInfo,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info_outline_rounded, size: 11, color: cs.onSurfaceVariant.withValues(alpha: 0.55)),
+            const SizedBox(width: 4),
+            Text(
+              'NOVA can make mistakes. Tap to learn more.',
+              style: TextStyle(
+                fontSize: 11,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.55),
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  About-sheet row
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AboutRow extends StatelessWidget {
+  const _AboutRow({required this.icon, required this.title, required this.body});
+  final IconData icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: cs.primaryContainer,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, size: 16, color: cs.onPrimaryContainer),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 2),
+              Text(body, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, height: 1.4)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
+import '../../messages/data/messages_repository.dart';
+import '../../messages/providers/messages_repository_provider.dart';
+import 'teacher_student_grade_detail_screen.dart';
 
 class TeacherStudentProfileScreen extends ConsumerStatefulWidget {
   const TeacherStudentProfileScreen({
@@ -81,24 +85,18 @@ class _TeacherStudentProfileScreenState
             Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    cs.primaryContainer.withValues(alpha: 0.75),
-                    cs.surfaceContainerHigh.withValues(alpha: 0.8),
-                  ],
-                ),
               ),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
-                    style: IconButton.styleFrom(backgroundColor: cs.surface.withValues(alpha: 0.6), padding: const EdgeInsets.all(8)),
+                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
                   const SizedBox(width: 12),
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: cs.primary,
+                    backgroundColor: cs.primaryContainer,
                     child: Text(initials(), style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w800, fontSize: 16)),
                   ),
                   const SizedBox(width: 12),
@@ -119,12 +117,12 @@ class _TeacherStudentProfileScreenState
             // Body
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: const CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(32),
                           child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error.withValues(alpha: 0.6)),
+                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
                             const SizedBox(height: 16),
                             Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
                             const SizedBox(height: 20),
@@ -136,6 +134,12 @@ class _TeacherStudentProfileScreenState
                           child: ListView(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                             children: [
+                              // ── Quick actions ──────────────────────────────────────
+                              _QuickActionsCard(
+                                studentId: widget.studentId,
+                                studentName: widget.studentName,
+                              ),
+                              const SizedBox(height: 14),
                               // Summary cards
                               Row(
                                 children: [
@@ -171,9 +175,8 @@ class _TeacherStudentProfileScreenState
                                 LiquidGlassCard(
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(20),
-                                  blurSigma: 12,
-                                  color: cs.surface.withValues(alpha: 0.82),
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                                  color: cs.surfaceContainerLow,
+                                  border: Border.all(color: cs.outlineVariant),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -181,13 +184,13 @@ class _TeacherStudentProfileScreenState
                                       const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusPresent, count: (attBreakdown['PRESENT'] ?? 0) as int, color: const Color(0xFF22C55E)),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusPresent, count: (attBreakdown['PRESENT'] ?? 0) as int, color: const Color(0xFF22C55E), onColor: Colors.white),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusAbsent, count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusAbsent, count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error, onColor: cs.onError),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusLate, count: (attBreakdown['LATE'] ?? 0) as int, color: const Color(0xFFF59E0B)),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusLate, count: (attBreakdown['LATE'] ?? 0) as int, color: const Color(0xFFF59E0B), onColor: Colors.white),
                                           const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusExcused, count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary),
+                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusExcused, count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary, onColor: cs.onTertiary),
                                         ],
                                       ),
                                     ],
@@ -217,9 +220,8 @@ class _TeacherStudentProfileScreenState
                                     child: LiquidGlassCard(
                                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                       borderRadius: BorderRadius.circular(16),
-                                      blurSigma: 8,
-                                      color: cs.surface.withValues(alpha: 0.8),
-                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                                      color: cs.surfaceContainerLow,
+                                      border: Border.all(color: cs.outlineVariant),
                                       child: Row(
                                         children: [
                                           Expanded(
@@ -254,9 +256,8 @@ class _TeacherStudentProfileScreenState
                                 LiquidGlassCard(
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(16),
-                                  blurSigma: 10,
-                                  color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+                                  color: cs.surfaceContainerLow,
+                                  border: Border.all(color: cs.outlineVariant),
                                   child: Row(
                                     children: [
                                       Icon(Icons.grade_outlined, color: cs.onSurfaceVariant),
@@ -290,9 +291,8 @@ class _SummaryCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(16),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -307,11 +307,162 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Quick actions card — grades, add grade, certificate, DM
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _QuickActionsCard extends ConsumerStatefulWidget {
+  const _QuickActionsCard({required this.studentId, required this.studentName});
+  final String studentId;
+  final String studentName;
+
+  @override
+  ConsumerState<_QuickActionsCard> createState() => _QuickActionsCardState();
+}
+
+class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
+  bool _dmLoading = false;
+
+  Future<void> _startDm() async {
+    if (_dmLoading) return;
+    setState(() => _dmLoading = true);
+    try {
+      final detail = await ref
+          .read(messagesRepositoryProvider)
+          .createDirectRequest(recipientUserId: widget.studentId, firstMessage: '');
+      if (!mounted) return;
+      context.pushNamed('dm_thread', pathParameters: {'id': detail.id});
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not start chat')),
+      );
+    } finally {
+      if (mounted) setState(() => _dmLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+
+    return LiquidGlassCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      borderRadius: BorderRadius.circular(18),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.teacherActions,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // View grades — opens dedicated grade detail screen for this student
+              _ActionChip(
+                icon: Icons.grade_rounded,
+                label: l.navGrades,
+                color: cs.secondary,
+                onColor: cs.onSecondary,
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => TeacherStudentGradeDetailScreen(
+                      student: TeacherStudentWithLevel(
+                        studentId: widget.studentId,
+                        name: widget.studentName,
+                        email: '',
+                        gradeLevel: null,
+                        cohortId: '',
+                        cohortName: '',
+                        subjects: const [],
+                        coursesBySubject: const {},
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Add a grade
+              _ActionChip(
+                icon: Icons.add_chart_rounded,
+                label: 'Add grade',
+                color: cs.tertiary,
+                onColor: cs.onTertiary,
+                onTap: () => context.push('/teacher/grades/add', extra: <String, dynamic>{
+                  'prefillStudentId': widget.studentId,
+                  'prefillStudentName': widget.studentName,
+                }),
+              ),
+              // Certificate
+              _ActionChip(
+                icon: Icons.workspace_premium_rounded,
+                label: l.navDiplomas,
+                color: Colors.amber.shade700,
+                onColor: Colors.white,
+                onTap: () => context.push('/diplomas/create', extra: <String, dynamic>{
+                  'prefillStudentId': widget.studentId,
+                  'prefillStudentName': widget.studentName,
+                }),
+              ),
+              // Direct message
+              _ActionChip(
+                icon: _dmLoading ? Icons.hourglass_top_rounded : Icons.chat_bubble_rounded,
+                label: l.navMessages,
+                color: cs.primary,
+                onColor: cs.onPrimary,
+                onTap: _startDm,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  const _ActionChip({required this.icon, required this.label, required this.color, required this.onColor, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color onColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: onColor),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: onColor)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _AttPill extends StatelessWidget {
-  const _AttPill({required this.label, required this.count, required this.color});
+  const _AttPill({required this.label, required this.count, required this.color, required this.onColor});
   final String label;
   final int count;
   final Color color;
+  final Color onColor;
 
   @override
   Widget build(BuildContext context) {
@@ -319,14 +470,14 @@ class _AttPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
+          border: Border.all(color: color),
         ),
         child: Column(
           children: [
-            Text('$count', style: TextStyle(fontWeight: FontWeight.w900, color: color, fontSize: 18)),
-            Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600)),
+            Text('$count', style: TextStyle(fontWeight: FontWeight.w900, color: onColor, fontSize: 18)),
+            Text(label, style: TextStyle(fontSize: 10, color: onColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

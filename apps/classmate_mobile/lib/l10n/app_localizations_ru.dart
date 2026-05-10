@@ -9,128 +9,128 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get menu => 'Menu';
+  String get menu => 'Меню';
 
   @override
-  String get sectionCore => 'Core';
+  String get sectionCore => 'Основное';
 
   @override
-  String get sectionSchoolTools => 'School Tools';
+  String get sectionSchoolTools => 'Школьные инструменты';
 
   @override
-  String get sectionAccount => 'Account';
+  String get sectionAccount => 'Аккаунт';
 
   @override
-  String get navSchedule => 'Schedule';
+  String get navSchedule => 'Расписание';
 
   @override
-  String get navClassrooms => 'Classrooms';
+  String get navClassrooms => 'Классы';
 
   @override
-  String get navPractice => 'Practice';
+  String get navPractice => 'Практика';
 
   @override
-  String get navInsights => 'Insights';
+  String get navInsights => 'Аналитика';
 
   @override
   String get navNova => 'NOVA';
 
   @override
-  String get navMessages => 'Messages';
+  String get navMessages => 'Сообщения';
 
   @override
-  String get navAttendance => 'Attendance';
+  String get navAttendance => 'Посещаемость';
 
   @override
-  String get navGrades => 'Grades';
+  String get navGrades => 'Оценки';
 
   @override
-  String get navAssignments => 'Assignments';
+  String get navAssignments => 'Задания';
 
   @override
-  String get navMeetings => 'Meetings';
+  String get navMeetings => 'Занятия';
 
   @override
-  String get navAnnouncements => 'Announcements';
+  String get navAnnouncements => 'Объявления';
 
   @override
-  String get navNotifications => 'Notifications';
+  String get navNotifications => 'Уведомления';
 
   @override
-  String get navSolutions => 'Solutions';
+  String get navSolutions => 'Решения';
 
   @override
-  String get navExams => 'Exams';
+  String get navExams => 'Экзамены';
 
   @override
-  String get navForms => 'Forms';
+  String get navForms => 'Формы';
 
   @override
-  String get navHome => 'Home';
+  String get navHome => 'Главная';
 
   @override
-  String get navTeacherWorkspace => 'Teacher Workspace';
+  String get navTeacherWorkspace => 'Рабочее пространство';
 
   @override
-  String get navTeacherAssessments => 'Assessments & Grades';
+  String get navTeacherAssessments => 'Оценивание и оценки';
 
   @override
-  String get navSavedQuestions => 'Saved Questions';
+  String get navSavedQuestions => 'Сохранённые вопросы';
 
   @override
-  String get navProfile => 'Profile';
+  String get navProfile => 'Профиль';
 
   @override
-  String get navSettings => 'Settings';
+  String get navSettings => 'Настройки';
 
   @override
-  String get navLogout => 'Log out';
+  String get navLogout => 'Выйти';
 
   @override
-  String get roleTeacher => 'Teacher';
+  String get roleTeacher => 'Учитель';
 
   @override
-  String get roleAdmin => 'Admin';
+  String get roleAdmin => 'Администратор';
 
   @override
-  String get roleSecretary => 'Secretary';
+  String get roleSecretary => 'Секретарь';
 
   @override
-  String get roleParent => 'Parent';
+  String get roleParent => 'Родитель';
 
   @override
-  String get titleSchedule => 'Schedule';
+  String get titleSchedule => 'Расписание';
 
   @override
-  String get titleClasses => 'Classes';
+  String get titleClasses => 'Классы';
 
   @override
-  String get titlePractice => 'Practice';
+  String get titlePractice => 'Практика';
 
   @override
-  String get titleInsights => 'Insights';
+  String get titleInsights => 'Аналитика';
 
   @override
   String get titleNova => 'NOVA';
 
   @override
-  String get titleMessages => 'Messages';
+  String get titleMessages => 'Сообщения';
 
   @override
-  String get titleSolutions => 'Solutions';
+  String get titleSolutions => 'Решения';
 
   @override
-  String get titleExams => 'Exams';
+  String get titleExams => 'Экзамены';
 
   @override
-  String get solutionsUploadAction => 'Upload';
+  String get solutionsUploadAction => 'Загрузить';
 
   @override
-  String get solutionsNoSubjectsAvailable => 'No subjects available.';
+  String get solutionsNoSubjectsAvailable => 'Предметы недоступны.';
 
   @override
   String solutionsNoSubjectsMatch(Object query) {
-    return 'No subjects match \"$query\".';
+    return 'Предметы не найдены: «$query».';
   }
 
   @override
@@ -138,159 +138,162 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count books',
-      one: '1 book',
+      other: '$count книг',
+      few: '$count книги',
+      one: '1 книга',
     );
     return '$_temp0';
   }
 
   @override
-  String get solutionsBooksTitle => 'Books';
+  String get solutionsBooksTitle => 'Книги';
 
   @override
-  String get solutionsAddBookTitle => 'Add a book';
+  String get solutionsAddBookTitle => 'Добавить книгу';
 
   @override
-  String get solutionsBookTitleHint => 'Book title...';
+  String get solutionsBookTitleHint => 'Название книги…';
 
   @override
-  String get solutionsAddBookAction => 'Add a book';
+  String get solutionsAddBookAction => 'Добавить книгу';
 
   @override
-  String get solutionsSearchBooks => 'Search books';
+  String get solutionsSearchBooks => 'Поиск книг';
 
   @override
-  String get solutionsChooseSubjectFirst => 'Choose a subject first.';
+  String get solutionsChooseSubjectFirst => 'Сначала выберите предмет.';
 
   @override
   String solutionsNoBooksYetBody(Object action) {
-    return 'No books yet.\nTap \"$action\" to add the first one.';
+    return 'Книг пока нет.\nНажмите «$action», чтобы добавить первую.';
   }
 
   @override
   String solutionsNoBooksMatch(Object query) {
-    return 'No books match \"$query\".';
+    return 'Книги не найдены: «$query».';
   }
 
   @override
-  String get solutionsBookLabel => 'Book';
+  String get solutionsBookLabel => 'Книга';
 
   @override
   String get solutionsPagesFilterHint =>
-      'Enter a page and question number to filter, or leave blank to see all.';
+      'Введите номер страницы и вопроса для фильтрации или оставьте пустым.';
 
   @override
-  String get solutionsPageNumberLabel => 'Page number';
+  String get solutionsPageNumberLabel => 'Номер страницы';
 
   @override
-  String get solutionsPageNumberHint => 'e.g. 42';
+  String get solutionsPageNumberHint => 'например, 42';
 
   @override
-  String get solutionsQuestionNumberLabel => 'Question number';
+  String get solutionsQuestionNumberLabel => 'Номер вопроса';
 
   @override
-  String get solutionsQuestionNumberHint => 'e.g. 3a or 7';
+  String get solutionsQuestionNumberHint => 'например, 3а или 7';
 
   @override
-  String get solutionsViewSolutionsAction => 'View solutions';
+  String get solutionsViewSolutionsAction => 'Смотреть решения';
 
   @override
   String solutionsPageQuestionSummary(Object page, Object question) {
-    return 'Page $page • Question $question';
+    return 'Стр. $page · Вопрос $question';
   }
 
   @override
-  String get solutionsExactQuestionTitle => 'Solutions for this exact question';
+  String get solutionsExactQuestionTitle => 'Решения для этого вопроса';
 
   @override
   String get solutionsExactQuestionEmptySubtitle =>
-      'Nothing has been uploaded for this exact question yet. Be the first to help your classmates.';
+      'Для этого вопроса ещё ничего не загружено';
 
   @override
   String solutionsUploadsFound(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count uploads found',
-      one: '1 upload found',
+      other: '$count решений найдено',
+      few: '$count решения найдено',
+      one: '1 решение найдено',
     );
     return '$_temp0';
   }
 
   @override
   String get solutionsExactQuestionEmptyBody =>
-      'No exact match yet. You can upload one now, or check what classmates solved on this same page.';
+      'Точного совпадения нет. Загрузите решение или проверьте соседние вопросы.';
 
   @override
-  String get solutionsLoadMoreAction => 'Load more';
+  String get solutionsLoadMoreAction => 'Загрузить ещё';
 
   @override
-  String get solutionsSamePageTitle => 'Other questions solved on this page';
+  String get solutionsSamePageTitle => 'Другие вопросы на этой странице';
 
   @override
   String get solutionsSamePageEmptySubtitle =>
-      'No neighboring questions were uploaded from this page yet.';
+      'С этой страницы вопросов ещё не загружено';
 
   @override
   String get solutionsSamePageFallbackSubtitle =>
-      'Useful fallback when your exact question has no upload yet.';
+      'Дополнительный источник, если решение вашего вопроса ещё не загружено.';
 
   @override
   String get solutionsSamePageEmptyBody =>
-      'No nearby uploads on this page yet. A fresh upload here would really help.';
+      'На этой странице пока нет загрузок. Добавьте первую — это поможет другим.';
 
   @override
-  String get solutionsVerifiedByNova => 'Verified by NOVA';
+  String get solutionsVerifiedByNova => 'Проверено NOVA';
 
   @override
-  String get solutionsUploadFileLimitReached => '10-file limit reached.';
+  String get solutionsUploadFileLimitReached => 'Достигнут лимит 10 файлов.';
 
   @override
   String solutionsUploadFilesAddedLimit(int count) {
-    return 'Added $count — 10-file limit.';
+    return 'Добавлено $count — лимит 10 файлов.';
   }
 
   @override
   String get solutionsUploadCompleteFields =>
-      'Complete subject, book, page, and question.';
+      'Заполните предмет, книгу, страницу и вопрос.';
 
   @override
-  String get solutionsUploadAddOneFile => 'Add at least one image or PDF.';
+  String get solutionsUploadAddOneFile =>
+      'Добавьте хотя бы одно изображение или PDF.';
 
   @override
   String solutionsUploadFileFailed(Object error) {
-    return 'File upload failed: $error';
+    return 'Ошибка загрузки файла: $error';
   }
 
   @override
   String solutionsUploadCreateFailed(Object error) {
-    return 'Failed to create solution: $error';
+    return 'Не удалось создать решение: $error';
   }
 
   @override
-  String get solutionsUploadSuccess => 'Solution uploaded!';
+  String get solutionsUploadSuccess => 'Загружено успешно';
 
   @override
-  String get solutionsUploadAddNewBookOption => '+ Add a new book...';
+  String get solutionsUploadAddNewBookOption => '+ Добавить новую книгу…';
 
   @override
-  String get solutionsUploadAddBookShortAction => 'Add';
+  String get solutionsUploadAddBookShortAction => 'Добавить';
 
   @override
-  String get solutionsUploadTitle => 'Upload a solution';
+  String get solutionsUploadTitle => 'Загрузить решение';
 
   @override
   String get solutionsUploadSubtitle =>
-      'Real images or PDFs only. NOVA verification and moderation are applied after upload.';
+      'Только изображения и PDF. NOVA проверяет и модерирует загрузки.';
 
   @override
-  String get solutionsUploadNoBooksAbove => 'No books — add one above';
+  String get solutionsUploadNoBooksAbove => 'Книг нет — добавьте выше';
 
   @override
-  String get solutionsUploadCaptionOptional => 'Caption (optional)';
+  String get solutionsUploadCaptionOptional => 'Подпись (необязательно)';
 
   @override
-  String get solutionsUploadImagesAction => 'Images';
+  String get solutionsUploadImagesAction => 'Изображения';
 
   @override
   String get solutionsUploadPdfAction => 'PDF';
@@ -300,23 +303,26 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'files selected',
-      one: 'file selected',
+      other: 'файлов выбрано',
+      few: 'файла выбрано',
+      one: 'файл выбран',
     );
     return '$count / 10 $_temp0';
   }
 
   @override
-  String get solutionsUploadSomeFilesFailed => 'Some files failed to upload.';
+  String get solutionsUploadSomeFilesFailed =>
+      'Некоторые файлы не загрузились.';
 
   @override
-  String get solutionsUploadRetryFailedFiles => 'Retry failed files';
+  String get solutionsUploadRetryFailedFiles =>
+      'Повторить для неудачных файлов';
 
   @override
-  String get solutionsUploadSubmittingAction => 'Uploading...';
+  String get solutionsUploadSubmittingAction => 'Загрузка…';
 
   @override
-  String get solutionsUploadSubmitAction => 'Upload solution';
+  String get solutionsUploadSubmitAction => 'Загрузить решение';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -373,118 +379,113 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherWorkspaceSubtitle =>
-      'Run attendance, rosters, and grading from the mobile app.';
+      'Посещаемость, списки и оценки в мобильном приложении.';
 
   @override
-  String get teacherMetricSessionsToday => 'Sessions today';
+  String get teacherMetricSessionsToday => 'Уроков сегодня';
 
   @override
-  String get teacherMetricTeachingGroups => 'Teaching groups';
+  String get teacherMetricTeachingGroups => 'Групп';
 
   @override
-  String get teacherMetricAssessments => 'Assessments';
+  String get teacherMetricAssessments => 'Контрольных работ';
 
   @override
-  String get teacherQuickActions => 'Quick actions';
+  String get teacherQuickActions => 'Быстрые действия';
 
   @override
-  String get teacherNoDateAvailable => 'No date available';
+  String get teacherNoDateAvailable => 'Дата недоступна';
 
   @override
-  String get teacherNoTeachingSlotsToday =>
-      'No teaching slots scheduled today.';
+  String get teacherNoTeachingSlotsToday => 'Уроков на сегодня нет.';
 
   @override
-  String get teacherUpcomingAssessments => 'Upcoming assessments';
+  String get teacherUpcomingAssessments => 'Предстоящие проверки';
 
   @override
-  String get teacherUpcomingAssessmentsSubtitle =>
-      'Live from the teacher grading system';
+  String get teacherUpcomingAssessmentsSubtitle => 'Из журнала оценивания';
 
   @override
-  String get teacherNoAssessmentsYet => 'No assessments created yet.';
+  String get teacherNoAssessmentsYet => 'Контрольных работ ещё нет.';
 
   @override
-  String get teacherUnassignedSlot => 'Unassigned slot';
+  String get teacherUnassignedSlot => 'Свободный слот';
 
   @override
-  String get teacherNoCohort => 'No cohort';
+  String get teacherNoCohort => 'Класс не назначен';
 
   @override
-  String get teacherCourseFallback => 'Course';
+  String get teacherCourseFallback => 'Предмет';
 
   @override
   String teacherPeriod(Object number) {
-    return 'Period $number';
+    return 'Период $number';
   }
 
   @override
-  String get teacherLoadErrorTitle => 'Could not load teacher workspace';
+  String get teacherLoadErrorTitle =>
+      'Не удалось загрузить рабочее пространство';
 
   @override
   String get teacherClassroomsLoadError =>
-      'We could not load classrooms right now. Pull to refresh or try again.';
+      'Не удалось загрузить классы. Потяните для обновления.';
 
   @override
   String get teacherClassroomsLoadTimeout =>
-      'Classrooms are taking too long to load. Pull to refresh or try again in a moment.';
+      'Загрузка классов заняла слишком долго. Потяните для обновления.';
 
   @override
   String get teacherClassroomsLoadNetwork =>
-      'Classrooms could not connect right now. Check your connection and try again.';
+      'Нет подключения. Проверьте сеть и попробуйте снова.';
 
   @override
-  String get teacherClassroomsSubtitle =>
-      'Open the roster and generate a live join code for student entry.';
+  String get teacherClassroomsSubtitle => 'Ваши учебные пространства';
 
   @override
   String get teacherClassroomsNoCohorts =>
-      'No classroom cohorts are linked to this teacher yet.';
+      'К этому учителю ещё не привязаны классы.';
 
   @override
   String teacherClassroomsCohort(Object cohortId) {
-    return 'Cohort $cohortId';
+    return 'Класс $cohortId';
   }
 
   @override
-  String get teacherClassroomsGeneratingJoinCode => 'Generating…';
+  String get teacherClassroomsGeneratingJoinCode => 'Создание…';
 
   @override
-  String get teacherClassroomsCreateJoinCode => 'Create join code';
+  String get teacherClassroomsCreateJoinCode => 'Создать код входа';
 
   @override
-  String get teacherClassroomsLiveJoinCode => 'Live join code';
+  String get teacherClassroomsLiveJoinCode => 'Активный код входа';
 
   @override
   String teacherClassroomsExpiresAt(Object value) {
-    return 'Expires $value';
+    return 'Истекает $value';
   }
 
   @override
-  String get teacherClassroomsRoster => 'Roster';
+  String get teacherClassroomsRoster => 'Список учеников';
 
   @override
-  String get teacherClassroomsNoStudents =>
-      'No students are enrolled in this classroom yet.';
+  String get teacherClassroomsNoStudents => 'В этом классе пока нет учеников.';
 
   @override
   String get teacherAttendanceLoadError =>
-      'We could not load attendance right now. Pull to refresh or try again.';
+      'Не удалось загрузить посещаемость. Потяните для обновления.';
 
   @override
   String get teacherAttendanceLoadTimeout =>
-      'Attendance is taking too long to load. Pull to refresh or try again in a moment.';
+      'Загрузка посещаемости заняла слишком долго.';
 
   @override
-  String get teacherAttendanceLoadNetwork =>
-      'Attendance could not connect right now. Check your connection and try again.';
+  String get teacherAttendanceLoadNetwork => 'Нет подключения. Проверьте сеть.';
 
   @override
-  String get teacherAttendanceSubtitle =>
-      'Pick a live session, mark the room, and save only changed rows.';
+  String get teacherAttendanceSubtitle => 'Журнал посещаемости';
 
   @override
-  String get teacherAttendanceTodaySessions => 'Today sessions';
+  String get teacherAttendanceTodaySessions => 'Уроки сегодня';
 
   @override
   String teacherAttendanceSessionSummary(
@@ -493,99 +494,110 @@ class AppLocalizationsRu extends AppLocalizations {
     Object date,
     Object period,
   ) {
-    return '$cohort • Grade $grade • $date • Period $period';
+    return '$cohort · $grade класс · $date · Период $period';
   }
 
   @override
-  String get teacherAttendanceChanged => 'Changed';
+  String get teacherAttendanceChanged => 'Изменено';
 
   @override
-  String get teacherAttendanceNoteLabel => 'Note';
+  String get teacherAttendanceNoteLabel => 'Заметка';
 
   @override
-  String get teacherAttendanceSaving => 'Saving…';
+  String get teacherAttendanceClassNotesLabel => 'Заметки урока';
+
+  @override
+  String get teacherAttendanceClassNotesHint => 'Что прошли на этом уроке…';
+
+  @override
+  String get teacherAttendanceSaving => 'Сохранение…';
+
+  @override
+  String get teacherAttendanceSaveAll => 'Сохранить посещаемость';
 
   @override
   String teacherAttendanceSaveCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count changes',
-      one: '1 change',
-    );
-    return 'Save $_temp0';
+    return 'Сохранить $count записей';
   }
 
   @override
-  String get teacherAttendanceSaved => 'Attendance saved';
+  String get teacherAttendanceSaved => 'Посещаемость сохранена';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Повторить';
 
   @override
-  String get scheduleRefreshTooFast =>
-      'Schedule is refreshing too fast right now. Wait a moment and try again.';
+  String get scheduleRefreshTooFast => 'Слишком часто. Подождите.';
+
+  @override
+  String get scheduleSessionExpired =>
+      'Срок сессии истёк. Пожалуйста, войдите снова.';
 
   @override
   String get scheduleNotOnboarded =>
-      'Your student profile is not fully set up yet, so no schedule is available yet.';
+      'Профиль ученика ещё не настроен. Попросите администратора школы назначить вас в класс.';
 
   @override
-  String get scheduleLoadError => 'Could not load schedule yet.';
+  String get scheduleLoadError => 'Не удалось загрузить расписание';
 
   @override
-  String get scheduleSelectedDay => 'Selected day';
+  String get scheduleSelectedDay => 'Сегодня';
 
   @override
   String scheduleClassCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count classes',
-      one: '1 class',
-      zero: '0 classes',
+      other: '$count уроков',
+      few: '$count урока',
+      one: '1 урок',
     );
     return '$_temp0';
   }
 
   @override
-  String get scheduleNextUp => 'Next up';
+  String get scheduleNextUp => 'Следующий';
 
   @override
-  String get scheduleNoMoreClasses => 'No more classes';
+  String get scheduleNoMoreClasses => 'Уроков больше нет';
 
   @override
-  String get scheduleNoClassesTitle => 'No classes on this day';
+  String get scheduleNoClassesTitle => 'В этот день уроков нет';
 
   @override
   String scheduleNoClassesSubtitle(Object day) {
-    return '$day looks clear.';
+    return '$day свободен.';
   }
 
   @override
-  String get scheduleClassFallback => 'Class';
+  String get scheduleClassFallback => 'Урок';
 
   @override
   String get scheduleNoSubjectLocation => 'No subject or location yet';
 
   @override
-  String get loginTitle => 'Mobile login for students and teachers';
+  String get scheduleNotes => 'Notes';
 
   @override
-  String get loginSubtitle =>
-      'Teacher accounts open the teacher workspace. Student accounts stay on the student experience.';
+  String get scheduleGoToClassroom => 'Go to Classroom';
 
   @override
-  String get loginSignIn => 'Sign in';
+  String get loginTitle => 'Вход для учеников и учителей';
 
   @override
-  String get loginSigningIn => 'Signing in...';
+  String get loginSubtitle => 'Войдите, чтобы продолжить';
+
+  @override
+  String get loginSignIn => 'Войти';
+
+  @override
+  String get loginSigningIn => 'Вход…';
 
   @override
   String get loginEmailLabel => 'Email';
 
   @override
-  String get loginPasswordLabel => 'Password';
+  String get loginPasswordLabel => 'Пароль';
 
   @override
   String get profileNotAvailable => 'Недоступно';
@@ -612,7 +624,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileUsername => 'Имя пользователя';
 
   @override
-  String get profileUsernameHint => 'your_username';
+  String get profileUsernameHint => 'имя_пользователя';
 
   @override
   String get profileContactEmail => 'Контактный email';
@@ -621,7 +633,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileEmailAddress => 'Email адрес';
 
   @override
-  String get profileEmailHint => 'you@example.com';
+  String get profileEmailHint => 'вы@example.com';
 
   @override
   String get profileBirthday => 'Дата рождения';
@@ -677,497 +689,496 @@ class AppLocalizationsRu extends AppLocalizations {
       'Что-то пошло не так. Попробуйте ещё раз.';
 
   @override
-  String get editProfileTitle => 'Edit profile';
+  String get editProfileTitle => 'Редактировать профиль';
 
   @override
-  String get editProfileSchool => 'School';
+  String get editProfileSchool => 'Школа';
 
   @override
-  String get editProfileSchoolPublic => 'School public';
+  String get editProfileSchoolPublic => 'Школа видна всем';
 
   @override
-  String get editProfileGradePublic => 'Grade public';
+  String get editProfileGradePublic => 'Класс виден всем';
 
   @override
-  String get editProfileMajors => 'Majors';
+  String get editProfileMajors => 'Специализации';
 
   @override
-  String get editProfileMajorsPublic => 'Majors public';
+  String get editProfileMajorsPublic => 'Специализации видны всем';
 
   @override
-  String get editProfileBio => 'Bio';
+  String get editProfileBio => 'О себе';
 
   @override
-  String get editProfileBioPublic => 'Bio public';
+  String get editProfileBioPublic => 'Биография видна всем';
 
   @override
-  String get editProfileStatus => 'Status';
+  String get editProfileStatus => 'Статус';
 
   @override
-  String get editProfileStatusPublic => 'Status public';
+  String get editProfileStatusPublic => 'Статус виден всем';
 
   @override
-  String get classroomsYourClassrooms => 'Your classrooms';
+  String get classroomsYourClassrooms => 'Ваши классы';
 
   @override
-  String get classroomsReorder => 'Reorder classrooms';
+  String get classroomsReorder => 'Изменить порядок классов';
 
   @override
   String classroomsCount(Object count) {
-    return '$count classrooms';
+    return '$count классов';
   }
 
   @override
-  String get classroomsSearchHint => 'Search classrooms';
+  String get classroomsSearchHint => 'Поиск классов…';
 
   @override
-  String get classroomsNoSearchMatches => 'No classrooms match your search';
+  String get classroomsNoSearchMatches => 'Классы не найдены';
 
   @override
-  String get classroomsClassroomLabel => 'Classroom';
+  String get classroomsClassroomLabel => 'Класс';
 
   @override
-  String get classroomsLoadingLatestMessage => 'Loading latest message...';
+  String get classroomsLoadingLatestMessage => 'Загрузка последнего сообщения…';
 
   @override
-  String get classroomsTapToOpen => 'Tap to open classroom';
+  String get classroomsTapToOpen => 'Нажмите, чтобы открыть класс';
 
   @override
-  String get classroomsNoMessagesYet => 'No messages yet';
+  String get classroomsNoMessagesYet => 'Сообщений пока нет';
 
   @override
-  String get classroomsMessageFallback => 'Message';
+  String get classroomsMessageFallback => 'Сообщение';
 
   @override
-  String get examsLoadError => 'Could not load exams or forms';
+  String get examsLoadError => 'Не удалось загрузить экзамены';
 
   @override
-  String get examsAllFilter => 'All';
+  String get examsAllFilter => 'Все';
 
   @override
-  String get examsFormsSubtitle =>
-      'Review classroom forms, response windows, and follow-ups published by your school.';
+  String get examsFormsSubtitle => 'Формы и опросы';
 
   @override
-  String get examsOnlySubtitle =>
-      'Track upcoming assessments, countdowns, and past exam records from your classes.';
+  String get examsOnlySubtitle => 'Предстоящие и прошедшие экзамены';
 
   @override
-  String get examsUpcomingStat => 'Upcoming exams';
+  String get examsUpcomingStat => 'Предстоящих';
 
   @override
-  String get examsOpenFormsStat => 'Open forms';
+  String get examsOpenFormsStat => 'Открытых форм';
 
   @override
-  String get examsCountdownPast => 'Past';
+  String get examsCountdownPast => 'Прошёл';
 
   @override
-  String get examsCountdownTomorrow => 'Tomorrow';
+  String get examsCountdownTomorrow => 'Завтра';
 
   @override
   String examsCountdownInDays(Object days) {
-    return 'In $days days';
+    return 'Через $days дн.';
   }
 
   @override
-  String get examsNoExamsPublished => 'No exams have been published yet.';
+  String get examsNoExamsPublished => 'Экзаменов пока нет.';
 
   @override
-  String get examsNoFormsPublished => 'No forms have been published yet.';
+  String get examsNoFormsPublished => 'Форм пока нет.';
 
   @override
   String examsNoExamsForFilter(Object subject) {
-    return 'No exams are available for $subject right now.';
+    return 'Экзаменов по предмету «$subject» нет.';
   }
 
   @override
   String examsNoFormsForFilter(Object subject) {
-    return 'No forms are available for $subject right now.';
+    return 'Форм по предмету «$subject» нет.';
   }
 
   @override
   String examsMaterialsCount(Object count) {
-    return '$count materials';
+    return '$count материалов';
   }
 
   @override
-  String get examsOpenState => 'Open';
+  String get examsOpenState => 'Открыт';
 
   @override
-  String get examsClosedState => 'Closed';
+  String get examsClosedState => 'Закрыт';
 
   @override
   String examsQuestionsCount(Object count) {
-    return '$count questions';
+    return '$count вопросов';
   }
 
   @override
   String examsResponsesCount(Object count) {
-    return '$count responses';
+    return '$count ответов';
   }
 
   @override
-  String get insightsTrendBaseline => 'Baseline';
+  String get insightsTrendBaseline => 'Исходный уровень';
 
   @override
-  String get insightsTrendImproving => 'Improving';
+  String get insightsTrendImproving => 'Улучшается';
 
   @override
-  String get insightsTrendDropping => 'Dropping';
+  String get insightsTrendDropping => 'Падает';
 
   @override
-  String get insightsTrendStable => 'Stable';
+  String get insightsTrendStable => 'Стабильно';
 
   @override
-  String get insightsHeadlineIntervention => 'Intervention window is open';
+  String get insightsHeadlineIntervention => 'Время для вмешательства';
 
   @override
-  String get insightsHeadlineSignals => 'Several signals need tightening';
+  String get insightsHeadlineSignals => 'Несколько сигналов требуют внимания';
 
   @override
-  String get insightsHeadlineMomentum => 'Momentum can compound this week';
+  String get insightsHeadlineMomentum => 'Отличный момент для рывка';
 
   @override
   String get insightsBodyAttendance =>
-      'Protect attendance first. Better presence now will raise every other signal faster.';
+      'Сначала улучшите посещаемость — это быстро повлияет на все остальные показатели.';
 
   @override
   String insightsBodyWeakTrend(Object subject) {
-    return '$subject plus a falling practice trend is the biggest risk combo right now. Fix that before expanding.';
+    return '$subject и падающий тренд практики — главная зона риска. Начните с этого.';
   }
 
   @override
   String insightsBodyLeverage(Object subject) {
-    return '$subject is your leverage point. Use it to build confidence while you patch weaker areas.';
+    return '$subject — ваша точка опоры. Используйте его для уверенности.';
   }
 
   @override
   String get insightsBodyConsistency =>
-      'Keep stacking short focused sessions. The next few days matter more than a perfect long-term plan.';
+      'Продолжайте короткие фокусные сессии. Ближайшие дни важнее одной идеальной недели.';
 
   @override
-  String get insightsInterventionScoreTitle => 'Intervention score';
+  String get insightsInterventionScoreTitle => 'Оценка ситуации';
 
   @override
   String insightsInterventionScoreBody(Object count) {
-    return '$count active signals are shaping your next move.';
+    return '$count активных сигналов определяют следующий шаг.';
   }
 
   @override
-  String get insightsRecoveryPathTitle => 'Fastest recovery path';
+  String get insightsRecoveryPathTitle => 'Быстрый путь к восстановлению';
 
   @override
-  String get insightsRecoveryPathDefault => 'Attendance + consistency first.';
+  String get insightsRecoveryPathDefault =>
+      'Сначала посещаемость и стабильность.';
 
   @override
   String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'Revisit $topic in $subject before pushing harder.';
+    return 'Повторите тему $topic по предмету $subject.';
   }
 
   @override
-  String get insightsProjectedDirectionTitle => 'Projected direction';
+  String get insightsProjectedDirectionTitle => 'Прогноз';
 
   @override
   String insightsProjectedDirectionBody(Object trend) {
-    return '$trend based on recent 7d vs 30d practice behavior.';
+    return '$trend на основе последних 7 и 30 дней практики.';
   }
 
   @override
-  String get insightsLoadingTitle => 'Insights loading';
+  String get insightsLoadingTitle => 'Загрузка аналитики';
 
   @override
-  String get insightsLoadingSubtitle => 'Building your predictive dashboard.';
+  String get insightsLoadingSubtitle => 'Строим ваш предиктивный дашборд.';
 
   @override
-  String get insightsNotReadyTitle => 'Insights are not ready yet';
+  String get insightsNotReadyTitle => 'Аналитика ещё не готова';
 
   @override
-  String get insightsEmptyTitle => 'No insights yet';
+  String get insightsEmptyTitle => 'Аналитики пока нет';
 
   @override
   String get insightsEmptySubtitle =>
-      'Keep using practice and your school tools so ClassMate can build a clearer academic picture.';
+      'Используйте практику и школьные инструменты, чтобы ClassMate мог анализировать ваш прогресс.';
 
   @override
-  String get insightsGradeAverage => 'Grade avg';
+  String get insightsGradeAverage => 'Ср. балл';
 
   @override
-  String get insightsAccuracy => 'Accuracy';
+  String get insightsAccuracy => 'Точность';
 
   @override
-  String get insightsOpenNova => 'Open NOVA';
+  String get insightsOpenNova => 'Открыть NOVA';
 
   @override
   String get insightsOpenNovaPrompt =>
-      'Help me fix my weakest area based on my latest ClassMate insights.';
+      'Помоги мне улучшить слабую область на основе моей аналитики ClassMate.';
 
   @override
-  String get insightsPredictiveRecoveryPlanTitle => 'Predictive recovery plan';
+  String get insightsPredictiveRecoveryPlanTitle =>
+      'Предиктивный план восстановления';
 
   @override
-  String get insightsPracticeNow => 'Practice now';
+  String get insightsPracticeNow => 'Практиковать сейчас';
 
   @override
-  String get insightsPredictiveModulesTitle => 'Predictive modules';
+  String get insightsPredictiveModulesTitle => 'Предиктивный анализ';
 
   @override
-  String get insightsPredictiveModulesSubtitle =>
-      'The strongest forward-looking signals from your current student data.';
+  String get insightsPredictiveModulesSubtitle => 'Прогноз успеваемости';
 
   @override
-  String get insightsAnnouncementsPressureTitle => 'Announcements pressure';
+  String get insightsAnnouncementsPressureTitle => 'Нагрузка';
 
   @override
   String get insightsAnnouncementsPressureSubtitle =>
-      'The announcement engine is now feeding the dashboard directly.';
+      'Текущая учебная нагрузка';
 
   @override
-  String get insightsAiCoachTitle => 'AI coach summary';
+  String get insightsAiCoachTitle => 'Советы AI-наставника';
 
   @override
-  String get insightsAiCoachLoadingSubtitle => 'Loading AI guidance.';
+  String get insightsAiCoachLoadingSubtitle => 'Загрузка советов AI.';
 
   @override
   String get insightsAiCoachUnavailableSubtitle =>
-      'AI guidance is unavailable for this account right now.';
+      'AI-советы для этого аккаунта пока недоступны.';
 
   @override
-  String get insightsAskNova => 'Ask NOVA';
+  String get insightsAskNova => 'Спросить NOVA';
 
   @override
   String get insightsAskNovaPrompt =>
-      'Build me a recovery plan from my latest insights.';
+      'Составь мне план восстановления на основе моей аналитики.';
 
   @override
-  String get insightsAiStudyCoachTitle => 'AI study coach';
+  String get insightsAiStudyCoachTitle => 'AI-наставник';
 
   @override
-  String get insightsSchoolToolsTitle => 'School tools';
+  String get insightsSchoolToolsTitle => 'Школьные инструменты';
 
   @override
   String get insightsSchoolToolsSubtitle =>
-      'Jump directly into the student routes that now matter most.';
+      'Перейдите напрямую к важным разделам.';
 
   @override
-  String get tutorUntitledChat => 'Untitled chat';
+  String get tutorUntitledChat => 'Чат без названия';
 
   @override
-  String get tutorNewChat => 'New chat';
+  String get tutorNewChat => 'Новый чат';
 
   @override
   String tutorFailedToOpenSeededChat(Object error) {
-    return 'Failed to open chat: $error';
+    return 'Не удалось открыть чат: $error';
   }
 
   @override
   String tutorFailedToCreateChat(Object error) {
-    return 'Failed to create chat: $error';
+    return 'Не удалось создать чат: $error';
   }
 
   @override
-  String get tutorRenameChatTitle => 'Rename chat';
+  String get tutorRenameChatTitle => 'Переименовать чат';
 
   @override
-  String get tutorChatNameHint => 'Chat name';
+  String get tutorChatNameHint => 'Название чата';
 
   @override
-  String get tutorCancel => 'Cancel';
+  String get tutorCancel => 'Отмена';
 
   @override
-  String get tutorHide => 'Hide';
+  String get tutorHide => 'Скрыть';
 
   @override
-  String get tutorHideChatTitle => 'Hide chat';
+  String get tutorHideChatTitle => 'Скрыть чат';
 
   @override
-  String get tutorHideChatSubtitle => 'Hides this chat on this device.';
+  String get tutorHideChatSubtitle => 'Скрывает этот чат на устройстве.';
 
   @override
-  String get tutorHideChatConfirmTitle => 'Hide chat?';
+  String get tutorHideChatConfirmTitle => 'Скрыть чат?';
 
   @override
   String get tutorHideChatConfirmBody =>
-      'This hides the chat from the list on this device. The session stays on the backend.';
+      'Чат исчезнет из списка на этом устройстве, но останется на сервере.';
 
   @override
-  String get tutorTapToOpenHistory => 'Tap to open history';
+  String get tutorTapToOpenHistory => 'Нажмите для просмотра истории';
 
   @override
-  String get tutorAiTutorSubtitle => 'Your AI tutor';
+  String get tutorAiTutorSubtitle => 'Ваш персональный AI-репетитор';
 
   @override
-  String get tutorHeroBody =>
-      'Real chat history, cleaner threads, faster access.';
+  String get tutorHeroBody => 'История чатов, удобные темы, быстрый доступ.';
 
   @override
-  String get tutorStartFreshConversation => 'Start a fresh conversation';
+  String get tutorStartFreshConversation => 'Начать новый разговор';
 
   @override
-  String get tutorSearchHistoryHint => 'Search chat history';
+  String get tutorSearchHistoryHint => 'Поиск в истории чатов';
 
   @override
-  String get chatComposerDefaultHint => 'Message';
+  String get chatComposerDefaultHint => 'Написать сообщение…';
 
   @override
-  String get chatComposerReplyingToMessage => 'Replying to message';
+  String get chatComposerReplyingToMessage => 'Ответ на сообщение';
 
   @override
-  String get chatComposerReplyFallback => 'Reply';
+  String get chatComposerReplyFallback => 'Ответить';
 
   @override
   String get chatComposerMicHint =>
-      'Tap for a quick voice note or hold to record';
+      'Нажмите для голосовой заметки или удержите для записи';
 
   @override
-  String get chatComposerRecordingTitle => 'Recording';
+  String get chatComposerRecordingTitle => 'Запись';
 
   @override
-  String get chatComposerReleaseToSend => 'Let go to send';
+  String get chatComposerReleaseToSend => 'Отпустите для отправки';
 
   @override
-  String get chatComposerCancelTitle => 'Cancel';
+  String get chatComposerCancelTitle => 'Отмена';
 
   @override
-  String get chatComposerLockTitle => 'Lock';
+  String get chatComposerLockTitle => 'Блокировка';
 
   @override
-  String get chatComposerSlideLeftToCancel => 'Slide left to cancel';
+  String get chatComposerSlideLeftToCancel => 'Смахните влево для отмены';
 
   @override
-  String get chatComposerSlideUpToLock => 'Slide up to lock';
+  String get chatComposerSlideUpToLock => 'Смахните вверх для блокировки';
 
   @override
-  String get chatComposerReleaseToCancel => 'Release to cancel';
+  String get chatComposerReleaseToCancel => 'Отпустите для отмены';
 
   @override
-  String get chatComposerKeepSlidingToCancel => 'Keep sliding to cancel';
+  String get chatComposerKeepSlidingToCancel =>
+      'Продолжайте смахивать для отмены';
 
   @override
-  String get chatComposerReleaseToLock => 'Release to lock';
+  String get chatComposerReleaseToLock => 'Отпустите для блокировки';
 
   @override
-  String get chatComposerRelease => 'Release';
+  String get chatComposerRelease => 'Отпустить';
 
   @override
-  String get chatComposerLock => 'Lock';
+  String get chatComposerLock => 'Заблокировать';
 
   @override
-  String get chatComposerRecordingPaused => 'Recording paused';
+  String get chatComposerRecordingPaused => 'Запись на паузе';
 
   @override
-  String get chatComposerRecordingLocked => 'Recording locked';
+  String get chatComposerRecordingLocked => 'Запись заблокирована';
 
   @override
   String get chatComposerResumeHint =>
-      'Resume when you are ready to keep recording';
+      'Нажмите продолжить, когда будете готовы';
 
   @override
-  String get chatComposerLockedHint => 'Tap send when you are ready to share';
+  String get chatComposerLockedHint => 'Нажмите отправить, когда будете готовы';
 
   @override
-  String get chatContextDismiss => 'Dismiss';
+  String get chatContextDismiss => 'Закрыть';
 
   @override
-  String get chatContextCopyText => 'Copy text';
+  String get chatContextCopyText => 'Копировать текст';
 
   @override
-  String get chatContextDelete => 'Delete';
+  String get chatContextDelete => 'Удалить';
 
   @override
-  String get chatMessageInfoShortTitle => 'Info';
+  String get chatMessageInfoShortTitle => 'Инфо';
 
   @override
-  String get chatMessageInfoStatus => 'Status';
+  String get chatMessageInfoStatus => 'Статус';
 
   @override
-  String get chatMessageInfoStatusTime => 'Status time';
+  String get chatMessageInfoStatusTime => 'Время статуса';
 
   @override
-  String get chatMessageInfoSentAt => 'Sent at';
+  String get chatMessageInfoSentAt => 'Отправлено';
 
   @override
-  String get chatMessageInfoDeliveredAt => 'Delivered at';
+  String get chatMessageInfoDeliveredAt => 'Доставлено в';
 
   @override
-  String get chatMessageInfoSeenAt => 'Seen at';
+  String get chatMessageInfoSeenAt => 'Прочитано в';
 
   @override
-  String get chatMessageInfoMessageType => 'Message type';
+  String get chatMessageInfoMessageType => 'Тип сообщения';
 
   @override
-  String get chatMessageInfoTextType => 'Text';
+  String get chatMessageInfoTextType => 'Текст';
 
   @override
-  String get chatMessageInfoEdited => 'Edited';
+  String get chatMessageInfoEdited => 'Изменено';
 
   @override
-  String get chatMessageInfoForwarded => 'Forwarded';
+  String get chatMessageInfoForwarded => 'Переслано';
 
   @override
-  String get chatMessageInfoVoiceDuration => 'Voice duration';
+  String get chatMessageInfoVoiceDuration => 'Длина голосового';
 
   @override
-  String get chatMessageInfoSeenBy => 'Seen by';
+  String get chatMessageInfoSeenBy => 'Прочитано';
 
   @override
-  String get chatMessageInfoDeliveredTo => 'Delivered to';
+  String get chatMessageInfoDeliveredTo => 'Доставлено';
 
   @override
-  String get chatMessageInfoEmptyBody => '(empty)';
+  String get chatMessageInfoEmptyBody => '(пусто)';
 
   @override
-  String get chatMessageInfoReadLess => 'Read less';
+  String get chatMessageInfoReadLess => 'Свернуть';
 
   @override
-  String get chatMessageInfoReadMore => 'Read more';
+  String get chatMessageInfoReadMore => 'Развернуть';
 
   @override
-  String get chatMessageInfoSeen => 'Seen';
+  String get chatMessageInfoSeen => 'Прочитано';
 
   @override
-  String get chatMessageInfoDelivered => 'Delivered';
+  String get chatMessageInfoDelivered => 'Доставлено';
 
   @override
-  String get chatMessageInfoNotDelivered => 'Not delivered';
+  String get chatMessageInfoNotDelivered => 'Не доставлено';
 
   @override
-  String get chatMessageInfoSent => 'Sent';
+  String get chatMessageInfoSent => 'Отправлено';
 
   @override
-  String get chatMessageInfoPending => 'Pending';
+  String get chatMessageInfoPending => 'Ожидание';
 
   @override
-  String get chatMessageInfoNotSeen => 'Not seen';
+  String get chatMessageInfoNotSeen => 'Не прочитано';
 
   @override
-  String get chatMessageInfoType => 'Type';
+  String get chatMessageInfoType => 'Тип';
 
   @override
-  String get chatMessageInfoDuration => 'Duration';
+  String get chatMessageInfoDuration => 'Длительность';
 
   @override
-  String get chatMessageInfoYes => 'Yes';
+  String get chatMessageInfoYes => 'Да';
 
   @override
-  String get chatMessageInfoNo => 'No';
+  String get chatMessageInfoNo => 'Нет';
 
   @override
-  String get chatMessageInfoDeleteState => 'Delete state';
+  String get chatMessageInfoDeleteState => 'Состояние удаления';
 
   @override
-  String get chatReactionDetailsTitle => 'Reactions';
+  String get chatReactionDetailsTitle => 'Реакции';
 
   @override
-  String get chatReactionAddAction => 'Add reaction';
+  String get chatReactionAddAction => 'Добавить реакцию';
 
   @override
-  String get chatReactionEmptyState => 'No reactions yet';
+  String get chatReactionEmptyState => 'Реакций пока нет';
 
   @override
-  String get chatReactionSingle => 'Reaction';
+  String get chatReactionSingle => 'Реакция';
 
   @override
-  String get chatReactionTapToRemove => 'Tap to remove';
+  String get chatReactionTapToRemove => 'Нажмите для удаления';
 
   @override
   String chatReactionYouCount(int count) {
@@ -1177,7 +1188,7 @@ class AppLocalizationsRu extends AppLocalizations {
       other: ' · $count',
       one: '',
     );
-    return 'You$_temp0';
+    return 'Вы$_temp0';
   }
 
   @override
@@ -1185,107 +1196,107 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count reactions',
-      one: 'Reaction',
+      other: '$count реакции',
+      one: 'Реакция',
     );
     return '$_temp0';
   }
 
   @override
-  String get chatEmojiPickerTitle => 'Choose emoji';
+  String get chatEmojiPickerTitle => 'Эмодзи';
 
   @override
-  String get chatEmojiPickerSearchHint => 'Search emoji';
+  String get chatEmojiPickerSearchHint => 'Поиск эмодзи';
 
   @override
-  String get chatEmojiPickerEmptyState => 'No emoji found';
+  String get chatEmojiPickerEmptyState => 'Эмодзи не найдены';
 
   @override
-  String get chatCameraTitle => 'Camera';
+  String get chatCameraTitle => 'Камера';
 
   @override
-  String get chatCameraUseAction => 'Use';
+  String get chatCameraUseAction => 'Использовать';
 
   @override
-  String get chatCameraGalleryAction => 'Gallery';
+  String get chatCameraGalleryAction => 'Галерея';
 
   @override
   String chatCameraSelectedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count selected',
-      one: '1 selected',
-      zero: '0 selected',
+      other: '$count выбрано',
+      one: '1 выбрано',
+      zero: '0 выбрано',
     );
     return '$_temp0';
   }
 
   @override
-  String get chatMediaPreviewEmptyState => 'Nothing to preview';
+  String get chatMediaPreviewEmptyState => 'Нечего показывать';
 
   @override
-  String get chatMediaPreviewDrawCropAction => 'Draw & Crop';
+  String get chatMediaPreviewDrawCropAction => 'Рисовать и обрезать';
 
   @override
-  String get chatMediaPreviewRotateLeftAction => 'Rotate left';
+  String get chatMediaPreviewRotateLeftAction => 'Повернуть влево';
 
   @override
-  String get chatMediaPreviewRotateRightAction => 'Rotate right';
+  String get chatMediaPreviewRotateRightAction => 'Повернуть вправо';
 
   @override
-  String get chatMediaPreviewMirrorAction => 'Mirror';
+  String get chatMediaPreviewMirrorAction => 'Отразить';
 
   @override
-  String get chatMediaPreviewResetAction => 'Reset';
+  String get chatMediaPreviewResetAction => 'Сбросить';
 
   @override
-  String get chatMediaPreviewRemoveAction => 'Remove';
+  String get chatMediaPreviewRemoveAction => 'Удалить';
 
   @override
-  String get chatMediaPreviewCaptionHint => 'Add a caption...';
+  String get chatMediaPreviewCaptionHint => 'Добавить подпись…';
 
   @override
   String tutorPlanSelectedPlaceholder(Object plan) {
-    return '$plan selected. Payments stay in placeholder mode for now.';
+    return '$plan выбран. Оплата пока в тестовом режиме.';
   }
 
   @override
-  String get tutorFailedToLoadChats => 'Failed to load chats';
+  String get tutorFailedToLoadChats => 'Не удалось загрузить чаты';
 
   @override
-  String get tutorNoChatsYet => 'No chats yet';
+  String get tutorNoChatsYet => 'Чатов пока нет';
 
   @override
-  String get tutorNoChatsMatchSearch => 'No chats match your search';
+  String get tutorNoChatsMatchSearch => 'Чаты не найдены';
 
   @override
-  String get tutorCreateFirstChat => 'Create first chat';
+  String get tutorCreateFirstChat => 'Создать первый чат';
 
   @override
-  String get tutorPlansTitle => 'NOVA plans';
+  String get tutorPlansTitle => 'Планы NOVA';
 
   @override
   String tutorPlansSubtitle(Object model) {
-    return 'Based on $model cost assumptions and hard monthly caps so usage stays profitable.';
+    return 'На основе стоимости $model с ежемесячными лимитами.';
   }
 
   @override
-  String get tutorPlanPriceFree => 'Free';
+  String get tutorPlanPriceFree => 'Бесплатно';
 
   @override
   String tutorPlanPriceMonthly(Object price) {
-    return '\$$price/mo';
+    return '$price\$/мес';
   }
 
   @override
-  String get tutorPromptsLeft => 'Prompts left';
+  String get tutorPromptsLeft => 'Запросов осталось';
 
   @override
-  String get tutorUploadsLeft => 'Uploads left';
+  String get tutorUploadsLeft => 'Загрузок осталось';
 
   @override
-  String get tutorVoiceLeft => 'Voice left';
+  String get tutorVoiceLeft => 'Осталось голосовых';
 
   @override
   String tutorUsageValue(Object remaining, Object total) {
@@ -1294,176 +1305,172 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total min';
+    return '$remaining/$total мин';
   }
 
   @override
-  String get tutorPaymentMethodsTitle => 'Payment methods';
+  String get tutorPaymentMethodsTitle => 'Способы оплаты';
 
   @override
   String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'Checkout is placeholder-only until the ClassMate bank account and processor are live. The selected plan is $plan.';
+    return 'Оплата в тестовом режиме. Тариф: $plan.';
   }
 
   @override
-  String get tutorCardCheckoutTitle => 'Card checkout';
+  String get tutorCardCheckoutTitle => 'Карта';
 
   @override
   String get tutorCardCheckoutSubtitle =>
-      'Visa, Mastercard, AmEx placeholder gateway.';
+      'Visa, Mastercard, AmEx — тестовый шлюз.';
 
   @override
   String get tutorApplePayTitle => 'Apple Pay';
 
   @override
-  String get tutorApplePaySubtitle =>
-      'Placeholder wallet flow for iPhone and web.';
+  String get tutorApplePaySubtitle => 'Тестовый кошелёк для iPhone и веба.';
 
   @override
-  String get tutorBankTransferTitle => 'Bank transfer';
+  String get tutorBankTransferTitle => 'Банковский перевод';
 
   @override
   String get tutorBankTransferSubtitle =>
-      'ClassMate bank account pending. Details will be filled once opened.';
+      'Банковский счёт ClassMate открывается. Реквизиты появятся позже.';
 
   @override
   String get tutorPlanStarterName => 'Starter';
 
   @override
-  String get tutorPlanStarterTagline =>
-      'Enough for trial and light weekly revision.';
+  String get tutorPlanStarterTagline => 'Начните работу с AI-репетитором';
 
   @override
   String get tutorPlanPlusName => 'Plus';
 
   @override
-  String get tutorPlanPlusTagline =>
-      'Best for one serious student using NOVA most days.';
+  String get tutorPlanPlusTagline => 'Расширенные возможности NOVA';
 
   @override
   String get tutorPlanProName => 'Pro';
 
   @override
-  String get tutorPlanProTagline =>
-      'Heavy daily use, full exam season, and long study sessions.';
+  String get tutorPlanProTagline => 'Максимальные возможности NOVA';
 
   @override
-  String get tutorPlanSchoolSeatName => 'School Seat';
+  String get tutorPlanSchoolSeatName => 'Школьное место';
 
   @override
   String get tutorPlanSchoolSeatTagline =>
-      'For rollout per student or staff seat inside a real school.';
+      'Для школ — оплата за ученика или сотрудника.';
 
   @override
   String tutorPlanBulletPromptsMonthly(Object count) {
-    return '$count NOVA prompts each month';
+    return '$count запросов NOVA в месяц';
   }
 
   @override
   String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return '$count NOVA prompts per seat monthly';
+    return '$count запросов NOVA на место в месяц';
   }
 
   @override
   String tutorPlanBulletUploads(Object count) {
-    return '$count image or file uploads';
+    return '$count загрузок изображений или файлов';
   }
 
   @override
   String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count voice transcription minutes';
+    return '$count минут голосовой транскрипции';
   }
 
   @override
   String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'Estimated cost ceiling: \$$cost/mo';
+    return 'Оценочный потолок затрат: $cost\$/мес';
   }
 
   @override
   String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'Estimated cost ceiling: \$$cost/mo • margin $margin%';
+    return 'Оценочный потолок затрат: $cost\$/мес · маржа $margin%';
   }
 
   @override
   String tutorTimeMinutesShort(Object count) {
-    return '${count}m';
+    return '$countм';
   }
 
   @override
   String tutorTimeHoursShort(Object count) {
-    return '${count}h';
+    return '$countч';
   }
 
   @override
-  String get tutorVoiceMessageFallback => 'Voice message';
+  String get tutorVoiceMessageFallback => 'Голосовое сообщение';
 
   @override
-  String get tutorFileFallback => 'File';
+  String get tutorFileFallback => 'Файл';
 
   @override
-  String get tutorCopy => 'Copy';
+  String get tutorCopy => 'Копировать';
 
   @override
-  String get tutorEditMessage => 'Edit message';
+  String get tutorEditMessage => 'Редактировать';
 
   @override
-  String get tutorCopied => 'Copied';
+  String get tutorCopied => 'Скопировано';
 
   @override
-  String get tutorLoadedIntoComposer => 'Loaded into composer';
+  String get tutorLoadedIntoComposer => 'Загружено в поле ввода';
 
   @override
-  String get tutorTakePhoto => 'Take photo';
+  String get tutorTakePhoto => 'Сделать фото';
 
   @override
-  String get tutorRecordVideo => 'Record video';
+  String get tutorRecordVideo => 'Записать видео';
 
   @override
-  String get tutorChooseFromGallery => 'Choose from gallery';
+  String get tutorChooseFromGallery => 'Выбрать из галереи';
 
   @override
-  String get tutorPreviewTitle => 'Preview';
+  String get tutorPreviewTitle => 'Предпросмотр';
 
   @override
-  String get tutorThinking => 'Thinking...';
+  String get tutorThinking => 'Думаю…';
 
   @override
-  String get tutorDone => 'Done.';
+  String get tutorDone => 'Готово.';
 
   @override
-  String get tutorFailedToStreamReply => 'Failed to stream reply';
+  String get tutorFailedToStreamReply => 'Ошибка получения ответа';
 
   @override
   String get tutorUnsupportedFilesMessage =>
-      'NOVA supports images, documents, and text. Video and audio files are not supported here.';
+      'NOVA поддерживает изображения, документы и текст. Видео и аудио не поддерживаются.';
 
   @override
-  String get tutorNoAudioCaptured => 'No audio captured.';
+  String get tutorNoAudioCaptured => 'Аудио не записано.';
 
   @override
-  String get tutorVoiceLimitReachedTitle => 'Voice limit reached';
+  String get tutorVoiceLimitReachedTitle => 'Голосовой лимит исчерпан';
 
   @override
   String get tutorVoiceLimitReachedMessage =>
-      'Your current NOVA plan does not have enough voice minutes left for this transcription cycle.';
+      'В вашем плане NOVA не хватает голосовых минут для этой транскрипции.';
 
   @override
   String get tutorTranscriptionFailed =>
-      'Transcription failed. Please try again.';
+      'Транскрипция не удалась. Попробуйте ещё раз.';
 
   @override
   String get tutorMicrophonePermissionRequired =>
-      'Microphone permission is required.';
+      'Требуется доступ к микрофону.';
 
   @override
-  String get tutorPlanLimitReachedTitle => 'NOVA plan limit reached';
+  String get tutorPlanLimitReachedTitle => 'Лимит плана NOVA исчерпан';
 
   @override
   String get tutorPlanLimitReachedMessage =>
-      'This month\'s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.';
+      'Лимит запросов или загрузок на этот месяц исчерпан.';
 
   @override
-  String get tutorSendFailed => 'Send failed.';
+  String get tutorSendFailed => 'Ошибка отправки.';
 
   @override
   String tutorCurrentPlanUsageSummary(
@@ -1472,263 +1479,266 @@ class AppLocalizationsRu extends AppLocalizations {
     Object uploads,
     Object voice,
   ) {
-    return 'Current plan: $plan • $prompts prompts left • $uploads uploads left • $voice voice minutes left';
+    return 'План: $plan · $prompts запросов · $uploads загрузок · $voice';
   }
 
   @override
-  String get tutorReviewPlansInHome => 'Review plans in NOVA home';
+  String get tutorReviewPlansInHome => 'Просмотреть планы в NOVA';
 
   @override
-  String get tutorCouldNotOpenAttachment => 'Could not open attachment.';
+  String get tutorCouldNotOpenAttachment => 'Не удалось открыть вложение.';
 
   @override
-  String get tutorAttachmentUnavailable => 'Attachment unavailable.';
+  String get tutorAttachmentUnavailable => 'Вложение недоступно.';
 
   @override
-  String get tutorImageUnavailable => 'Image unavailable';
+  String get tutorImageUnavailable => 'Изображение недоступно';
 
   @override
-  String get tutorYou => 'You';
+  String get tutorYou => 'Вы';
 
   @override
-  String get tutorRegenerate => 'Regenerate';
+  String get tutorRegenerate => 'Повторить';
 
   @override
-  String get tutorEmptyStateTitle => 'Start with a real question';
+  String get tutorEmptyStateTitle => 'Задайте вопрос';
 
   @override
   String get tutorEmptyStateBody =>
-      'Ask NOVA to explain a concept, turn notes into a table, compare ideas, or help you revise from an uploaded file.';
+      'Попросите NOVA объяснить концепцию, сделать таблицу или помочь с подготовкой.';
 
   @override
-  String get tutorPromptSuggestionSummarizeNotes => 'Summarize my lesson notes';
+  String get tutorPromptSuggestionSummarizeNotes =>
+      'Суммируй мои заметки к уроку';
 
   @override
-  String get tutorPromptSuggestionRevisionTable => 'Make a revision table';
+  String get tutorPromptSuggestionRevisionTable =>
+      'Сделай таблицу для повторения';
 
   @override
-  String get tutorPromptSuggestionQuizMe => 'Quiz me on this topic';
+  String get tutorPromptSuggestionQuizMe => 'Проверь меня по этой теме';
 
   @override
-  String get tutorMessageNovaHint => 'Message NOVA';
+  String get tutorMessageNovaHint => 'Напишите NOVA…';
 
   @override
   String get tutorHeaderSubtitleReady =>
-      'Structured answers, tables, and study help';
+      'Структурированные ответы, таблицы и помощь в учёбе';
 
   @override
-  String get tutorYourNovaPlanTitle => 'Your NOVA plan';
+  String get tutorYourNovaPlanTitle => 'Ваш план NOVA';
 
   @override
   String get tutorYourNovaPlanMessage =>
-      'Review prompt, upload, and voice limits here, then jump back to NOVA home if you want to switch plans.';
+      'Просмотрите лимиты запросов, загрузок и голоса, затем вернитесь в NOVA.';
 
   @override
-  String get tutorExplainTitle => 'NOVA Explain';
+  String get tutorExplainTitle => 'NOVA Объясняет';
 
   @override
-  String get classroomsThreadTypeClassroom => 'Classroom';
+  String get classroomsThreadTypeClassroom => 'Класс';
 
   @override
-  String get classroomsThreadTypeGroup => 'Group';
+  String get classroomsThreadTypeGroup => 'Группа';
 
   @override
-  String get classroomsThreadTypeDirectMessage => 'Direct message';
+  String get classroomsThreadTypeDirectMessage => 'Личное сообщение';
 
   @override
   String get classroomsThreadTypeDirectMessageShort => 'DM';
 
   @override
-  String get messagesBlockedPeopleTitle => 'Blocked people';
+  String get messagesBlockedPeopleTitle => 'Заблокированные';
 
   @override
-  String get messagesStartChatAction => 'Start chat';
+  String get messagesStartChatAction => 'Начать чат';
 
   @override
   String messagesLoadFailed(Object error) {
-    return 'Failed to load messages: $error';
+    return 'Не удалось загрузить сообщения: $error';
   }
 
   @override
-  String get messagesSearchHint => 'Search messages';
+  String get messagesSearchHint => 'Поиск сообщений…';
 
   @override
-  String get messagesNoResults => 'No messages found';
+  String get messagesNoResults => 'Сообщений не найдено';
 
   @override
-  String get messagesRequestsSection => 'Requests';
+  String get messagesRequestsSection => 'Запросы';
 
   @override
-  String get messagesPendingApprovals => 'Pending approvals';
+  String get messagesPendingApprovals => 'Ожидают подтверждения';
 
   @override
-  String get messagesChatsSection => 'Chats';
+  String get messagesChatsSection => 'Чаты';
 
   @override
-  String get messagesAllChatsSection => 'All chats';
+  String get messagesAllChatsSection => 'Все чаты';
 
   @override
   String messagesConversationCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count conversations',
-      one: '1 conversation',
+      other: '$count разговоров',
+      few: '$count разговора',
+      one: '1 разговор',
     );
     return '$_temp0';
   }
 
   @override
-  String get messagesRequestReviewStatus => 'Review';
+  String get messagesRequestReviewStatus => 'Рассмотреть';
 
   @override
   String messagesPeopleLoadFailed(Object error) {
-    return 'Failed to load people: $error';
+    return 'Не удалось загрузить людей: $error';
   }
 
   @override
-  String get messagesSearchPeopleHint => 'Search people';
+  String get messagesSearchPeopleHint => 'Поиск людей';
 
   @override
-  String get messagesNewGroupTitle => 'New group';
+  String get messagesNewGroupTitle => 'Новая группа';
 
   @override
-  String get messagesNewGroupSubtitle => 'Create a group chat';
+  String get messagesNewGroupSubtitle => 'Создать групповой чат';
 
   @override
-  String get messagesGroupNameHint => 'Group name';
+  String get messagesGroupNameHint => 'Название группы';
 
   @override
-  String get messagesCreateGroupAction => 'Create group';
+  String get messagesCreateGroupAction => 'Создать группу';
 
   @override
-  String get messagesBlockedPersonFallback => 'this person';
+  String get messagesBlockedPersonFallback => 'этого пользователя';
 
   @override
-  String get messagesUnblockPersonTitle => 'Unblock person?';
+  String get messagesUnblockPersonTitle => 'Разблокировать?';
 
   @override
   String messagesUnblockPersonBody(Object name) {
-    return 'Allow $name to message you again?';
+    return 'Разрешить $name писать вам снова?';
   }
 
   @override
-  String get messagesUnblockAction => 'Unblock';
+  String get messagesUnblockAction => 'Разблокировать';
 
   @override
   String messagesUnblockedToast(Object name) {
-    return '$name unblocked';
+    return '$name разблокирован';
   }
 
   @override
   String messagesBlockedPeopleLoadFailed(Object error) {
-    return 'Failed to load blocked people: $error';
+    return 'Не удалось загрузить заблокированных: $error';
   }
 
   @override
-  String get messagesNoBlockedPeople => 'No blocked people';
+  String get messagesNoBlockedPeople => 'Заблокированных нет';
 
   @override
-  String get messagesUnknownUser => 'Unknown user';
+  String get messagesUnknownUser => 'Неизвестный пользователь';
 
   @override
-  String get messagesRequestTitle => 'Request';
+  String get messagesRequestTitle => 'Запрос сообщения';
 
   @override
   String messagesRequestLoadFailed(Object error) {
-    return 'Failed to load request: $error';
+    return 'Не удалось загрузить запрос: $error';
   }
 
   @override
-  String get messagesRequestBannerIncoming => 'Message request';
+  String get messagesRequestBannerIncoming => 'Запрос на сообщение';
 
   @override
-  String get messagesRequestBannerOutgoing => 'Pending approval';
+  String get messagesRequestBannerOutgoing => 'Ожидает подтверждения';
 
   @override
-  String get messagesBlockAction => 'Block';
+  String get messagesBlockAction => 'Заблокировать';
 
   @override
-  String get messagesApproveAction => 'Approve';
+  String get messagesApproveAction => 'Одобрить';
 
   @override
   String get messagesRequestUnlockHint =>
-      'The chat unlocks after the receiver approves your first message.';
+      'Чат откроется, когда получатель одобрит ваше первое сообщение.';
 
   @override
-  String get messagesThreadConversationFallback => 'Conversation';
+  String get messagesThreadConversationFallback => 'Разговор';
 
   @override
-  String get messagesThreadLeaveGroupTitle => 'Leave group?';
+  String get messagesThreadLeaveGroupTitle => 'Покинуть группу?';
 
   @override
   String get messagesThreadLeaveGroupBody =>
-      'You will stop receiving messages from this group.';
+      'Вы перестанете получать сообщения из этой группы.';
 
   @override
-  String get messagesThreadBlockPersonTitle => 'Block person?';
+  String get messagesThreadBlockPersonTitle => 'Заблокировать пользователя?';
 
   @override
   String get messagesThreadBlockPersonBody =>
-      'You will no longer be able to exchange messages with this person.';
+      'Вы больше не сможете обмениваться сообщениями с этим пользователем.';
 
   @override
-  String get messagesThreadPersonFallback => 'Person';
+  String get messagesThreadPersonFallback => 'Пользователь';
 
   @override
-  String get messagesThreadProfileInfoUnavailable => 'Profile info unavailable';
+  String get messagesThreadProfileInfoUnavailable => 'Профиль недоступен';
 
   @override
-  String get messagesThreadParticipants => 'Participants';
+  String get messagesThreadParticipants => 'Участники';
 
   @override
-  String get messagesThreadPeople => 'People';
+  String get messagesThreadPeople => 'Люди';
 
   @override
-  String get messagesThreadDeleteForMe => 'Delete for me';
+  String get messagesThreadDeleteForMe => 'Удалить для меня';
 
   @override
-  String get messagesThreadDeleteForEveryone => 'Delete for everyone';
+  String get messagesThreadDeleteForEveryone => 'Удалить для всех';
 
   @override
   String get messagesThreadDeleteForEveryoneSubtitle =>
-      'Removes for all participants';
+      'Удаляет для всех участников';
 
   @override
-  String get messagesThreadSending => 'Sending…';
+  String get messagesThreadSending => 'Отправка…';
 
   @override
-  String get messagesThreadWaitingForApproval => 'Waiting for approval';
+  String get messagesThreadWaitingForApproval => 'Ожидает подтверждения';
 
   @override
-  String get classroomsForwardSearchHint => 'Search chats';
+  String get classroomsForwardSearchHint => 'Поиск классов или чатов…';
 
   @override
-  String get classroomsForwardNewChat => 'New chat';
+  String get classroomsForwardNewChat => 'Новый чат';
 
   @override
   String classroomsForwardLoadError(Object error) {
-    return 'Failed to load chats: $error';
+    return 'Не удалось загрузить чаты: $error';
   }
 
   @override
-  String get classroomsForwardNoChatsFound => 'No chats found';
+  String get classroomsForwardNoChatsFound => 'Чаты не найдены';
 
   @override
-  String get classroomsForwardSectionClassrooms => 'Classrooms';
+  String get classroomsForwardSectionClassrooms => 'Классы';
 
   @override
-  String get classroomsForwardSectionDirectMessages => 'Direct messages';
+  String get classroomsForwardSectionDirectMessages => 'Личные сообщения';
 
   @override
-  String get classroomsForwardCancel => 'Cancel';
+  String get classroomsForwardCancel => 'Отмена';
 
   @override
-  String get classroomsForwardAction => 'Forward';
+  String get classroomsForwardAction => 'Переслать';
 
   @override
   String classroomsForwardCount(Object count) {
-    return 'Forward ($count)';
+    return 'Переслать ($count)';
   }
 
   @override
@@ -1839,86 +1849,82 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notificationsSeverityInfo => 'Инфо';
 
   @override
-  String get announcementsLoadError =>
-      'We could not load announcements right now. Pull to refresh or try again.';
+  String get announcementsLoadError => 'Не удалось загрузить объявления';
 
   @override
-  String get announcementsLoadTimeout =>
-      'Announcements are taking too long to load. Pull to refresh or try again in a moment.';
+  String get announcementsLoadTimeout => 'Превышено время ожидания';
 
   @override
-  String get announcementsLoadNetwork =>
-      'Announcements could not connect right now. Check your connection and try again.';
+  String get announcementsLoadNetwork => 'Нет подключения';
 
   @override
-  String get announcementsAudienceTeacher => 'teacher';
+  String get announcementsAudienceTeacher => 'Учитель';
 
   @override
-  String get announcementsAudienceAccount => 'account';
+  String get announcementsAudienceAccount => 'Аккаунт';
 
   @override
-  String get announcementsAudienceTeacherWorkspace => 'teacher workspace';
+  String get announcementsAudienceTeacherWorkspace => 'Рабочее пространство';
 
   @override
-  String get announcementsLoadFailedTitle => 'Could not load announcements';
+  String get announcementsLoadFailedTitle => 'Ошибка загрузки';
 
   @override
-  String get announcementsLoadFailedHint =>
-      'Pull to refresh after the connection is stable.';
+  String get announcementsLoadFailedHint => 'Потяните для повтора';
 
   @override
   String announcementsHeroSubtitle(Object audience) {
-    return 'Published school, teacher, and system announcements available to this $audience.';
+    return 'Объявления для $audience.';
   }
 
   @override
-  String get announcementsLatestSourceLabel => 'Latest source';
+  String get announcementsLatestSourceLabel => 'Источник';
 
   @override
-  String get announcementsNone => 'None';
+  String get announcementsNone => 'Нет';
 
   @override
   String announcementsUnreadCountTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count unread announcements',
-      one: '1 unread announcement',
+      other: '$count непрочитанных',
+      few: '$count непрочитанных',
+      one: '1 непрочитанное',
     );
     return '$_temp0';
   }
 
   @override
-  String get announcementsAllReadTitle => 'Everything is read';
+  String get announcementsAllReadTitle => 'Всё прочитано';
 
   @override
   String announcementsEmptyForAudience(Object audience) {
-    return 'No announcements have been published to this $audience yet.';
+    return 'Объявлений для $audience пока нет.';
   }
 
   @override
   String announcementsLatestBody(Object title) {
-    return 'Latest: $title. Tap it to read the full content.';
+    return 'Последнее: $title. Нажмите для прочтения.';
   }
 
   @override
-  String get announcementsFiltersSubtitle =>
-      'Narrow the inbox by source or by read state so you can focus on what still needs attention.';
+  String get announcementsFiltersSubtitle => 'Фильтровать объявления';
 
   @override
-  String get announcementsAllAnnouncements => 'All announcements';
+  String get announcementsAllAnnouncements => 'Все объявления';
 
   @override
-  String get announcementsSearchStatesHint => 'Unread / Read';
+  String get announcementsSearchStatesHint => 'Поиск статусов';
 
   @override
   String announcementsSummarySourceSegment(Object source) {
-    return ' from $source';
+    return 'источник: $source';
   }
 
   @override
   String announcementsSummaryStateSegment(Object state) {
-    return ' in $state';
+    return 'статус: $state';
   }
 
   @override
@@ -1928,102 +1934,91 @@ class AppLocalizationsRu extends AppLocalizations {
     Object sourceSegment,
     Object stateSegment,
   ) {
-    return 'Showing $shown of $total announcements$sourceSegment$stateSegment.';
+    return 'Показано $shown из $total объявлений$sourceSegment$stateSegment.';
   }
 
   @override
-  String get announcementsNoMatchTitle =>
-      'No announcements match these filters';
+  String get announcementsNoMatchTitle => 'Ничего не найдено';
 
   @override
-  String get announcementsNoPublishedTitle => 'No published announcements yet';
+  String get announcementsNoPublishedTitle => 'Объявлений нет';
 
   @override
-  String get announcementsNoMatchSubtitle =>
-      'Try a different source or switch back to all announcements to bring more items into view.';
+  String get announcementsNoMatchSubtitle => 'Попробуйте изменить фильтры.';
 
   @override
-  String get announcementsClearFiltersHint =>
-      'Clear filters to see everything again.';
+  String get announcementsClearFiltersHint => 'Очистить фильтры';
 
   @override
-  String get announcementsPullToRefreshHint =>
-      'Pull to refresh after new school activity is published.';
+  String get announcementsPullToRefreshHint => 'Потяните для обновления';
 
   @override
-  String get announcementsInboxTitle => 'Inbox';
+  String get announcementsInboxTitle => 'Входящие';
 
   @override
-  String get announcementsInboxSubtitle =>
-      'Only titles appear here for quick scanning. Tap any item to open the full announcement content.';
+  String get announcementsInboxSubtitle => 'Все объявления';
 
   @override
-  String get meetingsLoadError =>
-      'We could not load meetings right now. Pull to refresh or try again.';
+  String get meetingsLoadError => 'Не удалось загрузить занятия';
 
   @override
-  String get meetingsLoadTimeout =>
-      'Meetings are taking too long to load. Pull to refresh or try again in a moment.';
+  String get meetingsLoadTimeout => 'Превышено время ожидания';
 
   @override
-  String get meetingsLoadNetwork =>
-      'Meetings could not connect right now. Check your connection and try again.';
+  String get meetingsLoadNetwork => 'Нет подключения';
 
   @override
-  String get meetingsHeroSubtitle =>
-      'Every classroom meeting in one clean view, with attached links and a full-screen detail page when you need the context.';
+  String get meetingsHeroSubtitle => 'Онлайн-занятия';
 
   @override
-  String get meetingsJoinReadyMetric => 'Join-ready';
+  String get meetingsJoinReadyMetric => 'Доступно';
 
   @override
-  String get meetingsNoLinkMetric => 'No link';
+  String get meetingsNoLinkMetric => 'Без ссылки';
 
   @override
-  String get meetingsNoPostedTitle => 'No meetings posted yet';
+  String get meetingsNoPostedTitle => 'Занятий пока нет';
 
   @override
-  String get meetingsEmptyForAccount =>
-      'No classroom meetings are available for this student account right now.';
+  String get meetingsEmptyForAccount => 'Для вашего аккаунта занятий пока нет.';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {
-    return '$title was updated $updatedAt. Open it for the attached link and classroom context.';
+    return '$title обновлено $updatedAt. Откройте для получения ссылки.';
   }
 
   @override
-  String get meetingsPullToRefreshHint => 'Pull down to check again.';
+  String get meetingsPullToRefreshHint => 'Потяните для обновления.';
 
   @override
-  String get meetingsFiltersSubtitle =>
-      'Narrow the list by subject or by whether the meeting already includes a link you can open.';
+  String get meetingsFiltersSubtitle => 'Фильтр по предмету или наличию ссылки';
 
   @override
-  String get meetingsAccessLabel => 'Access';
+  String get meetingsAccessLabel => 'Доступ';
 
   @override
-  String get meetingsAllMeetings => 'All meetings';
+  String get meetingsAllMeetings => 'Все занятия';
 
   @override
-  String get meetingsAccessReady => 'Ready to join';
+  String get meetingsAccessReady => 'Доступно';
 
   @override
-  String get meetingsAccessNoLink => 'No link';
+  String get meetingsAccessNoLink => 'Без ссылки';
 
   @override
-  String get meetingsAccessNoLinkYet => 'No link yet';
+  String get meetingsAccessNoLinkYet => 'Ссылки ещё нет';
 
   @override
-  String get meetingsAccessSearchHint => 'Ready to join / No link yet';
+  String get meetingsAccessSearchHint => 'Доступно / Без ссылки';
 
   @override
   String meetingsSummarySubjectSegment(Object subject) {
-    return ' for $subject';
+    return ' по $subject';
   }
 
   @override
   String meetingsSummaryAccessSegment(Object state) {
-    return ' in $state';
+    return ' ($state)';
   }
 
   @override
@@ -2033,906 +2028,896 @@ class AppLocalizationsRu extends AppLocalizations {
     Object subjectSegment,
     Object accessSegment,
   ) {
-    return 'Showing $shown of $total meetings$subjectSegment$accessSegment.';
+    return 'Показано $shown из $total занятий$subjectSegment$accessSegment.';
   }
 
   @override
-  String get meetingsNoMatchTitle => 'No meetings match these filters';
+  String get meetingsNoMatchTitle => 'Занятий не найдено';
 
   @override
-  String get meetingsNoMatchSubtitle =>
-      'Try all subjects or include meetings without links to bring more results back into the list.';
+  String get meetingsNoMatchSubtitle => 'Попробуйте изменить фильтры.';
 
   @override
   String get meetingsListSubtitle =>
-      'Tap any meeting to open the full-screen detail view and jump into its attached link when available.';
+      'Нажмите на занятие для просмотра деталей и ссылки.';
 
   @override
   String meetingsDateTimeValue(Object date, Object time) {
-    return '$date • $time';
+    return '$date · $time';
   }
 
   @override
   String meetingsSharedByValue(Object name) {
-    return 'Shared by $name';
+    return 'Поделился: $name';
   }
 
   @override
   String get meetingsPreviewFallback =>
-      'Open this meeting to see the attached link and the latest classroom details.';
+      'Откройте занятие для просмотра ссылки и деталей класса.';
 
   @override
   String get meetingsNoValidLinkAttached =>
-      'No valid meeting link is attached yet.';
+      'Действительной ссылки на занятие пока нет.';
 
   @override
-  String get meetingsCouldNotOpenLink => 'Could not open the meeting link.';
+  String get meetingsCouldNotOpenLink => 'Не удалось открыть ссылку.';
 
   @override
-  String get meetingsNoLinkToCopy => 'No meeting link to copy yet.';
+  String get meetingsNoLinkToCopy => 'Ссылки на занятие пока нет.';
 
   @override
-  String get meetingsLinkCopied => 'Meeting link copied.';
+  String get meetingsLinkCopied => 'Ссылка скопирована.';
 
   @override
-  String get meetingsUnavailableTitle => 'Meeting unavailable';
+  String get meetingsUnavailableTitle => 'Занятия недоступны';
 
   @override
   String get meetingsUnavailableSubtitle =>
-      'This meeting could not be found in the current feed. It may have been removed or is not available offline.';
+      'Занятие не найдено. Возможно, оно было удалено или изменено.';
 
   @override
-  String get meetingsUnavailableHint =>
-      'Go back and refresh the meetings list.';
+  String get meetingsUnavailableHint => 'Вернитесь и обновите список занятий.';
 
   @override
-  String get meetingsNoLinkAttachedYet => 'No link attached yet';
+  String get meetingsNoLinkAttachedYet => 'Ссылка ещё не добавлена';
 
   @override
-  String get meetingsAttachedLinkTitle => 'Attached meeting link';
+  String get meetingsAttachedLinkTitle => 'Ссылка на занятие';
 
   @override
   String get meetingsAttachedLinkMissingBody =>
-      'This meeting is visible in your classroom feed, but no valid URL is attached in the current student payload.';
+      'Ссылка на занятие пока не добавлена.';
 
   @override
-  String get meetingsDetailsTitle => 'Meeting details';
+  String get meetingsDetailsTitle => 'Подробности';
 
   @override
-  String get meetingsDetailsSubtitle =>
-      'Everything student-relevant that is currently available in the classroom meeting payload.';
+  String get meetingsDetailsSubtitle => 'Информация о занятии';
 
   @override
-  String get meetingsDetailClassroomLabel => 'Classroom';
+  String get meetingsDetailClassroomLabel => 'Класс';
 
   @override
-  String get meetingsSharedByLabel => 'Shared by';
+  String get meetingsSharedByLabel => 'Поделился';
 
   @override
-  String get meetingsIdLabel => 'Meeting ID';
+  String get meetingsIdLabel => 'ID занятия';
 
   @override
   String get meetingsAttachedLinkSubtitle =>
-      'Use the attached URL to join or copy the meeting link when your classroom provides one.';
+      'Используйте ссылку для подключения или скопируйте её.';
 
   @override
-  String get meetingsOpening => 'Opening';
+  String get meetingsOpening => 'Открытие';
 
   @override
-  String get meetingsOpenLink => 'Open link';
+  String get meetingsOpenLink => 'Открыть';
 
   @override
-  String get meetingsCopyLink => 'Copy link';
+  String get meetingsCopyLink => 'Копировать ссылку';
 
   @override
-  String get meetingsAccessPanelTitle => 'Meeting access';
+  String get meetingsAccessPanelTitle => 'Доступ к занятию';
 
   @override
   String get meetingsAccessPanelReadyBody =>
-      'Open the attached URL in your browser or meeting app.';
+      'Откройте ссылку в браузере или приложении.';
 
   @override
-  String get meetingsJoinAction => 'Join';
+  String get meetingsJoinAction => 'Войти';
 
   @override
   String get announcementsDetailLoadFailedHint =>
-      'Go back and try refreshing the announcements inbox.';
+      'Не удалось загрузить объявление';
 
   @override
-  String get announcementsUnavailableTitle => 'Announcement unavailable';
+  String get announcementsUnavailableTitle => 'Объявления недоступны';
 
   @override
   String announcementsUnavailableSubtitle(Object audience) {
-    return 'This announcement is no longer available in the published feed for this $audience.';
+    return 'Объявление недоступно для $audience.';
   }
 
   @override
-  String get announcementsUnavailableHint =>
-      'Go back to the inbox to continue.';
+  String get announcementsUnavailableHint => 'Потяните для обновления';
 
   @override
   String announcementsPublishedReadStateBody(Object audience) {
-    return 'This announcement was published to this $audience and your read state is stored locally on this device.';
+    return 'Опубликовано для $audience.';
   }
 
   @override
-  String get announcementsDetailsTitle => 'Announcement details';
+  String get announcementsDetailsTitle => 'Подробности';
 
   @override
-  String get announcementsDetailsSubtitle =>
-      'Published metadata for this announcement and its current read state.';
+  String get announcementsDetailsSubtitle => '';
 
   @override
-  String get announcementsSeverityLabel => 'Severity';
+  String get announcementsSeverityLabel => 'Важность';
 
   @override
-  String get announcementsCreatedLabel => 'Created';
+  String get announcementsCreatedLabel => 'Создано';
 
   @override
-  String get announcementsIdLabel => 'Announcement ID';
+  String get announcementsIdLabel => 'ID';
 
   @override
-  String get announcementsFullContentTitle => 'Full content';
+  String get announcementsFullContentTitle => 'Содержание';
 
   @override
-  String get announcementsFullContentSubtitle =>
-      'The complete announcement text appears here after you open the item from the inbox.';
+  String get announcementsFullContentSubtitle => 'Полный текст объявления';
 
   @override
-  String get announcementsReadStateTitle => 'Read state';
+  String get announcementsReadStateTitle => 'Статус';
 
   @override
-  String get announcementsReadStateBodyRead =>
-      'This announcement is marked as read on this device.';
+  String get announcementsReadStateBodyRead => 'Прочитано';
 
   @override
-  String get announcementsReadStateBodyUnread =>
-      'This announcement is still unread on this device.';
+  String get announcementsReadStateBodyUnread => 'Непрочитано';
 
   @override
-  String get alertsTitle => 'Alerts';
+  String get alertsTitle => 'Оповещения';
 
   @override
-  String get alertsSubtitle =>
-      'This is the page for things that need attention now, not just general updates.';
+  String get alertsSubtitle => 'Важные сигналы';
 
   @override
-  String get alertsAttendanceTitle => 'Attendance needs attention';
+  String get alertsAttendanceTitle => 'Посещаемость';
 
   @override
   String alertsAttendanceBody(Object rate) {
-    return 'Your attendance rate is $rate%. A couple of missed lessons can snowball fast.';
+    return 'Ваш процент посещаемости: $rate%. Следите за пропусками.';
   }
 
   @override
-  String get alertsWeakestSubjectTitle => 'Weakest subject signal';
+  String get alertsWeakestSubjectTitle => 'Слабый предмет';
 
   @override
   String alertsWeakestSubjectBody(Object subject) {
-    return '$subject currently needs the most attention based on your latest grades.';
+    return '$subject требует наибольшего внимания по данным оценок.';
   }
 
   @override
-  String get alertsPracticeWeakAreaTitle => 'Practice weak area';
+  String get alertsPracticeWeakAreaTitle => 'Слабое место';
 
   @override
   String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return '$topic in $subject is the clearest weak topic right now.';
+    return '$topic по предмету $subject — слабая тема прямо сейчас.';
   }
 
   @override
-  String get alertsPracticeTrendDroppedTitle => 'Practice trend dropped';
+  String get alertsPracticeTrendDroppedTitle => 'Результаты снизились';
 
   @override
   String get alertsPracticeTrendDroppedBody =>
-      'Your 7d performance is below your 30d baseline. Slow down and revisit fundamentals before pushing harder.';
+      'Ваши результаты практики снижаются';
 
   @override
-  String get alertsEmpty =>
-      'You\'re clear right now. When something needs urgent attention, it\'ll show up here.';
+  String get alertsEmpty => 'Оповещений нет';
 
   @override
-  String get student => 'Student';
+  String get student => 'Ученик';
 
   @override
-  String get classroomDetailPhoto => 'Photo';
+  String get classroomDetailPhoto => 'Фото';
 
   @override
-  String get classroomDetailVoiceNote => 'Voice note';
+  String get classroomDetailVoiceNote => 'Голосовая заметка';
 
   @override
-  String get classroomDetailVideo => 'Video';
+  String get classroomDetailVideo => 'Видео';
 
   @override
-  String get classroomDetailFile => 'File';
+  String get classroomDetailFile => 'Файл';
 
   @override
-  String get classroomDetailEmptyValue => '(empty)';
+  String get classroomDetailEmptyValue => '(пусто)';
 
   @override
-  String get classroomDetailAttachmentUnavailable => 'Attachment unavailable.';
+  String get classroomDetailAttachmentUnavailable => 'Вложение недоступно.';
 
   @override
-  String get classroomDetailAudioUnavailable => 'Audio unavailable.';
+  String get classroomDetailAudioUnavailable => 'Аудио недоступно.';
 
   @override
   String get classroomDetailCouldNotOpenAttachment =>
-      'Could not open attachment.';
+      'Не удалось открыть вложение.';
 
   @override
-  String get classroomDetailVoiceMessage => 'Voice message';
+  String get classroomDetailVoiceMessage => 'Голосовое сообщение';
 
   @override
-  String get classroomDetailVideoFile => 'Video file';
+  String get classroomDetailVideoFile => 'Видеофайл';
 
   @override
-  String get classroomDetailAttachedFile => 'Attached file';
+  String get classroomDetailAttachedFile => 'Прикреплённый файл';
 
   @override
-  String get classroomDetailAttachment => 'Attachment';
+  String get classroomDetailAttachment => 'Вложение';
 
   @override
-  String get classroomDetailPinAction => 'Pin';
+  String get classroomDetailPinAction => 'Закрепить';
 
   @override
-  String get classroomDetailUnpinAction => 'Unpin';
+  String get classroomDetailUnpinAction => 'Открепить';
 
   @override
-  String get classroomDetailMessageInfoTitle => 'Message info';
+  String get classroomDetailMessageInfoTitle => 'Информация о сообщении';
 
   @override
-  String get classroomDetailForwardedSingle => 'Forwarded';
+  String get classroomDetailForwardedSingle => 'Переслано';
 
   @override
   String classroomDetailForwardedMultiple(Object count) {
-    return 'Forwarded $count messages';
+    return 'Переслано $count сообщений';
   }
 
   @override
   String get classroomDetailCannotForwardPending =>
-      'Cannot forward into a request chat until it is approved';
+      'Нельзя переслать в чат, ожидающий одобрения';
 
   @override
   String get classroomDetailCouldNotForwardSelected =>
-      'Could not forward selected messages';
+      'Не удалось переслать выбранные сообщения';
 
   @override
   String classroomDetailSelectedCount(Object count) {
-    return '$count selected';
+    return 'Выбрано: $count';
   }
 
   @override
   String classroomDetailDeleteCount(Object count) {
-    return 'Delete ($count)';
+    return 'Удалить ($count)';
   }
 
   @override
-  String get classroomDetailSelectAllTooltip => 'Select all';
+  String get classroomDetailSelectAllTooltip => 'Выбрать все';
 
   @override
-  String get classroomDetailCancelTooltip => 'Cancel';
+  String get classroomDetailCancelTooltip => 'Отмена';
 
   @override
-  String get classroomDetailMicrophoneAccessTitle => 'Microphone access needed';
+  String get classroomDetailMicrophoneAccessTitle =>
+      'Необходим доступ к микрофону';
 
   @override
   String get classroomDetailMicrophoneAccessBody =>
-      'Please allow microphone access in Settings -> ClassMate to send voice notes.';
+      'Разрешите доступ к микрофону в Настройки → ClassMate для голосовых заметок.';
 
   @override
-  String get classroomDetailOpenSettingsAction => 'Open Settings';
+  String get classroomDetailOpenSettingsAction => 'Открыть настройки';
 
   @override
   String classroomDetailForwardTargetNext(Object label) {
-    return 'Forward target picker next: $label';
+    return 'Следующий получатель: $label';
   }
 
   @override
-  String get classroomDetailEditMessageTitle => 'Edit message';
+  String get classroomDetailEditMessageTitle => 'Редактировать сообщение';
 
   @override
-  String get classroomDetailEditMessageHint => 'Edit your message...';
+  String get classroomDetailEditMessageHint => 'Редактировать сообщение…';
 
   @override
-  String get classroomDetailLeaveClassroomTitle => 'Leave classroom?';
+  String get classroomDetailLeaveClassroomTitle => 'Покинуть класс?';
 
   @override
   String get classroomDetailLeaveClassroomBody =>
-      'You will be removed from this classroom.';
+      'Вы будете удалены из этого класса.';
 
   @override
-  String get classroomDetailLeaveAction => 'Leave';
+  String get classroomDetailLeaveAction => 'Покинуть';
 
   @override
-  String get classroomDetailNoAssignmentsTitle => 'No assignments yet';
+  String get classroomDetailNoAssignmentsTitle => 'Заданий пока нет';
 
   @override
   String get classroomDetailNoAssignmentsSubtitle =>
-      'This classroom has no assignments right now.';
+      'В этом классе заданий нет.';
 
   @override
-  String get classroomDetailAssignmentFallback => 'Assignment';
+  String get classroomDetailAssignmentFallback => 'Задание';
 
   @override
-  String get classroomDetailNoMaterialsTitle => 'No materials yet';
+  String get classroomDetailNoMaterialsTitle => 'Материалов пока нет';
 
   @override
   String get classroomDetailNoMaterialsSubtitle =>
-      'This classroom has no materials right now.';
+      'В этом классе материалов нет.';
 
   @override
-  String get classroomDetailMaterialFallback => 'Material';
+  String get classroomDetailMaterialFallback => 'Материал';
 
   @override
-  String get classroomDetailNoMeetingsTitle => 'No meetings yet';
+  String get classroomDetailNoMeetingsTitle => 'Занятий пока нет';
 
   @override
-  String get classroomDetailNoMeetingsSubtitle =>
-      'This classroom has no meetings right now.';
+  String get classroomDetailNoMeetingsSubtitle => 'В этом классе занятий нет.';
 
   @override
-  String get classroomDetailMeetingFallback => 'Meeting';
+  String get classroomDetailMeetingFallback => 'Занятие';
 
   @override
-  String get classroomDetailCouldNotLoadPeople => 'Could not load people';
+  String get classroomDetailCouldNotLoadPeople =>
+      'Не удалось загрузить участников';
 
   @override
-  String get classroomDetailNoPeopleTitle => 'No people yet';
+  String get classroomDetailNoPeopleTitle => 'Участников пока нет';
 
   @override
   String get classroomDetailNoPeopleSubtitle =>
-      'Nobody is visible in this classroom yet.';
+      'В этом классе пока нет участников.';
 
   @override
-  String get classroomDetailTabChat => 'Chat';
+  String get classroomDetailTabChat => 'Чат';
 
   @override
-  String get classroomDetailTabMaterials => 'Materials';
+  String get classroomDetailTabMaterials => 'Материалы';
 
   @override
-  String get classroomDetailTabPeople => 'People';
+  String get classroomDetailTabPeople => 'Участники';
 
   @override
-  String get classroomChatMediaSendPhoto => 'Send photo';
+  String get classroomChatMediaSendPhoto => 'Отправить фото';
 
   @override
   String get classroomChatMediaSendPhotoSubtitle =>
-      'Share an image in the classroom chat';
+      'Поделиться изображением в чате класса';
 
   @override
-  String get classroomChatMediaSendVoiceMessage => 'Send voice message';
+  String get classroomChatMediaSendVoiceMessage => 'Отправить голосовое';
 
   @override
   String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'Record and send a voice note';
+      'Записать и отправить голосовую заметку';
 
   @override
-  String get classroomDetailCouldNotLoadTab => 'Could not load tab';
+  String get classroomDetailCouldNotLoadTab => 'Не удалось загрузить вкладку';
 
   @override
-  String get classroomDetailDeletedByYou => 'You deleted this message';
+  String get classroomDetailDeletedByYou => 'Вы удалили это сообщение';
 
   @override
-  String get classroomDetailDeletedMessage => 'This message was deleted';
+  String get classroomDetailDeletedMessage => 'Сообщение удалено';
 
   @override
-  String get practiceSetupDifficultyEasy => 'Easy';
+  String get practiceSetupDifficultyEasy => 'Лёгкий';
 
   @override
-  String get practiceSetupDifficultyMedium => 'Medium';
+  String get practiceSetupDifficultyMedium => 'Средний';
 
   @override
-  String get practiceSetupDifficultyHard => 'Hard';
+  String get practiceSetupDifficultyHard => 'Сложный';
 
   @override
-  String get practiceSetupDifficultyOlympiad => 'Olympiad';
+  String get practiceSetupDifficultyOlympiad => 'Олимпиадный';
 
   @override
-  String get practiceSetupDifficultyAdaptive => 'Adaptive';
+  String get practiceSetupDifficultyAdaptive => 'Адаптивный';
 
   @override
-  String get practiceSetupModeLabelPractice => 'Practice';
+  String get practiceSetupModeLabelPractice => 'Практика';
 
   @override
-  String get practiceSetupModeLabelFlashcards => 'Flashcards';
+  String get practiceSetupModeLabelFlashcards => 'Карточки';
 
   @override
-  String get practiceSetupModeLabelSpeedRound => 'Speed round';
+  String get practiceSetupModeLabelSpeedRound => 'Скоростной раунд';
 
   @override
-  String get practiceSetupModeLabelExamPrep => 'Exam prep';
+  String get practiceSetupModeLabelExamPrep => 'Подготовка к экзамену';
 
   @override
-  String get practiceSetupModeLabelConceptBuilder => 'Concept builder';
+  String get practiceSetupModeLabelConceptBuilder => 'Изучение концепций';
 
   @override
-  String get practiceSetupModeLabelAdaptive => 'Adaptive';
+  String get practiceSetupModeLabelAdaptive => 'Адаптивный';
 
   @override
-  String get practiceSetupModeLabelBagrut => 'Bagrut';
+  String get practiceSetupModeLabelBagrut => 'Багрут';
 
   @override
-  String get practiceSetupModeSubtitlePractice => 'Balanced daily practice';
+  String get practiceSetupModeSubtitlePractice =>
+      'Сбалансированная ежедневная практика';
 
   @override
-  String get practiceSetupModeSubtitleFlashcards => 'Reveal and self-recall';
+  String get practiceSetupModeSubtitleFlashcards => 'Карточки и самопроверка';
 
   @override
-  String get practiceSetupModeSubtitleSpeedRound => 'Fast pressure drill';
+  String get practiceSetupModeSubtitleSpeedRound => 'Быстрые ответы';
 
   @override
-  String get practiceSetupModeSubtitleExamPrep => 'Calm exam-style flow';
+  String get practiceSetupModeSubtitleExamPrep =>
+      'Спокойный экзаменационный режим';
 
   @override
-  String get practiceSetupModeSubtitleConceptBuilder =>
-      'Concept first, solve later';
+  String get practiceSetupModeSubtitleConceptBuilder => 'Изучение тем пошагово';
 
   @override
-  String get practiceSetupModeSubtitleAdaptive => 'Difficulty shifts live';
+  String get practiceSetupModeSubtitleAdaptive =>
+      'Подстраивается под ваш уровень';
 
   @override
-  String get practiceSetupModeSubtitleBagrut => 'Strict official style';
+  String get practiceSetupModeSubtitleBagrut => 'Формат экзамена';
 
   @override
   String get practiceSetupModeHelpPractice =>
-      'Balanced mode: solve, check, explain, then keep moving.';
+      'Решайте, проверяйте, разбирайте — и двигайтесь дальше.';
 
   @override
   String get practiceSetupModeHelpFlashcards =>
-      'Flashcards work best when you try to recall before revealing.';
+      'Сначала попробуйте вспомнить ответ, потом открывайте карточку.';
 
   @override
   String get practiceSetupModeHelpSpeedRound =>
-      'Speed Round trains fast recall. Move quickly and trust strong instincts.';
+      'Скоростной раунд тренирует быстрое вспоминание. Доверяйте инстинктам.';
 
   @override
   String get practiceSetupModeHelpExamPrep =>
-      'Exam Prep is calmer and more formal, like a real school session.';
+      'Подготовка к экзамену — спокойный формат, как настоящее занятие.';
 
   @override
   String get practiceSetupModeHelpConceptBuilder =>
-      'Concept Builder teaches the idea first, then asks you to apply it.';
+      'Сначала изучите идею, потом применяйте её.';
 
   @override
   String get practiceSetupModeHelpAdaptive =>
-      'Adaptive mode changes the challenge level based on your performance.';
+      'Адаптивный режим меняет сложность в зависимости от результатов.';
 
   @override
   String get practiceSetupModeHelpBagrut =>
-      'Bagrut mode focuses on strict exam-style solving and review.';
+      'Режим Багрут — строгий экзаменационный стиль с разбором.';
 
   @override
-  String get practiceSetupModeInfoTitle => 'How each mode works';
+  String get practiceSetupModeInfoTitle => 'Подробнее о режиме';
 
   @override
-  String get practiceSetupHeroTitle => 'Start a session';
+  String get practiceSetupHeroTitle => 'Начать сессию';
 
   @override
-  String get practiceSetupHeroSubtitle =>
-      'Choose a mode, timing, and difficulty.';
+  String get practiceSetupHeroSubtitle => 'Выберите режим, время и сложность.';
 
   @override
-  String get practiceSetupInfiniteLives => 'Infinite lives';
+  String get practiceSetupInfiniteLives => 'Бесконечные попытки';
 
   @override
   String practiceSetupLivesCount(Object count) {
-    return '$count lives';
+    return '$count попыток';
   }
 
   @override
-  String get practiceSetupAiTiming => 'AI timing';
+  String get practiceSetupAiTiming => 'Время AI';
 
   @override
   String practiceSetupSecondsShort(Object seconds) {
-    return '${seconds}s';
+    return '$seconds с';
   }
 
   @override
   String practiceSetupQuestionsCount(Object count) {
-    return '$count questions';
+    return '$count вопросов';
   }
 
   @override
   String practiceSetupSummarySubject(Object subject) {
-    return 'Subject: $subject';
+    return 'Предмет: $subject';
   }
 
   @override
   String practiceSetupSummaryTopic(Object topic) {
-    return 'Topic: $topic';
+    return 'Тема: $topic';
   }
 
   @override
   String practiceSetupSummaryMode(Object mode) {
-    return 'Mode: $mode';
+    return 'Режим: $mode';
   }
 
   @override
   String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'Difficulty: $difficulty';
+    return 'Сложность: $difficulty';
   }
 
   @override
   String practiceSetupSummaryQuestions(Object count) {
-    return 'Questions: $count';
+    return 'Вопросов: $count';
   }
 
   @override
   String practiceSetupSummaryTiming(Object timing) {
-    return 'Timing: $timing';
+    return 'Время: $timing';
   }
 
   @override
   String practiceSetupSummaryLives(Object lives) {
-    return 'Lives: $lives';
+    return 'Попытки: $lives';
   }
 
   @override
-  String get practiceSetupSectionSubjectTopic => 'Subject & topic';
+  String get practiceSetupSectionSubjectTopic => 'Предмет и тема';
 
   @override
-  String get practiceSetupFieldSubject => 'Subject';
+  String get practiceSetupFieldSubject => 'Предмет';
 
   @override
-  String get practiceSetupFieldSubjectHint => 'Pick the subject';
+  String get practiceSetupFieldSubjectHint => 'Выберите предмет';
 
   @override
-  String get practiceSetupChooseSubject => 'Choose subject';
+  String get practiceSetupChooseSubject => 'Выберите предмет';
 
   @override
-  String get practiceSetupFieldCustomSubject => 'Custom subject';
+  String get practiceSetupFieldCustomSubject => 'Свой предмет';
 
   @override
-  String get practiceSetupFieldCustomSubjectHint => 'Type your own subject';
+  String get practiceSetupFieldCustomSubjectHint => 'Введите предмет';
 
   @override
-  String get practiceSetupDialogCustomSubjectTitle => 'Custom subject';
+  String get practiceSetupDialogCustomSubjectTitle => 'Свой предмет';
 
   @override
-  String get practiceSetupDialogEnterSubject => 'Enter subject';
+  String get practiceSetupDialogEnterSubject => 'Введите предмет';
 
   @override
-  String get practiceSetupUseAction => 'Use';
+  String get practiceSetupUseAction => 'Использовать';
 
   @override
-  String get practiceSetupFieldTopic => 'Topic';
+  String get practiceSetupFieldTopic => 'Тема';
 
   @override
-  String get practiceSetupFieldTopicHint => 'Pick sub-topic';
+  String get practiceSetupFieldTopicHint => 'Выберите подтему';
 
   @override
-  String get practiceSetupChooseTopic => 'Choose topic';
+  String get practiceSetupChooseTopic => 'Выберите тему';
 
   @override
-  String get practiceSetupFieldCustomTopic => 'Custom topic';
+  String get practiceSetupFieldCustomTopic => 'Своя тема';
 
   @override
-  String get practiceSetupFieldCustomTopicHint => 'Type your own topic';
+  String get practiceSetupFieldCustomTopicHint => 'Введите тему';
 
   @override
-  String get practiceSetupDialogCustomTopicTitle => 'Custom topic';
+  String get practiceSetupDialogCustomTopicTitle => 'Своя тема';
 
   @override
-  String get practiceSetupDialogEnterTopic => 'Enter topic';
+  String get practiceSetupDialogEnterTopic => 'Введите тему';
 
   @override
-  String get practiceSubjectMath => 'Math';
+  String get practiceSubjectMath => 'Математика';
 
   @override
-  String get practiceSubjectPhysics => 'Physics';
+  String get practiceSubjectPhysics => 'Физика';
 
   @override
-  String get practiceSubjectComputerScience => 'Computer Science';
+  String get practiceSubjectComputerScience => 'Информатика';
 
   @override
-  String get practiceSubjectChemistry => 'Chemistry';
+  String get practiceSubjectChemistry => 'Химия';
 
   @override
-  String get practiceSubjectBiology => 'Biology';
+  String get practiceSubjectBiology => 'Биология';
 
   @override
-  String get practiceSubjectEnglish => 'English';
+  String get practiceSubjectEnglish => 'Английский';
 
   @override
-  String get practiceSubjectArabic => 'Arabic';
+  String get practiceSubjectArabic => 'Арабский';
 
   @override
-  String get practiceSubjectHebrew => 'Hebrew';
+  String get practiceSubjectHebrew => 'Иврит';
 
   @override
-  String get practiceSubjectGeneralKnowledge => 'General Knowledge';
+  String get practiceSubjectGeneralKnowledge => 'Общие знания';
 
   @override
-  String get practiceTopicAllTopics => 'All topics';
+  String get practiceTopicAllTopics => 'Все темы';
 
   @override
-  String get practiceTopicAlgebra => 'Algebra';
+  String get practiceTopicAlgebra => 'Алгебра';
 
   @override
-  String get practiceTopicLinearEquations => 'Linear equations';
+  String get practiceTopicLinearEquations => 'Линейные уравнения';
 
   @override
-  String get practiceTopicQuadraticEquations => 'Quadratic equations';
+  String get practiceTopicQuadraticEquations => 'Квадратные уравнения';
 
   @override
-  String get practiceTopicFunctions => 'Functions';
+  String get practiceTopicFunctions => 'Функции';
 
   @override
-  String get practiceTopicGeometry => 'Geometry';
+  String get practiceTopicGeometry => 'Геометрия';
 
   @override
-  String get practiceTopicTriangles => 'Triangles';
+  String get practiceTopicTriangles => 'Треугольники';
 
   @override
-  String get practiceTopicCircles => 'Circles';
+  String get practiceTopicCircles => 'Окружности';
 
   @override
-  String get practiceTopicAnalyticGeometry => 'Analytic geometry';
+  String get practiceTopicAnalyticGeometry => 'Аналитическая геометрия';
 
   @override
-  String get practiceTopicTrigonometry => 'Trigonometry';
+  String get practiceTopicTrigonometry => 'Тригонометрия';
 
   @override
-  String get practiceTopicProbability => 'Probability';
+  String get practiceTopicProbability => 'Теория вероятностей';
 
   @override
-  String get practiceTopicStatistics => 'Statistics';
+  String get practiceTopicStatistics => 'Статистика';
 
   @override
-  String get practiceTopicSequences => 'Sequences';
+  String get practiceTopicSequences => 'Последовательности';
 
   @override
-  String get practiceTopicCalculus => 'Calculus';
+  String get practiceTopicCalculus => 'Математический анализ';
 
   @override
-  String get practiceTopicLimits => 'Limits';
+  String get practiceTopicLimits => 'Пределы';
 
   @override
-  String get practiceTopicDerivatives => 'Derivatives';
+  String get practiceTopicDerivatives => 'Производные';
 
   @override
-  String get practiceTopicMechanics => 'Mechanics';
+  String get practiceTopicMechanics => 'Механика';
 
   @override
-  String get practiceTopicKinematics => 'Kinematics';
+  String get practiceTopicKinematics => 'Кинематика';
 
   @override
-  String get practiceTopicNewtonLaws => 'Newton laws';
+  String get practiceTopicNewtonLaws => 'Законы Ньютона';
 
   @override
-  String get practiceTopicForces => 'Forces';
+  String get practiceTopicForces => 'Силы';
 
   @override
-  String get practiceTopicEnergy => 'Energy';
+  String get practiceTopicEnergy => 'Энергия';
 
   @override
-  String get practiceTopicMomentum => 'Momentum';
+  String get practiceTopicMomentum => 'Импульс';
 
   @override
-  String get practiceTopicElectricity => 'Electricity';
+  String get practiceTopicElectricity => 'Электричество';
 
   @override
-  String get practiceTopicElectricField => 'Electric field';
+  String get practiceTopicElectricField => 'Электрическое поле';
 
   @override
-  String get practiceTopicCircuits => 'Circuits';
+  String get practiceTopicCircuits => 'Электрические цепи';
 
   @override
-  String get practiceTopicWaves => 'Waves';
+  String get practiceTopicWaves => 'Волны';
 
   @override
-  String get practiceTopicOptics => 'Optics';
+  String get practiceTopicOptics => 'Оптика';
 
   @override
-  String get practiceTopicThermodynamics => 'Thermodynamics';
+  String get practiceTopicThermodynamics => 'Термодинамика';
 
   @override
-  String get practiceTopicConditions => 'Conditions';
+  String get practiceTopicConditions => 'Условия';
 
   @override
-  String get practiceTopicBooleanLogic => 'Boolean logic';
+  String get practiceTopicBooleanLogic => 'Булева логика';
 
   @override
-  String get practiceTopicIfElse => 'If / Else';
+  String get practiceTopicIfElse => 'Условные операторы';
 
   @override
-  String get practiceTopicNestedConditions => 'Nested conditions';
+  String get practiceTopicNestedConditions => 'Вложенные условия';
 
   @override
-  String get practiceTopicLoops => 'Loops';
+  String get practiceTopicLoops => 'Циклы';
 
   @override
-  String get practiceTopicVariables => 'Variables';
+  String get practiceTopicVariables => 'Переменные';
 
   @override
-  String get practiceTopicArrays => 'Arrays';
+  String get practiceTopicArrays => 'Массивы';
 
   @override
-  String get practiceTopicStrings => 'Strings';
+  String get practiceTopicStrings => 'Строки';
 
   @override
-  String get practiceTopicAlgorithms => 'Algorithms';
+  String get practiceTopicAlgorithms => 'Алгоритмы';
 
   @override
-  String get practiceTopicComplexity => 'Complexity';
+  String get practiceTopicComplexity => 'Сложность алгоритмов';
 
   @override
-  String get practiceTopicRecursion => 'Recursion';
+  String get practiceTopicRecursion => 'Рекурсия';
 
   @override
-  String get practiceTopicAtoms => 'Atoms';
+  String get practiceTopicAtoms => 'Атомы';
 
   @override
-  String get practiceTopicPeriodicTable => 'Periodic table';
+  String get practiceTopicPeriodicTable => 'Периодическая таблица';
 
   @override
-  String get practiceTopicChemicalBonds => 'Chemical bonds';
+  String get practiceTopicChemicalBonds => 'Химические связи';
 
   @override
-  String get practiceTopicReactions => 'Reactions';
+  String get practiceTopicReactions => 'Реакции';
 
   @override
-  String get practiceTopicStoichiometry => 'Stoichiometry';
+  String get practiceTopicStoichiometry => 'Стехиометрия';
 
   @override
-  String get practiceTopicAcidsAndBases => 'Acids and bases';
+  String get practiceTopicAcidsAndBases => 'Кислоты и основания';
 
   @override
-  String get practiceTopicOrganicChemistry => 'Organic chemistry';
+  String get practiceTopicOrganicChemistry => 'Органическая химия';
 
   @override
-  String get practiceTopicCells => 'Cells';
+  String get practiceTopicCells => 'Клетки';
 
   @override
-  String get practiceTopicGenetics => 'Genetics';
+  String get practiceTopicGenetics => 'Генетика';
 
   @override
-  String get practiceTopicHumanBody => 'Human body';
+  String get practiceTopicHumanBody => 'Тело человека';
 
   @override
-  String get practiceTopicEcology => 'Ecology';
+  String get practiceTopicEcology => 'Экология';
 
   @override
-  String get practiceTopicEvolution => 'Evolution';
+  String get practiceTopicEvolution => 'Эволюция';
 
   @override
-  String get practiceTopicSystems => 'Systems';
+  String get practiceTopicSystems => 'Системы';
 
   @override
-  String get practiceTopicGrammar => 'Grammar';
+  String get practiceTopicGrammar => 'Грамматика';
 
   @override
-  String get practiceTopicReadingComprehension => 'Reading comprehension';
+  String get practiceTopicReadingComprehension => 'Понимание текста';
 
   @override
-  String get practiceTopicVocabulary => 'Vocabulary';
+  String get practiceTopicVocabulary => 'Лексика';
 
   @override
-  String get practiceTopicTenses => 'Tenses';
+  String get practiceTopicTenses => 'Глагольные времена';
 
   @override
-  String get practiceTopicWriting => 'Writing';
+  String get practiceTopicWriting => 'Письмо';
 
   @override
-  String get practiceTopicRhetoric => 'Rhetoric';
+  String get practiceTopicRhetoric => 'Риторика';
 
   @override
-  String get practiceSetupSectionMode => 'Mode';
+  String get practiceSetupSectionMode => 'Режим';
 
   @override
-  String get practiceSetupSectionDifficulty => 'Difficulty';
+  String get practiceSetupSectionDifficulty => 'Сложность';
 
   @override
-  String get practiceSetupSectionControls => 'Session controls';
+  String get practiceSetupSectionControls => 'Параметры сессии';
 
   @override
-  String get practiceSetupQuestionsTitle => 'Questions';
+  String get practiceSetupQuestionsTitle => 'Вопросы';
 
   @override
-  String get practiceSetupQuestionsCaption =>
-      'How many generated questions to include';
+  String get practiceSetupQuestionsCaption => 'Количество вопросов в сессии';
 
   @override
-  String get practiceSetupTimingTitle => 'Timing';
+  String get practiceSetupTimingTitle => 'Время';
 
   @override
   String get practiceSetupTimingCaption =>
-      'Choose scope first, then AI, your own time, or infinite.';
+      'Выберите тип таймера: AI, свой или без ограничений.';
 
   @override
-  String get practiceSetupTimingScopePerQuestion => 'Per question';
+  String get practiceSetupTimingScopePerQuestion => 'На каждый вопрос';
 
   @override
-  String get practiceSetupTimingScopeWholeQuiz => 'Whole quiz';
+  String get practiceSetupTimingScopeWholeQuiz => 'На весь тест';
 
   @override
   String get practiceSetupTimingModeAi => 'AI';
 
   @override
-  String get practiceSetupTimingModeMyTime => 'My time';
+  String get practiceSetupTimingModeMyTime => 'Моё время';
 
   @override
-  String get practiceSetupTimingModeInfinite => 'Infinite';
+  String get practiceSetupTimingModeInfinite => 'Без ограничений';
 
   @override
-  String get practiceSetupTimingCustomPerQuestionTitle =>
-      'Seconds per question';
+  String get practiceSetupTimingCustomPerQuestionTitle => 'Секунд на вопрос';
 
   @override
   String get practiceSetupTimingCustomPerQuestionCaption =>
-      'Your own timer for each question';
+      'Свой таймер для каждого вопроса';
 
   @override
-  String get practiceSetupTimingCustomQuizMinutesTitle => 'Quiz minutes';
+  String get practiceSetupTimingCustomQuizMinutesTitle => 'Минут на тест';
 
   @override
   String get practiceSetupTimingCustomQuizMinutesCaption =>
-      'Your own timer for the whole quiz';
+      'Свой таймер для всего теста';
 
   @override
-  String get practiceSetupInfiniteLivesTitle => 'Infinite lives';
+  String get practiceSetupInfiniteLivesTitle => 'Бесконечные попытки';
 
   @override
   String get practiceSetupInfiniteLivesSubtitle =>
-      'Never end the session because of wrong answers';
+      'Сессия не заканчивается из-за ошибок';
 
   @override
-  String get practiceSetupLivesTitle => 'Lives';
+  String get practiceSetupLivesTitle => 'Попытки';
 
   @override
   String get practiceSetupLivesCaption =>
-      'Mistakes allowed before the session ends';
+      'Допустимое количество ошибок до завершения сессии';
 
   @override
-  String get practiceSetupTooltipHistory => 'Practice history';
+  String get practiceSetupTooltipHistory => 'История практики';
 
   @override
-  String get practiceHistoryTitle => 'Practice history';
+  String get practiceHistoryTitle => 'История практики';
 
   @override
-  String get practiceHistoryClearTooltip => 'Clear history';
+  String get practiceHistoryClearTooltip => 'Очистить историю';
 
   @override
-  String get practiceHistoryClearConfirmTitle => 'Clear practice history?';
+  String get practiceHistoryClearConfirmTitle => 'Очистить историю?';
 
   @override
   String get practiceHistoryClearConfirmBody =>
-      'This removes all saved practice sessions from this device.';
+      'Все сохранённые сессии практики будут удалены с этого устройства.';
 
   @override
   String get practiceHistoryLoadError =>
-      'Could not load practice history right now.';
+      'Не удалось загрузить историю практики.';
 
   @override
-  String get practiceHistoryErrorPrefix => 'Error:';
+  String get practiceHistoryErrorPrefix => 'Ошибка:';
 
   @override
-  String get practiceHistoryEmpty => 'No practice sessions yet.';
+  String get practiceHistoryEmpty => 'Сессий практики пока нет.';
 
   @override
-  String get practiceHistoryDeleteConfirmTitle => 'Delete this session?';
+  String get practiceHistoryDeleteConfirmTitle => 'Удалить сессию?';
 
   @override
   String get practiceHistoryDeleteConfirmBody =>
-      'This removes only this saved practice session.';
+      'Это удалит только эту сохранённую сессию практики.';
 
   @override
-  String get practiceHistoryOpenReview => 'Open review';
+  String get practiceHistoryOpenReview => 'Открыть обзор';
 
   @override
-  String get practiceHistoryDeleteSession => 'Delete session';
+  String get practiceHistoryDeleteSession => 'Удалить сессию';
 
   @override
-  String get practiceHistoryDebugTitle => 'Practice history debug';
+  String get practiceHistoryDebugTitle => 'Отладка истории практики';
 
   @override
-  String get practiceAnalyticsTitle => 'Practice analytics';
+  String get practiceAnalyticsTitle => 'Аналитика практики';
 
   @override
-  String get practiceAnalyticsSectionOverall => 'Overall';
+  String get practiceAnalyticsSectionOverall => 'Общее';
 
   @override
-  String get practiceAnalyticsRecentSessionsTitle => 'Recent sessions';
+  String get practiceAnalyticsRecentSessionsTitle => 'Последние сессии';
 
   @override
   String practiceAnalyticsRecentSessionsSummary(
@@ -2942,710 +2927,694 @@ class AppLocalizationsRu extends AppLocalizations {
     Object accuracy,
     Object xp,
   ) {
-    return '$sessions sessions • $correct/$answered correct • $accuracy% • XP $xp';
+    return '$sessions сессий · $correct/$answered правильно · $accuracy% · XP $xp';
   }
 
   @override
-  String get practiceAnalyticsSectionWeakestTopics => 'Weakest topics';
+  String get practiceAnalyticsSectionWeakestTopics => 'Самые слабые темы';
 
   @override
-  String get practiceAnalyticsSectionStrongestTopics => 'Strongest topics';
+  String get practiceAnalyticsSectionStrongestTopics => 'Самые сильные темы';
 
   @override
-  String get practiceAnalyticsSectionModePerformance => 'Mode performance';
+  String get practiceAnalyticsSectionModePerformance => 'Результаты по режимам';
 
   @override
-  String get practiceAnalyticsNoTopicData => 'No topic data yet';
+  String get practiceAnalyticsNoTopicData => 'Данных по темам пока нет';
 
   @override
-  String get practiceAnalyticsNoModeData => 'No mode data yet';
+  String get practiceAnalyticsNoModeData => 'Данных по режимам пока нет';
 
   @override
-  String get savedQuestionsTopSubjectNone => 'None yet';
+  String get savedQuestionsTopSubjectNone => 'Пока нет';
 
   @override
   String get savedQuestionsHeroSubtitle =>
-      'Questions you saved during practice should feel easy to revisit. This page is the clean retry hub for them.';
+      'Вопросы, сохранённые во время практики.';
 
   @override
-  String get savedQuestionsSavedMetric => 'Saved';
+  String get savedQuestionsSavedMetric => 'Сохранено';
 
   @override
-  String get savedQuestionsTopSubjectMetric => 'Top subject';
+  String get savedQuestionsTopSubjectMetric => 'Лучший предмет';
 
   @override
   String get savedQuestionsQuickActionsSubtitle =>
-      'Jump straight back into practice or browse community solutions.';
+      'Сразу перейти к практике или решениям.';
 
   @override
-  String get savedQuestionsOpenPractice => 'Open practice';
+  String get savedQuestionsOpenPractice => 'Открыть практику';
 
   @override
-  String get savedQuestionsOpenPracticeSubtitle =>
-      'Start a fresh session and keep building momentum';
+  String get savedQuestionsOpenPracticeSubtitle => 'Начать новую сессию';
 
   @override
-  String get savedQuestionsOpenSolutions => 'Open solutions';
+  String get savedQuestionsOpenSolutions => 'Открыть решения';
 
   @override
   String get savedQuestionsOpenSolutionsSubtitle =>
-      'Browse uploaded solutions by subject, book, page, and question';
+      'Просмотр загруженных решений по предмету и странице';
 
   @override
-  String get savedQuestionsQueueTitle => 'Your saved queue';
+  String get savedQuestionsQueueTitle => 'Ваша очередь';
 
   @override
   String get savedQuestionsQueueSubtitle =>
-      'Questions you save in practice appear here so you can reopen them quickly and keep working your weak spots.';
+      'Сохранённые вопросы для быстрого повторения.';
 
   @override
-  String get savedQuestionsEmptyTitle => 'No saved questions yet';
+  String get savedQuestionsEmptyTitle => 'Сохранённых вопросов нет';
 
   @override
   String get savedQuestionsEmptySubtitle =>
-      'Save a question from practice to revisit it later, open related solutions, and track the topics that still need work.';
+      'Сохраните вопрос из практики для последующего изучения.';
 
   @override
-  String get savedQuestionsClearAction => 'Clear saved questions';
+  String get savedQuestionsClearAction => 'Очистить сохранённые';
 
   @override
-  String get savedQuestionsWhyItWorks => 'Why it works';
+  String get savedQuestionsWhyItWorks => 'Почему это работает';
 
   @override
   String savedQuestionsHoursTarget(Object count) {
-    return '$count h target';
+    return 'Цель: $count ч.';
   }
 
   @override
   String savedQuestionsMinutesTarget(Object count) {
-    return '$count min target';
+    return 'Цель: $count мин.';
   }
 
   @override
   String savedQuestionsSecondsTarget(Object count) {
-    return '$count sec target';
+    return 'Цель: $count сек.';
   }
 
   @override
-  String get practiceSetupTooltipAnalytics => 'Practice analytics';
+  String get practiceSetupTooltipAnalytics => 'Аналитика практики';
 
   @override
-  String get practiceSetupStopGenerating => 'Stop Generating';
+  String get practiceSetupStopGenerating => 'Остановить';
 
   @override
-  String get practiceSetupGenerating => 'Generating...';
+  String get practiceSetupGenerating => 'Генерация…';
 
   @override
-  String get practiceSetupStartSession => 'Start session';
+  String get practiceSetupStartSession => 'Начать сессию';
 
   @override
-  String get practiceSetupSearchHint => 'Search...';
+  String get practiceSetupSearchHint => 'Поиск…';
 
   @override
   String get practiceSessionModeDescriptionPractice =>
-      'Balanced solving with instant checking and feedback.';
+      'Сбалансированное решение с мгновенной проверкой.';
 
   @override
   String get practiceSessionModeDescriptionFlashcards =>
-      'Memory-first mode built for quick recall and retention.';
+      'Режим памяти для быстрого вспоминания.';
 
   @override
   String get practiceSessionModeDescriptionSpeedRound =>
-      'Fast, low-friction, timed pressure reps.';
+      'Быстрые повторения под давлением времени.';
 
   @override
   String get practiceSessionModeDescriptionExamPrep =>
-      'Formal exam-feel solving with less gamified pacing.';
+      'Формальный экзаменационный стиль без игровых элементов.';
 
   @override
   String get practiceSessionModeDescriptionConceptBuilder =>
-      'Understand the idea first, then solve with context.';
+      'Сначала поймите идею, затем применяйте.';
 
   @override
   String get practiceSessionModeDescriptionAdaptive =>
-      'Difficulty shifts based on how you perform.';
+      'Сложность меняется в зависимости от результатов.';
 
   @override
   String get practiceSessionModeDescriptionBagrut =>
-      'Official-style single-question formal Bagrut flow.';
+      'Официальный одиночный вопрос в стиле Багрут.';
 
   @override
-  String get practiceSessionLoadingPractice => 'Building your practice session';
+  String get practiceSessionLoadingPractice => 'Создание сессии практики';
 
   @override
-  String get practiceSessionLoadingFlashcards => 'Shuffling your flashcards';
+  String get practiceSessionLoadingFlashcards => 'Перемешивание карточек';
 
   @override
-  String get practiceSessionLoadingSpeedRound => 'Starting the speed round';
+  String get practiceSessionLoadingSpeedRound => 'Запуск скоростного раунда';
 
   @override
-  String get practiceSessionLoadingExamPrep => 'Preparing your exam session';
+  String get practiceSessionLoadingExamPrep =>
+      'Подготовка экзаменационной сессии';
 
   @override
-  String get practiceSessionLoadingConceptBuilder => 'Loading concept coach';
+  String get practiceSessionLoadingConceptBuilder =>
+      'Загрузка коуча по концепциям';
 
   @override
-  String get practiceSessionLoadingAdaptive => 'Personalizing your challenge';
+  String get practiceSessionLoadingAdaptive => 'Персонализация уровня';
 
   @override
-  String get practiceSessionLoadingBagrut => 'Preparing your Bagrut set';
+  String get practiceSessionLoadingBagrut => 'Подготовка набора для Багрут';
 
   @override
-  String get practiceSessionLoadingDefault => 'Preparing your session';
+  String get practiceSessionLoadingDefault => 'Подготовка сессии';
 
   @override
   String practiceSessionCompleteTitle(Object mode) {
-    return '$mode complete';
+    return '$mode завершён';
   }
 
   @override
-  String get practiceSessionMetricAnswered => 'Answered';
+  String get practiceSessionMetricAnswered => 'Отвечено';
 
   @override
-  String get practiceSessionMetricCorrect => 'Correct';
+  String get practiceSessionMetricCorrect => 'Правильно';
 
   @override
-  String get practiceSessionMetricWrong => 'Wrong';
+  String get practiceSessionMetricWrong => 'Неправильно';
 
   @override
-  String get practiceSessionMetricAccuracy => 'Accuracy';
+  String get practiceSessionMetricAccuracy => 'Точность';
 
   @override
-  String get practiceSessionMetricTotal => 'Total';
+  String get practiceSessionMetricTotal => 'Всего';
 
   @override
   String get practiceSessionMetricXp => 'XP';
 
   @override
-  String get practiceSessionMetricStreak => 'Streak';
+  String get practiceSessionMetricStreak => 'Серия';
 
   @override
-  String get practiceSessionReviewLayoutStacked => 'Stacked';
+  String get practiceSessionReviewLayoutStacked => 'Стопкой';
 
   @override
-  String get practiceSessionReviewLayoutFocus => 'Focus';
+  String get practiceSessionReviewLayoutFocus => 'Фокус';
 
   @override
-  String get practiceSessionFilterAll => 'All';
+  String get practiceSessionFilterAll => 'Все';
 
   @override
-  String get practiceSessionFilterWrong => 'Wrong';
+  String get practiceSessionFilterWrong => 'Неверные';
 
   @override
-  String get practiceSessionFilterCorrect => 'Correct';
+  String get practiceSessionFilterCorrect => 'Верные';
 
   @override
-  String get practiceSessionReviewTitle => 'Session review';
+  String get practiceSessionReviewTitle => 'Обзор сессии';
 
   @override
   String get practiceSessionNoQuestionsForFilter =>
-      'No questions match this filter yet.';
+      'Вопросов по этому фильтру нет.';
 
   @override
-  String get practiceSessionNoAnswer => 'No answer';
+  String get practiceSessionNoAnswer => 'Без ответа';
 
   @override
-  String get practiceSessionUnknownAnswer => 'Unknown';
+  String get practiceSessionUnknownAnswer => 'Неизвестно';
 
   @override
-  String get practiceSessionReflectionTitle => 'Reflection';
+  String get practiceSessionReflectionTitle => 'Самоанализ';
 
   @override
-  String get practiceSessionReflectionKnewIt => 'Knew it';
+  String get practiceSessionReflectionKnewIt => 'Знал';
 
   @override
-  String get practiceSessionReflectionReviewAgain => 'Review again';
+  String get practiceSessionReflectionReviewAgain => 'Повторить';
 
   @override
-  String get practiceSessionBackOfCard => 'Back of card';
+  String get practiceSessionBackOfCard => 'Обратная сторона';
 
   @override
-  String get practiceSessionYourAnswer => 'Your answer';
+  String get practiceSessionYourAnswer => 'Ваш ответ';
 
   @override
-  String get practiceSessionCorrectAnswer => 'Correct answer';
+  String get practiceSessionCorrectAnswer => 'Правильный ответ';
 
   @override
-  String get practiceSessionExplanation => 'Explanation';
+  String get practiceSessionExplanation => 'Пояснение';
 
   @override
-  String get practiceSessionBackToSetup => 'Back to setup';
+  String get practiceSessionBackToSetup => 'К настройкам';
 
   @override
-  String get practiceSessionGeneralTopic => 'General';
+  String get practiceSessionGeneralTopic => 'Общее';
 
   @override
   String practiceSessionQuestionProgress(Object current, Object total) {
-    return 'Question $current of $total';
+    return 'Вопрос $current из $total';
   }
 
   @override
-  String get practiceSessionMetricTime => 'Time';
+  String get practiceSessionMetricTime => 'Время';
 
   @override
   String practiceSessionMatchmakingDifficulty(Object difficulty) {
-    return 'Difficulty: $difficulty';
+    return 'Сложность: $difficulty';
   }
 
   @override
-  String get practiceModeActionPrevious => 'Previous';
+  String get practiceModeActionPrevious => 'Назад';
 
   @override
-  String get practiceModeActionCheckAnswer => 'Check answer';
+  String get practiceModeActionCheckAnswer => 'Проверить ответ';
 
   @override
-  String get practiceModeActionNext => 'Next';
+  String get practiceModeActionNext => 'Далее';
 
   @override
-  String get practiceModeActionNextQuestion => 'Next question';
+  String get practiceModeActionNextQuestion => 'Следующий вопрос';
 
   @override
-  String get practiceModeActionEndSession => 'End session';
+  String get practiceModeActionEndSession => 'Завершить сессию';
 
   @override
-  String get practiceModeActionEndQuestion => 'End question';
+  String get practiceModeActionEndQuestion => 'Завершить вопрос';
 
   @override
-  String get practiceModeActionEndExam => 'End exam';
+  String get practiceModeActionEndExam => 'Завершить экзамен';
 
   @override
-  String get practiceModeActionNovaHint => 'NOVA hint';
+  String get practiceModeActionNovaHint => 'Подсказка NOVA';
 
   @override
-  String get practiceModeActionReveal => 'Reveal';
+  String get practiceModeActionReveal => 'Открыть';
 
   @override
-  String get practiceModeActionShowSolution => 'Show solution';
+  String get practiceModeActionShowSolution => 'Показать решение';
 
   @override
-  String get practiceModeActionHideSolution => 'Hide solution';
+  String get practiceModeActionHideSolution => 'Скрыть решение';
 
   @override
-  String get practiceModeActionLockIn => 'Lock in';
+  String get practiceModeActionLockIn => 'Зафиксировать';
 
   @override
-  String get practiceModeActionCheckAdapt => 'Check & adapt';
+  String get practiceModeActionCheckAdapt => 'Проверить и адаптировать';
 
   @override
-  String get practiceModeActionContinue => 'Continue';
+  String get practiceModeActionContinue => 'Продолжить';
 
   @override
-  String get practiceModeActionSolveIt => 'Solve it';
+  String get practiceModeActionSolveIt => 'Решить';
 
   @override
-  String get practiceModeActionNextConcept => 'Next concept';
+  String get practiceModeActionNextConcept => 'Следующая концепция';
 
   @override
-  String get practiceModeCardFront => 'Front of card';
+  String get practiceModeCardFront => 'Лицевая сторона';
 
   @override
-  String get practiceModeRecallSummary => 'Recall summary';
+  String get practiceModeRecallSummary => 'Итоги вспоминания';
 
   @override
-  String get practiceModeFeelingPrompt => 'How did that feel?';
+  String get practiceModeFeelingPrompt => 'Как вам это далось?';
 
   @override
-  String get practiceModeFeelingAgain => 'Again';
+  String get practiceModeFeelingAgain => 'Ещё раз';
 
   @override
-  String get practiceModeFeelingHard => 'Hard';
+  String get practiceModeFeelingHard => 'Сложно';
 
   @override
-  String get practiceModeFeelingGood => 'Good';
+  String get practiceModeFeelingGood => 'Хорошо';
 
   @override
-  String get practiceModeFeelingEasy => 'Easy';
+  String get practiceModeFeelingEasy => 'Легко';
 
   @override
   String get practiceModeSpeedRoundBanner =>
-      'Speed round · fast decisions, instant momentum';
+      'Скоростной раунд · быстрые решения, мгновенный прогресс';
 
   @override
-  String get practiceModeFastFeedback => 'Fast feedback';
+  String get practiceModeFastFeedback => 'Быстрая обратная связь';
 
   @override
   String get practiceModeExamPrepBanner =>
-      'Exam prep · quieter layout, answers reviewed after moving forward';
+      'Подготовка к экзамену · спокойный формат, ответы после перехода';
 
   @override
-  String get practiceModeReview => 'Review';
+  String get practiceModeReview => 'Разбор';
 
   @override
   String get practiceModeBagrutBanner =>
-      'Bagrut mode · official-style paper flow';
+      'Режим Багрут · официальный экзаменационный формат';
 
   @override
-  String get practiceModeOfficialSolution => 'Official-style solution';
+  String get practiceModeOfficialSolution => 'Официальное решение';
 
   @override
-  String get practiceModeAdaptiveWarmup => 'Warm-up difficulty';
+  String get practiceModeAdaptiveWarmup => 'Разминочная сложность';
 
   @override
-  String get practiceModeAdaptiveTrendingUp => 'Difficulty trending up';
+  String get practiceModeAdaptiveTrendingUp => 'Сложность растёт';
 
   @override
-  String get practiceModeAdaptiveEasingDown => 'Difficulty easing down';
+  String get practiceModeAdaptiveEasingDown => 'Сложность снижается';
 
   @override
-  String get practiceModeAdaptiveSteady => 'Difficulty holding steady';
+  String get practiceModeAdaptiveSteady => 'Сложность стабильна';
 
   @override
-  String get practiceModeAdaptiveFeedback => 'Adaptive feedback';
+  String get practiceModeAdaptiveFeedback => 'Адаптивная обратная связь';
 
   @override
-  String get practiceModeConceptFirst => 'Concept first';
+  String get practiceModeConceptFirst => 'Сначала концепция';
 
   @override
-  String get practiceModeNowSolveIt => 'Now solve it';
+  String get practiceModeNowSolveIt => 'Теперь решите';
 
   @override
-  String get practiceModeConceptTitle => 'Concept';
+  String get practiceModeConceptTitle => 'Концепция';
 
   @override
-  String get practiceModeFeedbackCorrect => 'Correct';
+  String get practiceModeFeedbackCorrect => 'Правильно';
 
   @override
-  String get practiceModeFeedbackNotQuite => 'Not quite';
+  String get practiceModeFeedbackNotQuite => 'Не совсем';
 
   @override
-  String get practiceModeFallbackQuestion => 'Question';
+  String get practiceModeFallbackQuestion => 'Вопрос';
 
   @override
-  String get practiceModeNoExplanationYet => 'No explanation available yet.';
+  String get practiceModeNoExplanationYet => 'Пояснение пока недоступно.';
 
   @override
-  String get teacherGradesAssessmentCreated => 'Assessment created';
+  String get teacherGradesAssessmentCreated => 'Контрольная работа создана';
 
   @override
-  String get teacherGradesEditAssessmentTitle => 'Edit assessment';
+  String get teacherGradesEditAssessmentTitle => 'Редактировать работу';
 
   @override
-  String get teacherGradesFieldTitle => 'Title';
+  String get teacherGradesFieldTitle => 'Название';
 
   @override
-  String get teacherGradesFieldDate => 'Date (YYYY-MM-DD)';
+  String get teacherGradesFieldDate => 'Дата (ГГГГ-ММ-ДД)';
 
   @override
-  String get teacherGradesFieldMaxGrade => 'Max grade';
+  String get teacherGradesFieldMaxGrade => 'Максимальная оценка';
 
   @override
-  String get teacherGradesAssessmentUpdated => 'Assessment updated';
+  String get teacherGradesAssessmentUpdated => 'Работа обновлена';
 
   @override
-  String get teacherGradesDeleteAssessmentTitle => 'Delete assessment?';
+  String get teacherGradesDeleteAssessmentTitle =>
+      'Удалить контрольную работу?';
 
   @override
   String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'This will remove $title and its grading entry from the teacher workspace.';
+    return 'Это удалит $title и все оценки из журнала.';
   }
 
   @override
-  String get teacherGradesDeleteAction => 'Delete';
+  String get teacherGradesDeleteAction => 'Удалить';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'Assessment deleted';
+  String get teacherGradesAssessmentDeleted => 'Контрольная работа удалена';
 
   @override
   String get teacherGradesRosterLinkError =>
-      'This assessment is not linked to a classroom roster.';
+      'Эта работа не связана со списком класса.';
 
   @override
-  String get teacherGradesSaved => 'Grades saved';
+  String get teacherGradesSaved => 'Оценки сохранены';
 
   @override
-  String get teacherGradesSubtitle =>
-      'Create assessments and save grades against the live classroom roster.';
+  String get teacherGradesSubtitle => 'Журнал оценок';
 
   @override
-  String get teacherGradesCreateAssessmentTitle => 'Create assessment';
+  String get teacherGradesCreateAssessmentTitle => 'Создать контрольную работу';
 
   @override
-  String get teacherGradesFieldCourse => 'Course';
+  String get teacherGradesFieldCourse => 'Предмет';
 
   @override
-  String get teacherGradesCreateAction => 'Create';
+  String get teacherGradesCreateAction => 'Создать';
 
   @override
   String get teacherGradesNoStudentsLoaded =>
-      'No students loaded for this assessment.';
+      'Ученики для этой работы не загружены.';
 
   @override
-  String get teacherGradesFieldGrade => 'Grade';
+  String get teacherGradesFieldGrade => 'Оценка';
 
   @override
   String teacherGradesMaxHint(Object grade) {
-    return 'Max $grade';
+    return 'Макс. $grade';
   }
 
   @override
-  String get teacherGradesSaving => 'Saving…';
+  String get teacherGradesSaving => 'Сохранение…';
 
   @override
   String teacherGradesSaveCount(Object count) {
-    return 'Save $count grades';
+    return 'Сохранить оценки ($count)';
   }
 
   @override
-  String get assignmentsNoDueDate => 'No due date';
+  String get assignmentsNoDueDate => 'Без срока';
 
   @override
-  String get assignmentsLoadError =>
-      'We could not load assignments right now. Pull to refresh or try again.';
+  String get assignmentsLoadError => 'Не удалось загрузить задания';
 
   @override
-  String get assignmentsLoadTimeout =>
-      'Assignments are taking too long to load. Pull to refresh or try again in a moment.';
+  String get assignmentsLoadTimeout => 'Превышено время ожидания';
 
   @override
-  String get assignmentsLoadNetwork =>
-      'Assignments could not connect right now. Check your connection and try again.';
+  String get assignmentsLoadNetwork => 'Нет подключения';
 
   @override
-  String get assignmentsStatusOverdue => 'Overdue';
+  String get assignmentsStatusOverdue => 'Просрочено';
 
   @override
-  String get assignmentsStatusDueSoon => 'Due soon';
+  String get assignmentsStatusDueSoon => 'Скоро срок';
 
   @override
-  String get assignmentsStatusUpcoming => 'Upcoming';
+  String get assignmentsStatusUpcoming => 'Предстоящее';
 
   @override
-  String get assignmentsPreviewFallback =>
-      'Open this assignment to see the full instructions and prepare your work.';
+  String get assignmentsPreviewFallback => 'Файл';
 
   @override
-  String get assignmentsSubmissionPrepEmpty => 'Stage your note or files here.';
+  String get assignmentsSubmissionPrepEmpty => 'Нет подготовленных материалов';
 
   @override
   String assignmentsSubmissionPrepCount(Object count) {
-    return '$count file(s) attached locally.';
+    return '$count файл(ов) прикреплено локально.';
   }
 
   @override
-  String get assignmentsHeroSubtitle =>
-      'Every classroom assignment in one clean view, with a full-screen detail page and a dedicated place to prepare your work.';
+  String get assignmentsHeroSubtitle => 'Ваши задания';
 
   @override
-  String get assignmentsSubjectsMetric => 'Subjects';
+  String get assignmentsSubjectsMetric => 'Предметов';
 
   @override
-  String get assignmentsNothingAssignedYet => 'Nothing assigned yet';
+  String get assignmentsNothingAssignedYet => 'Заданий пока нет';
 
   @override
   String get assignmentsNoAssignmentsForAccount =>
-      'No classroom assignments are available for this student account right now.';
+      'Для вашего аккаунта заданий нет';
 
   @override
   String assignmentsNextThingBody(Object title, Object due) {
-    return '$title is the next thing to look at. $due.';
+    return '$title — следующее задание. $due.';
   }
 
   @override
-  String get assignmentsPullToCheckAgain => 'Pull down to check again.';
+  String get assignmentsPullToCheckAgain => 'Потяните для обновления';
 
   @override
-  String get assignmentsFiltersSubtitle =>
-      'Narrow the list by subject or urgency to focus on what matters first.';
+  String get assignmentsFiltersSubtitle => 'Фильтровать задания';
 
   @override
-  String get assignmentsSubjectLabel => 'Subject';
+  String get assignmentsSubjectLabel => 'Предмет';
 
   @override
-  String get assignmentsAllSubjects => 'All subjects';
+  String get assignmentsAllSubjects => 'Все предметы';
 
   @override
-  String get assignmentsSearchSubjects => 'Search subjects';
+  String get assignmentsSearchSubjects => 'Поиск предметов';
 
   @override
-  String get assignmentsStatusLabel => 'Status';
+  String get assignmentsStatusLabel => 'Статус';
 
   @override
-  String get assignmentsAllStatuses => 'All statuses';
+  String get assignmentsAllStatuses => 'Все статусы';
 
   @override
-  String get assignmentsSearchStatuses => 'Search statuses';
+  String get assignmentsSearchStatuses => 'Поиск статусов';
 
   @override
   String assignmentsShowingSummary(Object shown, Object total) {
-    return 'Showing $shown of $total assignments.';
+    return 'Показано $shown из $total заданий.';
   }
 
   @override
-  String get assignmentsNoFilterMatchesTitle =>
-      'No assignments match these filters';
+  String get assignmentsNoFilterMatchesTitle => 'Заданий не найдено';
 
   @override
   String get assignmentsNoFilterMatchesSubtitle =>
-      'Try all subjects or a wider status view to bring more assignments back into the list.';
+      'Попробуйте изменить фильтры.';
 
   @override
-  String get assignmentsClearFiltersHint =>
-      'Clear filters to see everything again.';
+  String get assignmentsClearFiltersHint => 'Очистить фильтры';
 
   @override
-  String get assignmentsListSubtitle =>
-      'Tap any assignment to open the full-screen detail view and prepare your work.';
+  String get assignmentsListSubtitle => 'Все задания';
 
   @override
   String get assignmentsAddNoteBeforePrepare =>
-      'Add a note or attach a file before preparing your work.';
+      'Добавьте заметку перед подготовкой';
 
   @override
-  String get assignmentsWorkDraftPrepared => 'Work draft prepared.';
+  String get assignmentsWorkDraftPrepared => 'Черновик готов';
 
   @override
   String get assignmentsWorkDraftPreparedWithFiles =>
-      'Work draft prepared. Attached files are saved on this device.';
+      'Черновик с файлами готов';
 
   @override
-  String get assignmentsUnavailableTitle => 'Assignment unavailable';
+  String get assignmentsUnavailableTitle => 'Задания недоступны';
 
   @override
-  String get assignmentsUnavailableSubtitle =>
-      'This assignment could not be found in the current feed. It may have been removed or is not available offline.';
+  String get assignmentsUnavailableSubtitle => 'Попробуйте позже';
 
   @override
-  String get assignmentsUnavailableHint =>
-      'Go back and refresh the assignments list.';
+  String get assignmentsUnavailableHint => 'Потяните вниз для обновления';
 
   @override
-  String get assignmentsOverdueBannerBody =>
-      'This assignment is past its due date. Open your work area below to prepare what you want to turn in.';
+  String get assignmentsOverdueBannerBody => 'Есть просроченные задания';
 
   @override
   String get assignmentsWorkAreaBannerBody =>
-      'Use the work area below to stage files, write a note, and keep everything ready in one place.';
+      'Ваша рабочая область для подготовки';
 
   @override
-  String get assignmentsDetailsSectionTitle => 'Assignment details';
+  String get assignmentsDetailsSectionTitle => 'Подробности';
 
   @override
-  String get assignmentsDetailsSectionSubtitle =>
-      'Everything student-relevant that is currently available in the classroom assignment payload.';
+  String get assignmentsDetailsSectionSubtitle => 'Данные задания';
 
   @override
-  String get assignmentsDetailDueLabel => 'Due';
+  String get assignmentsDetailDueLabel => 'Срок';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'Classroom';
+  String get assignmentsDetailClassroomLabel => 'Класс';
 
   @override
-  String get assignmentsDetailTeacherLabel => 'Teacher';
+  String get assignmentsDetailTeacherLabel => 'Учитель';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'Posted by';
+  String get assignmentsDetailPostedByLabel => 'Опубликовал';
 
   @override
-  String get assignmentsDetailPublishedLabel => 'Published';
+  String get assignmentsDetailPublishedLabel => 'Опубликовано';
 
   @override
-  String get assignmentsDetailUpdatedLabel => 'Updated';
+  String get assignmentsDetailUpdatedLabel => 'Обновлено';
 
   @override
-  String get assignmentsDetailIdLabel => 'Assignment ID';
+  String get assignmentsDetailIdLabel => 'ID';
 
   @override
-  String get assignmentsInstructionsTitle => 'Instructions';
+  String get assignmentsInstructionsTitle => 'Инструкции';
 
   @override
-  String get assignmentsInstructionsSubtitle =>
-      'Full assignment text from the classroom feed, with the original wording preserved.';
+  String get assignmentsInstructionsSubtitle => 'Описание задания';
 
   @override
-  String get assignmentsYourWorkTitle => 'Your work';
+  String get assignmentsYourWorkTitle => 'Ваша работа';
 
   @override
-  String get assignmentsYourWorkSubtitle =>
-      'Stage a note, attach files or docs, and keep your submission prep in one focused space.';
+  String get assignmentsYourWorkSubtitle => 'Подготовка и прикрепление файлов';
 
   @override
-  String get assignmentsPrivateNoteLabel => 'Private work note';
+  String get assignmentsPrivateNoteLabel => 'Личная заметка';
 
   @override
-  String get assignmentsPrivateNoteHint =>
-      'Add what you plan to submit, reminders for yourself, or a doc/link summary.';
+  String get assignmentsPrivateNoteHint => 'Только для вас…';
 
   @override
-  String get assignmentsAddFiles => 'Add files or docs';
+  String get assignmentsAddFiles => 'Добавить файлы';
 
   @override
-  String get assignmentsClearFiles => 'Clear files';
+  String get assignmentsClearFiles => 'Удалить файлы';
 
   @override
   String get assignmentsStagedDeviceHint =>
-      'Files are staged on this device. Assignment file submission is not available in this app.';
+      'Файлы хранятся локально на устройстве';
 
   @override
   String assignmentsLastPrepared(Object time) {
-    return 'Last prepared $time.';
+    return 'Последняя подготовка: $time.';
   }
 
   @override
-  String get assignmentsSubmissionPrepTitle => 'Submission prep';
+  String get assignmentsSubmissionPrepTitle => 'Подготовка';
 
   @override
-  String get assignmentsPreparing => 'Preparing';
+  String get assignmentsPreparing => 'Подготовка…';
 
   @override
-  String get assignmentsPrepareWork => 'Prepare work';
+  String get assignmentsPrepareWork => 'Подготовить';
 
   @override
-  String get assignmentsLoadingSubtitle =>
-      'Loading your classroom assignments.';
+  String get assignmentsLoadingSubtitle => 'Загрузка заданий…';
 
   @override
-  String get assignmentsPullToRefreshRetry => 'Pull to refresh or retry below.';
+  String get assignmentsPullToRefreshRetry => 'Потяните для повтора';
 
   @override
-  String get assignmentsFileSizeUnknown => 'File';
+  String get assignmentsFileSizeUnknown => 'Размер неизвестен';
 
   @override
-  String get assignmentsRemoveAttachment => 'Remove';
+  String get assignmentsRemoveAttachment => 'Удалить вложение';
 
   @override
-  String get attendanceUndated => 'Undated';
+  String get assignmentsSubmitted => 'Сдано';
 
   @override
-  String get attendanceLoadError =>
-      'We could not load attendance right now. Pull to refresh or try again.';
+  String get attendanceUndated => 'Без даты';
 
   @override
-  String get attendanceLoadTimeout =>
-      'Attendance is taking too long to load. Pull to refresh or try again in a moment.';
+  String get attendanceLoadError => 'Не удалось загрузить посещаемость';
 
   @override
-  String get attendanceLoadNetwork =>
-      'Attendance could not connect right now. Check your connection and try again.';
+  String get attendanceLoadTimeout => 'Превышено время ожидания';
 
   @override
-  String get attendanceConsistencyBuilding => 'Still building';
+  String get attendanceLoadNetwork => 'Нет подключения';
 
   @override
-  String get attendanceConsistencyExcellent => 'Excellent consistency';
+  String get attendanceConsistencyBuilding => 'Формируется';
 
   @override
-  String get attendanceConsistencySteady => 'Mostly steady';
+  String get attendanceConsistencyExcellent => 'Отлично';
 
   @override
-  String get attendanceConsistencyNeedsAttention => 'Needs attention';
+  String get attendanceConsistencySteady => 'Стабильно';
 
   @override
-  String get attendanceConsistencyRisk => 'Attendance risk';
+  String get attendanceConsistencyNeedsAttention => 'Требует внимания';
 
   @override
-  String get attendanceWatchRecentAbsences => 'Recent absences';
+  String get attendanceConsistencyRisk => 'Риск';
 
   @override
-  String get attendanceWatchRepeatedLateness => 'Repeated lateness';
+  String get attendanceWatchRecentAbsences => 'Недавние пропуски';
 
   @override
-  String get attendanceWatchExcusedAddingUp => 'Excused time adding up';
+  String get attendanceWatchRepeatedLateness => 'Систематические опоздания';
 
   @override
-  String get attendanceWatchNoFlags => 'No current flags';
+  String get attendanceWatchExcusedAddingUp => 'Накапливаются уважит. причины';
 
   @override
-  String get attendanceAllSubjectsLowercase => 'all subjects';
+  String get attendanceWatchNoFlags => 'Всё хорошо';
+
+  @override
+  String get attendanceAllSubjectsLowercase => 'все предметы';
 
   @override
   String attendanceShowingSummary(
@@ -3654,205 +3623,194 @@ class AppLocalizationsRu extends AppLocalizations {
     Object subject,
     Object range,
   ) {
-    return 'Showing $shown of $total marks for $subject in $range.';
+    return 'Показано $shown из $total записей по $subject за $range.';
   }
 
   @override
-  String get attendanceDayToneAbsent => 'Absence day';
+  String get attendanceDayToneAbsent => 'Отсутствие';
 
   @override
-  String get attendanceDayToneLate => 'Late signal';
+  String get attendanceDayToneLate => 'Опоздание';
 
   @override
-  String get attendanceDayToneExcused => 'Excused attendance';
+  String get attendanceDayToneExcused => 'Уважит. причина';
 
   @override
-  String get attendanceDayToneClean => 'Clean day';
+  String get attendanceDayToneClean => 'Без отметок';
 
   @override
-  String get attendanceLoadingSubtitle =>
-      'Loading your latest attendance summary.';
+  String get attendanceLoadingSubtitle => 'Загрузка данных…';
 
   @override
-  String get attendanceUnavailableTitle => 'Attendance unavailable';
+  String get attendanceUnavailableTitle => 'Посещаемость недоступна';
 
   @override
-  String get attendanceHeroSubtitle =>
-      'A clean read on your attendance rate, recent lessons, and anything that needs attention.';
+  String get attendanceHeroSubtitle => 'Журнал посещаемости';
 
   @override
-  String get attendanceMetricRate => 'Rate';
+  String get attendanceMetricRate => 'Процент';
 
   @override
-  String get attendanceMetricPresent => 'Present marks';
+  String get attendanceMetricPresent => 'Присутствовал';
 
   @override
-  String get attendanceMetricLate => 'Late marks';
+  String get attendanceMetricLate => 'Опоздал';
 
   @override
-  String get attendanceMetricAbsent => 'Absent marks';
+  String get attendanceMetricAbsent => 'Отсутствовал';
 
   @override
   String attendanceHeroSignalBody(Object flag) {
-    return '$flag. Attendance pressure can build quietly, so this view stays focused on what changed most recently.';
+    return '$flag. Следите за посещаемостью.';
   }
 
   @override
-  String get attendanceNoSummary =>
-      'No attendance summary is available for this student account yet.';
+  String get attendanceNoSummary => 'Нет данных';
 
   @override
-  String get attendanceEmptyTitle => 'No attendance records yet';
+  String get attendanceEmptyTitle => 'Записей нет';
 
   @override
-  String get attendanceEmptySubtitle =>
-      'No attendance records have been published for this student account yet.';
+  String get attendanceEmptySubtitle => 'Данные появятся после первого урока.';
 
   @override
-  String get attendanceFiltersSubtitle =>
-      'Use the same searchable picker style as settings to narrow the attendance view by subject or time window.';
+  String get attendanceFiltersSubtitle => 'Фильтровать записи';
 
   @override
-  String get attendanceTimeRangeLabel => 'Time range';
+  String get attendanceTimeRangeLabel => 'Период';
 
   @override
-  String get attendanceSearchRanges => 'All time / 7 days / 30 days / 90 days';
+  String get attendanceSearchRanges => 'Поиск периодов';
 
   @override
-  String get attendanceNoFilteredMarksTitle => 'No marks match these filters';
+  String get attendanceNoFilteredMarksTitle => 'Записей не найдено';
 
   @override
   String get attendanceNoFilteredMarksSubtitle =>
-      'Try all subjects or a wider time range to bring more attendance marks back into view.';
+      'Попробуйте изменить фильтры.';
 
   @override
-  String get attendanceQuickReadTitle => 'Quick read';
+  String get attendanceQuickReadTitle => 'Сводка';
 
   @override
   String get attendanceQuickReadSubtitleFiltered =>
-      'A fast summary for the filtered attendance marks shown below.';
+      'По отфильтрованным записям';
 
   @override
-  String get attendanceQuickReadSubtitleAll =>
-      'A fast summary based on the latest attendance records available.';
+  String get attendanceQuickReadSubtitleAll => 'По всем записям';
 
   @override
-  String get attendanceSummaryConsistency => 'Consistency';
+  String get attendanceSummaryConsistency => 'Стабильность';
 
   @override
-  String get attendanceSummaryWatchFor => 'Watch for';
+  String get attendanceSummaryWatchFor => 'На заметку';
 
   @override
-  String get attendanceSummaryExcused => 'Excused marks';
+  String get attendanceSummaryExcused => 'Уважит. причин';
 
   @override
-  String get attendanceSummaryMarksInView => 'Marks in view';
+  String get attendanceSummaryMarksInView => 'Записей';
 
   @override
-  String get attendanceSummaryRateInView => 'Rate in view';
+  String get attendanceSummaryRateInView => 'Процент';
 
   @override
-  String get attendanceRecentDaysTitle => 'Recent days';
+  String get attendanceRecentDaysTitle => 'Последние дни';
 
   @override
-  String get attendanceRecentDaysSubtitleFiltered =>
-      'Grouped by day for the filtered marks currently in view.';
+  String get attendanceRecentDaysSubtitleFiltered => 'Отфильтрованные записи';
 
   @override
-  String get attendanceRecentDaysSubtitleAll =>
-      'Grouped by day so you can catch absence or lateness patterns faster.';
+  String get attendanceRecentDaysSubtitleAll => 'Последние записи';
 
   @override
-  String get attendanceLessonCountSingle => '1 lesson';
+  String get attendanceLessonCountSingle => '1 урок';
 
   @override
   String attendanceLessonCount(Object count) {
-    return '$count lessons';
+    return '$count уроков';
   }
 
   @override
-  String get attendanceStatusPresent => 'Present';
+  String get attendanceStatusPresent => 'Присутствует';
 
   @override
-  String get attendanceStatusLate => 'Late';
+  String get attendanceStatusLate => 'Опоздал';
 
   @override
-  String get attendanceStatusAbsent => 'Absent';
+  String get attendanceStatusAbsent => 'Отсутствует';
 
   @override
-  String get attendanceStatusExcused => 'Excused';
+  String get attendanceStatusExcused => 'Уважит. причина';
 
   @override
-  String get attendanceStatusRecorded => 'Recorded';
+  String get attendanceStatusRecorded => 'Записано';
 
   @override
-  String get attendanceLessonFallback => 'Lesson';
+  String get attendanceLessonFallback => 'Урок';
 
   @override
-  String get attendanceRangeAll => 'All time';
+  String get attendanceRangeAll => 'За всё время';
 
   @override
-  String get attendanceRange7 => 'Last 7 days';
+  String get attendanceRange7 => 'Последние 7 дней';
 
   @override
-  String get attendanceRange30 => 'Last 30 days';
+  String get attendanceRange30 => 'Последние 30 дней';
 
   @override
-  String get attendanceRange90 => 'Last 90 days';
+  String get attendanceRange90 => 'Последние 90 дней';
 
   @override
-  String get attendanceRangeAllShort => 'All time';
+  String get attendanceRangeAllShort => 'всё время';
 
   @override
-  String get attendanceRange7Short => '7 days';
+  String get attendanceRange7Short => '7 дней';
 
   @override
-  String get attendanceRange30Short => '30 days';
+  String get attendanceRange30Short => '30 дней';
 
   @override
-  String get attendanceRange90Short => '90 days';
+  String get attendanceRange90Short => '90 дней';
 
   @override
-  String get gradesLoadError =>
-      'We could not load grades right now. Pull to refresh or try again.';
+  String get gradesLoadError => 'Не удалось загрузить оценки';
 
   @override
-  String get gradesLoadTimeout =>
-      'Grades are taking too long to load. Pull to refresh or try again in a moment.';
+  String get gradesLoadTimeout => 'Превышено время ожидания';
 
   @override
-  String get gradesLoadNetwork =>
-      'Grades could not connect right now. Check your connection and try again.';
+  String get gradesLoadNetwork => 'Нет подключения';
 
   @override
-  String get gradesGeneralSubject => 'General';
+  String get gradesGeneralSubject => 'Общее';
 
   @override
-  String get gradesBandBuilding => 'Still building';
+  String get gradesBandBuilding => 'Формируется';
 
   @override
-  String get gradesBandExcellent => 'Excellent';
+  String get gradesBandExcellent => 'Отлично';
 
   @override
-  String get gradesBandStrong => 'Strong';
+  String get gradesBandStrong => 'Хорошо';
 
   @override
-  String get gradesBandOkay => 'Okay';
+  String get gradesBandOkay => 'Удовлетворительно';
 
   @override
-  String get gradesBandNeedsAttention => 'Needs attention';
+  String get gradesBandNeedsAttention => 'Требует внимания';
 
   @override
-  String get gradesBandRisk => 'At risk';
+  String get gradesBandRisk => 'Риск';
 
   @override
-  String get gradesTrendRising => 'Rising';
+  String get gradesTrendRising => 'Растёт';
 
   @override
-  String get gradesTrendDropping => 'Dropping';
+  String get gradesTrendDropping => 'Падает';
 
   @override
-  String get gradesTrendStable => 'Stable';
+  String get gradesTrendStable => 'Стабильно';
 
   @override
   String gradesShowingSummary(
@@ -3861,30 +3819,29 @@ class AppLocalizationsRu extends AppLocalizations {
     Object subject,
     Object range,
   ) {
-    return 'Showing $shown of $total recorded grades for $subject in $range.';
+    return 'Показано $shown из $total оценок по $subject за $range.';
   }
 
   @override
-  String get gradesLoadingSubtitle => 'Loading your latest academic results.';
+  String get gradesLoadingSubtitle => 'Загрузка оценок…';
 
   @override
-  String get gradesUnavailableTitle => 'Grades unavailable';
+  String get gradesUnavailableTitle => 'Оценки недоступны';
 
   @override
-  String get gradesHeroSubtitle =>
-      'A clean read on your average, recent assessments, and which subjects need protection or recovery.';
+  String get gradesHeroSubtitle => 'Ваши оценки';
 
   @override
-  String get gradesMetricAverage => 'Average';
+  String get gradesMetricAverage => 'Средний балл';
 
   @override
-  String get gradesMetricRecorded => 'Recorded';
+  String get gradesMetricRecorded => 'Всего оценок';
 
   @override
-  String get gradesMetricBestSubject => 'Best subject';
+  String get gradesMetricBestSubject => 'Лучший предмет';
 
   @override
-  String get gradesMetricNeedsWork => 'Needs work';
+  String get gradesMetricNeedsWork => 'Требует работы';
 
   @override
   String gradesLatestSignalBody(
@@ -3893,114 +3850,106 @@ class AppLocalizationsRu extends AppLocalizations {
     Object grade,
     Object band,
   ) {
-    return '$assessment in $subject landed at $grade. $band right now.';
+    return '$assessment по $subject: $grade. Уровень: $band.';
   }
 
   @override
-  String get gradesSummaryAvailableNoRecent =>
-      'A grade summary is available, but no recent assessments are visible in this view yet.';
+  String get gradesSummaryAvailableNoRecent => 'Нет последних оценок';
 
   @override
-  String get gradesEmptyTitle => 'No grades yet';
+  String get gradesEmptyTitle => 'Оценок пока нет';
 
   @override
-  String get gradesEmptySubtitle =>
-      'No grades have been published for this student account yet.';
+  String get gradesEmptySubtitle => 'Оценки появятся после проверки работ.';
 
   @override
-  String get gradesFiltersSubtitle =>
-      'Use the same searchable picker style as settings to narrow grades by subject or time window.';
+  String get gradesFiltersSubtitle => 'Фильтровать оценки';
 
   @override
-  String get gradesNoFilteredTitle => 'No grades match these filters';
+  String get gradesNoFilteredTitle => 'Оценок не найдено';
 
   @override
-  String get gradesNoFilteredSubtitle =>
-      'Try all subjects or a wider time range to bring more recorded grades back into view.';
+  String get gradesNoFilteredSubtitle => 'Попробуйте изменить фильтры.';
 
   @override
-  String get gradesQuickReadTitle => 'Quick read';
+  String get gradesQuickReadTitle => 'Сводка';
 
   @override
-  String get gradesQuickReadSubtitleFiltered =>
-      'A fast summary for the grades currently in view.';
+  String get gradesQuickReadSubtitleFiltered => 'По отфильтрованным оценкам';
 
   @override
-  String get gradesQuickReadSubtitleAll =>
-      'The fastest read on what to protect and what to recover.';
+  String get gradesQuickReadSubtitleAll => 'По всем оценкам';
 
   @override
-  String get gradesWeakSpotLabel => 'Current weak spot';
+  String get gradesWeakSpotLabel => 'Слабое место';
 
   @override
-  String get gradesNoWeakSignal => 'No weak subject signal yet';
+  String get gradesNoWeakSignal => 'Слабых мест нет';
 
   @override
   String gradesWeakSpotValue(Object subject) {
-    return '$subject needs the first recovery block.';
+    return 'Нужно внимание: $subject';
   }
 
   @override
-  String get gradesStrengthLabel => 'Current strength';
+  String get gradesStrengthLabel => 'Сильная сторона';
 
   @override
-  String get gradesNoStrengthSignal => 'No strong subject signal yet';
+  String get gradesNoStrengthSignal => 'Нет данных';
 
   @override
   String gradesStrengthValue(Object subject) {
-    return '$subject is your confidence anchor right now.';
+    return '$subject';
   }
 
   @override
-  String get gradesBandLabel => 'Band';
+  String get gradesBandLabel => 'Уровень';
 
   @override
-  String get gradesInViewLabel => 'In view';
+  String get gradesInViewLabel => 'В просмотре';
 
   @override
   String gradesInViewCount(Object count) {
-    return '$count recorded grades in this filter.';
+    return '$count оценок в этом фильтре.';
   }
 
   @override
   String gradesInViewAverage(Object count, Object average) {
-    return '$count recorded grades averaging $average.';
+    return '$count оценок, средний балл $average.';
   }
 
   @override
-  String get gradesLatestAssessmentsTitle => 'Latest assessments';
+  String get gradesLatestAssessmentsTitle => 'Последние оценки';
 
   @override
   String get gradesLatestAssessmentsSubtitleFiltered =>
-      'Most recent recorded grades in the current filtered view.';
+      'Отфильтрованные оценки';
 
   @override
-  String get gradesLatestAssessmentsSubtitleAll =>
-      'Most recent recorded grades in chronological order.';
+  String get gradesLatestAssessmentsSubtitleAll => 'Все недавние оценки';
 
   @override
-  String get gradesSubjectDrilldownTitle => 'Subject drilldown';
+  String get gradesSubjectDrilldownTitle => 'По предметам';
 
   @override
   String get gradesSubjectDrilldownSubtitleFiltered =>
-      'Grouped by subject for the grades currently in view.';
+      'По отфильтрованным предметам';
 
   @override
-  String get gradesSubjectDrilldownSubtitleAll =>
-      'Grouped by subject so trend and pressure stand out faster.';
+  String get gradesSubjectDrilldownSubtitleAll => 'По всем предметам';
 
   @override
-  String get gradesAssessmentFallback => 'Assessment';
+  String get gradesAssessmentFallback => 'Оценивание';
 
   @override
-  String get gradesChipBest => 'Best';
+  String get gradesChipBest => 'Лучший';
 
   @override
-  String get gradesNoAverageYet => 'No average yet';
+  String get gradesNoAverageYet => 'Среднего балла пока нет';
 
   @override
   String gradesRecentAverage(Object average) {
-    return 'Recent average: $average';
+    return 'Средний балл: $average';
   }
 
   @override
@@ -4253,6 +4202,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherStudentsLabel => 'Ученики';
 
   @override
+  String get teacherSearchStudents => 'Поиск по имени или классу…';
+
+  @override
+  String get teacherNoStudentsLoaded => 'В этой школе нет учеников.';
+
+  @override
+  String get teacherActions => 'БЫСТРЫЕ ДЕЙСТВИЯ';
+
+  @override
   String get teacherParentsLabel => 'Родители';
 
   @override
@@ -4265,7 +4223,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'Не удалось загрузить расписание';
 
   @override
-  String get teacherAttendanceLast30 => 'Посещаемость (последние 30 дней)';
+  String get teacherAttendanceLast30 => 'Последние 30 дней';
+
+  @override
+  String teacherAttendanceFrom(Object date) {
+    return 'С $date';
+  }
+
+  @override
+  String get teacherAttendanceChangeDate => 'Изменить дату';
+
+  @override
+  String get teacherAttendanceNoSessions => 'Занятий не найдено';
 
   @override
   String get teacherRecentGrades => 'Последние оценки';
@@ -4533,7 +4502,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherLinkUrlLabel => 'Ссылка / URL *';
 
   @override
-  String get teacherLinkUrlHint => 'https://...';
+  String get teacherLinkUrlHint => 'Введите ссылку…';
 
   @override
   String get teacherDescriptionLabel => 'Описание';
@@ -4606,13 +4575,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Поиск студентов…';
 
   @override
-  String get navDiplomas => 'Дипломы';
+  String get navDiplomas => 'Сертификаты';
 
   @override
   String get diplomasComingSoon => 'Управление дипломами скоро появится.';
 
   @override
-  String get teacherExamsTitle => 'Экзамены и оценки';
+  String get teacherExamsTitle => 'Экзамены';
 
   @override
   String get teacherExamsUpcoming => 'Предстоящие';
@@ -4661,7 +4630,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherFormsNoResponses => 'Ответов пока нет.';
 
   @override
-  String get diplomasTitle => 'Дипломы и сертификаты';
+  String get diplomasTitle => 'Сертификаты';
 
   @override
   String get diplomasEmpty => 'Дипломы ещё не выданы. Нажмите + чтобы выдать.';
@@ -4725,4 +4694,48 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'Открыть оценки';
+
+  @override
+  String get teacherGradesSaveAction => 'Сохранить';
+
+  @override
+  String get teacherGradesNothingToSave => 'Нет изменений для сохранения.';
+
+  @override
+  String get teacherRetry => 'Повторить';
+
+  @override
+  String get teacherExamGradesStudents => 'учеников';
+
+  @override
+  String get teacherExamGradesGraded => 'оценено';
+
+  @override
+  String get teacherExamGradesNoStudents =>
+      'Нет выбранных учеников.\nОтредактируйте экзамен, чтобы добавить аудиторию.';
+
+  @override
+  String get teacherExamGradesEnterGrades => 'Ввести оценки';
+
+  @override
+  String get teacherDeleteExamTitle => 'Удалить экзамен?';
+
+  @override
+  String get teacherDeleteExamBody => 'Экзамен будет удалён навсегда.';
+
+  @override
+  String get teacherMeetingsEmpty =>
+      'Встреч пока нет.\nНажмите + чтобы запланировать.';
+
+  @override
+  String get teacherStudentsNoMatch => 'Ученики не найдены';
+
+  @override
+  String get teacherMaterialsTitle => 'Материалы';
+
+  @override
+  String get profileNamesTitle => 'Имя на языках';
+
+  @override
+  String get profileDisplayNameLang => 'Язык отображения';
 }

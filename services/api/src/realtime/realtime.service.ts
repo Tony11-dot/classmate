@@ -1,0 +1,62 @@
+import { Injectable } from '@nestjs/common';
+import { Response } from 'express';
+
+export type RealtimeEvent =
+  | { type: 'classroom_message'; classroomId: string }
+  | { type: 'dm_message'; threadId: string }
+  | { type: 'notification'; userId: string }
+  | { type: 'grade_updated'; studentId: string }
+  | { type: 'assignment_created'; classroomId?: string; targetUserIds?: string[] }
+  | { type: 'material_created'; classroomId?: string; targetUserIds?: string[] }
+  | { type: 'meeting_created'; classroomId?: string; targetUserIds?: string[] }
+  | { type: 'schedule_updated'; studentId: string }
+  | { type: 'ping' };
+
+@Injectable()
+export class RealtimeService {
+  // userId → set of SSE responses
+  private readonly connections = new Map<string, Set<Response>>();
+
+  subscribe(userId: string, res: Response): () => void {
+    if (!this.connections.has(userId)) {
+      this.connections.set(userId, new Set());
+    }
+    this.connections.get(userId)!.add(res);
+
+    // Keep-alive ping every 25s so proxies don't close idle connections
+    const pingInterval = setInterval(() => {
+      this.send(res, { type: 'ping' });
+    }, 25_000);
+
+    return () => {
+      clearInterval(pingInterval);
+      const set = this.connections.get(userId);
+      if (set) {
+        set.delete(res);
+        if (set.size === 0) this.connections.delete(userId);
+      }
+    };
+  }
+
+  private send(res: Response, event: RealtimeEvent) {
+    try {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+    } catch (_) {}
+  }
+
+  /** Emit to a specific user. */
+  emitToUser(userId: string, event: RealtimeEvent) {
+    const set = this.connections.get(userId);
+    if (!set) return;
+    for (const res of set) this.send(res, event);
+  }
+
+  /** Emit to a list of users. */
+  emitToUsers(userIds: string[], event: RealtimeEvent) {
+    for (const id of userIds) this.emitToUser(id, event);
+  }
+
+  get connectedUserCount() {
+    return this.connections.size;
+  }
+}

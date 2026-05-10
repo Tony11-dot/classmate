@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/classroom_order_prefs.dart';
 import '../providers/classrooms_providers.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class ClassroomOrderScreen extends ConsumerStatefulWidget {
   const ClassroomOrderScreen({super.key});
@@ -77,7 +78,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
         ],
       ),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: const CmLoading()),
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),

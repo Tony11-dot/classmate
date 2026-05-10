@@ -47,7 +47,7 @@ export class StudentController {
       title: String(x?.title ?? ''),
       period: x?.period ?? null,
       location: x?.location ?? null,
-      courseId: x?.courseId ?? null,
+      cohortId: x?.cohortId ?? null,
       subject: x?.subject ?? null,
     }));
 
@@ -96,7 +96,7 @@ export class StudentController {
         title: String(x?.title ?? ''),
         period: x?.period ?? null,
         location: x?.location ?? null,
-        courseId: x?.courseId ?? null,
+        cohortId: x?.cohortId ?? null,
         subject: x?.subject ?? null,
       }));
 
@@ -125,6 +125,18 @@ export class StudentController {
   @Get('subjects')
   subjects(@Req() req: any) {
     return this.student.mySubjects(req.user);
+  }
+
+  @SkipThrottle()
+  @Get('exams')
+  exams(@Req() req: any) {
+    return this.student.myExams(req.user);
+  }
+
+  @SkipThrottle()
+  @Get('assignments')
+  assignments(@Req() req: any) {
+    return this.student.myTeacherAssignments(req.user);
   }
 
 }

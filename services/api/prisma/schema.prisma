@@ -26,6 +26,12 @@ enum ParentChildStatus {
   APPROVED
 }
 
+enum AssignmentTargetType {
+  EVERYONE
+  COHORT
+  STUDENTS
+}
+
 model School {
   id        String   @id @default(uuid())
   name      String
@@ -33,9 +39,12 @@ model School {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users    User[]
-  forms    SchoolForm[]
-  diplomas TeacherDiploma[]
+  users          User[]
+  forms          SchoolForm[]
+  diplomas       TeacherDiploma[]
+  periodDefaults SchoolPeriodDefault[]
+  classrooms     Classroom[]
+  scheduleSlots  ScheduleSlot[]
 }
 
 model User {
@@ -49,11 +58,22 @@ model User {
   schoolId String?
   school   School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
 
-  // NEW: identity/profile
+  // Identity / profile
   displayName String?
   legalName   String?
   phone       String?
   status      AccountStatus @default(AUTH_ONLY)
+
+  // Multi-language name support — any combination can be filled
+  nameEn   String? // Full name in English (first + last)
+  nameAr   String? // Full name in Arabic (اسم بالعربي)
+  nameHe   String? // Full name in Hebrew (שם בעברית)
+  nameFr   String? // Full name in French
+  nameRu   String? // Full name in Russian
+
+  // Which language name to show in the app ('en'|'ar'|'he'|'fr'|'ru')
+  // Defaults to null → falls back to displayName / name
+  displayNameLang String?
 
   // optional future tzfonet fields
   tzfonetEmail      String?
@@ -66,8 +86,10 @@ model User {
   parentLinks ParentChild[] @relation("ParentLinks")
   childLinks  ParentChild[] @relation("ChildLinks")
 
-  // back-relation for teacher-owned courses
-  taughtCourses Course[] @relation("TeacherCourses")
+  scheduleSlots       ScheduleSlot[]       @relation("TeacherSlots")
+  scheduleOverrides   ScheduleOverride[]   @relation("TeacherOverrides")
+  ownedClassrooms     Classroom[]          @relation("TeacherClassrooms")
+  classroomMemberships ClassroomMember[]   @relation("ClassroomMemberships")
 
   createdAt             DateTime               @default(now())
   assessments           Assessment[]
@@ -92,6 +114,12 @@ model User {
   assignmentSubmissions    AssignmentSubmission[]
   teacherForms             SchoolForm[]      @relation("TeacherForms")
   issuedDiplomas           TeacherDiploma[]  @relation("IssuedDiplomas")
+
+  teacherAssignments             TeacherAssignment[]           @relation("TeacherAssignments")
+  teacherAssignmentSubmissions   TeacherAssignmentSubmission[] @relation("AssignmentStudent")
+  teacherExams                   TeacherExam[]                 @relation("TeacherExams")
+  teacherMaterials               TeacherMaterial[]             @relation("TeacherMaterials")
+  teacherMeetings                TeacherMeeting[]              @relation("TeacherMeetings")
 }
 
 model UserRole {
@@ -109,12 +137,13 @@ model Cohort {
   grade Int // 7..12
 
   students              StudentProfile[]
-  courses               Course[]
-  scheduleSlots         ScheduleSlot[]
+  studentLinks          StudentCohort[]
+  slotCohorts           ScheduleSlotCohort[]
   joinCodes             CohortJoinCode[]
   scheduleOverrides     ScheduleOverride[]
   attendanceSessions    AttendanceSession[]
   scheduleTemplateBinds CohortScheduleTemplate[]
+  assessments           Assessment[]
 }
 
 model CohortJoinCode {
@@ -130,18 +159,33 @@ model CohortJoinCode {
   @@index([cohortId])
 }
 
+/// Direct many-to-many link between students and cohorts.
+/// Replaces the course-enrollment detour that getStudentCohortIds used before.
+model StudentCohort {
+  studentId String
+  cohortId  String
+  joinedAt  DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  cohort  Cohort         @relation(fields: [cohortId],  references: [id],     onDelete: Cascade)
+
+  @@id([studentId, cohortId])
+  @@index([cohortId])
+}
+
 model StudentProfile {
   userId       String @id
-  cohortId     String
-  englishLevel Int
-  mathLevel    Int
+  cohortId     String?
+  englishLevel Int    @default(0)
+  mathLevel    Int    @default(0)
 
   user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cohort            Cohort               @relation(fields: [cohortId], references: [id])
+  cohort            Cohort?              @relation(fields: [cohortId], references: [id])
+  cohorts           StudentCohort[]
   studentMajors     StudentMajor[]
-  enrollments       Enrollment[]
   attendanceRecords AttendanceRecord[]
   gradeRecords      GradeRecord[]
+  slotStudents      ScheduleSlotStudent[]
   // ===== AI BRAIN (v1) =====
   brainProfile      StudentBrainProfile?
   brainSkills       StudentBrainSkill[]
@@ -164,19 +208,6 @@ model ParentChild {
   @@unique([parentId, childId])
   @@index([parentId])
   @@index([childId])
-}
-
-enum CourseRuleType {
-  COHORT
-  ENGLISH_LEVEL
-  MATH_LEVEL
-  MAJOR_REQUIRED
-  ELECTIVE_OPT_IN
-}
-
-enum EnrollmentSource {
-  AUTO
-  MANUAL
 }
 
 model Major {
@@ -226,87 +257,75 @@ enum MessageDeleteMode {
   MODERATOR_REMOVED
 }
 
-model Course {
-  id        String  @id @default(uuid())
-  name      String
-  subject   String
-  teacherId String?
+model ScheduleSlot {
+  id          String  @id @default(uuid())
+  schoolId    String?
+  dayOfWeek   Int
+  period      Int
+  teacherId   String?
+  classroomId String?
+  subject     String?
+  startTime   String? // override school default, e.g. "08:00"
+  endTime     String? // override school default, e.g. "08:45"
 
-  cohortId String?
-  groupTag String?
+  school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)
+  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  students  ScheduleSlotStudent[]
+  cohorts   ScheduleSlotCohort[]
 
-  teacher User?   @relation("TeacherCourses", fields: [teacherId], references: [id])
-  cohort  Cohort? @relation(fields: [cohortId], references: [id])
-
-  rules              CourseRule[]
-  slots              ScheduleSlot[]
-  enrollments        Enrollment[]
-  scheduleOverrides  ScheduleOverride[]
-  attendanceSessions AttendanceSession[]
-  assessments        Assessment[]
-  templateSlots      ScheduleTemplateSlot[]
-
-  messages    ClassroomMessage[]
-  assignments ClassroomAssignment[]
-  materials   ClassroomMaterial[]
-  meetings    ClassroomMeeting[]
-
-  messageThreads MessageThread[]
-
+  @@index([schoolId])
   @@index([teacherId])
-  @@index([cohortId])
+  @@index([classroomId])
 }
 
-model CourseRule {
-  id       String         @id @default(uuid())
-  courseId String
-  type     CourseRuleType
-  value    String
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([courseId])
-}
-
-model Enrollment {
-  id        String           @id @default(uuid())
-  courseId  String
+model ScheduleSlotStudent {
+  slotId    String
   studentId String
-  source    EnrollmentSource @default(AUTO)
 
-  course  Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slot    ScheduleSlot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
   student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
-  @@unique([courseId, studentId])
+  @@id([slotId, studentId])
   @@index([studentId])
 }
 
-model ScheduleSlot {
-  id        String  @id @default(uuid())
-  cohortId  String
-  dayOfWeek Int
+model ScheduleSlotCohort {
+  slotId   String
+  cohortId String
+
+  slot   ScheduleSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  cohort Cohort       @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+
+  @@id([slotId, cohortId])
+  @@index([cohortId])
+}
+
+model SchoolPeriodDefault {
+  id        String @id @default(cuid())
+  schoolId  String
   period    Int
-  courseId  String?
+  startTime String // "08:00"
+  endTime   String // "08:45"
 
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
-  @@unique([cohortId, dayOfWeek, period])
-  @@index([courseId])
+  @@unique([schoolId, period])
+  @@index([schoolId])
 }
 
 model ScheduleOverride {
   id       String   @id @default(uuid())
   cohortId String
-  date     DateTime // midnight UTC is fine; we'll treat as date in Asia/Jerusalem
+  date     DateTime
   period   Int
-  courseId String?
+  subject  String?
+  teacherId String?
 
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
+  cohort  Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  teacher User?  @relation("TeacherOverrides", fields: [teacherId], references: [id], onDelete: SetNull)
 
   @@unique([cohortId, date, period])
-  @@index([courseId])
   @@index([cohortId, date])
 }
 
@@ -318,19 +337,17 @@ enum AttendanceStatus {
 }
 
 model AttendanceSession {
-  id       String   @id @default(uuid())
-  cohortId String
-  date     DateTime
-  period   Int
-  courseId String?
+  id        String   @id @default(uuid())
+  cohortId  String
+  date      DateTime
+  period    Int
+  classNote String?
 
-  cohort Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id])
+  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
 
   records AttendanceRecord[]
 
   @@unique([cohortId, date, period])
-  @@index([courseId])
   @@index([cohortId, date])
 }
 
@@ -356,19 +373,28 @@ model AttendanceRecord {
 
 model Assessment {
   id        String   @id @default(uuid())
-  courseId  String
+  cohortId  String
   title     String
+  subject   String?
   date      DateTime
   maxGrade  Int      @default(100)
   createdBy String // teacher user id
 
-  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  examId             String?
+  teacherAssignmentId String?
+  published          Boolean        @default(true)
+
+  cohort            Cohort            @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  teacher          User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  exam             TeacherExam?    @relation(fields: [examId], references: [id], onDelete: SetNull)
+  teacherAssignment TeacherAssignment? @relation(fields: [teacherAssignmentId], references: [id], onDelete: SetNull)
 
   grades GradeRecord[]
 
-  @@index([courseId])
+  @@index([cohortId])
   @@index([createdBy])
+  @@index([examId])
+  @@index([teacherAssignmentId])
 }
 
 model GradeRecord {
@@ -528,7 +554,6 @@ model Material {
 
   // scoping
   cohortId String?
-  courseId String?
 
   // content
   title    String
@@ -544,7 +569,6 @@ model Material {
   tags String[] @default([])
 
   @@index([cohortId])
-  @@index([courseId])
   @@index([subject])
 }
 
@@ -702,7 +726,6 @@ model TutorSession {
   updatedAt   DateTime        @updatedAt
 
   userId   String // student user id
-  courseId String?
   cohortId String?
 
   // optional title/topic
@@ -714,7 +737,6 @@ model TutorSession {
 
   @@index([userId, updatedAt])
   @@index([cohortId])
-  @@index([courseId])
 }
 
 model TutorMessage {
@@ -743,7 +765,6 @@ model AnalyticsEvent {
 
   // scope
   cohortId  String?
-  courseId  String?
   studentId String?
 
   // event
@@ -752,7 +773,6 @@ model AnalyticsEvent {
 
   @@index([name, createdAt])
   @@index([cohortId])
-  @@index([courseId])
   @@index([studentId])
 }
 
@@ -998,12 +1018,10 @@ model ScheduleTemplateSlot {
   templateId String
   dayOfWeek  Int // 0=Sun..6=Sat
   period     Int // 1..10
-  courseId   String?
   teacherId  String?
   location   String?
 
   template ScheduleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  course   Course?          @relation(fields: [courseId], references: [id])
   teacher  User?            @relation("TeacherSlots", fields: [teacherId], references: [id])
 
   @@unique([templateId, dayOfWeek, period])
@@ -1038,11 +1056,45 @@ model StudentScheduleTemplate {
   @@index([templateId])
 }
 
-// --- Classroom tabs (Course == Classroom) ---
-// Chat: WhatsApp-like messages (text + optional attachment URL metadata)
+// ── Classroom (teacher-created, like Google Classroom) ────────────────────────
+model Classroom {
+  id        String   @id @default(cuid())
+  name      String
+  subject   String
+  teacherId String
+  schoolId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher     User              @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  school      School?           @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  members     ClassroomMember[]
+  messages    ClassroomMessage[]
+  assignments ClassroomAssignment[]
+  materials   ClassroomMaterial[]
+  meetings    ClassroomMeeting[]
+  slots       ScheduleSlot[]
+
+  @@index([teacherId])
+  @@index([schoolId])
+}
+
+model ClassroomMember {
+  classroomId String
+  studentId   String
+  joinedAt    DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student   User      @relation("ClassroomMemberships", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([classroomId, studentId])
+  @@index([studentId])
+}
+
+// Chat: WhatsApp-like messages
 model ClassroomMessage {
   id           String               @id @default(cuid())
-  courseId     String
+  classroomId  String
   senderUserId String
   kind         ClassroomMessageKind @default(TEXT)
   text         String?
@@ -1051,9 +1103,13 @@ model ClassroomMessage {
   durationSec  Int?
   createdAt    DateTime             @default(now())
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  replyToMessageId  String?
+  replyToSenderName String?
+  replyToText       String?
 
-  @@index([courseId, createdAt])
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@index([classroomId, createdAt])
   @@index([senderUserId, createdAt])
 }
 
@@ -1064,22 +1120,22 @@ enum ClassroomMessageKind {
   DOC
 }
 
-// Assignments: teacher posts assignments; students view
 model ClassroomAssignment {
-  id        String    @id @default(cuid())
-  courseId  String
-  title     String
-  body      String?
-  dueAt     DateTime?
-  createdBy String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                   String    @id @default(cuid())
+  classroomId          String
+  title                String
+  body                 String?
+  dueAt                DateTime?
+  createdBy            String
+  teacherAssignmentId  String?   // back-ref to TeacherAssignment mirror
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  course      Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  classroom   Classroom              @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   submissions AssignmentSubmission[]
 
-  @@index([courseId, createdAt])
-  @@index([courseId, dueAt])
+  @@index([classroomId, createdAt])
+  @@index([classroomId, dueAt])
 }
 
 model AssignmentSubmission {
@@ -1098,39 +1154,40 @@ model AssignmentSubmission {
   @@index([studentId])
 }
 
-// Materials: teacher posts materials (files/links)
 model ClassroomMaterial {
-  id          String   @id @default(cuid())
-  courseId    String
-  title       String
-  description String?
-  url         String
-  mime        String?
-  createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  classroomId        String
+  title              String
+  description        String?
+  url                String
+  attachments        Json     @default("[]")
+  mime               String?
+  createdBy          String
+  teacherMaterialId  String?  // back-ref to the TeacherMaterial that created this mirror
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
-  @@index([courseId, createdAt])
+  @@index([classroomId, createdAt])
 }
 
-// Meetings: scheduled meetings (title + time + link)
 model ClassroomMeeting {
-  id        String    @id @default(cuid())
-  courseId  String
-  title     String
-  startsAt  DateTime
-  endsAt    DateTime?
-  link      String
-  createdBy String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  classroomId       String
+  title             String
+  startsAt          DateTime
+  endsAt            DateTime?
+  link              String
+  createdBy         String
+  teacherMeetingId  String?   // back-ref to TeacherMeeting mirror
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
-  @@index([courseId, startsAt])
-  @@index([courseId, createdAt])
+  @@index([classroomId, startsAt])
+  @@index([classroomId, createdAt])
 }
 
 model OutboxEvent {
@@ -1484,14 +1541,12 @@ model MessageThread {
   requestDecisionById String?
   requestDecisionAt   DateTime?
   lastMessageAt       DateTime?
-  classroomCourseId   String?
   groupAvatarUrl      String?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
   createdBy         User                  @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
   requestDecisionBy User?                 @relation("MessageRequestDecisionUser", fields: [requestDecisionById], references: [id], onDelete: SetNull)
-  classroomCourse   Course?               @relation(fields: [classroomCourseId], references: [id], onDelete: SetNull)
   members           MessageThreadMember[]
   messages          Message[]
 
@@ -1499,7 +1554,6 @@ model MessageThread {
   @@index([requestTargetUserId])
   @@index([requestState])
   @@index([lastMessageAt])
-  @@index([classroomCourseId])
 }
 
 model MessageThreadMember {
@@ -1578,6 +1632,9 @@ model SchoolForm {
   published              Boolean      @default(false)
   publishedAt            DateTime?
   questions              Json         @default("[]")
+  targetType             String       @default("EVERYONE")
+  targetCohortIds        String[]     @default([])
+  targetStudentIds       String[]     @default([])
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @updatedAt
 
@@ -1615,6 +1672,7 @@ model TeacherDiploma {
   grade       String?
   distinction String?
   notes       String?
+  attachments Json     @default("[]")
   issuedAt    DateTime @default(now())
 
   school  School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
@@ -1622,4 +1680,121 @@ model TeacherDiploma {
 
   @@index([schoolId])
   @@index([issuedBy])
+  @@index([studentId])
+}
+
+// ── Teacher-wide assignments (cross-classroom, targeted) ──────────────────────
+
+model TeacherAssignment {
+  id               String               @id @default(uuid())
+  teacherId        String
+  title            String
+  description      String?
+  subject          String?
+  dueAt            DateTime?
+  maxGrade         Int?
+  targetType       AssignmentTargetType @default(EVERYONE)
+  targetCohortIds  String[]             @default([])
+  targetStudentIds String[]             @default([])
+  attachments      Json                 @default("[]")
+  published        Boolean              @default(false)
+  publishedAt      DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  teacher     User                          @relation("TeacherAssignments", fields: [teacherId], references: [id], onDelete: Cascade)
+  submissions TeacherAssignmentSubmission[]
+  assessments Assessment[]
+
+  @@index([teacherId])
+  @@index([dueAt])
+}
+
+model TeacherAssignmentSubmission {
+  id           String    @id @default(uuid())
+  assignmentId String
+  studentId    String
+  files        Json      @default("[]")
+  note         String?
+  grade        Int?
+  feedback     String?
+  gradedAt     DateTime?
+  submittedAt  DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  assignment TeacherAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User              @relation("AssignmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+}
+
+// ── Teacher exams (separate from Assessment grade container) ──────────────────
+
+model TeacherExam {
+  id               String               @id @default(uuid())
+  teacherId        String
+  title            String
+  subject          String?
+  date             DateTime
+  maxGrade         Int?
+  published        Boolean              @default(false)
+  targetType       AssignmentTargetType @default(EVERYONE)
+  targetCohortIds  String[]             @default([])
+  targetStudentIds String[]             @default([])
+  attachments      Json                 @default("[]")
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  teacher     User         @relation("TeacherExams", fields: [teacherId], references: [id], onDelete: Cascade)
+  assessments Assessment[]
+
+  @@index([teacherId])
+  @@index([date])
+}
+
+// ── Teacher-wide materials ────────────────────────────────────────────────────
+
+model TeacherMaterial {
+  id               String               @id @default(uuid())
+  teacherId        String
+  title            String
+  description      String?
+  url              String?
+  attachments      Json                 @default("[]")
+  subject          String?
+  targetType       AssignmentTargetType @default(EVERYONE)
+  targetCohortIds  String[]             @default([])
+  targetStudentIds String[]             @default([])
+  published        Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  teacher User @relation("TeacherMaterials", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+}
+
+// ── Teacher-wide meetings ─────────────────────────────────────────────────────
+
+model TeacherMeeting {
+  id               String               @id @default(uuid())
+  teacherId        String
+  title            String
+  description      String?
+  link             String
+  startsAt         DateTime
+  endsAt           DateTime?
+  subject          String?
+  targetType       AssignmentTargetType @default(EVERYONE)
+  targetCohortIds  String[]             @default([])
+  targetStudentIds String[]             @default([])
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  teacher User @relation("TeacherMeetings", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([startsAt])
 }

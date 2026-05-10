@@ -34,6 +34,8 @@ class StudentExamItem {
   final String teacher;
   final List<ExamMaterialItem> materials;
   final ExamAudience audience;
+  final int? grade;
+  final int? maxGrade;
 
   const StudentExamItem({
     required this.id,
@@ -48,5 +50,7 @@ class StudentExamItem {
     required this.teacher,
     required this.materials,
     required this.audience,
+    this.grade,
+    this.maxGrade,
   });
 }

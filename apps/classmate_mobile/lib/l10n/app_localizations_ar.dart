@@ -12,7 +12,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menu => 'القائمة';
 
   @override
-  String get sectionCore => 'الأساسي';
+  String get sectionCore => 'الرئيسي';
 
   @override
   String get sectionSchoolTools => 'أدوات المدرسة';
@@ -33,7 +33,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navInsights => 'الإحصاءات';
 
   @override
-  String get navNova => 'نوفا';
+  String get navNova => 'NOVA';
 
   @override
   String get navMessages => 'الرسائل';
@@ -111,7 +111,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get titleInsights => 'الإحصاءات';
 
   @override
-  String get titleNova => 'نوفا';
+  String get titleNova => 'NOVA';
 
   @override
   String get titleMessages => 'الرسائل';
@@ -501,7 +501,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherAttendanceNoteLabel => 'ملاحظة';
 
   @override
-  String get teacherAttendanceSaving => 'جاري الحفظ…';
+  String get teacherAttendanceClassNotesLabel => 'ملاحظات الحصة';
+
+  @override
+  String get teacherAttendanceClassNotesHint => 'ما تم تناوله في هذه الحصة…';
+
+  @override
+  String get teacherAttendanceSaving => 'جارٍ الحفظ…';
+
+  @override
+  String get teacherAttendanceSaveAll => 'حفظ الحضور';
 
   @override
   String teacherAttendanceSaveCount(int count) {
@@ -525,8 +534,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'يتم تحديث الجدول بسرعة كبيرة الآن. انتظر قليلاً ثم حاول مرة أخرى.';
 
   @override
+  String get scheduleSessionExpired =>
+      'انتهت صلاحية جلستك. يرجى تسجيل الدخول مجدداً.';
+
+  @override
   String get scheduleNotOnboarded =>
-      'ملف الطالب الخاص بك غير مكتمل بعد، لذلك لا يتوفر الجدول حالياً.';
+      'ملف الطالب الخاص بك غير مكتمل. اطلب من مسؤول مدرستك تعيينك في فصل.';
 
   @override
   String get scheduleLoadError => 'تعذر تحميل الجدول حتى الآن.';
@@ -567,7 +580,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleClassFallback => 'حصة';
 
   @override
-  String get scheduleNoSubjectLocation => 'لا توجد مادة أو موقع بعد';
+  String get scheduleNoSubjectLocation => 'No subject or location yet';
+
+  @override
+  String get scheduleNotes => 'Notes';
+
+  @override
+  String get scheduleGoToClassroom => 'Go to Classroom';
 
   @override
   String get loginTitle => 'تسجيل الدخول للجوال للطلاب والمعلمين';
@@ -895,7 +914,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get insightsAccuracy => 'الدقة';
 
   @override
-  String get insightsOpenNova => 'افتح نوفا';
+  String get insightsOpenNova => 'افتح NOVA';
 
   @override
   String get insightsOpenNovaPrompt =>
@@ -933,7 +952,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'إرشادات الذكاء الاصطناعي غير متاحة لهذا الحساب الآن.';
 
   @override
-  String get insightsAskNova => 'اسأل نوفا';
+  String get insightsAskNova => 'اسأل NOVA';
 
   @override
   String get insightsAskNovaPrompt => 'ابنِ لي خطة تعافٍ من أحدث رؤاي.';
@@ -1262,7 +1281,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorCreateFirstChat => 'أنشئ أول محادثة';
 
   @override
-  String get tutorPlansTitle => 'خطط نوفا';
+  String get tutorPlansTitle => 'خطط NOVA';
 
   @override
   String tutorPlansSubtitle(Object model) {
@@ -1336,7 +1355,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tutorPlanPlusTagline =>
-      'الأفضل لطالب جاد يستخدم نوفا معظم الأيام.';
+      'الأفضل لطالب جاد يستخدم NOVA معظم الأيام.';
 
   @override
   String get tutorPlanProName => 'برو';
@@ -1870,7 +1889,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get announcementsLatestSourceLabel => 'أحدث مصدر';
 
   @override
-  String get announcementsNone => 'لا شيء';
+  String get announcementsNone => 'لا يوجد';
 
   @override
   String announcementsUnreadCountTitle(int count) {
@@ -1884,7 +1903,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get announcementsAllReadTitle => 'كل شيء مقروء';
+  String get announcementsAllReadTitle => 'تمت قراءة الكل';
 
   @override
   String announcementsEmptyForAudience(Object audience) {
@@ -1953,15 +1972,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get meetingsLoadError =>
-      'لا يمكننا تحميل الحصص الدراسية الآن. اسحب للتحديث أو حاول مرة أخرى.';
+      'لا يمكننا تحميل الاجتماعات الآن. اسحب للتحديث أو حاول مرة أخرى.';
 
   @override
   String get meetingsLoadTimeout =>
-      'تستغرق الحصص الدراسية وقتاً طويلاً في التحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.';
+      'تستغرق الاجتماعات وقتاً طويلاً في التحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.';
 
   @override
   String get meetingsLoadNetwork =>
-      'لا يمكن الاتصال بالحصص الدراسية الآن. تحقق من اتصالك وحاول مرة أخرى.';
+      'لا يمكن الاتصال بالاجتماعات الآن. تحقق من اتصالك وحاول مرة أخرى.';
 
   @override
   String get meetingsHeroSubtitle =>
@@ -2875,7 +2894,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceSetupTooltipHistory => 'سجل التدريب';
 
   @override
-  String get practiceHistoryTitle => 'سجل الممارسة';
+  String get practiceHistoryTitle => 'سجل التدريب';
 
   @override
   String get practiceHistoryClearTooltip => 'مسح السجل';
@@ -2885,7 +2904,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get practiceHistoryClearConfirmBody =>
-      'هذا يزيل جميع جلسات الممارسة المحفوظة من هذا الجهاز.';
+      'هذا يزيل جميع جلسات التدريب المحفوظة من هذا الجهاز.';
 
   @override
   String get practiceHistoryLoadError => 'تعذر تحميل سجل الممارسة الآن.';
@@ -3000,17 +3019,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String savedQuestionsHoursTarget(Object count) {
-    return '$count ساعة الهدف';
+    return 'الهدف: $count ساعة';
   }
 
   @override
   String savedQuestionsMinutesTarget(Object count) {
-    return '$count دقيقة الهدف';
+    return 'الهدف: $count دقيقة';
   }
 
   @override
   String savedQuestionsSecondsTarget(Object count) {
-    return '$count ثانية الهدف';
+    return 'الهدف: $count ثانية';
   }
 
   @override
@@ -3135,7 +3154,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceSessionUnknownAnswer => 'غير معروف';
 
   @override
-  String get practiceSessionReflectionTitle => 'انعكاس';
+  String get practiceSessionReflectionTitle => 'مراجعة ذاتية';
 
   @override
   String get practiceSessionReflectionKnewIt => 'كنت أعرفها';
@@ -3404,7 +3423,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String assignmentsSubmissionPrepCount(Object count) {
-    return '$count ملف(ات) مرفوضة محلياً.';
+    return '$count ملف(ات) مرفقة محلياً.';
   }
 
   @override
@@ -3587,6 +3606,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'إزالة الملف';
+
+  @override
+  String get assignmentsSubmitted => 'تم التسليم';
 
   @override
   String get attendanceUndated => 'غير مؤرخة';
@@ -4236,6 +4258,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherStudentsLabel => 'الطلاب';
 
   @override
+  String get teacherSearchStudents => 'بحث بالاسم أو الصف...';
+
+  @override
+  String get teacherNoStudentsLoaded => 'لا يوجد طلاب في هذه المدرسة.';
+
+  @override
+  String get teacherActions => 'إجراءات سريعة';
+
+  @override
   String get teacherParentsLabel => 'أولياء الأمور';
 
   @override
@@ -4248,7 +4279,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'تعذر تحميل الجدول';
 
   @override
-  String get teacherAttendanceLast30 => 'الحضور (آخر 30 يوماً)';
+  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+
+  @override
+  String teacherAttendanceFrom(Object date) {
+    return 'From $date';
+  }
+
+  @override
+  String get teacherAttendanceChangeDate => 'Change date';
+
+  @override
+  String get teacherAttendanceNoSessions =>
+      'No saved attendance sessions.\nMark attendance from the schedule.';
 
   @override
   String get teacherRecentGrades => 'الدرجات الأخيرة';
@@ -4587,7 +4630,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get diplomasComingSoon => 'إدارة الشهادات قادمة قريباً.';
 
   @override
-  String get teacherExamsTitle => 'الامتحانات والتقييمات';
+  String get teacherExamsTitle => 'الامتحانات';
 
   @override
   String get teacherExamsUpcoming => 'القادمة';
@@ -4636,7 +4679,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherFormsNoResponses => 'لا توجد ردود بعد.';
 
   @override
-  String get diplomasTitle => 'الشهادات والدبلومات';
+  String get diplomasTitle => 'الشهادات';
 
   @override
   String get diplomasEmpty =>
@@ -4701,4 +4744,48 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'فتح الدرجات';
+
+  @override
+  String get teacherGradesSaveAction => 'حفظ';
+
+  @override
+  String get teacherGradesNothingToSave => 'لا توجد تغييرات للحفظ.';
+
+  @override
+  String get teacherRetry => 'إعادة المحاولة';
+
+  @override
+  String get teacherExamGradesStudents => 'طلاب';
+
+  @override
+  String get teacherExamGradesGraded => 'مُقيَّم';
+
+  @override
+  String get teacherExamGradesNoStudents =>
+      'لا يوجد طلاب مستهدفون.\nعدّل الامتحان لإضافة جمهور.';
+
+  @override
+  String get teacherExamGradesEnterGrades => 'إدخال الدرجات';
+
+  @override
+  String get teacherDeleteExamTitle => 'حذف الامتحان؟';
+
+  @override
+  String get teacherDeleteExamBody => 'سيتم حذف الامتحان نهائيًا.';
+
+  @override
+  String get teacherMeetingsEmpty =>
+      'لا توجد اجتماعات بعد.\nاضغط + لجدولة واحد.';
+
+  @override
+  String get teacherStudentsNoMatch => 'لا يوجد طلاب مطابقون';
+
+  @override
+  String get teacherMaterialsTitle => 'المواد';
+
+  @override
+  String get profileNamesTitle => 'الاسم بلغات مختلفة';
+
+  @override
+  String get profileDisplayNameLang => 'لغة عرض الاسم';
 }

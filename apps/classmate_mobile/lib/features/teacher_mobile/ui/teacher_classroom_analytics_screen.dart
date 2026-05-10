@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class TeacherClassroomAnalyticsScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAnalyticsScreen({
@@ -71,19 +72,13 @@ class _TeacherClassroomAnalyticsScreenState
             Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    cs.primaryContainer.withValues(alpha: 0.7),
-                    cs.surfaceContainerHigh.withValues(alpha: 0.78),
-                  ],
-                ),
               ),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
-                    style: IconButton.styleFrom(backgroundColor: cs.surface.withValues(alpha: 0.6), padding: const EdgeInsets.all(8)),
+                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -101,12 +96,12 @@ class _TeacherClassroomAnalyticsScreenState
             ),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: const CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(32),
                           child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error.withValues(alpha: 0.6)),
+                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
                             const SizedBox(height: 16),
                             Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
                             const SizedBox(height: 20),
@@ -165,9 +160,8 @@ class _TeacherClassroomAnalyticsScreenState
                                     child: LiquidGlassCard(
                                       padding: const EdgeInsets.all(16),
                                       borderRadius: BorderRadius.circular(20),
-                                      blurSigma: 12,
-                                      color: cs.surface.withValues(alpha: 0.82),
-                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                                      color: cs.surfaceContainerLow,
+                                      border: Border.all(color: cs.outlineVariant),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -207,10 +201,10 @@ class _TeacherClassroomAnalyticsScreenState
                                                   Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                     decoration: BoxDecoration(
-                                                      color: cs.errorContainer.withValues(alpha: 0.7),
+                                                      color: cs.errorContainer,
                                                       borderRadius: BorderRadius.circular(6),
                                                     ),
-                                                    child: Text(AppLocalizations.of(context)!.teacherBelow60(below60), style: TextStyle(fontSize: 11, color: cs.error, fontWeight: FontWeight.w700)),
+                                                    child: Text(AppLocalizations.of(context)!.teacherBelow60(below60), style: TextStyle(fontSize: 11, color: cs.onErrorContainer, fontWeight: FontWeight.w700)),
                                                   ),
                                                 ],
                                               ],
@@ -236,9 +230,8 @@ class _TeacherClassroomAnalyticsScreenState
                                 LiquidGlassCard(
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(16),
-                                  blurSigma: 10,
-                                  color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+                                  color: cs.surfaceContainerLow,
+                                  border: Border.all(color: cs.outlineVariant),
                                   child: Row(children: [
                                     Icon(Icons.bar_chart_rounded, color: cs.onSurfaceVariant),
                                     const SizedBox(width: 12),
@@ -270,9 +263,8 @@ class _StatCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(16),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

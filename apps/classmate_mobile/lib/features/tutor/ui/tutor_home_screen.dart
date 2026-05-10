@@ -10,6 +10,7 @@ import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class TutorHomeScreen extends ConsumerStatefulWidget {
   const TutorHomeScreen({
@@ -345,45 +346,50 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     await _persistPrefs();
   }
 
-  Future<void> _deleteSessionLocally(Map<String, dynamic> session) async {
+  Future<void> _deleteSessionPermanently(Map<String, dynamic> session) async {
     final id = (session['id'] ?? '').toString();
-    if (id.isEmpty) {
-      return;
-    }
+    if (id.isEmpty) return;
 
     final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
 
-    final confirmed =
-        await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text(l.tutorHideChatConfirmTitle),
-              content: Text(l.tutorHideChatConfirmBody),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(l.tutorCancel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(l.tutorHide),
-                ),
-              ],
-            );
-          },
+          builder: (ctx) => AlertDialog(
+            title: const Text('Delete conversation?'),
+            content: const Text(
+              'This will permanently delete the conversation and all its messages from the server. This cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(l.tutorCancel),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: cs.error),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Delete permanently'),
+              ),
+            ],
+          ),
         ) ??
         false;
 
-    if (!confirmed) {
-      return;
+    if (!confirmed || !mounted) return;
+
+    try {
+      await ref.read(tutorRepositoryProvider).deleteSession(id);
+      // Remove from the local hidden set too (clean up any old hide state).
+      setState(() => _hiddenSessions.remove(id));
+      await _persistPrefs();
+      // Refresh the session list.
+      ref.invalidate(tutorSessionsProvider);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not delete: $e')),
+      );
     }
-
-    setState(() {
-      _hiddenSessions.add(id);
-    });
-
-    await _persistPrefs();
   }
 
   Future<void> _showSessionActions(Map<String, dynamic> session) async {
@@ -402,10 +408,10 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 onTap: () => Navigator.of(context).pop('rename'),
               ),
               ListTile(
-                leading: const Icon(Icons.visibility_off_rounded),
-                title: Text(l.tutorHideChatTitle),
-                subtitle: Text(l.tutorHideChatSubtitle),
-                onTap: () => Navigator.of(context).pop('hide'),
+                leading: Icon(Icons.delete_forever_rounded, color: Theme.of(context).colorScheme.error),
+                title: const Text('Delete conversation'),
+                subtitle: const Text('Permanently removes it from the server'),
+                onTap: () => Navigator.of(context).pop('delete'),
               ),
             ],
           ),
@@ -415,8 +421,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
 
     if (action == 'rename') {
       await _renameSession(session);
-    } else if (action == 'hide') {
-      await _deleteSessionLocally(session);
+    } else if (action == 'delete') {
+      await _deleteSessionPermanently(session);
     }
   }
 
@@ -512,16 +518,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    cs.primary.withValues(alpha: 0.10),
-                    cs.secondary.withValues(alpha: 0.04),
-                    Colors.transparent,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(24),
+                color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(24),
               ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
@@ -533,16 +531,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                       height: 56,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            cs.primary.withValues(alpha: 0.18),
-                            cs.secondary.withValues(alpha: 0.10),
-                          ],
-                        ),
                         border: Border.all(
-                          color: cs.outlineVariant.withValues(alpha: 0.18),
+                          color: cs.outlineVariant,
                         ),
                       ),
                       child: Center(
@@ -643,19 +633,11 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
             const SizedBox(height: 12),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: cs.surface.withValues(alpha: 0.58),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.16),
+                  color: cs.outlineVariant,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: cs.shadow.withValues(alpha: 0.03),
-                    blurRadius: 14,
-                    spreadRadius: -10,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
               ),
               child: TextField(
                 controller: _searchController,
@@ -664,7 +646,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 decoration: InputDecoration(
                   hintText: l.tutorSearchHistoryHint,
                   hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.82),
+                    color: cs.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                   prefixIcon: Padding(
@@ -705,14 +687,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const SizedBox.shrink(),
-        centerTitle: false,
-        elevation: 0,
-        toolbarHeight: 48,
-      ),
       body: !_prefsLoaded
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: const CmLoading())
           : sessions.when(
               loading: () => ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -720,7 +696,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 children: [
                   topSection(),
                   const SizedBox(height: 24),
-                  const Center(child: CircularProgressIndicator()),
+                  const Center(child: const CmLoading()),
                 ],
               ),
               error: (e, _) => ListView(
@@ -771,10 +747,10 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                           padding: const EdgeInsets.fromLTRB(22, 18, 22, 8),
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: cs.surface.withValues(alpha: 0.44),
+                              color: cs.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: cs.outlineVariant.withValues(alpha: 0.14),
+                                color: cs.outlineVariant,
                               ),
                             ),
                             child: Padding(
@@ -787,16 +763,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                     height: 46,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          cs.primary.withValues(alpha: 0.14),
-                                          cs.secondary.withValues(alpha: 0.08),
-                                        ],
-                                      ),
                                       border: Border.all(
-                                        color: cs.outlineVariant.withValues(alpha: 0.12),
+                                        color: cs.outlineVariant,
                                       ),
                                     ),
                                     child: Icon(
@@ -862,19 +830,11 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                               onLongPress: () => _showSessionActions(session),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  color: cs.surface.withValues(alpha: 0.52),
+                                  color: cs.surfaceContainerLow,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: cs.outlineVariant.withValues(alpha: 0.12),
+                                    color: cs.outlineVariant,
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: cs.shadow.withValues(alpha: 0.04),
-                                      blurRadius: 14,
-                                      spreadRadius: -10,
-                                      offset: const Offset(0, 6),
-                                    ),
-                                  ],
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
@@ -885,17 +845,10 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                         width: 36,
                                         height: 36,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(14),
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              cs.primary.withValues(alpha: 0.16),
-                                              cs.secondary.withValues(alpha: 0.08),
-                                            ],
-                                          ),
+                                          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(14),
                                           border: Border.all(
-                                            color: cs.primary.withValues(alpha: 0.12),
+                                            color: cs.outlineVariant,
                                           ),
                                         ),
                                         child: Center(

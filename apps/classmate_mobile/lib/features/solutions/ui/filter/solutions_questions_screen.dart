@@ -9,6 +9,7 @@ import '../../domain/solutions_models.dart';
 import '../widgets/solution_asset_preview_sheet.dart';
 import '../../providers/solutions_flow_provider.dart';
 import '../widgets/solution_upload_sheet_content.dart';
+import '../../../../ui/widgets/cm_loading.dart';
 
 final liveExactSolutionsPageProvider =
     FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
@@ -20,10 +21,15 @@ final liveExactSolutionsPageProvider =
       final pageNumber = int.tryParse(state.pageNumber.trim());
       final questionNumber = state.questionNumber.trim();
 
+      final isAllQuestions =
+          questionNumber.isEmpty || questionNumber == 'all';
+
       if ((subject ?? '').trim().isEmpty ||
           (bookTitle ?? '').trim().isEmpty ||
           pageNumber == null ||
-          questionNumber.isEmpty) {
+          isAllQuestions) {
+        // 'all' / empty → return empty here; liveSamePageSolutionsPageProvider
+        // already shows everything on the page.
         return const LiveSolutionsPage(
           items: <QuestionSolutionCard>[],
           hasMore: false,
@@ -202,7 +208,10 @@ class _SolutionsQuestionsScreenState
             Text(
               l.solutionsPageQuestionSummary(
                 state.pageNumber.isEmpty ? '—' : state.pageNumber,
-                state.questionNumber.isEmpty ? '—' : state.questionNumber,
+                (state.questionNumber.isEmpty ||
+                        state.questionNumber == 'all')
+                    ? 'All questions'
+                    : state.questionNumber,
               ),
               style: Theme.of(
                 context,
@@ -217,7 +226,7 @@ class _SolutionsQuestionsScreenState
             ),
             const SizedBox(height: 10),
             if (exactAsync.isLoading && _exactItems.isEmpty)
-              const Center(child: CircularProgressIndicator())
+              const Center(child: const CmLoading())
             else if (_exactItems.isEmpty)
               _EmptyCard(
                 text: l.solutionsExactQuestionEmptyBody,
@@ -250,7 +259,7 @@ class _SolutionsQuestionsScreenState
             ),
             const SizedBox(height: 10),
             if (samePageAsync.isLoading && _samePageItems.isEmpty)
-              const Center(child: CircularProgressIndicator())
+              const Center(child: const CmLoading())
             else if (_samePageItems.isEmpty)
               _EmptyCard(
                 text: l.solutionsSamePageEmptyBody,
@@ -311,7 +320,7 @@ class _EmptyCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(text, style: TextStyle(color: cs.onSurfaceVariant)),
@@ -331,9 +340,9 @@ class _SolutionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,7 +399,7 @@ class _SolutionCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(

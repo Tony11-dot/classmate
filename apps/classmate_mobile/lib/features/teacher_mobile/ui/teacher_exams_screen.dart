@@ -1,10 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class TeacherExamsScreen extends ConsumerStatefulWidget {
   const TeacherExamsScreen({super.key});
@@ -14,7 +17,7 @@ class TeacherExamsScreen extends ConsumerStatefulWidget {
 }
 
 class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
-  TeacherAssessmentBundle? _bundle;
+  List<Map<String, dynamic>> _exams = [];
   bool _loading = true;
   String? _error;
 
@@ -30,10 +33,10 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
       _error = null;
     });
     try {
-      final bundle = await ref.read(teacherMobileRepositoryProvider).fetchAssessments();
+      final exams = await ref.read(teacherMobileRepositoryProvider).listTeacherExams();
       if (!mounted) return;
       setState(() {
-        _bundle = bundle;
+        _exams = exams;
         _loading = false;
       });
     } catch (e) {
@@ -45,132 +48,74 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     }
   }
 
+  Future<void> _delete(String id) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final lCtx = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(lCtx.teacherDeleteExamTitle),
+          content: Text(lCtx.teacherDeleteExamBody),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(lCtx.actionCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(lCtx.actionDelete),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).deleteTeacherExam(id);
+      if (!mounted) return;
+      _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  void _openExamGrades(Map<String, dynamic> exam) {
+    final id = exam['id'] as String? ?? '';
+    context.push('/teacher/exams/$id/grades', extra: exam).then((_) => _load());
+  }
+
+  void _openExamEdit(Map<String, dynamic> exam) {
+    context.push('/teacher/exams/create', extra: exam).then((_) => _load());
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
 
-    final assessments = _bundle?.assessments ?? [];
-    final courses = _bundle?.courses ?? [];
-
-    final upcoming = assessments.where((a) {
-      final d = DateTime.tryParse(a.date);
+    final upcoming = _exams.where((e) {
+      final d = DateTime.tryParse(e['date'] as String? ?? '');
       return d != null && !d.isBefore(now);
     }).toList();
-    final past = assessments.where((a) {
-      final d = DateTime.tryParse(a.date);
+    final past = _exams.where((e) {
+      final d = DateTime.tryParse(e['date'] as String? ?? '');
       return d != null && d.isBefore(now);
     }).toList();
-
-    Widget buildCard(TeacherAssessment a) {
-      final course = courses.where((c) => c.id == a.courseId).firstOrNull;
-      final dateStr = a.date.split('T').first;
-      final dateDisplay = () {
-        final d = DateTime.tryParse(a.date);
-        if (d == null) return dateStr;
-        return DateFormat.yMMMd(locale).format(d);
-      }();
-      final isUpcoming = DateTime.tryParse(a.date)?.isAfter(now) ?? false;
-
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: LiquidGlassCard(
-          gradient: LinearGradient(
-            colors: [
-              cs.surface.withValues(alpha: 0.88),
-              cs.surfaceContainerHigh.withValues(alpha: 0.66),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: (isUpcoming ? cs.primary : cs.secondary).withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  isUpcoming ? Icons.upcoming_rounded : Icons.history_edu_rounded,
-                  size: 22,
-                  color: isUpcoming ? cs.primary : cs.secondary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      a.title,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    if (course != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        course.displayName,
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        _Chip(label: dateDisplay, color: isUpcoming ? cs.primary : cs.secondary),
-                        if (a.maxGrade != null)
-                          _Chip(label: '/ ${a.maxGrade}', color: cs.tertiary),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: (isUpcoming ? cs.primary : cs.secondary).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  isUpcoming ? l.teacherExamsUpcoming : l.teacherExamsPast,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isUpcoming ? cs.primary : cs.secondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
-          // Hero banner
+          // Hero
           LiquidGlassCard(
+            color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            blurSigma: 20,
-            gradient: LinearGradient(
-              colors: [
-                cs.primaryContainer.withValues(alpha: 0.92),
-                cs.surfaceContainerHigh.withValues(alpha: 0.82),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+            border: Border.all(color: cs.outlineVariant),
             child: Row(
               children: [
                 Expanded(
@@ -192,11 +137,8 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                 Container(
                   width: 46,
                   height: 46,
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(Icons.quiz_rounded, size: 24, color: cs.primary),
+                  decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+                  child: Icon(Icons.quiz_rounded, size: 24, color: cs.onPrimaryContainer),
                 ),
               ],
             ),
@@ -207,10 +149,10 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: LiquidGlassCard(
-                color: cs.errorContainer.withValues(alpha: 0.72),
+                color: cs.errorContainer,
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline_rounded, color: cs.error),
+                    Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
                     TextButton(onPressed: _load, child: const Text('Retry')),
@@ -219,21 +161,17 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
               ),
             ),
 
-          if (_loading && _bundle == null)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()))
-          else if (assessments.isEmpty)
+          if (_loading && _exams.isEmpty)
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+          else if (_exams.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(40),
                 child: Column(
                   children: [
-                    Icon(Icons.quiz_outlined, size: 48, color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
+                    Icon(Icons.quiz_outlined, size: 48, color: cs.onSurfaceVariant),
                     const SizedBox(height: 16),
-                    Text(
-                      l.teacherExamsEmpty,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                    ),
+                    Text(l.teacherExamsEmpty, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -242,16 +180,149 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
             if (upcoming.isNotEmpty) ...[
               _SectionHeader(label: l.teacherExamsUpcoming, icon: Icons.upcoming_rounded, color: cs.primary),
               const SizedBox(height: 8),
-              ...upcoming.map(buildCard),
+              ...upcoming.map((e) => _ExamCard(
+                    exam: e,
+                    locale: locale,
+                    isUpcoming: true,
+                    onTap: () => _openExamGrades(e),
+                    onEdit: () => _openExamEdit(e),
+                    onDelete: () => _delete(e['id'] as String? ?? ''),
+                  )),
               const SizedBox(height: 8),
             ],
             if (past.isNotEmpty) ...[
               _SectionHeader(label: l.teacherExamsPast, icon: Icons.history_edu_rounded, color: cs.secondary),
               const SizedBox(height: 8),
-              ...past.map(buildCard),
+              ...past.map((e) => _ExamCard(
+                    exam: e,
+                    locale: locale,
+                    isUpcoming: false,
+                    onTap: () => _openExamGrades(e),
+                    onEdit: () => _openExamEdit(e),
+                    onDelete: () => _delete(e['id'] as String? ?? ''),
+                  )),
             ],
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _ExamCard extends StatelessWidget {
+  const _ExamCard({
+    required this.exam,
+    required this.locale,
+    required this.isUpcoming,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final Map<String, dynamic> exam;
+  final String locale;
+  final bool isUpcoming;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final accentColor = isUpcoming ? cs.primary : cs.secondary;
+
+    final title = exam['title'] as String? ?? '';
+    final subject = exam['subject'] as String? ?? '';
+    final courseName = exam['courseName'] as String? ?? '';
+    final published = exam['published'] as bool? ?? false;
+    final gradedCount = exam['gradedCount'] as int? ?? 0;
+    final maxGrade = exam['maxGrade'] as int?;
+    final dateRaw = exam['date'] as String? ?? '';
+    DateTime? date = dateRaw.isNotEmpty ? DateTime.tryParse(dateRaw) : null;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GestureDetector(
+        onTap: onTap,
+        child: LiquidGlassCard(
+          border: Border.all(color: cs.outlineVariant),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(isUpcoming ? Icons.upcoming_rounded : Icons.history_edu_rounded, size: 22, color: cs.onPrimaryContainer),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800))),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: published ? cs.primaryContainer : cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            published ? 'Published' : 'Draft',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: published ? cs.onPrimaryContainer : cs.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (subject.isNotEmpty || courseName.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        [subject, courseName].where((s) => s.isNotEmpty).join(' · '),
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        if (date != null)
+                          _Chip(label: DateFormat.yMMMd(locale).format(date), color: accentColor),
+                        if (maxGrade != null)
+                          _Chip(label: '/ $maxGrade', color: cs.tertiary),
+                        if (gradedCount > 0)
+                          _GradedChip(label: '$gradedCount graded', cs: cs),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_rounded, size: 16),
+                    onPressed: onEdit,
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error),
+                    onPressed: onDelete,
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -271,14 +342,10 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: color,
-            letterSpacing: 0.3,
-          ),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: color, letterSpacing: 0.3),
         ),
         const SizedBox(width: 8),
-        Expanded(child: Divider(color: color.withValues(alpha: 0.25))),
+        Expanded(child: Divider(color: color)),
       ],
     );
   }
@@ -293,14 +360,23 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
-      ),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
+      child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white)),
+    );
+  }
+}
+
+class _GradedChip extends StatelessWidget {
+  const _GradedChip({required this.label, required this.cs});
+  final String label;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: cs.tertiaryContainer, borderRadius: BorderRadius.circular(6)),
+      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onTertiaryContainer)),
     );
   }
 }

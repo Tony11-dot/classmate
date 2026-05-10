@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 // ── providers ──────────────────────────────────────────────────────────────
 
@@ -96,7 +97,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
           children: [
             // ── Hero card ──────────────────────────────────────────────────
             weekAsync.when(
@@ -112,9 +113,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               curve: Curves.easeOutCubic,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Row(
                 children: [
@@ -127,9 +128,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       child: Ink(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                         decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.72),
+                          color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+                          border: Border.all(color: cs.outlineVariant),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -163,7 +164,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             weekAsync.when(
               data: (data) => _buildDaySlots(context, data, l, locale),
               loading: () => const Center(
-                child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()),
+                child: Padding(padding: EdgeInsets.all(32), child: const CmLoading()),
               ),
               error: (e, _) => _buildDayError(context, e.toString(), () => _refresh(weekOf), l),
             ),
@@ -175,39 +176,63 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
   // ── Hero card ─────────────────────────────────────────────────────────────
 
+  List<Map<String, dynamic>> _slotsForDay(Map<String, dynamic> data, String ymd) {
+    final days = data['days'] is List ? data['days'] as List : <dynamic>[];
+    final dayData = days.firstWhere(
+      (d) => d is Map && (d['date'] ?? '').toString() == ymd,
+      orElse: () => null,
+    );
+    if (dayData is! Map || dayData['slots'] is! List) return [];
+    return (dayData['slots'] as List)
+        .whereType<Map>()
+        .map((s) => Map<String, dynamic>.from(s))
+        .toList();
+  }
+
+  Map<String, dynamic>? _nextUpSlot(List<Map<String, dynamic>> todaySlots) {
+    final now = DateTime.now();
+    final nowMins = now.hour * 60 + now.minute;
+    for (final s in todaySlots) {
+      final start = _parseTimeMins((s['startTime'] ?? '').toString());
+      if (start >= 0 && start > nowMins) return s;
+      // also show if currently running
+      final end = _parseTimeMins((s['endTime'] ?? '').toString());
+      if (start >= 0 && end >= 0 && nowMins >= start && nowMins < end) return s;
+    }
+    return null;
+  }
+
+  int _parseTimeMins(String hhmm) {
+    final p = hhmm.split(':');
+    if (p.length != 2) return -1;
+    final h = int.tryParse(p[0]) ?? -1;
+    final m = int.tryParse(p[1]) ?? -1;
+    if (h < 0 || m < 0) return -1;
+    return h * 60 + m;
+  }
+
   Widget _buildHeroCard(BuildContext context, Map<String, dynamic> data, String locale) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
     final days = data['days'] is List ? data['days'] as List : <dynamic>[];
     final selectedYmd = _ymd(_selectedDate);
-    final dayData = days.firstWhere(
-      (d) => (d is Map && (d['date'] ?? '').toString() == selectedYmd),
-      orElse: () => null,
-    );
-    final slots = dayData is Map && dayData['slots'] is List
-        ? (dayData['slots'] as List).where((s) => s is Map && (s['course'] is Map)).toList()
-        : <dynamic>[];
+    final todayYmd = _ymd(_dateOnly(DateTime.now()));
+    final isToday = selectedYmd == todayYmd;
+
+    final selectedSlots = _slotsForDay(data, selectedYmd);
     final totalThisWeek = days.fold<int>(0, (sum, d) {
-      if (d is Map && d['slots'] is List) {
-        return sum + (d['slots'] as List).where((s) => s is Map && (s['course'] is Map)).length;
-      }
+      if (d is Map && d['slots'] is List) return sum + (d['slots'] as List).length;
       return sum;
     });
+
+    final nextUp = isToday ? _nextUpSlot(selectedSlots) : null;
 
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.95),
-          cs.surfaceContainerHigh.withValues(alpha: 0.95),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -216,9 +241,10 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
+              color: cs.onPrimaryContainer,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -226,7 +252,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   context,
                   icon: Icons.today_rounded,
                   label: l.scheduleSelectedDay,
-                  value: '${slots.length}',
+                  value: '${selectedSlots.length}',
                 ),
               ),
               const SizedBox(width: 8),
@@ -240,30 +266,53 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Week schedule shortcut
-          InkWell(
-            onTap: () => context.push('/teacher/schedule/week'),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          if (nextUp != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: cs.surface.withValues(alpha: 0.55),
+                color: cs.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_view_week_rounded, size: 16, color: cs.primary),
+                  Icon(Icons.arrow_forward_rounded, size: 16, color: cs.primary),
                   const SizedBox(width: 8),
-                  Text(l.teacherViewFullWeekSchedule,
-                      style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13)),
-                  const Spacer(),
-                  Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Next up',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cs.primary,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        Text(
+                          [
+                            nextUp['subject']?.toString() ?? 'Period ${nextUp['period']}',
+                            if ((nextUp['cohort'] as Map?)?['name'] != null)
+                              (nextUp['cohort'] as Map)['name'].toString(),
+                            if ((nextUp['startTime'] ?? '').toString().isNotEmpty)
+                              '${nextUp['startTime']} – ${nextUp['endTime'] ?? ''}',
+                          ].where((s) => s.isNotEmpty).join('  ·  '),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: cs.onPrimaryContainer,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -274,10 +323,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      color: cs.surfaceContainerHigh.withValues(alpha: 0.6),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
-      child: const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator())),
+      color: cs.surfaceContainerHigh,
+      border: Border.all(color: cs.outlineVariant),
+      child: const Center(child: Padding(padding: EdgeInsets.all(16), child: const CmLoading())),
     );
   }
 
@@ -287,9 +335,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 12,
-      color: cs.errorContainer.withValues(alpha: 0.55),
-      border: Border.all(color: cs.error.withValues(alpha: 0.25)),
+      color: cs.errorContainer,
+      border: Border.all(color: cs.error),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -306,20 +353,20 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.10),
+        color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.30)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: cs.primary),
+          Icon(icon, size: 16, color: cs.onPrimaryContainer),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
-                Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: cs.primary, height: 1.1)),
+                Text(label, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer, fontWeight: FontWeight.w600)),
+                Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: cs.onPrimaryContainer, height: 1.1)),
               ],
             ),
           ),
@@ -355,12 +402,11 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       return LiquidGlassCard(
         padding: const EdgeInsets.all(24),
         borderRadius: BorderRadius.circular(20),
-        blurSigma: 10,
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Column(
           children: [
-            Icon(Icons.event_available_rounded, size: 40, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+            Icon(Icons.event_available_rounded, size: 40, color: cs.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
               l.scheduleNoClassesTitle,
@@ -382,53 +428,41 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       children: slots.map((slot) {
         final s = slot is Map ? Map<String, dynamic>.from(slot) : <String, dynamic>{};
         final period = (s['period'] ?? 0) is int ? s['period'] as int : int.tryParse('${s['period']}') ?? 0;
-        final courseMap = s['course'] is Map ? Map<String, dynamic>.from(s['course'] as Map<Object?, Object?>) : <String, dynamic>{};
         final cohortMap = s['cohort'] is Map ? Map<String, dynamic>.from(s['cohort'] as Map<Object?, Object?>) : <String, dynamic>{};
-        final courseName = (courseMap['name'] ?? '').toString();
-        final subject = (courseMap['subject'] ?? '').toString();
+        final subject = (s['subject'] ?? '').toString();
         final cohortName = (cohortMap['name'] ?? '').toString();
         final grade = (cohortMap['grade'] ?? 0);
-        final courseId = (courseMap['id'] ?? '').toString();
+        final startTime = (s['startTime'] ?? '').toString();
+        final endTime = (s['endTime'] ?? '').toString();
         final color = _subjectColor(subject, cs);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: InkWell(
-            onTap: courseId.isNotEmpty
-                ? () => _showSlotSheet(context, slot, l)
-                : null,
+            onTap: () => _showSlotSheet(context, slot, l),
             borderRadius: BorderRadius.circular(20),
             child: LiquidGlassCard(
               padding: const EdgeInsets.all(14),
               borderRadius: BorderRadius.circular(20),
-              blurSigma: 10,
-              gradient: LinearGradient(
-                colors: [
-                  cs.surface.withValues(alpha: 0.84),
-                  cs.surfaceContainerHigh.withValues(alpha: 0.68),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              border: Border.all(color: color.withValues(alpha: 0.22)),
-              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 12, spreadRadius: -4)],
+              border: Border.all(color: color),
               child: Row(
                 children: [
                   // Period badge
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 56,
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.14),
+                      color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'P$period',
-                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: color),
-                        ),
+                        Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
+                        if (startTime.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(startTime, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
+                        ],
                       ],
                     ),
                   ),
@@ -438,30 +472,27 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          subject.isNotEmpty ? subject : (courseName.isNotEmpty ? courseName : l.teacherUnassignedSlot),
+                          subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
                           style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          cohortName.isNotEmpty
-                              ? '$cohortName${grade is int && grade > 0 ? ' · Grade $grade' : ''}'
+                          [
+                            if (cohortName.isNotEmpty) cohortName,
+                            if (grade is int && grade > 0) 'Grade $grade',
+                            if (startTime.isNotEmpty && endTime.isNotEmpty) '$startTime – $endTime',
+                          ].join(' · ').isNotEmpty
+                              ? [
+                                  if (cohortName.isNotEmpty) cohortName,
+                                  if (grade is int && grade > 0) 'Grade $grade',
+                                ].join(' · ')
                               : l.teacherNoCohort,
                           style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      subject.isNotEmpty ? subject : l.teacherCourseFallback,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color),
-                    ),
-                  ),
+                  Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
                 ],
               ),
             ),
@@ -476,9 +507,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.errorContainer.withValues(alpha: 0.5),
-      border: Border.all(color: cs.error.withValues(alpha: 0.22)),
+      color: cs.errorContainer,
+      border: Border.all(color: cs.error),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -494,18 +524,15 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
   Future<void> _showSlotSheet(BuildContext context, dynamic slot, AppLocalizations l) async {
     final s = slot is Map ? Map<String, dynamic>.from(slot) : <String, dynamic>{};
-    final courseMap = s['course'] is Map ? Map<String, dynamic>.from(s['course'] as Map<Object?, Object?>) : <String, dynamic>{};
     final cohortMap = s['cohort'] is Map ? Map<String, dynamic>.from(s['cohort'] as Map<Object?, Object?>) : <String, dynamic>{};
-    final courseId = (courseMap['id'] ?? '').toString();
-    final courseName = (courseMap['name'] ?? '').toString();
-    final subject = (courseMap['subject'] ?? '').toString();
+    final subject = (s['subject'] ?? '').toString();
+    final classroomId = (s['classroomId'] ?? '').toString();
+    final classroomName = (s['classroomName'] ?? '').toString();
     final cohortName = (cohortMap['name'] ?? '').toString();
     final cohortId = (cohortMap['id'] ?? '').toString();
     final grade = cohortMap['grade'] is int ? cohortMap['grade'] as int : int.tryParse('${cohortMap['grade']}') ?? 0;
     final period = (s['period'] ?? 0) is int ? s['period'] as int : int.tryParse('${s['period']}') ?? 0;
     final dateYmd = _ymd(_selectedDate);
-
-    if (courseId.isEmpty) return;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -518,9 +545,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: LiquidGlassCard(
               borderRadius: BorderRadius.circular(24),
-              blurSigma: 18,
-              color: cs.surface.withValues(alpha: 0.96),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -529,7 +555,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: cs.outlineVariant.withValues(alpha: 0.5),
+                      color: cs.outlineVariant,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -540,11 +566,11 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          subject.isNotEmpty ? subject : (courseName.isNotEmpty ? courseName : l.teacherUnassignedSlot),
+                          subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
                           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
                         ),
                         Text(
-                          '$cohortName · ${l.teacherPeriod(period)}',
+                          [if (cohortName.isNotEmpty) cohortName, l.teacherPeriod(period)].join(' · '),
                           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                         ),
                       ],
@@ -552,38 +578,45 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   ),
                   const SizedBox(height: 14),
                   const Divider(height: 1),
-                  _SheetAction(
-                    icon: Icons.class_rounded,
-                    label: l.teacherGoToClassroom,
-                    onTap: () {
-                      Navigator.of(ctx).pop();
-                      context.push('/teacher/classroom/$courseId', extra: <String, dynamic>{
-                        'name': courseName,
-                        'subject': subject,
-                        'cohortName': cohortName,
-                        'grade': grade,
-                      });
-                    },
-                  ),
+                  if (classroomId.isNotEmpty)
+                    _SheetAction(
+                      icon: Icons.class_rounded,
+                      label: l.teacherGoToClassroom,
+                      onTap: () {
+                        Navigator.of(ctx).pop();
+                        context.push('/teacher/classroom/$classroomId', extra: <String, dynamic>{
+                          'name': classroomName,
+                          'subject': subject,
+                          'cohortName': cohortName,
+                          'grade': grade,
+                        });
+                      },
+                    ),
                   _SheetAction(
                     icon: Icons.fact_check_rounded,
                     label: l.teacherMarkAttendance,
                     onTap: () {
                       Navigator.of(ctx).pop();
-                      context.push('/teacher/attendance', extra: <String, dynamic>{
+                      context.push('/teacher/attendance/mark', extra: <String, dynamic>{
                         'cohortId': cohortId,
                         'period': period,
                         'date': dateYmd,
-                        'courseId': courseId,
+                        'courseId': cohortId,
                       });
                     },
                   ),
                   _SheetAction(
-                    icon: Icons.campaign_rounded,
-                    label: l.teacherNewAnnouncementAction,
+                    icon: Icons.notes_rounded,
+                    label: 'Add Class Notes',
                     onTap: () {
                       Navigator.of(ctx).pop();
-                      context.push('/teacher/announcements/new');
+                      context.push('/teacher/attendance/mark', extra: <String, dynamic>{
+                        'cohortId': cohortId,
+                        'period': period,
+                        'date': dateYmd,
+                        'courseId': cohortId,
+                        'focusNotes': true,
+                      });
                     },
                   ),
                   const SizedBox(height: 8),
@@ -607,9 +640,9 @@ Widget _navBtn(BuildContext context, {required IconData icon, required VoidCallb
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.72),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Icon(icon, size: 20, color: cs.onSurface),
     ),
@@ -648,10 +681,10 @@ class _SheetAction extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: cs.primaryContainer.withValues(alpha: 0.6),
+                color: cs.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 18, color: cs.primary),
+              child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
             ),
             const SizedBox(width: 14),
             Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),

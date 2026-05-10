@@ -35,18 +35,36 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     String subjectId,
   ) async {
     final l = AppLocalizations.of(context)!;
-    String newTitle = '';
+    final titleCtrl = TextEditingController();
+    final pagesCtrl = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l.solutionsAddBookTitle),
-        content: TextField(
-          autofocus: true,
-          onChanged: (v) => newTitle = v,
-          decoration: InputDecoration(
-            hintText: l.solutionsBookTitleHint,
-            border: OutlineInputBorder(),
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleCtrl,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                labelText: l.solutionsBookTitleHint,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: pagesCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Number of pages',
+                hintText: 'e.g. 240',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.format_list_numbered_rounded),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -61,7 +79,11 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    ref.read(solutionsFlowProvider.notifier).addBook(subjectId, newTitle);
+    final pageCount = int.tryParse(pagesCtrl.text.trim()) ?? 500;
+    ref.read(solutionsFlowProvider.notifier)
+        .addBook(subjectId, titleCtrl.text, pageCount: pageCount);
+    titleCtrl.dispose();
+    pagesCtrl.dispose();
   }
 
   @override
@@ -100,7 +122,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                 hintText: l.solutionsSearchBooks,
                 prefixIcon: const Icon(Icons.search_rounded),
                 filled: true,
-                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+                fillColor: cs.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
                   borderSide: BorderSide.none,
@@ -121,7 +143,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                           Icon(
                             Icons.menu_book_rounded,
                             size: 52,
-                            color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                            color: cs.onSurfaceVariant,
                           ),
                           const SizedBox(height: 14),
                           Text(
@@ -154,12 +176,12 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                           child: Ink(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest.withValues(
+                              color: cs.surfaceContainerLow.withValues(
                                 alpha: 0.75,
                               ),
                               borderRadius: BorderRadius.circular(22),
                               border: Border.all(
-                                color: cs.outlineVariant.withValues(alpha: 0.2),
+                                color: cs.outlineVariant,
                               ),
                             ),
                             child: Row(

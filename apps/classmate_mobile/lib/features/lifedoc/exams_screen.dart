@@ -8,6 +8,7 @@ import 'data/exams_repository.dart';
 import 'data/forms_repository.dart';
 import 'domain/exam_models.dart';
 import 'domain/form_models.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 const _allSubjectsFilter = '__all__';
 
@@ -79,7 +80,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     final asyncForms = isFormsOnly ? ref.watch(formsLiveProvider) : null;
 
     if ((asyncExams?.isLoading ?? false) || (asyncForms?.isLoading ?? false)) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: const CmLoading());
     }
 
     if ((asyncExams?.hasError ?? false) || (asyncForms?.hasError ?? false)) {
@@ -134,29 +135,20 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
             LiquidGlassCard(
               padding: const EdgeInsets.all(18),
               borderRadius: BorderRadius.circular(26),
-              blurSigma: 18,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  cs.tertiaryContainer.withValues(alpha: 0.9),
-                  cs.surfaceContainerHigh.withValues(alpha: 0.95),
-                ],
-              ),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.22),
-              ),
+              color: cs.primaryContainer,
+              border: Border.all(color: cs.outlineVariant),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(headerIcon, color: cs.onTertiaryContainer),
+                      Icon(headerIcon, color: cs.onPrimaryContainer),
                       const SizedBox(width: 8),
                       Text(
                         headerTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w900,
+                              color: cs.onPrimaryContainer,
                             ),
                       ),
                     ],
@@ -237,14 +229,43 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
       );
     }
 
-    return Column(
-      children: [
-        header(),
-        const SizedBox(height: 8),
-        Expanded(child: content),
-      ],
+    // Everything in one flat ListView so header + items scroll together
+    final items = isFormsOnly
+        ? (filteredForms.isEmpty
+            ? [_emptyCard(context, cs, l, filter: _filter, isForms: true)]
+            : filteredForms.map((f) => _FormCard(form: f)).toList())
+        : (filteredExams.isEmpty
+            ? [_emptyCard(context, cs, l, filter: _filter, isForms: false)]
+            : filteredExams.map((e) => _ExamCard(exam: e, status: _statusOf(e), countdown: _countdownLabel(l, e))).toList());
+
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+      itemCount: items.length + 2, // +2 for header + spacing
+      separatorBuilder: (_, i) => i == 0 ? const SizedBox(height: 8) : const SizedBox(height: 12),
+      itemBuilder: (context, i) {
+        if (i == 0) return header();
+        if (i == 1) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: items[i - 2],
+        );
+      },
     );
   }
+}
+
+Widget _emptyCard(BuildContext context, ColorScheme cs, AppLocalizations l, {required String filter, required bool isForms}) {
+  final msg = filter == _allSubjectsFilter
+      ? (isForms ? l.examsNoFormsPublished : l.examsNoExamsPublished)
+      : (isForms ? l.examsNoFormsForFilter(filter) : l.examsNoExamsForFilter(filter));
+  return LiquidGlassCard(
+    padding: const EdgeInsets.all(20),
+    borderRadius: BorderRadius.circular(24),
+    color: cs.surfaceContainerLow,
+    border: Border.all(color: cs.outlineVariant),
+    child: Text(msg, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+  );
 }
 
 class _HeaderStat extends StatelessWidget {
@@ -264,8 +285,7 @@ class _HeaderStat extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.64),
+      color: cs.surfaceContainerLow,
       child: Row(
         children: [
           CircleAvatar(
@@ -317,9 +337,8 @@ class _ExamsTab extends StatelessWidget {
           child: LiquidGlassCard(
             padding: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(24),
-            blurSigma: 12,
-            color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+            color: cs.surfaceContainerLow,
+            border: Border.all(color: cs.outlineVariant),
             child: Text(
               _filterMessage(
                 l,
@@ -368,9 +387,8 @@ class _FormsTab extends StatelessWidget {
           child: LiquidGlassCard(
             padding: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(24),
-            blurSigma: 12,
-            color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+            color: cs.surfaceContainerLow,
+            border: Border.all(color: cs.outlineVariant),
             child: Text(
               _filterMessage(
                 l,
@@ -412,20 +430,16 @@ class _ExamCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
 
     Color statusColor;
-    Color statusBg;
     IconData statusIcon;
     switch (status) {
       case _ExamStatus.today:
         statusColor = cs.onErrorContainer;
-        statusBg = cs.errorContainer;
         statusIcon = Icons.today_rounded;
       case _ExamStatus.past:
         statusColor = cs.onSurfaceVariant;
-        statusBg = cs.surfaceContainerHighest;
         statusIcon = Icons.check_circle_outline_rounded;
       case _ExamStatus.upcoming:
         statusColor = cs.onTertiaryContainer;
-        statusBg = cs.tertiaryContainer;
         statusIcon = Icons.upcoming_rounded;
     }
 
@@ -447,14 +461,13 @@ class _ExamCard extends StatelessWidget {
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
           borderRadius: BorderRadius.circular(22),
-          blurSigma: 10,
           color: status == _ExamStatus.today
-              ? cs.errorContainer.withValues(alpha: 0.18)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.75),
+              ? cs.errorContainer
+              : cs.surfaceContainerHighest,
           border: Border.all(
             color: status == _ExamStatus.today
-                ? cs.error.withValues(alpha: 0.35)
-                : cs.outlineVariant.withValues(alpha: 0.2),
+                ? cs.error
+                : cs.outlineVariant,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,16 +504,8 @@ class _ExamCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                statusBg.withValues(alpha: 0.94),
-                                cs.surface.withValues(alpha: 0.48),
-                              ],
-                            ),
                             borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.12)),
+                            border: Border.all(color: cs.outlineVariant),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -584,9 +589,8 @@ class _FormCard extends StatelessWidget {
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
           borderRadius: BorderRadius.circular(22),
-          blurSigma: 10,
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+          color: cs.surfaceContainerLow,
+          border: Border.all(color: cs.outlineVariant),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -619,16 +623,8 @@ class _FormCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerLow).withValues(alpha: 0.94),
-                          cs.surface.withValues(alpha: 0.5),
-                        ],
-                      ),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.12)),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
                     child: Text(
                       form.acceptingResponses ? l.examsOpenState : l.examsClosedState,
@@ -653,7 +649,6 @@ class _FormCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   _SmallChip(icon: Icons.quiz_outlined, label: l.examsQuestionsCount(form.questionCount)),
-                  _SmallChip(icon: Icons.bar_chart_rounded, label: l.examsResponsesCount(form.summary.responsesCount)),
                   _SmallChip(icon: Icons.groups_rounded, label: form.audienceLabel),
                 ],
               ),
@@ -677,23 +672,22 @@ class _SmallChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.surfaceContainerLow.withValues(alpha: 0.94),
-            cs.surface.withValues(alpha: 0.5),
-          ],
-        ),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.12)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: cs.primary),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            ),
+          ),
         ],
       ),
     );

@@ -1,11 +1,9 @@
 {
   "@@locale": "he",
-
   "menu": "תפריט",
   "sectionCore": "ניווט ראשי",
   "sectionSchoolTools": "כלי בית ספר",
   "sectionAccount": "חשבון",
-
   "navSchedule": "לוח זמנים",
   "navClassrooms": "כיתות",
   "navPractice": "תרגול",
@@ -28,12 +26,10 @@
   "navProfile": "פרופיל",
   "navSettings": "הגדרות",
   "navLogout": "התנתקות",
-
   "roleTeacher": "מורה",
   "roleAdmin": "מנהל",
   "roleSecretary": "מזכירות",
   "roleParent": "הורה",
-
   "titleSchedule": "לוח זמנים",
   "titleClasses": "כיתות",
   "titlePractice": "תרגול",
@@ -104,8 +100,8 @@
   "solutionsLoadMoreAction": "טען עוד",
   "solutionsSamePageTitle": "שאלות אחרות שנפתרו בעמוד זה",
   "solutionsSamePageEmptySubtitle": "עדיין לא הועלו שאלות שכנות מעמוד זה.",
-  "solutionsSamePageFallbackSubtitle": "fallback שימושי כשלשאלה המדויקת שלך אין עדיין הועלאה.",
-  "solutionsSamePageEmptyBody": "עדיין אין הועלאות בסביבה בעמוד זה. העלאה חדשה כאן תהיה באמת עוזרת.",
+  "solutionsSamePageFallbackSubtitle": "מקור משלים שימושי כשטרם הועלה פתרון לשאלה המדויקת שלך.",
+  "solutionsSamePageEmptyBody": "עדיין אין העלאות קרובות בעמוד זה. העלאה חדשה כאן תעזור מאוד.",
   "solutionsVerifiedByNova": "אומת על ידי NOVA",
   "solutionsUploadFileLimitReached": "הגבול של 10 קבצים הושג.",
   "solutionsUploadFilesAddedLimit": "נוספו {count} — גבול של 10 קבצים.",
@@ -151,7 +147,6 @@
   "solutionsUploadRetryFailedFiles": "נסו שוב קבצים שנכשלו",
   "solutionsUploadSubmittingAction": "מעלה...",
   "solutionsUploadSubmitAction": "העלה פתרון",
-
   "settingsTitle": "הגדרות",
   "settingsSubtitle": "מראה, שפה וחשבון",
   "settingsAppearance": "מראה",
@@ -169,7 +164,6 @@
   "settingsThemeLight": "בהיר",
   "settingsThemeDark": "כהה",
   "settingsLanguageSearchHint": "חפש שפה...",
-
   "teacherWorkspaceSubtitle": "נהלו נוכחות, רשימות וציונים מתוך האפליקציה.",
   "teacherMetricSessionsToday": "שיעורים היום",
   "teacherMetricTeachingGroups": "קבוצות הוראה",
@@ -209,32 +203,44 @@
   "teacherAttendanceTodaySessions": "ישיבות היום",
   "teacherAttendanceSessionSummary": "{cohort} • כיתה {grade} • {date} • שיעור {period}",
   "teacherAttendanceChanged": "שונה",
+  "teacherAttendanceClassNotesLabel": "הערות שיעור",
+  "teacherAttendanceClassNotesHint": "מה כוסה בשיעור זה...",
   "teacherAttendanceNoteLabel": "הערה",
   "teacherAttendanceSaving": "שומר…",
+  "teacherAttendanceSaveAll": "שמור נוכחות",
   "teacherAttendanceSaveCount": "שמור {count, plural, =1 {שינוי אחד} other {{count} שינויים}}",
   "teacherAttendanceSaved": "הנוכחות נשמרה",
   "retry": "נסה שוב",
   "scheduleRefreshTooFast": "לוח הזמנים מתרענן מהר מדי כרגע. חכו רגע ונסו שוב.",
-  "scheduleNotOnboarded": "פרופיל התלמיד שלך עדיין לא הוגדר במלואו, ולכן עדיין אין לוח זמנים זמין.",
+  "scheduleSessionExpired": "פג תוקף ההתחברות שלך. אנא התחבר מחדש.",
+  "scheduleNotOnboarded": "פרופיל התלמיד שלך עדיין לא הוגדר. בקש ממנהל בית הספר לשייך אותך לכיתה.",
   "scheduleLoadError": "עדיין לא ניתן לטעון את לוח הזמנים.",
   "scheduleSelectedDay": "היום שנבחר",
   "scheduleClassCount": "{count, plural, =0 {0 שיעורים} =1 {שיעור אחד} =2 {2 שיעורים} other {{count} שיעורים}}",
-  "@scheduleClassCount": {"placeholders": {"count": {}}},
+  "@scheduleClassCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "scheduleNextUp": "הבא בתור",
   "scheduleNoMoreClasses": "אין עוד שיעורים",
   "scheduleNoClassesTitle": "אין שיעורים ביום הזה",
   "scheduleNoClassesSubtitle": "נראה ש-{day} פנוי.",
-  "@scheduleNoClassesSubtitle": {"placeholders": {"day": {}}},
+  "@scheduleNoClassesSubtitle": {
+    "placeholders": {
+      "day": {}
+    }
+  },
   "scheduleClassFallback": "שיעור",
-  "scheduleNoSubjectLocation": "עדיין אין מקצוע או מיקום",
-
+  "scheduleNoSubjectLocation": "No subject or location yet",
+  "scheduleNotes": "Notes",
+  "scheduleGoToClassroom": "Go to Classroom",
   "loginTitle": "התחברות בנייד לתלמידים ומורים",
   "loginSubtitle": "חשבונות מורים פותחים את סביבת המורה. חשבונות תלמידים נשארים בחוויית התלמיד.",
   "loginSignIn": "התחבר",
   "loginSigningIn": "מתחבר...",
   "loginEmailLabel": "אימייל",
   "loginPasswordLabel": "סיסמה",
-
   "profileNotAvailable": "לא זמין",
   "profileSchoolInfo": "פרטי בית הספר",
   "profileFullName": "שם מלא",
@@ -264,7 +270,6 @@
   "profilePasswordNotAuthenticated": "לא מחובר",
   "profilePasswordIncorrect": "הסיסמה הנוכחית שגויה",
   "profilePasswordGenericError": "משהו השתבש. נסה שוב.",
-
   "editProfileTitle": "עריכת פרופיל",
   "editProfileSchool": "בית ספר",
   "editProfileSchoolPublic": "בית הספר ציבורי",
@@ -275,7 +280,6 @@
   "editProfileBioPublic": "הביוגרפיה ציבורית",
   "editProfileStatus": "סטטוס",
   "editProfileStatusPublic": "הסטטוס ציבורי",
-
   "classroomsYourClassrooms": "הכיתות שלך",
   "classroomsReorder": "סידור הכיתות מחדש",
   "classroomsCount": "{count} כיתות",
@@ -291,7 +295,6 @@
   "classroomsTapToOpen": "הקש כדי לפתוח את הכיתה",
   "classroomsNoMessagesYet": "אין הודעות עדיין",
   "classroomsMessageFallback": "הודעה",
-
   "examsLoadError": "לא ניתן לטעון מבחנים או טפסים",
   "examsAllFilter": "הכול",
   "examsFormsSubtitle": "עיינו בטפסי הכיתה, חלונות המענה והמעקבים שמפורסמים על ידי בית הספר.",
@@ -340,7 +343,6 @@
       "count": {}
     }
   },
-
   "insightsTrendBaseline": "קו בסיס",
   "insightsTrendImproving": "במגמת שיפור",
   "insightsTrendDropping": "בירידה",
@@ -405,16 +407,23 @@
   "insightsAiCoachUnavailableSubtitle": "הנחיות AI אינן זמינות כרגע עבור החשבון הזה.",
   "insightsAskNova": "שאל את נובה",
   "insightsAskNovaPrompt": "בנה לי תוכנית התאוששות מהתובנות האחרונות שלי.",
-  "insightsAiStudyCoachTitle": "מאמן לימוד מבוסס AI",
+  "insightsAiStudyCoachTitle": "מאמן לימוד AI",
   "insightsSchoolToolsTitle": "כלי בית ספר",
   "insightsSchoolToolsSubtitle": "עברו ישירות למסלולי התלמיד שהכי חשובים עכשיו.",
-
   "tutorUntitledChat": "צ'אט ללא כותרת",
   "tutorNewChat": "צ'אט חדש",
   "tutorFailedToOpenSeededChat": "לא ניתן לפתוח את הצ'אט: {error}",
-  "@tutorFailedToOpenSeededChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToOpenSeededChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorFailedToCreateChat": "לא ניתן ליצור צ'אט: {error}",
-  "@tutorFailedToCreateChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToCreateChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorRenameChatTitle": "שינוי שם הצ'אט",
   "tutorChatNameHint": "שם הצ'אט",
   "tutorCancel": "ביטול",
@@ -424,13 +433,13 @@
   "tutorHideChatConfirmTitle": "להסתיר את הצ'אט?",
   "tutorHideChatConfirmBody": "הפעולה תסתיר את הצ'אט מהרשימה במכשיר הזה. הסשן יישאר בשרת.",
   "tutorTapToOpenHistory": "הקשו כדי לפתוח היסטוריה",
-  "tutorAiTutorSubtitle": "המורה האישי שלכם מבוסס AI",
+  "tutorAiTutorSubtitle": "המורה ה-AI שלך",
   "tutorHeroBody": "היסטוריית צ'אט אמיתית, שרשורים נקיים יותר וגישה מהירה יותר.",
-  "tutorStartFreshConversation": "התחילו שיחה חדשה",
+  "tutorStartFreshConversation": "התחל שיחה חדשה",
   "tutorSearchHistoryHint": "חיפוש בהיסטוריית הצ'אט",
   "chatComposerDefaultHint": "הודעה",
   "chatComposerReplyingToMessage": "מגיבים להודעה",
-  "chatComposerReplyFallback": "תגובה",
+  "chatComposerReplyFallback": "השב",
   "chatComposerMicHint": "הקישו להודעה קולית מהירה או לחצו לחיצה ארוכה כדי להקליט",
   "chatComposerRecordingTitle": "מקליט",
   "chatComposerReleaseToSend": "שחררו כדי לשלוח",
@@ -521,27 +530,53 @@
   "chatMediaPreviewRemoveAction": "הסרה",
   "chatMediaPreviewCaptionHint": "הוסיפו כיתוב...",
   "tutorPlanSelectedPlaceholder": "התוכנית {plan} נבחרה. התשלומים נשארים כרגע במצב דמה.",
-  "@tutorPlanSelectedPlaceholder": {"placeholders": {"plan": {}}},
+  "@tutorPlanSelectedPlaceholder": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorFailedToLoadChats": "טעינת הצ'אטים נכשלה",
   "tutorNoChatsYet": "עדיין אין צ'אטים",
   "tutorNoChatsMatchSearch": "אין צ'אטים שתואמים לחיפוש שלכם",
   "tutorCreateFirstChat": "צרו את הצ'אט הראשון",
   "tutorPlansTitle": "תוכניות NOVA",
   "tutorPlansSubtitle": "מבוסס על הנחות עלות של {model} ומכסות חודשיות קשיחות כדי שהשימוש יישאר רווחי.",
-  "@tutorPlansSubtitle": {"placeholders": {"model": {}}},
+  "@tutorPlansSubtitle": {
+    "placeholders": {
+      "model": {}
+    }
+  },
   "tutorPlanPriceFree": "חינם",
   "tutorPlanPriceMonthly": "${price}/לחודש",
-  "@tutorPlanPriceMonthly": {"placeholders": {"price": {}}},
+  "@tutorPlanPriceMonthly": {
+    "placeholders": {
+      "price": {}
+    }
+  },
   "tutorPromptsLeft": "פרומפטים שנותרו",
   "tutorUploadsLeft": "העלאות שנותרו",
   "tutorVoiceLeft": "דקות קול שנותרו",
   "tutorUsageValue": "{remaining}/{total}",
-  "@tutorUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorVoiceUsageValue": "{remaining}/{total} דק'",
-  "@tutorVoiceUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorVoiceUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorPaymentMethodsTitle": "אמצעי תשלום",
   "tutorPaymentMethodsSubtitle": "התשלום נשאר במצב דמה עד שחשבון הבנק והמעבד של ClassMate יהיו פעילים. התוכנית שנבחרה היא {plan}.",
-  "@tutorPaymentMethodsSubtitle": {"placeholders": {"plan": {}}},
+  "@tutorPaymentMethodsSubtitle": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorCardCheckoutTitle": "תשלום בכרטיס",
   "tutorCardCheckoutSubtitle": "שער דמה עבור Visa, Mastercard ו-AmEx.",
   "tutorApplePayTitle": "Apple Pay",
@@ -557,21 +592,54 @@
   "tutorPlanSchoolSeatName": "מושב בית ספרי",
   "tutorPlanSchoolSeatTagline": "לפריסה לכל תלמיד או איש צוות בתוך בית ספר אמיתי.",
   "tutorPlanBulletPromptsMonthly": "{count} פרומפטים של NOVA בכל חודש",
-  "@tutorPlanBulletPromptsMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletPromptsPerSeatMonthly": "{count} פרומפטים של NOVA לכל מושב בכל חודש",
-  "@tutorPlanBulletPromptsPerSeatMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsPerSeatMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletUploads": "{count} העלאות תמונה או קובץ",
-  "@tutorPlanBulletUploads": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletUploads": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletVoiceMinutes": "{count} דקות תמלול קולי",
-  "@tutorPlanBulletVoiceMinutes": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletVoiceMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorEstimatedCostCeilingFree": "תקרת עלות משוערת: ${cost}/לחודש",
-  "@tutorEstimatedCostCeilingFree": {"placeholders": {"cost": {}}},
+  "@tutorEstimatedCostCeilingFree": {
+    "placeholders": {
+      "cost": {}
+    }
+  },
   "tutorEstimatedCostCeilingPaid": "תקרת עלות משוערת: ${cost}/לחודש • מרווח {margin}%",
-  "@tutorEstimatedCostCeilingPaid": {"placeholders": {"cost": {}, "margin": {}}},
+  "@tutorEstimatedCostCeilingPaid": {
+    "placeholders": {
+      "cost": {},
+      "margin": {}
+    }
+  },
   "tutorTimeMinutesShort": "{count}דק'",
-  "@tutorTimeMinutesShort": {"placeholders": {"count": {}}},
+  "@tutorTimeMinutesShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorTimeHoursShort": "{count}ש'",
-  "@tutorTimeHoursShort": {"placeholders": {"count": {}}},
+  "@tutorTimeHoursShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorVoiceMessageFallback": "הודעה קולית",
   "tutorFileFallback": "קובץ",
   "tutorCopy": "העתק",
@@ -595,12 +663,19 @@
   "tutorPlanLimitReachedMessage": "מכסת הפרומפטים או ההעלאות של החודש לתוכנית ה-NOVA הנוכחית שלך אזלה. בחרו תוכנית גבוהה יותר במסך הבית של NOVA כדי להמשיך.",
   "tutorSendFailed": "השליחה נכשלה.",
   "tutorCurrentPlanUsageSummary": "תוכנית נוכחית: {plan} • {prompts} פרומפטים נותרו • {uploads} העלאות נותרו • {voice} דקות קול נותרו",
-  "@tutorCurrentPlanUsageSummary": {"placeholders": {"plan": {}, "prompts": {}, "uploads": {}, "voice": {}}},
+  "@tutorCurrentPlanUsageSummary": {
+    "placeholders": {
+      "plan": {},
+      "prompts": {},
+      "uploads": {},
+      "voice": {}
+    }
+  },
   "tutorReviewPlansInHome": "עבור על התוכניות בבית של NOVA",
   "tutorCouldNotOpenAttachment": "לא ניתן לפתוח את הקובץ המצורף.",
   "tutorAttachmentUnavailable": "הקובץ המצורף אינו זמין.",
   "tutorImageUnavailable": "התמונה אינה זמינה",
-  "tutorYou": "אתם",
+  "tutorYou": "אתה",
   "tutorRegenerate": "צור מחדש",
   "tutorEmptyStateTitle": "התחילו משאלה אמיתית",
   "tutorEmptyStateBody": "בקשו מ-NOVA להסביר מושג, להפוך הערות לטבלה, להשוות רעיונות או לעזור לכם לחזור מחומר שהועלה.",
@@ -612,170 +687,204 @@
   "tutorYourNovaPlanTitle": "תוכנית ה-NOVA שלך",
   "tutorYourNovaPlanMessage": "בדקו כאן את מגבלות הפרומפטים, ההעלאות והקול, ואז חזרו לבית של NOVA אם תרצו להחליף תוכנית.",
   "tutorExplainTitle": "NOVA מסביר",
-
   "classroomsThreadTypeClassroom": "כיתה",
   "classroomsThreadTypeGroup": "קבוצה",
   "classroomsThreadTypeDirectMessage": "הודעה ישירה",
-    "classroomsThreadTypeDirectMessageShort": "DM",
-    "messagesBlockedPeopleTitle": "אנשים חסומים",
-    "messagesStartChatAction": "התחלת צ'אט",
-    "messagesLoadFailed": "טעינת ההודעות נכשלה: {error}",
-    "@messagesLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchHint": "חיפוש הודעות",
-    "messagesNoResults": "לא נמצאו הודעות",
-    "messagesRequestsSection": "בקשות",
-    "messagesPendingApprovals": "אישורים ממתינים",
-    "messagesChatsSection": "צ'אטים",
-    "messagesAllChatsSection": "כל הצ'אטים",
-    "messagesConversationCount": "{count, plural, =1 {שיחה אחת} other {{count} שיחות}}",
-    "@messagesConversationCount": {"placeholders": {"count": {}}},
-    "messagesRequestReviewStatus": "סקירה",
-    "messagesPeopleLoadFailed": "טעינת האנשים נכשלה: {error}",
-    "@messagesPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchPeopleHint": "חיפוש אנשים",
-    "messagesNewGroupTitle": "קבוצה חדשה",
-    "messagesNewGroupSubtitle": "יצירת צ'אט קבוצתי",
-    "messagesGroupNameHint": "שם הקבוצה",
-    "messagesCreateGroupAction": "יצירת קבוצה",
-    "messagesBlockedPersonFallback": "האדם הזה",
-    "messagesUnblockPersonTitle": "לבטל חסימה של האדם הזה?",
-    "messagesUnblockPersonBody": "לאפשר ל-{name} לשלוח לך שוב הודעות?",
-    "@messagesUnblockPersonBody": {"placeholders": {"name": {}}},
-    "messagesUnblockAction": "ביטול חסימה",
-    "messagesUnblockedToast": "החסימה של {name} בוטלה",
-    "@messagesUnblockedToast": {"placeholders": {"name": {}}},
-    "messagesBlockedPeopleLoadFailed": "טעינת האנשים החסומים נכשלה: {error}",
-    "@messagesBlockedPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesNoBlockedPeople": "אין אנשים חסומים",
-    "messagesUnknownUser": "משתמש לא ידוע",
-    "announcementsLoadError": "לא הצלחנו לטעון הודעות כעת. גרור כדי לרענן או נסה שוב.",
-    "announcementsLoadTimeout": "הודעות לוקחות זמן רב מדי לטעינה. גרור כדי לרענן או נסה שוב בעוד רגע.",
-    "announcementsLoadNetwork": "הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.",
-    "announcementsAudienceTeacher": "מורה",
-    "announcementsAudienceAccount": "חשבון",
-    "announcementsAudienceTeacherWorkspace": "מרחב עבודה של מורה",
-    "announcementsLoadFailedTitle": "לא הצלחנו לטעון הודעות",
-    "announcementsLoadFailedHint": "גרור כדי לרענן לאחר שהחיבור יציב.",
-    "announcementsHeroSubtitle": "הודעות שפורסמו בבית ספר, מורה ומערכת זמינות ל{audience}.",
-    "announcementsLatestSourceLabel": "מקור אחרון",
-    "announcementsNone": "אף אחד",
-    "announcementsUnreadCountTitle": "{count, plural, =1 {הודעה אחת שלא נקראת} other {{count} הודעות שלא נקראו}}",
-    "announcementsAllReadTitle": "הכל קרא",
-    "announcementsEmptyForAudience": "לא פורסמו הודעות ל{audience} עד כה.",
-    "announcementsLatestBody": "אחרון: {title}. הקש עליו כדי לקרוא את התוכן המלא.",
-    "announcementsFiltersSubtitle": "הצר את תיבת הדואר לפי מקור או לפי מצב קריאה כדי שתוכל להתמקד במה שעדיין צריך תשומת לב.",
-    "announcementsAllAnnouncements": "כל ההודעות",
-    "announcementsSearchStatesHint": "לא קרא / קרא",
-    "announcementsSummarySourceSegment": " מ{source}",
-    "announcementsSummaryStateSegment": " ב{state}",
-    "announcementsShowingSummary": "מציג {shown} מתוך {total} הודעות{sourceSegment}{stateSegment}.",
-    "announcementsNoMatchTitle": "אין הודעות התואמות לסינונים אלה",
-    "announcementsNoPublishedTitle": "אין הודעות שפורסמו עדיין",
-    "announcementsNoMatchSubtitle": "נסה מקור שונה או חזור לכל ההודעות כדי להביא עוד פריטים לתצוגה.",
-    "announcementsClearFiltersHint": "נקה סינונים כדי לראות הכל שוב.",
-    "announcementsPullToRefreshHint": "גרור כדי לרענן לאחר פרסום פעילות בית ספר חדשה.",
-    "announcementsInboxTitle": "תיבת הדואר",
-    "announcementsInboxSubtitle": "רק כותרות מופיעות כאן לסריקה מהירה. הקש על כל פריט כדי לפתוח את תוכן ההודעה המלא.",
-    "announcementsDetailLoadFailedHint": "חזור ונסה לרענן את תיבת דואר ההודעות.",
-    "announcementsUnavailableTitle": "הודעה לא זמינה",
-    "announcementsUnavailableSubtitle": "הודעה זו כבר לא זמינה בהזנה המפורסמת עבור {audience}.",
-    "announcementsUnavailableHint": "חזור לתיבת הדואר כדי להמשיך.",
-    "announcementsPublishedReadStateBody": "הודעה זו פורסמה ל{audience} ומצב הקריאה שלך מאוחסן באופן מקומי על התקן זה.",
-    "announcementsDetailsTitle": "פרטי הודעה",
-    "announcementsDetailsSubtitle": "מטא נתונים שפורסמו עבור הודעה זו ומצב הקריאה הנוכחי שלה.",
-    "announcementsSeverityLabel": "חומרה",
-    "announcementsCreatedLabel": "נוצר",
-    "announcementsIdLabel": "מזהה הודעה",
-    "announcementsFullContentTitle": "תוכן מלא",
-    "announcementsFullContentSubtitle": "הטקסט המלא של ההודעה מופיע כאן לאחר פתיחת הפריט מתיבת הדואר.",
-    "announcementsReadStateTitle": "מצב קריאה",
-    "announcementsReadStateBodyRead": "הודעה זו מסומנת כנקראת על התקן זה.",
-    "announcementsReadStateBodyUnread": "הודעה זו עדיין לא נקראת על התקן זה.",
-    "gradesLoadError": "לא היה ניתן לטעון ציונים כרגע. משוך כדי לרענן או נסה שוב.",
-    "gradesLoadTimeout": "ציונים לוקחים יותר מדי זמן לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.",
-    "gradesLoadNetwork": "לא הצליח להתחבר לציונים כרגע. בדוק את החיבור שלך ונסה שוב.",
-    "gradesGeneralSubject": "כללי",
-    "gradesBandBuilding": "עדיין בבניה",
-    "gradesBandExcellent": "מעולה",
-    "gradesBandStrong": "חזק",
-    "gradesBandOkay": "בסדר",
-    "gradesBandNeedsAttention": "צריך תשומת לב",
-    "gradesBandRisk": "בסיכון",
-    "gradesTrendRising": "עולה",
-    "gradesTrendDropping": "יורד",
-    "gradesTrendStable": "יציב",
-    "gradesShowingSummary": "מציג {shown} מתוך {total} ציונים שנרשמו עבור {subject} ב-{range}.",
-    "gradesLoadingSubtitle": "טוען את התוצאות האקדמיות העדכניות שלך.",
-    "gradesUnavailableTitle": "ציונים לא זמינים",
-    "gradesHeroSubtitle": "קריאה ברורה של הממוצע שלך, הערכות אחרונות, ואילו מקצועות צריכים הגנה או התאוששות.",
-    "gradesMetricAverage": "ממוצע",
-    "gradesMetricRecorded": "נרשם",
-    "gradesMetricBestSubject": "המקצוע הטוב ביותר",
-    "gradesMetricNeedsWork": "צריך עבודה",
-    "gradesLatestSignalBody": "{assessment} ב-{subject} קיבל {grade}. {band} כרגע.",
-    "gradesSummaryAvailableNoRecent": "סיכום ציונים זמין, אך אין הערכות אחרונות גלויות בתצוגה זו כרגע.",
-    "gradesEmptyTitle": "עדיין אין ציונים",
-    "gradesEmptySubtitle": "לא פורסמו ציונים לחשבון התלמיד הזה עדיין.",
-    "gradesFiltersSubtitle": "השתמש באותו סגנון בורר שניתן לחיפוש כמו בהגדרות כדי לצמצם ציונים לפי מקצוע או חלון זמן.",
-    "gradesNoFilteredTitle": "אין ציונים התואמים לסנני אלה",
-    "gradesNoFilteredSubtitle": "נסה את כל המקצועות או טווח זמן רחב יותר כדי להחזיר יותר ציונים שנרשמו.",
-    "gradesQuickReadTitle": "קריאה מהירה",
-    "gradesQuickReadSubtitleFiltered": "סיכום מהיר של הציונים כרגע בתצוגה.",
-    "gradesQuickReadSubtitleAll": "הקריאה המהירה ביותר על מה להגן ומה להחזיר.",
-    "gradesWeakSpotLabel": "נקודת חולשה נוכחית",
-    "gradesNoWeakSignal": "אין עדיין אות מקצוע חלוש",
-    "gradesWeakSpotValue": "{subject} צריך את בלוק ההתאוששות הראשון.",
-    "gradesStrengthLabel": "כוח נוכחי",
-    "gradesNoStrengthSignal": "אין עדיין אות מקצוע חזק",
-    "gradesStrengthValue": "{subject} הוא עוגן הביטחון שלך כרגע.",
-    "gradesBandLabel": "פס",
-    "gradesInViewLabel": "בתצוגה",
-    "gradesInViewCount": "{count} ציונים שנרשמו בסנן זה.",
-    "gradesInViewAverage": "{count} ציונים שנרשמו בממוצע {average}.",
-    "gradesLatestAssessmentsTitle": "הערכות אחרונות",
-    "gradesLatestAssessmentsSubtitleFiltered": "ציונים שנרשמו לאחרונה בתצוגה המסוננת הנוכחית.",
-    "gradesLatestAssessmentsSubtitleAll": "ציונים שנרשמו לאחרונה בסדר כרונולוגי.",
-    "gradesSubjectDrilldownTitle": "פירוט מקצוע",
-    "gradesSubjectDrilldownSubtitleFiltered": "מקובץ לפי מקצוע עבור הציונים כרגע בתצוגה.",
-    "gradesSubjectDrilldownSubtitleAll": "מקובץ לפי מקצוע כדי שמגמה ולחץ יתבררו יותר מהר.",
-    "gradesAssessmentFallback": "הערכה",
-    "gradesChipBest": "הטוב ביותר",
-    "gradesNoAverageYet": "אין ממוצע עדיין",
-    "gradesRecentAverage": "ממוצע אחרון: {average}",
-    "messagesRequestTitle": "בקשה",
-    "messagesRequestLoadFailed": "טעינת הבקשה נכשלה: {error}",
-    "@messagesRequestLoadFailed": {"placeholders": {"error": {}}},
-    "messagesRequestBannerIncoming": "בקשת הודעה",
-    "messagesRequestBannerOutgoing": "אישור ממתין",
-    "messagesBlockAction": "חסימה",
-    "messagesApproveAction": "אישור",
-    "messagesRequestUnlockHint": "הצ'אט ייפתח אחרי שהנמען יאשר את ההודעה הראשונה שלך.",
-    "messagesThreadConversationFallback": "שיחה",
-    "messagesThreadLeaveGroupTitle": "לעזוב את הקבוצה?",
-    "messagesThreadLeaveGroupBody": "לא תקבלו יותר הודעות מהקבוצה הזו.",
-    "messagesThreadBlockPersonTitle": "לחסום את האדם הזה?",
-    "messagesThreadBlockPersonBody": "לא תוכלו עוד להחליף הודעות עם האדם הזה.",
-    "messagesThreadPersonFallback": "אדם",
-    "messagesThreadProfileInfoUnavailable": "פרטי הפרופיל לא זמינים",
-    "messagesThreadParticipants": "משתתפים",
-    "messagesThreadPeople": "אנשים",
-    "messagesThreadDeleteForMe": "מחיקה בשבילי",
-    "messagesThreadDeleteForEveryone": "מחיקה לכולם",
-    "messagesThreadDeleteForEveryoneSubtitle": "הסרה עבור כל המשתתפים",
-    "messagesThreadSending": "שולח…",
-    "messagesThreadWaitingForApproval": "ממתין לאישור",
+  "classroomsThreadTypeDirectMessageShort": "DM",
+  "messagesBlockedPeopleTitle": "אנשים חסומים",
+  "messagesStartChatAction": "התחלת צ'אט",
+  "messagesLoadFailed": "טעינת ההודעות נכשלה: {error}",
+  "@messagesLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchHint": "חיפוש הודעות",
+  "messagesNoResults": "לא נמצאו הודעות",
+  "messagesRequestsSection": "בקשות",
+  "messagesPendingApprovals": "אישורים ממתינים",
+  "messagesChatsSection": "צ'אטים",
+  "messagesAllChatsSection": "כל הצ'אטים",
+  "messagesConversationCount": "{count, plural, =1 {שיחה אחת} other {{count} שיחות}}",
+  "@messagesConversationCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "messagesRequestReviewStatus": "סקירה",
+  "messagesPeopleLoadFailed": "טעינת האנשים נכשלה: {error}",
+  "@messagesPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchPeopleHint": "חיפוש אנשים",
+  "messagesNewGroupTitle": "קבוצה חדשה",
+  "messagesNewGroupSubtitle": "יצירת צ'אט קבוצתי",
+  "messagesGroupNameHint": "שם הקבוצה",
+  "messagesCreateGroupAction": "יצירת קבוצה",
+  "messagesBlockedPersonFallback": "האדם הזה",
+  "messagesUnblockPersonTitle": "לבטל חסימה של האדם הזה?",
+  "messagesUnblockPersonBody": "לאפשר ל-{name} לשלוח לך שוב הודעות?",
+  "@messagesUnblockPersonBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesUnblockAction": "ביטול חסימה",
+  "messagesUnblockedToast": "החסימה של {name} בוטלה",
+  "@messagesUnblockedToast": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesBlockedPeopleLoadFailed": "טעינת האנשים החסומים נכשלה: {error}",
+  "@messagesBlockedPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesNoBlockedPeople": "אין אנשים חסומים",
+  "messagesUnknownUser": "משתמש לא ידוע",
+  "announcementsLoadError": "לא הצלחנו לטעון הודעות כעת. גרור כדי לרענן או נסה שוב.",
+  "announcementsLoadTimeout": "הודעות לוקחות זמן רב מדי לטעינה. גרור כדי לרענן או נסה שוב בעוד רגע.",
+  "announcementsLoadNetwork": "הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.",
+  "announcementsAudienceTeacher": "מורה",
+  "announcementsAudienceAccount": "חשבון",
+  "announcementsAudienceTeacherWorkspace": "מרחב עבודה של מורה",
+  "announcementsLoadFailedTitle": "לא הצלחנו לטעון הודעות",
+  "announcementsLoadFailedHint": "גרור כדי לרענן לאחר שהחיבור יציב.",
+  "announcementsHeroSubtitle": "הודעות שפורסמו בבית ספר, מורה ומערכת זמינות ל{audience}.",
+  "announcementsLatestSourceLabel": "מקור אחרון",
+  "announcementsNone": "אין",
+  "announcementsUnreadCountTitle": "{count, plural, =1 {הודעה אחת שלא נקראת} other {{count} הודעות שלא נקראו}}",
+  "announcementsAllReadTitle": "הכל נקרא",
+  "announcementsEmptyForAudience": "לא פורסמו הודעות ל{audience} עד כה.",
+  "announcementsLatestBody": "אחרון: {title}. הקש עליו כדי לקרוא את התוכן המלא.",
+  "announcementsFiltersSubtitle": "הצר את תיבת הדואר לפי מקור או לפי מצב קריאה כדי שתוכל להתמקד במה שעדיין צריך תשומת לב.",
+  "announcementsAllAnnouncements": "כל ההודעות",
+  "announcementsSearchStatesHint": "לא קרא / קרא",
+  "announcementsSummarySourceSegment": " מ{source}",
+  "announcementsSummaryStateSegment": " ב{state}",
+  "announcementsShowingSummary": "מציג {shown} מתוך {total} הודעות{sourceSegment}{stateSegment}.",
+  "announcementsNoMatchTitle": "אין הודעות התואמות לסינונים אלה",
+  "announcementsNoPublishedTitle": "אין הודעות שפורסמו עדיין",
+  "announcementsNoMatchSubtitle": "נסה מקור שונה או חזור לכל ההודעות כדי להביא עוד פריטים לתצוגה.",
+  "announcementsClearFiltersHint": "נקה סינונים כדי לראות הכל שוב.",
+  "announcementsPullToRefreshHint": "גרור כדי לרענן לאחר פרסום פעילות בית ספר חדשה.",
+  "announcementsInboxTitle": "תיבת הדואר",
+  "announcementsInboxSubtitle": "רק כותרות מופיעות כאן לסריקה מהירה. הקש על כל פריט כדי לפתוח את תוכן ההודעה המלא.",
+  "announcementsDetailLoadFailedHint": "חזור ונסה לרענן את תיבת דואר ההודעות.",
+  "announcementsUnavailableTitle": "הודעה לא זמינה",
+  "announcementsUnavailableSubtitle": "הודעה זו כבר לא זמינה בהזנה המפורסמת עבור {audience}.",
+  "announcementsUnavailableHint": "חזור לתיבת הדואר כדי להמשיך.",
+  "announcementsPublishedReadStateBody": "הודעה זו פורסמה ל{audience} ומצב הקריאה שלך מאוחסן באופן מקומי על התקן זה.",
+  "announcementsDetailsTitle": "פרטי הודעה",
+  "announcementsDetailsSubtitle": "מטא נתונים שפורסמו עבור הודעה זו ומצב הקריאה הנוכחי שלה.",
+  "announcementsSeverityLabel": "חומרה",
+  "announcementsCreatedLabel": "נוצר",
+  "announcementsIdLabel": "מזהה הודעה",
+  "announcementsFullContentTitle": "תוכן מלא",
+  "announcementsFullContentSubtitle": "הטקסט המלא של ההודעה מופיע כאן לאחר פתיחת הפריט מתיבת הדואר.",
+  "announcementsReadStateTitle": "מצב קריאה",
+  "announcementsReadStateBodyRead": "הודעה זו מסומנת כנקראת על התקן זה.",
+  "announcementsReadStateBodyUnread": "הודעה זו עדיין לא נקראת על התקן זה.",
+  "gradesLoadError": "לא היה ניתן לטעון ציונים כרגע. משוך כדי לרענן או נסה שוב.",
+  "gradesLoadTimeout": "ציונים לוקחים יותר מדי זמן לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.",
+  "gradesLoadNetwork": "לא הצליח להתחבר לציונים כרגע. בדוק את החיבור שלך ונסה שוב.",
+  "gradesGeneralSubject": "כללי",
+  "gradesBandBuilding": "עדיין בבניה",
+  "gradesBandExcellent": "מעולה",
+  "gradesBandStrong": "חזק",
+  "gradesBandOkay": "בסדר",
+  "gradesBandNeedsAttention": "צריך תשומת לב",
+  "gradesBandRisk": "בסיכון",
+  "gradesTrendRising": "עולה",
+  "gradesTrendDropping": "יורד",
+  "gradesTrendStable": "יציב",
+  "gradesShowingSummary": "מציג {shown} מתוך {total} ציונים שנרשמו עבור {subject} ב-{range}.",
+  "gradesLoadingSubtitle": "טוען את התוצאות האקדמיות העדכניות שלך.",
+  "gradesUnavailableTitle": "ציונים לא זמינים",
+  "gradesHeroSubtitle": "קריאה ברורה של הממוצע שלך, הערכות אחרונות, ואילו מקצועות צריכים הגנה או התאוששות.",
+  "gradesMetricAverage": "ממוצע",
+  "gradesMetricRecorded": "נרשם",
+  "gradesMetricBestSubject": "המקצוע הטוב ביותר",
+  "gradesMetricNeedsWork": "צריך עבודה",
+  "gradesLatestSignalBody": "{assessment} ב-{subject} קיבל {grade}. {band} כרגע.",
+  "gradesSummaryAvailableNoRecent": "סיכום ציונים זמין, אך אין הערכות אחרונות גלויות בתצוגה זו כרגע.",
+  "gradesEmptyTitle": "עדיין אין ציונים",
+  "gradesEmptySubtitle": "לא פורסמו ציונים לחשבון התלמיד הזה עדיין.",
+  "gradesFiltersSubtitle": "השתמש באותו סגנון בורר שניתן לחיפוש כמו בהגדרות כדי לצמצם ציונים לפי מקצוע או חלון זמן.",
+  "gradesNoFilteredTitle": "אין ציונים התואמים לסנני אלה",
+  "gradesNoFilteredSubtitle": "נסה את כל המקצועות או טווח זמן רחב יותר כדי להחזיר יותר ציונים שנרשמו.",
+  "gradesQuickReadTitle": "קריאה מהירה",
+  "gradesQuickReadSubtitleFiltered": "סיכום מהיר של הציונים כרגע בתצוגה.",
+  "gradesQuickReadSubtitleAll": "הקריאה המהירה ביותר על מה להגן ומה להחזיר.",
+  "gradesWeakSpotLabel": "נקודת חולשה נוכחית",
+  "gradesNoWeakSignal": "אין עדיין אות מקצוע חלוש",
+  "gradesWeakSpotValue": "{subject} צריך את בלוק ההתאוששות הראשון.",
+  "gradesStrengthLabel": "כוח נוכחי",
+  "gradesNoStrengthSignal": "אין עדיין אות מקצוע חזק",
+  "gradesStrengthValue": "{subject} הוא עוגן הביטחון שלך כרגע.",
+  "gradesBandLabel": "טווח",
+  "gradesInViewLabel": "בתצוגה",
+  "gradesInViewCount": "{count} ציונים שנרשמו בסנן זה.",
+  "gradesInViewAverage": "{count} ציונים שנרשמו בממוצע {average}.",
+  "gradesLatestAssessmentsTitle": "הערכות אחרונות",
+  "gradesLatestAssessmentsSubtitleFiltered": "ציונים שנרשמו לאחרונה בתצוגה המסוננת הנוכחית.",
+  "gradesLatestAssessmentsSubtitleAll": "ציונים שנרשמו לאחרונה בסדר כרונולוגי.",
+  "gradesSubjectDrilldownTitle": "פירוט מקצוע",
+  "gradesSubjectDrilldownSubtitleFiltered": "מקובץ לפי מקצוע עבור הציונים כרגע בתצוגה.",
+  "gradesSubjectDrilldownSubtitleAll": "מקובץ לפי מקצוע כדי שמגמה ולחץ יתבררו יותר מהר.",
+  "gradesAssessmentFallback": "הערכה",
+  "gradesChipBest": "הטוב ביותר",
+  "gradesNoAverageYet": "אין ממוצע עדיין",
+  "gradesRecentAverage": "ממוצע אחרון: {average}",
+  "messagesRequestTitle": "בקשה",
+  "messagesRequestLoadFailed": "טעינת הבקשה נכשלה: {error}",
+  "@messagesRequestLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesRequestBannerIncoming": "בקשת הודעה",
+  "messagesRequestBannerOutgoing": "אישור ממתין",
+  "messagesBlockAction": "חסימה",
+  "messagesApproveAction": "אישור",
+  "messagesRequestUnlockHint": "הצ'אט ייפתח אחרי שהנמען יאשר את ההודעה הראשונה שלך.",
+  "messagesThreadConversationFallback": "שיחה",
+  "messagesThreadLeaveGroupTitle": "לעזוב את הקבוצה?",
+  "messagesThreadLeaveGroupBody": "לא תקבלו יותר הודעות מהקבוצה הזו.",
+  "messagesThreadBlockPersonTitle": "לחסום את האדם הזה?",
+  "messagesThreadBlockPersonBody": "לא תוכלו עוד להחליף הודעות עם האדם הזה.",
+  "messagesThreadPersonFallback": "אדם",
+  "messagesThreadProfileInfoUnavailable": "פרטי הפרופיל לא זמינים",
+  "messagesThreadParticipants": "משתתפים",
+  "messagesThreadPeople": "אנשים",
+  "messagesThreadDeleteForMe": "מחיקה בשבילי",
+  "messagesThreadDeleteForEveryone": "מחיקה לכולם",
+  "messagesThreadDeleteForEveryoneSubtitle": "הסרה עבור כל המשתתפים",
+  "messagesThreadSending": "שולח…",
+  "messagesThreadWaitingForApproval": "ממתין לאישור",
   "classroomsForwardSearchHint": "חיפוש שיחות",
   "classroomsForwardNewChat": "צ'אט חדש",
   "classroomsForwardLoadError": "טעינת הצ'אטים נכשלה: {error}",
-  "@classroomsForwardLoadError": {"placeholders": {"error": {}}},
+  "@classroomsForwardLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "classroomsForwardNoChatsFound": "לא נמצאו צ'אטים",
   "classroomsForwardSectionClassrooms": "כיתות",
   "classroomsForwardSectionDirectMessages": "הודעות ישירות",
   "classroomsForwardCancel": "ביטול",
   "classroomsForwardAction": "העבר",
   "classroomsForwardCount": "העבר ({count})",
-  "@classroomsForwardCount": {"placeholders": {"count": {}}},
-
+  "@classroomsForwardCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "markRead": "סמן כנקרא",
   "markUnread": "סמן כלא נקרא",
   "markAllRead": "סמן הכל כנקרא",
@@ -801,7 +910,12 @@
   "notificationsFiltersSubtitle": "התמקדו לפי מקור או מצב קריאה כדי למיין מהר יותר.",
   "notificationsSearchSourcesHint": "חיפוש מקורות",
   "notificationsShowingSummary": "מוצגות {shown} מתוך {total} התראות.",
-  "@notificationsShowingSummary": {"placeholders": {"shown": {}, "total": {}}},
+  "@notificationsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {}
+    }
+  },
   "notificationsEmptyForAccount": "אין כרגע התראות זמינות לחשבון הזה.",
   "notificationsEmptyFiltered": "אין כרגע התראות שתואמות למסננים האלה. נקו מסננים כדי לראות את כל הפיד.",
   "notificationsEmpty": "אין כרגע התראות זמינות.",
@@ -814,13 +928,26 @@
   "alertsSubtitle": "זה המסך לדברים שדורשים תשומת לב עכשיו, לא רק עדכונים כלליים.",
   "alertsAttendanceTitle": "הנוכחות דורשת תשומת לב",
   "alertsAttendanceBody": "שיעור הנוכחות שלך הוא {rate}%. כמה שיעורים שהוחמצו יכולים להצטבר מהר.",
-  "@alertsAttendanceBody": {"placeholders": {"rate": {}}},
+  "@alertsAttendanceBody": {
+    "placeholders": {
+      "rate": {}
+    }
+  },
   "alertsWeakestSubjectTitle": "סימן למקצוע החלש ביותר",
   "alertsWeakestSubjectBody": "{subject} דורש כרגע את מירב תשומת הלב לפי הציונים האחרונים שלך.",
-  "@alertsWeakestSubjectBody": {"placeholders": {"subject": {}}},
+  "@alertsWeakestSubjectBody": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
   "alertsPracticeWeakAreaTitle": "אזור חולשה בתרגול",
   "alertsPracticeWeakAreaBody": "{topic} ב-{subject} הוא נושא החולשה הברור ביותר שלך כרגע.",
-  "@alertsPracticeWeakAreaBody": {"placeholders": {"topic": {}, "subject": {}}},
+  "@alertsPracticeWeakAreaBody": {
+    "placeholders": {
+      "topic": {},
+      "subject": {}
+    }
+  },
   "alertsPracticeTrendDroppedTitle": "מגמת התרגול ירדה",
   "alertsPracticeTrendDroppedBody": "הביצועים שלך ב-7 הימים האחרונים נמוכים מקו הבסיס של 30 הימים. האטו וחזרו ליסודות לפני שמגבירים קצב.",
   "alertsEmpty": "כרגע הכול רגוע. אם משהו ידרוש תשומת לב דחופה, הוא יופיע כאן.",
@@ -893,7 +1020,7 @@
   "meetingsJoinReadyMetric": "מוכן להצטרף",
   "meetingsNoLinkMetric": "ללא קישור",
   "meetingsNoPostedTitle": "עדיין לא פורסמו פגישות",
-  "meetingsEmptyForAccount": "אין פגישות כיתה זמינות לחשבון הסטודנט הזה כעת.",
+  "meetingsEmptyForAccount": "אין פגישות כיתה זמינות לחשבון התלמיד הזה כעת.",
   "meetingsLatestBody": "{title} עודכן {updatedAt}. פתח אותו כדי לראות את הקישור המצורף והקשר כיתה.",
   "meetingsPullToRefreshHint": "גרור למטה כדי לבדוק שוב.",
   "meetingsFiltersSubtitle": "צמצם את הרשימה לפי נושא או אם הפגישה כוללת כבר קישור שאתה יכול לפתוח.",
@@ -921,9 +1048,9 @@
   "meetingsUnavailableHint": "חזור אחורה ורענן את רשימת הפגישות.",
   "meetingsNoLinkAttachedYet": "עדיין לא צורף קישור",
   "meetingsAttachedLinkTitle": "קישור פגישה מצורף",
-  "meetingsAttachedLinkMissingBody": "הפגישה הזו גלויה בפיד הכיתה שלך, אך לא צורפה URL תקפה בעומס הסטודנט הנוכחי.",
+  "meetingsAttachedLinkMissingBody": "הפגישה הזו גלויה בפיד הכיתה שלך, אך לא צורפה URL תקפה בעומס התלמיד הנוכחי.",
   "meetingsDetailsTitle": "פרטי הפגישה",
-  "meetingsDetailsSubtitle": "הכל הרלוונטי לסטודנט שזמין כעת בעומס פגישת הכיתה.",
+  "meetingsDetailsSubtitle": "הכל הרלוונטי לסטודנט שזמין כעת הזמינים כעת.",
   "meetingsDetailClassroomLabel": "כיתה",
   "meetingsSharedByLabel": "שותף על ידי",
   "meetingsIdLabel": "מזהה פגישה",
@@ -978,26 +1105,66 @@
   "practiceSetupHeroSubtitle": "בחר מצב, תזמון ורמת קושי.",
   "practiceSetupInfiniteLives": "חיים אינסופיים",
   "practiceSetupLivesCount": "{count} חיים",
-  "@practiceSetupLivesCount": {"placeholders": {"count": {}}},
+  "@practiceSetupLivesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupAiTiming": "תזמון AI",
   "practiceSetupSecondsShort": "{seconds}ש׳",
-  "@practiceSetupSecondsShort": {"placeholders": {"seconds": {}}},
+  "@practiceSetupSecondsShort": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
   "practiceSetupQuestionsCount": "{count} שאלות",
-  "@practiceSetupQuestionsCount": {"placeholders": {"count": {}}},
+  "@practiceSetupQuestionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummarySubject": "נושא לימוד: {subject}",
-  "@practiceSetupSummarySubject": {"placeholders": {"subject": {}}},
+  "@practiceSetupSummarySubject": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
   "practiceSetupSummaryTopic": "תת-נושא: {topic}",
-  "@practiceSetupSummaryTopic": {"placeholders": {"topic": {}}},
+  "@practiceSetupSummaryTopic": {
+    "placeholders": {
+      "topic": {}
+    }
+  },
   "practiceSetupSummaryMode": "מצב: {mode}",
-  "@practiceSetupSummaryMode": {"placeholders": {"mode": {}}},
+  "@practiceSetupSummaryMode": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSetupSummaryDifficulty": "קושי: {difficulty}",
-  "@practiceSetupSummaryDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSetupSummaryDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceSetupSummaryQuestions": "שאלות: {count}",
-  "@practiceSetupSummaryQuestions": {"placeholders": {"count": {}}},
+  "@practiceSetupSummaryQuestions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummaryTiming": "תזמון: {timing}",
-  "@practiceSetupSummaryTiming": {"placeholders": {"timing": {}}},
+  "@practiceSetupSummaryTiming": {
+    "placeholders": {
+      "timing": {}
+    }
+  },
   "practiceSetupSummaryLives": "חיים: {lives}",
-  "@practiceSetupSummaryLives": {"placeholders": {"lives": {}}},
+  "@practiceSetupSummaryLives": {
+    "placeholders": {
+      "lives": {}
+    }
+  },
   "practiceSetupSectionSubjectTopic": "מקצוע ונושא",
   "practiceSetupFieldSubject": "מקצוע",
   "practiceSetupFieldSubjectHint": "בחר מקצוע",
@@ -1118,7 +1285,15 @@
   "practiceAnalyticsSectionOverall": "כללי",
   "practiceAnalyticsRecentSessionsTitle": "אימונים אחרונים",
   "practiceAnalyticsRecentSessionsSummary": "{sessions} אימונים • {correct}/{answered} נכונים • {accuracy}% • XP {xp}",
-  "@practiceAnalyticsRecentSessionsSummary": {"placeholders": {"sessions": {}, "correct": {}, "answered": {}, "accuracy": {}, "xp": {}}},
+  "@practiceAnalyticsRecentSessionsSummary": {
+    "placeholders": {
+      "sessions": {},
+      "correct": {},
+      "answered": {},
+      "accuracy": {},
+      "xp": {}
+    }
+  },
   "practiceAnalyticsSectionWeakestTopics": "הנושאים החלשים ביותר",
   "practiceAnalyticsSectionStrongestTopics": "הנושאים החזקים ביותר",
   "practiceAnalyticsSectionModePerformance": "ביצועי מצבים",
@@ -1163,7 +1338,11 @@
   "practiceSessionLoadingBagrut": "מכין את סט הבגרות שלך",
   "practiceSessionLoadingDefault": "מכין את הסשן שלך",
   "practiceSessionCompleteTitle": "{mode} הושלם",
-  "@practiceSessionCompleteTitle": {"placeholders": {"mode": {}}},
+  "@practiceSessionCompleteTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSessionMetricAnswered": "נענו",
   "practiceSessionMetricCorrect": "נכון",
   "practiceSessionMetricWrong": "שגוי",
@@ -1180,7 +1359,7 @@
   "practiceSessionNoQuestionsForFilter": "עדיין אין שאלות שתואמות למסנן הזה.",
   "practiceSessionNoAnswer": "אין תשובה",
   "practiceSessionUnknownAnswer": "לא ידוע",
-  "practiceSessionReflectionTitle": "רפלקציה",
+  "practiceSessionReflectionTitle": "הרהור",
   "practiceSessionReflectionKnewIt": "ידעתי את זה",
   "practiceSessionReflectionReviewAgain": "לסקור שוב",
   "practiceSessionBackOfCard": "גב הכרטיס",
@@ -1190,10 +1369,19 @@
   "practiceSessionBackToSetup": "חזרה להגדרות",
   "practiceSessionGeneralTopic": "כללי",
   "practiceSessionQuestionProgress": "שאלה {current} מתוך {total}",
-  "@practiceSessionQuestionProgress": {"placeholders": {"current": {}, "total": {}}},
+  "@practiceSessionQuestionProgress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
   "practiceSessionMetricTime": "זמן",
   "practiceSessionMatchmakingDifficulty": "קושי: {difficulty}",
-  "@practiceSessionMatchmakingDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSessionMatchmakingDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceModeActionPrevious": "הקודם",
   "practiceModeActionCheckAnswer": "בדוק תשובה",
   "practiceModeActionNext": "הבא",
@@ -1243,7 +1431,11 @@
   "teacherGradesAssessmentUpdated": "הערכת הישגים עודכנה",
   "teacherGradesDeleteAssessmentTitle": "למחוק את ההערכה?",
   "teacherGradesDeleteAssessmentBody": "הפעולה תסיר את {title} ואת רשומת הציונים שלה ממרחב המורה.",
-  "@teacherGradesDeleteAssessmentBody": {"placeholders": {"title": {}}},
+  "@teacherGradesDeleteAssessmentBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherGradesDeleteAction": "מחיקה",
   "teacherGradesAssessmentDeleted": "הערכת הישגים נמחקה",
   "teacherGradesRosterLinkError": "הערכה זו אינה מקושרת לסגל כיתה.",
@@ -1255,16 +1447,24 @@
   "teacherGradesNoStudentsLoaded": "לא נטענו תלמידים עבור הערכה זו.",
   "teacherGradesFieldGrade": "ציון",
   "teacherGradesMaxHint": "מקסימום {grade}",
-  "@teacherGradesMaxHint": {"placeholders": {"grade": {}}},
+  "@teacherGradesMaxHint": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "teacherGradesSaving": "שומר…",
   "teacherGradesSaveCount": "שמור {count} ציונים",
-  "@teacherGradesSaveCount": {"placeholders": {"count": {}}},
+  "@teacherGradesSaveCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "assignmentsNoDueDate": "אין תאריך סיום",
   "assignmentsLoadError": "לא הצלחנו לטעון משימות כעת. משוך כדי לרענן או נסה שוב.",
   "assignmentsLoadTimeout": "משימות לוקחות זמן רב מדי לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.",
   "assignmentsLoadNetwork": "לא ניתן היה להתחבר למשימות כעת. בדוק את החיבור שלך ונסה שוב.",
-  "assignmentsStatusOverdue": "איחור בתאריך",
-  "assignmentsStatusDueSoon": "יעד קרוב",
+  "assignmentsStatusOverdue": "באיחור",
+  "assignmentsStatusDueSoon": "מועד קרוב",
   "assignmentsStatusUpcoming": "קרוב",
   "assignmentsPreviewFallback": "פתח משימה זו כדי לראות את ההנחיות המלאות ולהכין את עבודתך.",
   "assignmentsSubmissionPrepEmpty": "שלח את ההערה או הקבצים שלך כאן.",
@@ -1321,6 +1521,7 @@
   "assignmentsPullToRefreshRetry": "משוך לרענון או נסה שוב להלן.",
   "assignmentsFileSizeUnknown": "קובץ",
   "assignmentsRemoveAttachment": "הסר קובץ מצורף",
+  "assignmentsSubmitted": "הוגש",
   "attendanceUndated": "ללא תאריך",
   "attendanceLoadError": "לא יכולנו לטעון נוכחות כעת. גרור לרענון או נסה שוב.",
   "attendanceLoadTimeout": "נוכחות לוקחת זמן רב מדי לטעינה. גרור לרענון או נסה שוב בעוד רגע.",
@@ -1383,7 +1584,6 @@
   "attendanceRange7Short": "7 ימים",
   "attendanceRange30Short": "30 ימים",
   "attendanceRange90Short": "90 ימים",
-
   "actionCancel": "ביטול",
   "actionSave": "שמור",
   "actionDelete": "מחק",
@@ -1409,18 +1609,38 @@
   "msgLeave": "עזוב",
   "msgInviteCodeCopied": "קוד ההזמנה הועתק",
   "msgCodeCopied": "קוד הועתק: {code}",
-  "@msgCodeCopied": {"placeholders": {"code": {}}},
+  "@msgCodeCopied": {
+    "placeholders": {
+      "code": {}
+    }
+  },
   "msgParticipantsAdded": "{count, plural, =1{משתתף אחד נוסף} other{{count} משתתפים נוספו}}",
-  "@msgParticipantsAdded": {"placeholders": {"count": {"type": "int"}}},
+  "@msgParticipantsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgMembersCount": "{count, plural, =1{חבר אחד} other{{count} חברים}}",
-  "@msgMembersCount": {"placeholders": {"count": {"type": "int"}}},
+  "@msgMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgAdmin": "מנהל",
   "msgRemoveFromGroup": "הסר מהקבוצה",
   "msgMakeAdmin": "הפוך למנהל",
   "msgRemoveAdmin": "הסר הרשאות מנהל",
   "msgOnlyAdmin": "מנהל יחיד — קדם אחר קודם",
   "msgRemoveMemberTitle": "להסיר את {name}?",
-  "@msgRemoveMemberTitle": {"placeholders": {"name": {}}},
+  "@msgRemoveMemberTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "msgNotificationsMuted": "ההתראות הושתקו",
   "msgNotificationsUnmuted": "ההתראות הופעלו",
   "msgJoinGroupTitle": "הצטרף לקבוצה",
@@ -1451,7 +1671,11 @@
   "teacherTitleAndMessageRequired": "נדרשים כותרת והודעה",
   "teacherAnnouncementPublished": "ההודעה פורסמה",
   "teacherFailedToPublish": "הפרסום נכשל: {error}",
-  "@teacherFailedToPublish": {"placeholders": {"error": {}}},
+  "@teacherFailedToPublish": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherAnnouncementSectionTitle": "הודעה",
   "teacherAudienceSectionTitle": "קהל יעד",
   "teacherPinAnnouncement": "נעץ הודעה",
@@ -1463,11 +1687,22 @@
   "teacherAnnounceMessageLabel": "הודעה *",
   "teacherAnnounceMessageHint": "כתוב את ההודעה המלאה כאן…",
   "teacherStudentsLabel": "תלמידים",
+  "teacherSearchStudents": "חפש לפי שם או כיתה...",
+  "teacherNoStudentsLoaded": "לא נמצאו תלמידים בבית ספר זה.",
+  "teacherActions": "פעולות מהירות",
   "teacherParentsLabel": "הורים",
   "teacherTeachersLabel": "מורים",
   "teacherWeekScheduleTitle": "לוח שבועי",
   "teacherCouldNotLoadSchedule": "לא ניתן לטעון את הלוח",
-  "teacherAttendanceLast30": "נוכחות (30 ימים אחרונים)",
+  "teacherAttendanceLast30": "Attendance (last 30 days)",
+  "teacherAttendanceFrom": "From {date}",
+  "@teacherAttendanceFrom": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "teacherAttendanceChangeDate": "Change date",
+  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
   "teacherRecentGrades": "ציונים אחרונים",
   "teacherNoGradesRecorded": "לא נרשמו ציונים עדיין",
   "teacherGradeAvg": "ממוצע ציונים",
@@ -1476,9 +1711,18 @@
   "teacherGradeReports": "דוחות ציונים",
   "teacherAvgLabel": "ממוצע",
   "teacherBelow60": "{count} מתחת ל-60%",
-  "@teacherBelow60": {"placeholders": {"count": {}}},
+  "@teacherBelow60": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherGradedFraction": "{graded}/{total} עם ציון",
-  "@teacherGradedFraction": {"placeholders": {"graded": {}, "total": {}}},
+  "@teacherGradedFraction": {
+    "placeholders": {
+      "graded": {},
+      "total": {}
+    }
+  },
   "teacherNoGradesEntered": "לא הוזנו ציונים עדיין",
   "teacherNewAssignment": "מטלה חדשה",
   "teacherDeleteAssignment": "למחוק מטלה?",
@@ -1491,19 +1735,26 @@
   "teacherJoinMeeting": "הצטרף לפגישה",
   "teacherAddStudentTitle": "הוסף תלמיד",
   "teacherRemoveStudentTitle": "להסיר את {name}?",
-  "@teacherRemoveStudentTitle": {"placeholders": {"name": {}}},
+  "@teacherRemoveStudentTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherRemoveStudentContent": "תלמיד זה יוסר מכיתה זו.",
   "teacherStudentAdded": "התלמיד נוסף",
   "teacherClassroomAnalyticsTitle": "ניתוחי כיתה",
   "teacherOpenAnalyticsAction": "פתח ניתוחים",
   "teacherStudentsCount": "תלמידים ({count})",
-  "@teacherStudentsCount": {"placeholders": {"count": {}}},
+  "@teacherStudentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherAssignmentLabel": "מטלה",
   "teacherShareMaterialLabel": "שתף חומר",
   "teacherAttendanceRateLabel": "שיעור נוכחות",
   "teacherSelectSessionPrompt": "בחר סשן למטה כדי להתחיל לסמן נוכחות",
   "teacherOpenAction": "פתח",
-
   "chatDeleteForMe": "מחק עבורי",
   "chatDeleteForEveryone": "מחק עבור כולם",
   "chatMicNeeded": "נדרשת גישה למיקרופון",
@@ -1533,11 +1784,8 @@
   "chatJoinGroupTooltip": "הצטרף לקבוצה עם קוד",
   "chatForwardNoChatAvailable": "אין שיחות מאושרות זמינות",
   "chatFilterAll": "הכל",
-
   "novaDisclaimer": "NOVA עלולה לטעות. בדוק תשובות חשובות.",
-
   "practiceCustomDisclaimer": "נושאים מותאמים אישית נוצרים על ידי בינה מלאכותית בזמן אמת. שאלות עלולות לסטות מהנושא או להיות לא מדויקות בנושאים נישתיים. אמת תשובות לא מוכרות באופן עצמאי.",
-
   "classroomsJoined": "הצטרפת לכיתה!",
   "classroomsJoinAction": "הצטרף לכיתה",
   "classroomsJoinTooltip": "הצטרף לכיתה",
@@ -1546,7 +1794,6 @@
   "classroomsCouldNotOpenLink": "לא ניתן לפתוח את הקישור",
   "classroomsReorderTitle": "סדר מחדש כיתות",
   "classroomsNoClassroomsToReorder": "אין כיתות לסידור מחדש.",
-
   "teacherPostAnnouncementAction": "פרסם הודעה",
   "announcementAudienceEveryone": "כולם",
   "teacherGreetingMorning": "בוקר טוב",
@@ -1576,20 +1823,16 @@
   "teacherNoMeetingsSub": "הקש + כדי לתזמן פגישת כיתה",
   "teacherAttendanceOther": "אחר",
   "teacherTotal": "סה״כ",
-
   "mediaOpenExternally": "פתח באפליקציה חיצונית",
   "mediaUnableToLoad": "לא ניתן לטעון את התמונה",
-
   "searchHint": "חפש...",
   "teacherInsightsTitle": "תובנות תלמידים",
   "teacherInsightsSubtitle": "בחר תלמיד כדי לצפות בתובנות האקדמיות שלו.",
   "teacherInsightsNoStudents": "לא נמצאו תלמידים.",
   "teacherInsightsSearchHint": "חיפוש תלמידים…",
-
   "navDiplomas": "תעודות",
   "diplomasComingSoon": "ניהול תעודות בקרוב.",
-
-  "teacherExamsTitle": "בחינות והערכות",
+  "teacherExamsTitle": "בחינות",
   "teacherExamsUpcoming": "הבאות",
   "teacherExamsPast": "שעברו",
   "teacherExamsEmpty": "אין הערכות עדיין. הקש + כדי ליצור.",
@@ -1599,7 +1842,6 @@
       "count": {}
     }
   },
-
   "teacherFormsTitle": "טפסים",
   "teacherFormsEmpty": "אין טפסים עדיין. הקש + כדי ליצור.",
   "teacherFormsResponses": "{count} תגובות",
@@ -1615,8 +1857,7 @@
   "teacherFormsQuestionHint": "טקסט השאלה",
   "teacherFormsViewResponses": "צפה בתגובות",
   "teacherFormsNoResponses": "אין תגובות עדיין.",
-
-  "diplomasTitle": "תעודות ודיפלומות",
+  "diplomasTitle": "תעודות",
   "diplomasEmpty": "טרם הונפקו תעודות. הקש + להנפקת תעודה.",
   "diplomasIssueTo": "הנפק עבור",
   "diplomasStudentName": "שם התלמיד",
@@ -1628,7 +1869,6 @@
       "date": {}
     }
   },
-
   "examDetailsSection": "פרטים",
   "examInfoTeacher": "מורה",
   "examInfoAudience": "קהל יעד",
@@ -1642,5 +1882,19 @@
   "examQuickActionsSection": "פעולות מהירות",
   "examViewGradeTitle": "צפה בציון שלך",
   "examViewGradeBody": "הבחינה הסתיימה. בדוק את הציון שלך בלשונית הציונים.",
-  "examViewGradeAction": "פתח ציונים"
+  "examViewGradeAction": "פתח ציונים",
+  "teacherGradesSaveAction": "שמור",
+  "teacherGradesNothingToSave": "אין שינויים לשמירה.",
+  "teacherRetry": "נסה שוב",
+  "teacherExamGradesStudents": "תלמידים",
+  "teacherExamGradesGraded": "מוערכים",
+  "teacherExamGradesNoStudents": "אין תלמידים ממוקדים.\nערוך את הבחינה כדי להוסיף קהל.",
+  "teacherExamGradesEnterGrades": "הזן ציונים",
+  "teacherDeleteExamTitle": "מחיקת מבחן?",
+  "teacherDeleteExamBody": "המבחן יימחק לצמיתות.",
+  "teacherMeetingsEmpty": "אין פגישות עדיין.\nלחץ + לתזמון אחת.",
+  "teacherStudentsNoMatch": "אין תלמידים תואמים",
+  "teacherMaterialsTitle": "חומרים",
+  "profileNamesTitle": "שם בשפות",
+  "profileDisplayNameLang": "שפת הצגת שם"
 }

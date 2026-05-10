@@ -6,13 +6,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_ar.dart';
-import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_he.dart';
-import 'app_localizations_pt.dart';
 import 'app_localizations_ru.dart';
-import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
@@ -101,13 +98,10 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
-    Locale('de'),
     Locale('en'),
     Locale('fr'),
     Locale('he'),
-    Locale('pt'),
     Locale('ru'),
-    Locale('tr'),
   ];
 
   /// No description provided for @menu.
@@ -955,11 +949,29 @@ abstract class AppLocalizations {
   /// **'Note'**
   String get teacherAttendanceNoteLabel;
 
+  /// No description provided for @teacherAttendanceClassNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Class notes'**
+  String get teacherAttendanceClassNotesLabel;
+
+  /// No description provided for @teacherAttendanceClassNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What was covered in this session…'**
+  String get teacherAttendanceClassNotesHint;
+
   /// No description provided for @teacherAttendanceSaving.
   ///
   /// In en, this message translates to:
   /// **'Saving…'**
   String get teacherAttendanceSaving;
+
+  /// No description provided for @teacherAttendanceSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save attendance'**
+  String get teacherAttendanceSaveAll;
 
   /// No description provided for @teacherAttendanceSaveCount.
   ///
@@ -985,10 +997,16 @@ abstract class AppLocalizations {
   /// **'Schedule is refreshing too fast right now. Wait a moment and try again.'**
   String get scheduleRefreshTooFast;
 
+  /// No description provided for @scheduleSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in again.'**
+  String get scheduleSessionExpired;
+
   /// No description provided for @scheduleNotOnboarded.
   ///
   /// In en, this message translates to:
-  /// **'Your student profile is not fully set up yet, so no schedule is available yet.'**
+  /// **'Your student profile is not fully set up yet. Ask your school admin to assign you to a class.'**
   String get scheduleNotOnboarded;
 
   /// No description provided for @scheduleLoadError.
@@ -1044,6 +1062,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No subject or location yet'**
   String get scheduleNoSubjectLocation;
+
+  /// No description provided for @scheduleNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get scheduleNotes;
+
+  /// No description provided for @scheduleGoToClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Classroom'**
+  String get scheduleGoToClassroom;
 
   /// No description provided for @loginTitle.
   ///
@@ -6376,6 +6406,12 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get assignmentsRemoveAttachment;
 
+  /// No description provided for @assignmentsSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get assignmentsSubmitted;
+
   /// No description provided for @attendanceUndated.
   ///
   /// In en, this message translates to:
@@ -7513,6 +7549,24 @@ abstract class AppLocalizations {
   /// **'Students'**
   String get teacherStudentsLabel;
 
+  /// No description provided for @teacherSearchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or grade…'**
+  String get teacherSearchStudents;
+
+  /// No description provided for @teacherNoStudentsLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found in this school.'**
+  String get teacherNoStudentsLoaded;
+
+  /// No description provided for @teacherActions.
+  ///
+  /// In en, this message translates to:
+  /// **'QUICK ACTIONS'**
+  String get teacherActions;
+
   /// No description provided for @teacherParentsLabel.
   ///
   /// In en, this message translates to:
@@ -7542,6 +7596,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attendance (last 30 days)'**
   String get teacherAttendanceLast30;
+
+  /// No description provided for @teacherAttendanceFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {date}'**
+  String teacherAttendanceFrom(Object date);
+
+  /// No description provided for @teacherAttendanceChangeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date'**
+  String get teacherAttendanceChangeDate;
+
+  /// No description provided for @teacherAttendanceNoSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved attendance sessions.\nMark attendance from the schedule.'**
+  String get teacherAttendanceNoSessions;
 
   /// No description provided for @teacherRecentGrades.
   ///
@@ -8182,7 +8254,7 @@ abstract class AppLocalizations {
   /// No description provided for @navDiplomas.
   ///
   /// In en, this message translates to:
-  /// **'Diplomas'**
+  /// **'Certificates'**
   String get navDiplomas;
 
   /// No description provided for @diplomasComingSoon.
@@ -8194,7 +8266,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherExamsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Exams & Assessments'**
+  /// **'Exams'**
   String get teacherExamsTitle;
 
   /// No description provided for @teacherExamsUpcoming.
@@ -8284,7 +8356,7 @@ abstract class AppLocalizations {
   /// No description provided for @diplomasTitle.
   ///
   /// In en, this message translates to:
-  /// **'Diplomas & Certificates'**
+  /// **'Certificates'**
   String get diplomasTitle;
 
   /// No description provided for @diplomasEmpty.
@@ -8406,6 +8478,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Grades'**
   String get examViewGradeAction;
+
+  /// No description provided for @teacherGradesSaveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get teacherGradesSaveAction;
+
+  /// No description provided for @teacherGradesNothingToSave.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes to save.'**
+  String get teacherGradesNothingToSave;
+
+  /// No description provided for @teacherRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get teacherRetry;
+
+  /// No description provided for @teacherExamGradesStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'students'**
+  String get teacherExamGradesStudents;
+
+  /// No description provided for @teacherExamGradesGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'graded'**
+  String get teacherExamGradesGraded;
+
+  /// No description provided for @teacherExamGradesNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students targeted.\nEdit the exam to add an audience.'**
+  String get teacherExamGradesNoStudents;
+
+  /// No description provided for @teacherExamGradesEnterGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter grades'**
+  String get teacherExamGradesEnterGrades;
+
+  /// No description provided for @teacherDeleteExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete exam?'**
+  String get teacherDeleteExamTitle;
+
+  /// No description provided for @teacherDeleteExamBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete the exam.'**
+  String get teacherDeleteExamBody;
+
+  /// No description provided for @teacherMeetingsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No meetings yet.\nTap + to schedule one.'**
+  String get teacherMeetingsEmpty;
+
+  /// No description provided for @teacherStudentsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No students match'**
+  String get teacherStudentsNoMatch;
+
+  /// No description provided for @teacherMaterialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get teacherMaterialsTitle;
+
+  /// No description provided for @profileNamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in languages'**
+  String get profileNamesTitle;
+
+  /// No description provided for @profileDisplayNameLang.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name language'**
+  String get profileDisplayNameLang;
 }
 
 class _AppLocalizationsDelegate
@@ -8418,16 +8574,8 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-    'ar',
-    'de',
-    'en',
-    'fr',
-    'he',
-    'pt',
-    'ru',
-    'tr',
-  ].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ar', 'en', 'fr', 'he', 'ru'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -8438,20 +8586,14 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'ar':
       return AppLocalizationsAr();
-    case 'de':
-      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
     case 'fr':
       return AppLocalizationsFr();
     case 'he':
       return AppLocalizationsHe();
-    case 'pt':
-      return AppLocalizationsPt();
     case 'ru':
       return AppLocalizationsRu();
-    case 'tr':
-      return AppLocalizationsTr();
   }
 
   throw FlutterError(

@@ -7,6 +7,7 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../lifedoc/announcements_provider.dart';
 import 'domain/insights_models.dart';
 import 'providers/insights_providers.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -158,7 +159,7 @@ class InsightsScreen extends ConsumerWidget {
               subtitle: l.insightsLoadingSubtitle,
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: const Center(child: CircularProgressIndicator()),
+                child: const Center(child: const CmLoading()),
               ),
             ),
             error: (error, _) => _StateCard(
@@ -182,17 +183,10 @@ class InsightsScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.primaryContainer.withValues(alpha: 0.96),
-                          cs.secondaryContainer.withValues(alpha: 0.82),
-                        ],
-                      ),
+                      color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.18),
+                        color: cs.outlineVariant,
                       ),
                     ),
                     child: Column(
@@ -203,6 +197,7 @@ class InsightsScreen extends ConsumerWidget {
                           style: text.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w900,
                             letterSpacing: -0.5,
+                            color: cs.onPrimaryContainer,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -210,13 +205,14 @@ class InsightsScreen extends ConsumerWidget {
                           _predictiveHeadline(l, unified, announcements),
                           style: text.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
+                            color: cs.onPrimaryContainer,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           _predictiveBody(l, unified),
                           style: text.bodyMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
+                            color: cs.onPrimaryContainer.withValues(alpha: 0.75),
                             height: 1.35,
                           ),
                         ),
@@ -327,7 +323,7 @@ class InsightsScreen extends ConsumerWidget {
                       subtitle: l.insightsAiCoachLoadingSubtitle,
                       child: const SizedBox(
                         height: 60,
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(child: const CmLoading()),
                       ),
                     ),
                     error: (error, _) => _StateCard(
@@ -481,14 +477,13 @@ class _PredictiveCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.72),
+      color: cs.surfaceContainerLow,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: cs.surface.withValues(alpha: 0.9),
+            backgroundColor: cs.surface,
             child: Icon(item.icon),
           ),
           const SizedBox(width: 12),
@@ -534,8 +529,8 @@ class _ActionChip extends StatelessWidget {
       avatar: Icon(icon, size: 18, color: cs.primary),
       label: Text(label),
       onPressed: onTap,
-      backgroundColor: cs.surface.withValues(alpha: 0.78),
-      side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.16)),
+      backgroundColor: cs.surface,
+      side: BorderSide(color: cs.outlineVariant),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     );
   }
@@ -558,8 +553,8 @@ class _HeroMetric extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -601,9 +596,8 @@ class _StateCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(22),
-      blurSigma: 12,
-      color: cs.surface.withValues(alpha: 0.86),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -613,7 +607,7 @@ class _StateCard extends StatelessWidget {
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
             overflow: TextOverflow.ellipsis,
-            maxLines: 4,
+            maxLines: 2,
           ),
           const SizedBox(height: 14),
           child,

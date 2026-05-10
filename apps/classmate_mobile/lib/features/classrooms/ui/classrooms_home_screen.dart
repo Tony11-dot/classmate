@@ -12,6 +12,7 @@ import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
   const ClassroomsHomeScreen({super.key});
@@ -51,14 +52,13 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: LiquidGlassCard(
                     borderRadius: BorderRadius.circular(24),
-                    blurSigma: 18,
-                    color: cs.surface.withValues(alpha: 0.97),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                    color: cs.surfaceContainerLow,
+                    border: Border.all(color: cs.outlineVariant),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(height: 8),
-                        Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                        Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -69,8 +69,8 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                 children: [
                                   Container(
                                     width: 44, height: 44,
-                                    decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(14)),
-                                    child: Icon(Icons.class_rounded, color: cs.primary, size: 22),
+                                    decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+                                    child: Icon(Icons.class_rounded, color: cs.onPrimaryContainer, size: 22),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -94,10 +94,10 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   hintText: '• • • • • •',
-                                  hintStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.4), letterSpacing: 6),
+                                  hintStyle: TextStyle(color: cs.onSurfaceVariant, letterSpacing: 6),
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                                   filled: true,
-                                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                                  fillColor: cs.surfaceContainerHighest,
                                   errorText: errorMsg,
                                   counterText: '',
                                 ),
@@ -178,6 +178,12 @@ backgroundColor: cs.surface,
         onTap: () => FocusScope.of(context).unfocus(),
         onVerticalDragStart: (_) => FocusScope.of(context).unfocus(),
         child: SafeArea(
+          child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(orderedStudentClassroomsProvider);
+            ref.invalidate(studentClassroomsProvider);
+            await ref.read(orderedStudentClassroomsProvider.future);
+          },
           child: async.when(
             loading: () => const _LoadingView(),
             error: (e, _) => _ErrorView(error: '$e'),
@@ -202,7 +208,7 @@ backgroundColor: cs.surface,
                     ScrollViewKeyboardDismissBehavior.onDrag,
 
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
                 itemCount: filtered.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
@@ -210,23 +216,8 @@ backgroundColor: cs.surface,
                       padding: const EdgeInsets.only(bottom: 10),
                       child: LiquidGlassCard(
                         borderRadius: BorderRadius.circular(28),
-                        blurSigma: 18,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            cs.surface.withValues(alpha: 0.98),
-                            cs.primary.withValues(alpha: 0.06),
-                          ],
-                        ),
-                        border: Border.all(color: cs.primary.withValues(alpha: 0.22)),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 30,
-                            offset: const Offset(0, 12),
-                            color: cs.primary.withValues(alpha: 0.10),
-                          ),
-                        ],
+                        color: cs.primaryContainer,
+                        border: Border.all(color: cs.outlineVariant),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                           child: Row(
@@ -236,12 +227,12 @@ backgroundColor: cs.surface,
                                 height: 62,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(22),
-                                  color: cs.primary.withValues(alpha: 0.14),
+                                  color: cs.primaryContainer,
                                 ),
                                 child: Icon(
                                   Icons.forum_rounded,
                                   size: 30,
-                                  color: cs.primary,
+                                  color: cs.onPrimaryContainer,
                                 ),
                               ),
                               const SizedBox(width: 14),
@@ -289,8 +280,7 @@ backgroundColor: cs.surface,
                                           .textTheme
                                           .titleMedium
                                           ?.copyWith(
-                                            color: cs.onSurfaceVariant
-                                                .withValues(alpha: 0.84),
+                                            color: cs.onPrimaryContainer,
                                           ),
                                     ),
                                   ],
@@ -330,19 +320,19 @@ backgroundColor: cs.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
-                              color: cs.outlineVariant.withValues(alpha: 0.55),
+                              color: cs.outlineVariant,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
-                              color: cs.outlineVariant.withValues(alpha: 0.55),
+                              color: cs.outlineVariant,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
-                              color: cs.primary.withValues(alpha: 0.85),
+                              color: cs.primary,
                               width: 1.25,
                             ),
                           ),
@@ -354,23 +344,7 @@ backgroundColor: cs.surface,
                   if (filtered.isEmpty) {
                     return LiquidGlassCard(
                       borderRadius: BorderRadius.circular(28),
-                      blurSigma: 18,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.surface.withValues(alpha: 0.98),
-                          cs.primary.withValues(alpha: 0.06),
-                        ],
-                      ),
-                      border: Border.all(color: cs.primary.withValues(alpha: 0.22)),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 30,
-                          offset: const Offset(0, 12),
-                          color: cs.primary.withValues(alpha: 0.10),
-                        ),
-                      ],
+                      border: Border.all(color: cs.outlineVariant),
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                       child: Column(
                         children: [
@@ -392,7 +366,7 @@ backgroundColor: cs.surface,
 
                   final item = filtered[index - 2];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: _ClassroomAppleCard(
                       item: item,
                       onTap: () {
@@ -404,13 +378,20 @@ backgroundColor: cs.surface,
                           MaterialPageRoute<void>(
                             builder: (_) => ClassroomDetailScreen(courseId: id),
                           ),
-                        );
+                        ).then((_) {
+                          if (!mounted) return;
+                          ref.invalidate(classroomChatProvider);
+                          // Refresh list in case new classrooms were added during the visit
+                          ref.invalidate(orderedStudentClassroomsProvider);
+                          ref.invalidate(studentClassroomsProvider);
+                        });
                       },
                     ),
                   );
                 },
               );
             },
+          ),
           ),
         ),
       ),
@@ -446,149 +427,107 @@ class _ClassroomAppleCard extends ConsumerWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(28),
-      child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(28),
-        blurSigma: 18,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.surface.withValues(alpha: 0.98),
-            accent.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Top band — accent color, classroom name ─────────────────
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              color: cs.primaryContainer,
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onPrimaryContainer,
+                ),
+              ),
+            ),
+            // ── Bottom band — surface / dark, subject + preview ─────────
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              color: cs.surfaceContainerLow,
+              child: FutureBuilder<String?>(
+                future: _readSeenAt(courseId),
+                builder: (context, seenSnap) {
+                  final seenAt = DateTime.tryParse(
+                    (seenSnap.data ?? '').trim(),
+                  )?.toUtc();
+                  return chatAsync.when(
+                    loading: () => _BottomBandContent(
+                      subject: subject,
+                      accent: accent,
+                      preview: l.classroomsLoadingLatestMessage,
+                      timeText: '',
+                      isUnread: false,
+                    ),
+                    error: (_, __) => _BottomBandContent(
+                      subject: subject,
+                      accent: accent,
+                      preview: l.classroomsTapToOpen,
+                      timeText: '',
+                      isUnread: false,
+                    ),
+                    data: (raw) {
+                      final sorted = _normalizeChatList(raw)
+                        ..sort((a, b) {
+                          final ad = parseFirstChatTimestamp([
+                                _s(a, 'createdAt'), _s(a, 'sentAt')]) ??
+                              DateTime.fromMillisecondsSinceEpoch(0);
+                          final bd = parseFirstChatTimestamp([
+                                _s(b, 'createdAt'), _s(b, 'sentAt')]) ??
+                              DateTime.fromMillisecondsSinceEpoch(0);
+                          final d = bd.compareTo(ad);
+                          return d != 0 ? d : _s(b, 'id').compareTo(_s(a, 'id'));
+                        });
+                      final serverLatest = sorted.isNotEmpty
+                          ? Map<String, dynamic>.from(sorted.first)
+                          : null;
+                      final localLatest =
+                          ClassroomChatThreadController.lastMessage(courseId);
+                      Map<String, dynamic>? latest;
+                      if (serverLatest != null && localLatest != null) {
+                        final st = parseFirstChatTimestamp([_s(serverLatest, 'createdAt')]);
+                        final lt = parseFirstChatTimestamp([_s(localLatest, 'createdAt')]);
+                        latest = (lt != null && st != null && lt.isAfter(st))
+                            ? localLatest : serverLatest;
+                      } else {
+                        latest = serverLatest ?? localLatest;
+                      }
+                      final createdAtRaw = latest == null ? '' : _s(latest, 'createdAt');
+                      final createdAt = parseFirstChatTimestamp([createdAtRaw])?.toUtc();
+                      final isUnread = latest != null && createdAt != null &&
+                          (seenAt == null || createdAt.isAfter(seenAt));
+                      return _BottomBandContent(
+                        subject: subject,
+                        accent: accent,
+                        preview: latest == null
+                            ? l.classroomsNoMessagesYet
+                            : _previewText(context, latest),
+                        timeText: _previewTime(createdAtRaw),
+                        isUnread: isUnread,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
-        ),
-        border: Border.all(color: accent.withValues(alpha: 0.22)),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 30,
-            offset: const Offset(0, 12),
-            color: accent.withValues(alpha: 0.10),
-          ),
-        ],
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: Row(
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: accent.withValues(alpha: 0.14),
-                ),
-                child: Icon(_subjectIcon(subject), color: accent, size: 28),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: FutureBuilder<String?>(
-                  future: _readSeenAt(courseId),
-                  builder: (context, seenSnap) {
-                    final seenAt = DateTime.tryParse(
-                      (seenSnap.data ?? '').trim(),
-                    )?.toUtc();
-
-                    return chatAsync.when(
-                      loading: () => _CardTextBlock(
-                        title: title,
-                        subject: subject,
-                        accent: accent,
-                        preview: l.classroomsLoadingLatestMessage,
-                        timeText: '',
-                        isUnread: false,
-                      ),
-                      error: (err, stack) => _CardTextBlock(
-                        title: title,
-                        subject: subject,
-                        accent: accent,
-                        preview: l.classroomsTapToOpen,
-                        timeText: '',
-                        isUnread: false,
-                      ),
-                      data: (raw) {
-                        final sortedMessages = _normalizeChatList(raw)
-                          ..sort((a, b) {
-                            final ad = parseFirstChatTimestamp([
-                                  _s(a, 'createdAt'),
-                                  _s(a, 'sentAt'),
-                                  _s(a, 'updatedAt'),
-                                ]) ??
-                                DateTime.fromMillisecondsSinceEpoch(0);
-                            final bd = parseFirstChatTimestamp([
-                                  _s(b, 'createdAt'),
-                                  _s(b, 'sentAt'),
-                                  _s(b, 'updatedAt'),
-                                ]) ??
-                                DateTime.fromMillisecondsSinceEpoch(0);
-                            final byDate = bd.compareTo(ad);
-                            if (byDate != 0) return byDate;
-                            return _s(b, 'id').compareTo(_s(a, 'id'));
-                          });
-
-                        // Server GET always returns items:[]. Fall back to the
-                        // last locally-sent message tracked by the controller.
-                        final serverLatest = sortedMessages.isNotEmpty
-                            ? Map<String, dynamic>.from(sortedMessages.first)
-                            : null;
-                        final localLatest =
-                            ClassroomChatThreadController.lastMessage(courseId);
-
-                        // Pick whichever is more recent.
-                        Map<String, dynamic>? latest;
-                        if (serverLatest != null && localLatest != null) {
-                          final st = parseFirstChatTimestamp([_s(serverLatest, 'createdAt')]);
-                          final lt = parseFirstChatTimestamp([_s(localLatest, 'createdAt')]);
-                          latest = (lt != null && st != null && lt.isAfter(st))
-                              ? localLatest
-                              : serverLatest;
-                        } else {
-                          latest = serverLatest ?? localLatest;
-                        }
-
-                        final preview = latest == null
-                          ? l.classroomsNoMessagesYet
-                          : _previewText(context, latest);
-
-                        final createdAtRaw = latest == null
-                            ? ''
-                            : _s(latest, 'createdAt');
-                        final createdAt = parseFirstChatTimestamp([
-                          createdAtRaw,
-                          latest == null ? '' : _s(latest, 'sentAt'),
-                          latest == null ? '' : _s(latest, 'updatedAt'),
-                        ])?.toUtc();
-
-                        final isUnread =
-                            latest != null &&
-                            createdAt != null &&
-                            (seenAt == null || createdAt.isAfter(seenAt));
-
-                        final timeText = _previewTime(createdAtRaw);
-
-                        return _CardTextBlock(
-                          title: title,
-                          subject: subject,
-                          accent: accent,
-                          preview: preview,
-                          timeText: timeText,
-                          isUnread: isUnread,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 }
 
-class _CardTextBlock extends StatelessWidget {
-  const _CardTextBlock({
-    required this.title,
+class _BottomBandContent extends StatelessWidget {
+  const _BottomBandContent({
     required this.subject,
     required this.accent,
     required this.preview,
@@ -596,7 +535,6 @@ class _CardTextBlock extends StatelessWidget {
     required this.isUnread,
   });
 
-  final String title;
   final String subject;
   final Color accent;
   final String preview;
@@ -606,60 +544,54 @@ class _CardTextBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-        ),
-        const SizedBox(height: 8),
-        _pill(subject, accent, accent.withValues(alpha: 0.14)),
-        const SizedBox(height: 8),
+        // Subject row
         Row(
           children: [
-            if (isUnread) ...[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: accent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
             Expanded(
               child: Text(
-                preview,
+                subject,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
-                  color: cs.onSurfaceVariant.withValues(
-                    alpha: isUnread ? 0.96 : 0.82,
-                  ),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: cs.primary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-            if (timeText.isNotEmpty) ...[
-              const SizedBox(width: 10),
+            if (timeText.isNotEmpty)
               Text(
                 timeText,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
-                  color: isUnread
-                      ? accent
-                      : cs.onSurfaceVariant.withValues(alpha: 0.72),
+                  fontWeight:
+                      isUnread ? FontWeight.w800 : FontWeight.w500,
+                  color: isUnread ? accent : cs.onSurfaceVariant,
                 ),
+              ),
+            if (isUnread) ...[
+              const SizedBox(width: 6),
+              Container(
+                width: 8,
+                height: 8,
+                decoration:
+                    BoxDecoration(color: accent, shape: BoxShape.circle),
               ),
             ],
           ],
+        ),
+        const SizedBox(height: 3),
+        // Last message preview
+        Text(
+          preview,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontWeight:
+                isUnread ? FontWeight.w600 : FontWeight.w400,
+            color: isUnread ? cs.onSurface : cs.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -671,7 +603,7 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const Center(child: const CmLoading());
   }
 }
 
@@ -689,30 +621,6 @@ class _ErrorView extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _pill(String text, Color fg, Color bg) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          bg.withValues(alpha: 0.94),
-          Colors.white.withValues(alpha: 0.24),
-        ],
-      ),
-      borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: fg.withValues(alpha: 0.10)),
-    ),
-    child: Text(
-      text,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 12.5),
-    ),
-  );
 }
 
 String _classroomSeenKey(String courseId) => 'classroom_last_seen_$courseId';
@@ -768,18 +676,5 @@ String _previewText(BuildContext context, Map<String, dynamic> m) {
 String _previewTime(String raw) {
   final dt = parseChatTimestamp(raw);
   return formatChatInboxTrailingLabel(dt, fallback: '');
-}
-
-IconData _subjectIcon(String subject) {
-  final s = subject.toLowerCase();
-  if (s.contains('math')) return Icons.functions_rounded;
-  if (s.contains('physics')) return Icons.bolt_rounded;
-  if (s.contains('chem')) return Icons.science_rounded;
-  if (s.contains('bio')) return Icons.biotech_rounded;
-  if (s.contains('arab')) return Icons.translate_rounded;
-  if (s.contains('hebrew')) return Icons.menu_book_rounded;
-  if (s.contains('english')) return Icons.language_rounded;
-  if (s.contains('computer') || s.contains('cs')) return Icons.memory_rounded;
-  return Icons.forum_rounded;
 }
 

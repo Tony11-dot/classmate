@@ -96,7 +96,7 @@ class ChatContextOverlay extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Container(
-            color: Colors.black.withValues(alpha: 0.60),
+            color: Colors.black.withValues(alpha: 0.55),
             child: SafeArea(
               child: Center(
                 child: SingleChildScrollView(
@@ -185,19 +185,13 @@ class _ReactionStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -219,13 +213,14 @@ class _ReactionStrip extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: cs.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: cs.outlineVariant),
                 ),
                 child: Icon(
                   Icons.add_rounded,
                   size: 20,
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: cs.onSurface,
                 ),
               ),
             ),
@@ -318,18 +313,12 @@ class _ActionPanel extends StatelessWidget {
 
     if (items.isEmpty) return const SizedBox.shrink();
 
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.13),
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.09)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -341,7 +330,7 @@ class _ActionPanel extends StatelessWidget {
                 Divider(
                   height: 1,
                   thickness: 0.5,
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: cs.outlineVariant,
                   indent: 20,
                   endIndent: 20,
                 ),
@@ -374,14 +363,13 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final color = isDanger
-        ? const Color(0xFFFF5C5C)
-        : Colors.white.withValues(alpha: 0.92);
+        ? cs.error
+        : cs.onSurface;
 
     return InkWell(
       onTap: onTap,
-      splashColor: Colors.white.withValues(alpha: 0.08),
-      highlightColor: Colors.white.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Row(

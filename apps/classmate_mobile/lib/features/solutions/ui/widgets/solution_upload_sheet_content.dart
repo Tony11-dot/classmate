@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +11,7 @@ import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
 import '../../providers/solutions_flow_provider.dart';
 import '../../../solutions/ui/widgets/solution_asset_preview_sheet.dart';
+import '../filter/solutions_pages_screen.dart' show SolutionsDrumPicker;
 import '../../../../ui/widgets/liquid_glass_dropdown.dart';
 
 /// Shows the upload bottom sheet.  Call from any screen via
@@ -35,20 +37,18 @@ Future<void> showSolutionUploadSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (sheetCtx) => Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 8,
-        bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 20,
-      ),
-      child: _SolutionUploadSheetBody(onSuccess: onSuccess),
+    // A non-transparent, fixed-height container prevents taps on the empty
+    // space below the list from falling through to the barrier (which would
+    // close the sheet and lose TextField focus).
+    builder: (sheetCtx) => _SolutionUploadSheetBody(
+      key: const ValueKey('upload_sheet'),
+      onSuccess: onSuccess,
     ),
   );
 }
 
 class _SolutionUploadSheetBody extends ConsumerStatefulWidget {
-  const _SolutionUploadSheetBody({this.onSuccess});
+  const _SolutionUploadSheetBody({super.key, this.onSuccess});
 
   final VoidCallback? onSuccess;
 
@@ -60,6 +60,61 @@ class _SolutionUploadSheetBody extends ConsumerStatefulWidget {
 class _SolutionUploadSheetBodyState
     extends ConsumerState<_SolutionUploadSheetBody> {
   bool _submitting = false;
+
+  // Controllers that persist across Riverpod rebuilds.
+  // TextFormField(initialValue:) loses focus every rebuild — use controllers instead.
+  late final TextEditingController _captionCtrl;
+  late FixedExtentScrollController _pageCtrl;
+  late FixedExtentScrollController _questionCtrl;
+
+  int _selectedPage = 1;
+  int _selectedQuestion = 0; // 0 = All, 1..N
+
+  static const int _maxQuestions = 99;
+
+  int get _pageCount =>
+      (ref.read(solutionsFlowProvider).uploadSelectedBook ??
+              ref.read(solutionsFlowProvider).selectedBook)
+          ?.pageCount ??
+      500;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = ref.read(solutionsFlowProvider);
+    _captionCtrl = TextEditingController(text: s.uploadCaption);
+
+    _selectedPage = int.tryParse(s.uploadPageNumber.trim()) ?? 1;
+    final qStr = s.uploadQuestionNumber.trim();
+    _selectedQuestion =
+        (qStr == 'all' || qStr.isEmpty) ? 0 : (int.tryParse(qStr) ?? 0);
+
+    _pageCtrl = FixedExtentScrollController(
+        initialItem: (_selectedPage - 1).clamp(0, _pageCount - 1));
+    _questionCtrl =
+        FixedExtentScrollController(initialItem: _selectedQuestion);
+  }
+
+  @override
+  void dispose() {
+    _captionCtrl.dispose();
+    _pageCtrl.dispose();
+    _questionCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onBookChanged(SolutionBook? book) {
+    // When the book changes, re-create the page controller so the picker
+    // starts at 1 and respects the new pageCount.
+    setState(() {
+      _selectedPage = 1;
+      _selectedQuestion = 0;
+      _pageCtrl.dispose();
+      _questionCtrl.dispose();
+      _pageCtrl = FixedExtentScrollController(initialItem: 0);
+      _questionCtrl = FixedExtentScrollController(initialItem: 0);
+    });
+  }
 
   // ── file helpers ──────────────────────────────────────────────────────
 
@@ -172,10 +227,16 @@ class _SolutionUploadSheetBodyState
 
     final subject = state.uploadSelectedSubject ?? state.selectedSubject;
     final book = state.uploadSelectedBook ?? state.selectedBook;
-    final page = int.tryParse(state.uploadPageNumber.trim());
-    final question = state.uploadQuestionNumber.trim();
+    final page = _selectedPage;
+    final question =
+        _selectedQuestion == 0 ? 'all' : '$_selectedQuestion';
 
-    if (subject == null || book == null || page == null || question.isEmpty) {
+    // Sync drum values to provider so the questions screen sees them.
+    final n = ref.read(solutionsFlowProvider.notifier);
+    n.setUploadPageNumber('$page');
+    n.setUploadQuestionNumber(question);
+
+    if (subject == null || book == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.solutionsUploadCompleteFields)),
       );
@@ -258,7 +319,7 @@ class _SolutionUploadSheetBodyState
         bookTitle: book.title,
         pageNumber: page,
         questionNumber: question,
-        caption: state.uploadCaption.trim(),
+        caption: _captionCtrl.text.trim(),
         uploaderName: displayName.isNotEmpty ? displayName : 'Student',
         uploaderInitials: initials,
         files: files,
@@ -332,18 +393,36 @@ class _SolutionUploadSheetBodyState
 
     Future<void> handleBookChanged(String bookId) async {
       if (bookId == '__add_new_book__') {
-        String newTitle = '';
+        final titleCtrl2 = TextEditingController();
+        final pagesCtrl2 = TextEditingController();
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (dialogCtx) => AlertDialog(
             title: Text(l.solutionsAddBookTitle),
-            content: TextField(
-              autofocus: true,
-              onChanged: (v) => newTitle = v,
-              decoration: InputDecoration(
-                hintText: l.solutionsBookTitleHint,
-                border: OutlineInputBorder(),
-              ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleCtrl2,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: l.solutionsBookTitleHint,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: pagesCtrl2,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Number of pages',
+                    hintText: 'e.g. 240',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.format_list_numbered_rounded),
+                  ),
+                ),
+              ],
             ),
             actions: [
               TextButton(
@@ -360,14 +439,18 @@ class _SolutionUploadSheetBodyState
         if (confirmed != true) return;
         final subjectId = uploadSubject?.id;
         if (subjectId == null) return;
-        notifier.addBook(subjectId, newTitle);
+        final pageCount = int.tryParse(pagesCtrl2.text.trim()) ?? 500;
+        titleCtrl2.dispose();
+        pagesCtrl2.dispose();
+        notifier.addBook(subjectId, titleCtrl2.text, pageCount: pageCount);
         final updatedBooks = ref
             .read(solutionsFlowProvider)
             .subjects
             .firstWhere((s) => s.id == subjectId, orElse: () => uploadSubject!)
             .books;
+        final addedTitle = titleCtrl2.text.trim().toLowerCase();
         final newBook = updatedBooks.lastWhere(
-          (b) => b.title.trim().toLowerCase() == newTitle.trim().toLowerCase(),
+          (b) => b.title.trim().toLowerCase() == addedTitle,
           orElse: () => updatedBooks.last,
         );
         notifier.setUploadSelectedBook(newBook);
@@ -382,6 +465,7 @@ class _SolutionUploadSheetBodyState
         ),
       );
       notifier.setUploadSelectedBook(book);
+      _onBookChanged(book);
     }
 
     final fileCount = uploadState.uploadFiles.length;
@@ -389,7 +473,22 @@ class _SolutionUploadSheetBodyState
       (e) => e.uploadState == UploadState.failed,
     );
 
-    return ListView(
+    // Keyboard padding lives here (inside the State) so the stateful widget
+    // survives the ModalRoute rebuild that happens when the keyboard opens.
+    // Keeping it in the builder lambda meant the builder could remount the
+    // widget, destroying the TextEditingController and closing the sheet.
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return GestureDetector(
+      // Absorb all taps within the sheet so they never reach the barrier.
+      behavior: HitTestBehavior.opaque,
+      onTap: () {},  // swallow stray taps
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16, right: 16, top: 8,
+          bottom: bottomInset + 20,
+        ),
+        child: ListView(
       shrinkWrap: true,
       children: [
         Text(
@@ -443,51 +542,62 @@ class _SolutionUploadSheetBodyState
         ),
         const SizedBox(height: 12),
 
-        // Page number.
-        TextFormField(
-          initialValue: uploadState.uploadPageNumber,
-          keyboardType: TextInputType.number,
-          onChanged: notifier.setUploadPageNumber,
-          decoration: InputDecoration(
-            labelText: l.solutionsPageNumberLabel,
-            prefixIcon: const Icon(Icons.menu_outlined),
-            filled: true,
-            fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.7),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide.none,
+        // Page + Question drum pickers — side by side.
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Text(l.solutionsPageNumberLabel,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 6),
+                  SolutionsDrumPicker(
+                    controller: _pageCtrl,
+                    itemCount: uploadBook?.pageCount ?? 500,
+                    looping: true,
+                    labelBuilder: (i) => '${i + 1}',
+                    onChanged: (i) => setState(() => _selectedPage = i + 1),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Question number.
-        TextFormField(
-          initialValue: uploadState.uploadQuestionNumber,
-          onChanged: notifier.setUploadQuestionNumber,
-          decoration: InputDecoration(
-            labelText: l.solutionsQuestionNumberLabel,
-            prefixIcon: const Icon(Icons.help_outline_rounded),
-            filled: true,
-            fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.7),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide.none,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text('/',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: cs.onSurfaceVariant)),
             ),
-          ),
+            Expanded(
+              child: Column(
+                children: [
+                  Text(l.solutionsQuestionNumberLabel,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 6),
+                  SolutionsDrumPicker(
+                    controller: _questionCtrl,
+                    itemCount: _maxQuestions + 1,
+                    looping: false,
+                    labelBuilder: (i) => i == 0 ? 'All' : '$i',
+                    onChanged: (i) => setState(() => _selectedQuestion = i),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
 
-        // Caption.
-        TextFormField(
-          initialValue: uploadState.uploadCaption,
-          onChanged: notifier.setUploadCaption,
+        // Caption — uses a persistent controller so focus survives rebuilds.
+        TextField(
+          controller: _captionCtrl,
           maxLines: 3,
           decoration: InputDecoration(
             labelText: l.solutionsUploadCaptionOptional,
             prefixIcon: const Icon(Icons.notes_rounded),
             filled: true,
-            fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+            fillColor: cs.surfaceContainerHighest,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide.none,
@@ -535,7 +645,7 @@ class _SolutionUploadSheetBodyState
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: cs.errorContainer.withValues(alpha: 0.72),
+              color: cs.errorContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -602,6 +712,8 @@ class _SolutionUploadSheetBodyState
         ),
         const SizedBox(height: 8),
       ],
-    );
+        ), // ListView
+      ), // Padding
+    ); // GestureDetector
   }
 }

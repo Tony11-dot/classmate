@@ -64,18 +64,19 @@ abstract class ChatThreadController {
   );
 
   /// Navigate to a forwarded target after a successful forward send.
-  /// No-op if the target points to this same thread. Default behavior:
-  /// pushReplacement for DM (avoid stacking DM threads), push for classroom.
+  /// Uses the root Navigator so the new screen sits above the shell without
+  /// touching the go_router page-key list (avoids duplicate-key crashes).
   void openForwardedTarget(BuildContext context, ForwardTarget target) {
     if (target.id == threadId) return;
+    final nav = Navigator.of(context, rootNavigator: true);
     if (target is ForwardTargetClassroom) {
-      Navigator.of(context).push(
+      nav.push(
         MaterialPageRoute<void>(
           builder: (_) => ClassroomDetailScreen(courseId: target.courseId),
         ),
       );
     } else if (target is ForwardTargetDm) {
-      Navigator.of(context).pushReplacement(
+      nav.push(
         MaterialPageRoute<void>(
           builder: (_) => MessageThreadScreen(threadId: target.threadId),
         ),

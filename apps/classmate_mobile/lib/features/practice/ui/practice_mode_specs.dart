@@ -176,11 +176,7 @@ String practiceModeBadge(BuildContext context, PracticeMode mode) =>
 IconData practiceModeIcon(PracticeMode mode) => practiceModeSpec(mode).icon;
 
 Color practiceModeTint(ColorScheme cs, PracticeMode mode) {
-  final accent = practiceModeColor(mode);
-  return Color.alphaBlend(
-    accent.withValues(alpha: 0.10),
-    cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface,
-  );
+  return cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surfaceContainerLow;
 }
 
 // ============================================================
@@ -199,7 +195,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 18,
             height: 12,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.24),
+              color: accent,
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -214,7 +210,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 26,
             height: 18,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.35),
+              color: accent,
               borderRadius: BorderRadius.circular(7),
             ),
           ),
@@ -223,7 +219,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 26,
             height: 18,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
+              color: accent,
               borderRadius: BorderRadius.circular(7),
             ),
           ),
@@ -238,7 +234,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 44,
             height: 3,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.26),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -247,7 +243,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 38,
             height: 3,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.20),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -256,7 +252,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 30,
             height: 3,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -274,7 +270,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
               width: 6,
               height: 6,
               decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.9),
+                color: accent,
                 shape: BoxShape.circle,
               ),
             ),
@@ -292,7 +288,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 22,
             height: 4,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.22),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -307,7 +303,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.24),
+              color: accent,
               shape: BoxShape.circle,
             ),
           ),
@@ -316,7 +312,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 18,
             height: 10,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.16),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -325,7 +321,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
             width: 26,
             height: 10,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.28),
+              color: accent,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -344,7 +340,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
               width: 42 - (i * 4),
               height: 4,
               decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.22 - (i * 0.03)),
+                color: accent,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),

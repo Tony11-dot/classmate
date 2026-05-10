@@ -109,11 +109,13 @@ class _NotificationReceiverHostState
     }
   }
 
-  void _openNotificationsInbox(String notificationId) {
+  void _openNotificationsInbox(String payload) {
     if (!mounted) return;
-    final cleanId = notificationId.trim();
-    if (cleanId.isEmpty) return;
-    context.push('/notifications');
+    final clean = payload.trim();
+    if (clean.isEmpty) return;
+    // Payload is 'source|id' (new format) or just 'id' (legacy).
+    final route = LocalNotificationsService.routeFromPayload(clean);
+    context.push(route);
   }
 
   @override

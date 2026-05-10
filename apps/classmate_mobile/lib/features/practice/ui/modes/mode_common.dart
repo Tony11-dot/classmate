@@ -15,17 +15,17 @@ typedef SessionResetFn = void Function();
 
 Color _sessionPanelBorder(ColorScheme cs) {
   return cs.brightness == Brightness.dark
-      ? cs.outlineVariant.withValues(alpha: 0.32)
-      : cs.outlineVariant.withValues(alpha: 0.44);
+      ? cs.outlineVariant
+      : cs.outlineVariant;
 }
 
 Color _sessionPanelBg(ColorScheme cs, Color accent) {
   return cs.brightness == Brightness.dark
       ? Color.alphaBlend(
-          accent.withValues(alpha: 0.10),
+          accent,
           cs.surfaceContainerHigh,
         )
-      : Color.alphaBlend(accent.withValues(alpha: 0.05), cs.surface);
+      : cs.surface;
 }
 
 class ModeContextData {
@@ -249,12 +249,12 @@ Widget sessionProgressStrip(ModeContextData d) {
             curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: d.accent.withValues(alpha: streakActive ? 0.16 : 0.08),
+              color: d.cs.surfaceContainerLow,
               borderRadius: BorderRadius.circular(999),
               boxShadow: streakActive
                   ? [
                       BoxShadow(
-                        color: d.accent.withValues(alpha: 0.20),
+                        color: d.accent,
                         blurRadius: 18,
                         spreadRadius: 1,
                       ),
@@ -295,15 +295,15 @@ Widget questionCard(
     decoration: BoxDecoration(
       color: cs.brightness == Brightness.dark
           ? Color.alphaBlend(
-              accent.withValues(alpha: 0.05),
+              accent,
               cs.surfaceContainerLow,
             )
           : cs.surface,
       borderRadius: BorderRadius.circular(28),
       border: Border.all(
         color: cs.brightness == Brightness.dark
-            ? cs.outlineVariant.withValues(alpha: 0.34)
-            : cs.outlineVariant.withValues(alpha: 0.44),
+            ? cs.outlineVariant
+            : cs.outlineVariant,
       ),
     ),
     child: child,
@@ -321,9 +321,9 @@ Widget defaultQuestionHeader(ModeContextData d) {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: d.accent.withValues(alpha: 0.12),
+              color: d.accent,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: d.accent.withValues(alpha: 0.24)),
+              border: Border.all(color: d.accent),
             ),
             child: Text(
               practiceModeLabel(d.context, d.state.filter.mode),
@@ -366,13 +366,6 @@ Widget questionPromptPanel(ModeContextData d) {
       color: _sessionPanelBg(cs, d.accent),
       borderRadius: BorderRadius.circular(24),
       border: Border.all(color: _sessionPanelBorder(cs)),
-      boxShadow: [
-        BoxShadow(
-          blurRadius: 18,
-          offset: const Offset(0, 8),
-          color: d.accent.withValues(alpha: 0.10),
-        ),
-      ],
     ),
     child: CMAiMessage(
       d.promptOf(),
@@ -420,13 +413,13 @@ class ModeAnswerTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: revealed
                 ? correct
-                      ? Colors.green.withValues(alpha: 0.14)
+                      ? Colors.green
                       : wrongSelected
-                      ? Colors.red.withValues(alpha: 0.14)
-                      : cs.surface.withValues(alpha: 0.78)
+                      ? Colors.red
+                      : cs.surface
                 : selected
-                ? accent.withValues(alpha: 0.14)
-                : cs.surface.withValues(alpha: 0.78),
+                ? accent
+                : cs.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: revealed
@@ -434,10 +427,10 @@ class ModeAnswerTile extends StatelessWidget {
                         ? Colors.green
                         : wrongSelected
                         ? Colors.red
-                        : cs.outlineVariant.withValues(alpha: 0.28)
+                        : cs.outlineVariant
                   : selected
-                  ? accent.withValues(alpha: 0.38)
-                  : cs.outlineVariant.withValues(alpha: 0.28),
+                  ? accent
+                  : cs.outlineVariant,
             ),
           ),
           child: Row(
@@ -449,12 +442,12 @@ class ModeAnswerTile extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: revealed
                       ? correct
-                            ? Colors.green.withValues(alpha: 0.18)
+                            ? Colors.green
                             : wrongSelected
-                            ? Colors.red.withValues(alpha: 0.18)
+                            ? Colors.red
                             : Colors.transparent
                       : selected
-                      ? accent.withValues(alpha: 0.18)
+                      ? accent
                       : Colors.transparent,
                   border: Border.all(
                     color: revealed
@@ -544,9 +537,9 @@ Widget answerResultBar(ModeContextData d) {
     width: double.infinity,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: accent.withValues(alpha: 0.10),
+      color: accent,
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: accent.withValues(alpha: 0.24)),
+      border: Border.all(color: accent),
     ),
     child: Row(
       children: [
@@ -572,9 +565,9 @@ Widget explanationCard(ModeContextData d, {String? title}) {
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: d.accent.withValues(alpha: 0.08),
+      color: d.accent,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: d.accent.withValues(alpha: 0.18)),
+      border: Border.all(color: d.accent),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -10,7 +10,7 @@ export const StudentScheduleItemSchema = z.object({
   period: z.number().nullable().optional(),
 title: z.string(),
   location: z.string().nullable().optional(),
-  courseId: z.string().nullable().optional(),
+  cohortId: z.string().nullable().optional(),
   subject: z.string().nullable().optional(),
 });
 

@@ -1,4 +1,9 @@
+// ignore_for_file: use_null_aware_elements
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../core/auth/auth_session.dart';
 import '../../../core/http/cm_api.dart';
@@ -28,8 +33,11 @@ class TeacherMobileRepository {
     );
   }
 
-  Future<TeacherAssessmentBundle> fetchAssessments() async {
-    final raw = await _api.getJson('/teacher/grades/assessments');
+  Future<TeacherAssessmentBundle> fetchAssessments({bool standalone = false}) async {
+    final raw = await _api.getJson(
+      '/teacher/grades/assessments',
+      query: standalone ? const <String, String>{'standalone': 'true'} : null,
+    );
     final map = _asMap(raw);
     final courses = _asList(map['courses'])
         .map((item) => TeacherCourse.fromJson(_asMap(item)))
@@ -58,6 +66,7 @@ class TeacherMobileRepository {
       cohort: TeacherCohort.fromJson(_asMap(map['cohort'])),
       date: _asString(map['date']),
       period: _asInt(map['period']),
+      classNote: _asString(map['classNote']),
       course: TeacherCourse.fromJson(_asMap(map['course'])),
       students: _asList(map['students'])
           .map((item) => TeacherAttendanceStudent.fromJson(_asMap(item)))
@@ -70,6 +79,7 @@ class TeacherMobileRepository {
     required String date,
     required int period,
     required List<TeacherAttendanceDraftRecord> records,
+    String? classNote,
   }) async {
     await _api.postJson(
       '/teacher/attendance/bulk',
@@ -77,6 +87,7 @@ class TeacherMobileRepository {
         'cohortId': cohortId,
         'date': date,
         'period': period,
+        if ((classNote ?? '').trim().isNotEmpty) 'classNote': classNote!.trim(),
         'records': records
             .map(
               (record) => <String, dynamic>{
@@ -88,6 +99,20 @@ class TeacherMobileRepository {
             .toList(growable: false),
       },
     );
+  }
+
+  Future<List<TeacherAttendanceSessionSummary>> fetchAttendanceSessions({
+    String? from,
+    String? to,
+  }) async {
+    final query = <String, String>{
+      if (from != null) 'from': from,
+      if (to != null) 'to': to,
+    };
+    final raw = await _api.getJson('/teacher/attendance/sessions', query: query.isEmpty ? null : query);
+    return _asList(raw)
+        .map((item) => TeacherAttendanceSessionSummary.fromJson(_asMap(item)))
+        .toList(growable: false);
   }
 
   Future<List<TeacherStudent>> fetchCohortStudents(String cohortId) async {
@@ -110,6 +135,61 @@ class TeacherMobileRepository {
     return TeacherJoinCode.fromJson(_asMap(raw));
   }
 
+  /// Returns the existing active permanent join code or creates a new one.
+  Future<TeacherJoinCode> getOrCreateJoinCode(String cohortId) async {
+    final raw = await _api.getJson('/teacher/cohorts/$cohortId/join-code');
+    return TeacherJoinCode.fromJson(_asMap(raw));
+  }
+
+  /// Resets (replaces) the join code for the given cohort.
+  Future<TeacherJoinCode> resetJoinCode(String cohortId) async {
+    final raw = await _api.postJson(
+      '/teacher/cohorts/$cohortId/reset-join-code',
+      body: <String, dynamic>{},
+    );
+    return TeacherJoinCode.fromJson(_asMap(raw));
+  }
+
+  Future<Map<String, dynamic>> createClassroom({
+    required String name,
+    required String subject,
+    List<String> studentIds = const [],
+    List<String> cohortIds = const [],
+  }) async {
+    final raw = await _api.postJson(
+      '/teacher/classrooms',
+      body: <String, dynamic>{
+        'name': name.trim(),
+        'subject': subject.trim(),
+        if (studentIds.isNotEmpty) 'studentIds': studentIds,
+        if (cohortIds.isNotEmpty) 'cohortIds': cohortIds,
+      },
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  /// All school cohorts — for audience pickers in add screens.
+  Future<List<Map<String, dynamic>>> fetchCohortsForPicker() async {
+    try {
+      final raw = await _api.getJson('/teacher/school-cohorts');
+      final list = raw is List ? raw : (raw is Map ? (raw['cohorts'] ?? raw['items'] ?? []) : []);
+      return (list as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Only THIS teacher's cohorts (from their schedule slots) — for insights/schedule.
+  Future<List<Map<String, dynamic>>> fetchTeacherCohorts() async {
+    try {
+      final raw = await _api.getJson('/teacher/cohorts');
+      final list = raw is List ? raw : (raw is Map ? (raw['cohorts'] ?? raw['items'] ?? []) : []);
+      return (list as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   Future<List<TeacherAssessmentGrade>> fetchAssessmentGrades(String assessmentId) async {
     final raw = await _api.getJson('/teacher/assessments/$assessmentId/grades');
     final map = _asMap(raw);
@@ -118,21 +198,26 @@ class TeacherMobileRepository {
         .toList(growable: false);
   }
 
-  Future<void> createAssessment({
+  Future<Map<String, dynamic>> createAssessment({
     required String courseId,
     required String title,
     required String date,
     int? maxGrade,
+    bool published = false,
+    List<Map<String, dynamic>>? attachments,
   }) async {
-    await _api.postJson(
+    final raw = await _api.postJson(
       '/teacher/grades/assessment',
       body: <String, dynamic>{
         'courseId': courseId,
         'title': title.trim(),
         'date': date.trim().isEmpty ? null : date.trim(),
         'maxGrade': maxGrade,
+        'published': published,
+        if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
       },
     );
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
   }
 
   Future<void> updateAssessment({
@@ -183,13 +268,13 @@ class TeacherMobileRepository {
     return _asList(map['classrooms'])
         .map((item) {
           final m = _asMap(item);
-          final cohortMap = _asMap(m['cohort']);
+          final count = m['_count'] is Map ? (m['_count'] as Map)['members'] as int? ?? 0 : (m['memberCount'] as int? ?? 0);
           return TeacherCourse(
             id: _asString(m['id']),
             name: _asString(m['name']),
             subject: _asString(m['subject']),
-            cohortId: _asString(m['cohortId']),
-            cohort: cohortMap.isEmpty ? null : TeacherCohort.fromJson(cohortMap),
+            cohortId: '',
+            cohort: null, // no cohort — displayName will use name directly
           );
         })
         .toList(growable: false);
@@ -322,8 +407,35 @@ class TeacherMobileRepository {
   }
 
   Future<Map<String, dynamic>> fetchClassroomPeople(String courseId) async {
-    final raw = await _api.getJson('/teacher/classrooms/$courseId/people');
-    return _asMap(raw);
+    final raw = await _api.getJson('/teacher/classrooms/$courseId/members');
+    final map = _asMap(raw);
+    final members = _asList(map['members']);
+    final teacher = map['teacher'] is Map ? map['teacher'] as Map : null;
+
+    final students = members.map((m) => <String, dynamic>{
+      'id': (m as Map)['studentId']?.toString() ?? '',
+      'name': m['name']?.toString() ?? '',
+    }).toList();
+    final ids = students.map((s) => s['id'] as String).toList();
+
+    // Build people list: teacher first, then students
+    final people = <Map<String, dynamic>>[
+      if (teacher != null) <String, dynamic>{
+        'id': teacher['userId']?.toString() ?? '',
+        'name': teacher['name']?.toString() ?? '',
+        'role': 'TEACHER',
+      },
+      ...students.map((s) => {...s, 'role': 'STUDENT'}),
+    ];
+
+    return <String, dynamic>{
+      'teacher': teacher,
+      'items': <String, dynamic>{
+        'students': students,
+        'studentUserIds': ids,
+        'people': people,
+      },
+    };
   }
 
   Future<Map<String, dynamic>> fetchClassroomAnalytics(String courseId) async {
@@ -365,18 +477,14 @@ class TeacherMobileRepository {
   Future<void> createAnnouncement({
     required String title,
     required String body,
-    String? targetRole,
-    String? targetCohortId,
-    bool pinned = false,
+    List<Map<String, dynamic>> targets = const [],
   }) async {
     await _api.postJson(
       '/announcements',
       body: <String, dynamic>{
         'title': title.trim(),
         'body': body.trim(),
-        'pinned': pinned,
-        if ((targetRole ?? '').isNotEmpty) 'targets': [<String, dynamic>{'role': targetRole}],
-        if ((targetCohortId ?? '').isNotEmpty) 'targets': [<String, dynamic>{'cohortId': targetCohortId}],
+        if (targets.isNotEmpty) 'targets': targets,
       },
     );
   }
@@ -399,6 +507,364 @@ class TeacherMobileRepository {
       students: _asList(map['students'])
           .map((item) => TeacherAttendanceStudent.fromJson(_asMap(item)))
           .toList(growable: false),
+    );
+  }
+
+  // ── Teacher-wide assignments ───────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchTeacherAssignments() async {
+    final courses = await fetchClassrooms();
+    final results = await Future.wait(
+      courses.map((course) async {
+        try {
+          final items = await fetchClassroomAssignments(course.id);
+          return items.map((item) => <String, dynamic>{
+            ...item,
+            '_courseId': course.id,
+            '_courseName': course.name,
+            '_subject': course.subject,
+          }).toList();
+        } catch (_) {
+          return <Map<String, dynamic>>[];
+        }
+      }),
+    );
+    final flat = results.expand((g) => g).toList();
+    flat.sort((a, b) {
+      final aDue = (a['dueAt'] ?? a['createdAt'] ?? '') as String;
+      final bDue = (b['dueAt'] ?? b['createdAt'] ?? '') as String;
+      return bDue.compareTo(aDue);
+    });
+    return flat;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTeacherMaterials() async {
+    final courses = await fetchClassrooms();
+    final results = await Future.wait(
+      courses.map((course) async {
+        try {
+          final items = await fetchClassroomMaterials(course.id);
+          return items.map((item) => <String, dynamic>{
+            ...item,
+            '_courseId': course.id,
+            '_courseName': course.name,
+            '_subject': course.subject,
+          }).toList();
+        } catch (_) {
+          return <Map<String, dynamic>>[];
+        }
+      }),
+    );
+    return results.expand((g) => g).toList();
+  }
+
+  Future<void> createTeacherAssignment({
+    required String courseId,
+    required String title,
+    String? body,
+    String? dueAt,
+    List<Map<String, dynamic>>? attachments,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$courseId/assignments',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        if ((body ?? '').trim().isNotEmpty) 'body': body!.trim(),
+        if ((dueAt ?? '').trim().isNotEmpty) 'dueAt': dueAt!.trim(),
+        if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
+      },
+    );
+  }
+
+  // ── Teacher-wide Assignments ───────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listTeacherAssignments() async {
+    final raw = await _api.getJson('/teacher/assignments');
+    if (raw is Map && raw['assignments'] is List) {
+      return (raw['assignments'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createTeacherAssignmentV2({
+    required String title,
+    String? description,
+    String? courseId,
+    String? subject,
+    String? dueAt,
+    int? maxGrade,
+    String targetType = 'EVERYONE',
+    List<String> targetCohortIds = const [],
+    List<String> targetStudentIds = const [],
+    List<Map<String, dynamic>> attachments = const [],
+    bool published = false,
+  }) async {
+    final raw = await _api.postJson(
+      '/teacher/assignments',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        if ((description ?? '').isNotEmpty) 'description': description!.trim(),
+        if ((courseId ?? '').isNotEmpty) 'courseId': courseId,
+        if ((subject ?? '').isNotEmpty) 'subject': subject!.trim(),
+        if ((dueAt ?? '').isNotEmpty) 'dueAt': dueAt,
+        if (maxGrade != null) 'maxGrade': maxGrade,
+        'targetType': targetType,
+        'targetCohortIds': targetCohortIds,
+        'targetStudentIds': targetStudentIds,
+        if (attachments.isNotEmpty) 'attachments': attachments,
+        'published': published,
+      },
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> updateTeacherAssignment(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/assignments/$id', body: body);
+  }
+
+  Future<void> deleteTeacherAssignmentV2(String id) async {
+    await _api.deleteJson('/teacher/assignments/$id');
+  }
+
+  Future<List<Map<String, dynamic>>> getTeacherAssignmentSubmissions(String assignmentId) async {
+    final raw = await _api.getJson('/teacher/assignments/$assignmentId/submissions');
+    if (raw is Map && raw['submissions'] is List) {
+      return (raw['submissions'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<void> gradeAssignmentSubmission({
+    required String assignmentId,
+    required String studentId,
+    int? grade,
+    String? feedback,
+  }) async {
+    await _api.patchJson(
+      '/teacher/assignments/$assignmentId/submissions/$studentId/grade',
+      body: <String, dynamic>{
+        if (grade != null) 'grade': grade,
+        if ((feedback ?? '').isNotEmpty) 'feedback': feedback,
+      },
+    );
+  }
+
+  // ── Teacher Materials (standalone) ────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listTeacherMaterials() async {
+    final raw = await _api.getJson('/teacher/materials');
+    if (raw is Map && raw['materials'] is List) {
+      return (raw['materials'] as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createTeacherMaterial({
+    required String title,
+    String? description,
+    String? url,
+    String? courseId,
+    String? subject,
+    String targetType = 'EVERYONE',
+    List<String> targetCohortIds = const [],
+    List<String> targetStudentIds = const [],
+    List<Map<String, dynamic>> attachments = const [],
+    bool published = true,
+  }) async {
+    final raw = await _api.postJson('/teacher/materials', body: <String, dynamic>{
+      'title': title.trim(),
+      if ((description ?? '').isNotEmpty) 'description': description,
+      if ((url ?? '').isNotEmpty) 'url': url,
+      if ((courseId ?? '').isNotEmpty) 'courseId': courseId,
+      if ((subject ?? '').isNotEmpty) 'subject': subject,
+      'targetType': targetType,
+      'targetCohortIds': targetCohortIds,
+      'targetStudentIds': targetStudentIds,
+      if (attachments.isNotEmpty) 'attachments': attachments,
+      'published': published,
+    });
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> updateTeacherMaterial(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/materials/$id', body: body);
+  }
+
+  Future<void> deleteTeacherMaterial(String id) async {
+    await _api.deleteJson('/teacher/materials/$id');
+  }
+
+  // ── Teacher Meetings (standalone) ─────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listTeacherMeetings() async {
+    final raw = await _api.getJson('/teacher/meetings');
+    if (raw is Map && raw['meetings'] is List) {
+      return (raw['meetings'] as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createTeacherMeeting({
+    required String title,
+    String? description,
+    required String link,
+    required String startsAt,
+    String? endsAt,
+    String? courseId,
+    String? subject,
+    String targetType = 'EVERYONE',
+    List<String> targetCohortIds = const [],
+    List<String> targetStudentIds = const [],
+  }) async {
+    final raw = await _api.postJson('/teacher/meetings', body: <String, dynamic>{
+      'title': title.trim(),
+      if ((description ?? '').isNotEmpty) 'description': description,
+      'link': link.trim(),
+      'startsAt': startsAt,
+      if ((endsAt ?? '').isNotEmpty) 'endsAt': endsAt,
+      if ((courseId ?? '').isNotEmpty) 'courseId': courseId,
+      if ((subject ?? '').isNotEmpty) 'subject': subject,
+      'targetType': targetType,
+      'targetCohortIds': targetCohortIds,
+      'targetStudentIds': targetStudentIds,
+    });
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> updateTeacherMeeting(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/meetings/$id', body: body);
+  }
+
+  Future<void> deleteTeacherMeeting(String id) async {
+    await _api.deleteJson('/teacher/meetings/$id');
+  }
+
+  // ── Teacher Exams ──────────────────────────────────────────────────────────
+
+  Future<List<String>> fetchSubjects() async {
+    final raw = await _api.getJson('/teacher/subjects');
+    if (raw is Map && raw['subjects'] is List) {
+      return (raw['subjects'] as List).map((e) => e.toString()).toList(growable: false);
+    }
+    return const [];
+  }
+
+  Future<Map<String, dynamic>> fetchExamGrades(String examId) async {
+    final raw = await _api.getJson('/teacher/exams/$examId/grades');
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> saveExamGrades({
+    required String examId,
+    required List<TeacherGradeDraftRecord> grades,
+  }) async {
+    await _api.postJson(
+      '/teacher/exams/$examId/grades',
+      body: <String, dynamic>{
+        'grades': grades
+            .map((g) => <String, dynamic>{'studentId': g.studentId, 'grade': g.grade})
+            .toList(growable: false),
+      },
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> listTeacherExams() async {
+    final raw = await _api.getJson('/teacher/exams');
+    if (raw is Map && raw['exams'] is List) {
+      return (raw['exams'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createTeacherExam({
+    required String title,
+    String? subject,
+    String? courseId,
+    required String date,
+    int? maxGrade,
+    bool published = false,
+    String targetType = 'EVERYONE',
+    List<String> targetCohortIds = const [],
+    List<String> targetStudentIds = const [],
+    List<Map<String, dynamic>> attachments = const [],
+  }) async {
+    final raw = await _api.postJson(
+      '/teacher/exams',
+      body: <String, dynamic>{
+        'title': title.trim(),
+        if ((subject ?? '').isNotEmpty) 'subject': subject!.trim(),
+        if ((courseId ?? '').isNotEmpty) 'courseId': courseId,
+        'date': date,
+        if (maxGrade != null) 'maxGrade': maxGrade,
+        'published': published,
+        'targetType': targetType,
+        'targetCohortIds': targetCohortIds,
+        'targetStudentIds': targetStudentIds,
+        if (attachments.isNotEmpty) 'attachments': attachments,
+      },
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+  }
+
+  Future<void> updateTeacherExam(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/exams/$id', body: body);
+  }
+
+  /// Uploads a file to the general attachment endpoint and returns
+  /// `{ url, fileName, mimeType }` with a server-hosted URL.
+  Future<Map<String, dynamic>> uploadAttachmentFile(String filePath, String fileName) async {
+    final baseUrl = _api.primaryBaseUrl.replaceAll(RegExp(r'/+$'), '');
+    final uri = Uri.parse('$baseUrl/uploads/attachment');
+    final t = (token).trim();
+    final req = http.MultipartRequest('POST', uri)
+      ..headers['Authorization'] = 'Bearer $t'
+      ..files.add(await http.MultipartFile.fromPath('file', filePath, filename: fileName));
+    final streamed = await req.send().timeout(const Duration(seconds: 60));
+    final body = await streamed.stream.bytesToString();
+    if (streamed.statusCode >= 400) throw Exception('Upload failed: ${streamed.statusCode}');
+    final j = jsonDecode(body);
+    if (j is! Map) throw Exception('Upload: unexpected response');
+    final result = Map<String, dynamic>.from(j);
+    // Convert relative URL to absolute so the app can open the file directly
+    for (final key in ['url', 'fileUrl']) {
+      final v = result[key]?.toString() ?? '';
+      if (v.isNotEmpty && !v.startsWith('http')) result[key] = '$baseUrl$v';
+    }
+    return result;
+  }
+
+  Future<void> deleteTeacherExam(String id) async {
+    await _api.deleteJson('/teacher/exams/$id');
+  }
+
+  // ── Student Assignments (student view) ────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listStudentAssignments() async {
+    final raw = await _api.getJson('/student/assignments');
+    if (raw is Map && raw['assignments'] is List) {
+      return (raw['assignments'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<void> submitStudentAssignment(String assignmentId, {String? note}) async {
+    await _api.postJson(
+      '/student/assignments/$assignmentId/submit',
+      body: <String, dynamic>{
+        if ((note ?? '').isNotEmpty) 'note': note,
+      },
     );
   }
 
@@ -457,8 +923,69 @@ class TeacherMobileRepository {
     return raw is Map ? Map<String, dynamic>.from(raw) : {};
   }
 
+  Future<void> updateDiploma(String id, Map<String, dynamic> body) async {
+    await _api.patchJson('/teacher/diplomas/$id', body: body);
+  }
+
   Future<void> deleteDiploma(String id) async {
     await _api.deleteJson('/teacher/diplomas/$id');
+  }
+
+  // Returns all students at the teacher's school.
+  Future<List<TeacherStudentWithLevel>> fetchAllStudents() async {
+    final byId = <String, TeacherStudentWithLevel>{};
+
+    // Primary: school-wide student list
+    try {
+      final raw = await _api.getJson('/teacher/school-students');
+      final list = raw is Map && raw['students'] is List
+          ? (raw['students'] as List).whereType<Map>().toList()
+          : <Map>[];
+      for (final s in list) {
+        final id = (s['studentId'] ?? '').toString();
+        if (id.isEmpty) continue;
+        final gradeVal = s['grade'];
+        byId[id] = TeacherStudentWithLevel(
+          studentId: id,
+          name: (s['name'] ?? '').toString(),
+          email: (s['email'] ?? '').toString(),
+          gradeLevel: gradeVal is int ? gradeVal : int.tryParse('${gradeVal ?? ''}'),
+          cohortId: (s['cohortId'] ?? '').toString(),
+          cohortName: (s['cohortName'] ?? '').toString(),
+          subjects: const [],
+          coursesBySubject: const {},
+        );
+      }
+    } catch (_) {}
+
+    // Fallback: school-wide directory (works even when cohort linkage is missing)
+    if (byId.isEmpty) {
+      try {
+        final raw = await _api.getJson('/messages/people/same-school');
+        final items = raw is Map && raw['items'] is List ? raw['items'] as List : const <dynamic>[];
+        for (final item in items) {
+          if (item is! Map) continue;
+          final role = (item['role'] ?? '').toString().toLowerCase();
+          if (role != 'student') continue;
+          final id = (item['userId'] ?? item['id'] ?? '').toString();
+          if (id.isEmpty || byId.containsKey(id)) continue;
+          byId[id] = TeacherStudentWithLevel(
+            studentId: id,
+            name: (item['displayName'] ?? item['name'] ?? '').toString(),
+            email: '',
+            gradeLevel: null,
+            cohortId: '',
+            cohortName: (item['gradeLabel'] ?? '').toString(),
+            subjects: const [],
+            coursesBySubject: const {},
+          );
+        }
+      } catch (_) {}
+    }
+
+    final list = byId.values.toList();
+    list.sort((a, b) => a.name.compareTo(b.name));
+    return list;
   }
 }
 
@@ -579,15 +1106,22 @@ class TeacherAssessment {
     required this.title,
     required this.date,
     required this.maxGrade,
+    this.published = false,
+    this.attachments = const [],
   });
 
   factory TeacherAssessment.fromJson(Map<String, dynamic> json) {
+    final rawAttachments = json['attachments'];
     return TeacherAssessment(
       id: _asString(json['id']),
       courseId: _asString(json['courseId']),
       title: _asString(json['title']),
       date: _asString(json['date']),
       maxGrade: json['maxGrade'] == null ? null : _asInt(json['maxGrade']),
+      published: json['published'] == true,
+      attachments: rawAttachments is List
+          ? rawAttachments.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
+          : const [],
     );
   }
 
@@ -596,6 +1130,8 @@ class TeacherAssessment {
   final String title;
   final String date;
   final int? maxGrade;
+  final bool published;
+  final List<Map<String, dynamic>> attachments;
 }
 
 class TeacherAttendanceSession {
@@ -605,6 +1141,7 @@ class TeacherAttendanceSession {
     required this.period,
     required this.course,
     required this.students,
+    this.classNote = '',
   });
 
   final TeacherCohort cohort;
@@ -612,6 +1149,7 @@ class TeacherAttendanceSession {
   final int period;
   final TeacherCourse course;
   final List<TeacherAttendanceStudent> students;
+  final String classNote;
 }
 
 class TeacherAttendanceStudent {
@@ -647,6 +1185,59 @@ class TeacherAttendanceDraftRecord {
   final String studentId;
   final String status;
   final String note;
+}
+
+class TeacherAttendanceSessionSummary {
+  const TeacherAttendanceSessionSummary({
+    required this.id,
+    required this.date,
+    required this.period,
+    required this.courseName,
+    required this.subject,
+    required this.cohortId,
+    required this.cohortName,
+    required this.grade,
+    required this.totalStudents,
+    required this.presentCount,
+    required this.absentCount,
+    required this.lateCount,
+    required this.excusedCount,
+    this.classNote,
+  });
+
+  factory TeacherAttendanceSessionSummary.fromJson(Map<String, dynamic> json) {
+    return TeacherAttendanceSessionSummary(
+      id: _asString(json['id']),
+      date: _asString(json['date']),
+      period: _asInt(json['period']),
+      courseName: _asString(json['courseName']),
+      subject: _asString(json['subject']),
+      cohortId: _asString(json['cohortId']),
+      cohortName: _asString(json['cohortName']),
+      grade: json['grade'] is num ? (json['grade'] as num).toInt() : null,
+      totalStudents: _asInt(json['totalStudents']),
+      presentCount: _asInt(json['presentCount']),
+      absentCount: _asInt(json['absentCount']),
+      lateCount: _asInt(json['lateCount']),
+      excusedCount: _asInt(json['excusedCount']),
+      classNote: json['classNote'] as String?,
+    );
+  }
+
+  final String id;
+  final String date;
+  final int period;
+  final String courseName;
+  final String subject;
+  final String cohortId;
+  final String cohortName;
+  final int? grade;
+  final int totalStudents;
+  final int presentCount;
+  final int absentCount;
+  final int lateCount;
+  final int excusedCount;
+  final String? classNote;
 }
 
 class TeacherStudent {
@@ -700,4 +1291,26 @@ class TeacherGradeDraftRecord {
 
   final String studentId;
   final int grade;
+}
+
+class TeacherStudentWithLevel {
+  const TeacherStudentWithLevel({
+    required this.studentId,
+    required this.name,
+    required this.email,
+    required this.gradeLevel,
+    required this.cohortId,
+    required this.cohortName,
+    required this.subjects,
+    required this.coursesBySubject,
+  });
+
+  final String studentId;
+  final String name;
+  final String email;
+  final int? gradeLevel;
+  final String cohortId;
+  final String cohortName;
+  final List<String> subjects;
+  final Map<String, String> coursesBySubject; // subject → courseId
 }

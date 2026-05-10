@@ -18,9 +18,9 @@ class BagrutModeView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             decoration: BoxDecoration(
-              color: d.accent.withValues(alpha: 0.08),
+              color: d.accent,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: d.accent.withValues(alpha: 0.22)),
+              border: Border.all(color: d.accent),
             ),
             child: Row(
               children: [

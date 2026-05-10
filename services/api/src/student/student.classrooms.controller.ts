@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import * as bcrypt from 'bcrypt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -38,686 +39,291 @@ function safeClassroomName(raw: string) {
 @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
 @Controller('student/classrooms')
 export class StudentClassroomsController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
-  private isTeacherOrAdmin(req: any): boolean {
+  private uid(req: any) { return String(req?.user?.sub ?? req?.user?.id ?? ''); }
+
+  private isTeacherOrAdmin(req: any) {
     const roles: string[] = Array.isArray(req?.user?.roles) ? req.user.roles : [];
     return roles.includes('TEACHER') || roles.includes('ADMIN');
   }
 
-  private async cohortIdFromUser(req: any): Promise<string> {
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
-    if (!uid) throw new Error('Missing user id');
-    const sp = await this.prisma.studentProfile.findUnique({
-      where: { userId: uid },
-      select: { cohortId: true },
+  private async assertAccess(req: any, classroomId: string) {
+    const cr = await this.prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, name: true, subject: true, teacherId: true },
     });
-    if (!sp?.cohortId) throw new Error('Student not onboarded');
-    return String(sp.cohortId);
-  }
-
-  private async assertCourseInCohort(courseId: string, cohortId: string) {
-    const course = await this.prisma.course.findFirst({
-      where: { id: courseId, cohortId },
-      select: {
-        id: true,
-        name: true,
-        subject: true,
-        teacherId: true,
-        cohortId: true,
-        groupTag: true,
-      },
+    if (!cr) throw new NotFoundException('Classroom not found');
+    if (this.isTeacherOrAdmin(req)) return cr;
+    const uid = this.uid(req);
+    const member = await this.prisma.classroomMember.findUnique({
+      where: { classroomId_studentId: { classroomId, studentId: uid } },
     });
-    if (!course) throw new Error('Classroom not found');
-    return course;
-  }
-
-  /** Verifies course read access for both students (cohort check) and teachers (course exists check). */
-  private async assertCourseReadAccess(req: any, courseId: string) {
-    if (this.isTeacherOrAdmin(req)) {
-      const course = await this.prisma.course.findUnique({
-        where: { id: courseId },
-        select: { id: true, name: true, subject: true, teacherId: true, cohortId: true, groupTag: true },
-      });
-      if (!course) throw new Error('Classroom not found');
-      return course;
-    }
-    const cohortId = await this.cohortIdFromUser(req);
-    return this.assertCourseInCohort(courseId, cohortId);
+    if (!member) throw new ForbiddenException('Not a member of this classroom');
+    return cr;
   }
 
   @Get()
   async list(@Req() req: any) {
+    const uid = this.uid(req);
     if (this.isTeacherOrAdmin(req)) {
-      const teacherId = String(req?.user?.sub ?? req?.user?.id ?? '');
-      const courses = await this.prisma.course.findMany({
-        where: { teacherId },
-        select: { id: true, name: true, subject: true, teacherId: true, cohortId: true, groupTag: true },
-        orderBy: [{ subject: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+      return this.prisma.classroom.findMany({
+        where: { teacherId: uid },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, name: true, subject: true, createdAt: true, _count: { select: { members: true } } },
       });
-      return courses;
     }
-    const cohortId = await this.cohortIdFromUser(req);
-    const courses = await this.prisma.course.findMany({
-      where: { cohortId },
-      select: {
-        id: true,
-        name: true,
-        subject: true,
-        teacherId: true,
-        cohortId: true,
-        groupTag: true,
-      },
-      orderBy: [{ subject: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+    const memberships = await this.prisma.classroomMember.findMany({
+      where: { studentId: uid },
+      select: { classroom: { select: { id: true, name: true, subject: true, teacherId: true, teacher: { select: { name: true } } } } },
+      orderBy: { joinedAt: 'desc' },
     });
-    return courses;
+    return memberships.map((m) => m.classroom);
+  }
+
+  /** Aggregated materials across all classrooms the student is a member of,
+   *  plus any TeacherMaterial that targets them directly. */
+  @Get('all-materials')
+  async allMaterials(@Req() req: any) {
+    const uid = this.uid(req);
+
+    // ClassroomMaterial from classrooms the student is a member of
+    const memberships = await this.prisma.classroomMember.findMany({
+      where: { studentId: uid },
+      select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
+    });
+    const classroomIds = memberships.map((m) => m.classroomId);
+    const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
+
+    const [classroomMaterials, teacherMaterials] = await Promise.all([
+      classroomIds.length
+        ? this.prisma.classroomMaterial.findMany({
+            where: { classroomId: { in: classroomIds } },
+            orderBy: { createdAt: 'desc' },
+          })
+        : [],
+      // TeacherMaterial targeting EVERYONE or this student's cohort/directly
+      this.prisma.teacherMaterial.findMany({
+        where: {
+          published: true,
+          OR: [
+            { targetType: 'EVERYONE' },
+            { targetStudentIds: { has: uid } },
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+        include: { teacher: { select: { name: true } } },
+      }),
+    ]);
+
+    const items = [
+      ...classroomMaterials.map((m) => ({
+        ...m,
+        _source: 'classroom',
+        _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+        _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+      })),
+      ...teacherMaterials.map((m) => ({
+        ...m,
+        _source: 'teacher',
+        _teacherName: (m as any).teacher?.name ?? null,
+      })),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return { ok: true, items };
   }
 
   @Get(':id')
   async detail(@Req() req: any, @Param('id') id: string) {
-    const course = await this.assertCourseReadAccess(req, String(id));
-
-    // Optional: include schedule template for the classroom (existing schedule template slots)
-    const scheduleTemplate = await this.prisma.scheduleSlot.findMany({
-      where: { courseId: course.id },
-      select: {
-        id: true,
-        dayOfWeek: true,
-        period: true,
-      },
-      orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }, { id: 'asc' }],
-    });
-
-    // Stable empties for tabs (client safe)
-    return {
-      ...course,
-      scheduleTemplate,
-      announcements: [],
-    };
+    const cr = await this.assertAccess(req, id);
+    const slotIds = (await this.prisma.scheduleSlotCohort.findMany({ select: { slotId: true }, where: {} })).map(() => ''); // placeholder
+    return { ...cr, announcements: [] };
   }
 
-  // --- People tab (minimal v1: cohort classmates + teacher) ---
   @Get(':id/people')
   async people(@Req() req: any, @Param('id') id: string) {
-    const course = await this.assertCourseReadAccess(req, String(id));
-
-    const students = await this.prisma.studentProfile.findMany({
-      where: { cohortId: course.cohortId ?? '' },
-      select: {
-        userId: true,
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: [{ userId: 'asc' }],
+    await this.assertAccess(req, id);
+    const members = await this.prisma.classroomMember.findMany({
+      where: { classroomId: id },
+      select: { studentId: true, student: { select: { name: true } } },
+      orderBy: { joinedAt: 'asc' },
     });
-
-    const teacherUserId = course.teacherId ? String(course.teacherId) : null;
-
-    const teacher = teacherUserId
-      ? await this.prisma.user.findUnique({
-          where: { id: teacherUserId },
-          select: { id: true, name: true },
-        })
-      : null;
-
     return {
       ok: true,
       items: {
-        teacherUserId,
-        studentUserIds: students.map((x) => x.userId),
-        teacher: teacher
-          ? {
-              id: teacher.id,
-              name: teacher.name ?? null,
-            }
-          : null,
-        students: students.map((x) => ({
-          id: x.userId,
-          name: x.user?.name ?? null,
-        })),
+        students: members.map((m) => ({ id: m.studentId, name: m.student?.name ?? null })),
+        studentUserIds: members.map((m) => m.studentId),
       },
     };
   }
 
-  // --- Chat tab ---
   @Get(':id/chat')
-  async chatList(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Query('cursor') cursor?: string,
-    @Query('limit') limit?: string,
-  ) {
-    await this.assertCourseReadAccess(req, String(id));
-
+  async chatList(@Req() req: any, @Param('id') id: string, @Query('cursor') cursor?: string, @Query('limit') limit?: string) {
+    await this.assertAccess(req, id);
     const take = Math.min(Math.max(parseInt(limit ?? '30', 10) || 30, 1), 100);
-
     const rows = await this.prisma.classroomMessage.findMany({
-      where: { courseId: String(id) },
+      where: { classroomId: id },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
-      ...(cursor
-        ? {
-            cursor: { id: String(cursor) },
-            skip: 1,
-          }
-        : {}),
-      select: {
-        id: true,
-        courseId: true,
-        senderUserId: true,
-        kind: true,
-        text: true,
-        mediaUrl: true,
-        mediaMime: true,
-        durationSec: true,
-        createdAt: true,
-      },
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
     });
-
     const hasMore = rows.length > take;
-    const itemsDesc = rows.slice(0, take);
-    const nextCursor = hasMore
-      ? (itemsDesc[itemsDesc.length - 1]?.id ?? null)
-      : null;
-
-    // Return oldest->newest for easier UI rendering
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
-    const items = itemsDesc.reverse().map((row) => ({
-      ...row,
-      isMine: row.senderUserId === uid,
-      senderName: null, // resolved client-side
-    }));
-
-    return {
-      ok: true,
-      items,
-      nextCursor,
-    };
+    const uid = this.uid(req);
+    const items = rows.slice(0, take).reverse().map((row) => ({ ...row, isMine: row.senderUserId === uid }));
+    return { ok: true, items, nextCursor: hasMore ? (rows[take - 1]?.id ?? null) : null };
   }
 
   @Post(':id/chat/text')
-  async chatSendText(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body() body: { text?: string },
-  ) {
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
-    const role = String(req?.user?.role ?? req?.user?.roles?.[0] ?? '').toUpperCase();
+  async chatSendText(@Req() req: any, @Param('id') id: string, @Body() body: { text?: string }) {
+    const uid = this.uid(req);
     const text = String(body?.text ?? '').trim();
     if (!text) throw new BadRequestException('Missing text');
-
-    if (role === 'STUDENT') {
-      // Students must belong to the course cohort
-      const cohortId = await this.cohortIdFromUser(req);
-      await this.assertCourseInCohort(String(id), cohortId);
-    } else {
-      // Teachers and admins: just verify the course exists
-      const exists = await this.prisma.course.findUnique({
-        where: { id: String(id) },
-        select: { id: true },
-      });
-      if (!exists) throw new BadRequestException('Classroom not found');
-    }
-
+    await this.assertAccess(req, id);
     const msg = await this.prisma.classroomMessage.create({
-      data: {
-        courseId: String(id),
-        senderUserId: uid,
-        kind: 'TEXT',
-        text,
-      },
-      select: {
-        id: true,
-        courseId: true,
-        senderUserId: true,
-        kind: true,
-        text: true,
-        mediaUrl: true,
-        mediaMime: true,
-        durationSec: true,
-        createdAt: true,
-      },
+      data: { classroomId: id, senderUserId: uid, kind: 'TEXT', text },
+      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
     });
-
+    // Push real-time event to all classroom members (excluding sender)
+    this._emitClassroomMessage(id, uid);
     return { ok: true, item: msg };
   }
 
+  private async _emitClassroomMessage(classroomId: string, senderUserId: string) {
+    try {
+      const members = await this.prisma.classroomMember.findMany({
+        where: { classroomId, studentId: { not: senderUserId } },
+        select: { studentId: true },
+      });
+      const teacher = await this.prisma.classroom.findUnique({
+        where: { id: classroomId },
+        select: { teacherId: true },
+      });
+      const targets = members.map((m) => m.studentId);
+      if (teacher?.teacherId && teacher.teacherId !== senderUserId) targets.push(teacher.teacherId);
+      this.realtime.emitToUsers(targets, { type: 'classroom_message', classroomId });
+    } catch (_) {}
+  }
 
   @Post(':id/chat/forward')
-  async chatForward(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body() body: { messageId?: string; targetThreadIds?: string[] },
-  ) {
-    const accessedCourse = await this.assertCourseReadAccess(req, String(id));
-    const cohortId = accessedCourse.cohortId ?? '';
-
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
+  async chatForward(@Req() req: any, @Param('id') id: string, @Body() body: { messageId?: string; targetThreadIds?: string[] }) {
+    await this.assertAccess(req, id);
+    const uid = this.uid(req);
     const messageId = String(body?.messageId ?? '').trim();
-    const targetThreadIds = Array.from(
-      new Set(
-        (Array.isArray(body?.targetThreadIds) ? body.targetThreadIds : [])
-          .map((v) => String(v ?? '').trim())
-          .filter((v) => v.length > 0),
-      ),
-    );
-
-    if (!uid) throw new BadRequestException('Missing user id');
-    if (!messageId) throw new BadRequestException('Missing messageId');
-    if (!targetThreadIds.length) {
-      throw new BadRequestException('Missing targetThreadIds');
-    }
+    const targetThreadIds = Array.from(new Set((Array.isArray(body?.targetThreadIds) ? body.targetThreadIds : []).map((v) => String(v ?? '').trim()).filter((v) => v.length > 0)));
+    if (!uid || !messageId || !targetThreadIds.length) throw new BadRequestException('Missing required fields');
 
     const source = await this.prisma.classroomMessage.findFirst({
-      where: {
-        id: messageId,
-        courseId: String(id),
-      },
-      select: {
-        id: true,
-        kind: true,
-        text: true,
-        mediaUrl: true,
-        mediaMime: true,
-        durationSec: true,
-      },
+      where: { id: messageId, classroomId: id },
+      select: { id: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true },
     });
+    if (!source) throw new BadRequestException('Message not found');
 
-    if (!source) {
-      throw new BadRequestException('Classroom message not found');
-    }
-
-    for (const targetThreadId of targetThreadIds) {
-      const sourceKind = String(source.kind ?? 'TEXT').trim().toUpperCase();
+    for (const targetId of targetThreadIds) {
+      const sourceKind = String(source.kind ?? 'TEXT').toUpperCase();
       const sourceText = String(source.text ?? '').trim();
-      const sourceMediaMime = String(source.mediaMime ?? '').trim();
-      const sourceDuration =
-        Number.isFinite(Number(source.durationSec ?? 0)) &&
-        Number(source.durationSec ?? 0) > 0
-          ? Number(source.durationSec)
-          : 0;
-      const forwardedText =
-        sourceKind === 'VOICE'
-          ? (() => {
-              const tagged = /\[duration:\d+\]/i.test(sourceText);
-              if (tagged) return sourceText;
-              if (sourceText) return `${sourceText} [duration:${sourceDuration}]`;
-              return sourceDuration > 0
-                ? `[VOICE] Voice message [duration:${sourceDuration}]`
-                : '[VOICE] Voice message';
-            })()
-          : sourceText || null;
+      const sourceDuration = Number.isFinite(Number(source.durationSec)) && Number(source.durationSec) > 0 ? Number(source.durationSec) : 0;
+      const forwardedText = sourceKind === 'VOICE' ? (sourceText || `[VOICE] Voice message [duration:${sourceDuration}]`) : (sourceText || null);
 
-      // Try DM participant first
-      const participant = await this.prisma.dmParticipant.findUnique({
-        where: { threadId_userId: { threadId: targetThreadId, userId: uid } },
-      });
-
-      if (participant) {
-        if (String(participant.state) !== 'ACCEPTED') {
-          throw new BadRequestException('Cannot forward into a non-approved thread');
-        }
-        await this.prisma.dmMessage.create({
-          data: {
-            threadId: targetThreadId,
-            senderId: uid,
-            kind: sourceKind as any,
-            text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',
-            mediaUrl: source.mediaUrl ?? null,
-            mediaMimeType: sourceMediaMime || null,
-            forwardedFromId: null, // source is ClassroomMessage; DmMessage FK can only ref DmMessage
-          },
-        });
-        await this.prisma.dmParticipant.update({
-          where: { threadId_userId: { threadId: targetThreadId, userId: uid } },
-          data: { lastSeenAt: new Date() },
-        });
+      const dmParticipant = await this.prisma.dmParticipant.findUnique({ where: { threadId_userId: { threadId: targetId, userId: uid } } });
+      if (dmParticipant) {
+        if (String(dmParticipant.state) !== 'ACCEPTED') continue;
+        await this.prisma.dmMessage.create({ data: { threadId: targetId, senderId: uid, kind: sourceKind as any, text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded', mediaUrl: source.mediaUrl ?? null, mediaMimeType: String(source.mediaMime ?? '') || null, forwardedFromId: null } });
       } else {
-        // Try classroom target
-        const targetCourse = await this.prisma.course.findFirst({
-          where: { id: targetThreadId, cohortId },
-          select: { id: true },
-        });
-        if (!targetCourse) {
-          throw new BadRequestException('Invalid target thread');
-        }
-        await this.prisma.classroomMessage.create({
-          data: {
-            courseId: targetThreadId,
-            senderUserId: uid,
-            kind: sourceKind as any,
-            text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',
-            mediaUrl: source.mediaUrl ?? null,
-            mediaMime: sourceMediaMime || null,
-            durationSec: sourceDuration > 0 ? sourceDuration : null,
-          },
-        });
+        const targetCr = await this.prisma.classroom.findUnique({ where: { id: targetId }, select: { id: true } });
+        if (!targetCr) continue;
+        await this.prisma.classroomMessage.create({ data: { classroomId: targetId, senderUserId: uid, kind: sourceKind as any, text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded', mediaUrl: source.mediaUrl ?? null, mediaMime: String(source.mediaMime ?? '') || null, durationSec: sourceDuration > 0 ? sourceDuration : null } });
       }
     }
-
     return { ok: true, forwardedCount: targetThreadIds.length };
   }
 
   @Post(':id/chat/media')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          ensureClassroomUploadsDir();
-          cb(null, 'uploads/classrooms');
-        },
-        filename: (_req, file, cb) => {
-          const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          const base = safeClassroomName(file?.originalname || 'upload');
-          const ext = extname(base);
-          const stem = ext ? base.slice(0, -ext.length) : base;
-          cb(null, `${stem}-${stamp}${ext}`);
-        },
-      }),
-      limits: { fileSize: 40 * 1024 * 1024 },
-    }),
-  )
-  async chatSendMedia(
-    @Req() req: any,
-    @Param('id') id: string,
-    @UploadedFile() file: any,
-    @Body()
-    body: {
-      kind?: 'VOICE' | 'IMAGE' | 'VIDEO' | 'FILE';
-      mediaUrl?: string;
-      mediaMime?: string;
-      durationSec?: number;
-      text?: string;
-      originalName?: string;
-    },
-  ) {
-    await this.assertCourseReadAccess(req, String(id));
-
-    const uid = String(req?.user?.sub ?? req?.user?.id ?? '').trim();
-
-    const rawKind = String(body?.kind ?? '').trim().toUpperCase();
+  @UseInterceptors(FileInterceptor('file', { storage: diskStorage({ destination: (_req, _file, cb) => { ensureClassroomUploadsDir(); cb(null, 'uploads/classrooms'); }, filename: (_req, file, cb) => { const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`; const base = safeClassroomName(file?.originalname || 'upload'); const ext = extname(base); const stem = ext ? base.slice(0, -ext.length) : base; cb(null, `${stem}-${stamp}${ext}`); } }), limits: { fileSize: 40 * 1024 * 1024 } }))
+  async chatSendMedia(@Req() req: any, @Param('id') id: string, @UploadedFile() file: any, @Body() body: { kind?: string; mediaUrl?: string; mediaMime?: string; durationSec?: number; text?: string; originalName?: string }) {
+    await this.assertAccess(req, id);
+    const uid = this.uid(req);
     const inferredMime = String(body?.mediaMime ?? file?.mimetype ?? '').trim();
-
-    let kind = rawKind;
-    if (!kind) {
-      const mime = inferredMime.toLowerCase();
-      if (mime.startsWith('image/')) kind = 'IMAGE';
-      else if (mime.startsWith('audio/')) kind = 'VOICE';
-      else if (mime.startsWith('video/')) kind = 'VIDEO';
-      else kind = 'FILE';
-    }
-
-    
-    if (!['VOICE', 'IMAGE', 'VIDEO', 'FILE'].includes(kind)) {
-      throw new BadRequestException('Invalid kind');
-    }
-
-    const mediaUrl = String(
-      body?.mediaUrl ??
-        (file?.filename ? `/uploads/classrooms/${file.filename}` : ''),
-    ).trim();
-
-    if (!mediaUrl) {
-      throw new BadRequestException('Missing mediaUrl');
-    }
-
-    const mime = inferredMime;
-    const originalName = String(
-      body?.originalName ?? file?.originalname ?? file?.filename ?? '',
-    ).trim();
-
+    let kind = String(body?.kind ?? '').trim().toUpperCase();
+    if (!kind) { const mime = inferredMime.toLowerCase(); kind = mime.startsWith('image/') ? 'IMAGE' : mime.startsWith('audio/') ? 'VOICE' : mime.startsWith('video/') ? 'VIDEO' : 'FILE'; }
+    if (!['VOICE', 'IMAGE', 'VIDEO', 'FILE'].includes(kind)) throw new BadRequestException('Invalid kind');
+    const mediaUrl = String(body?.mediaUrl ?? (file?.filename ? `/uploads/classrooms/${file.filename}` : '')).trim();
+    if (!mediaUrl) throw new BadRequestException('Missing mediaUrl');
+    const originalName = String(body?.originalName ?? file?.originalname ?? file?.filename ?? '').trim();
     const rawText = String(body?.text ?? '').trim();
-    const fallbackText =
-      rawText.length > 0
-        ? rawText
-        : kind === 'IMAGE'
-          ? `[IMAGE] ${originalName || 'image'}`
-          : kind === 'VOICE'
-            ? `[VOICE] ${originalName || 'voice'}`
-            : kind === 'VIDEO'
-              ? `[VIDEO] ${originalName || 'video'}`
-              : `[FILE] ${originalName || 'file'}`;
-
+    const fallbackText = rawText || (kind === 'IMAGE' ? `[IMAGE] ${originalName || 'image'}` : kind === 'VOICE' ? `[VOICE] ${originalName || 'voice'}` : `[FILE] ${originalName || 'file'}`);
     const durationNum = Number(body?.durationSec ?? 0);
-
-    // DB may still use DOC instead of FILE for classroom messages.
     const persistedKind = kind === 'FILE' ? 'DOC' : kind;
-
     const msg = await this.prisma.classroomMessage.create({
-      data: {
-        courseId: String(id),
-        senderUserId: uid,
-        kind: persistedKind as any,
-        text: fallbackText,
-        mediaUrl,
-        mediaMime: mime || null,
-        durationSec:
-          Number.isFinite(durationNum) && durationNum > 0 ? durationNum : null,
-      },
-      select: {
-        id: true,
-        courseId: true,
-        senderUserId: true,
-        kind: true,
-        text: true,
-        mediaUrl: true,
-        mediaMime: true,
-        durationSec: true,
-        createdAt: true,
-      },
+      data: { classroomId: id, senderUserId: uid, kind: persistedKind as any, text: fallbackText, mediaUrl, mediaMime: inferredMime || null, durationSec: Number.isFinite(durationNum) && durationNum > 0 ? durationNum : null },
+      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
     });
-
+    this._emitClassroomMessage(id, uid);
     return { ok: true, item: msg };
   }
 
-  // --- Assignments tab ---
   @Get(':id/assignments')
   async assignments(@Req() req: any, @Param('id') id: string) {
-    await this.assertCourseReadAccess(req, String(id));
-
+    await this.assertAccess(req, id);
     const items = await this.prisma.classroomAssignment.findMany({
-      where: { courseId: String(id) },
-      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }, { id: 'desc' }],
-      select: {
-        id: true,
-        title: true,
-        body: true,
-        dueAt: true,
-        createdBy: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      where: { classroomId: id },
+      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+      select: { id: true, title: true, body: true, dueAt: true, createdBy: true, createdAt: true, updatedAt: true },
     });
-
     return { ok: true, items };
   }
 
-  // --- Assignment submission ---
-  @Post(':courseId/assignments/:assignmentId/submit')
-  async submitAssignment(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('assignmentId') assignmentId: string,
-    @Body() body: any,
-  ) {
-    await this.assertCourseReadAccess(req, String(courseId));
-    const studentId = String(req.user?.sub ?? req.user?.id ?? '');
+  @Post(':id/assignments/:assignmentId/submit')
+  async submitAssignment(@Req() req: any, @Param('id') id: string, @Param('assignmentId') assignmentId: string, @Body() body: any) {
+    await this.assertAccess(req, id);
+    const studentId = this.uid(req);
     if (!studentId) throw new BadRequestException('Missing student identity');
-
     const note = body?.note ? String(body.note).trim().slice(0, 4000) : null;
-
-    const isFirstSubmission = !(await this.prisma.assignmentSubmission.findUnique({
-      where: { assignmentId_studentId: { assignmentId: String(assignmentId), studentId } },
-      select: { id: true },
-    }).catch(() => null));
-
     const submission = await this.prisma.assignmentSubmission.upsert({
-      where: { assignmentId_studentId: { assignmentId: String(assignmentId), studentId } },
+      where: { assignmentId_studentId: { assignmentId, studentId } },
       update: { note, updatedAt: new Date() },
-      create: { assignmentId: String(assignmentId), studentId, note },
+      create: { assignmentId, studentId, note },
       select: { id: true, assignmentId: true, studentId: true, submittedAt: true, note: true },
     });
-
-    // Notify the teacher when a student submits for the first time
-    if (isFirstSubmission) {
-      try {
-        const [assignment, student] = await Promise.all([
-          this.prisma.classroomAssignment.findUnique({
-            where: { id: String(assignmentId) },
-            select: { title: true, course: { select: { teacherId: true, name: true } } },
-          }),
-          this.prisma.user.findUnique({ where: { id: studentId }, select: { name: true, displayName: true } }),
-        ]);
-        const teacherId = assignment?.course?.teacherId;
-        if (teacherId) {
-          const studentName = student?.displayName ?? student?.name ?? 'A student';
-          await this.prisma.notification.create({
-            data: {
-              userId: teacherId,
-              type: 'ASSIGNMENT_SUBMITTED',
-              title: `${studentName} submitted "${assignment!.title}"`,
-              body: assignment?.course?.name ?? '',
-              data: { assignmentId, courseId, studentId } as any,
-              severity: 'info',
-            },
-          });
-        }
-      } catch {}
-    }
-
     return { ok: true, submission };
   }
 
-  // --- Materials tab ---
   @Get(':id/materials')
   async materials(@Req() req: any, @Param('id') id: string) {
-    await this.assertCourseReadAccess(req, String(id));
-
+    await this.assertAccess(req, id);
     const items = await this.prisma.classroomMaterial.findMany({
-      where: { courseId: String(id) },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        url: true,
-        mime: true,
-        createdBy: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      where: { classroomId: id },
+      orderBy: [{ createdAt: 'desc' }],
+      select: { id: true, title: true, description: true, url: true, mime: true, createdBy: true, createdAt: true, updatedAt: true },
     });
-
     return { ok: true, items };
   }
 
-  // --- Meetings tab ---
   @Get(':id/meetings')
   async meetings(@Req() req: any, @Param('id') id: string) {
-    await this.assertCourseReadAccess(req, String(id));
-
+    await this.assertAccess(req, id);
     const items = await this.prisma.classroomMeeting.findMany({
-      where: { courseId: String(id) },
-      orderBy: [{ startsAt: 'asc' }, { id: 'asc' }],
-      select: {
-        id: true,
-        title: true,
-        link: true,
-        startsAt: true,
-        endsAt: true,
-        createdBy: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      where: { classroomId: id },
+      orderBy: [{ startsAt: 'asc' }],
+      select: { id: true, title: true, link: true, startsAt: true, endsAt: true, createdBy: true, createdAt: true, updatedAt: true },
     });
-
     return { ok: true, items };
   }
 
-  // Back-compat routes you already called earlier:
   @Get(':id/announcements')
   async announcements(@Req() req: any, @Param('id') id: string) {
-    await this.assertCourseReadAccess(req, String(id));
+    await this.assertAccess(req, id);
     return { ok: true, items: [] };
   }
 
-  // ── Join classroom by code ────────────────────────────────────────────────
-
-  @Post('join')
-  async joinByCode(@Req() req: any, @Body() body: { code?: string }) {
-    const studentId = String(req?.user?.sub ?? req?.user?.id ?? '');
-    if (!studentId) throw new BadRequestException('Missing student identity');
-    const code = String(body?.code ?? '').trim();
-    if (!code) throw new BadRequestException('code is required');
-
-    // Find all active, non-expired join codes and check bcrypt match
-    const activeCodes = await this.prisma.cohortJoinCode.findMany({
-      where: {
-        active: true,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-      },
-      select: { id: true, cohortId: true, codeHash: true },
-    });
-
-    let matchedCohortId: string | null = null;
-    for (const candidate of activeCodes) {
-      const ok = await bcrypt.compare(code, candidate.codeHash);
-      if (ok) { matchedCohortId = candidate.cohortId; break; }
-    }
-
-    if (!matchedCohortId) throw new NotFoundException('Invalid or expired code');
-
-    // Ensure the student has a profile
-    const sp = await this.prisma.studentProfile.findUnique({ where: { userId: studentId }, select: { cohortId: true } });
-    if (!sp) throw new BadRequestException('Student profile not found');
-
-    // Prevent rejoining a cohort the student is already fully in
-    if (sp.cohortId === matchedCohortId) {
-      const cohort = await this.prisma.cohort.findUnique({ where: { id: matchedCohortId }, select: { id: true, name: true, grade: true } });
-      return { ok: true, cohort, courses: [], message: 'Already a member of this cohort' };
-    }
-
-    // Get all courses for this cohort
-    const courses = await this.prisma.course.findMany({
-      where: { cohortId: matchedCohortId },
-      select: { id: true, name: true, subject: true },
-    });
-
-    // Enroll student in all cohort courses (upsert to avoid duplicates)
-    for (const course of courses) {
-      await this.prisma.enrollment.upsert({
-        where: { courseId_studentId: { courseId: course.id, studentId } },
-        update: {},
-        create: { courseId: course.id, studentId, source: 'MANUAL' as any },
-      });
-    }
-
-    // Update studentProfile.cohortId if not already set (or if joining a new cohort)
-    if (!sp.cohortId) {
-      await this.prisma.studentProfile.update({ where: { userId: studentId }, data: { cohortId: matchedCohortId } });
-    }
-
-    const cohort = await this.prisma.cohort.findUnique({ where: { id: matchedCohortId }, select: { id: true, name: true, grade: true } });
-    return { ok: true, cohort, courses };
-  }
-
-  // ── Leave classroom (server-side) ─────────────────────────────────────────
-
   @Post(':id/leave')
   async leaveClassroom(@Req() req: any, @Param('id') id: string) {
-    const studentId = String(req?.user?.sub ?? req?.user?.id ?? '');
+    const studentId = this.uid(req);
     if (!studentId) throw new BadRequestException('Missing student identity');
-
-    const enrollment = await this.prisma.enrollment.findUnique({
-      where: { courseId_studentId: { courseId: String(id), studentId } },
-      select: { id: true },
-    });
-    if (!enrollment) throw new NotFoundException('Not enrolled in this course');
-
-    await this.prisma.enrollment.delete({ where: { courseId_studentId: { courseId: String(id), studentId } } });
+    await this.prisma.classroomMember.deleteMany({ where: { classroomId: id, studentId } });
     return { ok: true };
   }
 }

@@ -15,11 +15,46 @@ class CMApiException implements Exception {
   final Uri uri;
   final String body;
 
-  @override
-  String toString() {
+  // Technical details for logging/debugging.
+  String get debugString {
     final payload = body.trim().isEmpty ? 'empty body' : body;
     return 'HTTP $statusCode ${uri.toString()} :: $payload';
   }
+
+  // User-facing message: parses the backend JSON body first, then falls back
+  // to status-code descriptions.
+  String get friendlyMessage {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map) {
+        final msg = decoded['message'];
+        if (msg is String && msg.isNotEmpty && !_isTechnical(msg)) return msg;
+      }
+    } catch (_) {}
+    return switch (statusCode) {
+      400 => 'Invalid request. Please check your input.',
+      401 => 'Your session has expired. Please sign in again.',
+      403 => 'You don\'t have permission to do this.',
+      404 => 'The item you\'re looking for could not be found.',
+      409 => 'A conflict occurred. This item may already exist.',
+      429 => 'You\'re making requests too quickly. Please wait a moment.',
+      _ when statusCode >= 500 => 'Something went wrong on our end. Please try again.',
+      _ => 'An error occurred. Please try again.',
+    };
+  }
+
+  static bool _isTechnical(String msg) {
+    final lower = msg.toLowerCase();
+    return lower == 'unauthorized' ||
+        lower == 'forbidden' ||
+        lower == 'invalid token' ||
+        lower == 'bad request' ||
+        lower.contains('internal server error') ||
+        lower.contains('prisma');
+  }
+
+  @override
+  String toString() => friendlyMessage;
 }
 
 class CMApi {
@@ -30,8 +65,10 @@ class CMApi {
   final String? token;
   final http.Client _client;
 
+  String get primaryBaseUrl => Env.apiBaseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+
   List<String> get _baseCandidates {
-    final primary = Env.apiBaseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    final primary = primaryBaseUrl;
     final withApi = Env.ensureApiSuffix(primary);
     final withoutApi = Env.stripApiSuffix(primary).replaceAll(RegExp(r'/+$'), '');
 

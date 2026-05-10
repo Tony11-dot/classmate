@@ -22,7 +22,6 @@ function firstHeader(h: any, k1: string, k2: string): string | undefined {
 }
 
 const DEV_COHORT_NAME = 'Dev Cohort';
-const DEV_COURSE_ID = 'dev-course-core';
 
 type DevProvisionedStudent = {
   cohortId: string;
@@ -66,55 +65,6 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       },
     });
 
-    const course = await this.prisma.course.upsert({
-      where: { id: DEV_COURSE_ID },
-      update: {
-        name: 'Dev Core Classroom',
-        subject: 'General Studies',
-        cohortId: cohort.id,
-      },
-      create: {
-        id: DEV_COURSE_ID,
-        name: 'Dev Core Classroom',
-        subject: 'General Studies',
-        cohortId: cohort.id,
-      },
-      select: { id: true },
-    });
-
-    await this.prisma.enrollment.upsert({
-      where: {
-        courseId_studentId: {
-          courseId: course.id,
-          studentId: userId,
-        },
-      },
-      update: {},
-      create: {
-        courseId: course.id,
-        studentId: userId,
-      },
-    });
-
-
-    await this.prisma.scheduleSlot.upsert({
-      where: {
-        cohortId_dayOfWeek_period: {
-          cohortId: cohort.id,
-          dayOfWeek: 1,
-          period: 1,
-        },
-      },
-      update: {
-        courseId: course.id,
-      },
-      create: {
-        cohortId: cohort.id,
-        dayOfWeek: 1,
-        period: 1,
-        courseId: course.id,
-      },
-    });
     return { cohortId: cohort.id };
   }
 
@@ -136,7 +86,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       try {
         const existing = await this.prisma.user.findUnique({
           where: { email },
-          select: { id: true, email: true, name: true, displayName: true },
+          select: { id: true, email: true, name: true, displayName: true, schoolId: true, roles: { select: { role: true } } },
         }) as any;
 
         let userId = existing?.id;
@@ -167,21 +117,17 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
             email.split('@')[0];
         }
 
-        await this.prisma.userRole.upsert({
-          where: {
-            userId_role: {
-              userId,
-              role: inferredRoles[0],
-            },
-          },
-          update: {},
-          create: {
-            userId,
-            role: inferredRoles[0],
-          },
-        });
+        // Use DB roles if the user already exists, otherwise fall back to email inference
+        const dbRoles: Role[] = existing?.roles?.map((r: any) => r.role) ?? [];
+        const activeRoles = dbRoles.length > 0 ? dbRoles : inferredRoles;
 
-        if (inferredRoles.includes(Role.STUDENT)) {
+        await this.prisma.userRole.upsert({
+          where: { userId_role: { userId, role: activeRoles[0] } },
+          update: {},
+          create: { userId, role: activeRoles[0] },
+        }).catch((e) => { if (e?.code !== 'P2002') throw e; });
+
+        if (activeRoles.includes(Role.STUDENT)) {
           const provisioned = await this.ensureDevStudentProfile(userId);
           cohortId = provisioned.cohortId;
         }
@@ -193,8 +139,8 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           id: userId,
           userId: userId,
           email: userEmail,
-          roles: inferredRoles,
-          role: inferredRoles[0],
+          roles: activeRoles,
+          role: activeRoles[0],
           name: userName,
           displayName: userName,
           fullName: userName,

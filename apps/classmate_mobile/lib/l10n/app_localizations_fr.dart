@@ -21,10 +21,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sectionAccount => 'Compte';
 
   @override
-  String get navSchedule => 'Emploi du temps';
+  String get navSchedule => 'Agenda';
 
   @override
-  String get navClassrooms => 'Salles de classe';
+  String get navClassrooms => 'Classes';
 
   @override
   String get navPractice => 'Entraînement';
@@ -99,7 +99,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get roleParent => 'Parent';
 
   @override
-  String get titleSchedule => 'Emploi du temps';
+  String get titleSchedule => 'Agenda';
 
   @override
   String get titleClasses => 'Classes';
@@ -177,7 +177,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get solutionsPagesFilterHint =>
-      'Entrez un numéro de page et de question pour filtrer, ou laissez vide pour voir tous.';
+      'Saisissez un numéro de page et de question pour filtrer, ou laissez vide pour tout afficher.';
 
   @override
   String get solutionsPageNumberLabel => 'Numéro de page';
@@ -511,7 +511,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherAttendanceNoteLabel => 'Remarque';
 
   @override
+  String get teacherAttendanceClassNotesLabel => 'Notes de cours';
+
+  @override
+  String get teacherAttendanceClassNotesHint =>
+      'Ce qui a été couvert dans cette session…';
+
+  @override
   String get teacherAttendanceSaving => 'Enregistrement…';
+
+  @override
+  String get teacherAttendanceSaveAll => 'Enregistrer la présence';
 
   @override
   String teacherAttendanceSaveCount(int count) {
@@ -535,8 +545,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'emploi du temps se rafraîchit trop vite en ce moment. Attendez un instant puis réessayez.';
 
   @override
+  String get scheduleSessionExpired =>
+      'Votre session a expiré. Veuillez vous reconnecter.';
+
+  @override
   String get scheduleNotOnboarded =>
-      'Votre profil élève n\'est pas encore entièrement configuré, donc aucun emploi du temps n\'est disponible pour le moment.';
+      'Votre profil élève n\'est pas encore configuré. Demandez à l\'administrateur de votre école de vous affecter à une classe.';
 
   @override
   String get scheduleLoadError =>
@@ -575,7 +589,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scheduleClassFallback => 'Cours';
 
   @override
-  String get scheduleNoSubjectLocation => 'Pas encore de matière ni de lieu';
+  String get scheduleNoSubjectLocation => 'No subject or location yet';
+
+  @override
+  String get scheduleNotes => 'Notes';
+
+  @override
+  String get scheduleGoToClassroom => 'Go to Classroom';
 
   @override
   String get loginTitle => 'Connexion mobile pour élèves et enseignants';
@@ -694,16 +714,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editProfileSchool => 'École';
 
   @override
-  String get editProfileSchoolPublic => 'École publique';
+  String get editProfileSchoolPublic => 'École visible';
 
   @override
-  String get editProfileGradePublic => 'Niveau public';
+  String get editProfileGradePublic => 'Niveau visible';
 
   @override
   String get editProfileMajors => 'Spécialités';
 
   @override
-  String get editProfileMajorsPublic => 'Spécialités publiques';
+  String get editProfileMajorsPublic => 'Spécialités visibles';
 
   @override
   String get editProfileBio => 'Bio';
@@ -1033,7 +1053,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatComposerReplyingToMessage => 'Réponse à un message';
 
   @override
-  String get chatComposerReplyFallback => 'Réponse';
+  String get chatComposerReplyFallback => 'Répondre';
 
   @override
   String get chatComposerMicHint =>
@@ -2006,7 +2026,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Toutes les réunions de classe dans une vue épurée, avec des liens joints et une page de détails en plein écran quand vous avez besoin du contexte.';
 
   @override
-  String get meetingsJoinReadyMetric => 'Prêt à rejoindre';
+  String get meetingsJoinReadyMetric => 'Rejoindre';
 
   @override
   String get meetingsNoLinkMetric => 'Sans lien';
@@ -3663,6 +3683,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get assignmentsRemoveAttachment => 'Supprimer la pièce jointe';
 
   @override
+  String get assignmentsSubmitted => 'Rendu';
+
+  @override
   String get attendanceUndated => 'Sans date';
 
   @override
@@ -3890,7 +3913,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradesGeneralSubject => 'Général';
 
   @override
-  String get gradesBandBuilding => 'En cours de construction';
+  String get gradesBandBuilding => 'En construction';
 
   @override
   String get gradesBandExcellent => 'Excellent';
@@ -3902,7 +3925,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradesBandOkay => 'Correct';
 
   @override
-  String get gradesBandNeedsAttention => 'Demande de l\'attention';
+  String get gradesBandNeedsAttention => 'À surveiller';
 
   @override
   String get gradesBandRisk => 'À risque';
@@ -4315,6 +4338,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherStudentsLabel => 'Élèves';
 
   @override
+  String get teacherSearchStudents => 'Rechercher par nom ou classe…';
+
+  @override
+  String get teacherNoStudentsLoaded => 'Aucun élève trouvé dans cette école.';
+
+  @override
+  String get teacherActions => 'ACTIONS RAPIDES';
+
+  @override
   String get teacherParentsLabel => 'Parents';
 
   @override
@@ -4327,7 +4359,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'Impossible de charger le planning';
 
   @override
-  String get teacherAttendanceLast30 => 'Présences (30 derniers jours)';
+  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+
+  @override
+  String teacherAttendanceFrom(Object date) {
+    return 'From $date';
+  }
+
+  @override
+  String get teacherAttendanceChangeDate => 'Change date';
+
+  @override
+  String get teacherAttendanceNoSessions =>
+      'No saved attendance sessions.\nMark attendance from the schedule.';
 
   @override
   String get teacherRecentGrades => 'Notes récentes';
@@ -4671,13 +4715,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Rechercher des élèves…';
 
   @override
-  String get navDiplomas => 'Diplômes';
+  String get navDiplomas => 'Certificats';
 
   @override
   String get diplomasComingSoon => 'La gestion des diplômes arrive bientôt.';
 
   @override
-  String get teacherExamsTitle => 'Examens et évaluations';
+  String get teacherExamsTitle => 'Examens';
 
   @override
   String get teacherExamsUpcoming => 'À venir';
@@ -4728,7 +4772,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherFormsNoResponses => 'Aucune réponse pour l\'instant.';
 
   @override
-  String get diplomasTitle => 'Diplômes et certificats';
+  String get diplomasTitle => 'Certificats';
 
   @override
   String get diplomasEmpty =>
@@ -4793,4 +4837,49 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'Ouvrir les notes';
+
+  @override
+  String get teacherGradesSaveAction => 'Enregistrer';
+
+  @override
+  String get teacherGradesNothingToSave => 'Aucune modification à enregistrer.';
+
+  @override
+  String get teacherRetry => 'Réessayer';
+
+  @override
+  String get teacherExamGradesStudents => 'élèves';
+
+  @override
+  String get teacherExamGradesGraded => 'notés';
+
+  @override
+  String get teacherExamGradesNoStudents =>
+      'Aucun élève ciblé.\nModifiez l\'examen pour ajouter un public.';
+
+  @override
+  String get teacherExamGradesEnterGrades => 'Saisir les notes';
+
+  @override
+  String get teacherDeleteExamTitle => 'Supprimer l\'examen ?';
+
+  @override
+  String get teacherDeleteExamBody =>
+      'Cet examen sera définitivement supprimé.';
+
+  @override
+  String get teacherMeetingsEmpty =>
+      'Aucune réunion pour l\'instant.\nAppuyez sur + pour en planifier une.';
+
+  @override
+  String get teacherStudentsNoMatch => 'Aucun élève ne correspond';
+
+  @override
+  String get teacherMaterialsTitle => 'Matériaux';
+
+  @override
+  String get profileNamesTitle => 'Nom en langues';
+
+  @override
+  String get profileDisplayNameLang => 'Langue d\'affichage';
 }

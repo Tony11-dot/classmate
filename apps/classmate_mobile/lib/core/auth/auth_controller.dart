@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'auth_session.dart';
-
-final authSessionProvider = Provider<AuthSession>((ref) {
-  final session = AuthSession();
-  ref.onDispose(session.dispose);
-  return session;
-});
+export 'auth_session.dart' show authSessionProvider, AuthSession;
 
 final authControllerProvider = Provider<AuthController>(
   (ref) => AuthController(ref),
@@ -19,5 +15,6 @@ class AuthController {
 
   Future<void> logout(BuildContext context) async {
     await ref.read(authSessionProvider).logout();
+    if (context.mounted) context.go('/login');
   }
 }

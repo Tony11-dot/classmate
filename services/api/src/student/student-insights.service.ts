@@ -34,8 +34,7 @@ export class StudentInsightsService {
   private summarizeGrades(rows: any[]): StudentInsightsGradesSummary {
     const latest: StudentInsightsGradeItem[] = rows.slice(0, 6).map((r) => ({
       id: String(r.id),
-      subject: String(r.assessment?.course?.subject ?? ''),
-      courseName: String(r.assessment?.course?.name ?? ''),
+      subject: String(r.assessment?.subject ?? ''),
       assessmentTitle: String(r.assessment?.title ?? ''),
       grade: Number(r.grade ?? 0),
       date: this.ymd(r.assessment?.date),
@@ -47,7 +46,7 @@ export class StudentInsightsService {
 
     const bySubject = new Map<string, number[]>();
     for (const row of rows) {
-      const subject = String(row.assessment?.course?.subject ?? '').trim();
+      const subject = String(row.assessment?.subject ?? '').trim();
       const grade = Number(row.grade ?? 0);
       if (!subject || !Number.isFinite(grade)) continue;
       const bucket = bySubject.get(subject) ?? [];
@@ -132,8 +131,7 @@ export class StudentInsightsService {
       date: this.ymd(r.session?.date) ?? '',
       period: Number(r.session?.period ?? 0),
       status: String(r.status ?? ''),
-      subject: r.session?.course?.subject ? String(r.session.course.subject) : null,
-      courseName: r.session?.course?.name ? String(r.session.course.name) : null,
+      subject: null,
     }));
 
     const total = rows.length;
@@ -208,13 +206,7 @@ export class StudentInsightsService {
       this.prisma.gradeRecord.findMany({
         where: { studentId },
         orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-        include: {
-          assessment: {
-            include: {
-              course: true,
-            },
-          },
-        },
+        include: { assessment: true },
       }),
       this.prisma.attendanceRecord.findMany({
         where: { studentId },
@@ -222,7 +214,7 @@ export class StudentInsightsService {
         include: {
           session: {
             include: {
-              course: true,
+              
             },
           },
         },

@@ -114,13 +114,33 @@ class LocalNotificationsService {
       ),
     );
 
+    // Payload encodes both source and id so we can deep-link on tap.
     await _plugin.show(
       id: _stableId(item.id),
       title: item.title,
       body: item.body,
       notificationDetails: details,
-      payload: item.id,
+      payload: '${item.source}|${item.id}',
     );
+  }
+
+  /// Parses 'source|id' payload. Returns the in-app route for deep-linking.
+  static String routeFromPayload(String payload) {
+    final parts = payload.trim().split('|');
+    final source = parts.isNotEmpty ? parts.first.trim() : '';
+    return switch (source.toLowerCase()) {
+      'grades' => '/grades',
+      'attendance' => '/attendance',
+      'practice' => '/practice',
+      'solutions' => '/solutions',
+      'messages' || 'chat' => '/messages',
+      'classrooms' || 'classroom' => '/classrooms',
+      'assignments' || 'assignment' => '/assignments',
+      'meetings' || 'meeting' => '/meetings',
+      'announcements' || 'announcement' => '/announcements',
+      'nova' || 'tutor' => '/tutor',
+      _ => '/notifications',
+    };
   }
 
   void _handleNotificationResponse(NotificationResponse response) {

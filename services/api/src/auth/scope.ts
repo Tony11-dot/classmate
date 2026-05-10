@@ -27,26 +27,13 @@ export async function parentAllowedChildIds(
   return rows.map((r) => r.childId);
 }
 
-export async function teacherAllowedCourseIds(
-  prisma: PrismaClient,
-  teacherUserId: string,
-) {
-  const courses = await prisma.course.findMany({
-    where: { teacherId: teacherUserId },
-    select: { id: true },
-  });
-  return courses.map((c) => c.id);
-}
-
 export async function teacherAllowedCohortIds(
   prisma: PrismaClient,
   teacherUserId: string,
-) {
-  const cohorts = await prisma.course.findMany({
-    where: { teacherId: teacherUserId },
+): Promise<string[]> {
+  const slotCohorts = await prisma.scheduleSlotCohort.findMany({
+    where: { slot: { teacherId: teacherUserId } },
     select: { cohortId: true },
   });
-  return Array.from(
-    new Set(cohorts.map((c) => c.cohortId).filter(Boolean)),
-  ) as string[];
+  return Array.from(new Set(slotCohorts.map((sc) => sc.cohortId)));
 }

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createTestApp } from './helpers/app';
 import { loginAsTeacher } from './helpers/auth';
-import { seedTeacherWithCourse } from './helpers/seed';
+import { seedTeacherWithCohort } from './helpers/seed';
 
 
 describe('grades: maxGrade enforcement', () => {
@@ -21,9 +21,8 @@ describe('grades: maxGrade enforcement', () => {
 it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
     const token = await loginAsTeacher(http);
 
-    const seeded = await seedTeacherWithCourse('teacher1@classmate.app');
+    const seeded = await seedTeacherWithCohort('teacher1@classmate.app');
 
-    const courseId = seeded.courseId;
     const cohortId = seeded.cohortId;
 
     // create assessment with maxGrade 120
@@ -31,7 +30,7 @@ it('allows grade <= maxGrade and rejects grade > maxGrade', async () => {
       .post('/api/teacher/grades/assessment')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        courseId: courseId,
+        cohortId,
         title: `E2E MaxGrade ${Date.now()}`,
         maxGrade: 120,
       })

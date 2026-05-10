@@ -9,6 +9,7 @@ import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../utils/chat_reply_codec.dart';
 import 'chat_audio_bubble.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({
@@ -161,7 +162,7 @@ class ChatMessageBubble extends StatelessWidget {
         errorBuilder: (ctx, err, _) => Container(
           height: previewMode ? 132 : 180,
           alignment: Alignment.center,
-          color: Colors.white.withValues(alpha: 0.06),
+          color: Colors.white,
           child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
         ),
       );
@@ -173,7 +174,7 @@ class ChatMessageBubble extends StatelessWidget {
       placeholder: (ctx, url) => Container(
         height: previewMode ? 132 : 180,
         alignment: Alignment.center,
-        color: Colors.white.withValues(alpha: 0.06),
+        color: Colors.white,
         child: const SizedBox(
           width: 24,
           height: 24,
@@ -183,7 +184,7 @@ class ChatMessageBubble extends StatelessWidget {
       errorWidget: (ctx, url, err) => Container(
         height: previewMode ? 132 : 180,
         alignment: Alignment.center,
-        color: Colors.white.withValues(alpha: 0.06),
+        color: Colors.white,
         child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
       ),
     );
@@ -270,8 +271,8 @@ class ChatMessageBubble extends StatelessWidget {
 
   Widget _buildChecks(BuildContext context) {
     final seenColor = const Color(0xFF53BDEB);
-    final pendingColor = Colors.white.withValues(alpha: 0.44);
-    final deliveredColor = Colors.white.withValues(alpha: 0.64);
+    final pendingColor = Colors.white;
+    final deliveredColor = Colors.white;
 
     if (seen) {
       return SizedBox(
@@ -471,7 +472,7 @@ class ChatMessageBubble extends StatelessWidget {
             Text(
               'edited',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.55),
+                color: Colors.white,
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
               ),
@@ -480,7 +481,7 @@ class ChatMessageBubble extends StatelessWidget {
           Text(
             timeLabel,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.62),
+              color: Colors.white,
               fontSize: 11,
             ),
           ),
@@ -507,13 +508,13 @@ class ChatMessageBubble extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: isMineReaction
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.18)
-                        : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.50),
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: isMineReaction
-                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.22)
-                          : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.16),
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outlineVariant,
                     ),
                   ),
                   child: Row(
@@ -536,9 +537,9 @@ class ChatMessageBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                border: Border.all(color: Colors.white),
               ),
               child: Text(reaction!.trim(), style: const TextStyle(fontSize: 12)),
             ),
@@ -549,7 +550,7 @@ class ChatMessageBubble extends StatelessWidget {
       final Widget timeOverlay = Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.50),
+          color: Colors.black,
           borderRadius: BorderRadius.circular(999),
         ),
         child: timeRow,
@@ -636,7 +637,7 @@ class ChatMessageBubble extends StatelessWidget {
                 child: Text(
                   senderLabel,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.72),
+                    color: Colors.white,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -694,7 +695,7 @@ class ChatMessageBubble extends StatelessWidget {
                   Text(
                     senderLabel,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.78),
+                      color: Colors.white,
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
                     ),
@@ -710,13 +711,13 @@ class ChatMessageBubble extends StatelessWidget {
                         Icon(
                           Icons.forward_rounded,
                           size: 13,
-                          color: Colors.white.withValues(alpha: 0.68),
+                          color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Forwarded',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.68),
+                            color: Colors.white,
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
@@ -734,13 +735,13 @@ class ChatMessageBubble extends StatelessWidget {
                         Icon(
                           Icons.push_pin_rounded,
                           size: 11,
-                          color: Colors.white.withValues(alpha: 0.68),
+                          color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Pinned',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.68),
+                            color: Colors.white,
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
@@ -757,43 +758,63 @@ class ChatMessageBubble extends StatelessWidget {
                     onTap: onReplyTap,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-                      margin: const EdgeInsets.only(bottom: 3),
+                      margin: const EdgeInsets.only(bottom: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: Colors.white.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
-                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            resolvedReplySender.isEmpty
-                                ? 'Reply'
-                                : resolvedReplySender,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11.5,
+                      clipBehavior: Clip.hardEdge,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              width: 3,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  bottomLeft: Radius.circular(10),
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            resolvedReplySnippet.isEmpty
-                                ? 'Message'
-                                : resolvedReplySnippet,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.78),
-                              fontSize: 11.5,
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(7, 4, 7, 4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      resolvedReplySender.isEmpty
+                                          ? 'Reply'
+                                          : resolvedReplySender,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      resolvedReplySnippet.isEmpty
+                                          ? 'Message'
+                                          : resolvedReplySnippet,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -805,13 +826,13 @@ class ChatMessageBubble extends StatelessWidget {
                       Icon(
                         Icons.block_rounded,
                         size: 16,
-                        color: Colors.white.withValues(alpha: 0.78),
+                        color: Colors.white,
                       ),
                       const SizedBox(width: 7),
                       Text(
                         'This message was deleted',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.78),
+                          color: Colors.white,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -899,10 +920,10 @@ class ChatMessageBubble extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(9, 9, 9, 9),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: Colors.white.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: Colors.white.withValues(alpha: 0.35),
                         ),
                       ),
                       child: Row(
@@ -911,7 +932,7 @@ class ChatMessageBubble extends StatelessWidget {
                             width: 30,
                             height: 30,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.10),
+                              color: Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             alignment: Alignment.center,
@@ -946,7 +967,7 @@ class ChatMessageBubble extends StatelessWidget {
                       Text(
                         'edited',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.55),
+                          color: Colors.white,
                           fontSize: 11,
                           fontStyle: FontStyle.italic,
                         ),
@@ -955,7 +976,7 @@ class ChatMessageBubble extends StatelessWidget {
                     Text(
                       timeLabel,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.62),
+                        color: Colors.white,
                         fontSize: 11,
                       ),
                     ),
@@ -985,7 +1006,7 @@ class ChatMessageBubble extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isMineReaction
-                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.18)
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context)
                               .colorScheme
                               .surfaceContainerHighest
@@ -993,7 +1014,7 @@ class ChatMessageBubble extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(
                         color: isMineReaction
-                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.22)
+                            ? Theme.of(context).colorScheme.primary
                             : Theme.of(context)
                                 .colorScheme
                                 .outlineVariant
@@ -1023,9 +1044,9 @@ class ChatMessageBubble extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  border: Border.all(color: Colors.white),
                 ),
                 child: Text(
                   reaction!.trim(),
@@ -1057,13 +1078,16 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Color _accentBubbleColor(ThemeData theme, {required bool isMine}) {
-    final base = HSLColor.fromColor(theme.colorScheme.primary);
-    final target = isMine
-        ? base.withLightness(theme.brightness == Brightness.dark ? 0.42 : 0.46)
-        : base.withLightness(theme.brightness == Brightness.dark ? 0.24 : 0.30);
-    return target
-        .withSaturation((base.saturation * (isMine ? 1.0 : 0.82)).clamp(0.24, 0.92))
-        .toColor();
+    if (isMine) {
+      // Own messages: primary-derived accent.
+      final base = HSLColor.fromColor(theme.colorScheme.primary);
+      return base
+          .withLightness(theme.brightness == Brightness.dark ? 0.42 : 0.46)
+          .withSaturation(base.saturation.clamp(0.24, 0.92))
+          .toColor();
+    }
+    // Others' messages: neutral surface — adapts to light/dark theme.
+    return theme.colorScheme.surfaceContainerHighest;
   }
 }
 
@@ -1084,34 +1108,83 @@ class _CollapsibleMessageText extends StatefulWidget {
 class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
   bool _expanded = false;
 
+  static final _urlRegex = RegExp(
+    r'https?://[^\s​-‍﻿]+|www\.[^\s​-‍﻿]+',
+    caseSensitive: false,
+  );
+
+  TextSpan _buildRichSpan(String text) {
+    final spans = <InlineSpan>[];
+    int last = 0;
+    for (final m in _urlRegex.allMatches(text)) {
+      if (m.start > last) {
+        spans.add(TextSpan(text: text.substring(last, m.start)));
+      }
+      final raw = m.group(0)!;
+      final href = raw.startsWith('http') ? raw : 'https://$raw';
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
+          child: GestureDetector(
+            onTap: () async {
+              final uri = Uri.tryParse(href);
+              if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+            },
+            child: Text(
+              raw,
+              style: const TextStyle(
+                color: Colors.white,
+                decoration: TextDecoration.underline,
+                decorationColor: Colors.white70,
+              ),
+            ),
+          ),
+        ),
+      );
+      last = m.end;
+    }
+    if (last < text.length) {
+      spans.add(TextSpan(text: text.substring(last)));
+    }
+    return TextSpan(
+      style: const TextStyle(color: Colors.white),
+      children: spans,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final collapsedMaxLines = widget.previewMode ? 5 : 8;
-    final style = const TextStyle(color: Colors.white);
+    final plainStyle = const TextStyle(color: Colors.white);
+    final hasUrl = _urlRegex.hasMatch(widget.text);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final span = TextSpan(text: widget.text, style: style);
+        final measSpan = TextSpan(text: widget.text, style: plainStyle);
         final painter = TextPainter(
-          text: span,
+          text: measSpan,
           maxLines: collapsedMaxLines,
           textDirection: Directionality.of(context),
         )..layout(maxWidth: constraints.maxWidth);
-
         final exceeds = painter.didExceedMaxLines;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.text,
-              maxLines: _expanded ? null : collapsedMaxLines,
-              overflow: _expanded
-                  ? TextOverflow.visible
-                  : TextOverflow.ellipsis,
-              style: style,
-            ),
+            hasUrl
+                ? Text.rich(
+                    _buildRichSpan(widget.text),
+                    maxLines: _expanded ? null : collapsedMaxLines,
+                    overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                  )
+                : Text(
+                    widget.text,
+                    maxLines: _expanded ? null : collapsedMaxLines,
+                    overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                    style: plainStyle,
+                  ),
             if (exceeds && !widget.previewMode) ...[
               const SizedBox(height: 3),
               GestureDetector(
@@ -1119,16 +1192,11 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Text(
                   _expanded ? 'Read less' : 'Read more',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.96),
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
-                    shadows: [
-                      Shadow(
-                        color: Colors.white.withValues(alpha: 0.20),
-                        blurRadius: 10,
-                      ),
-                    ],
+                    shadows: [Shadow(color: Colors.white, blurRadius: 10)],
                   ),
                 ),
               ),
@@ -1183,53 +1251,48 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
     final c = _controller;
     final ready = c != null && c.value.isInitialized;
 
+    final double fixedHeight = widget.previewMode ? 132 : 200;
+
     return GestureDetector(
       onTap: widget.onTap,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: widget.previewMode ? 132 : 96,
-            maxHeight: widget.previewMode ? 132 : 220,
-          ),
+        child: SizedBox(
+          height: fixedHeight,
           width: double.infinity,
-          color: Colors.white.withValues(alpha: 0.06),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (ready)
-                AspectRatio(
-                  aspectRatio: c.value.aspectRatio == 0
-                      ? 16 / 9
-                      : c.value.aspectRatio,
-                  child: VideoPlayer(c),
-                )
-              else
-                SizedBox(
-                  height: widget.previewMode ? 132 : 180,
-                  child: Center(
-                    child: Icon(
-                      Icons.videocam_rounded,
-                      color: Colors.white70,
-                      size: 40,
+          child: ColoredBox(
+            color: Colors.black,
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.center,
+              children: [
+                if (ready)
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: c.value.size.width,
+                      height: c.value.size.height,
+                      child: VideoPlayer(c),
                     ),
+                  )
+                else
+                  const Center(
+                    child: Icon(Icons.videocam_rounded, color: Colors.white54, size: 40),
+                  ),
+                Center(
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 32),
                   ),
                 ),
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1249,6 +1312,7 @@ class _InlineVideoViewerScreen extends StatefulWidget {
 
 class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
   VideoPlayerController? _controller;
+  bool _showControls = true;
 
   String _fmt(Duration d) {
     final total = d.inSeconds < 0 ? 0 : d.inSeconds;
@@ -1263,11 +1327,12 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
     final uri = Uri.tryParse(widget.url);
     if (uri != null) {
       _controller = VideoPlayerController.networkUrl(uri)
-        ..initialize()
-            .then((_) {
-              if (mounted) setState(() {});
-            })
-            .catchError((_) {});
+        ..initialize().then((_) {
+          if (mounted) {
+            setState(() {});
+            _controller?.play();
+          }
+        }).catchError((_) {});
       _controller?.addListener(() {
         if (mounted) setState(() {});
       });
@@ -1280,10 +1345,13 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
     super.dispose();
   }
 
+  void _toggleControls() => setState(() => _showControls = !_showControls);
+
   @override
   Widget build(BuildContext context) {
     final c = _controller;
     final ready = c != null && c.value.isInitialized;
+    final isPlaying = ready && c.value.isPlaying;
     final position = ready ? c.value.position : Duration.zero;
     final duration = ready ? c.value.duration : Duration.zero;
     final maxMs = duration.inMilliseconds <= 0 ? 1 : duration.inMilliseconds;
@@ -1291,140 +1359,110 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: ready
-          ? SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (c.value.isPlaying) {
-                            await c.pause();
-                          } else {
-                            await c.play();
-                          }
-                        },
-                        child: AspectRatio(
-                          aspectRatio: c.value.aspectRatio == 0
-                              ? 16 / 9
-                              : c.value.aspectRatio,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              VideoPlayer(c),
-                              AnimatedOpacity(
-                                duration: const Duration(milliseconds: 180),
-                                opacity: c.value.isPlaying ? 0 : 1,
-                                child: Container(
-                                  width: 72,
-                                  height: 72,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.42),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.play_arrow_rounded,
-                                    color: Colors.white,
-                                    size: 46,
-                                  ),
-                                ),
-                              ),
-                            ],
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleControls,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // ── Full-screen video ──────────────────────────────────────────
+            if (ready)
+              FittedBox(
+                fit: BoxFit.contain,
+                child: SizedBox(
+                  width: c.value.size.width,
+                  height: c.value.size.height,
+                  child: VideoPlayer(c),
+                ),
+              )
+            else
+              const Center(child: CircularProgressIndicator(color: Colors.white54)),
+
+            // ── Controls overlay (shown/hidden on tap) ─────────────────────
+            AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: IgnorePointer(
+                ignoring: !_showControls,
+                child: Column(
+                  children: [
+                    // ── Top bar ──────────────────────────────────────────
+                    SafeArea(
+                      bottom: false,
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                                color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    // ── Centre play/pause ────────────────────────────────
+                    GestureDetector(
+                      onTap: () async {
+                        if (!ready) return;
+                        isPlaying ? await c.pause() : await c.play();
+                        setState(() {});
+                      },
+                      child: Container(
+                        width: 72, height: 72,
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 46,
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: Column(
-                      children: [
-                        Slider(
-                          value: posMs,
-                          min: 0,
-                          max: maxMs.toDouble(),
-                          onChanged: (v) async {
-                            await c.seekTo(Duration(milliseconds: v.round()));
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                _fmt(position),
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                              const Spacer(),
-                              Text(
-                                _fmt(duration),
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    const Spacer(),
+                    // ── Bottom scrubber ──────────────────────────────────
+                    SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              onPressed: () async {
-                                final back =
-                                    position - const Duration(seconds: 10);
-                                await c.seekTo(
-                                  back < Duration.zero ? Duration.zero : back,
-                                );
+                            Slider(
+                              value: posMs,
+                              min: 0,
+                              max: maxMs.toDouble(),
+                              activeColor: Colors.white,
+                              inactiveColor: Colors.white30,
+                              onChanged: (v) async {
+                                await c?.seekTo(Duration(milliseconds: v.round()));
                               },
-                              icon: const Icon(
-                                Icons.replay_10_rounded,
-                                color: Colors.white,
-                              ),
                             ),
-                            const SizedBox(width: 12),
-                            FilledButton(
-                              onPressed: () async {
-                                if (c.value.isPlaying) {
-                                  await c.pause();
-                                } else {
-                                  await c.play();
-                                }
-                              },
-                              child: Icon(
-                                c.value.isPlaying
-                                    ? Icons.pause_rounded
-                                    : Icons.play_arrow_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            IconButton(
-                              onPressed: () async {
-                                final next =
-                                    position + const Duration(seconds: 10);
-                                await c.seekTo(
-                                  next > duration ? duration : next,
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.forward_10_rounded,
-                                color: Colors.white,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                children: [
+                                  Text(_fmt(position),
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                                  const Spacer(),
+                                  Text(_fmt(duration),
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-          : const Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

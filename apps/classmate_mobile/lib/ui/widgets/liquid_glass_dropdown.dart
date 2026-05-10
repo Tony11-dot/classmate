@@ -54,16 +54,8 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
             ],
           ),
           border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.32),
+            color: cs.outlineVariant,
           ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 18,
-              spreadRadius: -10,
-              offset: const Offset(0, 10),
-              color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.10),
-            ),
-          ],
         ),
         child: Row(
           children: [
@@ -164,7 +156,6 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
       child: LiquidGlassCard(
         borderRadius: radius,
-        blurSigma: 18,
         padding: EdgeInsets.zero,
         child: SafeArea(
           top: false,
@@ -199,23 +190,23 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
                     hintText: widget.searchHint ?? l.practiceSetupSearchHint,
                     prefixIcon: const Icon(Icons.search_rounded),
                     filled: true,
-                    fillColor: cs.surface.withValues(alpha: 0.44),
+                    fillColor: cs.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: cs.outlineVariant.withValues(alpha: 0.42),
+                        color: cs.outlineVariant,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: cs.outlineVariant.withValues(alpha: 0.42),
+                        color: cs.outlineVariant,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: cs.primary.withValues(alpha: 0.8),
+                        color: cs.primary,
                       ),
                     ),
                   ),
@@ -228,7 +219,7 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
                   itemCount: items.length,
                   separatorBuilder: (_, _) => Divider(
                     height: 1,
-                    color: cs.outlineVariant.withValues(alpha: 0.35),
+                    color: cs.outlineVariant,
                   ),
                   itemBuilder: (context, i) {
                     final it = items[i];

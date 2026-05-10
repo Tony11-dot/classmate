@@ -20,7 +20,6 @@ const BulkSlotsBodySchema = z.object({
       z.object({
         dayOfWeek: z.number().int().min(0).max(6),
         period: z.number().int().min(1).max(10),
-        courseId: z.string().min(1).nullable().optional(),
         teacherId: z.string().min(1).nullable().optional(),
         location: z.string().min(1).nullable().optional(),
       }),
@@ -71,7 +70,6 @@ export class ScheduleTemplatesController {
         templateId: id,
         dayOfWeek: s.dayOfWeek,
         period: s.period,
-        courseId: s.courseId ?? null,
         teacherId: s.teacherId ?? null,
         location: s.location ?? null,
       })),

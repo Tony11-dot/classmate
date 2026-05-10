@@ -98,37 +98,6 @@ export class E2ESeedController {
         } as any,
       } as any);
 
-      const course = await prisma.course.upsert({
-        where: { id: `parent-web-course-${runId}` } as any,
-        update: {
-          name: `Parent Web Course ${runId}`,
-          subject: 'Mathematics',
-          teacherId: teacher.id,
-          cohortId: cohort.id,
-        } as any,
-        create: {
-          id: `parent-web-course-${runId}`,
-          name: `Parent Web Course ${runId}`,
-          subject: 'Mathematics',
-          teacherId: teacher.id,
-          cohortId: cohort.id,
-        } as any,
-      } as any);
-
-      await prisma.enrollment.upsert({
-        where: {
-          courseId_studentId: {
-            courseId: course.id,
-            studentId: student.id,
-          },
-        } as any,
-        update: {} as any,
-        create: {
-          courseId: course.id,
-          studentId: student.id,
-        } as any,
-      } as any);
-
       await prisma.parentNotification.createMany({
         data: [
           {
@@ -137,7 +106,7 @@ export class E2ESeedController {
             type: 'GRADE_POSTED',
             title: `Grade posted for ${student.name}`,
             message: 'A new grade is available to review.',
-            data: { courseId: course.id, course: { id: course.id, name: course.name } },
+            data: { cohortId: cohort.id },
           },
           {
             parentId: parent.id,
@@ -145,7 +114,7 @@ export class E2ESeedController {
             type: 'ATTENDANCE_ALERT',
             title: `Attendance update for ${student.name}`,
             message: 'Attendance needs your attention.',
-            data: { courseId: course.id, course: { id: course.id, name: course.name } },
+            data: { cohortId: cohort.id },
           },
         ],
         skipDuplicates: false,
@@ -157,7 +126,7 @@ export class E2ESeedController {
         password,
         parentId: parent.id,
         studentId: student.id,
-        courseId: course.id,
+        cohortId: cohort.id,
       });
     } catch (e: any) {
       return res.status(500).json({ ok: false, error: String(e?.message ?? e) });
@@ -244,22 +213,6 @@ export class E2ESeedController {
         } as any,
       } as any);
 
-      // course linked to teacher + cohort
-      const course = await prisma.course.upsert({
-        where: { id: 'e2e-course' } as any,
-        update: {
-          teacherId: teacher.id,
-          cohortId: cohort.id,
-        } as any,
-        create: {
-          id: 'e2e-course',
-          name: 'E2E Electronics',
-          subject: 'Electronics',
-          teacherId: teacher.id,
-          cohortId: cohort.id,
-        } as any,
-      } as any);
-
       // schedule slot for TODAY period 1
       const now = new Date();
       const dayOfWeek = now.getDay(); // 0-6 (matches schema)
@@ -272,27 +225,12 @@ export class E2ESeedController {
             period: 1,
           },
         } as any,
-        update: { courseId: course.id } as any,
+        update: { teacherId: teacher.id } as any,
         create: {
           cohortId: cohort.id,
           dayOfWeek,
           period: 1,
-          courseId: course.id,
-        } as any,
-      } as any);
-
-      // enroll student into course
-      await prisma.enrollment.upsert({
-        where: {
-          courseId_studentId: {
-            courseId: course.id,
-            studentId: studentUser.id,
-          },
-        } as any,
-        update: {} as any,
-        create: {
-          courseId: course.id,
-          studentId: studentUser.id,
+          teacherId: teacher.id,
         } as any,
       } as any);
 

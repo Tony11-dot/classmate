@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_session.dart';
+import '../../core/auth/name_lang.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import 'profile_controller.dart';
@@ -24,16 +25,18 @@ class ProfileScreen extends ConsumerWidget {
       'PARENT' => l.roleParent,
       _ => l.student,
     };
-    final schoolInfo = session.schoolId.isNotEmpty ? session.schoolId : l.profileNotAvailable;
-    final cohortInfo = session.cohortId.isNotEmpty ? session.cohortId : l.profileNotAvailable;
+    final schoolInfo = session.schoolName.isNotEmpty ? session.schoolName : (session.schoolId.isNotEmpty ? session.schoolId : l.profileNotAvailable);
+    final cohortInfo = session.cohortName.isNotEmpty ? session.cohortName : (session.cohortId.isNotEmpty ? session.cohortId : l.profileNotAvailable);
     final resolvedEmail = profile.email.isNotEmpty ? profile.email : session.email;
 
     final displayName = session.displayName.isNotEmpty
         ? session.displayName
         : roleLabel;
-    final initials = displayName
+    // Initials always from fullName (first+last) so we always get 2 letters
+    final nameForInitials = session.fullName.isNotEmpty ? session.fullName : displayName;
+    final initials = nameForInitials
         .trim()
-        .split(' ')
+        .split(RegExp(r'\s+'))
         .where((p) => p.isNotEmpty)
         .take(2)
         .map((p) => p[0].toUpperCase())
@@ -48,24 +51,19 @@ class ProfileScreen extends ConsumerWidget {
             child: LiquidGlassCard(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
               borderRadius: BorderRadius.circular(24),
-              blurSigma: 18,
-              gradient: LinearGradient(
-                colors: [cs.primaryContainer, cs.surfaceContainerHigh],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: cs.primary.withValues(alpha: 0.18),
+                    backgroundColor: cs.primaryContainer,
                     child: Text(
                       initials,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: cs.primary,
+                        color: cs.onPrimaryContainer,
                       ),
                     ),
                   ),
@@ -97,9 +95,11 @@ class ProfileScreen extends ConsumerWidget {
                           runSpacing: 6,
                           children: [
                             _Badge(label: roleLabel, icon: Icons.badge_rounded),
-                            if (session.schoolId.isNotEmpty)
-                              _Badge(label: session.schoolId, icon: Icons.location_city_rounded),
-                            if (session.cohortId.isNotEmpty)
+                            if (session.schoolName.isNotEmpty)
+                              _Badge(label: session.schoolName, icon: Icons.location_city_rounded),
+                            if (session.cohortName.isNotEmpty)
+                              _Badge(label: session.cohortName, icon: Icons.groups_rounded)
+                            else if (session.cohortId.isNotEmpty)
                               _Badge(label: session.cohortId, icon: Icons.groups_rounded),
                           ],
                         ),
@@ -147,6 +147,63 @@ class ProfileScreen extends ConsumerWidget {
                     label: l.profileCohortId,
                     value: cohortInfo,
                     locked: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // ── Name in languages ─────────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: _Section(
+              title: l.profileNamesTitle,
+              icon: Icons.translate_rounded,
+              child: Column(
+                children: [
+                  _InfoRow(
+                    icon: Icons.text_fields_rounded,
+                    label: 'English',
+                    value: session.nameEn.isEmpty ? l.profileEmptyValue : session.nameEn,
+                    onEdit: () => _editNameLang(context, session, 'en', 'English', session.nameEn),
+                  ),
+                  const _Divider(),
+                  _InfoRow(
+                    icon: Icons.text_fields_rounded,
+                    label: 'عربي',
+                    value: session.nameAr.isEmpty ? l.profileEmptyValue : session.nameAr,
+                    onEdit: () => _editNameLang(context, session, 'ar', 'عربي', session.nameAr),
+                  ),
+                  const _Divider(),
+                  _InfoRow(
+                    icon: Icons.text_fields_rounded,
+                    label: 'עברית',
+                    value: session.nameHe.isEmpty ? l.profileEmptyValue : session.nameHe,
+                    onEdit: () => _editNameLang(context, session, 'he', 'עברית', session.nameHe),
+                  ),
+                  const _Divider(),
+                  _InfoRow(
+                    icon: Icons.text_fields_rounded,
+                    label: 'Français',
+                    value: session.nameFr.isEmpty ? l.profileEmptyValue : session.nameFr,
+                    onEdit: () => _editNameLang(context, session, 'fr', 'Français', session.nameFr),
+                  ),
+                  const _Divider(),
+                  _InfoRow(
+                    icon: Icons.text_fields_rounded,
+                    label: 'Русский',
+                    value: session.nameRu.isEmpty ? l.profileEmptyValue : session.nameRu,
+                    onEdit: () => _editNameLang(context, session, 'ru', 'Русский', session.nameRu),
+                  ),
+                  const _Divider(),
+                  // Display language preference
+                  _InfoRow(
+                    icon: Icons.language_rounded,
+                    label: l.profileDisplayNameLang,
+                    value: _langLabel(session.displayNameLang, l),
+                    onEdit: () => _pickDisplayLang(context, session),
                   ),
                 ],
               ),
@@ -234,6 +291,71 @@ class ProfileScreen extends ConsumerWidget {
     } catch (_) {
       return raw;
     }
+  }
+
+  // Static helper — no instance context needed
+  static String _langLabel(String lang, AppLocalizations l) {
+    return NameLang.fromCode(lang)?.nativeName ?? l.profileEmptyValue;
+  }
+
+  static Future<void> _editNameLang(BuildContext context, AuthSession session, String lang, String label, String current) async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _EditSheet(
+        title: 'Name in $label',
+        icon: Icons.translate_rounded,
+        hint: 'Full name in $label',
+        initial: current,
+      ),
+    );
+    if (result == null) return;
+    switch (lang) {
+      case 'en': await session.updateNameFields(nameEn: result);
+      case 'ar': await session.updateNameFields(nameAr: result);
+      case 'he': await session.updateNameFields(nameHe: result);
+      case 'fr': await session.updateNameFields(nameFr: result);
+      case 'ru': await session.updateNameFields(nameRu: result);
+    }
+  }
+
+  static Future<void> _pickDisplayLang(BuildContext context, AuthSession session) async {
+    final l = AppLocalizations.of(context)!;
+    final langs = [
+      (code: '', label: l.profileEmptyValue, icon: Icons.translate_rounded),
+      ...NameLang.values.map((lang) => (code: lang.code, label: lang.nativeName, icon: Icons.language_rounded)),
+    ];
+    final cs = Theme.of(context).colorScheme;
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 16),
+              Text(l.profileDisplayNameLang, style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              ...langs.map((lang) => ListTile(
+                leading: Icon(lang.icon),
+                title: Text(lang.label),
+                selected: session.displayNameLang == lang.code || (lang.code.isEmpty && session.displayNameLang.isEmpty),
+                selectedColor: cs.primary,
+                onTap: () => Navigator.of(ctx).pop(lang.code),
+              )),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked == null) return;
+    await session.updateNameFields(displayNameLang: picked);
   }
 
   Future<void> _editField({
@@ -506,9 +628,8 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             LiquidGlassCard(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               borderRadius: BorderRadius.circular(12),
-              blurSigma: 10,
-              color: cs.errorContainer.withValues(alpha: 0.5),
-              border: Border.all(color: cs.error.withValues(alpha: 0.14)),
+              color: cs.errorContainer,
+              border: Border.all(color: cs.error),
               child: Row(
                 children: [
                   Icon(Icons.error_outline_rounded,
@@ -561,16 +682,8 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.primary.withValues(alpha: 0.2),
-            cs.surface.withValues(alpha: 0.52),
-          ],
-        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.14)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -610,9 +723,8 @@ class _Section extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 14,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,7 +760,7 @@ class _Divider extends StatelessWidget {
       height: 1,
       color: Theme.of(
         context,
-      ).colorScheme.outlineVariant.withValues(alpha: 0.4),
+      ).colorScheme.outlineVariant,
     ),
   );
 }
@@ -684,16 +796,12 @@ class _InfoRow extends StatelessWidget {
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(10),
-                blurSigma: 8,
-                color: (locked
-                        ? cs.surfaceContainerHigh
-                        : cs.primary.withValues(alpha: 0.1))
-                    .withValues(alpha: 0.86),
+                color: locked ? cs.surfaceContainerHigh : cs.primaryContainer,
                 child: Center(
                   child: Icon(
                     icon,
                     size: 18,
-                    color: locked ? cs.onSurfaceVariant : cs.primary,
+                    color: locked ? cs.onSurfaceVariant : cs.onPrimaryContainer,
                   ),
                 ),
               ),

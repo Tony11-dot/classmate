@@ -9,6 +9,7 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 final meetingsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -663,15 +664,8 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                             LiquidGlassCard(
                               padding: const EdgeInsets.all(20),
                               borderRadius: BorderRadius.circular(28),
-                              blurSigma: 18,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.94),
-                                  Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.94),
-                                ],
-                              ),
                               border: Border.all(
-                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.25),
+                                color: Theme.of(context).colorScheme.outlineVariant,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,13 +685,13 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                                       if (subject.isNotEmpty)
                                         _Chip(
                                           label: subject,
-                                          backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.74),
+                                          backgroundColor: Theme.of(context).colorScheme.surface,
                                           foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       if (courseName.isNotEmpty)
                                         _Chip(
                                           label: courseName,
-                                          backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+                                          backgroundColor: Theme.of(context).colorScheme.surface,
                                           foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                     ],
@@ -776,8 +770,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                                   LiquidGlassCard(
                                     padding: const EdgeInsets.all(14),
                                     borderRadius: BorderRadius.circular(18),
-                                    blurSigma: 10,
-                                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.84),
+                                    color: Theme.of(context).colorScheme.surface,
                                     child: Text(
                                       link.isEmpty ? l.meetingsNoLinkAttachedYet : link,
                                       style: TextStyle(
@@ -829,18 +822,10 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                       child: LiquidGlassCard(
                         padding: const EdgeInsets.all(14),
                         borderRadius: BorderRadius.circular(22),
-                        blurSigma: 14,
-                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.96),
+                        color: Theme.of(context).colorScheme.surface,
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.24),
+                          color: Theme.of(context).colorScheme.outlineVariant,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 18,
-                            color: Colors.black.withValues(alpha: 0.08),
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
                         child: Row(
                           children: [
                             Expanded(
@@ -908,9 +893,8 @@ class _MeetingCard extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
-        blurSigma: 10,
-        color: cs.surface.withValues(alpha: 0.9),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -952,18 +936,18 @@ class _MeetingCard extends StatelessWidget {
                 if (subject.isNotEmpty)
                   _Chip(
                     label: subject,
-                    backgroundColor: cs.surface.withValues(alpha: 0.72),
+                    backgroundColor: cs.surface,
                     foregroundColor: cs.onSurface,
                   ),
                 if (courseName.isNotEmpty)
                   _Chip(
                     label: courseName,
-                    backgroundColor: cs.surface.withValues(alpha: 0.56),
+                    backgroundColor: cs.surface,
                     foregroundColor: cs.onSurfaceVariant,
                   ),
                 _Chip(
                   label: _friendlyDateTimeLabel(context, _stringValue(meeting, 'updatedAt')),
-                  backgroundColor: cs.surface.withValues(alpha: 0.56),
+                  backgroundColor: cs.surface,
                   foregroundColor: cs.onSurfaceVariant,
                 ),
               ],
@@ -992,20 +976,14 @@ class _HeroCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.95),
-          cs.surfaceContainerHigh.withValues(alpha: 0.95),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1037,9 +1015,8 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1074,8 +1051,7 @@ class _MetricTile extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.78),
+      color: cs.surfaceContainerLow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1112,8 +1088,7 @@ class _SignalBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
+      color: cs.surfaceContainerLow,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1152,16 +1127,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      blurSigma: 8,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          (backgroundColor ?? cs.surfaceContainerHighest).withValues(alpha: 0.94),
-          cs.surface.withValues(alpha: 0.52),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      border: Border.all(color: cs.outlineVariant),
       child: Text(
         label,
         maxLines: 1,
@@ -1193,9 +1159,8 @@ class _EmptyStateCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 12,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1279,7 +1244,7 @@ class _DetailRow extends StatelessWidget {
             const SizedBox(height: 12),
             Divider(
               height: 1,
-              color: cs.outlineVariant.withValues(alpha: 0.22),
+              color: cs.outlineVariant,
             ),
           ],
         ],
@@ -1293,7 +1258,7 @@ class _MeetingsLoadingBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const Center(child: const CmLoading());
   }
 }
 
@@ -1334,7 +1299,7 @@ class _DetailLoadingBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const Center(child: const CmLoading());
   }
 }
 

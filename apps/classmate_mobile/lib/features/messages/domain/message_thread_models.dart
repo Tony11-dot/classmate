@@ -61,6 +61,7 @@ class MessageDirectoryPerson {
   final String initials;
   final String schoolName;
   final String gradeLabel;
+  final String role; // lowercase: 'student' | 'teacher' | 'parent' | 'admin' | etc.
 
   const MessageDirectoryPerson({
     required this.userId,
@@ -68,6 +69,7 @@ class MessageDirectoryPerson {
     required this.initials,
     this.schoolName = '',
     this.gradeLabel = '',
+    this.role = '',
   });
 }
 

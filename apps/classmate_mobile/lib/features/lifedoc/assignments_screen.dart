@@ -8,6 +8,7 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
+import '../teacher_mobile/data/teacher_mobile_repository.dart';
 
 const _assignmentStateNoDueDate = '__no_due_date__';
 const _assignmentStateOverdue = '__overdue__';
@@ -244,12 +245,7 @@ String _previewBody(BuildContext context, Map<String, dynamic> assignment) {
   return body.replaceAll(RegExp(r'\s+'), ' ');
 }
 
-String _attachedFilesLabel(BuildContext context, int count) {
-  final l = AppLocalizations.of(context)!;
-  return count == 0
-      ? l.assignmentsSubmissionPrepEmpty
-      : l.assignmentsSubmissionPrepCount(count);
-}
+
 
 class AssignmentsScreen extends ConsumerStatefulWidget {
   const AssignmentsScreen({super.key});
@@ -547,15 +543,20 @@ class AssignmentDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen> {
-  final TextEditingController _noteController = TextEditingController();
   final List<_DraftAttachment> _draftAttachments = <_DraftAttachment>[];
   bool _submitting = false;
-  DateTime? _lastPreparedAt;
+  bool _submitted = false;
+  bool _initializedFromData = false;
 
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
+  void _initFromAssignment(Map<String, dynamic> assignment) {
+    if (_initializedFromData) return;
+    _initializedFromData = true;
+    final alreadySubmitted = assignment['submitted'] == true;
+    if (alreadySubmitted && !_submitted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _submitted = true);
+      });
+    }
   }
 
   Future<void> _pickFiles() async {
@@ -583,52 +584,56 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
   Future<void> _stageSubmission() async {
     if (_submitting) return;
 
-    final l = AppLocalizations.of(context)!;
-    final note = _noteController.text.trim();
-
-    if (note.isEmpty && _draftAttachments.isEmpty) {
-      if (!mounted) return;
+    if (_draftAttachments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.assignmentsAddNoteBeforePrepare)),
+        const SnackBar(content: Text('Attach at least one file before handing in.')),
       );
       return;
     }
 
     setState(() => _submitting = true);
-
     try {
+      // Upload each file first to get a server-hosted URL.
+      final teacherRepo = ref.read(teacherMobileRepositoryProvider);
+      final uploadedFiles = <Map<String, String>>[];
+      for (final a in _draftAttachments) {
+        try {
+          final res = await teacherRepo.uploadAttachmentFile(a.path, a.name);
+          final url = (res['url'] ?? res['fileUrl'] ?? '').toString().trim();
+          if (url.isNotEmpty) {
+            uploadedFiles.add({'url': url, 'name': a.name});
+          }
+        } catch (_) {
+          // If upload fails for a file, skip it silently.
+        }
+      }
+
+      if (uploadedFiles.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File upload failed — please try again.')),
+        );
+        return;
+      }
+
       final courseId = widget._courseId;
       if (courseId.isNotEmpty) {
         final repo = ref.read(classroomsRepoProvider);
         await repo.submitAssignment(
           courseId,
           widget.assignmentId,
-          note: note.isNotEmpty ? note : null,
+          files: uploadedFiles,
         );
       }
-
       if (!mounted) return;
-      setState(() => _lastPreparedAt = DateTime.now());
+      setState(() { _submitted = true; _draftAttachments.clear(); });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _draftAttachments.isEmpty
-                ? l.assignmentsWorkDraftPrepared
-                : l.assignmentsWorkDraftPreparedWithFiles,
-          ),
-        ),
+        const SnackBar(content: Text('Assignment handed in!')),
       );
     } catch (_) {
       if (!mounted) return;
-      setState(() => _lastPreparedAt = DateTime.now());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _draftAttachments.isEmpty
-                ? l.assignmentsWorkDraftPrepared
-                : l.assignmentsWorkDraftPreparedWithFiles,
-          ),
-        ),
+        const SnackBar(content: Text('Could not submit — please try again.')),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -657,6 +662,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                   (item) => _stringValue(item, 'id') == widget.assignmentId,
                   orElse: () => <String, dynamic>{},
                 );
+
+          _initFromAssignment(assignment);
 
           if (assignment.isEmpty) {
             return SafeArea(
@@ -691,30 +698,25 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
 
           return SafeArea(
             bottom: false,
-            child: Stack(
-              children: [
-                CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 180),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate(
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    20, 16, 20,
+                    24 + MediaQuery.of(context).padding.bottom,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate(
                           [
                             _DetailTopBar(onBack: () => context.pop()),
                             const SizedBox(height: 18),
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.94),
-                                    Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.94),
-                                  ],
-                                ),
                                 borderRadius: BorderRadius.circular(28),
                                 border: Border.all(
-                                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.25),
+                                  color: Theme.of(context).colorScheme.outlineVariant,
                                 ),
                               ),
                               child: Column(
@@ -726,19 +728,19 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                     children: [
                                       _Chip(
                                         label: _statusLabel(context, status),
-                                        backgroundColor: _statusTone(context, status).withValues(alpha: 0.88),
+                                        backgroundColor: _statusTone(context, status),
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                       ),
                                       if (subject.isNotEmpty)
                                         _Chip(
                                           label: subject,
-                                          backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.74),
+                                          backgroundColor: Theme.of(context).colorScheme.surface,
                                           foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       if (courseName.isNotEmpty)
                                         _Chip(
                                           label: courseName,
-                                          backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+                                          backgroundColor: Theme.of(context).colorScheme.surface,
                                           foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                     ],
@@ -824,76 +826,89 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                             ),
                             const SizedBox(height: 16),
                             _SectionCard(
-                              title: l.assignmentsYourWorkTitle,
-                              subtitle: l.assignmentsYourWorkSubtitle,
+                              title: 'Your submission',
+                              subtitle: _submitted
+                                  ? 'You have already handed in this assignment.'
+                                  : 'Attach your file(s) and press Hand in.',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TextField(
-                                    controller: _noteController,
-                                    minLines: 4,
-                                    maxLines: 7,
-                                    decoration: InputDecoration(
-                                      labelText: l.assignmentsPrivateNoteLabel,
-                                      hintText: l.assignmentsPrivateNoteHint,
-                                      border: const OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Wrap(
-                                    spacing: 10,
-                                    runSpacing: 10,
-                                    children: [
-                                      FilledButton.icon(
-                                        onPressed: _pickFiles,
-                                        icon: const Icon(Icons.attach_file_rounded),
-                                        label: Text(l.assignmentsAddFiles),
+                                  if (_submitted) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF22C55E)
+                                            .withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: const Color(0xFF22C55E)
+                                                .withValues(alpha: 0.4)),
                                       ),
-                                      if (_draftAttachments.isNotEmpty)
-                                        OutlinedButton.icon(
-                                          onPressed: () {
-                                            setState(() => _draftAttachments.clear());
-                                          },
-                                          icon: const Icon(Icons.clear_all_rounded),
-                                          label: Text(l.assignmentsClearFiles),
+                                      child: Row(children: [
+                                        const Icon(Icons.check_circle_rounded,
+                                            size: 18, color: Color(0xFF22C55E)),
+                                        const SizedBox(width: 8),
+                                        const Expanded(
+                                          child: Text('Handed in',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Color(0xFF22C55E))),
                                         ),
+                                        Text(
+                                          _friendlyDateTimeLabel(context,
+                                              _stringValue(assignment, 'submittedAt')),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant),
+                                        ),
+                                      ]),
+                                    ),
+                                  ] else ...[
+                                    OutlinedButton.icon(
+                                      onPressed: _pickFiles,
+                                      icon: const Icon(Icons.attach_file_rounded,
+                                          size: 18),
+                                      label: Text(_draftAttachments.isEmpty
+                                          ? 'Attach file'
+                                          : 'Add more files'),
+                                    ),
+                                    if (_draftAttachments.isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: _draftAttachments
+                                            .map((a) => _DraftChip(
+                                                  attachment: a,
+                                                  onRemove: () => setState(() =>
+                                                      _draftAttachments.remove(a)),
+                                                ))
+                                            .toList(growable: false),
+                                      ),
                                     ],
-                                  ),
-                                  if (_draftAttachments.isNotEmpty) ...[
-                                    const SizedBox(height: 14),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: _draftAttachments
-                                          .map(
-                                            (attachment) => _DraftChip(
-                                              attachment: attachment,
-                                              onRemove: () {
-                                                setState(() => _draftAttachments.remove(attachment));
-                                              },
-                                            ),
-                                          )
-                                          .toList(growable: false),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 14),
-                                  _Chip(
-                                    label: l.assignmentsStagedDeviceHint,
-                                    backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.74),
-                                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  if (_lastPreparedAt != null) ...[
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      l.assignmentsLastPrepared(
-                                        _friendlyDateTimeLabel(
-                                          context,
-                                          _lastPreparedAt!.toIso8601String(),
-                                        ),
-                                      ),
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        fontSize: 12,
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: FilledButton.icon(
+                                        onPressed: _submitting
+                                            ? null
+                                            : _stageSubmission,
+                                        icon: _submitting
+                                            ? const SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color: Colors.white),
+                                              )
+                                            : const Icon(Icons.send_rounded,
+                                                size: 18),
+                                        label: Text(_submitting
+                                            ? 'Handing in…'
+                                            : 'Hand in'),
                                       ),
                                     ),
                                   ],
@@ -906,74 +921,6 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                     ),
                   ],
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.96),
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.24),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 18,
-                              color: Colors.black.withValues(alpha: 0.08),
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    l.assignmentsSubmissionPrepTitle,
-                                    style: const TextStyle(fontWeight: FontWeight.w800),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _attachedFilesLabel(context, _draftAttachments.length),
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            FilledButton.icon(
-                              onPressed: _submitting ? null : _stageSubmission,
-                              icon: _submitting
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : const Icon(Icons.upload_file_rounded),
-                              label: Text(
-                                _submitting
-                                    ? l.assignmentsPreparing
-                                    : l.assignmentsPrepareWork,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           );
         },
       ),
@@ -1013,17 +960,8 @@ class _AssignmentCard extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
-        blurSigma: 10,
-        color: cs.surface.withValues(alpha: 0.76),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 22,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
-            color: Colors.black.withValues(alpha: 0.10),
-          ),
-        ],
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1056,26 +994,33 @@ class _AssignmentCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _Chip(
-                  label: _statusLabel(context, status),
-                  backgroundColor: _statusTone(context, status).withValues(alpha: 0.86),
-                  foregroundColor: cs.onSurface,
-                ),
+                if (assignment['submitted'] == true)
+                  _Chip(
+                    label: 'Handed in',
+                    backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                    foregroundColor: const Color(0xFF22C55E),
+                  )
+                else
+                  _Chip(
+                    label: _statusLabel(context, status),
+                    backgroundColor: _statusTone(context, status),
+                    foregroundColor: cs.onSurface,
+                  ),
                 if (subject.isNotEmpty)
                   _Chip(
                     label: subject,
-                    backgroundColor: cs.surface.withValues(alpha: 0.72),
+                    backgroundColor: cs.surface,
                     foregroundColor: cs.onSurface,
                   ),
                 if (courseName.isNotEmpty)
                   _Chip(
                     label: courseName,
-                    backgroundColor: cs.surface.withValues(alpha: 0.56),
+                    backgroundColor: cs.surface,
                     foregroundColor: cs.onSurfaceVariant,
                   ),
                 _Chip(
                   label: _friendlyDateLabel(context, _stringValue(assignment, 'dueAt')),
-                  backgroundColor: cs.surface.withValues(alpha: 0.56),
+                  backgroundColor: cs.surface,
                   foregroundColor: cs.onSurfaceVariant,
                 ),
               ],
@@ -1104,24 +1049,8 @@ class _HeroCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.90),
-          cs.surfaceContainerHigh.withValues(alpha: 0.78),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
-      boxShadow: [
-        BoxShadow(
-          blurRadius: 26,
-          spreadRadius: -8,
-          offset: const Offset(0, 14),
-          color: cs.primary.withValues(alpha: 0.14),
-        ),
-      ],
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1159,16 +1088,8 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.surface.withValues(alpha: 0.76),
-          cs.surfaceContainerLow.withValues(alpha: 0.72),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1203,9 +1124,8 @@ class _MetricTile extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.62),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1242,9 +1162,8 @@ class _SignalBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 12,
-      color: cs.surface.withValues(alpha: 0.68),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1283,16 +1202,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      blurSigma: 8,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          (backgroundColor ?? cs.surfaceContainerHighest).withValues(alpha: 0.94),
-          cs.surface.withValues(alpha: 0.52),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      border: Border.all(color: cs.outlineVariant),
       child: Text(
         label,
         maxLines: 1,
@@ -1324,9 +1234,8 @@ class _EmptyStateCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 12,
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.46),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1336,7 +1245,7 @@ class _EmptyStateCard extends StatelessWidget {
           const SizedBox(height: 12),
           _Chip(
             label: hint,
-            backgroundColor: cs.surface.withValues(alpha: 0.72),
+            backgroundColor: cs.surface,
             foregroundColor: cs.onSurface,
           ),
         ],
@@ -1443,11 +1352,11 @@ class _DetailTopBar extends StatelessWidget {
             width: 44,
             height: 44,
             child: LiquidGlassCard(
+              padding: EdgeInsets.zero,
               borderRadius: BorderRadius.circular(16),
-              blurSigma: 10,
-              color: cs.surface.withValues(alpha: 0.92),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
-              child: const Icon(Icons.arrow_back_rounded),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
+              child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
             ),
           ),
         ),
@@ -1501,7 +1410,7 @@ class _DetailRow extends StatelessWidget {
             const SizedBox(height: 12),
             Divider(
               height: 1,
-              color: cs.outlineVariant.withValues(alpha: 0.18),
+              color: cs.outlineVariant,
             ),
           ],
         ],
@@ -1530,16 +1439,7 @@ class _DraftChip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.surface.withValues(alpha: 0.86),
-          cs.surfaceContainerHigh.withValues(alpha: 0.58),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+      border: Border.all(color: cs.outlineVariant),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1585,8 +1485,7 @@ class _LoadingTile extends StatelessWidget {
       height: 92,
       child: LiquidGlassCard(
         borderRadius: BorderRadius.circular(18),
-        blurSigma: 8,
-        color: cs.surface.withValues(alpha: 0.7),
+        color: cs.surfaceContainerLow,
         child: const SizedBox.expand(),
       ),
     );
@@ -1602,9 +1501,8 @@ class _LoadingBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.74),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1628,9 +1526,8 @@ class _LoadingSectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 12,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.8),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1660,7 +1557,7 @@ class _LoadingLine extends StatelessWidget {
       child: Container(
         height: 12,
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(999),
         ),
       ),

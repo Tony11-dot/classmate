@@ -3,7 +3,9 @@ import 'dart:io' show Platform;
 class Env {
   static late final String apiBaseUrl;
   static late final String schoolId;
-  static late final String devToken;
+  static late final String autoLoginEmail;
+  static late final String autoLoginPassword;
+  static late final bool clearSession;
 
   static void init() {
     final rawBase = const String.fromEnvironment('CM_API_BASE_URL');
@@ -14,8 +16,9 @@ class Env {
     final rawSchool = const String.fromEnvironment('CM_SCHOOL_ID');
     schoolId = rawSchool.trim();
 
-    final rawToken = const String.fromEnvironment('CM_DEV_TOKEN');
-    devToken = rawToken.trim();
+    autoLoginEmail = const String.fromEnvironment('CM_AUTO_LOGIN_EMAIL').trim();
+    autoLoginPassword = const String.fromEnvironment('CM_AUTO_LOGIN_PASSWORD').trim();
+    clearSession = const String.fromEnvironment('CM_CLEAR_SESSION').trim() == 'true';
   }
 
   static String stripApiSuffix(String baseUrl) {

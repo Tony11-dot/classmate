@@ -502,7 +502,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherAttendanceNoteLabel => 'Note';
 
   @override
+  String get teacherAttendanceClassNotesLabel => 'Class notes';
+
+  @override
+  String get teacherAttendanceClassNotesHint =>
+      'What was covered in this session…';
+
+  @override
   String get teacherAttendanceSaving => 'Saving…';
+
+  @override
+  String get teacherAttendanceSaveAll => 'Save attendance';
 
   @override
   String teacherAttendanceSaveCount(int count) {
@@ -526,8 +536,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Schedule is refreshing too fast right now. Wait a moment and try again.';
 
   @override
+  String get scheduleSessionExpired =>
+      'Your session has expired. Please sign in again.';
+
+  @override
   String get scheduleNotOnboarded =>
-      'Your student profile is not fully set up yet, so no schedule is available yet.';
+      'Your student profile is not fully set up yet. Ask your school admin to assign you to a class.';
 
   @override
   String get scheduleLoadError => 'Could not load schedule yet.';
@@ -566,6 +580,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleNoSubjectLocation => 'No subject or location yet';
+
+  @override
+  String get scheduleNotes => 'Notes';
+
+  @override
+  String get scheduleGoToClassroom => 'Go to Classroom';
 
   @override
   String get loginTitle => 'Mobile login for students and teachers';
@@ -3602,6 +3622,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assignmentsRemoveAttachment => 'Remove';
 
   @override
+  String get assignmentsSubmitted => 'Submitted';
+
+  @override
   String get attendanceUndated => 'Undated';
 
   @override
@@ -4249,6 +4272,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherStudentsLabel => 'Students';
 
   @override
+  String get teacherSearchStudents => 'Search by name or grade…';
+
+  @override
+  String get teacherNoStudentsLoaded => 'No students found in this school.';
+
+  @override
+  String get teacherActions => 'QUICK ACTIONS';
+
+  @override
   String get teacherParentsLabel => 'Parents';
 
   @override
@@ -4262,6 +4294,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+
+  @override
+  String teacherAttendanceFrom(Object date) {
+    return 'From $date';
+  }
+
+  @override
+  String get teacherAttendanceChangeDate => 'Change date';
+
+  @override
+  String get teacherAttendanceNoSessions =>
+      'No saved attendance sessions.\nMark attendance from the schedule.';
 
   @override
   String get teacherRecentGrades => 'Recent Grades';
@@ -4599,13 +4643,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Search students…';
 
   @override
-  String get navDiplomas => 'Diplomas';
+  String get navDiplomas => 'Certificates';
 
   @override
   String get diplomasComingSoon => 'Diploma management is coming soon.';
 
   @override
-  String get teacherExamsTitle => 'Exams & Assessments';
+  String get teacherExamsTitle => 'Exams';
 
   @override
   String get teacherExamsUpcoming => 'Upcoming';
@@ -4654,7 +4698,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherFormsNoResponses => 'No responses yet.';
 
   @override
-  String get diplomasTitle => 'Diplomas & Certificates';
+  String get diplomasTitle => 'Certificates';
 
   @override
   String get diplomasEmpty => 'No certificates issued yet. Tap + to issue one.';
@@ -4718,4 +4762,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'Open Grades';
+
+  @override
+  String get teacherGradesSaveAction => 'Save';
+
+  @override
+  String get teacherGradesNothingToSave => 'No changes to save.';
+
+  @override
+  String get teacherRetry => 'Retry';
+
+  @override
+  String get teacherExamGradesStudents => 'students';
+
+  @override
+  String get teacherExamGradesGraded => 'graded';
+
+  @override
+  String get teacherExamGradesNoStudents =>
+      'No students targeted.\nEdit the exam to add an audience.';
+
+  @override
+  String get teacherExamGradesEnterGrades => 'Enter grades';
+
+  @override
+  String get teacherDeleteExamTitle => 'Delete exam?';
+
+  @override
+  String get teacherDeleteExamBody => 'This will permanently delete the exam.';
+
+  @override
+  String get teacherMeetingsEmpty => 'No meetings yet.\nTap + to schedule one.';
+
+  @override
+  String get teacherStudentsNoMatch => 'No students match';
+
+  @override
+  String get teacherMaterialsTitle => 'Materials';
+
+  @override
+  String get profileNamesTitle => 'Name in languages';
+
+  @override
+  String get profileDisplayNameLang => 'Display name language';
 }

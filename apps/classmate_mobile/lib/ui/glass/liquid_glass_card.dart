@@ -1,14 +1,16 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 
+/// A clean, solid-color card with consistent Material 3 styling.
+/// All blur / shimmer / gradient glass effects have been removed.
+/// The [blurSigma] and [gradient] params are accepted for API compatibility
+/// but are no longer applied — pass [color] for the fill.
 class LiquidGlassCard extends StatelessWidget {
   const LiquidGlassCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
-    this.blurSigma = 14,
+    this.blurSigma = 0,
     this.color,
     this.gradient,
     this.border,
@@ -26,73 +28,37 @@ class LiquidGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final resolvedColor = color ?? cs.surface.withValues(alpha: isDark ? 0.68 : 0.72);
-    final resolvedGradient = gradient ?? LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        cs.surface.withValues(alpha: isDark ? 0.78 : 0.86),
-        cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.54 : 0.62),
-      ],
-    );
-    final resolvedBorder = border ?? Border.all(
-      color: cs.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.22),
-    );
-    final resolvedShadow = boxShadow ?? [
-      BoxShadow(
-        blurRadius: 28,
-        spreadRadius: -10,
-        offset: const Offset(0, 14),
-        color: Colors.black.withValues(alpha: isDark ? 0.26 : 0.12),
-      ),
-      BoxShadow(
-        blurRadius: 18,
-        spreadRadius: -14,
-        offset: const Offset(0, -2),
-        color: cs.primary.withValues(alpha: isDark ? 0.16 : 0.08),
-      ),
-    ];
+    final cs = Theme.of(context).colorScheme;
+
+    // Derive a solid fill:
+    //   1. If an explicit color was passed, use it at full opacity.
+    //   2. If a gradient was passed (legacy), use the first stop at full opacity.
+    //   3. Fall back to surfaceContainerLow.
+    final Color fill;
+    if (color != null) {
+      fill = color!.withValues(alpha: 1.0);
+    } else if (gradient is LinearGradient) {
+      fill = (gradient as LinearGradient).colors.first.withValues(alpha: 1.0);
+    } else if (gradient is RadialGradient) {
+      fill = (gradient as RadialGradient).colors.first.withValues(alpha: 1.0);
+    } else {
+      fill = cs.surfaceContainerLow;
+    }
+
+    final resolvedBorder = border ?? Border.all(color: cs.outlineVariant);
 
     return ClipRRect(
       borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: resolvedColor,
-            gradient: resolvedGradient,
-            borderRadius: borderRadius,
-            border: resolvedBorder,
-            boxShadow: resolvedShadow,
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: borderRadius,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withValues(alpha: isDark ? 0.10 : 0.22),
-                        Colors.white.withValues(alpha: isDark ? 0.03 : 0.08),
-                        Colors.transparent,
-                      ],
-                      stops: const [0, 0.24, 0.8],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: padding,
-                child: child,
-              ),
-            ],
-          ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: borderRadius,
+          border: resolvedBorder,
+          boxShadow: boxShadow,
+        ),
+        child: Padding(
+          padding: padding,
+          child: child,
         ),
       ),
     );

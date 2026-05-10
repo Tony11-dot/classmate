@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/http/cm_api.dart';
 
-final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
+final scheduleRepositoryProvider = Provider.autoDispose<ScheduleRepository>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();
   return ScheduleRepository(token: token);
@@ -24,6 +24,49 @@ class ScheduleRepository {
     return '$y-$m-$day';
   }
 
+  /// Returns today's attendance keyed by "$period:$subject" (lowercased).
+  /// Both keys allow matching against schedule items by period OR subject.
+  Future<Map<String, String>> getTodayAttendance() async {
+    try {
+      final now = DateTime.now();
+      final todayYmd =
+          '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final raw = await _api.getJson(
+        '/student/attendance',
+        query: <String, String>{'date': todayYmd},
+      );
+      final items = _extractList(raw);
+      final result = <String, String>{};
+      for (final item in items) {
+        if (item is! Map) continue;
+        final date = (item['date'] ?? '').toString().trim();
+        if (!date.startsWith(todayYmd)) continue;
+        final status = (item['status'] ?? '').toString().trim().toUpperCase();
+        if (status.isEmpty) continue;
+        final period = (item['period'] ?? 0).toString();
+        final subject = (item['subject'] ?? item['courseName'] ?? '').toString().trim().toLowerCase();
+        final courseId = (item['courseId'] ?? '').toString().trim();
+        result['$period:$subject'] = status;
+        if (courseId.isNotEmpty) result['course:$courseId'] = status;
+        result['period:$period'] = status; // fallback by period alone
+      }
+      return result;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  List _extractList(dynamic raw) {
+    if (raw is List) return raw;
+    if (raw is Map) {
+      for (final key in ['items', 'attendance', 'data', 'records']) {
+        final v = raw[key];
+        if (v is List) return v;
+      }
+    }
+    return [];
+  }
+
   Future<Map<String, dynamic>> getWeek(DateTime weekOf) async {
     final ymd = _weekYmd(weekOf);
     final requestedWeek = DateTime.parse('${ymd}T00:00:00.000Z');
@@ -31,7 +74,9 @@ class ScheduleRepository {
       '/student/schedule/week',
       query: <String, String>{'weekOf': ymd},
     );
-    return _normalizeWeek(raw, requestedWeek);
+    // API wraps response as { ok, items: { weekOf, days } } — unwrap items layer.
+    final payload = (raw is Map && raw['items'] is Map) ? raw['items'] as Map<String, dynamic> : raw;
+    return _normalizeWeek(payload, requestedWeek);
   }
 
   Map<String, dynamic> _normalizeWeek(dynamic raw, DateTime requestedWeek) {
@@ -82,7 +127,14 @@ class ScheduleRepository {
       return <Map<String, dynamic>>[];
     }
 
-    if (rawDays.first is Map) {
+    final firstMap = rawDays.first;
+    final isListOfDays = firstMap is Map &&
+        (firstMap.containsKey('items') ||
+            firstMap.containsKey('entries') ||
+            firstMap.containsKey('lessons') ||
+            firstMap.containsKey('slots'));
+
+    if (isListOfDays) {
       return rawDays
           .map<Map<String, dynamic>>((dynamic rawDay) {
             final day = Map<String, dynamic>.from(rawDay as Map);
@@ -123,9 +175,14 @@ class ScheduleRepository {
     final grouped = <String, List<Map<String, dynamic>>>{};
 
     for (final rawItem in rawDays) {
-      final item = rawItem is Map
+      final Map<String, dynamic> item = rawItem is Map
           ? Map<String, dynamic>.from(rawItem)
           : <String, dynamic>{'title': rawItem.toString()};
+
+      item['startsAt'] ??= item['startAt'] ?? item['startTime'];
+      item['endsAt'] ??= item['endAt'] ?? item['endTime'];
+      item['location'] ??= item['room'];
+      item['courseId'] ??= item['classroomId'];
 
       final key = (item['date'] ?? item['day'] ?? item['label'] ?? 'Day')
           .toString();

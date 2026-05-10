@@ -9,6 +9,7 @@ import '../../schedule/schedule_empty_state_copy.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 Future<void> _showSlotActionSheet(
   BuildContext context,
@@ -32,15 +33,14 @@ Future<void> _showSlotActionSheet(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: LiquidGlassCard(
             borderRadius: BorderRadius.circular(24),
-            blurSigma: 18,
-            color: cs.surface.withValues(alpha: 0.96),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+            color: cs.surfaceContainerLow,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 8),
                 Container(width: 36, height: 4,
-                    decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                    decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -130,8 +130,8 @@ class _SheetAction extends StatelessWidget {
           children: [
             Container(
               width: 36, height: 36,
-              decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(10)),
-              child: Icon(icon, size: 18, color: cs.primary),
+              decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
             ),
             const SizedBox(width: 14),
             Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
@@ -246,18 +246,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           // ── Hero Banner ──────────────────────────────────────────────────
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
-            blurSigma: 20,
-            gradient: LinearGradient(
-              colors: [
-                cs.primaryContainer.withValues(alpha: 0.92),
-                cs.tertiaryContainer.withValues(alpha: 0.72),
-                cs.surfaceContainerHigh.withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
-            boxShadow: [BoxShadow(color: cs.primary.withValues(alpha: 0.14), blurRadius: 24, offset: const Offset(0, 10), spreadRadius: -6)],
+            color: cs.primaryContainer,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -269,10 +259,10 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                         children: [
                           Text(
                             teacherName.isNotEmpty ? '${_greeting(l)}, $teacherName' : _greeting(l),
-                            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1, color: cs.onPrimaryContainer),
                           ),
                           const SizedBox(height: 4),
-                          Text(dateLabel, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                          Text(dateLabel, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onPrimaryContainer)),
                         ],
                       ),
                     ),
@@ -280,10 +270,10 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.14),
+                        color: cs.primaryContainer,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(Icons.school_rounded, size: 26, color: cs.primary),
+                      child: Icon(Icons.school_rounded, size: 26, color: cs.onPrimaryContainer),
                     ),
                   ],
                 ),
@@ -295,21 +285,21 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       icon: Icons.today_rounded,
                       value: '${scheduledSlots.length}',
                       label: l.today,
-                      color: cs.primary,
+                      color: cs.primaryContainer,
                     ),
                     const SizedBox(width: 8),
                     _StatPill(
                       icon: Icons.groups_rounded,
                       value: '$teachingGroups',
                       label: l.teacherGroupsLabel,
-                      color: cs.tertiary,
+                      color: cs.secondaryContainer,
                     ),
                     const SizedBox(width: 8),
                     _StatPill(
                       icon: Icons.grade_rounded,
                       value: '${bundle?.assessments.length ?? 0}',
                       label: l.teacherTestsLabel,
-                      color: cs.secondary,
+                      color: cs.tertiaryContainer,
                     ),
                   ],
                 ),
@@ -321,9 +311,9 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: cs.surface.withValues(alpha: 0.55),
+                      color: cs.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
                     child: Row(
                       children: [
@@ -344,12 +334,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           // ── Quick Actions ───────────────────────────────────────────────
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(24),
-            blurSigma: 14,
-            gradient: LinearGradient(
-              colors: [cs.primaryContainer.withValues(alpha: 0.22), cs.surface.withValues(alpha: 0.76)],
-              begin: Alignment.topLeft, end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -393,7 +378,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           const SizedBox(height: 18),
 
           if (_loading)
-            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+            const Center(child: Padding(padding: EdgeInsets.all(24), child: const CmLoading()))
           else if (_error != null)
             _ErrorCard(message: _error!, onRetry: _load)
           else ...[
@@ -415,24 +400,18 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.all(14),
                             borderRadius: BorderRadius.circular(20),
-                            blurSigma: 10,
-                            gradient: LinearGradient(
-                              colors: [cs.surface.withValues(alpha: 0.84), cs.surfaceContainerHigh.withValues(alpha: 0.68)],
-                              begin: Alignment.topLeft, end: Alignment.bottomRight,
-                            ),
-                            border: Border.all(color: color.withValues(alpha: 0.18)),
-                            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 12, spreadRadius: -4)],
+                            border: Border.all(color: color),
                             child: Row(
                               children: [
                                 // Period badge
                                 Container(
                                   width: 44,
                                   height: 44,
-                                  decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                                  decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('P${slot.period}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: color)),
+                                      Text('P${slot.period}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
                                     ],
                                   ),
                                 ),
@@ -458,8 +437,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-                                      child: Text(subject.isNotEmpty ? subject : 'Class', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+                                      decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(8)),
+                                      child: Text(subject.isNotEmpty ? subject : 'Class', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
                                     ),
                                     const SizedBox(height: 4),
                                     Icon(Icons.more_horiz_rounded, size: 16, color: cs.onSurfaceVariant),
@@ -482,9 +461,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                 ? LiquidGlassCard(
                     padding: const EdgeInsets.all(16),
                     borderRadius: BorderRadius.circular(16),
-                    blurSigma: 8,
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+                    color: cs.surfaceContainerLow,
+                    border: Border.all(color: cs.outlineVariant),
                     child: Row(children: [
                       Icon(Icons.event_busy_rounded, color: cs.onSurfaceVariant),
                       const SizedBox(width: 12),
@@ -509,16 +487,15 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             borderRadius: BorderRadius.circular(18),
-                            blurSigma: 10,
-                            color: cs.surface.withValues(alpha: 0.82),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                            color: cs.surfaceContainerLow,
+                            border: Border.all(color: cs.outlineVariant),
                             child: Row(
                               children: [
                                 Container(
                                   width: 40,
                                   height: 40,
-                                  decoration: BoxDecoration(color: cs.tertiaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(12)),
-                                  child: Icon(Icons.quiz_rounded, size: 20, color: cs.tertiary),
+                                  decoration: BoxDecoration(color: cs.tertiaryContainer, borderRadius: BorderRadius.circular(12)),
+                                  child: Icon(Icons.quiz_rounded, size: 20, color: cs.onTertiaryContainer),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
@@ -550,26 +527,36 @@ class _StatPill extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
+  /// Pass a container color (e.g. cs.primaryContainer). The on-color is
+  /// derived automatically from the theme.
   final Color color;
+
+  Color _onColor(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    if (color == cs.primaryContainer) return cs.onPrimaryContainer;
+    if (color == cs.secondaryContainer) return cs.onSecondaryContainer;
+    if (color == cs.tertiaryContainer) return cs.onTertiaryContainer;
+    return cs.onPrimaryContainer;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final onColor = _onColor(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.22)),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 16, color: color),
+            Icon(icon, size: 16, color: onColor),
             const SizedBox(height: 6),
-            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: color, height: 1)),
-            Text(label, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: onColor, height: 1)),
+            Text(label, style: TextStyle(fontSize: 10, color: onColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -581,26 +568,28 @@ class _BigActionButton extends StatelessWidget {
   const _BigActionButton({required this.icon, required this.label, required this.color, required this.onTap});
   final IconData icon;
   final String label;
+  // color is kept for API compatibility but visual style uses theme colors.
   final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.10),
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.20)),
+          border: Border.all(color: cs.outlineVariant),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 22, color: color),
+            Icon(icon, size: 22, color: cs.onSurface),
             const SizedBox(height: 6),
-            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color), textAlign: TextAlign.center),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurface), textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -637,9 +626,8 @@ class _EmptySlotCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 8,
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Row(children: [
         Icon(Icons.event_available_rounded, color: cs.onSurfaceVariant),
         const SizedBox(width: 12),
@@ -659,36 +647,20 @@ class _ActionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Ink(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cs.primaryContainer.withValues(alpha: isDark ? 0.48 : 0.72),
-              cs.surface.withValues(alpha: isDark ? 0.44 : 0.62),
-            ],
-          ),
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.primary.withValues(alpha: 0.16)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 16,
-              spreadRadius: -10,
-              offset: const Offset(0, 8),
-              color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.08),
-            ),
-          ],
+          border: Border.all(color: cs.outlineVariant),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: cs.primary),
+            Icon(icon, size: 18, color: cs.onSurface),
             const SizedBox(width: 8),
             Text(label, style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
           ],
@@ -706,14 +678,15 @@ class _ErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.62),
+      color: cs.errorContainer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppLocalizations.of(context)!.teacherLoadErrorTitle, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          Text(AppLocalizations.of(context)!.teacherLoadErrorTitle, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.onErrorContainer)),
           const SizedBox(height: 8),
-          Text(message),
+          Text(message, style: TextStyle(color: cs.onErrorContainer)),
           const SizedBox(height: 12),
           FilledButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.retry)),
         ],

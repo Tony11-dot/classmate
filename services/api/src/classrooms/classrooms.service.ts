@@ -34,72 +34,52 @@ export class ClassroomsService {
     return String(sp.cohortId);
   }
 
-  private async courseIdsForCohort(cohortId: string): Promise<string[]> {
-    const rows = await this.prisma.scheduleSlot.findMany({
-      where: { cohortId: String(cohortId), courseId: { not: null } },
-      select: { courseId: true },
-      distinct: ['courseId'],
-    });
-
-    return rows
-      .map((r) => r.courseId)
-      .filter(Boolean)
-      .map((x) => String(x));
-  }
-
   async listStudentClassrooms(studentUserId: string) {
-    const cohortId = await this.cohortIdForStudentUserId(studentUserId);
-    const courseIds = await this.courseIdsForCohort(cohortId);
-
-    if (!courseIds.length) return [];
-
-    const courses = await this.prisma.course.findMany({
-      where: { id: { in: courseIds } },
-      orderBy: [{ subject: 'asc' }, { name: 'asc' }],
-      select: {
-        id: true,
-        name: true,
-        subject: true,
-        teacherId: true,
-        cohortId: true,
-        groupTag: true,
-      },
+    // Return cohorts the student belongs to directly (no course layer needed)
+    const directLinks = await (this.prisma as any).studentCohort.findMany({
+      where: { studentId: studentUserId },
+      include: { cohort: true },
     });
 
-    return courses.map((c) => ({
+    let cohorts: any[] = directLinks.map((l: any) => l.cohort);
+
+    if (!cohorts.length) {
+      const profile = await this.prisma.studentProfile.findUnique({
+        where: { userId: studentUserId },
+        include: { cohort: true },
+      });
+      if (profile?.cohort) cohorts = [profile.cohort];
+    }
+
+    return cohorts.map((c: any) => ({
       id: c.id,
       name: c.name,
-      subject: c.subject,
-      teacherId: c.teacherId ?? null,
-      cohortId: c.cohortId ?? null,
-      groupTag: c.groupTag ?? null,
+      subject: null,
+      teacherId: null,
+      cohortId: c.id,
+      grade: c.grade,
+      groupTag: null,
     }));
   }
 
-  async getStudentClassroom(studentUserId: string, courseId: string) {
-    const cohortId = await this.cohortIdForStudentUserId(studentUserId);
+  async getStudentClassroom(studentUserId: string, cohortId: string) {
+    const studentCohortId = await this.cohortIdForStudentUserId(studentUserId);
 
-    const course = await this.prisma.course.findUnique({
-      where: { id: String(courseId) },
-      select: {
-        id: true,
-        name: true,
-        subject: true,
-        teacherId: true,
-        cohortId: true,
-        groupTag: true,
-      },
+    const cohort = await (this.prisma as any).cohort.findUnique({
+      where: { id: String(cohortId) },
+      select: { id: true, name: true, grade: true },
     });
-    if (!course) throw new BadRequestException('Invalid classroom id');
+    if (!cohort || cohort.id !== studentCohortId) throw new BadRequestException('Invalid classroom id');
 
-    const tmpl = await this.prisma.scheduleSlot.findMany({
-      where: {
-        cohortId: String(cohortId),
-        courseId: String(courseId),
-      },
+    const slotIds = (await this.prisma.scheduleSlotCohort.findMany({
+      where: { cohortId: String(cohortId) },
+      select: { slotId: true },
+    })).map((r) => r.slotId);
+    const tmpl = slotIds.length ? await this.prisma.scheduleSlot.findMany({
+      where: { id: { in: slotIds } },
       orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
       select: { id: true, dayOfWeek: true, period: true },
-    });
+    }) : [];
 
     const template = tmpl.map((r) => {
       const { startTime, endTime } = timesForPeriod(Number(r.period));
@@ -112,14 +92,11 @@ export class ClassroomsService {
       };
     });
 
-    // announcements: placeholder (wired in Session 6)
     return {
-      id: course.id,
-      name: course.name,
-      subject: course.subject,
-      teacherId: course.teacherId ?? null,
-      cohortId: cohortId,
-      groupTag: course.groupTag ?? null,
+      id: cohort.id,
+      name: cohort.name,
+      grade: cohort.grade,
+      cohortId: cohort.id,
       scheduleTemplate: template,
       announcements: [],
     };

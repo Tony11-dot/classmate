@@ -576,6 +576,16 @@ class _AttendanceDayGroup extends StatelessWidget {
     return cs.surfaceContainerHighest;
   }
 
+  // Semantic foreground that always contrasts with the _tone() background.
+  Color _toneForeground(ColorScheme cs, String status) {
+    final normalized = _normalizedStatus(status);
+    if (normalized == 'PRESENT') return cs.onSecondaryContainer;
+    if (normalized == 'LATE') return cs.onTertiaryContainer;
+    if (normalized == 'ABSENT') return cs.onErrorContainer;
+    if (normalized == 'EXCUSED') return cs.onPrimaryContainer;
+    return cs.onSurfaceVariant;
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -583,16 +593,7 @@ class _AttendanceDayGroup extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(22),
-      blurSigma: 14,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.surface.withValues(alpha: 0.84),
-          cs.surfaceContainerHigh.withValues(alpha: 0.68),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -611,9 +612,9 @@ class _AttendanceDayGroup extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               _StatusChip(
-                label: statusLabel,
-                backgroundColor: _tone(context, statusForTone).withValues(alpha: 0.86),
-                foregroundColor: cs.onSurface,
+                label: _statusLabel(context, statusForTone),
+                backgroundColor: _tone(context, statusForTone),
+                foregroundColor: _toneForeground(cs, statusForTone),
               ),
             ],
           ),
@@ -624,24 +625,15 @@ class _AttendanceDayGroup extends StatelessWidget {
               child: LiquidGlassCard(
                 padding: const EdgeInsets.all(12),
                 borderRadius: BorderRadius.circular(18),
-                blurSigma: 10,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    _tone(context, item.status).withValues(alpha: 0.84),
-                    cs.surface.withValues(alpha: 0.58),
-                  ],
-                ),
                 border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.18),
+                  color: cs.outlineVariant,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
                       radius: 16,
-                      backgroundColor: cs.surface.withValues(alpha: 0.9),
+                      backgroundColor: cs.surface,
                       child: Text(
                         item.period <= 0 ? '—' : '${item.period}',
                         style: const TextStyle(
@@ -670,14 +662,14 @@ class _AttendanceDayGroup extends StatelessWidget {
                             children: [
                               _StatusChip(
                                 label: _statusLabel(context, item.status),
-                                backgroundColor: cs.surface.withValues(alpha: 0.72),
+                                backgroundColor: cs.surface,
                                 foregroundColor: cs.onSurface,
                               ),
                               _StatusChip(
                                 label: (item.subject ?? '').trim().isEmpty
                                     ? AppLocalizations.of(context)!.editProfileSchool
                                     : item.subject!.trim(),
-                                backgroundColor: cs.surface.withValues(alpha: 0.52),
+                                backgroundColor: cs.surface,
                                 foregroundColor: cs.onSurfaceVariant,
                               ),
                             ],
@@ -802,14 +794,8 @@ class _HeroCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.95),
-          cs.surfaceContainerHigh.withValues(alpha: 0.95),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -817,7 +803,7 @@ class _HeroCard extends StatelessWidget {
             title,
             style: Theme.of(
               context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
           ),
           const SizedBox(height: 8),
           Text(
@@ -849,9 +835,8 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.8),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -886,9 +871,8 @@ class _MetricTile extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.78),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -925,9 +909,8 @@ class _SignalBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -969,9 +952,8 @@ class _SummaryPill extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(12),
         borderRadius: BorderRadius.circular(18),
-        blurSigma: 10,
-        color: cs.surface.withValues(alpha: 0.82),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -1011,9 +993,8 @@ class _EmptyStateCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.16)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1026,7 +1007,7 @@ class _EmptyStateCard extends StatelessWidget {
           const SizedBox(height: 12),
           _StatusChip(
             label: hint,
-            backgroundColor: cs.surface.withValues(alpha: 0.72),
+            backgroundColor: cs.surface,
             foregroundColor: cs.onSurface,
           ),
         ],
@@ -1051,9 +1032,8 @@ class _StatusChip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      blurSigma: 8,
       color: backgroundColor,
-      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.14)),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       child: Text(
         label,
         maxLines: 1,
@@ -1078,8 +1058,7 @@ class _LoadingTile extends StatelessWidget {
       height: 92,
       child: LiquidGlassCard(
         borderRadius: BorderRadius.circular(18),
-        blurSigma: 8,
-        color: cs.surface.withValues(alpha: 0.7),
+        color: cs.surfaceContainerLow,
         child: const SizedBox.expand(),
       ),
     );
@@ -1095,9 +1074,8 @@ class _LoadingBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.74),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1121,9 +1099,8 @@ class _LoadingSectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 12,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.8),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1153,7 +1130,7 @@ class _LoadingLine extends StatelessWidget {
       child: Container(
         height: 12,
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(999),
         ),
       ),

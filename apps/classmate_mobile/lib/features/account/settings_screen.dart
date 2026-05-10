@@ -30,9 +30,9 @@ const _kLanguages = [
 typedef _Accent = ({Color color, String label});
 
 const _kAccents = <_Accent>[
+  (color: Color(0xFF0EA5E9), label: 'Blue'),
   (color: Color(0xFF4F46E5), label: 'Indigo'),
   (color: Color(0xFF7C3AED), label: 'Violet'),
-  (color: Color(0xFF0EA5E9), label: 'Blue'),
   (color: Color(0xFF0D9488), label: 'Teal'),
   (color: Color(0xFF16A34A), label: 'Green'),
   (color: Color(0xFFEA580C), label: 'Orange'),
@@ -69,20 +69,15 @@ class SettingsScreen extends ConsumerWidget {
             child: LiquidGlassCard(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               borderRadius: BorderRadius.circular(24),
-              blurSigma: 18,
-              gradient: LinearGradient(
-                colors: [cs.tertiaryContainer, cs.surfaceContainerHigh],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 26,
-                    backgroundColor: cs.tertiary.withValues(alpha: 0.18),
+                    backgroundColor: cs.primaryContainer,
                     child: Center(
-                      child: Icon(Icons.tune_rounded, color: cs.tertiary, size: 26),
+                      child: Icon(Icons.tune_rounded, color: cs.onPrimaryContainer, size: 26),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -180,8 +175,7 @@ class SettingsScreen extends ConsumerWidget {
                               child: LiquidGlassCard(
                                 padding: EdgeInsets.zero,
                                 borderRadius: BorderRadius.circular(11),
-                                blurSigma: 8,
-                                color: t.accent.withValues(alpha: 0.15),
+                                color: t.accent,
                                 child: Center(
                                   child: Icon(
                                     Icons.color_lens_outlined,
@@ -315,9 +309,8 @@ class _Section extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 14,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.78),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,10 +387,9 @@ class _SettingRow extends StatelessWidget {
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(11),
-                blurSigma: 8,
-                color: (iconColor ?? cs.primary).withValues(alpha: 0.1),
+                color: iconColor != null ? cs.errorContainer : cs.primaryContainer,
                 child: Center(
-                  child: Icon(icon, size: 20, color: iconColor ?? cs.primary),
+                  child: Icon(icon, size: 20, color: iconColor ?? cs.onPrimaryContainer),
                 ),
               ),
             ),

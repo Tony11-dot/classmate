@@ -33,8 +33,8 @@ class NativeGlassView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tint = fallbackColor ??
         (isDark
-            ? Colors.black.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.45));
+            ? Colors.black
+            : Colors.white);
 
     if (Platform.isIOS) {
       return ClipRRect(

@@ -1,16 +1,14 @@
 {
   "@@locale": "ar",
-
   "menu": "القائمة",
-  "sectionCore": "الأساسي",
+  "sectionCore": "الرئيسي",
   "sectionSchoolTools": "أدوات المدرسة",
   "sectionAccount": "الحساب",
-
   "navSchedule": "الجدول",
   "navClassrooms": "الفصول",
   "navPractice": "التدريب",
   "navInsights": "الإحصاءات",
-  "navNova": "نوفا",
+  "navNova": "NOVA",
   "navMessages": "الرسائل",
   "navAttendance": "الحضور",
   "navGrades": "الدرجات",
@@ -28,17 +26,15 @@
   "navProfile": "الملف الشخصي",
   "navSettings": "الإعدادات",
   "navLogout": "تسجيل الخروج",
-
   "roleTeacher": "معلم",
   "roleAdmin": "مسؤول",
   "roleSecretary": "سكرتير",
   "roleParent": "ولي الأمر",
-
   "titleSchedule": "الجدول",
   "titleClasses": "الفصول",
   "titlePractice": "التدريب",
   "titleInsights": "الإحصاءات",
-  "titleNova": "نوفا",
+  "titleNova": "NOVA",
   "titleMessages": "الرسائل",
   "titleSolutions": "الحلول",
   "titleExams": "الاختبارات",
@@ -151,7 +147,6 @@
   "solutionsUploadRetryFailedFiles": "إعادة محاولة الملفات الفاشلة",
   "solutionsUploadSubmittingAction": "جاري التحميل...",
   "solutionsUploadSubmitAction": "تحميل الحل",
-
   "settingsTitle": "الإعدادات",
   "settingsSubtitle": "المظهر واللغة والحساب",
   "settingsAppearance": "المظهر",
@@ -169,7 +164,6 @@
   "settingsThemeLight": "فاتح",
   "settingsThemeDark": "داكن",
   "settingsLanguageSearchHint": "ابحث عن لغة...",
-
   "teacherWorkspaceSubtitle": "شغّل الحضور والقوائم والتقييم من تطبيق الجوال.",
   "teacherMetricSessionsToday": "حصص اليوم",
   "teacherMetricTeachingGroups": "المجموعات التعليمية",
@@ -209,32 +203,44 @@
   "teacherAttendanceTodaySessions": "جلسات اليوم",
   "teacherAttendanceSessionSummary": "{cohort} • الصف {grade} • {date} • الفترة {period}",
   "teacherAttendanceChanged": "تم التغيير",
+  "teacherAttendanceClassNotesLabel": "ملاحظات الحصة",
+  "teacherAttendanceClassNotesHint": "ما تم تناوله في هذه الحصة…",
   "teacherAttendanceNoteLabel": "ملاحظة",
-  "teacherAttendanceSaving": "جاري الحفظ…",
+  "teacherAttendanceSaving": "جارٍ الحفظ…",
+  "teacherAttendanceSaveAll": "حفظ الحضور",
   "teacherAttendanceSaveCount": "احفظ {count, plural, =1 {تغيير واحد} other {{count} تغييرات}}",
   "teacherAttendanceSaved": "تم حفظ سجل الحضور",
   "retry": "إعادة المحاولة",
   "scheduleRefreshTooFast": "يتم تحديث الجدول بسرعة كبيرة الآن. انتظر قليلاً ثم حاول مرة أخرى.",
-  "scheduleNotOnboarded": "ملف الطالب الخاص بك غير مكتمل بعد، لذلك لا يتوفر الجدول حالياً.",
+  "scheduleSessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مجدداً.",
+  "scheduleNotOnboarded": "ملف الطالب الخاص بك غير مكتمل. اطلب من مسؤول مدرستك تعيينك في فصل.",
   "scheduleLoadError": "تعذر تحميل الجدول حتى الآن.",
   "scheduleSelectedDay": "اليوم المحدد",
   "scheduleClassCount": "{count, plural, =0 {0 حصص} =1 {حصة واحدة} =2 {حصتان} few {{count} حصص} many {{count} حصة} other {{count} حصة}}",
-  "@scheduleClassCount": {"placeholders": {"count": {}}},
+  "@scheduleClassCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "scheduleNextUp": "التالي",
   "scheduleNoMoreClasses": "لا توجد حصص أخرى",
   "scheduleNoClassesTitle": "لا توجد حصص في هذا اليوم",
   "scheduleNoClassesSubtitle": "يبدو أن {day} خالٍ.",
-  "@scheduleNoClassesSubtitle": {"placeholders": {"day": {}}},
+  "@scheduleNoClassesSubtitle": {
+    "placeholders": {
+      "day": {}
+    }
+  },
   "scheduleClassFallback": "حصة",
-  "scheduleNoSubjectLocation": "لا توجد مادة أو موقع بعد",
-
+  "scheduleNoSubjectLocation": "No subject or location yet",
+  "scheduleNotes": "Notes",
+  "scheduleGoToClassroom": "Go to Classroom",
   "loginTitle": "تسجيل الدخول للجوال للطلاب والمعلمين",
   "loginSubtitle": "حسابات المعلمين تفتح مساحة المعلم. حسابات الطلاب تبقى في تجربة الطالب.",
   "loginSignIn": "تسجيل الدخول",
   "loginSigningIn": "جارٍ تسجيل الدخول...",
   "loginEmailLabel": "البريد الإلكتروني",
   "loginPasswordLabel": "كلمة المرور",
-
   "profileNotAvailable": "غير متاح",
   "profileSchoolInfo": "معلومات المدرسة",
   "profileFullName": "الاسم الكامل",
@@ -264,7 +270,6 @@
   "profilePasswordNotAuthenticated": "غير مسجل الدخول",
   "profilePasswordIncorrect": "كلمة المرور الحالية غير صحيحة",
   "profilePasswordGenericError": "حدث خطأ ما. حاول مرة أخرى.",
-
   "editProfileTitle": "تعديل الملف الشخصي",
   "editProfileSchool": "المدرسة",
   "editProfileSchoolPublic": "المدرسة عامة",
@@ -275,7 +280,6 @@
   "editProfileBioPublic": "النبذة عامة",
   "editProfileStatus": "الحالة",
   "editProfileStatusPublic": "الحالة عامة",
-
   "classroomsYourClassrooms": "فصولك الدراسية",
   "classroomsReorder": "إعادة ترتيب الفصول",
   "classroomsCount": "{count} فصول",
@@ -291,7 +295,6 @@
   "classroomsTapToOpen": "اضغط لفتح الفصل",
   "classroomsNoMessagesYet": "لا توجد رسائل بعد",
   "classroomsMessageFallback": "رسالة",
-
   "examsLoadError": "تعذر تحميل الاختبارات أو النماذج",
   "examsAllFilter": "الكل",
   "examsFormsSubtitle": "راجع نماذج الصف وفترات الرد والمتابعات التي تنشرها المدرسة.",
@@ -340,7 +343,6 @@
       "count": {}
     }
   },
-
   "insightsTrendBaseline": "الأساس",
   "insightsTrendImproving": "يتحسن",
   "insightsTrendDropping": "يتراجع",
@@ -392,7 +394,7 @@
   "insightsEmptySubtitle": "واصل استخدام التدريب وأدوات المدرسة حتى يتمكن ClassMate من بناء صورة أكاديمية أوضح.",
   "insightsGradeAverage": "متوسط الدرجات",
   "insightsAccuracy": "الدقة",
-  "insightsOpenNova": "افتح نوفا",
+  "insightsOpenNova": "افتح NOVA",
   "insightsOpenNovaPrompt": "ساعدني في إصلاح أضعف نقطة لدي بناءً على أحدث رؤى ClassMate.",
   "insightsPredictiveRecoveryPlanTitle": "خطة تعافٍ تنبؤية",
   "insightsPracticeNow": "تدرّب الآن",
@@ -403,18 +405,25 @@
   "insightsAiCoachTitle": "ملخص المدرب الذكي",
   "insightsAiCoachLoadingSubtitle": "جارٍ تحميل إرشادات الذكاء الاصطناعي.",
   "insightsAiCoachUnavailableSubtitle": "إرشادات الذكاء الاصطناعي غير متاحة لهذا الحساب الآن.",
-  "insightsAskNova": "اسأل نوفا",
+  "insightsAskNova": "اسأل NOVA",
   "insightsAskNovaPrompt": "ابنِ لي خطة تعافٍ من أحدث رؤاي.",
   "insightsAiStudyCoachTitle": "مدرب الدراسة الذكي",
   "insightsSchoolToolsTitle": "أدوات المدرسة",
   "insightsSchoolToolsSubtitle": "انتقل مباشرة إلى مسارات الطالب التي تهم الآن أكثر.",
-
   "tutorUntitledChat": "محادثة بلا عنوان",
   "tutorNewChat": "محادثة جديدة",
   "tutorFailedToOpenSeededChat": "تعذر فتح المحادثة: {error}",
-  "@tutorFailedToOpenSeededChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToOpenSeededChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorFailedToCreateChat": "تعذر إنشاء المحادثة: {error}",
-  "@tutorFailedToCreateChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToCreateChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorRenameChatTitle": "إعادة تسمية المحادثة",
   "tutorChatNameHint": "اسم المحادثة",
   "tutorCancel": "إلغاء",
@@ -521,27 +530,53 @@
   "chatMediaPreviewRemoveAction": "إزالة",
   "chatMediaPreviewCaptionHint": "أضف تعليقًا...",
   "tutorPlanSelectedPlaceholder": "تم اختيار {plan}. ستبقى المدفوعات في الوضع التجريبي حاليًا.",
-  "@tutorPlanSelectedPlaceholder": {"placeholders": {"plan": {}}},
+  "@tutorPlanSelectedPlaceholder": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorFailedToLoadChats": "تعذر تحميل المحادثات",
   "tutorNoChatsYet": "لا توجد محادثات بعد",
   "tutorNoChatsMatchSearch": "لا توجد محادثات تطابق بحثك",
   "tutorCreateFirstChat": "أنشئ أول محادثة",
-  "tutorPlansTitle": "خطط نوفا",
+  "tutorPlansTitle": "خطط NOVA",
   "tutorPlansSubtitle": "تعتمد على افتراضات تكلفة {model} وحدود شهرية صارمة حتى يبقى الاستخدام مربحًا.",
-  "@tutorPlansSubtitle": {"placeholders": {"model": {}}},
+  "@tutorPlansSubtitle": {
+    "placeholders": {
+      "model": {}
+    }
+  },
   "tutorPlanPriceFree": "مجاني",
   "tutorPlanPriceMonthly": "${price}/شهريًا",
-  "@tutorPlanPriceMonthly": {"placeholders": {"price": {}}},
+  "@tutorPlanPriceMonthly": {
+    "placeholders": {
+      "price": {}
+    }
+  },
   "tutorPromptsLeft": "الطلبات المتبقية",
   "tutorUploadsLeft": "التحميلات المتبقية",
   "tutorVoiceLeft": "الدقائق الصوتية المتبقية",
   "tutorUsageValue": "{remaining}/{total}",
-  "@tutorUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorVoiceUsageValue": "{remaining}/{total} دقيقة",
-  "@tutorVoiceUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorVoiceUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorPaymentMethodsTitle": "طرق الدفع",
   "tutorPaymentMethodsSubtitle": "الدفع ما زال تجريبيًا حتى يصبح حساب ClassMate البنكي ومعالج الدفع جاهزين. الخطة المختارة هي {plan}.",
-  "@tutorPaymentMethodsSubtitle": {"placeholders": {"plan": {}}},
+  "@tutorPaymentMethodsSubtitle": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorCardCheckoutTitle": "الدفع بالبطاقة",
   "tutorCardCheckoutSubtitle": "بوابة تجريبية لبطاقات Visa وMastercard وAmEx.",
   "tutorApplePayTitle": "Apple Pay",
@@ -551,27 +586,60 @@
   "tutorPlanStarterName": "البداية",
   "tutorPlanStarterTagline": "يكفي للتجربة والمراجعة الأسبوعية الخفيفة.",
   "tutorPlanPlusName": "بلس",
-  "tutorPlanPlusTagline": "الأفضل لطالب جاد يستخدم نوفا معظم الأيام.",
+  "tutorPlanPlusTagline": "الأفضل لطالب جاد يستخدم NOVA معظم الأيام.",
   "tutorPlanProName": "برو",
   "tutorPlanProTagline": "لاستخدام يومي كثيف وموسم اختبارات كامل وجلسات دراسة طويلة.",
   "tutorPlanSchoolSeatName": "مقعد مدرسي",
   "tutorPlanSchoolSeatTagline": "للتعميم لكل طالب أو موظف داخل مدرسة حقيقية.",
   "tutorPlanBulletPromptsMonthly": "{count} طلبات NOVA كل شهر",
-  "@tutorPlanBulletPromptsMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletPromptsPerSeatMonthly": "{count} طلبات NOVA لكل مقعد شهريًا",
-  "@tutorPlanBulletPromptsPerSeatMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsPerSeatMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletUploads": "{count} تحميلات صور أو ملفات",
-  "@tutorPlanBulletUploads": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletUploads": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletVoiceMinutes": "{count} دقائق تفريغ صوتي",
-  "@tutorPlanBulletVoiceMinutes": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletVoiceMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorEstimatedCostCeilingFree": "السقف التقديري للتكلفة: ${cost}/شهريًا",
-  "@tutorEstimatedCostCeilingFree": {"placeholders": {"cost": {}}},
+  "@tutorEstimatedCostCeilingFree": {
+    "placeholders": {
+      "cost": {}
+    }
+  },
   "tutorEstimatedCostCeilingPaid": "السقف التقديري للتكلفة: ${cost}/شهريًا • هامش {margin}%",
-  "@tutorEstimatedCostCeilingPaid": {"placeholders": {"cost": {}, "margin": {}}},
+  "@tutorEstimatedCostCeilingPaid": {
+    "placeholders": {
+      "cost": {},
+      "margin": {}
+    }
+  },
   "tutorTimeMinutesShort": "{count}د",
-  "@tutorTimeMinutesShort": {"placeholders": {"count": {}}},
+  "@tutorTimeMinutesShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorTimeHoursShort": "{count}س",
-  "@tutorTimeHoursShort": {"placeholders": {"count": {}}},
+  "@tutorTimeHoursShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorVoiceMessageFallback": "رسالة صوتية",
   "tutorFileFallback": "ملف",
   "tutorCopy": "نسخ",
@@ -595,7 +663,14 @@
   "tutorPlanLimitReachedMessage": "تم استنفاد حصة هذا الشهر من الطلبات أو التحميلات لخطة NOVA الحالية. اختر خطة أعلى من شاشة NOVA الرئيسية للمتابعة.",
   "tutorSendFailed": "فشل الإرسال.",
   "tutorCurrentPlanUsageSummary": "الخطة الحالية: {plan} • المتبقي {prompts} طلبات • المتبقي {uploads} تحميلات • المتبقي {voice} دقائق صوت",
-  "@tutorCurrentPlanUsageSummary": {"placeholders": {"plan": {}, "prompts": {}, "uploads": {}, "voice": {}}},
+  "@tutorCurrentPlanUsageSummary": {
+    "placeholders": {
+      "plan": {},
+      "prompts": {},
+      "uploads": {},
+      "voice": {}
+    }
+  },
   "tutorReviewPlansInHome": "راجع الخطط في NOVA الرئيسية",
   "tutorCouldNotOpenAttachment": "تعذر فتح المرفق.",
   "tutorAttachmentUnavailable": "المرفق غير متاح.",
@@ -612,170 +687,204 @@
   "tutorYourNovaPlanTitle": "خطتك في NOVA",
   "tutorYourNovaPlanMessage": "راجع حدود الطلبات والتحميلات والصوت هنا، ثم ارجع إلى NOVA الرئيسية إذا أردت تبديل الخطة.",
   "tutorExplainTitle": "شرح NOVA",
-
   "classroomsThreadTypeClassroom": "فصل",
   "classroomsThreadTypeGroup": "مجموعة",
   "classroomsThreadTypeDirectMessage": "رسالة مباشرة",
-    "classroomsThreadTypeDirectMessageShort": "مباشر",
-    "messagesBlockedPeopleTitle": "الأشخاص المحظورون",
-    "messagesStartChatAction": "بدء دردشة",
-    "messagesLoadFailed": "تعذر تحميل الرسائل: {error}",
-    "@messagesLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchHint": "ابحث في الرسائل",
-    "messagesNoResults": "لم يتم العثور على رسائل",
-    "messagesRequestsSection": "الطلبات",
-    "messagesPendingApprovals": "الموافقات المعلقة",
-    "messagesChatsSection": "الدردشات",
-    "messagesAllChatsSection": "كل الدردشات",
-    "messagesConversationCount": "{count, plural, =1 {محادثة واحدة} other {{count} محادثات}}",
-    "@messagesConversationCount": {"placeholders": {"count": {}}},
-    "messagesRequestReviewStatus": "مراجعة",
-    "messagesPeopleLoadFailed": "تعذر تحميل الأشخاص: {error}",
-    "@messagesPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchPeopleHint": "ابحث عن أشخاص",
-    "messagesNewGroupTitle": "مجموعة جديدة",
-    "messagesNewGroupSubtitle": "إنشاء دردشة جماعية",
-    "messagesGroupNameHint": "اسم المجموعة",
-    "messagesCreateGroupAction": "إنشاء مجموعة",
-    "messagesBlockedPersonFallback": "هذا الشخص",
-    "messagesUnblockPersonTitle": "إلغاء حظر الشخص؟",
-    "messagesUnblockPersonBody": "السماح لـ {name} بمراسلتك مرة أخرى؟",
-    "@messagesUnblockPersonBody": {"placeholders": {"name": {}}},
-    "messagesUnblockAction": "إلغاء الحظر",
-    "messagesUnblockedToast": "تم إلغاء حظر {name}",
-    "@messagesUnblockedToast": {"placeholders": {"name": {}}},
-    "messagesBlockedPeopleLoadFailed": "تعذر تحميل الأشخاص المحظورين: {error}",
-    "@messagesBlockedPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesNoBlockedPeople": "لا يوجد أشخاص محظورون",
-    "messagesUnknownUser": "مستخدم غير معروف",
-    "announcementsLoadError": "لم نتمكن من تحميل الإعلانات الآن. اسحب لتحديث أو حاول مرة أخرى.",
-    "announcementsLoadTimeout": "الإعلانات تستغرق وقتاً طويلاً للتحميل. اسحب لتحديث أو حاول بعد قليل.",
-    "announcementsLoadNetwork": "لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.",
-    "announcementsAudienceTeacher": "معلم",
-    "announcementsAudienceAccount": "حساب",
-    "announcementsAudienceTeacherWorkspace": "مساحة عمل المعلم",
-    "announcementsLoadFailedTitle": "لم يتمكن من تحميل الإعلانات",
-    "announcementsLoadFailedHint": "اسحب لتحديث بعد استقرار الاتصال.",
-    "announcementsHeroSubtitle": "الإعلانات المنشورة من المدرسة والمعلم والنظام المتاحة لـ {audience}.",
-    "announcementsLatestSourceLabel": "أحدث مصدر",
-    "announcementsNone": "لا شيء",
-    "announcementsUnreadCountTitle": "{count, plural, =1 {إعلان واحد غير مقروء} other {{count} إعلانات غير مقروءة}}",
-    "announcementsAllReadTitle": "كل شيء مقروء",
-    "announcementsEmptyForAudience": "لم يتم نشر إعلانات لـ {audience} حتى الآن.",
-    "announcementsLatestBody": "الأحدث: {title}. اضغط عليها لقراءة المحتوى كاملاً.",
-    "announcementsFiltersSubtitle": "ضيّق صندوق الوارد حسب المصدر أو حالة القراءة لتركيز على ما يحتاج الاهتمام.",
-    "announcementsAllAnnouncements": "كل الإعلانات",
-    "announcementsSearchStatesHint": "غير مقروء / مقروء",
-    "announcementsSummarySourceSegment": " من {source}",
-    "announcementsSummaryStateSegment": " في {state}",
-    "announcementsShowingSummary": "عرض {shown} من {total} إعلان{sourceSegment}{stateSegment}.",
-    "announcementsNoMatchTitle": "لا توجد إعلانات تطابق هذه المرشحات",
-    "announcementsNoPublishedTitle": "لا توجد إعلانات منشورة حتى الآن",
-    "announcementsNoMatchSubtitle": "جرّب مصدراً مختلفاً أو العودة إلى كل الإعلانات لإظهار المزيد من العناصر.",
-    "announcementsClearFiltersHint": "امسح المرشحات لرؤية كل شيء مرة أخرى.",
-    "announcementsPullToRefreshHint": "اسحب لتحديث بعد نشر نشاط مدرسي جديد.",
-    "announcementsInboxTitle": "صندوق الوارد",
-    "announcementsInboxSubtitle": "تظهر العناوين فقط هنا للمراجعة السريعة. اضغط على أي عنصر لفتح محتوى الإعلان كاملاً.",
-    "announcementsDetailLoadFailedHint": "العودة وحاول تحديث صندوق الوارد للإعلانات.",
-    "announcementsUnavailableTitle": "الإعلان غير متاح",
-    "announcementsUnavailableSubtitle": "هذا الإعلان لم يعد متاحاً في الخلاصة المنشورة لـ {audience}.",
-    "announcementsUnavailableHint": "العودة إلى صندوق الوارد للمتابعة.",
-    "announcementsPublishedReadStateBody": "تم نشر هذا الإعلان لـ {audience} وحالة القراءة مخزنة محلياً على هذا الجهاز.",
-    "announcementsDetailsTitle": "تفاصيل الإعلان",
-    "announcementsDetailsSubtitle": "البيانات الوصفية المنشورة لهذا الإعلان وحالة القراءة الحالية.",
-    "announcementsSeverityLabel": "الخطورة",
-    "announcementsCreatedLabel": "تم الإنشاء",
-    "announcementsIdLabel": "معرّف الإعلان",
-    "announcementsFullContentTitle": "المحتوى الكامل",
-    "announcementsFullContentSubtitle": "يظهر نص الإعلان كاملاً هنا بعد فتح العنصر من صندوق الوارد.",
-    "announcementsReadStateTitle": "حالة القراءة",
-    "announcementsReadStateBodyRead": "هذا الإعلان مضروب بعلامة مقروء على هذا الجهاز.",
-    "announcementsReadStateBodyUnread": "هذا الإعلان لا يزال غير مقروء على هذا الجهاز.",
-    "gradesLoadError": "لم نتمكن من تحميل الدرجات الآن. اسحب للتحديث أو حاول مجددًا.",
-    "gradesLoadTimeout": "استغرقت الدرجات وقتًا طويلًا جدًا للتحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.",
-    "gradesLoadNetwork": "لم نتمكن من الاتصال بالدرجات الآن. تحقق من اتصالك وحاول مجددًا.",
-    "gradesGeneralSubject": "عام",
-    "gradesBandBuilding": "قيد الإنشاء",
-    "gradesBandExcellent": "ممتاز",
-    "gradesBandStrong": "قوي",
-    "gradesBandOkay": "حسن",
-    "gradesBandNeedsAttention": "يحتاج إلى اهتمام",
-    "gradesBandRisk": "في خطر",
-    "gradesTrendRising": "صاعد",
-    "gradesTrendDropping": "هابط",
-    "gradesTrendStable": "مستقر",
-    "gradesShowingSummary": "عرض {shown} من {total} درجات مسجلة لـ {subject} في {range}.",
-    "gradesLoadingSubtitle": "جاري تحميل أحدث نتائجك الأكاديمية.",
-    "gradesUnavailableTitle": "الدرجات غير متاحة",
-    "gradesHeroSubtitle": "قراءة واضحة لمتوسطك والتقييمات الحديثة والمواضيع التي تحتاج حماية أو استعادة.",
-    "gradesMetricAverage": "المتوسط",
-    "gradesMetricRecorded": "مسجل",
-    "gradesMetricBestSubject": "أفضل مادة",
-    "gradesMetricNeedsWork": "يحتاج إلى عمل",
-    "gradesLatestSignalBody": "{assessment} في {subject} حصل على {grade}. {band} الآن.",
-    "gradesSummaryAvailableNoRecent": "ملخص الدرجات متاح، لكن لا توجد تقييمات حديثة مرئية في هذا العرض حتى الآن.",
-    "gradesEmptyTitle": "لا توجد درجات بعد",
-    "gradesEmptySubtitle": "لم يتم نشر أي درجات لحساب هذا الطالب حتى الآن.",
-    "gradesFiltersSubtitle": "استخدم نفس أداة الاختيار القابلة للبحث مثل الإعدادات لتضييق الدرجات حسب المادة أو نافذة زمنية.",
-    "gradesNoFilteredTitle": "لا توجد درجات تطابق هذه المرشحات",
-    "gradesNoFilteredSubtitle": "جرب جميع المواضيع أو نطاق زمني أوسع لإعادة مزيد من الدرجات المسجلة.",
-    "gradesQuickReadTitle": "قراءة سريعة",
-    "gradesQuickReadSubtitleFiltered": "ملخص سريع للدرجات الحالية في العرض.",
-    "gradesQuickReadSubtitleAll": "أسرع قراءة لما يجب حمايته واسترجاعه.",
-    "gradesWeakSpotLabel": "نقطة ضعف حالية",
-    "gradesNoWeakSignal": "لا توجد إشارة مادة ضعيفة حتى الآن",
-    "gradesWeakSpotValue": "{subject} يحتاج إلى كتلة الاسترجاع الأولى.",
-    "gradesStrengthLabel": "نقطة قوة حالية",
-    "gradesNoStrengthSignal": "لا توجد إشارة مادة قوية حتى الآن",
-    "gradesStrengthValue": "{subject} هو مرساك الثقة الآن.",
-    "gradesBandLabel": "النطاق",
-    "gradesInViewLabel": "في العرض",
-    "gradesInViewCount": "{count} درجات مسجلة في هذا المرشح.",
-    "gradesInViewAverage": "{count} درجات مسجلة بمتوسط {average}.",
-    "gradesLatestAssessmentsTitle": "أحدث التقييمات",
-    "gradesLatestAssessmentsSubtitleFiltered": "أحدث الدرجات المسجلة في العرض المفلتر الحالي.",
-    "gradesLatestAssessmentsSubtitleAll": "أحدث الدرجات المسجلة بترتيب زمني.",
-    "gradesSubjectDrilldownTitle": "تفصيل المادة",
-    "gradesSubjectDrilldownSubtitleFiltered": "مجمعة حسب المادة للدرجات الحالية في العرض.",
-    "gradesSubjectDrilldownSubtitleAll": "مجمعة حسب المادة لتبرز الاتجاهات والضغط بشكل أسرع.",
-    "gradesAssessmentFallback": "التقييم",
-    "gradesChipBest": "الأفضل",
-    "gradesNoAverageYet": "لا يوجد متوسط حتى الآن",
-    "gradesRecentAverage": "المتوسط الأخير: {average}",
-    "messagesRequestTitle": "طلب",
-    "messagesRequestLoadFailed": "تعذر تحميل الطلب: {error}",
-    "@messagesRequestLoadFailed": {"placeholders": {"error": {}}},
-    "messagesRequestBannerIncoming": "طلب رسالة",
-    "messagesRequestBannerOutgoing": "موافقة معلقة",
-    "messagesBlockAction": "حظر",
-    "messagesApproveAction": "موافقة",
-    "messagesRequestUnlockHint": "يتم فتح الدردشة بعد أن يوافق المستلم على رسالتك الأولى.",
-    "messagesThreadConversationFallback": "محادثة",
-    "messagesThreadLeaveGroupTitle": "مغادرة المجموعة؟",
-    "messagesThreadLeaveGroupBody": "ستتوقف عن تلقي الرسائل من هذه المجموعة.",
-    "messagesThreadBlockPersonTitle": "حظر هذا الشخص؟",
-    "messagesThreadBlockPersonBody": "لن تتمكن بعد الآن من تبادل الرسائل مع هذا الشخص.",
-    "messagesThreadPersonFallback": "شخص",
-    "messagesThreadProfileInfoUnavailable": "معلومات الملف الشخصي غير متاحة",
-    "messagesThreadParticipants": "المشاركون",
-    "messagesThreadPeople": "الأشخاص",
-    "messagesThreadDeleteForMe": "حذف لي فقط",
-    "messagesThreadDeleteForEveryone": "حذف للجميع",
-    "messagesThreadDeleteForEveryoneSubtitle": "يزيلها لجميع المشاركين",
-    "messagesThreadSending": "جارٍ الإرسال…",
-    "messagesThreadWaitingForApproval": "بانتظار الموافقة",
+  "classroomsThreadTypeDirectMessageShort": "مباشر",
+  "messagesBlockedPeopleTitle": "الأشخاص المحظورون",
+  "messagesStartChatAction": "بدء دردشة",
+  "messagesLoadFailed": "تعذر تحميل الرسائل: {error}",
+  "@messagesLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchHint": "ابحث في الرسائل",
+  "messagesNoResults": "لم يتم العثور على رسائل",
+  "messagesRequestsSection": "الطلبات",
+  "messagesPendingApprovals": "الموافقات المعلقة",
+  "messagesChatsSection": "الدردشات",
+  "messagesAllChatsSection": "كل الدردشات",
+  "messagesConversationCount": "{count, plural, =1 {محادثة واحدة} other {{count} محادثات}}",
+  "@messagesConversationCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "messagesRequestReviewStatus": "مراجعة",
+  "messagesPeopleLoadFailed": "تعذر تحميل الأشخاص: {error}",
+  "@messagesPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchPeopleHint": "ابحث عن أشخاص",
+  "messagesNewGroupTitle": "مجموعة جديدة",
+  "messagesNewGroupSubtitle": "إنشاء دردشة جماعية",
+  "messagesGroupNameHint": "اسم المجموعة",
+  "messagesCreateGroupAction": "إنشاء مجموعة",
+  "messagesBlockedPersonFallback": "هذا الشخص",
+  "messagesUnblockPersonTitle": "إلغاء حظر الشخص؟",
+  "messagesUnblockPersonBody": "السماح لـ {name} بمراسلتك مرة أخرى؟",
+  "@messagesUnblockPersonBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesUnblockAction": "إلغاء الحظر",
+  "messagesUnblockedToast": "تم إلغاء حظر {name}",
+  "@messagesUnblockedToast": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesBlockedPeopleLoadFailed": "تعذر تحميل الأشخاص المحظورين: {error}",
+  "@messagesBlockedPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesNoBlockedPeople": "لا يوجد أشخاص محظورون",
+  "messagesUnknownUser": "مستخدم غير معروف",
+  "announcementsLoadError": "لم نتمكن من تحميل الإعلانات الآن. اسحب لتحديث أو حاول مرة أخرى.",
+  "announcementsLoadTimeout": "الإعلانات تستغرق وقتاً طويلاً للتحميل. اسحب لتحديث أو حاول بعد قليل.",
+  "announcementsLoadNetwork": "لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.",
+  "announcementsAudienceTeacher": "معلم",
+  "announcementsAudienceAccount": "حساب",
+  "announcementsAudienceTeacherWorkspace": "مساحة عمل المعلم",
+  "announcementsLoadFailedTitle": "لم يتمكن من تحميل الإعلانات",
+  "announcementsLoadFailedHint": "اسحب لتحديث بعد استقرار الاتصال.",
+  "announcementsHeroSubtitle": "الإعلانات المنشورة من المدرسة والمعلم والنظام المتاحة لـ {audience}.",
+  "announcementsLatestSourceLabel": "أحدث مصدر",
+  "announcementsNone": "لا يوجد",
+  "announcementsUnreadCountTitle": "{count, plural, =1 {إعلان واحد غير مقروء} other {{count} إعلانات غير مقروءة}}",
+  "announcementsAllReadTitle": "تمت قراءة الكل",
+  "announcementsEmptyForAudience": "لم يتم نشر إعلانات لـ {audience} حتى الآن.",
+  "announcementsLatestBody": "الأحدث: {title}. اضغط عليها لقراءة المحتوى كاملاً.",
+  "announcementsFiltersSubtitle": "ضيّق صندوق الوارد حسب المصدر أو حالة القراءة لتركيز على ما يحتاج الاهتمام.",
+  "announcementsAllAnnouncements": "كل الإعلانات",
+  "announcementsSearchStatesHint": "غير مقروء / مقروء",
+  "announcementsSummarySourceSegment": " من {source}",
+  "announcementsSummaryStateSegment": " في {state}",
+  "announcementsShowingSummary": "عرض {shown} من {total} إعلان{sourceSegment}{stateSegment}.",
+  "announcementsNoMatchTitle": "لا توجد إعلانات تطابق هذه المرشحات",
+  "announcementsNoPublishedTitle": "لا توجد إعلانات منشورة حتى الآن",
+  "announcementsNoMatchSubtitle": "جرّب مصدراً مختلفاً أو العودة إلى كل الإعلانات لإظهار المزيد من العناصر.",
+  "announcementsClearFiltersHint": "امسح المرشحات لرؤية كل شيء مرة أخرى.",
+  "announcementsPullToRefreshHint": "اسحب لتحديث بعد نشر نشاط مدرسي جديد.",
+  "announcementsInboxTitle": "صندوق الوارد",
+  "announcementsInboxSubtitle": "تظهر العناوين فقط هنا للمراجعة السريعة. اضغط على أي عنصر لفتح محتوى الإعلان كاملاً.",
+  "announcementsDetailLoadFailedHint": "العودة وحاول تحديث صندوق الوارد للإعلانات.",
+  "announcementsUnavailableTitle": "الإعلان غير متاح",
+  "announcementsUnavailableSubtitle": "هذا الإعلان لم يعد متاحاً في الخلاصة المنشورة لـ {audience}.",
+  "announcementsUnavailableHint": "العودة إلى صندوق الوارد للمتابعة.",
+  "announcementsPublishedReadStateBody": "تم نشر هذا الإعلان لـ {audience} وحالة القراءة مخزنة محلياً على هذا الجهاز.",
+  "announcementsDetailsTitle": "تفاصيل الإعلان",
+  "announcementsDetailsSubtitle": "البيانات الوصفية المنشورة لهذا الإعلان وحالة القراءة الحالية.",
+  "announcementsSeverityLabel": "الخطورة",
+  "announcementsCreatedLabel": "تم الإنشاء",
+  "announcementsIdLabel": "معرّف الإعلان",
+  "announcementsFullContentTitle": "المحتوى الكامل",
+  "announcementsFullContentSubtitle": "يظهر نص الإعلان كاملاً هنا بعد فتح العنصر من صندوق الوارد.",
+  "announcementsReadStateTitle": "حالة القراءة",
+  "announcementsReadStateBodyRead": "هذا الإعلان مضروب بعلامة مقروء على هذا الجهاز.",
+  "announcementsReadStateBodyUnread": "هذا الإعلان لا يزال غير مقروء على هذا الجهاز.",
+  "gradesLoadError": "لم نتمكن من تحميل الدرجات الآن. اسحب للتحديث أو حاول مجددًا.",
+  "gradesLoadTimeout": "استغرقت الدرجات وقتًا طويلًا جدًا للتحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.",
+  "gradesLoadNetwork": "لم نتمكن من الاتصال بالدرجات الآن. تحقق من اتصالك وحاول مجددًا.",
+  "gradesGeneralSubject": "عام",
+  "gradesBandBuilding": "قيد الإنشاء",
+  "gradesBandExcellent": "ممتاز",
+  "gradesBandStrong": "قوي",
+  "gradesBandOkay": "حسن",
+  "gradesBandNeedsAttention": "يحتاج إلى اهتمام",
+  "gradesBandRisk": "في خطر",
+  "gradesTrendRising": "صاعد",
+  "gradesTrendDropping": "هابط",
+  "gradesTrendStable": "مستقر",
+  "gradesShowingSummary": "عرض {shown} من {total} درجات مسجلة لـ {subject} في {range}.",
+  "gradesLoadingSubtitle": "جاري تحميل أحدث نتائجك الأكاديمية.",
+  "gradesUnavailableTitle": "الدرجات غير متاحة",
+  "gradesHeroSubtitle": "قراءة واضحة لمتوسطك والتقييمات الحديثة والمواضيع التي تحتاج حماية أو استعادة.",
+  "gradesMetricAverage": "المتوسط",
+  "gradesMetricRecorded": "مسجل",
+  "gradesMetricBestSubject": "أفضل مادة",
+  "gradesMetricNeedsWork": "يحتاج إلى عمل",
+  "gradesLatestSignalBody": "{assessment} في {subject} حصل على {grade}. {band} الآن.",
+  "gradesSummaryAvailableNoRecent": "ملخص الدرجات متاح، لكن لا توجد تقييمات حديثة مرئية في هذا العرض حتى الآن.",
+  "gradesEmptyTitle": "لا توجد درجات بعد",
+  "gradesEmptySubtitle": "لم يتم نشر أي درجات لحساب هذا الطالب حتى الآن.",
+  "gradesFiltersSubtitle": "استخدم نفس أداة الاختيار القابلة للبحث مثل الإعدادات لتضييق الدرجات حسب المادة أو نافذة زمنية.",
+  "gradesNoFilteredTitle": "لا توجد درجات تطابق هذه المرشحات",
+  "gradesNoFilteredSubtitle": "جرب جميع المواضيع أو نطاق زمني أوسع لإعادة مزيد من الدرجات المسجلة.",
+  "gradesQuickReadTitle": "قراءة سريعة",
+  "gradesQuickReadSubtitleFiltered": "ملخص سريع للدرجات الحالية في العرض.",
+  "gradesQuickReadSubtitleAll": "أسرع قراءة لما يجب حمايته واسترجاعه.",
+  "gradesWeakSpotLabel": "نقطة ضعف حالية",
+  "gradesNoWeakSignal": "لا توجد إشارة مادة ضعيفة حتى الآن",
+  "gradesWeakSpotValue": "{subject} يحتاج إلى كتلة الاسترجاع الأولى.",
+  "gradesStrengthLabel": "نقطة قوة حالية",
+  "gradesNoStrengthSignal": "لا توجد إشارة مادة قوية حتى الآن",
+  "gradesStrengthValue": "{subject} هو مرساك الثقة الآن.",
+  "gradesBandLabel": "النطاق",
+  "gradesInViewLabel": "في العرض",
+  "gradesInViewCount": "{count} درجات مسجلة في هذا المرشح.",
+  "gradesInViewAverage": "{count} درجات مسجلة بمتوسط {average}.",
+  "gradesLatestAssessmentsTitle": "أحدث التقييمات",
+  "gradesLatestAssessmentsSubtitleFiltered": "أحدث الدرجات المسجلة في العرض المفلتر الحالي.",
+  "gradesLatestAssessmentsSubtitleAll": "أحدث الدرجات المسجلة بترتيب زمني.",
+  "gradesSubjectDrilldownTitle": "تفصيل المادة",
+  "gradesSubjectDrilldownSubtitleFiltered": "مجمعة حسب المادة للدرجات الحالية في العرض.",
+  "gradesSubjectDrilldownSubtitleAll": "مجمعة حسب المادة لتبرز الاتجاهات والضغط بشكل أسرع.",
+  "gradesAssessmentFallback": "التقييم",
+  "gradesChipBest": "الأفضل",
+  "gradesNoAverageYet": "لا يوجد متوسط حتى الآن",
+  "gradesRecentAverage": "المتوسط الأخير: {average}",
+  "messagesRequestTitle": "طلب",
+  "messagesRequestLoadFailed": "تعذر تحميل الطلب: {error}",
+  "@messagesRequestLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesRequestBannerIncoming": "طلب رسالة",
+  "messagesRequestBannerOutgoing": "موافقة معلقة",
+  "messagesBlockAction": "حظر",
+  "messagesApproveAction": "موافقة",
+  "messagesRequestUnlockHint": "يتم فتح الدردشة بعد أن يوافق المستلم على رسالتك الأولى.",
+  "messagesThreadConversationFallback": "محادثة",
+  "messagesThreadLeaveGroupTitle": "مغادرة المجموعة؟",
+  "messagesThreadLeaveGroupBody": "ستتوقف عن تلقي الرسائل من هذه المجموعة.",
+  "messagesThreadBlockPersonTitle": "حظر هذا الشخص؟",
+  "messagesThreadBlockPersonBody": "لن تتمكن بعد الآن من تبادل الرسائل مع هذا الشخص.",
+  "messagesThreadPersonFallback": "شخص",
+  "messagesThreadProfileInfoUnavailable": "معلومات الملف الشخصي غير متاحة",
+  "messagesThreadParticipants": "المشاركون",
+  "messagesThreadPeople": "الأشخاص",
+  "messagesThreadDeleteForMe": "حذف لي فقط",
+  "messagesThreadDeleteForEveryone": "حذف للجميع",
+  "messagesThreadDeleteForEveryoneSubtitle": "يزيلها لجميع المشاركين",
+  "messagesThreadSending": "جارٍ الإرسال…",
+  "messagesThreadWaitingForApproval": "بانتظار الموافقة",
   "classroomsForwardSearchHint": "ابحث في المحادثات",
   "classroomsForwardNewChat": "محادثة جديدة",
   "classroomsForwardLoadError": "تعذر تحميل المحادثات: {error}",
-  "@classroomsForwardLoadError": {"placeholders": {"error": {}}},
+  "@classroomsForwardLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "classroomsForwardNoChatsFound": "لم يتم العثور على محادثات",
   "classroomsForwardSectionClassrooms": "الفصول",
   "classroomsForwardSectionDirectMessages": "الرسائل المباشرة",
   "classroomsForwardCancel": "إلغاء",
   "classroomsForwardAction": "إعادة توجيه",
   "classroomsForwardCount": "إعادة توجيه ({count})",
-  "@classroomsForwardCount": {"placeholders": {"count": {}}},
-
+  "@classroomsForwardCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "markRead": "تمييز كمقروء",
   "markUnread": "تمييز كغير مقروء",
   "markAllRead": "تمييز الكل كمقروء",
@@ -801,7 +910,12 @@
   "notificationsFiltersSubtitle": "ركّز حسب المصدر أو حالة القراءة لفرز التنبيهات بسرعة.",
   "notificationsSearchSourcesHint": "ابحث في المصادر",
   "notificationsShowingSummary": "يتم عرض {shown} من أصل {total} إشعارًا.",
-  "@notificationsShowingSummary": {"placeholders": {"shown": {}, "total": {}}},
+  "@notificationsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {}
+    }
+  },
   "notificationsEmptyForAccount": "لا توجد إشعارات متاحة لهذا الحساب الآن.",
   "notificationsEmptyFiltered": "لا توجد إشعارات تطابق هذه الفلاتر الآن. امسح الفلاتر لرؤية كل التنبيهات.",
   "notificationsEmpty": "لا توجد إشعارات متاحة الآن.",
@@ -814,13 +928,26 @@
   "alertsSubtitle": "هذه الصفحة مخصصة للأشياء التي تحتاج إلى اهتمام الآن، وليس مجرد تحديثات عامة.",
   "alertsAttendanceTitle": "الحضور يحتاج إلى انتباه",
   "alertsAttendanceBody": "معدل حضورك هو {rate}%. بضع حصص مفقودة قد تتراكم بسرعة.",
-  "@alertsAttendanceBody": {"placeholders": {"rate": {}}},
+  "@alertsAttendanceBody": {
+    "placeholders": {
+      "rate": {}
+    }
+  },
   "alertsWeakestSubjectTitle": "إشارة أضعف مادة",
   "alertsWeakestSubjectBody": "تحتاج مادة {subject} إلى أكبر قدر من الانتباه الآن بناءً على أحدث درجاتك.",
-  "@alertsWeakestSubjectBody": {"placeholders": {"subject": {}}},
+  "@alertsWeakestSubjectBody": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
   "alertsPracticeWeakAreaTitle": "منطقة ضعف في التدريب",
   "alertsPracticeWeakAreaBody": "{topic} في {subject} هو أوضح موضوع ضعيف لديك الآن.",
-  "@alertsPracticeWeakAreaBody": {"placeholders": {"topic": {}, "subject": {}}},
+  "@alertsPracticeWeakAreaBody": {
+    "placeholders": {
+      "topic": {},
+      "subject": {}
+    }
+  },
   "alertsPracticeTrendDroppedTitle": "انخفض اتجاه التدريب",
   "alertsPracticeTrendDroppedBody": "أداؤك خلال 7 أيام أقل من خط الأساس خلال 30 يومًا. تمهّل وراجع الأساسيات قبل زيادة الضغط.",
   "alertsEmpty": "أنت بخير الآن. عندما يظهر شيء يحتاج إلى اهتمام عاجل، سيظهر هنا.",
@@ -886,9 +1013,9 @@
   "classroomDetailNoMeetingsTitle": "لا توجد اجتماعات بعد",
   "classroomDetailNoMeetingsSubtitle": "لا توجد اجتماعات في هذا الفصل حالياً.",
   "classroomDetailMeetingFallback": "اجتماع",
-  "meetingsLoadError": "لا يمكننا تحميل الحصص الدراسية الآن. اسحب للتحديث أو حاول مرة أخرى.",
-  "meetingsLoadTimeout": "تستغرق الحصص الدراسية وقتاً طويلاً في التحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.",
-  "meetingsLoadNetwork": "لا يمكن الاتصال بالحصص الدراسية الآن. تحقق من اتصالك وحاول مرة أخرى.",
+  "meetingsLoadError": "لا يمكننا تحميل الاجتماعات الآن. اسحب للتحديث أو حاول مرة أخرى.",
+  "meetingsLoadTimeout": "تستغرق الاجتماعات وقتاً طويلاً في التحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.",
+  "meetingsLoadNetwork": "لا يمكن الاتصال بالاجتماعات الآن. تحقق من اتصالك وحاول مرة أخرى.",
   "meetingsHeroSubtitle": "كل حصص الفصل الدراسي في عرض واحد نظيف، مع الروابط المرفقة وصفحة تفاصيل ملء الشاشة عند الحاجة إلى السياق.",
   "meetingsJoinReadyMetric": "جاهز للانضمام",
   "meetingsNoLinkMetric": "بدون رابط",
@@ -978,26 +1105,66 @@
   "practiceSetupHeroSubtitle": "اختر الوضع والتوقيت والصعوبة.",
   "practiceSetupInfiniteLives": "محاولات لا نهائية",
   "practiceSetupLivesCount": "{count} محاولات",
-  "@practiceSetupLivesCount": {"placeholders": {"count": {}}},
+  "@practiceSetupLivesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupAiTiming": "توقيت الذكاء الاصطناعي",
   "practiceSetupSecondsShort": "{seconds}ث",
-  "@practiceSetupSecondsShort": {"placeholders": {"seconds": {}}},
+  "@practiceSetupSecondsShort": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
   "practiceSetupQuestionsCount": "{count} أسئلة",
-  "@practiceSetupQuestionsCount": {"placeholders": {"count": {}}},
+  "@practiceSetupQuestionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummarySubject": "المادة: {subject}",
-  "@practiceSetupSummarySubject": {"placeholders": {"subject": {}}},
+  "@practiceSetupSummarySubject": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
   "practiceSetupSummaryTopic": "الموضوع: {topic}",
-  "@practiceSetupSummaryTopic": {"placeholders": {"topic": {}}},
+  "@practiceSetupSummaryTopic": {
+    "placeholders": {
+      "topic": {}
+    }
+  },
   "practiceSetupSummaryMode": "الوضع: {mode}",
-  "@practiceSetupSummaryMode": {"placeholders": {"mode": {}}},
+  "@practiceSetupSummaryMode": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSetupSummaryDifficulty": "الصعوبة: {difficulty}",
-  "@practiceSetupSummaryDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSetupSummaryDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceSetupSummaryQuestions": "الأسئلة: {count}",
-  "@practiceSetupSummaryQuestions": {"placeholders": {"count": {}}},
+  "@practiceSetupSummaryQuestions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummaryTiming": "التوقيت: {timing}",
-  "@practiceSetupSummaryTiming": {"placeholders": {"timing": {}}},
+  "@practiceSetupSummaryTiming": {
+    "placeholders": {
+      "timing": {}
+    }
+  },
   "practiceSetupSummaryLives": "المحاولات: {lives}",
-  "@practiceSetupSummaryLives": {"placeholders": {"lives": {}}},
+  "@practiceSetupSummaryLives": {
+    "placeholders": {
+      "lives": {}
+    }
+  },
   "practiceSetupSectionSubjectTopic": "المادة والموضوع",
   "practiceSetupFieldSubject": "المادة",
   "practiceSetupFieldSubjectHint": "اختر المادة",
@@ -1102,10 +1269,10 @@
   "practiceSetupLivesTitle": "المحاولات",
   "practiceSetupLivesCaption": "الأخطاء المسموح بها قبل انتهاء الجلسة",
   "practiceSetupTooltipHistory": "سجل التدريب",
-  "practiceHistoryTitle": "سجل الممارسة",
+  "practiceHistoryTitle": "سجل التدريب",
   "practiceHistoryClearTooltip": "مسح السجل",
   "practiceHistoryClearConfirmTitle": "مسح سجل الممارسة؟",
-  "practiceHistoryClearConfirmBody": "هذا يزيل جميع جلسات الممارسة المحفوظة من هذا الجهاز.",
+  "practiceHistoryClearConfirmBody": "هذا يزيل جميع جلسات التدريب المحفوظة من هذا الجهاز.",
   "practiceHistoryLoadError": "تعذر تحميل سجل الممارسة الآن.",
   "practiceHistoryErrorPrefix": "خطأ:",
   "practiceHistoryEmpty": "لا توجد جلسات ممارسة بعد.",
@@ -1118,7 +1285,15 @@
   "practiceAnalyticsSectionOverall": "نظرة عامة",
   "practiceAnalyticsRecentSessionsTitle": "الجلسات الأخيرة",
   "practiceAnalyticsRecentSessionsSummary": "{sessions} جلسة • {correct}/{answered} صحيحة • %{accuracy} • خبرة {xp}",
-  "@practiceAnalyticsRecentSessionsSummary": {"placeholders": {"sessions": {}, "correct": {}, "answered": {}, "accuracy": {}, "xp": {}}},
+  "@practiceAnalyticsRecentSessionsSummary": {
+    "placeholders": {
+      "sessions": {},
+      "correct": {},
+      "answered": {},
+      "accuracy": {},
+      "xp": {}
+    }
+  },
   "practiceAnalyticsSectionWeakestTopics": "أضعف المواضيع",
   "practiceAnalyticsSectionStrongestTopics": "أقوى المواضيع",
   "practiceAnalyticsSectionModePerformance": "أداء الأوضاع",
@@ -1139,9 +1314,9 @@
   "savedQuestionsEmptySubtitle": "احفظ سؤالاً من التدريب لإعادة زيارته لاحقاً أو فتح الحلول ذات الصلة وتتبع المواضيع التي لا تزال بحاجة إلى عمل.",
   "savedQuestionsClearAction": "مسح الأسئلة المحفوظة",
   "savedQuestionsWhyItWorks": "لماذا يعمل",
-  "savedQuestionsHoursTarget": "{count} ساعة الهدف",
-  "savedQuestionsMinutesTarget": "{count} دقيقة الهدف",
-  "savedQuestionsSecondsTarget": "{count} ثانية الهدف",
+  "savedQuestionsHoursTarget": "الهدف: {count} ساعة",
+  "savedQuestionsMinutesTarget": "الهدف: {count} دقيقة",
+  "savedQuestionsSecondsTarget": "الهدف: {count} ثانية",
   "practiceSetupTooltipAnalytics": "تحليلات التدريب",
   "practiceSetupStopGenerating": "إيقاف التوليد",
   "practiceSetupGenerating": "جارٍ التوليد...",
@@ -1163,7 +1338,11 @@
   "practiceSessionLoadingBagrut": "جارٍ تجهيز مجموعة البجروت",
   "practiceSessionLoadingDefault": "جارٍ تجهيز الجلسة",
   "practiceSessionCompleteTitle": "اكتمل {mode}",
-  "@practiceSessionCompleteTitle": {"placeholders": {"mode": {}}},
+  "@practiceSessionCompleteTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSessionMetricAnswered": "تمت الإجابة",
   "practiceSessionMetricCorrect": "صحيح",
   "practiceSessionMetricWrong": "خاطئ",
@@ -1180,7 +1359,7 @@
   "practiceSessionNoQuestionsForFilter": "لا توجد أسئلة تطابق هذا الفلتر بعد.",
   "practiceSessionNoAnswer": "لا توجد إجابة",
   "practiceSessionUnknownAnswer": "غير معروف",
-  "practiceSessionReflectionTitle": "انعكاس",
+  "practiceSessionReflectionTitle": "مراجعة ذاتية",
   "practiceSessionReflectionKnewIt": "كنت أعرفها",
   "practiceSessionReflectionReviewAgain": "راجع مرة أخرى",
   "practiceSessionBackOfCard": "خلف البطاقة",
@@ -1190,10 +1369,19 @@
   "practiceSessionBackToSetup": "العودة إلى الإعداد",
   "practiceSessionGeneralTopic": "عام",
   "practiceSessionQuestionProgress": "السؤال {current} من {total}",
-  "@practiceSessionQuestionProgress": {"placeholders": {"current": {}, "total": {}}},
+  "@practiceSessionQuestionProgress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
   "practiceSessionMetricTime": "الوقت",
   "practiceSessionMatchmakingDifficulty": "الصعوبة: {difficulty}",
-  "@practiceSessionMatchmakingDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSessionMatchmakingDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceModeActionPrevious": "السابق",
   "practiceModeActionCheckAnswer": "تحقّق من الإجابة",
   "practiceModeActionNext": "التالي",
@@ -1243,7 +1431,11 @@
   "teacherGradesAssessmentUpdated": "تم تحديث التقييم",
   "teacherGradesDeleteAssessmentTitle": "حذف التقييم؟",
   "teacherGradesDeleteAssessmentBody": "سيؤدي هذا إلى إزالة {title} وسجل درجاته من مساحة المعلم.",
-  "@teacherGradesDeleteAssessmentBody": {"placeholders": {"title": {}}},
+  "@teacherGradesDeleteAssessmentBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherGradesDeleteAction": "حذف",
   "teacherGradesAssessmentDeleted": "تم حذف التقييم",
   "teacherGradesRosterLinkError": "هذا التقييم غير مرتبط بقائمة فصل.",
@@ -1255,10 +1447,18 @@
   "teacherGradesNoStudentsLoaded": "لم يتم تحميل أي طلاب لهذا التقييم.",
   "teacherGradesFieldGrade": "الدرجة",
   "teacherGradesMaxHint": "الحد الأقصى {grade}",
-  "@teacherGradesMaxHint": {"placeholders": {"grade": {}}},
+  "@teacherGradesMaxHint": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "teacherGradesSaving": "جارٍ الحفظ…",
   "teacherGradesSaveCount": "حفظ {count} درجات",
-  "@teacherGradesSaveCount": {"placeholders": {"count": {}}},
+  "@teacherGradesSaveCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "assignmentsNoDueDate": "لا توجد موعد نهائي",
   "assignmentsLoadError": "لم نتمكن من تحميل الواجبات الآن. اسحب للتحديث أو حاول مرة أخرى.",
   "assignmentsLoadTimeout": "تستغرق الواجبات وقتاً طويلاً للتحميل. اسحب للتحديث أو حاول مرة أخرى في قليل.",
@@ -1268,7 +1468,7 @@
   "assignmentsStatusUpcoming": "قادم",
   "assignmentsPreviewFallback": "افتح هذا الواجب لرؤية الإرشادات كاملة والتحضير لعملك.",
   "assignmentsSubmissionPrepEmpty": "ضع ملاحظتك أو ملفاتك هنا.",
-  "assignmentsSubmissionPrepCount": "{count} ملف(ات) مرفوضة محلياً.",
+  "assignmentsSubmissionPrepCount": "{count} ملف(ات) مرفقة محلياً.",
   "assignmentsHeroSubtitle": "جميع واجبات الفصل الدراسي في عرض واحد نظيف، مع صفحة تفاصيل بملء الشاشة ومكان مخصص للتحضير.",
   "assignmentsSubjectsMetric": "المواد",
   "assignmentsNothingAssignedYet": "لم يتم تعيين أي شيء بعد",
@@ -1321,6 +1521,7 @@
   "assignmentsPullToRefreshRetry": "اسحب للتحديث أو أعد المحاولة أدناه.",
   "assignmentsFileSizeUnknown": "ملف",
   "assignmentsRemoveAttachment": "إزالة الملف",
+  "assignmentsSubmitted": "تم التسليم",
   "attendanceUndated": "غير مؤرخة",
   "attendanceLoadError": "تعذر تحميل الحضور الآن. اسحب للتحديث أو حاول مرة أخرى.",
   "attendanceLoadTimeout": "يستغرق تحميل الحضور وقتاً طويلاً. اسحب للتحديث أو حاول مرة أخرى بعد قليل.",
@@ -1383,7 +1584,6 @@
   "attendanceRange7Short": "7 أيام",
   "attendanceRange30Short": "30 يوماً",
   "attendanceRange90Short": "90 يوماً",
-
   "actionCancel": "إلغاء",
   "actionSave": "حفظ",
   "actionDelete": "حذف",
@@ -1409,18 +1609,38 @@
   "msgLeave": "مغادرة",
   "msgInviteCodeCopied": "تم نسخ رمز الدعوة",
   "msgCodeCopied": "تم نسخ الرمز: {code}",
-  "@msgCodeCopied": {"placeholders": {"code": {}}},
+  "@msgCodeCopied": {
+    "placeholders": {
+      "code": {}
+    }
+  },
   "msgParticipantsAdded": "{count, plural, =1{تمت إضافة مشارك واحد} other{تمت إضافة {count} مشاركين}}",
-  "@msgParticipantsAdded": {"placeholders": {"count": {"type": "int"}}},
+  "@msgParticipantsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgMembersCount": "{count, plural, =1{عضو واحد} other{{count} أعضاء}}",
-  "@msgMembersCount": {"placeholders": {"count": {"type": "int"}}},
+  "@msgMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgAdmin": "مشرف",
   "msgRemoveFromGroup": "إزالة من المجموعة",
   "msgMakeAdmin": "تعيين مشرفاً",
   "msgRemoveAdmin": "إلغاء الإشراف",
   "msgOnlyAdmin": "المشرف الوحيد — عيّن مشرفاً آخر أولاً",
   "msgRemoveMemberTitle": "إزالة {name}؟",
-  "@msgRemoveMemberTitle": {"placeholders": {"name": {}}},
+  "@msgRemoveMemberTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "msgNotificationsMuted": "تم كتم الإشعارات",
   "msgNotificationsUnmuted": "تم إلغاء كتم الإشعارات",
   "msgJoinGroupTitle": "الانضمام إلى مجموعة",
@@ -1451,7 +1671,11 @@
   "teacherTitleAndMessageRequired": "العنوان والرسالة مطلوبان",
   "teacherAnnouncementPublished": "تم نشر الإعلان",
   "teacherFailedToPublish": "فشل النشر: {error}",
-  "@teacherFailedToPublish": {"placeholders": {"error": {}}},
+  "@teacherFailedToPublish": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherAnnouncementSectionTitle": "إعلان",
   "teacherAudienceSectionTitle": "الجمهور",
   "teacherPinAnnouncement": "تثبيت الإعلان",
@@ -1463,11 +1687,22 @@
   "teacherAnnounceMessageLabel": "الرسالة *",
   "teacherAnnounceMessageHint": "اكتب الإعلان كاملاً هنا…",
   "teacherStudentsLabel": "الطلاب",
+  "teacherSearchStudents": "بحث بالاسم أو الصف...",
+  "teacherNoStudentsLoaded": "لا يوجد طلاب في هذه المدرسة.",
+  "teacherActions": "إجراءات سريعة",
   "teacherParentsLabel": "أولياء الأمور",
   "teacherTeachersLabel": "المعلمون",
   "teacherWeekScheduleTitle": "جدول الأسبوع",
   "teacherCouldNotLoadSchedule": "تعذر تحميل الجدول",
-  "teacherAttendanceLast30": "الحضور (آخر 30 يوماً)",
+  "teacherAttendanceLast30": "Attendance (last 30 days)",
+  "teacherAttendanceFrom": "From {date}",
+  "@teacherAttendanceFrom": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "teacherAttendanceChangeDate": "Change date",
+  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
   "teacherRecentGrades": "الدرجات الأخيرة",
   "teacherNoGradesRecorded": "لا توجد درجات مسجلة بعد",
   "teacherGradeAvg": "متوسط الدرجات",
@@ -1476,9 +1711,18 @@
   "teacherGradeReports": "تقارير الدرجات",
   "teacherAvgLabel": "متوسط",
   "teacherBelow60": "{count} أقل من 60%",
-  "@teacherBelow60": {"placeholders": {"count": {}}},
+  "@teacherBelow60": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherGradedFraction": "{graded}/{total} تم تقييمه",
-  "@teacherGradedFraction": {"placeholders": {"graded": {}, "total": {}}},
+  "@teacherGradedFraction": {
+    "placeholders": {
+      "graded": {},
+      "total": {}
+    }
+  },
   "teacherNoGradesEntered": "لم يتم إدخال درجات بعد",
   "teacherNewAssignment": "مهمة جديدة",
   "teacherDeleteAssignment": "حذف المهمة؟",
@@ -1491,19 +1735,26 @@
   "teacherJoinMeeting": "الانضمام إلى الاجتماع",
   "teacherAddStudentTitle": "إضافة طالب",
   "teacherRemoveStudentTitle": "إزالة {name}؟",
-  "@teacherRemoveStudentTitle": {"placeholders": {"name": {}}},
+  "@teacherRemoveStudentTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherRemoveStudentContent": "سيتم إزالة هذا الطالب من هذه الفصل الدراسي.",
   "teacherStudentAdded": "تمت إضافة الطالب",
   "teacherClassroomAnalyticsTitle": "تحليلات الفصل",
   "teacherOpenAnalyticsAction": "فتح التحليلات",
   "teacherStudentsCount": "الطلاب ({count})",
-  "@teacherStudentsCount": {"placeholders": {"count": {}}},
+  "@teacherStudentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherAssignmentLabel": "مهمة",
   "teacherShareMaterialLabel": "مشاركة المادة",
   "teacherAttendanceRateLabel": "معدل الحضور",
   "teacherSelectSessionPrompt": "اختر جلسة أدناه لبدء تسجيل الحضور",
   "teacherOpenAction": "فتح",
-
   "chatDeleteForMe": "حذف بالنسبة لي",
   "chatDeleteForEveryone": "حذف للجميع",
   "chatMicNeeded": "مطلوب الوصول إلى الميكروفون",
@@ -1533,11 +1784,8 @@
   "chatJoinGroupTooltip": "الانضمام إلى مجموعة برمز",
   "chatForwardNoChatAvailable": "لا توجد محادثات موافق عليها",
   "chatFilterAll": "الكل",
-
   "novaDisclaimer": "قد تُخطئ NOVA. تحقق من الإجابات المهمة.",
-
   "practiceCustomDisclaimer": "الموضوعات المخصصة مُولَّدة بالذكاء الاصطناعي فورياً. قد تنحرف الأسئلة عن الموضوع أو تكون غير دقيقة للمواضيع المتخصصة. تحقق من الإجابات غير المألوفة باستقلالية.",
-
   "classroomsJoined": "لقد انضممت إلى الفصل الدراسي!",
   "classroomsJoinAction": "انضم إلى الفصل",
   "classroomsJoinTooltip": "انضم إلى فصل دراسي",
@@ -1546,7 +1794,6 @@
   "classroomsCouldNotOpenLink": "تعذر فتح الرابط",
   "classroomsReorderTitle": "إعادة ترتيب الفصول",
   "classroomsNoClassroomsToReorder": "لا توجد فصول لإعادة ترتيبها.",
-
   "teacherPostAnnouncementAction": "نشر إعلان",
   "announcementAudienceEveryone": "الجميع",
   "teacherGreetingMorning": "صباح الخير",
@@ -1576,20 +1823,16 @@
   "teacherNoMeetingsSub": "اضغط + لجدولة اجتماع الفصل",
   "teacherAttendanceOther": "أخرى",
   "teacherTotal": "الإجمالي",
-
   "mediaOpenExternally": "فتح خارجياً",
   "mediaUnableToLoad": "تعذر تحميل الصورة",
-
   "searchHint": "بحث...",
   "teacherInsightsTitle": "رؤى الطلاب",
   "teacherInsightsSubtitle": "اختر طالباً لعرض رؤاه الأكاديمية.",
   "teacherInsightsNoStudents": "لم يتم العثور على طلاب.",
   "teacherInsightsSearchHint": "البحث عن طلاب…",
-
   "navDiplomas": "الشهادات",
   "diplomasComingSoon": "إدارة الشهادات قادمة قريباً.",
-
-  "teacherExamsTitle": "الامتحانات والتقييمات",
+  "teacherExamsTitle": "الامتحانات",
   "teacherExamsUpcoming": "القادمة",
   "teacherExamsPast": "السابقة",
   "teacherExamsEmpty": "لا توجد تقييمات بعد. اضغط + لإنشاء واحد.",
@@ -1599,7 +1842,6 @@
       "count": {}
     }
   },
-
   "teacherFormsTitle": "النماذج",
   "teacherFormsEmpty": "لا توجد نماذج بعد. اضغط + لإنشاء نموذج.",
   "teacherFormsResponses": "{count} استجابات",
@@ -1615,8 +1857,7 @@
   "teacherFormsQuestionHint": "نص السؤال",
   "teacherFormsViewResponses": "عرض الردود",
   "teacherFormsNoResponses": "لا توجد ردود بعد.",
-
-  "diplomasTitle": "الشهادات والدبلومات",
+  "diplomasTitle": "الشهادات",
   "diplomasEmpty": "لم يتم إصدار أي شهادات بعد. اضغط + لإصدار شهادة.",
   "diplomasIssueTo": "إصدار إلى",
   "diplomasStudentName": "اسم الطالب",
@@ -1628,7 +1869,6 @@
       "date": {}
     }
   },
-
   "examDetailsSection": "التفاصيل",
   "examInfoTeacher": "المعلم",
   "examInfoAudience": "الجمهور",
@@ -1642,5 +1882,19 @@
   "examQuickActionsSection": "إجراءات سريعة",
   "examViewGradeTitle": "اطلع على درجتك",
   "examViewGradeBody": "انتهى هذا الامتحان. تحقق من علامتك في تبويب الدرجات.",
-  "examViewGradeAction": "فتح الدرجات"
+  "examViewGradeAction": "فتح الدرجات",
+  "teacherGradesSaveAction": "حفظ",
+  "teacherGradesNothingToSave": "لا توجد تغييرات للحفظ.",
+  "teacherRetry": "إعادة المحاولة",
+  "teacherExamGradesStudents": "طلاب",
+  "teacherExamGradesGraded": "مُقيَّم",
+  "teacherExamGradesNoStudents": "لا يوجد طلاب مستهدفون.\nعدّل الامتحان لإضافة جمهور.",
+  "teacherExamGradesEnterGrades": "إدخال الدرجات",
+  "teacherDeleteExamTitle": "حذف الامتحان؟",
+  "teacherDeleteExamBody": "سيتم حذف الامتحان نهائيًا.",
+  "teacherMeetingsEmpty": "لا توجد اجتماعات بعد.\nاضغط + لجدولة واحد.",
+  "teacherStudentsNoMatch": "لا يوجد طلاب مطابقون",
+  "teacherMaterialsTitle": "المواد",
+  "profileNamesTitle": "الاسم بلغات مختلفة",
+  "profileDisplayNameLang": "لغة عرض الاسم"
 }

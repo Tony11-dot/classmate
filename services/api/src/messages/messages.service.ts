@@ -22,6 +22,7 @@ import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
 import { DeleteMessageDto } from './dto/delete-message.dto';
 import { ForwardMessageDto } from './dto/forward-message.dto';
 import { ReactMessageDto } from './dto/react-message.dto';
+import { RealtimeService } from '../realtime/realtime.service';
 
 type AppUser = {
   id?: string;
@@ -35,7 +36,10 @@ type ThreadWithRelations = Awaited<
 
 @Injectable()
 export class MessagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   private viewerId(user: AppUser): string {
     const id = String(user?.sub ?? user?.id ?? user?.userId ?? '').trim();
@@ -251,48 +255,37 @@ export class MessagesService {
 
   async fetchSameSchoolPeople(user: AppUser) {
     const viewerId = this.viewerId(user);
+    const schoolId = (user as any)?.schoolId ?? null;
 
-    const viewerProfile = await this.prisma.studentProfile.findUnique({
-      where: { userId: viewerId },
-      select: {
-        cohortId: true,
-      },
-    });
-
-    if (!viewerProfile?.cohortId) {
-      throw new BadRequestException('Viewer is not attached to a cohort');
-    }
-
-    const rows = await this.prisma.studentProfile.findMany({
+    // Fetch all users in the same school (students + teachers), excluding viewer
+    const schoolUsers = await this.prisma.user.findMany({
       where: {
-        cohortId: viewerProfile.cohortId,
-        userId: { not: viewerId },
+        id: { not: viewerId },
+        ...(schoolId ? { schoolId } : {}),
+        roles: { some: {} }, // must have at least one role
       },
       select: {
-        userId: true,
-        user: {
+        id: true,
+        name: true,
+        displayName: true,
+        roles: { select: { role: true }, take: 1 },
+        studentProfile: {
           select: {
-            name: true,
-            displayName: true,
+            cohortId: true,
+            cohort: { select: { name: true, grade: true } },
           },
         },
       },
-      orderBy: [{ userId: 'asc' }],
+      orderBy: { name: 'asc' },
     });
 
     const existingParticipants = await this.prisma.dmParticipant.findMany({
-      where: {
-        userId: viewerId,
-      },
+      where: { userId: viewerId },
       include: {
         thread: {
           select: {
             type: true,
-            participants: {
-              select: {
-                userId: true,
-              },
-            },
+            participants: { select: { userId: true } },
           },
         },
       },
@@ -308,19 +301,24 @@ export class MessagesService {
 
     return {
       ok: true,
-      items: rows
-        .filter((row) => !existingDirectPeerIds.has(String(row.userId ?? '').trim()))
-        .map((row) => {
-          const displayName = this.displayNameOf(row.user);
+      items: schoolUsers
+        .filter((u) => !existingDirectPeerIds.has(String(u.id ?? '').trim()))
+        .map((u) => {
+          const displayName = this.displayNameOf(u);
+          const primaryRole = u.roles?.[0]?.role ?? 'STUDENT';
+          const cohort = u.studentProfile?.cohort;
+          const cohortShortName = cohort?.name?.replace(/^\d+\s*-\s*/, '') ?? '';
+          const gradeLabel = cohort?.grade ? `Grade ${cohort.grade}${cohortShortName ? ' · ' + cohortShortName : ''}` : '';
 
           return {
-            id: row.userId,
-            userId: row.userId,
+            id: u.id,
+            userId: u.id,
             name: displayName,
             displayName,
             initials: this.initialsOf(displayName),
+            role: primaryRole.toLowerCase(),
             schoolName: '',
-            gradeLabel: '',
+            gradeLabel,
           };
         }),
     };
@@ -1168,6 +1166,17 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
     });
 
+    // Push real-time event to all thread participants except sender
+    this.prisma.dmParticipant.findMany({
+      where: { threadId, userId: { not: userId } },
+      select: { userId: true },
+    }).then((participants) => {
+      this.realtime.emitToUsers(
+        participants.map((p) => p.userId),
+        { type: 'dm_message', threadId },
+      );
+    }).catch(() => {});
+
     const users = await this.userMapForIds([userId]);
 
     return {
@@ -1451,24 +1460,19 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
           data: { lastSeenAt: new Date() },
         });
       } else {
-        // Try classroom target
-        const viewerProfile = await this.prisma.studentProfile.findUnique({
-          where: { userId },
-          select: { cohortId: true },
-        });
-        if (!viewerProfile?.cohortId) {
-          throw new BadRequestException('Invalid target thread');
-        }
-        const course = await this.prisma.course.findFirst({
-          where: { id: targetThreadId, cohortId: viewerProfile.cohortId },
+        // Try classroom target (classrooms replaced old cohort-based rooms)
+        const classroom = await this.prisma.classroom.findUnique({
+          where: { id: targetThreadId },
           select: { id: true },
         });
-        if (!course) {
-          throw new BadRequestException('Invalid target thread');
+        if (!classroom) {
+          // Skip invalid targets silently rather than throwing — the picker
+          // may mix DM and classroom IDs and we want partial success.
+          continue;
         }
         await this.prisma.classroomMessage.create({
           data: {
-            courseId: targetThreadId,
+            classroomId: targetThreadId,
             senderUserId: userId,
             kind: source.kind as any,
             text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded',

@@ -41,6 +41,7 @@ import { PracticeModule } from './practice/practice.module';
 import { E2ESeedController } from './e2e/seed.controller';
 import { MessagesModule } from './messages/messages.module';
 import { FormsModule } from './forms/forms.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 const env = loadEnv();
 
@@ -72,6 +73,7 @@ const seedControllers = [
   imports: [
     MessagesModule,
     FormsModule,
+    RealtimeModule,
     ...serveStatic,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
     HealthModule,

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -14,6 +15,7 @@ class MainDrawer extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
+    final isAdmin = session.primaryRole == 'ADMIN' || session.primaryRole == 'SECRETARY';
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
@@ -37,14 +39,14 @@ class MainDrawer extends ConsumerWidget {
             Expanded(
               child: Divider(
                 height: 1,
-                color: cs.outlineVariant.withValues(alpha: 0.35),
+                color: cs.outlineVariant,
               ),
             ),
             const SizedBox(width: 10),
             Text(
               title.toUpperCase(),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                color: cs.onSurfaceVariant,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.1,
               ),
@@ -53,7 +55,7 @@ class MainDrawer extends ConsumerWidget {
             Expanded(
               child: Divider(
                 height: 1,
-                color: cs.outlineVariant.withValues(alpha: 0.35),
+                color: cs.outlineVariant,
               ),
             ),
           ],
@@ -75,7 +77,7 @@ class MainDrawer extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         child: Material(
           color: isActive
-              ? cs.primaryContainer.withValues(alpha: 0.55)
+              ? cs.primaryContainer
               : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
           child: InkWell(
@@ -93,14 +95,16 @@ class MainDrawer extends ConsumerWidget {
                     height: 34,
                     decoration: BoxDecoration(
                       color: isActive
-                          ? tint.withValues(alpha: 0.18)
-                          : cs.surfaceContainerHigh.withValues(alpha: 0.7),
+                          ? tint
+                          : cs.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       icon,
                       size: 18,
-                      color: isActive ? tint : cs.onSurfaceVariant,
+                      color: isActive
+                          ? (danger ? cs.onError : cs.onPrimary)
+                          : cs.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -149,10 +153,10 @@ class MainDrawer extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+                  color: cs.surfaceContainerLow,
                   border: Border(
                     bottom: BorderSide(
-                      color: cs.outlineVariant.withValues(alpha: 0.25),
+                      color: cs.outlineVariant,
                       width: 0.5,
                     ),
                   ),
@@ -195,41 +199,22 @@ class MainDrawer extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    cs.primaryContainer.withValues(alpha: 0.85),
-                    cs.surfaceContainerHigh.withValues(alpha: 0.85),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               ),
               child: Row(
                 children: [
-                  // Avatar circle
+                  // Avatar circle with accent bg + proper initials
                   Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [cs.primary, cs.tertiary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: cs.primary,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: cs.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
                     ),
                     child: Center(
                       child: Text(
                         initials,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onPrimary,
                           fontWeight: FontWeight.w900,
                           fontSize: 18,
                           letterSpacing: 0.5,
@@ -262,19 +247,26 @@ class MainDrawer extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Close button
-                  IconButton(
-                    icon: Icon(
-                      Icons.close_rounded,
-                      size: 20,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: IconButton.styleFrom(
-                      backgroundColor:
-                          cs.surfaceContainerHigh.withValues(alpha: 0.5),
-                      padding: const EdgeInsets.all(6),
-                      minimumSize: const Size(32, 32),
+                  // Logo close button
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: schoolLogoUrl.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(11),
+                              child: Image.network(
+                                schoolLogoUrl,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => const ClassMateIcon(size: 22),
+                              ),
+                            )
+                          : const ClassMateIcon(size: 22),
                     ),
                   ),
                 ],
@@ -293,6 +285,12 @@ class MainDrawer extends ConsumerWidget {
                       label: l.navSchedule,
                       route: '/teacher/schedule',
                     ),
+                    if (isAdmin)
+                      navItem(
+                        icon: Icons.manage_history_rounded,
+                        label: 'Manage Periods',
+                        route: '/admin/periods',
+                      ),
                     navItem(
                       icon: Icons.groups_rounded,
                       label: l.navClassrooms,
@@ -355,13 +353,8 @@ class MainDrawer extends ConsumerWidget {
                     ),
                     navItem(
                       icon: Icons.grade_rounded,
-                      label: l.navTeacherAssessments,
+                      label: l.navGrades,
                       route: '/teacher/grades',
-                    ),
-                    navItem(
-                      icon: Icons.calendar_view_week_rounded,
-                      label: l.teacherWeekScheduleTitle,
-                      route: '/teacher/schedule/week',
                     ),
                     navItem(
                       icon: Icons.campaign_rounded,
@@ -372,6 +365,26 @@ class MainDrawer extends ConsumerWidget {
                       icon: Icons.notifications_rounded,
                       label: l.navNotifications,
                       route: '/notifications',
+                    ),
+                    navItem(
+                      icon: Icons.assignment_rounded,
+                      label: l.navAssignments,
+                      route: '/teacher/assignments',
+                    ),
+                    navItem(
+                      icon: Icons.folder_shared_rounded,
+                      label: 'Materials',
+                      route: '/teacher/materials',
+                    ),
+                    navItem(
+                      icon: Icons.video_call_rounded,
+                      label: l.navMeetings,
+                      route: '/teacher/meetings',
+                    ),
+                    navItem(
+                      icon: Icons.people_rounded,
+                      label: l.teacherStudentsLabel,
+                      route: '/teacher/students',
                     ),
                     navItem(
                       icon: Icons.quiz_rounded,
@@ -387,6 +400,11 @@ class MainDrawer extends ConsumerWidget {
                       icon: Icons.workspace_premium_rounded,
                       label: l.navDiplomas,
                       route: '/diplomas',
+                    ),
+                    navItem(
+                      icon: Icons.lightbulb_rounded,
+                      label: l.navSolutions,
+                      route: '/solutions',
                     ),
                   ] else ...[
                     navItem(
@@ -408,6 +426,11 @@ class MainDrawer extends ConsumerWidget {
                       icon: Icons.assignment_rounded,
                       label: l.navAssignments,
                       route: '/assignments',
+                    ),
+                    navItem(
+                      icon: Icons.folder_rounded,
+                      label: 'Materials',
+                      route: '/materials',
                     ),
                     navItem(
                       icon: Icons.video_call_rounded,
@@ -444,6 +467,11 @@ class MainDrawer extends ConsumerWidget {
                       label: l.navSavedQuestions,
                       route: '/saved-questions',
                     ),
+                    navItem(
+                      icon: Icons.workspace_premium_rounded,
+                      label: l.navDiplomas,
+                      route: '/diplomas',
+                    ),
                   ],
 
                   sectionHeader(l.sectionAccount),
@@ -479,7 +507,7 @@ class MainDrawer extends ConsumerWidget {
                                 width: 34,
                                 height: 34,
                                 decoration: BoxDecoration(
-                                  color: cs.errorContainer.withValues(alpha: 0.5),
+                                  color: cs.errorContainer,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
@@ -519,8 +547,11 @@ class MainDrawer extends ConsumerWidget {
 String _initials(String name) {
   if (name.isEmpty) return 'CM';
   final parts = name.trim().split(RegExp(r'\s+'));
-  if (parts.length == 1) return parts[0][0].toUpperCase();
-  return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  // Single word: use first two characters
+  final word = parts[0];
+  if (word.length >= 2) return '${word[0]}${word[1]}'.toUpperCase();
+  return word[0].toUpperCase();
 }
 
 Widget _schoolLogoPlaceholder(ColorScheme cs) {
@@ -528,13 +559,13 @@ Widget _schoolLogoPlaceholder(ColorScheme cs) {
     width: 36,
     height: 36,
     decoration: BoxDecoration(
-      color: cs.primaryContainer.withValues(alpha: 0.5),
+      color: cs.primaryContainer,
       borderRadius: BorderRadius.circular(8),
     ),
     child: Icon(
       Icons.school_rounded,
       size: 20,
-      color: cs.primary,
+      color: cs.onPrimaryContainer,
     ),
   );
 }

@@ -75,15 +75,9 @@ class SavedQuestionsScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                cs.primaryContainer.withValues(alpha: 0.88),
-                cs.secondaryContainer.withValues(alpha: 0.72),
-              ],
-            ),
             borderRadius: BorderRadius.circular(26),
             border: Border.all(
-              color: cs.outlineVariant.withValues(alpha: 0.22),
+              color: cs.outlineVariant,
             ),
           ),
           child: Column(
@@ -205,9 +199,9 @@ class _SavedQuestionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.72),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,7 +289,7 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -328,7 +322,7 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.72),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -368,9 +362,9 @@ class _SectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.88),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,14 +406,14 @@ class _ActionTile extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.62),
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: cs.primaryContainer.withValues(alpha: 0.9),
+              backgroundColor: cs.primaryContainer,
               child: Icon(icon, size: 20),
             ),
             const SizedBox(width: 12),
@@ -462,7 +456,7 @@ class _EmptyStateCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(

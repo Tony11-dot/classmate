@@ -357,13 +357,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Color.alphaBlend(
-                            accent.withValues(alpha: 0.08),
-                            cs.surface,
-                          ),
+                          color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: accent.withValues(alpha: 0.22),
+                            color: accent,
                           ),
                         ),
                         child: Theme(
@@ -385,13 +382,15 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               width: 42,
                               height: 42,
                               decoration: BoxDecoration(
-                                color: accent.withValues(alpha: 0.14),
+                                color: cs.surfaceContainerLow,
                                 borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: cs.outlineVariant),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
                                 practiceModeIcon(mode),
                                 color: accent,
+                                size: 22,
                               ),
                             ),
                             title: Text(
@@ -767,10 +766,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                  color: cs.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.18),
+                    color: cs.outlineVariant,
                   ),
                 ),
                 child: Wrap(
@@ -821,10 +820,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                       decoration: BoxDecoration(
-                        color: cs.surface.withValues(alpha: 0.82),
+                        color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: cs.outlineVariant.withValues(alpha: 0.26),
+                          color: cs.outlineVariant,
                         ),
                       ),
                       child: Column(
@@ -927,10 +926,9 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest.withValues(
-                                alpha: 0.6,
-                              ),
+                              color: cs.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: cs.outlineVariant),
                             ),
                             child: Text(
                               _timingMode == TimingMode.ai
@@ -1330,16 +1328,8 @@ class _HeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            accent.withValues(alpha: 0.16),
-            cs.surfaceContainerHighest.withValues(alpha: 0.88),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1383,9 +1373,9 @@ class _SectionCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
@@ -1436,16 +1426,9 @@ class _LiquidField extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.82),
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 22,
-              offset: const Offset(0, 10),
-              color: Colors.black.withValues(alpha: 0.05),
-            ),
-          ],
+          border: Border.all(color: cs.outlineVariant),
         ),
         child: Row(
           children: [
@@ -1453,7 +1436,7 @@ class _LiquidField extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: cs.primaryContainer.withValues(alpha: 0.76),
+                color: cs.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(leading, size: 20),
@@ -1536,18 +1519,11 @@ class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
           color: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.96),
+              color: cs.surfaceContainerLow,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.28),
+                color: cs.outlineVariant,
               ),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 30,
-                  offset: const Offset(0, 12),
-                  color: Colors.black.withValues(alpha: 0.10),
-                ),
-              ],
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -1662,18 +1638,11 @@ class _CustomTopicSheetState extends State<_CustomTopicSheet> {
           color: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.97),
+              color: cs.surfaceContainerLow,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.28),
+                color: cs.outlineVariant,
               ),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 30,
-                  offset: const Offset(0, 12),
-                  color: Colors.black.withValues(alpha: 0.10),
-                ),
-              ],
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
@@ -1686,7 +1655,7 @@ class _CustomTopicSheetState extends State<_CustomTopicSheet> {
                       width: 34,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: cs.outlineVariant.withValues(alpha: 0.55),
+                        color: cs.outlineVariant,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -1813,22 +1782,13 @@ class _ModeTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               color: selected
                   ? tint
-                  : cs.surfaceContainerHighest.withValues(alpha: 0.58),
+                  : cs.surfaceContainerHighest,
               border: Border.all(
                 color: selected
-                    ? accent.withValues(alpha: 0.90)
-                    : cs.outlineVariant.withValues(alpha: 0.24),
+                    ? accent
+                    : cs.outlineVariant,
                 width: selected ? 1.8 : 1,
               ),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: accent.withValues(alpha: 0.16),
-                        blurRadius: 18,
-                        offset: const Offset(0, 10),
-                      ),
-                    ]
-                  : null,
             ),
             child: ClipRect(
               child: Column(
@@ -1839,13 +1799,15 @@ class _ModeTile extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: selected
-                        ? accent.withValues(alpha: 0.18)
-                        : accent.withValues(alpha: 0.12),
+                    color: selected ? accent : cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(practiceModeIcon(mode), size: 17, color: accent),
+                  child: Icon(
+                    practiceModeIcon(mode),
+                    size: 17,
+                    color: selected ? Colors.white : accent,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -1879,7 +1841,7 @@ class _ModeTile extends StatelessWidget {
                     height: 3,
                     width: selected ? 52 : 28,
                     decoration: BoxDecoration(
-                      color: accent.withValues(alpha: selected ? 0.95 : 0.30),
+                      color: cs.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -1914,26 +1876,26 @@ class _DifficultyPill extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? cs.primary.withValues(alpha: 0.16) : cs.surface,
+          color: selected ? cs.primary : cs.surface,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
                 ? cs.primary
-                : cs.outlineVariant.withValues(alpha: 0.28),
+                : cs.outlineVariant,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (selected) ...[
-              Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
+              Icon(Icons.check_circle_rounded, size: 16, color: cs.onPrimary),
               const SizedBox(width: 8),
             ],
             Text(
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w900,
-                color: selected ? cs.primary : null,
+                color: selected ? cs.onPrimary : null,
               ),
             ),
           ],
@@ -1962,9 +1924,9 @@ class _GlassToggleRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.82),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.26)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
@@ -2006,9 +1968,9 @@ class _StepperRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 7),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.82),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.26)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         children: [
@@ -2035,7 +1997,7 @@ class _StepperRow extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.75),
+                    color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextFormField(
@@ -2090,9 +2052,9 @@ class _MiniPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.34)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Text(
         label,
@@ -2117,14 +2079,14 @@ class _AIDisclaimerBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: cs.tertiaryContainer.withValues(alpha: 0.45),
+        color: cs.tertiaryContainer,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.tertiary.withValues(alpha: 0.25)),
+        border: Border.all(color: cs.tertiary),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: cs.tertiary),
+          Icon(icon, size: 16, color: cs.onTertiaryContainer),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

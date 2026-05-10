@@ -1,13 +1,11 @@
 {
   "@@locale": "fr",
-
   "menu": "Menu",
   "sectionCore": "Principal",
   "sectionSchoolTools": "Outils scolaires",
   "sectionAccount": "Compte",
-
-  "navSchedule": "Emploi du temps",
-  "navClassrooms": "Salles de classe",
+  "navSchedule": "Agenda",
+  "navClassrooms": "Classes",
   "navPractice": "Entraînement",
   "navInsights": "Analyses",
   "navNova": "NOVA",
@@ -28,13 +26,11 @@
   "navProfile": "Profil",
   "navSettings": "Paramètres",
   "navLogout": "Se déconnecter",
-
   "roleTeacher": "Enseignant",
   "roleAdmin": "Admin",
   "roleSecretary": "Secrétaire",
   "roleParent": "Parent",
-
-  "titleSchedule": "Emploi du temps",
+  "titleSchedule": "Agenda",
   "titleClasses": "Classes",
   "titlePractice": "Entraînement",
   "titleInsights": "Analyses",
@@ -77,7 +73,7 @@
     }
   },
   "solutionsBookLabel": "Livre",
-  "solutionsPagesFilterHint": "Entrez un numéro de page et de question pour filtrer, ou laissez vide pour voir tous.",
+  "solutionsPagesFilterHint": "Saisissez un numéro de page et de question pour filtrer, ou laissez vide pour tout afficher.",
   "solutionsPageNumberLabel": "Numéro de page",
   "solutionsPageNumberHint": "par ex. 42",
   "solutionsQuestionNumberLabel": "Numéro de question",
@@ -151,7 +147,6 @@
   "solutionsUploadRetryFailedFiles": "Réessayer les fichiers défaillants",
   "solutionsUploadSubmittingAction": "Téléchargement en cours...",
   "solutionsUploadSubmitAction": "Télécharger la solution",
-
   "settingsTitle": "Paramètres",
   "settingsSubtitle": "Apparence, langue et compte",
   "settingsAppearance": "Apparence",
@@ -169,7 +164,6 @@
   "settingsThemeLight": "Clair",
   "settingsThemeDark": "Sombre",
   "settingsLanguageSearchHint": "Rechercher une langue...",
-
   "teacherWorkspaceSubtitle": "Gérez la présence, les groupes et l'évaluation depuis l'application mobile.",
   "teacherMetricSessionsToday": "Séances du jour",
   "teacherMetricTeachingGroups": "Groupes d'enseignement",
@@ -209,32 +203,44 @@
   "teacherAttendanceTodaySessions": "Séances d'aujourd'hui",
   "teacherAttendanceSessionSummary": "{cohort} • Classe {grade} • {date} • Cours {period}",
   "teacherAttendanceChanged": "Modifié",
+  "teacherAttendanceClassNotesLabel": "Notes de cours",
+  "teacherAttendanceClassNotesHint": "Ce qui a été couvert dans cette session…",
   "teacherAttendanceNoteLabel": "Remarque",
   "teacherAttendanceSaving": "Enregistrement…",
+  "teacherAttendanceSaveAll": "Enregistrer la présence",
   "teacherAttendanceSaveCount": "Enregistrer {count, plural, =1 {1 modification} other {{count} modifications}}",
   "teacherAttendanceSaved": "Présence enregistrée",
   "retry": "Réessayer",
   "scheduleRefreshTooFast": "L'emploi du temps se rafraîchit trop vite en ce moment. Attendez un instant puis réessayez.",
-  "scheduleNotOnboarded": "Votre profil élève n'est pas encore entièrement configuré, donc aucun emploi du temps n'est disponible pour le moment.",
+  "scheduleSessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+  "scheduleNotOnboarded": "Votre profil élève n'est pas encore configuré. Demandez à l'administrateur de votre école de vous affecter à une classe.",
   "scheduleLoadError": "Impossible de charger l'emploi du temps pour le moment.",
   "scheduleSelectedDay": "Jour sélectionné",
   "scheduleClassCount": "{count, plural, =0 {0 cours} =1 {1 cours} other {{count} cours}}",
-  "@scheduleClassCount": {"placeholders": {"count": {}}},
+  "@scheduleClassCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "scheduleNextUp": "À venir",
   "scheduleNoMoreClasses": "Plus de cours",
   "scheduleNoClassesTitle": "Aucun cours ce jour-là",
   "scheduleNoClassesSubtitle": "{day} semble libre.",
-  "@scheduleNoClassesSubtitle": {"placeholders": {"day": {}}},
+  "@scheduleNoClassesSubtitle": {
+    "placeholders": {
+      "day": {}
+    }
+  },
   "scheduleClassFallback": "Cours",
-  "scheduleNoSubjectLocation": "Pas encore de matière ni de lieu",
-
+  "scheduleNoSubjectLocation": "No subject or location yet",
+  "scheduleNotes": "Notes",
+  "scheduleGoToClassroom": "Go to Classroom",
   "loginTitle": "Connexion mobile pour élèves et enseignants",
   "loginSubtitle": "Les comptes enseignants ouvrent l'espace enseignant. Les comptes élèves restent dans l'expérience élève.",
   "loginSignIn": "Se connecter",
   "loginSigningIn": "Connexion en cours...",
   "loginEmailLabel": "E-mail",
   "loginPasswordLabel": "Mot de passe",
-
   "profileNotAvailable": "Non disponible",
   "profileSchoolInfo": "Infos école",
   "profileFullName": "Nom complet",
@@ -264,18 +270,16 @@
   "profilePasswordNotAuthenticated": "Non authentifié",
   "profilePasswordIncorrect": "Le mot de passe actuel est incorrect",
   "profilePasswordGenericError": "Une erreur s'est produite. Réessayez.",
-
   "editProfileTitle": "Modifier le profil",
   "editProfileSchool": "École",
-  "editProfileSchoolPublic": "École publique",
-  "editProfileGradePublic": "Niveau public",
+  "editProfileSchoolPublic": "École visible",
+  "editProfileGradePublic": "Niveau visible",
   "editProfileMajors": "Spécialités",
-  "editProfileMajorsPublic": "Spécialités publiques",
+  "editProfileMajorsPublic": "Spécialités visibles",
   "editProfileBio": "Bio",
   "editProfileBioPublic": "Bio publique",
   "editProfileStatus": "Statut",
   "editProfileStatusPublic": "Statut public",
-
   "classroomsYourClassrooms": "Vos classes",
   "classroomsReorder": "Réorganiser les classes",
   "classroomsCount": "{count} classes",
@@ -291,7 +295,6 @@
   "classroomsTapToOpen": "Touchez pour ouvrir la classe",
   "classroomsNoMessagesYet": "Pas encore de messages",
   "classroomsMessageFallback": "Message",
-
   "examsLoadError": "Impossible de charger les examens ou les formulaires",
   "examsAllFilter": "Tous",
   "examsFormsSubtitle": "Consultez les formulaires de classe, les fenêtres de réponse et les suivis publiés par votre école.",
@@ -340,7 +343,6 @@
       "count": {}
     }
   },
-
   "insightsTrendBaseline": "Référence",
   "insightsTrendImproving": "En amélioration",
   "insightsTrendDropping": "En baisse",
@@ -408,13 +410,20 @@
   "insightsAiStudyCoachTitle": "Coach d'étude IA",
   "insightsSchoolToolsTitle": "Outils scolaires",
   "insightsSchoolToolsSubtitle": "Accédez directement aux routes étudiantes qui comptent le plus maintenant.",
-
   "tutorUntitledChat": "Discussion sans titre",
   "tutorNewChat": "Nouvelle discussion",
   "tutorFailedToOpenSeededChat": "Impossible d'ouvrir la discussion : {error}",
-  "@tutorFailedToOpenSeededChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToOpenSeededChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorFailedToCreateChat": "Impossible de créer la discussion : {error}",
-  "@tutorFailedToCreateChat": {"placeholders": {"error": {}}},
+  "@tutorFailedToCreateChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorRenameChatTitle": "Renommer la discussion",
   "tutorChatNameHint": "Nom de la discussion",
   "tutorCancel": "Annuler",
@@ -430,7 +439,7 @@
   "tutorSearchHistoryHint": "Rechercher dans l'historique",
   "chatComposerDefaultHint": "Message",
   "chatComposerReplyingToMessage": "Réponse à un message",
-  "chatComposerReplyFallback": "Réponse",
+  "chatComposerReplyFallback": "Répondre",
   "chatComposerMicHint": "Touchez pour une note vocale rapide ou maintenez pour enregistrer",
   "chatComposerRecordingTitle": "Enregistrement",
   "chatComposerReleaseToSend": "Relâchez pour envoyer",
@@ -521,27 +530,53 @@
   "chatMediaPreviewRemoveAction": "Retirer",
   "chatMediaPreviewCaptionHint": "Ajouter une légende...",
   "tutorPlanSelectedPlaceholder": "{plan} sélectionné. Les paiements restent en mode fictif pour le moment.",
-  "@tutorPlanSelectedPlaceholder": {"placeholders": {"plan": {}}},
+  "@tutorPlanSelectedPlaceholder": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorFailedToLoadChats": "Impossible de charger les discussions",
   "tutorNoChatsYet": "Aucune discussion pour le moment",
   "tutorNoChatsMatchSearch": "Aucune discussion ne correspond à votre recherche",
   "tutorCreateFirstChat": "Créer la première discussion",
   "tutorPlansTitle": "Forfaits NOVA",
   "tutorPlansSubtitle": "Basé sur les hypothèses de coût de {model} et des plafonds mensuels stricts pour que l'usage reste rentable.",
-  "@tutorPlansSubtitle": {"placeholders": {"model": {}}},
+  "@tutorPlansSubtitle": {
+    "placeholders": {
+      "model": {}
+    }
+  },
   "tutorPlanPriceFree": "Gratuit",
   "tutorPlanPriceMonthly": "${price}/mois",
-  "@tutorPlanPriceMonthly": {"placeholders": {"price": {}}},
+  "@tutorPlanPriceMonthly": {
+    "placeholders": {
+      "price": {}
+    }
+  },
   "tutorPromptsLeft": "Prompts restants",
   "tutorUploadsLeft": "Envois restants",
   "tutorVoiceLeft": "Voix restante",
   "tutorUsageValue": "{remaining}/{total}",
-  "@tutorUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorVoiceUsageValue": "{remaining}/{total} min",
-  "@tutorVoiceUsageValue": {"placeholders": {"remaining": {}, "total": {}}},
+  "@tutorVoiceUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
   "tutorPaymentMethodsTitle": "Moyens de paiement",
   "tutorPaymentMethodsSubtitle": "Le paiement reste fictif jusqu'à ce que le compte bancaire et le processeur de ClassMate soient actifs. Le forfait sélectionné est {plan}.",
-  "@tutorPaymentMethodsSubtitle": {"placeholders": {"plan": {}}},
+  "@tutorPaymentMethodsSubtitle": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
   "tutorCardCheckoutTitle": "Paiement par carte",
   "tutorCardCheckoutSubtitle": "Passerelle fictive Visa, Mastercard et AmEx.",
   "tutorApplePayTitle": "Apple Pay",
@@ -557,21 +592,54 @@
   "tutorPlanSchoolSeatName": "Siège école",
   "tutorPlanSchoolSeatTagline": "Pour un déploiement par élève ou membre du personnel dans une vraie école.",
   "tutorPlanBulletPromptsMonthly": "{count} prompts NOVA par mois",
-  "@tutorPlanBulletPromptsMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletPromptsPerSeatMonthly": "{count} prompts NOVA par siège chaque mois",
-  "@tutorPlanBulletPromptsPerSeatMonthly": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletPromptsPerSeatMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletUploads": "{count} envois d'image ou de fichier",
-  "@tutorPlanBulletUploads": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletUploads": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorPlanBulletVoiceMinutes": "{count} minutes de transcription vocale",
-  "@tutorPlanBulletVoiceMinutes": {"placeholders": {"count": {}}},
+  "@tutorPlanBulletVoiceMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorEstimatedCostCeilingFree": "Plafond de coût estimé : ${cost}/mois",
-  "@tutorEstimatedCostCeilingFree": {"placeholders": {"cost": {}}},
+  "@tutorEstimatedCostCeilingFree": {
+    "placeholders": {
+      "cost": {}
+    }
+  },
   "tutorEstimatedCostCeilingPaid": "Plafond de coût estimé : ${cost}/mois • marge {margin}%",
-  "@tutorEstimatedCostCeilingPaid": {"placeholders": {"cost": {}, "margin": {}}},
+  "@tutorEstimatedCostCeilingPaid": {
+    "placeholders": {
+      "cost": {},
+      "margin": {}
+    }
+  },
   "tutorTimeMinutesShort": "{count} min",
-  "@tutorTimeMinutesShort": {"placeholders": {"count": {}}},
+  "@tutorTimeMinutesShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorTimeHoursShort": "{count} h",
-  "@tutorTimeHoursShort": {"placeholders": {"count": {}}},
+  "@tutorTimeHoursShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tutorVoiceMessageFallback": "Message vocal",
   "tutorFileFallback": "Fichier",
   "tutorCopy": "Copier",
@@ -595,7 +663,14 @@
   "tutorPlanLimitReachedMessage": "Le quota mensuel de prompts ou d'envois de votre forfait NOVA actuel est épuisé. Choisissez un forfait supérieur sur l'accueil NOVA pour continuer.",
   "tutorSendFailed": "Échec de l'envoi.",
   "tutorCurrentPlanUsageSummary": "Forfait actuel : {plan} • {prompts} prompts restants • {uploads} envois restants • {voice} minutes vocales restantes",
-  "@tutorCurrentPlanUsageSummary": {"placeholders": {"plan": {}, "prompts": {}, "uploads": {}, "voice": {}}},
+  "@tutorCurrentPlanUsageSummary": {
+    "placeholders": {
+      "plan": {},
+      "prompts": {},
+      "uploads": {},
+      "voice": {}
+    }
+  },
   "tutorReviewPlansInHome": "Voir les forfaits dans l'accueil NOVA",
   "tutorCouldNotOpenAttachment": "Impossible d'ouvrir la pièce jointe.",
   "tutorAttachmentUnavailable": "Pièce jointe indisponible.",
@@ -612,170 +687,204 @@
   "tutorYourNovaPlanTitle": "Votre forfait NOVA",
   "tutorYourNovaPlanMessage": "Consultez ici vos limites de prompts, d'envois et de voix, puis revenez à l'accueil NOVA si vous souhaitez changer de forfait.",
   "tutorExplainTitle": "NOVA explique",
-
   "classroomsThreadTypeClassroom": "Classe",
   "classroomsThreadTypeGroup": "Groupe",
   "classroomsThreadTypeDirectMessage": "Message direct",
-    "classroomsThreadTypeDirectMessageShort": "DM",
-    "messagesBlockedPeopleTitle": "Personnes bloquées",
-    "messagesStartChatAction": "Démarrer une discussion",
-    "messagesLoadFailed": "Impossible de charger les messages : {error}",
-    "@messagesLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchHint": "Rechercher des messages",
-    "messagesNoResults": "Aucun message trouvé",
-    "messagesRequestsSection": "Demandes",
-    "messagesPendingApprovals": "Approbations en attente",
-    "messagesChatsSection": "Discussions",
-    "messagesAllChatsSection": "Toutes les discussions",
-    "messagesConversationCount": "{count, plural, =1 {1 conversation} other {{count} conversations}}",
-    "@messagesConversationCount": {"placeholders": {"count": {}}},
-    "messagesRequestReviewStatus": "Voir",
-    "messagesPeopleLoadFailed": "Impossible de charger les personnes : {error}",
-    "@messagesPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesSearchPeopleHint": "Rechercher des personnes",
-    "messagesNewGroupTitle": "Nouveau groupe",
-    "messagesNewGroupSubtitle": "Créer une discussion de groupe",
-    "messagesGroupNameHint": "Nom du groupe",
-    "messagesCreateGroupAction": "Créer le groupe",
-    "messagesBlockedPersonFallback": "cette personne",
-    "messagesUnblockPersonTitle": "Débloquer cette personne ?",
-    "messagesUnblockPersonBody": "Autoriser {name} à vous envoyer de nouveau des messages ?",
-    "@messagesUnblockPersonBody": {"placeholders": {"name": {}}},
-    "messagesUnblockAction": "Débloquer",
-    "messagesUnblockedToast": "{name} débloqué",
-    "@messagesUnblockedToast": {"placeholders": {"name": {}}},
-    "messagesBlockedPeopleLoadFailed": "Impossible de charger les personnes bloquées : {error}",
-    "@messagesBlockedPeopleLoadFailed": {"placeholders": {"error": {}}},
-    "messagesNoBlockedPeople": "Aucune personne bloquée",
-    "messagesUnknownUser": "Utilisateur inconnu",
-    "announcementsLoadError": "Impossible de charger les annonces en ce moment. Tirez pour actualiser ou réessayez.",
-    "announcementsLoadTimeout": "Les annonces prennent trop de temps à charger. Tirez pour actualiser ou réessayez dans un moment.",
-    "announcementsLoadNetwork": "Les annonces n'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.",
-    "announcementsAudienceTeacher": "enseignant",
-    "announcementsAudienceAccount": "compte",
-    "announcementsAudienceTeacherWorkspace": "espace de travail enseignant",
-    "announcementsLoadFailedTitle": "Impossible de charger les annonces",
-    "announcementsLoadFailedHint": "Tirez pour actualiser une fois la connexion stable.",
-    "announcementsHeroSubtitle": "Annonces publiées de l'école, de l'enseignant et du système disponibles pour {audience}.",
-    "announcementsLatestSourceLabel": "Dernière source",
-    "announcementsNone": "Aucune",
-    "announcementsUnreadCountTitle": "{count, plural, =1 {1 annonce non lue} other {{count} annonces non lues}}",
-    "announcementsAllReadTitle": "Tout est lu",
-    "announcementsEmptyForAudience": "Aucune annonce n'a été publiée pour {audience} pour le moment.",
-    "announcementsLatestBody": "Dernière : {title}. Appuyez dessus pour lire le contenu complet.",
-    "announcementsFiltersSubtitle": "Réduisez la boîte de réception par source ou par état de lecture pour vous concentrer sur ce qui nécessite encore une attention.",
-    "announcementsAllAnnouncements": "Toutes les annonces",
-    "announcementsSearchStatesHint": "Non lu / Lu",
-    "announcementsSummarySourceSegment": " de {source}",
-    "announcementsSummaryStateSegment": " en {state}",
-    "announcementsShowingSummary": "Affichage de {shown} sur {total} annonces{sourceSegment}{stateSegment}.",
-    "announcementsNoMatchTitle": "Aucune annonce ne correspond à ces filtres",
-    "announcementsNoPublishedTitle": "Aucune annonce publiée pour le moment",
-    "announcementsNoMatchSubtitle": "Essayez une source différente ou revenez à toutes les annonces pour afficher plus d'éléments.",
-    "announcementsClearFiltersHint": "Effacez les filtres pour tout voir à nouveau.",
-    "announcementsPullToRefreshHint": "Tirez pour actualiser après la publication d'une nouvelle activité scolaire.",
-    "announcementsInboxTitle": "Boîte de réception",
-    "announcementsInboxSubtitle": "Seuls les titres apparaissent ici pour un balayage rapide. Appuyez sur un élément pour ouvrir le contenu complet de l'annonce.",
-    "announcementsDetailLoadFailedHint": "Retournez et essayez d'actualiser la boîte de réception des annonces.",
-    "announcementsUnavailableTitle": "Annonce indisponible",
-    "announcementsUnavailableSubtitle": "Cette annonce n'est plus disponible dans le flux publié pour {audience}.",
-    "announcementsUnavailableHint": "Retournez à la boîte de réception pour continuer.",
-    "announcementsPublishedReadStateBody": "Cette annonce a été publiée pour {audience} et votre état de lecture est stocké localement sur cet appareil.",
-    "announcementsDetailsTitle": "Détails de l'annonce",
-    "announcementsDetailsSubtitle": "Métadonnées publiées pour cette annonce et son état de lecture actuel.",
-    "announcementsSeverityLabel": "Gravité",
-    "announcementsCreatedLabel": "Créé",
-    "announcementsIdLabel": "ID d'annonce",
-    "announcementsFullContentTitle": "Contenu complet",
-    "announcementsFullContentSubtitle": "Le texte complet de l'annonce s'affiche ici après avoir ouvert l'élément à partir de la boîte de réception.",
-    "announcementsReadStateTitle": "État de lecture",
-    "announcementsReadStateBodyRead": "Cette annonce est marquée comme lue sur cet appareil.",
-    "announcementsReadStateBodyUnread": "Cette annonce est toujours non lue sur cet appareil.",
-    "gradesLoadError": "Nous n'avons pas pu charger les notes en ce moment. Tirez pour actualiser ou réessayez.",
-    "gradesLoadTimeout": "Les notes prennent trop longtemps à charger. Tirez pour actualiser ou réessayez dans un instant.",
-    "gradesLoadNetwork": "Les notes n'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.",
-    "gradesGeneralSubject": "Général",
-    "gradesBandBuilding": "En cours de construction",
-    "gradesBandExcellent": "Excellent",
-    "gradesBandStrong": "Fort",
-    "gradesBandOkay": "Correct",
-    "gradesBandNeedsAttention": "Demande de l'attention",
-    "gradesBandRisk": "À risque",
-    "gradesTrendRising": "En hausse",
-    "gradesTrendDropping": "En baisse",
-    "gradesTrendStable": "Stable",
-    "gradesShowingSummary": "Affichage de {shown} sur {total} notes enregistrées pour {subject} dans {range}.",
-    "gradesLoadingSubtitle": "Chargement de vos derniers résultats académiques.",
-    "gradesUnavailableTitle": "Notes indisponibles",
-    "gradesHeroSubtitle": "Un aperçu clair de votre moyenne, des évaluations récentes et des matières nécessitant une protection ou une récupération.",
-    "gradesMetricAverage": "Moyenne",
-    "gradesMetricRecorded": "Enregistré",
-    "gradesMetricBestSubject": "Meilleure matière",
-    "gradesMetricNeedsWork": "Nécessite du travail",
-    "gradesLatestSignalBody": "{assessment} en {subject} a obtenu {grade}. {band} en ce moment.",
-    "gradesSummaryAvailableNoRecent": "Un résumé des notes est disponible, mais aucune évaluation récente n'est visible dans cette vue pour l'instant.",
-    "gradesEmptyTitle": "Pas encore de notes",
-    "gradesEmptySubtitle": "Aucune note n'a été publiée pour ce compte d'étudiant pour l'instant.",
-    "gradesFiltersSubtitle": "Utilisez le même sélecteur consultable que dans les paramètres pour affiner les notes par matière ou période.",
-    "gradesNoFilteredTitle": "Aucune note ne correspond à ces filtres",
-    "gradesNoFilteredSubtitle": "Essayez toutes les matières ou une période plus large pour ramener plus de notes enregistrées.",
-    "gradesQuickReadTitle": "Lecture rapide",
-    "gradesQuickReadSubtitleFiltered": "Un résumé rapide des notes actuellement affichées.",
-    "gradesQuickReadSubtitleAll": "La lecture la plus rapide de ce qu'il faut protéger et récupérer.",
-    "gradesWeakSpotLabel": "Point faible actuel",
-    "gradesNoWeakSignal": "Pas encore de signal de matière faible",
-    "gradesWeakSpotValue": "{subject} a besoin du premier bloc de récupération.",
-    "gradesStrengthLabel": "Force actuelle",
-    "gradesNoStrengthSignal": "Pas encore de signal de matière forte",
-    "gradesStrengthValue": "{subject} est votre point d'ancrage de confiance en ce moment.",
-    "gradesBandLabel": "Bande",
-    "gradesInViewLabel": "En vue",
-    "gradesInViewCount": "{count} notes enregistrées dans ce filtre.",
-    "gradesInViewAverage": "{count} notes enregistrées avec une moyenne de {average}.",
-    "gradesLatestAssessmentsTitle": "Dernières évaluations",
-    "gradesLatestAssessmentsSubtitleFiltered": "Notes enregistrées les plus récentes dans la vue filtrée actuelle.",
-    "gradesLatestAssessmentsSubtitleAll": "Notes enregistrées les plus récentes par ordre chronologique.",
-    "gradesSubjectDrilldownTitle": "Détail de la matière",
-    "gradesSubjectDrilldownSubtitleFiltered": "Regroupées par matière pour les notes actuellement affichées.",
-    "gradesSubjectDrilldownSubtitleAll": "Regroupées par matière pour que la tendance et la pression ressortent plus rapidement.",
-    "gradesAssessmentFallback": "Évaluation",
-    "gradesChipBest": "Meilleur",
-    "gradesNoAverageYet": "Pas de moyenne pour l'instant",
-    "gradesRecentAverage": "Moyenne récente : {average}",
-    "messagesRequestTitle": "Demande",
-    "messagesRequestLoadFailed": "Impossible de charger la demande : {error}",
-    "@messagesRequestLoadFailed": {"placeholders": {"error": {}}},
-    "messagesRequestBannerIncoming": "Demande de message",
-    "messagesRequestBannerOutgoing": "Approbation en attente",
-    "messagesBlockAction": "Bloquer",
-    "messagesApproveAction": "Approuver",
-    "messagesRequestUnlockHint": "La discussion se déverrouille après que le destinataire a approuvé votre premier message.",
-    "messagesThreadConversationFallback": "Discussion",
-    "messagesThreadLeaveGroupTitle": "Quitter le groupe ?",
-    "messagesThreadLeaveGroupBody": "Vous ne recevrez plus de messages de ce groupe.",
-    "messagesThreadBlockPersonTitle": "Bloquer cette personne ?",
-    "messagesThreadBlockPersonBody": "Vous ne pourrez plus échanger de messages avec cette personne.",
-    "messagesThreadPersonFallback": "Personne",
-    "messagesThreadProfileInfoUnavailable": "Informations du profil indisponibles",
-    "messagesThreadParticipants": "Participants",
-    "messagesThreadPeople": "Personnes",
-    "messagesThreadDeleteForMe": "Supprimer pour moi",
-    "messagesThreadDeleteForEveryone": "Supprimer pour tout le monde",
-    "messagesThreadDeleteForEveryoneSubtitle": "Supprime pour tous les participants",
-    "messagesThreadSending": "Envoi en cours…",
-    "messagesThreadWaitingForApproval": "En attente d'approbation",
+  "classroomsThreadTypeDirectMessageShort": "DM",
+  "messagesBlockedPeopleTitle": "Personnes bloquées",
+  "messagesStartChatAction": "Démarrer une discussion",
+  "messagesLoadFailed": "Impossible de charger les messages : {error}",
+  "@messagesLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchHint": "Rechercher des messages",
+  "messagesNoResults": "Aucun message trouvé",
+  "messagesRequestsSection": "Demandes",
+  "messagesPendingApprovals": "Approbations en attente",
+  "messagesChatsSection": "Discussions",
+  "messagesAllChatsSection": "Toutes les discussions",
+  "messagesConversationCount": "{count, plural, =1 {1 conversation} other {{count} conversations}}",
+  "@messagesConversationCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "messagesRequestReviewStatus": "Voir",
+  "messagesPeopleLoadFailed": "Impossible de charger les personnes : {error}",
+  "@messagesPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchPeopleHint": "Rechercher des personnes",
+  "messagesNewGroupTitle": "Nouveau groupe",
+  "messagesNewGroupSubtitle": "Créer une discussion de groupe",
+  "messagesGroupNameHint": "Nom du groupe",
+  "messagesCreateGroupAction": "Créer le groupe",
+  "messagesBlockedPersonFallback": "cette personne",
+  "messagesUnblockPersonTitle": "Débloquer cette personne ?",
+  "messagesUnblockPersonBody": "Autoriser {name} à vous envoyer de nouveau des messages ?",
+  "@messagesUnblockPersonBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesUnblockAction": "Débloquer",
+  "messagesUnblockedToast": "{name} débloqué",
+  "@messagesUnblockedToast": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesBlockedPeopleLoadFailed": "Impossible de charger les personnes bloquées : {error}",
+  "@messagesBlockedPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesNoBlockedPeople": "Aucune personne bloquée",
+  "messagesUnknownUser": "Utilisateur inconnu",
+  "announcementsLoadError": "Impossible de charger les annonces en ce moment. Tirez pour actualiser ou réessayez.",
+  "announcementsLoadTimeout": "Les annonces prennent trop de temps à charger. Tirez pour actualiser ou réessayez dans un moment.",
+  "announcementsLoadNetwork": "Les annonces n'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.",
+  "announcementsAudienceTeacher": "enseignant",
+  "announcementsAudienceAccount": "compte",
+  "announcementsAudienceTeacherWorkspace": "espace de travail enseignant",
+  "announcementsLoadFailedTitle": "Impossible de charger les annonces",
+  "announcementsLoadFailedHint": "Tirez pour actualiser une fois la connexion stable.",
+  "announcementsHeroSubtitle": "Annonces publiées de l'école, de l'enseignant et du système disponibles pour {audience}.",
+  "announcementsLatestSourceLabel": "Dernière source",
+  "announcementsNone": "Aucune",
+  "announcementsUnreadCountTitle": "{count, plural, =1 {1 annonce non lue} other {{count} annonces non lues}}",
+  "announcementsAllReadTitle": "Tout est lu",
+  "announcementsEmptyForAudience": "Aucune annonce n'a été publiée pour {audience} pour le moment.",
+  "announcementsLatestBody": "Dernière : {title}. Appuyez dessus pour lire le contenu complet.",
+  "announcementsFiltersSubtitle": "Réduisez la boîte de réception par source ou par état de lecture pour vous concentrer sur ce qui nécessite encore une attention.",
+  "announcementsAllAnnouncements": "Toutes les annonces",
+  "announcementsSearchStatesHint": "Non lu / Lu",
+  "announcementsSummarySourceSegment": " de {source}",
+  "announcementsSummaryStateSegment": " en {state}",
+  "announcementsShowingSummary": "Affichage de {shown} sur {total} annonces{sourceSegment}{stateSegment}.",
+  "announcementsNoMatchTitle": "Aucune annonce ne correspond à ces filtres",
+  "announcementsNoPublishedTitle": "Aucune annonce publiée pour le moment",
+  "announcementsNoMatchSubtitle": "Essayez une source différente ou revenez à toutes les annonces pour afficher plus d'éléments.",
+  "announcementsClearFiltersHint": "Effacez les filtres pour tout voir à nouveau.",
+  "announcementsPullToRefreshHint": "Tirez pour actualiser après la publication d'une nouvelle activité scolaire.",
+  "announcementsInboxTitle": "Boîte de réception",
+  "announcementsInboxSubtitle": "Seuls les titres apparaissent ici pour un balayage rapide. Appuyez sur un élément pour ouvrir le contenu complet de l'annonce.",
+  "announcementsDetailLoadFailedHint": "Retournez et essayez d'actualiser la boîte de réception des annonces.",
+  "announcementsUnavailableTitle": "Annonce indisponible",
+  "announcementsUnavailableSubtitle": "Cette annonce n'est plus disponible dans le flux publié pour {audience}.",
+  "announcementsUnavailableHint": "Retournez à la boîte de réception pour continuer.",
+  "announcementsPublishedReadStateBody": "Cette annonce a été publiée pour {audience} et votre état de lecture est stocké localement sur cet appareil.",
+  "announcementsDetailsTitle": "Détails de l'annonce",
+  "announcementsDetailsSubtitle": "Métadonnées publiées pour cette annonce et son état de lecture actuel.",
+  "announcementsSeverityLabel": "Gravité",
+  "announcementsCreatedLabel": "Créé",
+  "announcementsIdLabel": "ID d'annonce",
+  "announcementsFullContentTitle": "Contenu complet",
+  "announcementsFullContentSubtitle": "Le texte complet de l'annonce s'affiche ici après avoir ouvert l'élément à partir de la boîte de réception.",
+  "announcementsReadStateTitle": "État de lecture",
+  "announcementsReadStateBodyRead": "Cette annonce est marquée comme lue sur cet appareil.",
+  "announcementsReadStateBodyUnread": "Cette annonce est toujours non lue sur cet appareil.",
+  "gradesLoadError": "Nous n'avons pas pu charger les notes en ce moment. Tirez pour actualiser ou réessayez.",
+  "gradesLoadTimeout": "Les notes prennent trop longtemps à charger. Tirez pour actualiser ou réessayez dans un instant.",
+  "gradesLoadNetwork": "Les notes n'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.",
+  "gradesGeneralSubject": "Général",
+  "gradesBandBuilding": "En construction",
+  "gradesBandExcellent": "Excellent",
+  "gradesBandStrong": "Fort",
+  "gradesBandOkay": "Correct",
+  "gradesBandNeedsAttention": "À surveiller",
+  "gradesBandRisk": "À risque",
+  "gradesTrendRising": "En hausse",
+  "gradesTrendDropping": "En baisse",
+  "gradesTrendStable": "Stable",
+  "gradesShowingSummary": "Affichage de {shown} sur {total} notes enregistrées pour {subject} dans {range}.",
+  "gradesLoadingSubtitle": "Chargement de vos derniers résultats académiques.",
+  "gradesUnavailableTitle": "Notes indisponibles",
+  "gradesHeroSubtitle": "Un aperçu clair de votre moyenne, des évaluations récentes et des matières nécessitant une protection ou une récupération.",
+  "gradesMetricAverage": "Moyenne",
+  "gradesMetricRecorded": "Enregistré",
+  "gradesMetricBestSubject": "Meilleure matière",
+  "gradesMetricNeedsWork": "Nécessite du travail",
+  "gradesLatestSignalBody": "{assessment} en {subject} a obtenu {grade}. {band} en ce moment.",
+  "gradesSummaryAvailableNoRecent": "Un résumé des notes est disponible, mais aucune évaluation récente n'est visible dans cette vue pour l'instant.",
+  "gradesEmptyTitle": "Pas encore de notes",
+  "gradesEmptySubtitle": "Aucune note n'a été publiée pour ce compte d'étudiant pour l'instant.",
+  "gradesFiltersSubtitle": "Utilisez le même sélecteur consultable que dans les paramètres pour affiner les notes par matière ou période.",
+  "gradesNoFilteredTitle": "Aucune note ne correspond à ces filtres",
+  "gradesNoFilteredSubtitle": "Essayez toutes les matières ou une période plus large pour ramener plus de notes enregistrées.",
+  "gradesQuickReadTitle": "Lecture rapide",
+  "gradesQuickReadSubtitleFiltered": "Un résumé rapide des notes actuellement affichées.",
+  "gradesQuickReadSubtitleAll": "La lecture la plus rapide de ce qu'il faut protéger et récupérer.",
+  "gradesWeakSpotLabel": "Point faible actuel",
+  "gradesNoWeakSignal": "Pas encore de signal de matière faible",
+  "gradesWeakSpotValue": "{subject} a besoin du premier bloc de récupération.",
+  "gradesStrengthLabel": "Force actuelle",
+  "gradesNoStrengthSignal": "Pas encore de signal de matière forte",
+  "gradesStrengthValue": "{subject} est votre point d'ancrage de confiance en ce moment.",
+  "gradesBandLabel": "Bande",
+  "gradesInViewLabel": "En vue",
+  "gradesInViewCount": "{count} notes enregistrées dans ce filtre.",
+  "gradesInViewAverage": "{count} notes enregistrées avec une moyenne de {average}.",
+  "gradesLatestAssessmentsTitle": "Dernières évaluations",
+  "gradesLatestAssessmentsSubtitleFiltered": "Notes enregistrées les plus récentes dans la vue filtrée actuelle.",
+  "gradesLatestAssessmentsSubtitleAll": "Notes enregistrées les plus récentes par ordre chronologique.",
+  "gradesSubjectDrilldownTitle": "Détail de la matière",
+  "gradesSubjectDrilldownSubtitleFiltered": "Regroupées par matière pour les notes actuellement affichées.",
+  "gradesSubjectDrilldownSubtitleAll": "Regroupées par matière pour que la tendance et la pression ressortent plus rapidement.",
+  "gradesAssessmentFallback": "Évaluation",
+  "gradesChipBest": "Meilleur",
+  "gradesNoAverageYet": "Pas de moyenne pour l'instant",
+  "gradesRecentAverage": "Moyenne récente : {average}",
+  "messagesRequestTitle": "Demande",
+  "messagesRequestLoadFailed": "Impossible de charger la demande : {error}",
+  "@messagesRequestLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesRequestBannerIncoming": "Demande de message",
+  "messagesRequestBannerOutgoing": "Approbation en attente",
+  "messagesBlockAction": "Bloquer",
+  "messagesApproveAction": "Approuver",
+  "messagesRequestUnlockHint": "La discussion se déverrouille après que le destinataire a approuvé votre premier message.",
+  "messagesThreadConversationFallback": "Discussion",
+  "messagesThreadLeaveGroupTitle": "Quitter le groupe ?",
+  "messagesThreadLeaveGroupBody": "Vous ne recevrez plus de messages de ce groupe.",
+  "messagesThreadBlockPersonTitle": "Bloquer cette personne ?",
+  "messagesThreadBlockPersonBody": "Vous ne pourrez plus échanger de messages avec cette personne.",
+  "messagesThreadPersonFallback": "Personne",
+  "messagesThreadProfileInfoUnavailable": "Informations du profil indisponibles",
+  "messagesThreadParticipants": "Participants",
+  "messagesThreadPeople": "Personnes",
+  "messagesThreadDeleteForMe": "Supprimer pour moi",
+  "messagesThreadDeleteForEveryone": "Supprimer pour tout le monde",
+  "messagesThreadDeleteForEveryoneSubtitle": "Supprime pour tous les participants",
+  "messagesThreadSending": "Envoi en cours…",
+  "messagesThreadWaitingForApproval": "En attente d'approbation",
   "classroomsForwardSearchHint": "Rechercher des discussions",
   "classroomsForwardNewChat": "Nouvelle discussion",
   "classroomsForwardLoadError": "Impossible de charger les discussions : {error}",
-  "@classroomsForwardLoadError": {"placeholders": {"error": {}}},
+  "@classroomsForwardLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "classroomsForwardNoChatsFound": "Aucune discussion trouvée",
   "classroomsForwardSectionClassrooms": "Classes",
   "classroomsForwardSectionDirectMessages": "Messages directs",
   "classroomsForwardCancel": "Annuler",
   "classroomsForwardAction": "Transférer",
   "classroomsForwardCount": "Transférer ({count})",
-  "@classroomsForwardCount": {"placeholders": {"count": {}}},
-
+  "@classroomsForwardCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "markRead": "Marquer comme lu",
   "markUnread": "Marquer comme non lu",
   "markAllRead": "Tout marquer comme lu",
@@ -796,35 +905,53 @@
   "local": "Local",
   "server": "Serveur",
   "student": "Étudiant",
-    "notificationsSourceSystem": "Système",
-    "notificationsHeroSubtitleStudent": "Votre centre de notifications pour les annonces, les mises à jour serveur et l'activité scolaire utile au fil de l'eau.",
-    "notificationsHeroSubtitleTeacher": "Votre centre de notifications enseignant pour les annonces, les mises à jour serveur et l'activité scolaire au fil de l'eau.",
-    "notificationsFiltersSubtitle": "Filtrez par source ou par état de lecture pour trier plus vite.",
-    "notificationsSearchSourcesHint": "Rechercher des sources",
-    "notificationsShowingSummary": "Affichage de {shown} notifications sur {total}.",
-    "@notificationsShowingSummary": {"placeholders": {"shown": {}, "total": {}}},
-    "notificationsEmptyForAccount": "Aucune notification n'est disponible pour ce compte pour le moment.",
-    "notificationsEmptyFiltered": "Aucune notification ne correspond à ces filtres pour le moment. Effacez les filtres pour voir tout le flux.",
-    "notificationsEmpty": "Aucune notification n'est disponible pour le moment.",
-    "notificationsNewBadge": "Nouveau",
-    "notificationsUnavailable": "Cette notification n'est plus disponible. Actualisez la boîte de réception puis réessayez.",
-    "notificationsSeverityCritical": "Critique",
-    "notificationsSeverityWarning": "Alerte",
-    "notificationsSeverityInfo": "Info",
-    "alertsTitle": "Alertes",
-    "alertsSubtitle": "Cette page regroupe ce qui demande une attention immédiate, pas seulement les mises à jour générales.",
-    "alertsAttendanceTitle": "L'assiduité demande de l'attention",
-    "alertsAttendanceBody": "Votre taux de présence est de {rate}%. Quelques cours manqués peuvent vite s'accumuler.",
-    "@alertsAttendanceBody": {"placeholders": {"rate": {}}},
-    "alertsWeakestSubjectTitle": "Signal de matière la plus faible",
-    "alertsWeakestSubjectBody": "{subject} demande actuellement le plus d'attention selon vos dernières notes.",
-    "@alertsWeakestSubjectBody": {"placeholders": {"subject": {}}},
-    "alertsPracticeWeakAreaTitle": "Zone faible en pratique",
-    "alertsPracticeWeakAreaBody": "{topic} en {subject} est actuellement votre point faible le plus clair.",
-    "@alertsPracticeWeakAreaBody": {"placeholders": {"topic": {}, "subject": {}}},
-    "alertsPracticeTrendDroppedTitle": "La tendance de pratique baisse",
-    "alertsPracticeTrendDroppedBody": "Votre performance sur 7 jours est inférieure à votre base sur 30 jours. Ralentissez et revenez aux fondamentaux avant de pousser davantage.",
-    "alertsEmpty": "Tout est calme pour l'instant. Si quelque chose demande une attention urgente, cela apparaîtra ici.",
+  "notificationsSourceSystem": "Système",
+  "notificationsHeroSubtitleStudent": "Votre centre de notifications pour les annonces, les mises à jour serveur et l'activité scolaire utile au fil de l'eau.",
+  "notificationsHeroSubtitleTeacher": "Votre centre de notifications enseignant pour les annonces, les mises à jour serveur et l'activité scolaire au fil de l'eau.",
+  "notificationsFiltersSubtitle": "Filtrez par source ou par état de lecture pour trier plus vite.",
+  "notificationsSearchSourcesHint": "Rechercher des sources",
+  "notificationsShowingSummary": "Affichage de {shown} notifications sur {total}.",
+  "@notificationsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {}
+    }
+  },
+  "notificationsEmptyForAccount": "Aucune notification n'est disponible pour ce compte pour le moment.",
+  "notificationsEmptyFiltered": "Aucune notification ne correspond à ces filtres pour le moment. Effacez les filtres pour voir tout le flux.",
+  "notificationsEmpty": "Aucune notification n'est disponible pour le moment.",
+  "notificationsNewBadge": "Nouveau",
+  "notificationsUnavailable": "Cette notification n'est plus disponible. Actualisez la boîte de réception puis réessayez.",
+  "notificationsSeverityCritical": "Critique",
+  "notificationsSeverityWarning": "Alerte",
+  "notificationsSeverityInfo": "Info",
+  "alertsTitle": "Alertes",
+  "alertsSubtitle": "Cette page regroupe ce qui demande une attention immédiate, pas seulement les mises à jour générales.",
+  "alertsAttendanceTitle": "L'assiduité demande de l'attention",
+  "alertsAttendanceBody": "Votre taux de présence est de {rate}%. Quelques cours manqués peuvent vite s'accumuler.",
+  "@alertsAttendanceBody": {
+    "placeholders": {
+      "rate": {}
+    }
+  },
+  "alertsWeakestSubjectTitle": "Signal de matière la plus faible",
+  "alertsWeakestSubjectBody": "{subject} demande actuellement le plus d'attention selon vos dernières notes.",
+  "@alertsWeakestSubjectBody": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "alertsPracticeWeakAreaTitle": "Zone faible en pratique",
+  "alertsPracticeWeakAreaBody": "{topic} en {subject} est actuellement votre point faible le plus clair.",
+  "@alertsPracticeWeakAreaBody": {
+    "placeholders": {
+      "topic": {},
+      "subject": {}
+    }
+  },
+  "alertsPracticeTrendDroppedTitle": "La tendance de pratique baisse",
+  "alertsPracticeTrendDroppedBody": "Votre performance sur 7 jours est inférieure à votre base sur 30 jours. Ralentissez et revenez aux fondamentaux avant de pousser davantage.",
+  "alertsEmpty": "Tout est calme pour l'instant. Si quelque chose demande une attention urgente, cela apparaîtra ici.",
   "classroomDetailPhoto": "Photo",
   "classroomDetailVoiceNote": "Note vocale",
   "classroomDetailVideo": "Vidéo",
@@ -890,7 +1017,7 @@
   "meetingsLoadTimeout": "Les réunions prennent trop de temps à charger. Tirez pour actualiser ou réessayez dans un instant.",
   "meetingsLoadNetwork": "Impossible de se connecter aux réunions pour le moment. Vérifiez votre connexion et réessayez.",
   "meetingsHeroSubtitle": "Toutes les réunions de classe dans une vue épurée, avec des liens joints et une page de détails en plein écran quand vous avez besoin du contexte.",
-  "meetingsJoinReadyMetric": "Prêt à rejoindre",
+  "meetingsJoinReadyMetric": "Rejoindre",
   "meetingsNoLinkMetric": "Sans lien",
   "meetingsNoPostedTitle": "Aucune réunion publiée pour le moment",
   "meetingsEmptyForAccount": "Aucune réunion de classe n'est disponible pour ce compte étudiant pour le moment.",
@@ -978,26 +1105,66 @@
   "practiceSetupHeroSubtitle": "Choisissez un mode, le timing et la difficulté.",
   "practiceSetupInfiniteLives": "Vies infinies",
   "practiceSetupLivesCount": "{count} vies",
-  "@practiceSetupLivesCount": {"placeholders": {"count": {}}},
+  "@practiceSetupLivesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupAiTiming": "Timing IA",
   "practiceSetupSecondsShort": "{seconds}s",
-  "@practiceSetupSecondsShort": {"placeholders": {"seconds": {}}},
+  "@practiceSetupSecondsShort": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
   "practiceSetupQuestionsCount": "{count} questions",
-  "@practiceSetupQuestionsCount": {"placeholders": {"count": {}}},
+  "@practiceSetupQuestionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummarySubject": "Matière : {subject}",
-  "@practiceSetupSummarySubject": {"placeholders": {"subject": {}}},
+  "@practiceSetupSummarySubject": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
   "practiceSetupSummaryTopic": "Sujet : {topic}",
-  "@practiceSetupSummaryTopic": {"placeholders": {"topic": {}}},
+  "@practiceSetupSummaryTopic": {
+    "placeholders": {
+      "topic": {}
+    }
+  },
   "practiceSetupSummaryMode": "Mode : {mode}",
-  "@practiceSetupSummaryMode": {"placeholders": {"mode": {}}},
+  "@practiceSetupSummaryMode": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSetupSummaryDifficulty": "Difficulté : {difficulty}",
-  "@practiceSetupSummaryDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSetupSummaryDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceSetupSummaryQuestions": "Questions : {count}",
-  "@practiceSetupSummaryQuestions": {"placeholders": {"count": {}}},
+  "@practiceSetupSummaryQuestions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "practiceSetupSummaryTiming": "Timing : {timing}",
-  "@practiceSetupSummaryTiming": {"placeholders": {"timing": {}}},
+  "@practiceSetupSummaryTiming": {
+    "placeholders": {
+      "timing": {}
+    }
+  },
   "practiceSetupSummaryLives": "Vies : {lives}",
-  "@practiceSetupSummaryLives": {"placeholders": {"lives": {}}},
+  "@practiceSetupSummaryLives": {
+    "placeholders": {
+      "lives": {}
+    }
+  },
   "practiceSetupSectionSubjectTopic": "Matière et sujet",
   "practiceSetupFieldSubject": "Matière",
   "practiceSetupFieldSubjectHint": "Choisir la matière",
@@ -1118,7 +1285,15 @@
   "practiceAnalyticsSectionOverall": "Vue d’ensemble",
   "practiceAnalyticsRecentSessionsTitle": "Sessions récentes",
   "practiceAnalyticsRecentSessionsSummary": "{sessions} sessions • {correct}/{answered} correctes • {accuracy}% • XP {xp}",
-  "@practiceAnalyticsRecentSessionsSummary": {"placeholders": {"sessions": {}, "correct": {}, "answered": {}, "accuracy": {}, "xp": {}}},
+  "@practiceAnalyticsRecentSessionsSummary": {
+    "placeholders": {
+      "sessions": {},
+      "correct": {},
+      "answered": {},
+      "accuracy": {},
+      "xp": {}
+    }
+  },
   "practiceAnalyticsSectionWeakestTopics": "Sujets les plus faibles",
   "practiceAnalyticsSectionStrongestTopics": "Sujets les plus forts",
   "practiceAnalyticsSectionModePerformance": "Performance par mode",
@@ -1163,7 +1338,11 @@
   "practiceSessionLoadingBagrut": "Préparation de votre série Bagrut",
   "practiceSessionLoadingDefault": "Préparation de votre session",
   "practiceSessionCompleteTitle": "{mode} terminé",
-  "@practiceSessionCompleteTitle": {"placeholders": {"mode": {}}},
+  "@practiceSessionCompleteTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
   "practiceSessionMetricAnswered": "Répondues",
   "practiceSessionMetricCorrect": "Correctes",
   "practiceSessionMetricWrong": "Fausses",
@@ -1190,10 +1369,19 @@
   "practiceSessionBackToSetup": "Retour à la configuration",
   "practiceSessionGeneralTopic": "Général",
   "practiceSessionQuestionProgress": "Question {current} sur {total}",
-  "@practiceSessionQuestionProgress": {"placeholders": {"current": {}, "total": {}}},
+  "@practiceSessionQuestionProgress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
   "practiceSessionMetricTime": "Temps",
   "practiceSessionMatchmakingDifficulty": "Difficulté : {difficulty}",
-  "@practiceSessionMatchmakingDifficulty": {"placeholders": {"difficulty": {}}},
+  "@practiceSessionMatchmakingDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
   "practiceModeActionPrevious": "Précédent",
   "practiceModeActionCheckAnswer": "Vérifier la réponse",
   "practiceModeActionNext": "Suivant",
@@ -1243,7 +1431,11 @@
   "teacherGradesAssessmentUpdated": "Évaluation mise à jour",
   "teacherGradesDeleteAssessmentTitle": "Supprimer l’évaluation ?",
   "teacherGradesDeleteAssessmentBody": "Cela supprimera {title} et son entrée de notes de l’espace enseignant.",
-  "@teacherGradesDeleteAssessmentBody": {"placeholders": {"title": {}}},
+  "@teacherGradesDeleteAssessmentBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherGradesDeleteAction": "Supprimer",
   "teacherGradesAssessmentDeleted": "Évaluation supprimée",
   "teacherGradesRosterLinkError": "Cette évaluation n’est pas liée à une liste de classe.",
@@ -1255,10 +1447,18 @@
   "teacherGradesNoStudentsLoaded": "Aucun élève chargé pour cette évaluation.",
   "teacherGradesFieldGrade": "Note",
   "teacherGradesMaxHint": "Max {grade}",
-  "@teacherGradesMaxHint": {"placeholders": {"grade": {}}},
+  "@teacherGradesMaxHint": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "teacherGradesSaving": "Enregistrement…",
   "teacherGradesSaveCount": "Enregistrer {count} notes",
-  "@teacherGradesSaveCount": {"placeholders": {"count": {}}},
+  "@teacherGradesSaveCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "assignmentsNoDueDate": "Aucune date limite",
   "assignmentsLoadError": "Impossible de charger les devoirs maintenant. Tirez pour actualiser ou réessayez.",
   "assignmentsLoadTimeout": "Les devoirs prennent trop de temps à charger. Tirez pour actualiser ou réessayez dans un instant.",
@@ -1321,6 +1521,7 @@
   "assignmentsPullToRefreshRetry": "Tirez pour actualiser ou réessayez ci-dessous.",
   "assignmentsFileSizeUnknown": "Fichier",
   "assignmentsRemoveAttachment": "Supprimer la pièce jointe",
+  "assignmentsSubmitted": "Rendu",
   "attendanceUndated": "Sans date",
   "attendanceLoadError": "Impossible de charger la présence maintenant. Faites glisser pour actualiser ou réessayez.",
   "attendanceLoadTimeout": "La présence prend trop de temps à charger. Faites glisser pour actualiser ou réessayez dans un instant.",
@@ -1383,7 +1584,6 @@
   "attendanceRange7Short": "7 jours",
   "attendanceRange30Short": "30 jours",
   "attendanceRange90Short": "90 jours",
-
   "actionCancel": "Annuler",
   "actionSave": "Enregistrer",
   "actionDelete": "Supprimer",
@@ -1409,18 +1609,38 @@
   "msgLeave": "Quitter",
   "msgInviteCodeCopied": "Code d'invitation copié",
   "msgCodeCopied": "Code copié : {code}",
-  "@msgCodeCopied": {"placeholders": {"code": {}}},
+  "@msgCodeCopied": {
+    "placeholders": {
+      "code": {}
+    }
+  },
   "msgParticipantsAdded": "{count, plural, =1{1 participant ajouté} other{{count} participants ajoutés}}",
-  "@msgParticipantsAdded": {"placeholders": {"count": {"type": "int"}}},
+  "@msgParticipantsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgMembersCount": "{count, plural, =1{1 membre} other{{count} membres}}",
-  "@msgMembersCount": {"placeholders": {"count": {"type": "int"}}},
+  "@msgMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "msgAdmin": "Admin",
   "msgRemoveFromGroup": "Retirer du groupe",
   "msgMakeAdmin": "Nommer admin",
   "msgRemoveAdmin": "Retirer les droits admin",
   "msgOnlyAdmin": "Seul admin — promouvoir quelqu'un d'abord",
   "msgRemoveMemberTitle": "Retirer {name} ?",
-  "@msgRemoveMemberTitle": {"placeholders": {"name": {}}},
+  "@msgRemoveMemberTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "msgNotificationsMuted": "Notifications désactivées",
   "msgNotificationsUnmuted": "Notifications réactivées",
   "msgJoinGroupTitle": "Rejoindre un groupe",
@@ -1451,7 +1671,11 @@
   "teacherTitleAndMessageRequired": "Le titre et le message sont obligatoires",
   "teacherAnnouncementPublished": "Annonce publiée",
   "teacherFailedToPublish": "Échec de la publication : {error}",
-  "@teacherFailedToPublish": {"placeholders": {"error": {}}},
+  "@teacherFailedToPublish": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherAnnouncementSectionTitle": "Annonce",
   "teacherAudienceSectionTitle": "Audience",
   "teacherPinAnnouncement": "Épingler l'annonce",
@@ -1463,11 +1687,22 @@
   "teacherAnnounceMessageLabel": "Message *",
   "teacherAnnounceMessageHint": "Rédigez l'annonce complète ici…",
   "teacherStudentsLabel": "Élèves",
+  "teacherSearchStudents": "Rechercher par nom ou classe…",
+  "teacherNoStudentsLoaded": "Aucun élève trouvé dans cette école.",
+  "teacherActions": "ACTIONS RAPIDES",
   "teacherParentsLabel": "Parents",
   "teacherTeachersLabel": "Enseignants",
   "teacherWeekScheduleTitle": "Planning de la semaine",
   "teacherCouldNotLoadSchedule": "Impossible de charger le planning",
-  "teacherAttendanceLast30": "Présences (30 derniers jours)",
+  "teacherAttendanceLast30": "Attendance (last 30 days)",
+  "teacherAttendanceFrom": "From {date}",
+  "@teacherAttendanceFrom": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "teacherAttendanceChangeDate": "Change date",
+  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
   "teacherRecentGrades": "Notes récentes",
   "teacherNoGradesRecorded": "Aucune note enregistrée pour l'instant",
   "teacherGradeAvg": "Moy. notes",
@@ -1476,9 +1711,18 @@
   "teacherGradeReports": "Rapports de notes",
   "teacherAvgLabel": "moy.",
   "teacherBelow60": "{count} en dessous de 60%",
-  "@teacherBelow60": {"placeholders": {"count": {}}},
+  "@teacherBelow60": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherGradedFraction": "{graded}/{total} noté(s)",
-  "@teacherGradedFraction": {"placeholders": {"graded": {}, "total": {}}},
+  "@teacherGradedFraction": {
+    "placeholders": {
+      "graded": {},
+      "total": {}
+    }
+  },
   "teacherNoGradesEntered": "Aucune note saisie pour l'instant",
   "teacherNewAssignment": "Nouveau devoir",
   "teacherDeleteAssignment": "Supprimer le devoir ?",
@@ -1491,19 +1735,26 @@
   "teacherJoinMeeting": "Rejoindre la réunion",
   "teacherAddStudentTitle": "Ajouter un élève",
   "teacherRemoveStudentTitle": "Retirer {name} ?",
-  "@teacherRemoveStudentTitle": {"placeholders": {"name": {}}},
+  "@teacherRemoveStudentTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherRemoveStudentContent": "Cet élève sera retiré de cette classe.",
   "teacherStudentAdded": "Élève ajouté",
   "teacherClassroomAnalyticsTitle": "Analyses de la classe",
   "teacherOpenAnalyticsAction": "Ouvrir les analyses",
   "teacherStudentsCount": "Élèves ({count})",
-  "@teacherStudentsCount": {"placeholders": {"count": {}}},
+  "@teacherStudentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "teacherAssignmentLabel": "Devoir",
   "teacherShareMaterialLabel": "Partager le matériel",
   "teacherAttendanceRateLabel": "Taux de présence",
   "teacherSelectSessionPrompt": "Sélectionnez une session ci-dessous pour commencer à marquer les présences",
   "teacherOpenAction": "Ouvrir",
-
   "chatDeleteForMe": "Supprimer pour moi",
   "chatDeleteForEveryone": "Supprimer pour tout le monde",
   "chatMicNeeded": "Accès au microphone requis",
@@ -1533,11 +1784,8 @@
   "chatJoinGroupTooltip": "Rejoindre un groupe par code",
   "chatForwardNoChatAvailable": "Aucune discussion approuvée disponible",
   "chatFilterAll": "Tous",
-
   "novaDisclaimer": "NOVA peut se tromper. Vérifiez les réponses importantes.",
-
   "practiceCustomDisclaimer": "Les sujets personnalisés sont générés par l'IA à la volée. Les questions peuvent dériver hors sujet ou être inexactes pour des sujets de niche. Vérifiez les réponses inconnues de manière indépendante.",
-
   "classroomsJoined": "Vous avez rejoint la classe !",
   "classroomsJoinAction": "Rejoindre la classe",
   "classroomsJoinTooltip": "Rejoindre une classe",
@@ -1546,7 +1794,6 @@
   "classroomsCouldNotOpenLink": "Impossible d'ouvrir le lien",
   "classroomsReorderTitle": "Réorganiser les classes",
   "classroomsNoClassroomsToReorder": "Aucune classe à réorganiser.",
-
   "teacherPostAnnouncementAction": "Publier une annonce",
   "announcementAudienceEveryone": "Tout le monde",
   "teacherGreetingMorning": "Bonjour",
@@ -1576,20 +1823,16 @@
   "teacherNoMeetingsSub": "Appuyez sur + pour planifier une réunion de classe",
   "teacherAttendanceOther": "Autre",
   "teacherTotal": "Total",
-
   "mediaOpenExternally": "Ouvrir en externe",
   "mediaUnableToLoad": "Impossible de charger l'image",
-
   "searchHint": "Rechercher...",
   "teacherInsightsTitle": "Aperçus des élèves",
   "teacherInsightsSubtitle": "Sélectionnez un élève pour voir ses informations académiques.",
   "teacherInsightsNoStudents": "Aucun élève trouvé.",
   "teacherInsightsSearchHint": "Rechercher des élèves…",
-
-  "navDiplomas": "Diplômes",
+  "navDiplomas": "Certificats",
   "diplomasComingSoon": "La gestion des diplômes arrive bientôt.",
-
-  "teacherExamsTitle": "Examens et évaluations",
+  "teacherExamsTitle": "Examens",
   "teacherExamsUpcoming": "À venir",
   "teacherExamsPast": "Passés",
   "teacherExamsEmpty": "Aucune évaluation pour l'instant. Appuyez sur + pour en créer une.",
@@ -1599,7 +1842,6 @@
       "count": {}
     }
   },
-
   "teacherFormsTitle": "Formulaires",
   "teacherFormsEmpty": "Aucun formulaire. Appuyez sur + pour en créer un.",
   "teacherFormsResponses": "{count} réponses",
@@ -1615,8 +1857,7 @@
   "teacherFormsQuestionHint": "Texte de la question",
   "teacherFormsViewResponses": "Voir les réponses",
   "teacherFormsNoResponses": "Aucune réponse pour l'instant.",
-
-  "diplomasTitle": "Diplômes et certificats",
+  "diplomasTitle": "Certificats",
   "diplomasEmpty": "Aucun certificat émis. Appuyez sur + pour en émettre un.",
   "diplomasIssueTo": "Émettre pour",
   "diplomasStudentName": "Nom de l'élève",
@@ -1628,7 +1869,6 @@
       "date": {}
     }
   },
-
   "examDetailsSection": "Détails",
   "examInfoTeacher": "Professeur",
   "examInfoAudience": "Audience",
@@ -1642,5 +1882,19 @@
   "examQuickActionsSection": "Actions rapides",
   "examViewGradeTitle": "Voir ta note",
   "examViewGradeBody": "Cet examen est terminé. Consultez l'onglet notes pour ton résultat.",
-  "examViewGradeAction": "Ouvrir les notes"
+  "examViewGradeAction": "Ouvrir les notes",
+  "teacherGradesSaveAction": "Enregistrer",
+  "teacherGradesNothingToSave": "Aucune modification à enregistrer.",
+  "teacherRetry": "Réessayer",
+  "teacherExamGradesStudents": "élèves",
+  "teacherExamGradesGraded": "notés",
+  "teacherExamGradesNoStudents": "Aucun élève ciblé.\nModifiez l'examen pour ajouter un public.",
+  "teacherExamGradesEnterGrades": "Saisir les notes",
+  "teacherDeleteExamTitle": "Supprimer l'examen ?",
+  "teacherDeleteExamBody": "Cet examen sera définitivement supprimé.",
+  "teacherMeetingsEmpty": "Aucune réunion pour l'instant.\nAppuyez sur + pour en planifier une.",
+  "teacherStudentsNoMatch": "Aucun élève ne correspond",
+  "teacherMaterialsTitle": "Matériaux",
+  "profileNamesTitle": "Nom en langues",
+  "profileDisplayNameLang": "Langue d'affichage"
 }

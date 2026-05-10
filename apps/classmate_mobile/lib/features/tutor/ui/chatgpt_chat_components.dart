@@ -115,9 +115,9 @@ class ChatGptBubble extends StatelessWidget {
     final maxW = MediaQuery.of(context).size.width * 0.72;
 
     final bg = isUser
-        ? cs.primary.withValues(alpha: 0.18)
-        : cs.surface.withValues(alpha: 0.10);
-    final border = cs.onSurface.withValues(alpha: 0.08);
+        ? cs.primary
+        : cs.surface;
+    final border = cs.onSurface;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -135,7 +135,6 @@ class ChatGptBubble extends StatelessWidget {
                 bottomLeft: Radius.circular(isUser ? 18 : 6),
                 bottomRight: Radius.circular(isUser ? 6 : 18),
               ),
-              blurSigma: 10,
               color: bg,
               border: Border.all(color: border, width: 1),
               child: Column(
@@ -153,7 +152,7 @@ class ChatGptBubble extends StatelessWidget {
                         theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w700,
-                          color: cs.onSurface.withValues(alpha: 0.65),
+                          color: cs.onSurface,
                         ),
                       ),
                     ),
@@ -201,10 +200,9 @@ class ChatGptComposer extends StatelessWidget {
         child: LiquidGlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           borderRadius: BorderRadius.circular(18),
-          blurSigma: 12,
-          color: theme.colorScheme.surface.withValues(alpha: 0.55),
+          color: theme.colorScheme.surface,
           border: Border.all(
-            color: theme.dividerColor.withValues(alpha: 0.35),
+            color: theme.dividerColor,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -254,8 +252,8 @@ class _SendButton extends StatelessWidget {
       width: 40,
       child: Material(
         color: (onPressed == null)
-            ? theme.disabledColor.withValues(alpha: 0.15)
-            : theme.colorScheme.primary.withValues(alpha: 0.85),
+            ? theme.disabledColor
+            : theme.colorScheme.primary,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),

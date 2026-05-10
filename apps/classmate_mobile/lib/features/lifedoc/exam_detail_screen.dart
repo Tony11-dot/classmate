@@ -9,6 +9,7 @@ import 'domain/exam_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../common/media/image_viewer_screen.dart';
 import '../common/media/pdf_viewer_screen.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 // ─── helpers (duplicated locally so the detail screen is self-contained) ─────
 
@@ -30,26 +31,60 @@ _ExamStatus _statusOf(StudentExamItem exam) {
   return _ExamStatus.upcoming;
 }
 
+/// Format ISO date string → DD/MM/YYYY
+String _fmtDate(String? raw) {
+  final dt = _parseDate(raw);
+  if (dt == null) return raw ?? '—';
+  final d = dt.toLocal();
+  return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+}
+
+/// Format two HH:MM time strings → "HH:MM – HH:MM"
+String _fmtTimeRange(String? start, String? end) {
+  final s = (start ?? '').trim();
+  final e = (end ?? '').trim();
+  if (s.isEmpty && e.isEmpty) return '';
+  if (s.isEmpty) return e;
+  if (e.isEmpty) return s;
+  return '$s – $e';
+}
+
 Future<void> _addToCalendar(
     BuildContext context, StudentExamItem exam) async {
-  // Build a Google Calendar "quick-add" URL (works cross-platform via browser).
-  // Falls back to a simple date-only event if hourLabel is missing.
   final date = _parseDate(exam.dateLabel);
-  final title = Uri.encodeComponent('${exam.title} — ${exam.subject}');
-  String url;
+
+  // On iOS try to open the native Calendar app via calshow:// deep link.
+  // If that's unavailable (Android/web), fall back to a .ics data URI which
+  // iOS/Android will offer to open in the system calendar.
   if (date != null) {
-    final ymd = '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
-    url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-        '&text=$title'
-        '&dates=$ymd/$ymd'
-        '${exam.teacher.isNotEmpty ? '&details=${Uri.encodeComponent('Teacher: ${exam.teacher}')}' : ''}';
-  } else {
-    url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=$title';
+    final calShowUri = Uri.parse('calshow://${date.millisecondsSinceEpoch / 1000}');
+    if (await canLaunchUrl(calShowUri)) {
+      await launchUrl(calShowUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // Build a minimal .ics data URI — universal calendar import.
+    final ymd = '${date.year}${date.month.toString().padLeft(2,'0')}${date.day.toString().padLeft(2,'0')}';
+    final uid = 'exam-${exam.id}@classmate';
+    final ics = 'BEGIN:VCALENDAR\r\n'
+        'VERSION:2.0\r\n'
+        'BEGIN:VEVENT\r\n'
+        'UID:$uid\r\n'
+        'DTSTART:${ymd}T080000Z\r\n'
+        'DTEND:${ymd}T100000Z\r\n'
+        'SUMMARY:${exam.title}\r\n'
+        '${exam.teacher.isNotEmpty ? 'DESCRIPTION:Teacher: ${exam.teacher}\r\n' : ''}'
+        'END:VEVENT\r\n'
+        'END:VCALENDAR';
+    final encoded = Uri.encodeComponent(ics);
+    final icsUri = Uri.parse('data:text/calendar;charset=utf-8,$encoded');
+    if (await canLaunchUrl(icsUri)) {
+      await launchUrl(icsUri, mode: LaunchMode.externalApplication);
+      return;
+    }
   }
-  final uri = Uri.parse(url);
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else if (context.mounted) {
+
+  if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.examCouldNotOpenCalendar)),
     );
@@ -99,7 +134,7 @@ class ExamDetailScreen extends ConsumerWidget {
     final asyncExam = ref.watch(examsLiveProvider);
     return asyncExam.when(
       loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: const CmLoading()),
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
@@ -200,7 +235,7 @@ class _ExamDetailBody extends StatelessWidget {
     }
 
     final metaLine = [
-          exam.dateLabel,
+          _fmtDate(exam.dateLabel),
           exam.hourLabel,
           exam.periodLabel,
           exam.durationLabel,
@@ -226,12 +261,10 @@ class _ExamDetailBody extends StatelessWidget {
                     height: 44,
                     child: LiquidGlassCard(
                       borderRadius: BorderRadius.circular(16),
-                      blurSigma: 10,
-                      color: cs.surfaceContainerHigh.withValues(alpha: 0.84),
-                      border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.22),
-                      ),
-                      child: const Icon(Icons.arrow_back_rounded),
+                      color: cs.surfaceContainerHigh,
+                      padding: EdgeInsets.zero,
+                      border: Border.all(color: cs.outlineVariant),
+                      child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
                     ),
                   ),
                 ),
@@ -251,9 +284,8 @@ class _ExamDetailBody extends StatelessWidget {
           LiquidGlassCard(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             borderRadius: BorderRadius.circular(26),
-            blurSigma: 18,
-            color: heroBg.withValues(alpha: 0.9),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+            color: heroBg,
+            border: Border.all(color: cs.outlineVariant),
             child: Row(
               children: [
                 Expanded(
@@ -273,7 +305,7 @@ class _ExamDetailBody extends StatelessWidget {
                         Text(
                           exam.topic!,
                           style: TextStyle(
-                            color: heroFg.withValues(alpha: 0.8),
+                            color: heroFg,
                             height: 1.3,
                           ),
                         ),
@@ -283,7 +315,7 @@ class _ExamDetailBody extends StatelessWidget {
                         Text(
                           metaLine,
                           style: TextStyle(
-                            color: heroFg.withValues(alpha: 0.72),
+                            color: heroFg,
                             fontSize: 12,
                           ),
                         ),
@@ -326,23 +358,25 @@ class _ExamDetailBody extends StatelessWidget {
             title: l.examDetailsSection,
             child: Column(
               children: [
-                infoRow(Icons.person_outline_rounded, l.examInfoTeacher, exam.teacher),
-                infoRow(Icons.group_outlined, l.examInfoAudience, exam.audience.label),
-                infoRow(Icons.calendar_today_rounded, l.examInfoDate, exam.dateLabel),
-                infoRow(Icons.access_time_rounded, l.examInfoTime, exam.hourLabel),
-                infoRow(Icons.schedule_rounded, l.examInfoPeriod, exam.periodLabel),
-                infoRow(Icons.timer_outlined, l.examInfoDuration, exam.durationLabel),
-                infoRow(Icons.subject_rounded, l.examInfoSubject, exam.subject),
+                if (exam.teacher.trim().isNotEmpty)
+                  infoRow(Icons.person_outline_rounded, l.examInfoTeacher, exam.teacher),
+                infoRow(Icons.calendar_today_rounded, l.examInfoDate, _fmtDate(exam.dateLabel)),
+                if ((exam.hourLabel ?? '').trim().isNotEmpty)
+                  infoRow(Icons.access_time_rounded, l.examInfoTime,
+                      _fmtTimeRange(exam.hourLabel, exam.durationLabel)),
+                if ((exam.periodLabel ?? '').trim().isNotEmpty)
+                  infoRow(Icons.schedule_rounded, l.examInfoPeriod, exam.periodLabel!),
+                if (exam.subject.trim().isNotEmpty)
+                  infoRow(Icons.subject_rounded, l.examInfoSubject, exam.subject),
                 if (exam.caption != null &&
                     exam.caption!.trim().isNotEmpty) ...[
                   const SizedBox(height: 6),
                   LiquidGlassCard(
                     padding: const EdgeInsets.all(14),
                     borderRadius: BorderRadius.circular(18),
-                    blurSigma: 10,
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+                    color: cs.surfaceContainerLow,
                     border: Border.all(
-                      color: cs.outlineVariant.withValues(alpha: 0.2),
+                      color: cs.outlineVariant,
                     ),
                     child: Text(
                       exam.caption!,
@@ -481,9 +515,8 @@ class _Section extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -557,10 +590,9 @@ class _MaterialTile extends StatelessWidget {
         child: LiquidGlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           borderRadius: BorderRadius.circular(18),
-          blurSigma: 10,
-          color: cs.surface.withValues(alpha: 0.85),
+          color: cs.surfaceContainerLow,
           border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.25),
+            color: cs.outlineVariant,
           ),
           child: Row(
             children: [

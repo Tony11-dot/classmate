@@ -75,7 +75,7 @@ class ImageViewerScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black.withValues(alpha: 0.75),
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(resolvedTitle, style: const TextStyle(color: Colors.white)),
         actions: [

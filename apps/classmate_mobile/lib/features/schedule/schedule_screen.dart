@@ -4,8 +4,49 @@ import 'package:go_router/go_router.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
+import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/cm_loading.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Attendance helpers shared across the schedule tile and detail sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+Color _attendanceColor(BuildContext context, String status) {
+  final cs = Theme.of(context).colorScheme;
+  switch (status.toUpperCase()) {
+    case 'PRESENT': return cs.secondaryContainer;
+    case 'ABSENT': return cs.errorContainer;
+    case 'LATE': return cs.tertiaryContainer;
+    case 'EXCUSED':
+    case 'JUSTIFIED': return cs.primaryContainer;
+    default: return cs.surfaceContainerHighest;
+  }
+}
+
+Color _attendanceFg(BuildContext context, String status) {
+  final cs = Theme.of(context).colorScheme;
+  switch (status.toUpperCase()) {
+    case 'PRESENT': return cs.onSecondaryContainer;
+    case 'ABSENT': return cs.onErrorContainer;
+    case 'LATE': return cs.onTertiaryContainer;
+    case 'EXCUSED':
+    case 'JUSTIFIED': return cs.onPrimaryContainer;
+    default: return cs.onSurfaceVariant;
+  }
+}
+
+String _attendanceLabel(BuildContext context, String status) {
+  final l = AppLocalizations.of(context)!;
+  switch (status.toUpperCase()) {
+    case 'PRESENT': return l.attendanceStatusPresent;
+    case 'ABSENT': return l.attendanceStatusAbsent;
+    case 'LATE': return l.attendanceStatusLate;
+    case 'EXCUSED':
+    case 'JUSTIFIED': return l.attendanceStatusExcused;
+    default: return status;
+  }
+}
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -18,13 +59,18 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   late DateTime _selectedDate;
 
   String _friendlyScheduleError(AppLocalizations l, Object error) {
-    final raw = error.toString();
-    if (raw.contains('HTTP 429') || raw.contains('Too Many Requests')) {
-      return l.scheduleRefreshTooFast;
+    if (error is CMApiException) {
+      if (error.statusCode == 429) return l.scheduleRefreshTooFast;
+      if (error.statusCode == 401) return l.scheduleSessionExpired;
+      final body = error.body.toLowerCase();
+      if (body.contains('not onboarded') || body.contains('not assigned')) {
+        return l.scheduleNotOnboarded;
+      }
+      return l.scheduleLoadError;
     }
-    if (raw.contains('Student not onboarded')) {
-      return l.scheduleNotOnboarded;
-    }
+    final raw = error.toString().toLowerCase();
+    if (raw.contains('too many requests')) return l.scheduleRefreshTooFast;
+    if (raw.contains('not onboarded') || raw.contains('not assigned')) return l.scheduleNotOnboarded;
     return l.scheduleLoadError;
   }
 
@@ -37,6 +83,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   void initState() {
     super.initState();
     _selectedDate = _dateOnly(DateTime.now());
+    // Invalidate on every open so stale cached data never gets stuck.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final weekOf = _weekStartYmd(_selectedDate);
+      ref.invalidate(weekScheduleProvider(weekOf));
+    });
   }
 
   @override
@@ -77,11 +128,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               curve: Curves.easeOutCubic,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.4),
-                ),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Row(
                 children: [
@@ -101,11 +150,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.72),
+                          color: cs.surfaceContainerLowest,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.4),
-                          ),
+                          border: Border.all(color: cs.outlineVariant),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -162,19 +209,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final selectedItems = _itemsForSelectedDate(data);
     final next = selectedItems.isNotEmpty ? selectedItems.first : null;
 
-    return LiquidGlassCard(
+    return Container(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.95),
-          cs.surfaceContainerHigh.withValues(alpha: 0.95),
-        ],
+      decoration: BoxDecoration(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(26),
       ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -183,6 +223,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
+              color: cs.onPrimaryContainer,
             ),
           ),
           const SizedBox(height: 16),
@@ -224,13 +265,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _heroLoadingCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
+    return Container(
       padding: const EdgeInsets.all(22),
-      borderRadius: BorderRadius.circular(26),
-      blurSigma: 16,
-      color: cs.surfaceContainerHigh.withValues(alpha: 0.75),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-      child: const Center(child: CircularProgressIndicator()),
+      height: 120,
+      decoration: BoxDecoration(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(26),
+      ),
+      child: const Center(child: const CmLoading()),
     );
   }
 
@@ -241,23 +283,25 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   ) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    return LiquidGlassCard(
+    return Container(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(26),
-      blurSigma: 14,
-      color: cs.errorContainer.withValues(alpha: 0.45),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: BorderRadius.circular(26),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l.titleSchedule,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 28),
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 28, color: cs.onErrorContainer),
           ),
           const SizedBox(height: 8),
           Text(
-            l.scheduleLoadError,
-            style: TextStyle(color: cs.onSurfaceVariant),
+            message,
+            style: TextStyle(color: cs.onErrorContainer),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
@@ -265,8 +309,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             icon: const Icon(Icons.refresh_rounded),
             label: Text(l.retry),
           ),
-          const SizedBox(height: 8),
-          Text(message, maxLines: 3, overflow: TextOverflow.ellipsis),
         ],
       ),
     );
@@ -285,9 +327,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         width: 52,
         height: 52,
         decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.72),
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+          border: Border.all(color: cs.outlineVariant),
         ),
         child: Icon(icon),
       ),
@@ -320,6 +362,16 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    // Attendance map for today — silently empty on error.
+    final isToday = _ymd(_selectedDate) == _ymd(_dateOnly(DateTime.now()));
+    final attendanceAsync = ref.watch(todayAttendanceProvider);
+    final attendanceMap = isToday
+        ? (attendanceAsync.asData?.value ?? const <String, String>{})
+        : const <String, String>{};
+
+    // Current time in HH:mm for "NOW" indicator
+    final nowMinutes = isToday ? _nowMinutes() : -1;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -339,10 +391,31 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         ),
         const SizedBox(height: 14),
         ...sorted.map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _ScheduleTile(item: item),
-          ),
+          (item) {
+            final period = (item['period'] as num?)?.toInt() ?? 0;
+            final subject = (item['subject'] ?? '').toString().trim().toLowerCase();
+            final courseId = (item['courseId'] ?? '').toString().trim();
+            final inlineStatus = (item['attendanceStatus'] ??
+                item['status'] ??
+                item['attendance'] ?? '').toString().trim().toUpperCase();
+            String status = inlineStatus;
+            if (status.isEmpty) {
+              status = attendanceMap['$period:$subject'] ??
+                  attendanceMap['course:$courseId'] ??
+                  attendanceMap['period:$period'] ??
+                  '';
+            }
+            final isCurrent = nowMinutes >= 0 &&
+                _isCurrentPeriod(item, nowMinutes);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ScheduleTile(
+                item: item,
+                attendanceStatus: status,
+                isCurrent: isCurrent,
+              ),
+            );
+          },
         ),
       ],
     );
@@ -366,7 +439,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   List<Map<String, dynamic>> _weekDays(Map<String, dynamic>? data) {
-    final raw = (((data ?? const {})['items'] ?? const {})['days']) as List?;
+    final raw = ((data ?? const {})['days']) as List?;
     return raw
             ?.whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))
@@ -389,6 +462,27 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         .whereType<Map>()
         .map((e) => Map<String, dynamic>.from(e))
         .toList();
+  }
+
+  int _nowMinutes() {
+    final now = DateTime.now();
+    return now.hour * 60 + now.minute;
+  }
+
+  int _timeToMinutes(String hhmm) {
+    final parts = hhmm.split(':');
+    if (parts.length != 2) return -1;
+    final h = int.tryParse(parts[0]) ?? -1;
+    final m = int.tryParse(parts[1]) ?? -1;
+    if (h < 0 || m < 0) return -1;
+    return h * 60 + m;
+  }
+
+  bool _isCurrentPeriod(Map<String, dynamic> item, int nowMins) {
+    final start = _timeToMinutes((item['startsAt'] ?? '').toString());
+    final end = _timeToMinutes((item['endsAt'] ?? '').toString());
+    if (start < 0 || end < 0) return false;
+    return nowMins >= start && nowMins < end;
   }
 
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -443,16 +537,17 @@ Widget _statPill(
 
   return ConstrainedBox(
     constraints: const BoxConstraints(minWidth: 150),
-    child: LiquidGlassCard(
+    child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.72),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outline, width: 1.5),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18),
+          Icon(icon, size: 18, color: cs.primary),
           const SizedBox(width: 10),
           Flexible(
             child: Column(
@@ -471,6 +566,7 @@ Widget _statPill(
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
                   ),
                 ),
               ],
@@ -483,9 +579,170 @@ Widget _statPill(
 }
 
 class _ScheduleTile extends StatelessWidget {
-  const _ScheduleTile({required this.item});
+  const _ScheduleTile({
+    required this.item,
+    this.attendanceStatus = '',
+    this.isCurrent = false,
+  });
 
   final Map<String, dynamic> item;
+  final String attendanceStatus;
+  final bool isCurrent;
+
+  void _openDetail(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final title = '${item['title'] ?? l.scheduleClassFallback}';
+    final subject = (item['subject'] ?? '').toString().trim();
+    final location = (item['location'] ?? '').toString().trim();
+    final startsAt = '${item['startsAt'] ?? '--:--'}';
+    final endsAt = '${item['endsAt'] ?? '--:--'}';
+    final courseId = (item['courseId'] ?? '').toString().trim();
+    final notes = (item['notes'] ?? item['note'] ?? item['classNote'] ??
+        item['teacherNote'] ?? item['description'] ?? '').toString().trim();
+    final period = (item['period'] as num?)?.toInt();
+    final hasStatus = attendanceStatus.isNotEmpty;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: cs.surfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title row
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title,
+                            style: theme.textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        if (subject.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(subject,
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: cs.primary, fontWeight: FontWeight.w600)),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (hasStatus) ...[
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _attendanceColor(ctx, attendanceStatus),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        _attendanceLabel(ctx, attendanceStatus),
+                        style: TextStyle(
+                          color: _attendanceFg(ctx, attendanceStatus),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 14),
+              // Info pills
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _InfoPill(
+                    icon: Icons.access_time_rounded,
+                    label: '$startsAt – $endsAt',
+                    cs: cs,
+                    theme: theme,
+                  ),
+                  if (period != null)
+                    _InfoPill(
+                      icon: Icons.tag_rounded,
+                      label: l.teacherPeriod(period),
+                      cs: cs,
+                      theme: theme,
+                    ),
+                  if (location.isNotEmpty)
+                    _InfoPill(
+                      icon: Icons.room_rounded,
+                      label: location,
+                      cs: cs,
+                      theme: theme,
+                    ),
+                ],
+              ),
+              // Notes
+              if (notes.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.50),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: cs.outlineVariant),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.notes_rounded, size: 16, color: cs.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Notes',
+                            style: theme.textTheme.labelMedium
+                                ?.copyWith(fontWeight: FontWeight.w800, color: cs.primary),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(notes,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(color: cs.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+              ],
+              // Go to classroom button
+              if (courseId.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/classrooms/$courseId');
+                  },
+                  icon: const Icon(Icons.groups_rounded, size: 18),
+                  label: const Text('Go to Classroom'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -500,53 +757,91 @@ class _ScheduleTile extends StatelessWidget {
     final endsAt = '${item['endsAt'] ?? '--:--'}';
     final period = (item['period'] as num?)?.toInt();
     final courseId = (item['courseId'] ?? '').toString().trim();
+    final hasStatus = attendanceStatus.isNotEmpty;
 
     final subtitleParts = <String>[
       if (subject.isNotEmpty) subject,
       if (location.isNotEmpty) location,
     ];
 
+    final borderColor = isCurrent
+        ? cs.primary
+        : hasStatus
+            ? _attendanceColor(context, attendanceStatus).withValues(alpha: 0.60)
+            : cs.outlineVariant;
+
     return InkWell(
       borderRadius: BorderRadius.circular(24),
-      onTap: courseId.isEmpty ? null : () => context.push('/classrooms/$courseId'),
-      child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(24),
-        blurSigma: 12,
-        color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+      onTap: () => _openDetail(context),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isCurrent
+              ? cs.primaryContainer.withValues(alpha: 0.18)
+              : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: borderColor,
+            width: isCurrent ? 2 : (hasStatus ? 1.5 : 1),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Container(
-                width: 68,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: cs.primaryContainer.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      startsAt,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+              // Time block
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  Container(
+                    width: 68,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: isCurrent ? cs.primary : cs.primaryContainer,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(startsAt,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: isCurrent ? cs.onPrimary : null,
+                            )),
+                        const SizedBox(height: 2),
+                        Text(endsAt,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: isCurrent
+                                  ? cs.onPrimary.withValues(alpha: 0.75)
+                                  : cs.onSurfaceVariant,
+                            )),
+                      ],
+                    ),
+                  ),
+                  if (isCurrent)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cs.primary,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: cs.surface, width: 1.5),
+                        ),
+                        child: Text(
+                          'NOW',
+                          style: TextStyle(
+                            color: cs.onPrimary,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      endsAt,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
               const SizedBox(width: 14),
+              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,30 +861,55 @@ class _ScheduleTile extends StatelessWidget {
                         if (period != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest,
+                              color: cs.surfaceContainerHighest
+                                  .withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
                               l.teacherPeriod(period),
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                              style: theme.textTheme.labelMedium
+                                  ?.copyWith(fontWeight: FontWeight.w800),
                             ),
                           ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      subtitleParts.isEmpty
-                          ? l.scheduleNoSubjectLocation
-                          : subtitleParts.join(' • '),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            subtitleParts.isEmpty
+                                ? l.scheduleNoSubjectLocation
+                                : subtitleParts.join(' • '),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ),
+                        // Attendance pill — visible from the card exterior
+                        if (hasStatus) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _attendanceColor(
+                                  context, attendanceStatus),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              _attendanceLabel(context, attendanceStatus),
+                              style: TextStyle(
+                                color: _attendanceFg(
+                                    context, attendanceStatus),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -597,13 +917,43 @@ class _ScheduleTile extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 courseId.isEmpty
-                    ? Icons.drag_handle_rounded
+                    ? Icons.info_outline_rounded
                     : Icons.chevron_right_rounded,
                 color: cs.onSurfaceVariant,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InfoPill extends StatelessWidget {
+  const _InfoPill({required this.icon, required this.label, required this.cs, required this.theme});
+  final IconData icon;
+  final String label;
+  final ColorScheme cs;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: cs.primary),
+          const SizedBox(width: 5),
+          Text(label,
+              style: theme.textTheme.labelMedium
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+        ],
       ),
     );
   }
@@ -616,7 +966,7 @@ class _LoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 40),
-      child: Center(child: CircularProgressIndicator()),
+      child: Center(child: const CmLoading()),
     );
   }
 }
@@ -630,20 +980,20 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
+    return Container(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      color: cs.errorContainer.withValues(alpha: 0.45),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 34),
+          Icon(Icons.cloud_off_rounded, size: 34, color: cs.onErrorContainer),
           const SizedBox(height: 10),
           Text(
             AppLocalizations.of(context)!.scheduleLoadError,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: cs.onErrorContainer),
           ),
           const SizedBox(height: 8),
           Text(
@@ -651,6 +1001,7 @@ class _ErrorState extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: cs.onErrorContainer),
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
@@ -684,12 +1035,13 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: LiquidGlassCard(
+          child: Container(
             padding: const EdgeInsets.all(22),
-            borderRadius: BorderRadius.circular(24),
-            blurSigma: 14,
-            color: cs.surfaceContainerLow.withValues(alpha: 0.9),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: cs.outlineVariant),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

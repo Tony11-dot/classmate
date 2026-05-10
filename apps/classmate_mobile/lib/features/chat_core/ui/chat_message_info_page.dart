@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../models/chat_message_info.dart';
 
+/// Per-participant read record for the info page.
+class MessageReadParticipant {
+  const MessageReadParticipant({required this.name, this.time = ''});
+  final String name;
+  final String time;
+}
+
 class ChatMessageInfoPage extends StatelessWidget {
   const ChatMessageInfoPage({
     super.key,
@@ -13,8 +20,13 @@ class ChatMessageInfoPage extends StatelessWidget {
     this.previewMeta = '',
     this.previewBubble,
     this.previewBubbleBuilder,
+    /// Legacy plain-name lists kept for callers that haven't migrated.
     this.seenByNames = const <String>[],
     this.deliveredToNames = const <String>[],
+    /// Rich participant lists (used when available; takes priority over legacy).
+    this.seenBy = const <MessageReadParticipant>[],
+    this.deliveredTo = const <MessageReadParticipant>[],
+    this.pendingFor = const <MessageReadParticipant>[],
   });
 
   final ChatMessageInfo info;
@@ -26,6 +38,9 @@ class ChatMessageInfoPage extends StatelessWidget {
   final WidgetBuilder? previewBubbleBuilder;
   final List<String> seenByNames;
   final List<String> deliveredToNames;
+  final List<MessageReadParticipant> seenBy;
+  final List<MessageReadParticipant> deliveredTo;
+  final List<MessageReadParticipant> pendingFor;
 
   String _statusLabel(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -49,97 +64,45 @@ class ChatMessageInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
-    Widget factRow(IconData icon, String label, String value) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: scheme.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: text.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: scheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value.trim().isEmpty ? l.profileEmptyValue : value.trim(),
-                  style: text.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
+    // Resolve which participant lists to use.
+    final effectiveSeen = seenBy.isNotEmpty
+        ? seenBy
+        : seenByNames.map((n) => MessageReadParticipant(name: n)).toList();
+    final effectiveDelivered = deliveredTo.isNotEmpty
+        ? deliveredTo
+        : deliveredToNames.map((n) => MessageReadParticipant(name: n)).toList();
+    final effectivePending = pendingFor;
 
-    Widget peopleCard(
-      String title,
-      List<String> names, {
-      required IconData icon,
-    }) {
-      if (names.isEmpty) return const SizedBox.shrink();
+    final hasParticipants = effectiveSeen.isNotEmpty ||
+        effectiveDelivered.isNotEmpty ||
+        effectivePending.isNotEmpty;
 
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.55),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: 0.28),
-          ),
-        ),
-        child: Column(
+    Widget factRow(IconData icon, String label, String value) => Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: scheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ...names.map(
-              (name) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  decoration: BoxDecoration(
-                    color: scheme.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: scheme.outlineVariant.withValues(alpha: 0.18),
-                    ),
+            Icon(icon, size: 18, color: cs.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: tt.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800, color: cs.onSurface)),
+                  const SizedBox(height: 2),
+                  Text(
+                    value.trim().isEmpty ? l.profileEmptyValue : value.trim(),
+                    style:
+                        tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
-                  child: Text(
-                    name,
-                    style: text.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                ],
               ),
             ),
           ],
-        ),
-      );
-    }
+        );
 
     final fallbackPreview = _ThreadPreviewBubble(
       isMine: info.isMine,
@@ -151,21 +114,18 @@ class ChatMessageInfoPage extends StatelessWidget {
         previewBubbleBuilder?.call(context) ?? previewBubble ?? fallbackPreview;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: cs.surface,
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
+            // ── App bar ────────────────────────────────────────────────────
             Container(
               height: 56,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: scheme.surface,
-                border: Border(
-                  bottom: BorderSide(
-                    color: scheme.outlineVariant.withValues(alpha: 0.22),
-                  ),
-                ),
+                color: cs.surface,
+                border: Border(bottom: BorderSide(color: cs.outlineVariant)),
               ),
               child: Row(
                 children: [
@@ -184,139 +144,121 @@ class ChatMessageInfoPage extends StatelessWidget {
                     child: Text(
                       l.chatMessageInfoShortTitle,
                       textAlign: TextAlign.center,
-                      style: text.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                      style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
                   const SizedBox(width: 48),
                 ],
               ),
             ),
+
+            // ── Scrollable body ────────────────────────────────────────────
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
-                        child: Align(
-                          alignment: info.isMine
-                              ? Alignment.topRight
-                              : Alignment.topLeft,
-                          child: resolvedPreview,
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          padding: const EdgeInsets.fromLTRB(14, 14, 14, 20),
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-                              decoration: BoxDecoration(
-                                color: scheme.surfaceContainerHighest.withValues(
-                                  alpha: 0.42,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: scheme.outlineVariant.withValues(
-                                    alpha: 0.22,
-                                  ),
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  factRow(
-                                    Icons.schedule_rounded,
-                                    l.chatMessageInfoStatus,
-                                    _statusLabel(context),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  factRow(
-                                    Icons.access_time_rounded,
-                                    l.chatMessageInfoStatusTime,
-                                    _statusTime(),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  factRow(
-                                    Icons.send_rounded,
-                                    l.chatMessageInfoSentAt,
-                                    info.sentAt.trim(),
-                                  ),
-                                  if (info.deliveredAt.trim().isNotEmpty) ...[
-                                    const SizedBox(height: 14),
-                                    factRow(
-                                      Icons.done_rounded,
-                                      l.chatMessageInfoDeliveredAt,
-                                      info.deliveredAt.trim(),
-                                    ),
-                                  ],
-                                  if (info.seenAt.trim().isNotEmpty) ...[
-                                    const SizedBox(height: 14),
-                                    factRow(
-                                      Icons.done_all_rounded,
-                                      l.chatMessageInfoSeenAt,
-                                      info.seenAt.trim(),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 14),
-                                  factRow(
-                                    Icons.category_rounded,
-                                    l.chatMessageInfoMessageType,
-                                    info.messageType.trim().isEmpty
-                                        ? l.chatMessageInfoTextType
-                                        : info.messageType.trim(),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  factRow(
-                                    Icons.edit_rounded,
-                                    l.chatMessageInfoEdited,
-                                    info.edited
-                                        ? l.chatMessageInfoYes
-                                        : l.chatMessageInfoNo,
-                                  ),
-                                  const SizedBox(height: 14),
-                                  factRow(
-                                    Icons.forward_rounded,
-                                    l.chatMessageInfoForwarded,
-                                    info.forwarded
-                                        ? l.chatMessageInfoYes
-                                        : l.chatMessageInfoNo,
-                                  ),
-                                  if (info.voiceDuration.trim().isNotEmpty) ...[
-                                    const SizedBox(height: 14),
-                                    factRow(
-                                      Icons.mic_rounded,
-                                      l.chatMessageInfoVoiceDuration,
-                                      info.voiceDuration.trim(),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            if (seenByNames.isNotEmpty) ...[
-                              const SizedBox(height: 14),
-                              peopleCard(
-                                l.chatMessageInfoSeenBy,
-                                seenByNames,
-                                icon: Icons.visibility_rounded,
-                              ),
-                            ],
-                            if (deliveredToNames.isNotEmpty) ...[
-                              const SizedBox(height: 14),
-                              peopleCard(
-                                l.chatMessageInfoDeliveredTo,
-                                deliveredToNames,
-                                icon: Icons.mark_email_read_rounded,
-                              ),
-                            ],
-                          ],
-                        ),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(14, 6, 14, 32),
+                children: [
+                  // ── Bubble preview ───────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+                    child: Align(
+                      alignment: info.isMine
+                          ? Alignment.topRight
+                          : Alignment.topLeft,
+                      child: resolvedPreview,
+                    ),
+                  ),
+
+                  // ── Metadata card ────────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.22)),
+                    ),
+                    child: Column(
+                      children: [
+                        factRow(Icons.schedule_rounded,
+                            l.chatMessageInfoStatus, _statusLabel(context)),
+                        const SizedBox(height: 14),
+                        factRow(Icons.access_time_rounded,
+                            l.chatMessageInfoStatusTime, _statusTime()),
+                        const SizedBox(height: 14),
+                        factRow(Icons.send_rounded, l.chatMessageInfoSentAt,
+                            info.sentAt.trim()),
+                        if (info.deliveredAt.trim().isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          factRow(Icons.done_rounded,
+                              l.chatMessageInfoDeliveredAt,
+                              info.deliveredAt.trim()),
+                        ],
+                        if (info.seenAt.trim().isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          factRow(Icons.done_all_rounded,
+                              l.chatMessageInfoSeenAt, info.seenAt.trim()),
+                        ],
+                        const SizedBox(height: 14),
+                        factRow(
+                            Icons.category_rounded,
+                            l.chatMessageInfoMessageType,
+                            info.messageType.trim().isEmpty
+                                ? l.chatMessageInfoTextType
+                                : info.messageType.trim()),
+                        const SizedBox(height: 14),
+                        factRow(
+                            Icons.edit_rounded,
+                            l.chatMessageInfoEdited,
+                            info.edited
+                                ? l.chatMessageInfoYes
+                                : l.chatMessageInfoNo),
+                        const SizedBox(height: 14),
+                        factRow(
+                            Icons.forward_rounded,
+                            l.chatMessageInfoForwarded,
+                            info.forwarded
+                                ? l.chatMessageInfoYes
+                                : l.chatMessageInfoNo),
+                        if (info.voiceDuration.trim().isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          factRow(Icons.mic_rounded,
+                              l.chatMessageInfoVoiceDuration,
+                              info.voiceDuration.trim()),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // ── Per-participant sections (WhatsApp style) ─────────────
+                  if (hasParticipants) ...[
+                    const SizedBox(height: 20),
+                    _ParticipantSection(
+                      icon: Icons.done_all_rounded,
+                      iconColor: const Color(0xFF22C55E),
+                      title: 'Read',
+                      participants: effectiveSeen,
+                      emptyMessage: 'No one has read this yet',
+                    ),
+                    if (effectiveDelivered.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _ParticipantSection(
+                        icon: Icons.done_rounded,
+                        iconColor: const Color(0xFF60A5FA),
+                        title: 'Delivered',
+                        participants: effectiveDelivered,
                       ),
                     ],
-                  );
-                },
+                    if (effectivePending.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _ParticipantSection(
+                        icon: Icons.schedule_rounded,
+                        iconColor: const Color(0xFFF59E0B),
+                        title: 'Pending',
+                        participants: effectivePending,
+                      ),
+                    ],
+                  ],
+                ],
               ),
             ),
           ],
@@ -325,6 +267,176 @@ class ChatMessageInfoPage extends StatelessWidget {
     );
   }
 }
+
+// ── Per-participant section (WhatsApp-style) ──────────────────────────────────
+
+class _ParticipantSection extends StatelessWidget {
+  const _ParticipantSection({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.participants,
+    this.emptyMessage,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final List<MessageReadParticipant> participants;
+  final String? emptyMessage;
+
+  static String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) {
+      return parts[0].length >= 2
+          ? parts[0].substring(0, 2).toUpperCase()
+          : parts[0].toUpperCase();
+    }
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Section header ───────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 6),
+              Text(
+                participants.isEmpty
+                    ? title
+                    : '$title  ${participants.length}',
+                style: tt.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ── Participant rows ─────────────────────────────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: participants.isEmpty && emptyMessage != null
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  child: Text(emptyMessage!,
+                      style: tt.bodyMedium
+                          ?.copyWith(color: cs.onSurfaceVariant)),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < participants.length; i++) ...[
+                      _ParticipantRow(
+                        participant: participants[i],
+                        initials: _initials(participants[i].name),
+                        avatarSeed: participants[i].name,
+                      ),
+                      if (i < participants.length - 1)
+                        Divider(
+                          height: 1,
+                          indent: 60,
+                          endIndent: 0,
+                          color: cs.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                    ],
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ParticipantRow extends StatelessWidget {
+  const _ParticipantRow({
+    required this.participant,
+    required this.initials,
+    required this.avatarSeed,
+  });
+
+  final MessageReadParticipant participant;
+  final String initials;
+  final String avatarSeed;
+
+  static const _palette = <Color>[
+    Color(0xFF9CCC65), Color(0xFF4FC3F7), Color(0xFFFFB74D),
+    Color(0xFFBA68C8), Color(0xFFFF8A65), Color(0xFF4DB6AC),
+    Color(0xFFA1887F), Color(0xFF7986CB),
+  ];
+
+  Color get _bg {
+    final seed = avatarSeed.toLowerCase().runes.fold(0, (a, b) => a + b);
+    return _palette[seed % _palette.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final fg = ThemeData.estimateBrightnessForColor(_bg) == Brightness.dark
+        ? Colors.white
+        : Colors.black87;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _bg,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initials,
+              style: TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w800, color: fg),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Name
+          Expanded(
+            child: Text(
+              participant.name.isEmpty ? 'Unknown' : participant.name,
+              style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // Timestamp
+          if (participant.time.isNotEmpty)
+            Text(
+              participant.time,
+              style: tt.bodySmall
+                  ?.copyWith(color: cs.onSurfaceVariant, fontSize: 11),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Fallback bubble preview ───────────────────────────────────────────────────
 
 class _ThreadPreviewBubble extends StatefulWidget {
   const _ThreadPreviewBubble({
@@ -350,8 +462,8 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     final body = widget.body.trim().isEmpty
         ? l.chatMessageInfoEmptyBody
@@ -361,16 +473,13 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
         ? '${body.substring(0, _truncateAt).trimRight()}…'
         : body;
 
-    final bubbleColor = widget.isMine
-        ? scheme.primaryContainer
-        : scheme.surfaceContainerHighest;
-    final bodyColor = widget.isMine
-        ? scheme.onPrimaryContainer
-        : scheme.onSurface;
-    final metaColor = (widget.isMine
-            ? scheme.onPrimaryContainer
-            : scheme.onSurfaceVariant)
-        .withValues(alpha: 0.82);
+    final bubbleColor =
+        widget.isMine ? cs.primaryContainer : cs.surfaceContainerHighest;
+    final bodyColor =
+        widget.isMine ? cs.onPrimaryContainer : cs.onSurface;
+    final metaColor =
+        (widget.isMine ? cs.onPrimaryContainer : cs.onSurfaceVariant)
+            .withValues(alpha: 0.82);
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 320),
@@ -390,26 +499,18 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
           if (widget.senderLabel.isNotEmpty && !widget.isMine) ...[
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                widget.senderLabel,
-                style: text.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: scheme.primary,
-                ),
-              ),
+              child: Text(widget.senderLabel,
+                  style: tt.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w800, color: cs.primary)),
             ),
             const SizedBox(height: 6),
           ],
           Align(
             alignment:
                 widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
-            child: Text(
-              visibleText,
-              style: text.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: bodyColor,
-              ),
-            ),
+            child: Text(visibleText,
+                style: tt.bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.w600, color: bodyColor)),
           ),
           if (shouldTruncate) ...[
             const SizedBox(height: 8),
@@ -420,18 +521,11 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
                 borderRadius: BorderRadius.circular(999),
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 2,
-                    horizontal: 2,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
                   child: Text(
-                    _expanded
-                        ? l.chatMessageInfoReadLess
-                        : l.chatMessageInfoReadMore,
-                    style: text.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: scheme.primary,
-                    ),
+                    _expanded ? l.chatMessageInfoReadLess : l.chatMessageInfoReadMore,
+                    style: tt.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800, color: cs.primary),
                   ),
                 ),
               ),
@@ -441,10 +535,8 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
             const SizedBox(height: 6),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                widget.meta,
-                style: text.bodySmall?.copyWith(color: metaColor),
-              ),
+              child: Text(widget.meta,
+                  style: tt.bodySmall?.copyWith(color: metaColor)),
             ),
           ],
         ],

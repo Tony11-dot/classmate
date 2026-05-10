@@ -252,13 +252,14 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     );
   }
 
-  void addBook(String subjectId, String bookTitle) {
+  void addBook(String subjectId, String bookTitle, {int pageCount = 500}) {
     final trimmed = bookTitle.trim();
     if (trimmed.isEmpty) return;
     final newBook = SolutionBook(
       id: 'custom-${DateTime.now().microsecondsSinceEpoch}',
       title: trimmed,
       subjectId: subjectId,
+      pageCount: pageCount.clamp(1, 9999),
     );
     final updatedSubjects = state.subjects
         .map((s) {

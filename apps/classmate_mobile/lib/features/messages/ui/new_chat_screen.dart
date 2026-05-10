@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'new_group_screen.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 final sameSchoolPeopleProvider =
     FutureProvider.autoDispose<List<MessageDirectoryPerson>>((ref) {
@@ -61,12 +62,22 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
 
   bool _matchesFilter(MessageDirectoryPerson p) {
     if (_filter == 'all') return true;
-    final grade = p.gradeLabel.toLowerCase();
-    final school = p.schoolName.toLowerCase();
-    if (_filter == 'students') return grade.contains('grade') || grade.contains('class') || grade.contains('year');
-    if (_filter == 'parents') return grade.contains('parent') || school.contains('parent');
-    if (_filter == 'teachers') return grade.contains('teacher') || school.contains('staff');
+    final role = p.role.toLowerCase();
+    if (_filter == 'students') return role == 'student';
+    if (_filter == 'parents') return role == 'parent';
+    if (_filter == 'teachers') return role == 'teacher' || role == 'admin' || role == 'secretary';
     return true;
+  }
+
+  String _roleLabel(String role) {
+    return switch (role.toLowerCase()) {
+      'student' => 'Student',
+      'teacher' => 'Teacher',
+      'parent' => 'Parent',
+      'admin' => 'Admin',
+      'secretary' => 'Secretary',
+      _ => '',
+    };
   }
 
   String _initials(String name) {
@@ -86,21 +97,16 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     final peopleValue = ref.watch(sameSchoolPeopleProvider);
     final q = _searchCtl.text.trim().toLowerCase();
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Column(
           children: [
             // Header
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    cs.primaryContainer.withValues(alpha: 0.72),
-                    cs.surfaceContainerHigh.withValues(alpha: 0.8),
-                  ],
-                ),
-              ),
+              padding: EdgeInsets.fromLTRB(4, MediaQuery.of(context).padding.top + 4, 16, 0),
+              decoration: const BoxDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -108,10 +114,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                        style: IconButton.styleFrom(backgroundColor: cs.surface.withValues(alpha: 0.6), padding: const EdgeInsets.all(8)),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        style: IconButton.styleFrom(padding: const EdgeInsets.all(8)),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 4),
                       Text(l.tutorNewChat, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                     ],
                   ),
@@ -119,9 +125,9 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   // Search bar
                   Container(
                     decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+                      color: cs.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
                     child: TextField(
                       controller: _searchCtl,
@@ -160,14 +166,14 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             // Content
             Expanded(
               child: peopleValue.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: const CmLoading()),
                 error: (e, _) => Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.error_outline_rounded, size: 48, color: cs.error.withValues(alpha: 0.6)),
+                        Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
                         const SizedBox(height: 16),
                         Text(l.messagesPeopleLoadFailed(e.toString()), textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
                       ],
@@ -193,19 +199,14 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                         child: LiquidGlassCard(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           borderRadius: BorderRadius.circular(18),
-                          blurSigma: 10,
-                          gradient: LinearGradient(
-                            colors: [cs.primaryContainer.withValues(alpha: 0.5), cs.surface.withValues(alpha: 0.7)],
-                            begin: Alignment.topLeft, end: Alignment.bottomRight,
-                          ),
-                          border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+                          border: Border.all(color: cs.outlineVariant),
                           child: Row(
                             children: [
                               Container(
                                 width: 44,
                                 height: 44,
-                                decoration: BoxDecoration(color: cs.primary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
-                                child: Icon(Icons.group_add_rounded, color: cs.primary, size: 22),
+                                decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(14)),
+                                child: Icon(Icons.group_add_rounded, color: cs.onPrimary, size: 22),
                               ),
                               const SizedBox(width: 14),
                               Expanded(
@@ -231,7 +232,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
+                                Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant),
                                 const SizedBox(height: 16),
                                 Text(q.isNotEmpty ? 'No people match "$q"' : 'No people found', style: TextStyle(color: cs.onSurfaceVariant)),
                               ],
@@ -245,11 +246,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                         ),
                         const SizedBox(height: 10),
                         ...filtered.map((person) {
-                          final subtitle = [
-                            if (person.gradeLabel.trim().isNotEmpty) person.gradeLabel.trim(),
-                            if (person.schoolName.trim().isNotEmpty) person.schoolName.trim(),
-                          ].join(' · ');
 
+                          final roleLabel = _roleLabel(person.role);
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: InkWell(
@@ -258,9 +256,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                               child: LiquidGlassCard(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                 borderRadius: BorderRadius.circular(18),
-                                blurSigma: 8,
-                                color: cs.surface.withValues(alpha: 0.82),
-                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                                color: cs.surfaceContainerLow,
+                                border: Border.all(color: cs.outlineVariant),
                                 child: Row(
                                   children: [
                                     // Avatar with gradient
@@ -268,13 +265,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                       width: 44,
                                       height: 44,
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [cs.primary, cs.tertiary],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                         borderRadius: BorderRadius.circular(14),
-                                        boxShadow: [BoxShadow(color: cs.primary.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 2))],
                                       ),
                                       child: Center(
                                         child: Text(
@@ -289,8 +280,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(person.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
-                                          if (subtitle.isNotEmpty)
-                                            Text(subtitle, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                          if (roleLabel.isNotEmpty)
+                                            Text(roleLabel, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                                         ],
                                       ),
                                     ),
@@ -311,8 +302,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
               ),
             ),
           ],
-        ),
       ),
+    ),  // PopScope
     );
   }
 }
@@ -333,13 +324,13 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? cs.primaryContainer : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+          color: selected ? cs.primaryContainer : cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.25), width: selected ? 1.5 : 1),
+          border: Border.all(color: selected ? cs.primary : cs.outlineVariant, width: selected ? 1.5 : 1),
         ),
         child: Text(
           label,
-          style: TextStyle(fontWeight: selected ? FontWeight.w800 : FontWeight.w500, fontSize: 13, color: selected ? cs.primary : cs.onSurface),
+          style: TextStyle(fontWeight: selected ? FontWeight.w800 : FontWeight.w500, fontSize: 13, color: selected ? cs.onPrimaryContainer : cs.onSurface),
         ),
       ),
     );

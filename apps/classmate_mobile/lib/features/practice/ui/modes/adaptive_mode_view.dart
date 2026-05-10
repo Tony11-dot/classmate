@@ -29,14 +29,8 @@ class AdaptiveModeView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  d.accent.withValues(alpha: 0.18),
-                  d.accent.withValues(alpha: 0.06),
-                ],
-              ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: d.accent.withValues(alpha: 0.22)),
+              border: Border.all(color: d.accent),
             ),
             child: Row(
               children: [

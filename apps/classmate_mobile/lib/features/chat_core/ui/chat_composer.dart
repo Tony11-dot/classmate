@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -151,11 +153,26 @@ class ChatComposer extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.10),
+      barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (dialogContext, animation, secondaryAnimation) => SafeArea(
         child: Stack(
           children: [
+            // Blurred backdrop instead of solid black
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: animation,
+                builder: (_, __) => BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: 6 * animation.value,
+                    sigmaY: 6 * animation.value,
+                  ),
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: 0.28 * animation.value),
+                  ),
+                ),
+              ),
+            ),
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -205,7 +222,7 @@ class ChatComposer extends StatelessWidget {
           ...?(topContent != null ? <Widget>[topContent!] : null),
           if (replyingTo != null) _replyPreview(context),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Listener(
               behavior: HitTestBehavior.translucent,
               onPointerMove: enabled && isRecording && !isVoiceLocked
@@ -276,19 +293,11 @@ class ChatComposer extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.92),
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.12),
+          color: scheme.outlineVariant,
         ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 14,
-            spreadRadius: -10,
-            offset: const Offset(0, 10),
-            color: Colors.black.withValues(alpha: 0.12),
-          ),
-        ],
       ),
       child: Row(
         children: [
@@ -300,12 +309,6 @@ class ChatComposer extends StatelessWidget {
             decoration: BoxDecoration(
               color: scheme.primary,
               borderRadius: BorderRadius.circular(999),
-              boxShadow: [
-                BoxShadow(
-                  color: scheme.primary.withValues(alpha: 0.18),
-                  blurRadius: 8,
-                ),
-              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -382,8 +385,8 @@ class ChatComposer extends StatelessWidget {
                     builder: (buttonContext) => Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: SizedBox(
-                        width: 44,
-                        height: 44,
+                        width: 40,
+                        height: 40,
                         child: Center(
                           child: _circleBtn(
                             context,
@@ -422,36 +425,35 @@ class ChatComposer extends StatelessWidget {
           ),
           Expanded(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 42),
+              constraints: const BoxConstraints(minHeight: 36),
               child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    key: const ValueKey('chat_input'),
-                    controller: controller,
-                    enabled: enabled && !isStreaming,
-                    minLines: 1,
-                    maxLines: 5,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.newline,
-                    decoration: InputDecoration(
-                      isCollapsed: true,
-                      isDense: true,
-                      border: InputBorder.none,
-                      hintText: _resolvedHint(context),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+                child: TextField(
+                  key: const ValueKey('chat_input'),
+                  controller: controller,
+                  enabled: enabled && !isStreaming,
+                  minLines: 1,
+                  maxLines: 5,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    isDense: true,
+                    border: InputBorder.none,
+                    hintText: _resolvedHint(context),
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.55),
                     ),
                   ),
-                ],
-              ),
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           SizedBox(
-            width: 44,
-            height: 44,
+            width: 40,
+            height: 40,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 140),
               switchInCurve: Curves.easeOutCubic,
@@ -572,7 +574,7 @@ class ChatComposer extends StatelessWidget {
         ),
         borderColor: Color.alphaBlend(
           cancelAccent.withValues(alpha: 0.10 * cancelProgress),
-          scheme.outlineVariant.withValues(alpha: 0.14),
+          scheme.outlineVariant,
         ),
         glowColor: Color.alphaBlend(
           lockAccent.withValues(alpha: 0.16 * lockProgress),
@@ -630,7 +632,7 @@ class ChatComposer extends StatelessWidget {
             ],
           ),
         ),
-        borderColor: scheme.primary.withValues(alpha: 0.16),
+        borderColor: scheme.primary,
         glowColor: (isVoicePaused ? scheme.tertiary : scheme.primary)
             .withValues(alpha: 0.16),
       ),
@@ -638,13 +640,9 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _shell(BuildContext context, {required Widget child, Key? key}) {
-    // Fully transparent passthrough — NativeGlassView handles all visual styling.
     return KeyedSubtree(
       key: key ?? const ValueKey('_shell'),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        child: child,
-      ),
+      child: child,
     );
   }
 
@@ -663,26 +661,9 @@ class ChatComposer extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 48),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            scheme.surfaceContainerHighest.withValues(alpha: 0.88),
-            scheme.surface.withValues(alpha: 0.82),
-          ],
-        ),
+        color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: borderColor,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: glowColor,
-            blurRadius: 18,
-            spreadRadius: -12,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
@@ -712,20 +693,20 @@ class ChatComposer extends StatelessWidget {
       height: 34,
       decoration: BoxDecoration(
         color: active
-            ? color.withValues(alpha: 0.14)
-            : scheme.surface.withValues(alpha: 0.60),
+            ? color
+            : scheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: active
-              ? color.withValues(alpha: 0.24)
-              : scheme.outlineVariant.withValues(alpha: 0.12),
+              ? color
+              : scheme.outlineVariant,
         ),
       ),
       alignment: Alignment.center,
       child: Icon(
         icon,
         size: 18,
-        color: active ? color : scheme.onSurfaceVariant,
+        color: active ? Colors.white : scheme.onSurfaceVariant,
       ),
     );
   }
@@ -743,9 +724,9 @@ class ChatComposer extends StatelessWidget {
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.52),
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent.withValues(alpha: 0.16)),
+        border: Border.all(color: accent),
       ),
       child: Row(
         children: [
@@ -787,23 +768,7 @@ class ChatComposer extends StatelessWidget {
           height: 28,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                accent.withValues(alpha: 0.26),
-                accent.withValues(alpha: 0.12),
-              ],
-            ),
-            border: Border.all(color: accent.withValues(alpha: 0.22)),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.18),
-                blurRadius: 12,
-                spreadRadius: -8,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            border: Border.all(color: accent),
           ),
           alignment: Alignment.center,
           child: Icon(icon, size: 15, color: accent),
@@ -833,8 +798,8 @@ class ChatComposer extends StatelessWidget {
               height: baseHeights[(index + phase) % baseHeights.length],
               decoration: BoxDecoration(
                 color: index.isEven
-                    ? accent.withValues(alpha: 0.86)
-                    : accent.withValues(alpha: 0.46),
+                    ? accent
+                    : accent,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -847,7 +812,7 @@ class ChatComposer extends StatelessWidget {
               curve: Curves.easeOutCubic,
               height: 4,
               decoration: BoxDecoration(
-                color: scheme.outlineVariant.withValues(alpha: 0.14),
+                color: scheme.outlineVariant,
                 borderRadius: BorderRadius.circular(999),
               ),
               alignment: Alignment.centerLeft,
@@ -855,12 +820,6 @@ class ChatComposer extends StatelessWidget {
                 widthFactor: ((elapsed.inSeconds % 12) + 1) / 12,
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        accent.withValues(alpha: 0.28),
-                        accent.withValues(alpha: 0.74),
-                      ],
-                    ),
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -888,7 +847,7 @@ class ChatComposer extends StatelessWidget {
           Container(
             height: 4,
             decoration: BoxDecoration(
-              color: scheme.outlineVariant.withValues(alpha: 0.12),
+              color: scheme.outlineVariant,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -902,7 +861,7 @@ class ChatComposer extends StatelessWidget {
                     child: Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: leftColor.withValues(alpha: 0.78),
+                        color: leftColor,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -918,7 +877,7 @@ class ChatComposer extends StatelessWidget {
                     child: Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: rightColor.withValues(alpha: 0.82),
+                        color: rightColor,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -940,7 +899,7 @@ class ChatComposer extends StatelessWidget {
     bool prominent = false,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final size = compact ? 28.0 : (prominent ? 40.0 : 34.0);
+    final size = compact ? 24.0 : (prominent ? 36.0 : 30.0);
     return InkWell(
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
@@ -950,43 +909,19 @@ class ChatComposer extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          gradient: prominent
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    scheme.primary.withValues(alpha: onTap == null ? 0.10 : 0.22),
-                    scheme.primaryContainer.withValues(
-                      alpha: onTap == null ? 0.14 : 0.44,
-                    ),
-                  ],
-                )
-              : null,
           color: prominent
-              ? null
-              : Colors.white.withValues(alpha: onTap == null ? 0.04 : 0.08),
+              ? scheme.surfaceContainerHigh
+              : scheme.surfaceContainerLow,
           shape: BoxShape.circle,
           border: Border.all(
-            color: prominent
-                ? scheme.primary.withValues(alpha: 0.28)
-              : scheme.outlineVariant.withValues(alpha: 0.10),
+            color: scheme.outlineVariant,
           ),
-          boxShadow: prominent && onTap != null
-              ? [
-                  BoxShadow(
-                    color: scheme.primary.withValues(alpha: 0.18),
-                    blurRadius: 14,
-                    spreadRadius: -6,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : null,
         ),
         alignment: Alignment.center,
         child: Icon(
           icon,
-          size: compact ? 16 : (prominent ? 21 : 18),
-          color: prominent ? scheme.onPrimaryContainer : null,
+          size: compact ? 14 : (prominent ? 18 : 16),
+          color: prominent ? scheme.onSurface : scheme.onSurfaceVariant,
         ),
       ),
     );
@@ -1001,7 +936,7 @@ class ChatComposer extends StatelessWidget {
     bool large = false,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final size = large ? 44.0 : 36.0;
+    final size = large ? 40.0 : 32.0;
     return InkWell(
       key: key,
       borderRadius: BorderRadius.circular(999),
@@ -1012,41 +947,17 @@ class ChatComposer extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          gradient: active
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    scheme.primary.withValues(alpha: 0.22),
-                    scheme.primaryContainer.withValues(alpha: 0.55),
-                  ],
-                )
-              : null,
-          color: active
-              ? null
-              : Colors.white.withValues(alpha: 0.05),
+          color: active ? scheme.primary : scheme.surfaceContainerLow,
           shape: BoxShape.circle,
           border: Border.all(
-            color: active
-                ? scheme.primary.withValues(alpha: 0.28)
-                : scheme.outlineVariant.withValues(alpha: 0.14),
+            color: active ? scheme.primary : scheme.outlineVariant,
           ),
-          boxShadow: active
-              ? [
-                  BoxShadow(
-                    color: scheme.primary.withValues(alpha: 0.14),
-                    blurRadius: 12,
-                    spreadRadius: -6,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
         ),
         alignment: Alignment.center,
         child: Icon(
           icon,
-          size: large ? 21 : 18,
-          color: active ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
+          size: large ? 18 : 15,
+          color: active ? scheme.onPrimary : scheme.onSurfaceVariant,
         ),
       ),
     );
@@ -1072,20 +983,8 @@ class ChatComposer extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: filled
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    accent.withValues(alpha: onTap == null ? 0.10 : 0.20),
-                    accent.withValues(alpha: onTap == null ? 0.18 : 0.42),
-                  ],
-                )
-              : null,
-          color: filled
-              ? null
-              : accent.withValues(alpha: onTap == null ? 0.06 : 0.10),
-          border: Border.all(color: accent.withValues(alpha: 0.18)),
+          color: filled ? accent : scheme.surfaceContainerLow,
+          border: Border.all(color: accent),
         ),
         alignment: Alignment.center,
         child: Icon(
@@ -1118,19 +1017,10 @@ class _ComposerActionPopover extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         borderRadius: BorderRadius.circular(24),
-        blurSigma: 18,
-        color: scheme.surface.withValues(alpha: 0.72),
+        color: scheme.surface,
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.20),
+          color: scheme.outlineVariant,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 28,
-            spreadRadius: -14,
-            offset: const Offset(0, 16),
-          ),
-        ],
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1152,16 +1042,16 @@ class _ComposerActionPopover extends StatelessWidget {
                           height: 30,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: scheme.primary.withValues(alpha: 0.10),
+                              color: scheme.primaryContainer,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: scheme.primary.withValues(alpha: 0.12),
+                                color: scheme.primary.withValues(alpha: 0.30),
                               ),
                             ),
                             child: Icon(
                               action.icon,
                               size: 18,
-                              color: scheme.primary,
+                              color: scheme.onPrimaryContainer,
                             ),
                           ),
                         ),

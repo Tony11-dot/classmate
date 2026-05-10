@@ -99,6 +99,20 @@ class TutorRepository {
     }
   }
 
+  /// Permanently deletes a session and all its messages from the server.
+  Future<void> deleteSession(String sessionId) async {
+    final headers = await _headers();
+    final uri = _uri('/tutor/sessions/$sessionId');
+    try {
+      final res = await http.delete(uri, headers: headers).timeout(_timeout);
+      if (!_isOk(res) && res.statusCode != 404) {
+        _fail('deleteSession', res);
+      }
+    } on SocketException catch (e) {
+      throw Exception('deleteSession network error: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> fetchSessionById(String sessionId) async {
     final headers = await _headers();
     final uri = _uri('/tutor/sessions/$sessionId');

@@ -96,24 +96,6 @@ export class StudentService {
       },
     });
 
-    // Session 5: auto-enroll student into cohort courses (from schedule template)
-    const courseIds = await this.prisma.scheduleSlot.findMany({
-      where: { cohortId: body.cohortId, courseId: { not: null } },
-      select: { courseId: true },
-      distinct: ['courseId'],
-    });
-
-    const uniqueCourseIds = Array.from(
-      new Set(courseIds.map((r) => String(r.courseId)).filter(Boolean)),
-    );
-
-    if (uniqueCourseIds.length) {
-      await this.prisma.enrollment.createMany({
-        data: uniqueCourseIds.map((courseId) => ({ studentId, courseId })),
-        skipDuplicates: true,
-      });
-    }
-
     return { ok: true };
   }
 
@@ -159,27 +141,13 @@ export class StudentService {
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
-    // Get all courses the student is enrolled in
-    const enrollments = await this.prisma.enrollment.findMany({
-      where: { studentId },
-      select: { courseId: true },
-    });
-    const courseIds = enrollments.map((e) => e.courseId);
+    if (!sp.cohortId) return { ok: true, assessments: [] };
 
-    if (courseIds.length === 0) {
-      return { ok: true, assessments: [] };
-    }
-
-    // Get assessments for all enrolled courses
     const assessments = await this.prisma.assessment.findMany({
-      where: { courseId: { in: courseIds } },
-      include: {
-        course: { select: { id: true, name: true, subject: true, teacherId: true } },
-      },
+      where: { cohortId: sp.cohortId },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
     });
 
-    // Get this student's grades
     const grades = await this.prisma.gradeRecord.findMany({
       where: { studentId, assessmentId: { in: assessments.map((a) => a.id) } },
       select: { assessmentId: true, grade: true, comment: true },
@@ -195,10 +163,8 @@ export class StudentService {
           title: a.title,
           date: a.date.toISOString(),
           maxGrade: a.maxGrade,
-          subject: a.course.subject,
-          courseName: a.course.name,
-          courseId: a.course.id,
-          teacher: a.course.teacherId ?? '',
+          subject: (a as any).subject ?? null,
+          cohortId: a.cohortId,
           grade: g?.grade ?? null,
           comment: g?.comment ?? null,
         };
@@ -218,13 +184,7 @@ export class StudentService {
     const rows = await this.prisma.gradeRecord.findMany({
       where: { studentId },
       orderBy: { id: 'desc' },
-      include: {
-        assessment: {
-          include: {
-            course: true,
-          },
-        },
-      },
+      include: { assessment: true },
     });
 
     return {
@@ -235,13 +195,10 @@ export class StudentService {
         comment: r.comment,
         assessment: {
           id: r.assessment.id,
-          title: (r.assessment as any).title,
+          title: r.assessment.title,
           date: r.assessment.date,
-        },
-        course: {
-          id: r.assessment.course.id,
-          name: r.assessment.course.name,
-          subject: r.assessment.course.subject,
+          subject: (r.assessment as any).subject ?? null,
+          cohortId: r.assessment.cohortId,
         },
       })),
     };
@@ -326,30 +283,24 @@ export class StudentService {
         studentId,
         session: { date: { gte: from, lt: toPlus } },
       },
-      include: { session: { include: { course: true } } },
+      include: { session: true },
       orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
     });
 
     return {
       ok: true,
       student: { id: studentId, name: profile.user.name },
-      cohort: { id: profile.cohort.id, name: profile.cohort.name },
+      cohort: profile.cohort ? { id: profile.cohort.id, name: profile.cohort.name } : null,
       from: fromYmd,
       to: toYmd,
       items: records.map((r) => ({
         date: new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC' }).format(
-          r.session.date,
+          (r as any).session?.date,
         ),
-        period: r.session.period,
+        period: (r as any).session?.period,
         status: r.status,
         note: r.note,
-        course: r.session.course
-          ? {
-              id: r.session.course.id,
-              name: r.session.course.name,
-              subject: r.session.course.subject,
-            }
-          : null,
+        subject: null,
       })),
     };
   }
@@ -444,50 +395,29 @@ export class StudentService {
     };
   }
 
-  private async ensureClassroomAccessible(_user: any, courseId: string) {
-    const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
+  private async ensureClassroomAccessible(_user: any, cohortId: string) {
+    const cohort = await (this.prisma as any).cohort.findUnique({
+      where: { id: cohortId },
       select: { id: true },
     });
-
-    if (!course) {
-      throw new NotFoundException('Classroom not found');
-    }
-
-    return course;
+    if (!cohort) throw new NotFoundException('Classroom not found');
+    return cohort;
   }
 
-  async classroomPeople(user: any, courseId: string) {
-    await this.ensureClassroomAccessible(user, courseId);
-
-    return {
-      ok: true,
-      items: [],
-      teachers: [],
-      students: [],
-      server: false,
-    };
+  async classroomPeople(user: any, cohortId: string) {
+    await this.ensureClassroomAccessible(user, cohortId);
+    return { ok: true, items: [], teachers: [], students: [], server: false };
   }
 
-  async classroomChat(user: any, courseId: string, _q: any) {
-    await this.ensureClassroomAccessible(user, courseId);
-
-    return {
-      ok: true,
-      items: [],
-      nextCursor: null,
-      server: false,
-    };
+  async classroomChat(user: any, cohortId: string, _q: any) {
+    await this.ensureClassroomAccessible(user, cohortId);
+    return { ok: true, items: [], nextCursor: null, server: false };
   }
 
-  async classroomSendChatText(user: any, courseId: string, dto: any) {
-    await this.ensureClassroomAccessible(user, courseId);
-
+  async classroomSendChatText(user: any, cohortId: string, dto: any) {
+    await this.ensureClassroomAccessible(user, cohortId);
     const text = typeof dto?.text === 'string' ? dto.text.trim() : '';
-    if (!text) {
-      throw new BadRequestException('text required');
-    }
-
+    if (!text) throw new BadRequestException('text required');
     return {
       ok: true,
       server: false,
@@ -502,49 +432,126 @@ export class StudentService {
     };
   }
 
-  async classroomSendChatMedia(user: any, courseId: string, dto: any) {
-    await this.ensureClassroomAccessible(user, courseId);
-
+  async classroomSendChatMedia(user: any, cohortId: string, dto: any) {
+    await this.ensureClassroomAccessible(user, cohortId);
     return {
       ok: true,
       server: false,
-      item: {
-        id: `local-media-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        senderName: user?.name ?? user?.email ?? 'You',
-        mine: true,
-        ...dto,
+      item: { id: `local-media-${Date.now()}`, createdAt: new Date().toISOString(), senderName: user?.name ?? user?.email ?? 'You', mine: true, ...dto },
+    };
+  }
+
+  async classroomAssignments(user: any, cohortId: string) {
+    await this.ensureClassroomAccessible(user, cohortId);
+    return { ok: true, items: [], server: false };
+  }
+
+  async classroomMaterials(user: any, cohortId: string) {
+    await this.ensureClassroomAccessible(user, cohortId);
+    return { ok: true, items: [], server: false };
+  }
+
+  async classroomMeetings(user: any, cohortId: string) {
+    await this.ensureClassroomAccessible(user, cohortId);
+    return { ok: true, items: [], server: false };
+  }
+
+  async myExams(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+    const schoolId = user.schoolId ?? null;
+
+    // Get student's cohort IDs for targeting
+    const cohortLinks = await this.prisma.studentCohort.findMany({
+      where: { studentId },
+      select: { cohortId: true },
+    });
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
+
+    const exams = await this.prisma.teacherExam.findMany({
+      where: {
+        published: true,
+        teacher: { ...(schoolId ? { schoolId } : {}) },
+        OR: [
+          { targetType: 'EVERYONE' },
+          { targetStudentIds: { has: studentId } },
+          ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+        ],
       },
-    };
+      orderBy: { date: 'desc' },
+      include: { teacher: { select: { name: true } } },
+    });
+
+    // Find grades for each exam (via Assessment + GradeRecord)
+    const items = await Promise.all(exams.map(async (exam) => {
+      const assessment = await this.prisma.assessment.findFirst({
+        where: { examId: exam.id, cohortId: { in: [...cohortIds, ''] } },
+        select: { id: true },
+      });
+      const grade = assessment ? await this.prisma.gradeRecord.findFirst({
+        where: { assessmentId: assessment.id, studentId },
+        select: { grade: true },
+      }) : null;
+      return {
+        id: exam.id,
+        title: exam.title,
+        subject: exam.subject ?? null,
+        date: exam.date,
+        maxGrade: exam.maxGrade ?? 100,
+        grade: grade?.grade ?? null,
+        teacherName: (exam as any).teacher?.name ?? null,
+      };
+    }));
+
+    return { ok: true, items };
   }
 
-  async classroomAssignments(user: any, courseId: string) {
-    await this.ensureClassroomAccessible(user, courseId);
+  async myTeacherAssignments(user: any) {
+    this.ensureStudent(user);
+    const studentId = user.sub ?? user.id;
+    const schoolId = user.schoolId ?? null;
 
-    return {
-      ok: true,
-      items: [],
-      server: false,
-    };
-  }
+    const cohortLinks = await this.prisma.studentCohort.findMany({
+      where: { studentId },
+      select: { cohortId: true },
+    });
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
 
-  async classroomMaterials(user: any, courseId: string) {
-    await this.ensureClassroomAccessible(user, courseId);
+    const assignments = await this.prisma.teacherAssignment.findMany({
+      where: {
+        published: true,
+        teacher: { ...(schoolId ? { schoolId } : {}) },
+        OR: [
+          { targetType: 'EVERYONE' },
+          { targetStudentIds: { has: studentId } },
+          ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+        ],
+      },
+      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+      include: { teacher: { select: { name: true } } },
+    });
 
-    return {
-      ok: true,
-      items: [],
-      server: false,
-    };
-  }
+    // Check submission status for each
+    const items = await Promise.all(assignments.map(async (a) => {
+      const sub = await this.prisma.teacherAssignmentSubmission.findFirst({
+        where: { assignmentId: a.id, studentId },
+        select: { id: true, submittedAt: true, grade: true },
+      });
+      return {
+        id: a.id,
+        title: a.title,
+        description: a.description ?? null,
+        subject: a.subject ?? null,
+        dueAt: a.dueAt ?? null,
+        maxGrade: a.maxGrade ?? null,
+        attachments: a.attachments,
+        teacherName: (a as any).teacher?.name ?? null,
+        submitted: !!sub,
+        submittedAt: sub?.submittedAt ?? null,
+        grade: sub?.grade ?? null,
+      };
+    }));
 
-  async classroomMeetings(user: any, courseId: string) {
-    await this.ensureClassroomAccessible(user, courseId);
-
-    return {
-      ok: true,
-      items: [],
-      server: false,
-    };
+    return { ok: true, items };
   }
 }

@@ -10,6 +10,7 @@ import '../providers/practice_providers.dart';
 import 'practice_display_text.dart';
 import 'practice_history_review_screen.dart';
 import 'practice_mode_specs.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 String _practiceModeLabel(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
@@ -95,7 +96,7 @@ class PracticeHistoryScreen extends ConsumerWidget {
         ],
       ),
       body: history.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: const CmLoading()),
         error: (e, _) => Center(child: Text(_friendlyError(context, e))),
         data: (sessions) {
           if (sessions.isEmpty) {
@@ -188,7 +189,7 @@ class _HistoryCard extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(12, 6, 12, 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent.withValues(alpha: 0.25)),
+        border: Border.all(color: accent),
       ),
       child: ListTile(
         onTap: () {
@@ -199,7 +200,7 @@ class _HistoryCard extends ConsumerWidget {
           );
         },
         leading: CircleAvatar(
-          backgroundColor: accent.withValues(alpha: 0.15),
+          backgroundColor: accent,
           child: Icon(practiceModeIcon(session.mode), color: accent, size: 18),
         ),
         title: CMAiMessage(

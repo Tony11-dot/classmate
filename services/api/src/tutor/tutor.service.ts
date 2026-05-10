@@ -962,13 +962,7 @@ export class TutorService {
       where: { studentId },
       select: {
         grade: true,
-        assessment: {
-          select: {
-            date: true,
-            maxGrade: true,
-            course: { select: { id: true, name: true, subject: true } },
-          },
-        },
+        assessment: { select: { date: true, maxGrade: true, subject: true } },
       },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       take: 40,
@@ -983,7 +977,7 @@ export class TutorService {
       return {
         pct,
         date: g.assessment?.date ? new Date(g.assessment.date) : now,
-        subject: this.safeCourseSubject(g.assessment?.course),
+        subject: this.safeCourseSubject(g.assessment),
       };
     });
 
@@ -1117,7 +1111,7 @@ export class TutorService {
   async replyToSession(user: any, sessionId: string, _body?: any) {
     const session = await this.prisma.tutorSession.findUnique({
       where: { id: sessionId },
-      select: { id: true, userId: true, characterId: true, cohortId: true, courseId: true, topic: true },
+      select: { id: true, userId: true, characterId: true, cohortId: true, topic: true },
     });
 
     if (!session) throw new ForbiddenException('Not found');

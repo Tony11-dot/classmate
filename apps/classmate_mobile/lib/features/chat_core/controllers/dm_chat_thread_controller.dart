@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../classrooms/providers/classrooms_repo_provider.dart';
 import '../../messages/data/messages_repository.dart';
 import '../../messages/domain/message_thread_models.dart';
 import '../../messages/providers/messages_repository_provider.dart';
@@ -343,9 +344,12 @@ class DmChatThreadController extends ChatThreadController {
         if (o.kind == ChatMessageKind.text) {
           if (s.text == o.text && s.text.isNotEmpty) return true;
         } else {
-          // Media optimistic: match any own server message within 60s
+          // Media optimistic: only match own server messages that also have
+          // a media URL (or non-text kind). Matching plain text messages caused
+          // false positives — nearby texts prematurely pruned the video optimistic.
           if (s.isOwn &&
-              s.createdAt.difference(o.createdAt).inSeconds.abs() <= 60) {
+              s.createdAt.difference(o.createdAt).inSeconds.abs() <= 60 &&
+              ((s.mediaUrl ?? '').isNotEmpty || s.kind != ChatMessageKind.text)) {
             return true;
           }
         }
@@ -362,19 +366,27 @@ class DmChatThreadController extends ChatThreadController {
     //
     // Neither strategy requires a specific `kind` value — the server may
     // return kind:'TEXT' even for image/voice messages.
-    // No `isOwn` restriction on patching — the session cache holds URLs for
-    // any message that was ever seen with one, and the local media list only
-    // contains our own outgoing messages anyway.
+    // Inject CDN URLs only into OWN messages that the server returned without
+    // a URL (rare — can happen when the CDN URL is not yet propagated).
+    // Restricting to isOwn prevents cross-contamination: if Tony's local video
+    // URL gets injected into Sally's message, the _sentUrls check would then
+    // incorrectly force Sally's message to isOwn:true, moving it to the right.
     final patchedServer = server.map((s) {
       if ((s.mediaUrl ?? '').isNotEmpty) return s;
 
-      // Strategy 1: O(1) session-cache lookup (available synchronously).
+      // Strategy 1: session-cache lookup by message ID (O(1), always safe).
       final byId = _cachedUrl(s.id);
       if ((byId ?? '').isNotEmpty) {
         return s.copyWith(mediaUrl: byId);
       }
 
-      // Strategy 2: closest-timestamp match from locally saved outgoing media.
+      // Strategy 2: timestamp match — ONLY for own messages.
+      // Never inject into others' messages: if their message happens to be near
+      // a locally sent video, the CDN URL would be wrong and _sentUrls would
+      // then flip isOwn:true for their message, putting it on the wrong side.
+      if (!s.isOwn) return s;
+      if (s.text.isNotEmpty) return s;
+
       ChatMessage? best;
       var bestDiff = const Duration(seconds: 121);
       for (final local in _localMediaMessages) {
@@ -387,15 +399,12 @@ class DmChatThreadController extends ChatThreadController {
         }
       }
       if (best != null) {
-        // Promote match to session cache (+ SharedPreferences) for O(1) future.
         _recordUrl(s.id, best.mediaUrl!);
         return s.copyWith(
           mediaUrl: best.mediaUrl,
           mediaMimeType: (best.mediaMimeType ?? '').isNotEmpty
               ? best.mediaMimeType
               : s.mediaMimeType,
-          // Local media list only holds our own sent messages → definitely ours.
-          isOwn: true,
         );
       }
       return s;
@@ -486,7 +495,21 @@ class DmChatThreadController extends ChatThreadController {
     return threadAsync.when(
       skipLoadingOnRefresh: true,
       data: (thread) {
-        final server = thread.messages.map(_convertMessageItem).toList();
+        // In a 1:1 DM the thread title IS the other person's display name.
+        // Use it as a last-resort fallback so participants with no displayName
+        // still have a readable name in their message bubbles.
+        final threadTitle = thread.isGroup ? '' : thread.title.trim();
+
+        final participantNames = <String, String>{
+          for (final p in thread.participants)
+            if (p.userId.isNotEmpty)
+              p.userId: p.displayName.isNotEmpty
+                  ? p.displayName
+                  : (p.userId != _currentUserId ? threadTitle : ''),
+        };
+        final server = thread.messages
+            .map((item) => _convertMessageItem(item, participantNames))
+            .toList();
         return AsyncValue.data(_mergeWithOptimistic(server));
       },
       loading: () => _cachedMessages.isNotEmpty
@@ -498,7 +521,8 @@ class DmChatThreadController extends ChatThreadController {
     );
   }
 
-  ChatMessage _convertMessageItem(MessageItem item) {
+  ChatMessage _convertMessageItem(MessageItem item,
+      [Map<String, String> participantNames = const {}]) {
     final kind = _parseKind(item.kind);
     final deletedForMe = item.deleteState == 'DELETED_FOR_ME';
     final deletedForEveryone = item.deleteState == 'DELETED_FOR_EVERYONE';
@@ -523,18 +547,31 @@ class DmChatThreadController extends ChatThreadController {
     final resolvedDeletedForEveryone =
         deletedForEveryone || localDelete == 'DELETED_FOR_EVERYONE';
 
-    // Resolve ownership: the server occasionally returns isMine:false for voice
-    // messages even when we sent them.  Check the static sent-URLs set which
-    // is never pruned (unlike _localMediaMessages which gets cleared).
-    bool isOwn = item.isMine;
-    if (!isOwn && (mediaUrl ?? '').isNotEmpty && !_isDeviceLocalPath(mediaUrl!)) {
-      isOwn = _sentUrls.contains(mediaUrl);
+    // Server's isMine is authoritative (compared server-side as senderId === viewerId).
+    // UUID comparison is a secondary check for cases where the server omits isMine.
+    // The _sentUrls fallback is intentionally removed: it would flip isOwn:true for
+    // any message whose URL matches a locally sent URL — exactly what causes the
+    // other person's video to appear on the wrong (right) side when Strategy 2
+    // accidentally injected our CDN URL into their message.
+    final bool isOwn = item.isMine ||
+        (item.senderId.isNotEmpty && item.senderId == _currentUserId);
+
+    // Resolve sender name: server value → participant map → cached message name.
+    String resolvedSenderName = item.senderName.isNotEmpty
+        ? item.senderName
+        : (participantNames[item.senderId] ?? '');
+    if (resolvedSenderName.isEmpty && item.senderId.isNotEmpty) {
+      // Last resort: find the name in the cached message list (survives re-entries).
+      final cached = _cachedMessages
+          .where((m) => m.senderId == item.senderId && m.senderName.isNotEmpty)
+          .firstOrNull;
+      if (cached != null) resolvedSenderName = cached.senderName;
     }
 
     return ChatMessage(
       id: item.id,
       senderId: item.senderId,
-      senderName: item.senderName,
+      senderName: resolvedSenderName,
       text: item.text,
       kind: kind,
       mediaUrl: mediaUrl,
@@ -859,6 +896,8 @@ class DmChatThreadController extends ChatThreadController {
   @override
   Future<void> markRead() async {
     await _repo.markThreadRead(threadId: _threadId);
+    // Refresh the inbox so unread badge drops immediately.
+    try { ref.invalidate(messagesInboxProvider); } catch (_) {}
   }
 
   @override
@@ -887,13 +926,44 @@ class DmChatThreadController extends ChatThreadController {
     List<ForwardTarget> targets,
   ) async {
     if (targets.isEmpty) return;
-    final targetThreadIds = targets.map((t) => t.id).toList();
+
+    // Split targets by type so each message is forwarded via the correct API.
+    final dmTargetIds = targets
+        .whereType<ForwardTargetDm>()
+        .map((t) => t.threadId)
+        .toList();
+    final classroomTargets = targets
+        .whereType<ForwardTargetClassroom>()
+        .toList();
+
+    final classroomsRepo = ref.read(classroomsRepoProvider);
+
     for (final messageId in messageIds) {
-      await _repo.forwardMessage(
-        fromThreadId: _threadId,
-        messageId: messageId,
-        targetThreadIds: targetThreadIds,
-      );
+      // DM → DM: use the messages API
+      if (dmTargetIds.isNotEmpty) {
+        await _repo.forwardMessage(
+          fromThreadId: _threadId,
+          messageId: messageId,
+          targetThreadIds: dmTargetIds,
+        );
+      }
+      // DM → Classroom: use the classrooms API per target course
+      for (final ct in classroomTargets) {
+        try {
+          await classroomsRepo.forwardChatMessage(
+            ct.courseId,
+            messageId: messageId,
+            targetThreadIds: [ct.courseId],
+          );
+        } catch (_) {
+          // Fallback: try the messages forward API with the classroom id
+          await _repo.forwardMessage(
+            fromThreadId: _threadId,
+            messageId: messageId,
+            targetThreadIds: [ct.courseId],
+          );
+        }
+      }
     }
   }
 

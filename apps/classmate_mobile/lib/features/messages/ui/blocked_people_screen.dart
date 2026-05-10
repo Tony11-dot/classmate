@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
   const BlockedPeopleScreen({super.key});
@@ -75,7 +76,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: const CmLoading());
           }
 
           if (snapshot.hasError) {

@@ -1,42 +1,73 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
+import 'teacher_student_grade_detail_screen.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Data helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StudentGradeRow {
+  const _StudentGradeRow({
+    required this.student,
+    required this.gradeBySubject,
+  });
+
+  final TeacherStudentWithLevel student;
+  // subject → latest grade (null = not graded yet)
+  final Map<String, int?> gradeBySubject;
+
+  bool matchesQuery(String q) {
+    if (q.isEmpty) return true;
+    final lower = q.toLowerCase();
+    final name = student.name.toLowerCase();
+    final email = student.email.toLowerCase();
+    // Tokenise on whitespace so Arabic/Hebrew words can be searched individually.
+    if (name.contains(lower) || email.contains(lower)) return true;
+    for (final word in name.split(RegExp(r'\s+'))) {
+      if (word.startsWith(lower)) return true;
+    }
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Screen
+// ─────────────────────────────────────────────────────────────────────────────
 
 class TeacherGradesScreen extends ConsumerStatefulWidget {
   const TeacherGradesScreen({super.key});
 
   @override
-  ConsumerState<TeacherGradesScreen> createState() => _TeacherGradesScreenState();
+  ConsumerState<TeacherGradesScreen> createState() =>
+      _TeacherGradesScreenState();
 }
 
 class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
-  TeacherAssessmentBundle? _bundle;
-  TeacherAssessment? _selectedAssessment;
-  List<TeacherStudent> _students = const <TeacherStudent>[];
-  Map<String, int?> _grades = <String, int?>{};
-  Map<String, int?> _initialGrades = <String, int?>{};
+  List<_StudentGradeRow> _rows = [];
+  List<String> _allSubjects = [];
+  int _totalCourses = 0;
   bool _loading = true;
-  bool _saving = false;
   String? _error;
 
-  final TextEditingController _titleCtrl = TextEditingController();
-  final TextEditingController _maxGradeCtrl = TextEditingController();
-  String? _selectedCourseId;
-  DateTime? _selectedDate;
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     Future<void>.microtask(_load);
+    _searchCtrl.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _titleCtrl.dispose();
-    _maxGradeCtrl.dispose();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -46,256 +77,86 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
       _error = null;
     });
     try {
-      final bundle = await ref.read(teacherMobileRepositoryProvider).fetchAssessments();
-      if (!mounted) return;
-      setState(() {
-        _bundle = bundle;
-        _selectedCourseId ??= bundle.courses.isNotEmpty ? bundle.courses.first.id : null;
-        _loading = false;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _error = error.toString();
-        _loading = false;
-      });
-    }
-  }
+      final repo = ref.read(teacherMobileRepositoryProvider);
 
-  Future<void> _createAssessment() async {
-    final l = AppLocalizations.of(context)!;
-    final courseId = _selectedCourseId;
-    if (courseId == null || _titleCtrl.text.trim().isEmpty) return;
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final maxGrade = int.tryParse(_maxGradeCtrl.text.trim());
-      final dateStr = _selectedDate != null
-          ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
-          : '';
-      await ref.read(teacherMobileRepositoryProvider).createAssessment(
-            courseId: courseId,
-            title: _titleCtrl.text,
-            date: dateStr,
-            maxGrade: maxGrade,
-          );
-      _titleCtrl.clear();
-      _maxGradeCtrl.clear();
-      setState(() => _selectedDate = null);
-      await _load();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.teacherGradesAssessmentCreated)),
+      // Fetch students and assessment bundle in parallel.
+      final results = await Future.wait<dynamic>([
+        repo.fetchAllStudents(),
+        repo.fetchAssessments(),
+      ]);
+
+      final allStudents = results[0] as List<TeacherStudentWithLevel>;
+      final bundle = results[1] as TeacherAssessmentBundle;
+
+      final publishedAssessments =
+          bundle.assessments.where((a) => a.published).toList();
+
+      // Build subject → courseId map from courses.
+      final courseById = <String, TeacherCourse>{
+        for (final c in bundle.courses) c.id: c,
+      };
+
+      // Fetch grades for all published assessments in parallel.
+      final gradeResults = await Future.wait(
+        publishedAssessments.map((a) async {
+          try {
+            final grades = await repo.fetchAssessmentGrades(a.id);
+            return (assessment: a, grades: grades);
+          } catch (_) {
+            return null;
+          }
+        }),
       );
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _error = error.toString();
-        _loading = false;
-      });
-    }
-  }
 
-  Future<void> _editAssessment(TeacherAssessment assessment) async {
-    final l = AppLocalizations.of(context)!;
-    final titleCtrl = TextEditingController(text: assessment.title);
-    final dateCtrl = TextEditingController(text: assessment.date.split('T').first);
-    final maxGradeCtrl = TextEditingController(text: assessment.maxGrade?.toString() ?? '');
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.teacherGradesEditAssessmentTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleCtrl,
-              decoration: InputDecoration(labelText: l.teacherGradesFieldTitle),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: dateCtrl,
-              decoration: InputDecoration(labelText: l.teacherGradesFieldDate),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: maxGradeCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: l.teacherGradesFieldMaxGrade),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.classroomsForwardCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.profileSave),
-          ),
-        ],
-      ),
-    );
-    final updatedTitle = titleCtrl.text;
-    final updatedDate = dateCtrl.text;
-    final updatedMaxGrade = maxGradeCtrl.text;
-    titleCtrl.dispose();
-    dateCtrl.dispose();
-    maxGradeCtrl.dispose();
-    if (confirmed != true) return;
-
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      await ref.read(teacherMobileRepositoryProvider).updateAssessment(
-            assessmentId: assessment.id,
-        title: updatedTitle,
-        date: updatedDate,
-        maxGrade: int.tryParse(updatedMaxGrade.trim()),
-          );
-      await _load();
-      if (!mounted) return;
-      if (_selectedAssessment?.id == assessment.id) {
-        final refreshed = _bundle?.assessments.where((item) => item.id == assessment.id).firstOrNull;
-        if (refreshed != null) {
-          await _openAssessment(refreshed);
+      // Build studentId → {subject → grade} matrix.
+      // If a student has multiple grades per subject, keep the latest non-null.
+      final matrix = <String, Map<String, int?>>{};
+      for (final r in gradeResults) {
+        if (r == null) continue;
+        final course = courseById[r.assessment.courseId];
+        final subject = course?.subject ?? r.assessment.title;
+        for (final g in r.grades) {
+          if (g.grade == null) continue;
+          matrix.putIfAbsent(g.studentId, () => {})[subject] = g.grade;
         }
       }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.teacherGradesAssessmentUpdated)),
-      );
-    } catch (error) {
+
+      final allSubjects = bundle.courses
+          .map((c) => c.subject)
+          .where((s) => s.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
+
+      // Only show students who have at least one recorded grade
+      final rows = allStudents
+          .where((s) => matrix.containsKey(s.studentId))
+          .map((s) => _StudentGradeRow(
+                student: s,
+                gradeBySubject: matrix[s.studentId] ?? {},
+              ))
+          .toList()
+        ..sort((a, b) => a.student.name.compareTo(b.student.name));
+
       if (!mounted) return;
       setState(() {
-        _error = error.toString();
+        _rows = rows;
+        _allSubjects = allSubjects;
+        _totalCourses = bundle.courses.length;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
         _loading = false;
       });
     }
   }
 
-  Future<void> _deleteAssessment(TeacherAssessment assessment) async {
-    final l = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.teacherGradesDeleteAssessmentTitle),
-        content: Text(
-          l.teacherGradesDeleteAssessmentBody(assessment.title),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.classroomsForwardCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.teacherGradesDeleteAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      await ref.read(teacherMobileRepositoryProvider).deleteAssessment(assessment.id);
-      if (_selectedAssessment?.id == assessment.id) {
-        _selectedAssessment = null;
-        _students = const <TeacherStudent>[];
-        _grades = <String, int?>{};
-        _initialGrades = <String, int?>{};
-      }
-      await _load();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.teacherGradesAssessmentDeleted)),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _error = error.toString();
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _openAssessment(TeacherAssessment assessment) async {
-    final l = AppLocalizations.of(context)!;
-    final bundle = _bundle;
-    if (bundle == null) return;
-    final course = bundle.courses.where((item) => item.id == assessment.courseId).firstOrNull;
-    if (course == null || course.cohortId.isEmpty) {
-      setState(() => _error = l.teacherGradesRosterLinkError);
-      return;
-    }
-    setState(() {
-      _selectedAssessment = assessment;
-      _students = const <TeacherStudent>[];
-      _grades = <String, int?>{};
-      _initialGrades = <String, int?>{};
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final repo = ref.read(teacherMobileRepositoryProvider);
-      final values = await Future.wait<dynamic>([
-        repo.fetchCohortStudents(course.cohortId),
-        repo.fetchAssessmentGrades(assessment.id),
-      ]);
-      final students = values[0] as List<TeacherStudent>;
-      final grades = values[1] as List<TeacherAssessmentGrade>;
-      final gradeMap = <String, int?>{for (final grade in grades) grade.studentId: grade.grade};
-      if (!mounted) return;
-      setState(() {
-        _students = students;
-        _grades = <String, int?>{for (final student in students) student.studentId: gradeMap[student.studentId]};
-        _initialGrades = Map<String, int?>.from(_grades);
-        _loading = false;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _error = error.toString();
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _saveGrades() async {
-    final l = AppLocalizations.of(context)!;
-    final assessment = _selectedAssessment;
-    if (assessment == null) return;
-    final dirty = _grades.entries
-        .where((entry) => entry.value != null && entry.value != _initialGrades[entry.key])
-        .map((entry) => TeacherGradeDraftRecord(studentId: entry.key, grade: entry.value!))
-        .toList(growable: false);
-    if (dirty.isEmpty) return;
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
-    try {
-      await ref.read(teacherMobileRepositoryProvider).saveBulkGrades(assessmentId: assessment.id, grades: dirty);
-      if (!mounted) return;
-      setState(() => _initialGrades = Map<String, int?>.from(_grades));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.teacherGradesSaved)),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      setState(() => _error = error.toString());
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+  List<_StudentGradeRow> get _filtered {
+    final q = _searchCtrl.text.trim();
+    return _rows.where((r) => r.matchesQuery(q)).toList();
   }
 
   @override
@@ -303,33 +164,19 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final bundle = _bundle;
-    final dirtyCount = _grades.entries.where((entry) => entry.value != null && entry.value != _initialGrades[entry.key]).length;
-
-    final totalCourses = bundle?.courses.length ?? 0;
-    final totalStudents = bundle?.courses.map((c) => c.cohortId).where((id) => id.isNotEmpty).toSet().length ?? 0;
-    final totalAssessments = bundle?.assessments.length ?? 0;
+    final filtered = _filtered;
 
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         children: [
-          // ── Hero Banner ──────────────────────────────────────────────────
+          // ── Hero ────────────────────────────────────────────────────────
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
-            blurSigma: 20,
-            gradient: LinearGradient(
-              colors: [
-                cs.secondaryContainer.withValues(alpha: 0.92),
-                cs.primaryContainer.withValues(alpha: 0.68),
-                cs.surfaceContainerHigh.withValues(alpha: 0.82),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: cs.secondary.withValues(alpha: 0.2)),
-            boxShadow: [BoxShadow(color: cs.secondary.withValues(alpha: 0.12), blurRadius: 22, offset: const Offset(0, 8), spreadRadius: -4)],
+            color: cs.primaryContainer,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -339,304 +186,342 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l.navTeacherAssessments, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                          Text(
+                            l.navGrades,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              height: 1.1,
+                              color: cs.onPrimaryContainer,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text(l.teacherGradesSubtitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          Text(
+                            '${_rows.length} students · ${_allSubjects.length} subjects',
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: cs.onPrimaryContainer),
+                          ),
                         ],
                       ),
                     ),
                     Container(
                       width: 46,
                       height: 46,
-                      decoration: BoxDecoration(color: cs.secondary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
-                      child: Icon(Icons.grade_rounded, size: 24, color: cs.secondary),
+                      decoration: BoxDecoration(
+                        color: cs.secondaryContainer,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(Icons.grade_rounded,
+                          size: 24, color: cs.onSecondaryContainer),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    _GradeStatPill(value: '$totalCourses', label: AppLocalizations.of(context)!.titleClasses, color: cs.primary),
+                    _GradeStatPill(
+                      value: '$_totalCourses',
+                      label: l.titleClasses,
+                      // Distinct green — not primaryContainer so it's visible
+                      // against the card background.
+                      accentColor: const Color(0xFF22C55E),
+                    ),
                     const SizedBox(width: 8),
-                    _GradeStatPill(value: '$totalAssessments', label: AppLocalizations.of(context)!.teacherTestsLabel, color: cs.secondary),
+                    _GradeStatPill(
+                      value: '${_allSubjects.length}',
+                      label: 'Subjects',
+                      accentColor: cs.secondary,
+                    ),
                     const SizedBox(width: 8),
-                    _GradeStatPill(value: '$totalStudents', label: AppLocalizations.of(context)!.teacherGroupsLabel, color: cs.tertiary),
+                    _GradeStatPill(
+                      value: '${_rows.length}',
+                      label: l.teacherGroupsLabel,
+                      accentColor: cs.tertiary,
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
-          if (_error != null)
-            LiquidGlassCard(color: cs.errorContainer.withValues(alpha: 0.72), child: Text(_error!)),
-          const SizedBox(height: 4),
-          LiquidGlassCard(
-            color: cs.surface.withValues(alpha: 0.76),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.surface.withValues(alpha: 0.84),
-                cs.surfaceContainerHigh.withValues(alpha: 0.66),
-              ],
-            ),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.teacherGradesCreateAssessmentTitle,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedCourseId,
-                  decoration: InputDecoration(labelText: l.teacherGradesFieldCourse),
-                  items: (bundle?.courses ?? const <TeacherCourse>[])
-                      .map((course) => DropdownMenuItem<String>(value: course.id, child: Text(course.name)))
-                      .toList(growable: false),
-                  onChanged: (value) => setState(() => _selectedCourseId = value),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _titleCtrl,
-                  decoration: InputDecoration(labelText: l.teacherGradesFieldTitle),
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _selectedDate ?? DateTime.now(),
-                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                    );
-                    if (picked != null) setState(() => _selectedDate = picked);
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: cs.outlineVariant),
-                      borderRadius: BorderRadius.circular(8),
+          const SizedBox(height: 14),
+
+          // ── Search ──────────────────────────────────────────────────────
+          TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: 'Search students…',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchCtrl.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        FocusScope.of(context).unfocus();
+                      },
                     ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _selectedDate == null
-                                ? l.teacherGradesFieldDate
-                                : MaterialLocalizations.of(context).formatMediumDate(_selectedDate!),
-                            style: TextStyle(
-                              color: _selectedDate == null ? cs.onSurfaceVariant : cs.onSurface,
-                            ),
-                          ),
-                        ),
-                        if (_selectedDate != null)
-                          InkWell(
-                            onTap: () => setState(() => _selectedDate = null),
-                            child: Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _maxGradeCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: l.teacherGradesFieldMaxGrade),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: _loading ? null : _createAssessment,
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(l.teacherGradesCreateAction),
-                ),
-              ],
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          if (_loading && bundle == null)
-            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-          else ...[
-            ...(bundle?.courses ?? const <TeacherCourse>[]).map((course) {
-              final assessments = (bundle?.assessments ?? const <TeacherAssessment>[]).where((assessment) => assessment.courseId == course.id).toList(growable: false);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: LiquidGlassCard(
-                  color: cs.surface.withValues(alpha: 0.76),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      cs.surface.withValues(alpha: 0.84),
-                      cs.surfaceContainerHigh.withValues(alpha: 0.64),
-                    ],
-                  ),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(course.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                      if (course.subject.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(course.subject, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                        ),
-                      const SizedBox(height: 12),
-                      if (assessments.isEmpty)
-                        Text(l.teacherNoAssessmentsYet)
-                      else
-                        ...assessments.map(
-                          (assessment) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: LiquidGlassCard(
-                              padding: EdgeInsets.zero,
-                              borderRadius: BorderRadius.circular(18),
-                              blurSigma: 10,
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  cs.surface.withValues(alpha: 0.80),
-                                  cs.surfaceContainerHighest.withValues(alpha: 0.56),
-                                ],
-                              ),
-                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.16)),
-                              child: ListTile(
-                                title: Text(assessment.title),
-                                subtitle: Text(assessment.date.split('T').first),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      tooltip: l.teacherGradesEditAssessmentTitle,
-                                      onPressed: _loading ? null : () => _editAssessment(assessment),
-                                      icon: const Icon(Icons.edit_rounded),
-                                    ),
-                                    IconButton(
-                                      tooltip: l.teacherGradesDeleteAssessmentTitle,
-                                      onPressed: _loading ? null : () => _deleteAssessment(assessment),
-                                      icon: const Icon(Icons.delete_outline_rounded),
-                                    ),
-                                    const Icon(Icons.chevron_right_rounded),
-                                  ],
-                                ),
-                                onTap: () => _openAssessment(assessment),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-            if (_selectedAssessment != null) ...[
-              const SizedBox(height: 8),
-              Text(_selectedAssessment!.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 10),
-              if (_loading)
-                const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-              else if (_students.isEmpty)
-                LiquidGlassCard(
-                  color: cs.surface.withValues(alpha: 0.76),
-                  child: Text(l.teacherGradesNoStudentsLoaded),
-                )
-              else ...[
-                ..._students.map(
-                  (student) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: LiquidGlassCard(
-                      color: (_grades[student.studentId] != _initialGrades[student.studentId])
-                          ? cs.primaryContainer.withValues(alpha: 0.38)
-                          : cs.surface.withValues(alpha: 0.76),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: (_grades[student.studentId] != _initialGrades[student.studentId])
-                            ? [
-                                cs.primaryContainer.withValues(alpha: 0.64),
-                                cs.surface.withValues(alpha: 0.68),
-                              ]
-                            : [
-                                cs.surface.withValues(alpha: 0.84),
-                                cs.surfaceContainerHigh.withValues(alpha: 0.62),
-                              ],
-                      ),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(student.name, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                          if (student.email.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(student.email, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                            ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            initialValue: _grades[student.studentId]?.toString() ?? '',
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: l.teacherGradesFieldGrade,
-                              hintText: _selectedAssessment?.maxGrade == null
-                                  ? null
-                                  : l.teacherGradesMaxHint(_selectedAssessment!.maxGrade!),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                _grades[student.studentId] = int.tryParse(value.trim());
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                FilledButton.icon(
-                  onPressed: _saving || dirtyCount == 0 ? null : _saveGrades,
-                  icon: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save_rounded),
-                  label: Text(
-                    _saving
-                        ? l.teacherGradesSaving
-                        : l.teacherGradesSaveCount(dirtyCount),
-                  ),
-                ),
-              ],
-            ],
+          const SizedBox(height: 12),
+
+          // ── Error ────────────────────────────────────────────────────────
+          if (_error != null) ...[
+            LiquidGlassCard(
+              color: cs.errorContainer,
+              child: Text(_error!,
+                  style: TextStyle(color: cs.onErrorContainer)),
+            ),
+            const SizedBox(height: 12),
           ],
+
+          // ── Content ──────────────────────────────────────────────────────
+          if (_loading)
+            const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(40), child: CmLoading()))
+          else if (filtered.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Text(
+                  _rows.isEmpty
+                      ? l.teacherGradesNoStudentsLoaded
+                      : 'No students match "${_searchCtrl.text}"',
+                  style:
+                      theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          else
+            ...filtered.map((row) => _StudentGradeCard(
+                  row: row,
+                  allSubjects: _allSubjects,
+                  onTap: () async {
+                    await Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => TeacherStudentGradeDetailScreen(
+                          student: row.student,
+                        ),
+                      ),
+                    );
+                    if (mounted) _load();
+                  },
+                  onAddGrade: () async {
+                    await context.push(
+                      '/teacher/grades/add',
+                      extra: <String, dynamic>{
+                        'studentIds': [row.student.studentId],
+                        'subject': row.student.subjects.isNotEmpty
+                            ? row.student.subjects.first
+                            : null,
+                      },
+                    );
+                    if (mounted) _load();
+                  },
+                )),
         ],
       ),
     );
   }
 }
 
-class _GradeStatPill extends StatelessWidget {
-  const _GradeStatPill({required this.value, required this.label, required this.color});
-  final String value;
-  final String label;
-  final Color color;
+// ─────────────────────────────────────────────────────────────────────────────
+//  Student grade card
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StudentGradeCard extends StatelessWidget {
+  const _StudentGradeCard({
+    required this.row,
+    required this.allSubjects,
+    required this.onTap,
+    required this.onAddGrade,
+  });
+
+  final _StudentGradeRow row;
+  final List<String> allSubjects;
+  final VoidCallback onTap;
+  final VoidCallback onAddGrade;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final graded = row.gradeBySubject;
+    // Show subjects this student is enrolled in, falling back to all subjects.
+    final subjects = row.student.subjects.isNotEmpty
+        ? row.student.subjects
+        : allSubjects;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(18),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Student name + cohort ────────────────────────────────────
+            Row(
+              children: [
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    row.student.name.isNotEmpty
+                        ? row.student.name[0].toUpperCase()
+                        : '?',
+                    style: TextStyle(
+                      color: cs.onPrimaryContainer,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        row.student.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      if (row.student.cohortName.isNotEmpty)
+                        Text(
+                          row.student.cohortName,
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_rounded, size: 20),
+                  tooltip: 'Add grade',
+                  visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                  onPressed: onAddGrade,
+                ),
+              ],
+            ),
+            // ── Grade pills ───────────────────────────────────────────────
+            if (subjects.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: subjects.map((subject) {
+                  final grade = graded[subject];
+                  final hasGrade = grade != null;
+                  // Color-code by score: ≥80 green, 60-79 amber, <60 red
+                  Color pillColor;
+                  Color textColor;
+                  String pillLabel;
+                  if (!hasGrade) {
+                    pillColor = cs.surfaceContainerHighest;
+                    textColor = cs.onSurfaceVariant;
+                    pillLabel = subject; // just subject name if no grade
+                  } else if (grade >= 80) {
+                    pillColor = cs.secondaryContainer;
+                    textColor = cs.onSecondaryContainer;
+                    pillLabel = '$subject · $grade';
+                  } else if (grade >= 60) {
+                    pillColor = const Color(0xFFFFF3CD);
+                    textColor = const Color(0xFF7B5E00);
+                    pillLabel = '$subject · $grade';
+                  } else {
+                    pillColor = cs.errorContainer;
+                    textColor = cs.onErrorContainer;
+                    pillLabel = '$subject · $grade';
+                  }
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: pillColor,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: textColor.withValues(alpha: 0.20)),
+                    ),
+                    child: Text(
+                      pillLabel,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Hero stat pill — surface bg so it's always visible against the card bg
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _GradeStatPill extends StatelessWidget {
+  const _GradeStatPill({
+    required this.value,
+    required this.label,
+    required this.accentColor,
+  });
+
+  final String value;
+  final String label;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: cs.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.22)),
+          border: Border.all(color: accentColor.withValues(alpha: 0.30)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color, height: 1.1)),
-            Text(label, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+            Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 20,
+                color: accentColor,
+                height: 1.1,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: accentColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),

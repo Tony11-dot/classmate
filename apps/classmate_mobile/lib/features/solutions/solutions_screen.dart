@@ -66,18 +66,9 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.primaryContainer.withValues(alpha: 0.95),
-                          cs.surfaceContainerHigh.withValues(alpha: 0.95),
-                        ],
-                      ),
+                      color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(26),
-                      border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.22),
-                      ),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,12 +152,12 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                       child: Ink(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest.withValues(
+                          color: cs.surfaceContainerLow.withValues(
                             alpha: 0.75,
                           ),
                           borderRadius: BorderRadius.circular(22),
                           border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.2),
+                            color: cs.outlineVariant,
                           ),
                         ),
                         child: Row(

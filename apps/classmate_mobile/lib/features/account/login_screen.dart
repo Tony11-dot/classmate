@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../ui/glass/liquid_glass_card.dart';
 import '../../core/auth/auth_controller.dart';
+import '../../ui/widgets/classmate_logo.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -13,101 +13,219 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final TextEditingController _emailCtrl = TextEditingController(text: 'teacher1@classmate.app');
-  final TextEditingController _passwordCtrl = TextEditingController(text: 'dev');
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
   bool _loading = false;
+  bool _obscure = true;
   String? _error;
+
+  late final AnimationController _anim;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 540));
+    _fade = CurvedAnimation(parent: _anim, curve: Curves.easeOut);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _anim, curve: Curves.easeOut));
+    _anim.forward();
+  }
 
   @override
   void dispose() {
+    _anim.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final email = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _error = 'Please enter your email and password.');
+      return;
+    }
+    setState(() { _loading = true; _error = null; });
+    try {
+      final session = ref.read(authSessionProvider);
+      await session.login(email: email, password: password);
+      if (!mounted) return;
+      GoRouter.of(context).go(session.isTeacherLike ? '/teacher/schedule' : '/schedule');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              cs.primaryContainer.withValues(alpha: 0.65),
-              cs.surface,
-              cs.secondaryContainer.withValues(alpha: 0.55),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+      backgroundColor: cs.surface,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
-            children: [
-              Text('Classmate', style: Theme.of(context).textTheme.labelLarge?.copyWith(letterSpacing: 1.8, fontWeight: FontWeight.w800, color: cs.primary)),
-              const SizedBox(height: 12),
-              Text(l.loginTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 8),
-              Text(l.loginSubtitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-              const SizedBox(height: 22),
-              LiquidGlassCard(
-                color: cs.surface.withValues(alpha: 0.78),
-                gradient: LinearGradient(
-                  colors: [
-                    cs.primaryContainer.withValues(alpha: 0.22),
-                    cs.surface.withValues(alpha: 0.78),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l.loginSignIn, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 16),
-                    TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: l.loginEmailLabel)),
-                    const SizedBox(height: 14),
-                    TextField(controller: _passwordCtrl, obscureText: true, decoration: InputDecoration(labelText: l.loginPasswordLabel)),
-                    if (_error != null) ...[
+          child: FadeTransition(
+            opacity: _fade,
+            child: SlideTransition(
+              position: _slide,
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ── Logo ──────────────────────────────────────────────
+                      Center(child: const ClassMateLogo(height: 168)),
+                      const SizedBox(height: 40),
+
+                      // ── Email ─────────────────────────────────────────────
+                      TextField(
+                        controller: _emailCtrl,
+                        focusNode: _emailFocus,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        onSubmitted: (_) => _passwordFocus.requestFocus(),
+                        decoration: InputDecoration(
+                          labelText: l.loginEmailLabel,
+                          prefixIcon: Icon(Icons.alternate_email_rounded, color: cs.onSurfaceVariant, size: 20),
+                          filled: true,
+                          fillColor: cs.surfaceContainerHighest,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: cs.outlineVariant),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: cs.primary, width: 1.5),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 14),
-                      Text(_error!, style: TextStyle(color: cs.error, fontWeight: FontWeight.w600)),
+
+                      // ── Password ──────────────────────────────────────────
+                      TextField(
+                        controller: _passwordCtrl,
+                        focusNode: _passwordFocus,
+                        obscureText: _obscure,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submit(),
+                        decoration: InputDecoration(
+                          labelText: l.loginPasswordLabel,
+                          prefixIcon: Icon(Icons.lock_outline_rounded, color: cs.onSurfaceVariant, size: 20),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              color: cs.onSurfaceVariant,
+                              size: 20,
+                            ),
+                            onPressed: () => setState(() => _obscure = !_obscure),
+                          ),
+                          filled: true,
+                          fillColor: cs.surfaceContainerHighest,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: cs.outlineVariant),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: cs.primary, width: 1.5),
+                          ),
+                        ),
+                      ),
+
+                      // ── Error ─────────────────────────────────────────────
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        child: _error != null
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: cs.errorContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.error_outline_rounded, color: cs.error, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          _error!,
+                                          style: TextStyle(color: cs.onErrorContainer, fontSize: 13),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // ── Sign in button ────────────────────────────────────
+                      SizedBox(
+                        height: 52,
+                        child: FilledButton(
+                          onPressed: _loading ? null : _submit,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: cs.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 180),
+                            child: _loading
+                                ? SizedBox(
+                                    key: const ValueKey('loading'),
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: cs.onPrimary,
+                                    ),
+                                  )
+                                : Text(
+                                    key: const ValueKey('label'),
+                                    l.loginSignIn,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                                  ),
+                          ),
+                        ),
+                      ),
                     ],
-                    const SizedBox(height: 18),
-                    FilledButton.icon(
-                      onPressed: _loading
-                          ? null
-                          : () async {
-                              setState(() {
-                                _loading = true;
-                                _error = null;
-                              });
-                              try {
-                                final session = ref.read(authSessionProvider);
-                                await session.login(
-                                  email: _emailCtrl.text,
-                                  password: _passwordCtrl.text,
-                                );
-                                if (!mounted) return;
-                                final router = GoRouter.of(this.context);
-                                router.go(session.isTeacherLike ? '/teacher/home' : '/schedule');
-                              } catch (error) {
-                                if (!mounted) return;
-                                setState(() => _error = error.toString());
-                              } finally {
-                                if (mounted) setState(() => _loading = false);
-                              }
-                            },
-                      icon: _loading ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login_rounded),
-                      label: Text(_loading ? l.loginSigningIn : l.loginSignIn),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

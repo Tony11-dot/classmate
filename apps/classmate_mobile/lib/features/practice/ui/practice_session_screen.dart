@@ -18,6 +18,7 @@ import 'modes/exam_prep_mode_view.dart';
 import 'modes/concept_builder_mode_view.dart';
 import 'modes/adaptive_mode_view.dart';
 import 'modes/bagrut_mode_view.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 String _practiceSessionModeLabel(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
@@ -61,17 +62,17 @@ String _practiceSessionModeDescription(BuildContext context, PracticeMode mode) 
 
 Color _sessionPanelBorder(ColorScheme cs) {
   return cs.brightness == Brightness.dark
-      ? cs.outlineVariant.withValues(alpha: 0.32)
-      : cs.outlineVariant.withValues(alpha: 0.44);
+      ? cs.outlineVariant
+      : cs.outlineVariant;
 }
 
 Color _sessionPanelBg(ColorScheme cs, Color accent) {
   return cs.brightness == Brightness.dark
       ? Color.alphaBlend(
-          accent.withValues(alpha: 0.10),
+          accent,
           cs.surfaceContainerHigh,
         )
-      : Color.alphaBlend(accent.withValues(alpha: 0.05), cs.surface);
+      : cs.surface;
 }
 
 PracticeMode _practiceModeFromLabel(BuildContext context, String modeLabel) {
@@ -205,7 +206,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(),
+                const CmLoading(),
                 const SizedBox(height: 12),
 
                 OutlinedButton.icon(
@@ -255,14 +256,6 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accent.withValues(alpha: 0.16),
-                      accent.withValues(alpha: 0.06),
-                    ],
-                  ),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(color: _sessionPanelBorder(cs)),
                 ),
@@ -425,10 +418,10 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: cs.surface,
+                    color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: cs.outlineVariant.withValues(alpha: 0.28),
+                      color: cs.outlineVariant,
                     ),
                   ),
                   child: Text(
@@ -461,12 +454,12 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: cs.surface,
+                      color: cs.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: isCorrect
-                            ? Colors.green.withValues(alpha: 0.30)
-                            : cs.outlineVariant.withValues(alpha: 0.32),
+                            ? Colors.green
+                            : cs.outlineVariant,
                       ),
                     ),
                     child: Column(
@@ -746,12 +739,12 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.70),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: cs.brightness == Brightness.dark
-              ? cs.outlineVariant.withValues(alpha: 0.30)
-              : cs.outlineVariant.withValues(alpha: 0.40),
+              ? cs.outlineVariant
+              : cs.outlineVariant,
         ),
       ),
       child: Column(
@@ -787,12 +780,12 @@ class _MiniPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.72),
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: cs.brightness == Brightness.dark
-              ? cs.outlineVariant.withValues(alpha: 0.30)
-              : cs.outlineVariant.withValues(alpha: 0.40),
+              ? cs.outlineVariant
+              : cs.outlineVariant,
         ),
       ),
       child: Text(
@@ -836,15 +829,6 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(accent.withValues(alpha: .12), cs.surface),
-                cs.surface,
-                Color.alphaBlend(accent.withValues(alpha: .06), cs.surface),
-              ],
-            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -855,23 +839,16 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: cs.surface.withValues(alpha: .92),
+                    color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(32),
-                    border: Border.all(color: accent.withValues(alpha: .22)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: accent.withValues(alpha: .10),
-                        blurRadius: 28,
-                        spreadRadius: 1,
-                      ),
-                    ],
+                    border: Border.all(color: cs.surfaceContainerLow),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: accent.withValues(alpha: .12),
+                        backgroundColor: cs.surfaceContainerLow,
                         child: Icon(
                           practiceModeIcon(currentMode),
                           color: accent,
@@ -911,7 +888,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Color.alphaBlend(
-                            accent.withValues(alpha: .08),
+                            cs.surfaceContainerLow,
                             cs.surfaceContainerHighest,
                           ),
                           borderRadius: BorderRadius.circular(18),
@@ -929,7 +906,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(
-                            color: accent.withValues(alpha: .28),
+                            color: cs.surfaceContainerLow,
                           ),
                         ),
                         onPressed: onCancel,

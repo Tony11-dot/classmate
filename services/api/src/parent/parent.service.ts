@@ -44,7 +44,7 @@ function startOfWeekSundayInJerusalem(anyDate: Date): Date {
   return d;
 }
 
-type StudentProfileLite = { userId: string; cohortId: string };
+type StudentProfileLite = { userId: string; cohortId: string | null };
 
 @Injectable()
 export class ParentService {
@@ -209,7 +209,7 @@ export class ParentService {
       take,
       where: { studentId: { in: childIds } },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-      include: { assessment: { include: { course: true } } },
+      include: { assessment: true },
     });
 
     return {
@@ -222,11 +222,8 @@ export class ParentService {
           id: r.assessment.id,
           title: r.assessment.title,
           date: r.assessment.date.toISOString(),
-        },
-        course: {
-          id: r.assessment.course.id,
-          name: r.assessment.course.name,
-          subject: r.assessment.course.subject,
+          subject: (r.assessment as any).subject ?? null,
+          cohortId: r.assessment.cohortId,
         },
       })),
     };
@@ -248,13 +245,7 @@ export class ParentService {
       take: 20,
       where: { studentId },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-      include: {
-        assessment: {
-          include: {
-            course: { select: { id: true, name: true, subject: true } },
-          },
-        },
-      },
+      include: { assessment: true },
     });
 
     return {
@@ -267,14 +258,9 @@ export class ParentService {
           id: r.assessment.id,
           title: r.assessment.title,
           date: r.assessment.date.toISOString(),
+          subject: (r.assessment as any).subject ?? null,
+          cohortId: r.assessment.cohortId,
         },
-        course: r.assessment.course
-          ? {
-              id: r.assessment.course.id,
-              name: r.assessment.course.name,
-              subject: r.assessment.course.subject,
-            }
-          : null,
       })),
     };
   }
@@ -296,7 +282,7 @@ export class ParentService {
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
-    return this.schedule.getTodayForCohort(sp.cohortId);
+    return this.schedule.getTodayForCohort(sp.cohortId ?? '');
   }
 
   async scheduleWeek(user: any, studentId: string, weekOf?: string) {
@@ -314,7 +300,7 @@ export class ParentService {
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
 
-    return this.schedule.getWeekForCohort(sp.cohortId, weekOf);
+    return this.schedule.getWeekForCohort(sp.cohortId ?? '', weekOf);
   }
 
   async attendanceToday(user: any, studentId: string) {
@@ -335,7 +321,7 @@ export class ParentService {
     const sessions = await this.prisma.attendanceSession.findMany({
       where: { date, records: { some: { studentId } } },
       orderBy: { period: 'asc' },
-      include: { course: true, records: { where: { studentId } } },
+      include: { records: { where: { studentId } } },
     });
 
     return {
@@ -344,9 +330,7 @@ export class ParentService {
         period: s.period,
         status: s.records[0]?.status ?? 'UNMARKED',
         note: s.records[0]?.note ?? null,
-        course: s.course
-          ? { id: s.course.id, name: s.course.name, subject: s.course.subject }
-          : null,
+        subject: null,
       })),
     };
   }
@@ -376,7 +360,7 @@ export class ParentService {
         records: { some: { studentId } },
       },
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
-      include: { course: true, records: { where: { studentId } } },
+      include: { records: { where: { studentId } } },
     });
 
     return {
@@ -387,9 +371,7 @@ export class ParentService {
         period: s.period,
         status: s.records[0]?.status ?? 'UNMARKED',
         note: s.records[0]?.note ?? null,
-        course: s.course
-          ? { id: s.course.id, name: s.course.name, subject: s.course.subject }
-          : null,
+        subject: null,
       })),
     };
   }
@@ -419,7 +401,7 @@ export class ParentService {
 
     const [todaySchedule, todayAttendance, allGrades] = await Promise.all([
       sp
-        ? this.schedule.getTodayForCohort(sp.cohortId)
+        ? this.schedule.getTodayForCohort(sp.cohortId ?? '')
         : { dayOfWeek: null, date: null, slots: [] },
       this.attendanceToday(user, studentId),
       this.grades(user),
@@ -461,7 +443,7 @@ export class ParentService {
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     const [weekSchedule, attendanceWeek, grades] = await Promise.all([
-      this.schedule.getWeekForCohort(sp.cohortId),
+      this.schedule.getWeekForCohort(sp.cohortId ?? ''),
       this.attendanceWeek(user, studentId),
       this.childGrades(user, studentId),
     ]);
@@ -501,7 +483,7 @@ export class ParentService {
       profiles.map((p) => [p.userId, p]),
     );
 
-    const cohortIds = Array.from(new Set(profiles.map((p) => p.cohortId)));
+    const cohortIds = Array.from(new Set(profiles.map((p) => p.cohortId).filter((id): id is string => id !== null)));
     const cohorts = await this.prisma.cohort.findMany({
       where: { id: { in: cohortIds } },
       select: { id: true, name: true, grade: true },
@@ -517,7 +499,7 @@ export class ParentService {
 
       const [todaySchedule, todayAttendance, grades] = await Promise.all([
         sp
-          ? this.schedule.getTodayForCohort(sp.cohortId)
+          ? this.schedule.getTodayForCohort(sp.cohortId ?? '')
           : { dayOfWeek: null, date: null, slots: [] },
         this.attendanceToday(user, childId),
         this.childGrades(user, childId),
@@ -680,30 +662,7 @@ export class ParentService {
         l.childId,
     }));
 
-    // courses referenced by recent notifications (last 200)
-    const recent = await this.prisma.parentNotification.findMany({
-      where: { parentId },
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-      select: { data: true },
-    });
-
-    const courseIds = Array.from(
-      new Set(
-        recent
-          .map((n) => (n.data as any)?.courseId || (n.data as any)?.course?.id)
-          .filter(Boolean),
-      ),
-    );
-
-    const courses = courseIds.length
-      ? await this.prisma.course.findMany({
-          where: { id: { in: courseIds } },
-          select: { id: true, name: true, subject: true, cohortId: true },
-        })
-      : [];
-
-    return { ok: true, students, courses };
+    return { ok: true, students };
   }
 
   async markSeen(user: any, ids?: string[]) {
@@ -784,7 +743,7 @@ export class ParentService {
         studentId: childId,
         session: { date: { gte: from, lt: toPlus } },
       },
-      include: { session: { include: { course: true } } },
+      include: { session: true },
       orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
     });
 
@@ -794,18 +753,12 @@ export class ParentService {
       to: toYmd,
       items: records.map((r) => ({
         date: new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC' }).format(
-          r.session.date,
+          (r as any).session?.date,
         ),
-        period: r.session.period,
+        period: (r as any).session?.period,
         status: r.status,
         note: r.note,
-        course: r.session.course
-          ? {
-              id: r.session.course.id,
-              name: r.session.course.name,
-              subject: r.session.course.subject,
-            }
-          : null,
+        course: null,
       })),
     };
   }

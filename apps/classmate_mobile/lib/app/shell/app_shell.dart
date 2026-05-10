@@ -10,12 +10,16 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../core/auth/auth_session.dart';
 import '../../features/lifedoc/diplomas_screen.dart';
+import '../../features/lifedoc/notifications_provider.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
+import '../../ui/widgets/classmate_logo.dart';
+import '../../ui/widgets/in_app_notification_banner.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 const _coreBottomNavPaths = <String>{
   '/schedule',
@@ -95,37 +99,114 @@ class AppShell extends ConsumerWidget {
     _ => '/teacher/schedule',
   };
 
+  // Ordered most-specific prefix first (teacher/student/ before teacher/students)
+  static const _teacherPrefixes = <String>[
+    '/teacher/student/',     // must precede /teacher/students
+    '/teacher/schedule',
+    '/teacher/insights',
+    '/teacher/attendance',
+    '/teacher/classrooms',
+    '/teacher/grades',
+    '/teacher/exams',
+    '/teacher/forms',
+    '/teacher/meetings',
+    '/teacher/assignments',
+    '/teacher/materials',
+    '/teacher/students',
+    '/teacher/home',
+    '/exams',
+    '/forms',
+    '/diplomas',
+    '/solutions',
+    '/tutor',
+    '/announcements',
+    '/notifications',
+    '/messages',
+    '/profile',
+    '/settings',
+  ];
+
+  static const _studentPrefixes = <String>[
+    '/classrooms',
+    '/messages',
+    '/practice',
+    '/insights',
+    '/tutor',
+    '/solutions',
+    '/exams',
+    '/forms',
+    '/diplomas',
+    '/grades',
+    '/attendance',
+    '/meetings',
+    '/announcements',
+    '/notifications',
+    '/assignments',
+    '/materials',
+    '/saved-questions',
+    '/profile',
+    '/settings',
+  ];
+
+  String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/teacher/student/' => l.teacherStudentsLabel,
+    '/teacher/schedule' => l.navSchedule,
+    '/teacher/insights' => l.navInsights,
+    '/teacher/attendance' => l.navAttendance,
+    '/teacher/classrooms' => l.navClassrooms,
+    '/teacher/grades' => l.navGrades,
+    '/teacher/exams' => l.teacherExamsTitle,
+    '/teacher/forms' => l.teacherFormsTitle,
+    '/teacher/meetings' => l.navMeetings,
+    '/teacher/assignments' => l.navAssignments,
+    '/teacher/materials' => l.teacherMaterialsTitle,
+    '/teacher/students' => l.teacherStudentsLabel,
+    '/teacher/home' => l.navTeacherWorkspace,
+    '/exams' => l.titleExams,
+    '/forms' => l.navForms,
+    '/diplomas' => l.diplomasTitle,
+    '/solutions' => l.titleSolutions,
+    '/tutor' => l.titleNova,
+    '/announcements' => l.navAnnouncements,
+    '/notifications' => l.navNotifications,
+    '/messages' => l.titleMessages,
+    '/profile' => l.navProfile,
+    '/settings' => l.navSettings,
+    _ => l.navTeacherWorkspace,
+  };
+
+  String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/classrooms' => l.titleClasses,
+    '/messages' => l.titleMessages,
+    '/practice' => l.titlePractice,
+    '/insights' => l.titleInsights,
+    '/tutor' => l.titleNova,
+    '/solutions' => l.titleSolutions,
+    '/exams' => l.titleExams,
+    '/forms' => l.navForms,
+    '/diplomas' => l.navDiplomas,
+    '/grades' => l.navGrades,
+    '/attendance' => l.navAttendance,
+    '/meetings' => l.navMeetings,
+    '/announcements' => l.navAnnouncements,
+    '/notifications' => l.navNotifications,
+    '/assignments' => l.navAssignments,
+    '/materials' => 'Materials',
+    '/saved-questions' => l.navSavedQuestions,
+    '/profile' => l.navProfile,
+    '/settings' => l.navSettings,
+    _ => l.titleSchedule,
+  };
+
   String _pageTitle(BuildContext context, String loc, bool isTeacherLike) {
     final l = AppLocalizations.of(context)!;
-    if (isTeacherLike) {
-      if (loc.startsWith('/teacher/schedule')) return l.navSchedule;
-      if (loc.startsWith('/teacher/insights')) return l.navInsights;
-      if (loc.startsWith('/teacher/attendance')) return l.navAttendance;
-      if (loc.startsWith('/teacher/classrooms')) return l.navClassrooms;
-      if (loc.startsWith('/teacher/grades')) return l.navTeacherAssessments;
-      if (loc.startsWith('/teacher/exams')) return l.teacherExamsTitle;
-      if (loc.startsWith('/teacher/forms')) return l.teacherFormsTitle;
-      if (loc.startsWith('/exams')) return l.titleExams;
-      if (loc.startsWith('/forms')) return l.navForms;
-      if (loc.startsWith('/diplomas')) return l.diplomasTitle;
-      if (loc.startsWith('/tutor')) return l.titleNova;
-      if (loc.startsWith('/announcements')) return l.navAnnouncements;
-      if (loc.startsWith('/notifications')) return l.navNotifications;
-      if (loc.startsWith('/messages')) return l.titleMessages;
-      if (loc.startsWith('/profile')) return l.navProfile;
-      if (loc.startsWith('/settings')) return l.navSettings;
-      return l.navTeacherWorkspace;
+    final prefixes = isTeacherLike ? _teacherPrefixes : _studentPrefixes;
+    for (final p in prefixes) {
+      if (loc.startsWith(p)) {
+        return isTeacherLike ? _teacherTitle(l, p) : _studentTitle(l, p);
+      }
     }
-    if (loc.startsWith('/classrooms')) return l.titleClasses;
-    if (loc.startsWith('/messages')) return l.titleMessages;
-    if (loc.startsWith('/practice')) return l.titlePractice;
-    if (loc.startsWith('/insights')) return l.titleInsights;
-    if (loc.startsWith('/tutor')) return l.titleNova;
-    if (loc.startsWith('/solutions')) return l.titleSolutions;
-    if (loc.startsWith('/exams')) return l.titleExams;
-    if (loc.startsWith('/forms')) return l.navForms;
-    if (loc.startsWith('/diplomas')) return l.navDiplomas;
-    return l.titleSchedule;
+    return isTeacherLike ? l.navTeacherWorkspace : l.titleSchedule;
   }
 
   bool _hideBottomNav(String loc, bool isTeacherLike) {
@@ -138,34 +219,38 @@ class AppShell extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
     if (!isTeacherLike) return null;
-    if (loc.startsWith('/teacher/schedule') ||
-        loc.startsWith('/teacher/classrooms') ||
-        loc.startsWith('/teacher/classroom/')) {
-      return const _TeacherFab();
-    }
     if (loc == '/announcements') {
       return FloatingActionButton(
         heroTag: 'fab_announce',
-        backgroundColor: cs.primary,
-        foregroundColor: cs.onPrimary,
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/announcements/new'),
         child: const Icon(Icons.add_rounded),
       );
     }
-    if (loc == '/teacher/exams' || loc.startsWith('/teacher/grades')) {
+    if (loc == '/teacher/exams') {
       return FloatingActionButton(
         heroTag: 'fab_exams',
-        backgroundColor: cs.primary,
-        foregroundColor: cs.onPrimary,
-        onPressed: () => _showCreateExamSheet(context, ref, l),
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
+        onPressed: () => context.push('/teacher/exams/create'),
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    if (loc.startsWith('/teacher/grades')) {
+      return FloatingActionButton(
+        heroTag: 'fab_grades_add',
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
+        onPressed: () => context.push('/teacher/grades/add'),
         child: const Icon(Icons.add_rounded),
       );
     }
     if (loc == '/teacher/forms') {
       return FloatingActionButton(
         heroTag: 'fab_forms',
-        backgroundColor: cs.secondary,
-        foregroundColor: cs.onSecondary,
+        backgroundColor: cs.secondaryContainer,
+        foregroundColor: cs.onSecondaryContainer,
         onPressed: () {
           ref.read(teacherFormsCreateTriggerProvider.notifier).increment();
         },
@@ -175,12 +260,39 @@ class AppShell extends ConsumerWidget {
     if (loc == '/diplomas') {
       return FloatingActionButton(
         heroTag: 'fab_diplomas',
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white,
+        backgroundColor: cs.tertiaryContainer,
+        foregroundColor: cs.onTertiaryContainer,
         onPressed: () {
           ref.read(diplomasCreateTriggerProvider.notifier).increment();
         },
         child: const Icon(Icons.workspace_premium_rounded),
+      );
+    }
+    if (loc == '/teacher/meetings') {
+      return FloatingActionButton(
+        heroTag: 'fab_meetings',
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
+        onPressed: () => context.push('/teacher/meetings/add'),
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    if (loc == '/teacher/assignments') {
+      return FloatingActionButton(
+        heroTag: 'fab_assignments',
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
+        onPressed: () => context.push('/teacher/assignments/add'),
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+    if (loc == '/teacher/materials') {
+      return FloatingActionButton(
+        heroTag: 'fab_materials',
+        backgroundColor: cs.primaryContainer,
+        foregroundColor: cs.onPrimaryContainer,
+        onPressed: () => context.push('/teacher/materials/add'),
+        child: const Icon(Icons.add_rounded),
       );
     }
     return null;
@@ -207,23 +319,114 @@ class AppShell extends ConsumerWidget {
     final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
     final hideTopBar = _hideTopBarForRoute(loc);
 
+    final pageTitle = _pageTitle(context, loc, isTeacherLike);
+
+    // Dismiss keyboard whenever any scroll view starts scrolling — applies
+    // globally so every screen gets dismiss-on-drag without per-ListView changes.
+    return NotificationListener<ScrollStartNotification>(
+      onNotification: (n) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        return false;
+      },
+      child: InAppNotificationOverlay(
+      child: _AppShellScaffold(
+        l: l,
+        pageTitle: pageTitle,
+        loc: loc,
+        idx: idx,
+        isTeacherLike: isTeacherLike,
+        hideBottomNav: hideBottomNav,
+        hideTopBar: hideTopBar,
+        unreadMessages: unreadMessages,
+        child: child,
+        buildFab: (ctx) => _buildFab(ctx, ref, loc, isTeacherLike),
+        onTap: (i) {
+          final next = isTeacherLike ? _teacherLocFor(i) : _studentLocFor(i);
+          if (next == loc) return;
+          context.go(next);
+        },
+      ),
+      ),
+    );
+  }
+}
+
+class _AppShellScaffold extends ConsumerStatefulWidget {
+  const _AppShellScaffold({
+    required this.l,
+    required this.pageTitle,
+    required this.loc,
+    required this.idx,
+    required this.isTeacherLike,
+    required this.hideBottomNav,
+    required this.hideTopBar,
+    required this.unreadMessages,
+    required this.child,
+    required this.buildFab,
+    required this.onTap,
+  });
+
+  final AppLocalizations l;
+  final String pageTitle;
+  final String loc;
+  final int idx;
+  final bool isTeacherLike;
+  final bool hideBottomNav;
+  final bool hideTopBar;
+  final int unreadMessages;
+  final Widget child;
+  final Widget? Function(BuildContext) buildFab;
+  final ValueChanged<int> onTap;
+
+  @override
+  ConsumerState<_AppShellScaffold> createState() => _AppShellScaffoldState();
+}
+
+class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    // Kick off a notification sync once the shell is live so banners can fire.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncNotifications());
+  }
+
+  Future<void> _syncNotifications() async {
+    try {
+      final newItems = await ref
+          .read(notificationSyncServiceProvider)
+          .sync(baselineIfEmpty: true);
+      if (!mounted || newItems.isEmpty) return;
+      final overlay = InAppNotificationOverlay.of(context);
+      if (overlay == null) return;
+      for (final item in newItems.take(3)) {
+        overlay.enqueue(
+          item,
+          onTap: (n) => context.push(notificationRoute(n)),
+        );
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = widget.l;
     return Scaffold(
       extendBody: true,
-      drawerEnableOpenDragGesture: !hideTopBar,
-      drawer: hideTopBar ? null : const MainDrawer(),
-      appBar: hideTopBar ? null : _TopBar(title: _pageTitle(context, loc, isTeacherLike)),
-      body: child,
-      floatingActionButton: _buildFab(context, ref, loc, isTeacherLike),
-      bottomNavigationBar: hideBottomNav
+      drawerEnableOpenDragGesture: !widget.hideTopBar,
+      drawer: widget.hideTopBar ? null : const MainDrawer(),
+      appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
+      body: widget.child,
+      floatingActionButton: widget.buildFab(context),
+      bottomNavigationBar: widget.hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
-              items: isTeacherLike
+              items: widget.isTeacherLike
                   ? <_NavItem>[
                       _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
                       _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
                       _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
                       _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: unreadMessages),
+                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
                     ]
                   : <_NavItem>[
                       _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
@@ -232,12 +435,8 @@ class AppShell extends ConsumerWidget {
                       _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
                       _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
                     ],
-              index: idx,
-              onTap: (i) {
-                final next = isTeacherLike ? _teacherLocFor(i) : _studentLocFor(i);
-                if (next == loc) return;
-                context.go(next);
-              },
+              index: widget.idx,
+              onTap: widget.onTap,
             ),
     );
   }
@@ -377,17 +576,12 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
-    // Transparent on iOS — UIVisualEffectView is the only visual layer.
-    // Android needs a slight tint so BackdropFilter has visible depth.
-    final pillTint = Platform.isIOS
-        ? Colors.transparent
-        : (isDark
-            ? Colors.black.withValues(alpha: 0.45)
-            : Colors.white.withValues(alpha: 0.65));
+    // Match the app background exactly — solid, no blur, no tint.
+    final pillTint = cs.surface;
 
-    // Stretch factors: rubber-band units → visual scale delta
-    final sx = 1.0 + (_dragDx.abs() / 400).clamp(0.0, 0.08);
-    final sy = 1.0 + (_dragDy.abs() / 300).clamp(0.0, 0.06);
+    // Stretch factors — large enough to overflow the bar (dramatic iOS 26 feel)
+    final sx = 1.0 + (_dragDx.abs() / 120).clamp(0.0, 0.55);
+    final sy = 1.0 + (_dragDy.abs() / 120).clamp(0.0, 0.40);
 
     return SafeArea(
       top: false, left: false, right: false, bottom: true,
@@ -401,19 +595,15 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
             onPointerMove: (e) => _onPointerMove(e, width),
             onPointerUp: (e) => _onPointerUp(e, width),
             onPointerCancel: _onPointerCancel,
-            child: Transform(
-              alignment: Alignment.center,
-              // Translate pill horizontally with drag; scale in drag direction
-              transform: (Matrix4.translationValues(_dragDx * 0.18, _dragDy * 0.12, 0.0)
-                ..setEntry(0, 0, sx)
-                ..setEntry(1, 1, sy)),
-              child: NativeGlassView(
+            // Bar stays static — only the pill capsule reacts to drag
+            child: NativeGlassView(
                 borderRadius: 28,
-                style: NativeGlassStyle.thin,
+                style: NativeGlassStyle.regular,
                 fallbackColor: pillTint,
                 child: SizedBox(
                   height: 54,
                   child: Stack(
+                    clipBehavior: Clip.none,
                     children: [
                       // ── Animated selection capsule ────────────────────────
                       // totalWidth passed from the outer LayoutBuilder so the
@@ -425,6 +615,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                         isDark: isDark,
                         totalWidth: width,
                         dragDx: _dragDx,
+                        dragDy: _dragDy,
                         isRtl: _isRtl,
                       ),
                       // ── Tab icons + labels ────────────────────────────────
@@ -445,7 +636,6 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                   ),
                 ),
               ),
-            ),
           );
         }),
       ),
@@ -463,40 +653,42 @@ class _SelectionCapsule extends StatelessWidget {
     required this.isDark,
     required this.totalWidth,
     required this.dragDx,
+    required this.dragDy,
     required this.isRtl,
   });
   final int itemCount;
   final int selectedIndex;
   final bool isDark;
   final double totalWidth;
-  final double dragDx; // rubber-band horizontal offset
+  final double dragDx;
+  final double dragDy;
   final bool isRtl;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final slotW = totalWidth / itemCount;
     final baseW = slotW - 8;
-    final stretch = (dragDx.abs() / 300).clamp(0.0, 0.12);
+    // More dramatic stretch — up to 55% wider (matches parent sx)
+    final stretch = (dragDx.abs() / 120).clamp(0.0, 0.55);
     final capsuleW = baseW * (1 + stretch);
-    // Keep capsule centred in its slot as it widens.
     final offset = (capsuleW - baseW) / 2;
-    // In RTL the Row renders item 0 on the right, so we position from the
-    // right edge — symmetrically matching the visual tab order.
     final edge = slotW * selectedIndex + 4 - offset;
 
-    final child = DecoratedBox(
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.07),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    // Vertical grow when dragged up/down (pill can exceed bar height)
+    final sy = 1.0 + (dragDy.abs() / 120).clamp(0.0, 0.40);
+
+    // Pill scales with both dx and dy for the dramatic iOS 26 feel
+    final child = Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.diagonal3Values(1.0 + stretch * 0.2, sy, 1.0),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.22)
+              : cs.onSurface.withValues(alpha: 0.13),
+          borderRadius: BorderRadius.circular(22),
+        ),
       ),
     );
 
@@ -640,8 +832,8 @@ class _TeacherFabState extends State<_TeacherFab> with SingleTickerProviderState
         ],
         FloatingActionButton(
           onPressed: _toggle,
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
+          backgroundColor: cs.primaryContainer,
+          foregroundColor: cs.onPrimaryContainer,
           elevation: 6,
           child: AnimatedRotation(
             turns: _open ? 0.125 : 0,
@@ -670,10 +862,9 @@ class _FabAction extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: cs.surface,
+          color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(color: color),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -694,51 +885,47 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   @override
-  Size get preferredSize => const Size.fromHeight(74);
+  Size get preferredSize => const Size.fromHeight(88);
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final logoW = (MediaQuery.sizeOf(context).width - 52 - 120).clamp(120.0, 300.0);
 
     return AppBar(
-      toolbarHeight: 74,
+      toolbarHeight: 88,
       titleSpacing: 0,
       centerTitle: true,
-      leadingWidth: 64,
+      leadingWidth: 52,
+      backgroundColor: cs.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: Builder(
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(left: 4),
           child: IconButton(
             icon: const Icon(Icons.menu_rounded),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
       ),
-      title: Text(
-        'ClassMate',
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w900,
-          letterSpacing: -0.4,
-        ),
-      ),
+      title: ClassMateLogo(width: logoW),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 16),
+          padding: const EdgeInsets.only(right: 14),
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.60),
+                color: cs.surfaceContainerLow.withValues(alpha: 0.72),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.28),
-                ),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
               ),
             ),
           ),
@@ -834,7 +1021,7 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerLow,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom + 24),
@@ -846,7 +1033,7 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
             Text(widget.l.teacherGradesCreateAssessmentTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
             if (_loadingCourses)
-              const Center(child: CircularProgressIndicator())
+              const Center(child: const CmLoading())
             else
               DropdownButtonFormField<String>(
                 initialValue: _selectedCourseId,

@@ -1,7 +1,6 @@
 export type StudentInsightsGradeItem = {
   id: string;
   subject: string;
-  courseName: string;
   assessmentTitle: string;
   grade: number;
   date: string | null;
@@ -12,7 +11,6 @@ export type StudentInsightsAttendanceItem = {
   period: number;
   status: string;
   subject: string | null;
-  courseName: string | null;
 };
 
 export type StudentInsightsPracticeTopic = {

@@ -1,11 +1,43 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/cm_loading.dart';
+
+// ── Persisted submission tracking ─────────────────────────────────────────────
+// Key: 'form_submitted:$formId' → JSON-encoded map of questionId → answer.
+// Only written for once-per-student forms.
+
+String _submittedPrefKey(String formId) => 'form_submitted:$formId';
+
+Future<Map<String, dynamic>?> _loadSavedAnswers(String formId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_submittedPrefKey(formId));
+    if ((raw ?? '').isEmpty) return null;
+    final decoded = jsonDecode(raw!);
+    if (decoded is! Map) return null;
+    return Map<String, dynamic>.from(decoded);
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<void> _saveSubmittedAnswers(
+    String formId, Map<String, dynamic> answers) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        _submittedPrefKey(formId), jsonEncode(answers));
+  } catch (_) {}
+}
 
 class FormDetailScreen extends ConsumerStatefulWidget {
   const FormDetailScreen({
@@ -23,8 +55,28 @@ class FormDetailScreen extends ConsumerStatefulWidget {
 
 class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   final Map<String, dynamic> _answers = <String, dynamic>{};
+  // savedAnswers is non-null when the form was previously submitted (once-form).
+  Map<String, dynamic>? _savedAnswers;
   bool _submitted = false;
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSavedState();
+  }
+
+  Future<void> _initSavedState() async {
+    final saved = await _loadSavedAnswers(widget.formId);
+    if (!mounted) return;
+    if (saved != null) {
+      setState(() {
+        _savedAnswers = saved;
+        _submitted = true;
+        _answers.addAll(saved);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,16 +87,20 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     final asyncForms = ref.watch(formsLiveProvider);
     return asyncForms.when(
       loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CmLoading()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.formTitle)),
+        appBar: AppBar(
+          leading: const BackButton(),
+          title: Text(AppLocalizations.of(context)!.formTitle),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
               'Could not load this form right now.',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ),
@@ -57,8 +113,12 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         );
         if (form == null) {
           return Scaffold(
-            appBar: AppBar(title: Text(AppLocalizations.of(context)!.formTitle)),
-            body: Center(child: Text(AppLocalizations.of(context)!.formNotFound)),
+            appBar: AppBar(
+              leading: const BackButton(),
+              title: Text(AppLocalizations.of(context)!.formTitle),
+            ),
+            body: Center(
+                child: Text(AppLocalizations.of(context)!.formNotFound)),
           );
         }
         return _buildScaffold(context, form);
@@ -69,75 +129,77 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   Widget _buildScaffold(BuildContext context, StudentFormItem form) {
     final cs = Theme.of(context).colorScheme;
 
-    // No title in AppBar — _FormHero already shows form info.
-    // Hero is the first ListView item so it scrolls away naturally.
-    // NestedScrollView caused coordination issues; plain Scaffold is reliable.
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          // Minimal toolbar — just the back arrow + TabBar. No title text.
-          toolbarHeight: 0,
-          bottom: const TabBar(
-            tabs: [Tab(text: 'Questions'), Tab(text: 'Responses')],
-          ),
+    // Students see only the Questions tab (no Responses).
+    // The form is always shown as a single-tab view for students.
+    return Scaffold(
+      appBar: AppBar(
+        // Explicit back/chevron button so students can leave without submitting
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left_rounded, size: 28),
+          tooltip: 'Back',
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
-        body: TabBarView(
-          children: [
-            ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                _FormHero(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _QuestionCard(
-                        question: q,
-                        answer: _answers[q.id],
-                        onChanged: (v) => setState(() => _answers[q.id] = v),
-                      ),
-                    )),
-                const SizedBox(height: 8),
-                FilledButton.icon(
-                  onPressed: (form.acceptingResponses && !_submitted && !_submitting)
-                      ? () => _submit(context, form)
-                      : null,
-                  icon: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send_rounded),
-                  label: Text(
-                    _submitting
-                        ? 'Submitting…'
-                        : _submitted
-                        ? 'Submitted'
-                        : 'Submit form',
-                  ),
-                ),
-                if (!form.acceptingResponses) ...[
-                  const SizedBox(height: 10),
-                  Text(AppLocalizations.of(context)!.formClosed, style: TextStyle(color: cs.onSurfaceVariant)),
+        title: Text(
+          form.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+      ),
+      body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        children: [
+          _FormHero(form: form),
+          const SizedBox(height: 16),
+          if (_savedAnswers != null && !form.allowMultipleResponses) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle_rounded, size: 16, color: cs.onPrimaryContainer),
+                  const SizedBox(width: 8),
+                  Text('Your submitted answers', style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13)),
                 ],
-              ],
-            ),
-            ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _ResponsesSummaryCard(form: form),
-                const SizedBox(height: 16),
-                ...form.questions.map((q) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _StatsCard(question: q),
-                    )),
-              ],
+              ),
             ),
           ],
-        ),
+          ...form.questions.map((q) => Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: _QuestionCard(
+                  question: q,
+                  answer: _answers[q.id],
+                  onChanged: _savedAnswers != null && !form.allowMultipleResponses
+                      ? null
+                      : (v) => setState(() => _answers[q.id] = v),
+                ),
+              )),
+          const SizedBox(height: 8),
+          // ── Submit button ───────────────────────────────────────────────────
+          // Disabled after submit (or if form is closed, or allowMultipleResponses==false and already submitted)
+          _SubmitSection(
+            form: form,
+            submitted: _submitted,
+            submitting: _submitting,
+            onSubmit: () => _submit(context, form),
+          ),
+          if (!form.acceptingResponses) ...[
+            const SizedBox(height: 10),
+            Text(
+              AppLocalizations.of(context)!.formClosed,
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -182,7 +244,14 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
           .submit(form.id, serialized);
       if (!mounted) return;
       if (result['ok'] == true) {
-        setState(() => _submitted = true);
+        setState(() {
+          _submitted = true;
+          _savedAnswers = serialized;
+        });
+        // Persist so the button stays locked on re-open (once-forms only).
+        if (!form.allowMultipleResponses) {
+          await _saveSubmittedAnswers(form.id, serialized);
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -192,9 +261,17 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         );
       } else {
         final error = (result['error'] ?? 'Submission failed').toString();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        );
+        if (error.toLowerCase().contains('already')) {
+          setState(() { _submitted = true; _savedAnswers = serialized; });
+          if (!form.allowMultipleResponses) {
+            await _saveSubmittedAnswers(form.id, serialized);
+          }
+          // No snackbar — button is already locked, user sees "Already submitted" UI.
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -213,6 +290,76 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
   }
 }
 
+// ── Submit section — handles once-per-student logic ──────────────────────────
+
+class _SubmitSection extends StatelessWidget {
+  const _SubmitSection({
+    required this.form,
+    required this.submitted,
+    required this.submitting,
+    required this.onSubmit,
+  });
+
+  final StudentFormItem form;
+  final bool submitted;
+  final bool submitting;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    // If the form is closed, show disabled button
+    if (!form.acceptingResponses) {
+      return FilledButton.icon(
+        onPressed: null,
+        icon: const Icon(Icons.lock_outline_rounded),
+        label: const Text('Form closed'),
+      );
+    }
+
+    // If once-per-student and already submitted, show "Already submitted"
+    if (!form.allowMultipleResponses && submitted) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FilledButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.check_circle_outline_rounded),
+            label: const Text('Already submitted'),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You have already submitted this form.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+          ),
+        ],
+      );
+    }
+
+    return FilledButton.icon(
+      onPressed: submitting ? null : onSubmit,
+      icon: submitting
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.send_rounded),
+      label: Text(
+        submitting
+            ? 'Submitting…'
+            : submitted
+                ? 'Submit again'
+                : 'Submit form',
+      ),
+    );
+  }
+}
+
+// ── Form hero ────────────────────────────────────────────────────────────────
+
 class _FormHero extends StatelessWidget {
   const _FormHero({required this.form});
 
@@ -225,9 +372,8 @@ class _FormHero extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 16,
-      color: cs.surfaceContainerHigh.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerHigh,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -242,39 +388,53 @@ class _FormHero extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: (form.acceptingResponses ? cs.primaryContainer : cs.surfaceContainerHighest)
+                  color: (form.acceptingResponses
+                          ? cs.primaryContainer
+                          : cs.surfaceContainerHighest)
                       .withValues(alpha: 0.94),
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+                  border: Border.all(color: cs.outlineVariant),
                 ),
                 child: Text(
                   form.acceptingResponses ? 'Accepting' : 'Closed',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 12,
-                    color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                    color: form.acceptingResponses
+                        ? cs.onPrimaryContainer
+                        : cs.onSurfaceVariant,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          Text(form.description, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+          Text(form.description,
+              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               _MetaChip(icon: Icons.subject_rounded, label: form.subject),
-              _MetaChip(icon: Icons.person_outline_rounded, label: form.teacher),
-              _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
-              _MetaChip(icon: Icons.quiz_outlined, label: '${form.questionCount} questions'),
-              _MetaChip(icon: Icons.publish_rounded, label: form.summary.publishedLabel),
+              _MetaChip(
+                  icon: Icons.person_outline_rounded, label: form.teacher),
+              _MetaChip(
+                  icon: Icons.groups_rounded, label: form.audienceLabel),
+              _MetaChip(
+                  icon: Icons.quiz_outlined,
+                  label: '${form.questionCount} questions'),
+              _MetaChip(
+                  icon: Icons.publish_rounded,
+                  label: form.summary.publishedLabel),
               _MetaChip(
                 icon: Icons.repeat_rounded,
-                label: form.allowMultipleResponses ? 'Multi-submit' : '1 per student',
+                label: form.allowMultipleResponses
+                    ? 'Multi-submit'
+                    : '1 per student',
               ),
             ],
           ),
@@ -296,16 +456,8 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.surfaceContainerHighest.withValues(alpha: 0.92),
-            cs.surface.withValues(alpha: 0.58),
-          ],
-        ),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -335,7 +487,8 @@ class _QuestionCard extends StatelessWidget {
 
   final StudentFormQuestion question;
   final dynamic answer;
-  final ValueChanged<dynamic> onChanged;
+  // Null means read-only (form already submitted).
+  final ValueChanged<dynamic>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -344,9 +497,8 @@ class _QuestionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(22),
-      blurSigma: 12,
-      color: cs.surface.withValues(alpha: 0.84),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -355,7 +507,8 @@ class _QuestionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   question.title,
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w900, fontSize: 16),
                 ),
               ),
               if (question.required)
@@ -384,25 +537,28 @@ class _QuestionCard extends StatelessWidget {
   }
 
   Widget _buildField(BuildContext context) {
+    final readOnly = onChanged == null;
     switch (question.type) {
       case StudentFormQuestionType.shortAnswer:
         return TextFormField(
           initialValue: answer?.toString() ?? '',
-          onChanged: onChanged,
-          decoration: const InputDecoration(hintText: 'Your answer'),
+          onChanged: readOnly ? null : onChanged,
+          readOnly: readOnly,
+          decoration: InputDecoration(hintText: readOnly ? null : 'Your answer'),
         );
       case StudentFormQuestionType.paragraph:
         return TextFormField(
           initialValue: answer?.toString() ?? '',
-          onChanged: onChanged,
+          onChanged: readOnly ? null : onChanged,
+          readOnly: readOnly,
           minLines: 4,
           maxLines: 7,
-          decoration: const InputDecoration(hintText: 'Long answer text'),
+          decoration: InputDecoration(hintText: readOnly ? null : 'Long answer text'),
         );
       case StudentFormQuestionType.multipleChoice:
         return RadioGroup<String>(
           groupValue: answer?.toString(),
-          onChanged: (value) => onChanged(value),
+          onChanged: readOnly ? (_) {} : (value) { if (value != null) onChanged!(value); },
           child: Column(
             children: question.options
                 .map(
@@ -422,15 +578,17 @@ class _QuestionCard extends StatelessWidget {
               .map(
                 (option) => CheckboxListTile(
                   value: selected.contains(option),
-                  onChanged: (checked) {
-                    final next = <String>{...selected};
-                    if (checked ?? false) {
-                      next.add(option);
-                    } else {
-                      next.remove(option);
-                    }
-                    onChanged(next);
-                  },
+                  onChanged: readOnly
+                      ? null
+                      : (checked) {
+                          final next = <String>{...selected};
+                          if (checked ?? false) {
+                            next.add(option);
+                          } else {
+                            next.remove(option);
+                          }
+                          onChanged!(next);
+                        },
                   contentPadding: EdgeInsets.zero,
                   title: Text(option),
                   controlAffinity: ListTileControlAffinity.leading,
@@ -440,14 +598,14 @@ class _QuestionCard extends StatelessWidget {
         );
       case StudentFormQuestionType.dropdown:
         return DropdownButtonFormField<String>(
-          initialValue: answer?.toString().isEmpty ?? true
-              ? null
-              : answer.toString(),
+          initialValue:
+              answer?.toString().isEmpty ?? true ? null : answer.toString(),
           decoration: const InputDecoration(),
           items: question.options
-              .map((option) => DropdownMenuItem<String>(value: option, child: Text(option)))
+              .map((option) =>
+                  DropdownMenuItem<String>(value: option, child: Text(option)))
               .toList(),
-          onChanged: onChanged,
+          onChanged: readOnly ? null : onChanged,
         );
       case StudentFormQuestionType.linearScale:
         final selected = answer is int ? answer : null;
@@ -459,155 +617,10 @@ class _QuestionCard extends StatelessWidget {
               ChoiceChip(
                 label: Text('$i'),
                 selected: selected == i,
-                onSelected: (_) => onChanged(i),
+                onSelected: readOnly ? null : (_) => onChanged!(i),
               ),
           ],
         );
     }
-  }
-}
-
-class _ResponsesSummaryCard extends StatelessWidget {
-  const _ResponsesSummaryCard({required this.form});
-
-  final StudentFormItem form;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final completionPercent = (form.summary.completionRate * 100).round();
-
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
-      blurSigma: 16,
-      color: cs.surfaceContainerHigh.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Response stats',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(child: _StatTile(label: 'Responses', value: '${form.summary.responsesCount}')),
-              const SizedBox(width: 10),
-              Expanded(child: _StatTile(label: 'Pending', value: '${form.summary.pendingCount}')),
-              const SizedBox(width: 10),
-              Expanded(child: _StatTile(label: 'Avg time', value: form.summary.averageDurationLabel)),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(AppLocalizations.of(context)!.formCompletion, style: TextStyle(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(value: form.summary.completionRate, minHeight: 10),
-          const SizedBox(height: 6),
-          Text('$completionPercent% completed', style: const TextStyle(fontWeight: FontWeight.w800)),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  const _StatTile({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.82),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatsCard extends StatelessWidget {
-  const _StatsCard({required this.question});
-
-  final StudentFormQuestion question;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(22),
-      blurSigma: 12,
-      color: cs.surface.withValues(alpha: 0.84),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(question.title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-          const SizedBox(height: 10),
-          if (question.type == StudentFormQuestionType.paragraph ||
-              question.type == StudentFormQuestionType.shortAnswer) ...[
-            if (question.stats.textSamples.isEmpty)
-              Text(AppLocalizations.of(context)!.formNoTextResponses, style: TextStyle(color: cs.onSurfaceVariant)),
-            ...question.stats.textSamples.map(
-              (sample) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: LiquidGlassCard(
-                  padding: const EdgeInsets.all(12),
-                  borderRadius: BorderRadius.circular(16),
-                  blurSigma: 8,
-                  color: cs.surfaceContainerHigh.withValues(alpha: 0.78),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.12)),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Text(sample),
-                  ),
-                ),
-              ),
-            ),
-          ] else if (question.type == StudentFormQuestionType.linearScale) ...[
-            Text(
-              'Average score: ${question.stats.averageScale?.toStringAsFixed(1) ?? '-'}',
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-          ] else ...[
-            ...question.stats.choiceStats.map(
-              (entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text(entry.label)),
-                        Text('${(entry.fraction * 100).round()}%'),
-                        const SizedBox(width: 8),
-                        Text('${entry.count}'),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    LinearProgressIndicator(value: entry.fraction, minHeight: 8),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
   }
 }

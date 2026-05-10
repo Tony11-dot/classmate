@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 // ── data model ──────────────────────────────────────────────────────────────
 
@@ -57,24 +58,27 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-      final classrooms = await repo.fetchClassrooms();
 
-      // Collect unique cohort IDs with their cohort name
-      final seen = <String>{};
-      final cohortMap = <String, String>{}; // cohortId → cohortName
-      for (final c in classrooms) {
-        if (c.cohortId.isNotEmpty && seen.add(c.cohortId)) {
-          cohortMap[c.cohortId] = c.cohort?.name ?? '';
-        }
+      // Fetch only THIS teacher's cohorts (from their schedule slots)
+      final cohortsRaw = await repo.fetchTeacherCohorts();
+      final cohortMap = <String, String>{};
+      for (final c in cohortsRaw) {
+        final id = (c['id'] ?? '').toString();
+        final name = (c['name'] ?? '').toString();
+        if (id.isNotEmpty) cohortMap[id] = name;
       }
 
-      // Load students for each cohort in parallel
+      // Load students for each cohort, ignoring failures gracefully
       final entries = <_StudentEntry>[];
       final seenStudents = <String>{};
       if (cohortMap.isNotEmpty) {
         final futures = cohortMap.entries.map((e) async {
-          final students = await repo.fetchCohortStudents(e.key);
-          return (cohortName: e.value, students: students);
+          try {
+            final students = await repo.fetchCohortStudents(e.key);
+            return (cohortName: e.value, students: students);
+          } catch (_) {
+            return (cohortName: e.value, students: <TeacherStudent>[]);
+          }
         });
         final results = await Future.wait(futures);
         for (final r in results) {
@@ -131,22 +135,14 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).padding.bottom + 100),
         children: [
           // ── Hero card ────────────────────────────────────────────────────
           LiquidGlassCard(
             padding: const EdgeInsets.all(18),
             borderRadius: BorderRadius.circular(26),
-            blurSigma: 18,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.primaryContainer.withValues(alpha: 0.95),
-                cs.surfaceContainerHigh.withValues(alpha: 0.95),
-              ],
-            ),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+            color: cs.primaryContainer,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -161,12 +157,13 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.4,
+                              color: cs.onPrimaryContainer,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             l.teacherInsightsSubtitle,
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onPrimaryContainer),
                           ),
                         ],
                       ),
@@ -175,10 +172,10 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.14),
+                        color: cs.primaryContainer,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(Icons.insights_rounded, size: 26, color: cs.primary),
+                      child: Icon(Icons.insights_rounded, size: 26, color: cs.onPrimaryContainer),
                     ),
                   ],
                 ),
@@ -187,18 +184,18 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.10),
+                      color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.people_rounded, size: 16, color: cs.primary),
+                        Icon(Icons.people_rounded, size: 16, color: cs.onPrimaryContainer),
                         const SizedBox(width: 6),
                         Text(
                           '${_all.length} ${l.teacherStudentsLabel}',
-                          style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13),
+                          style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13),
                         ),
                       ],
                     ),
@@ -212,9 +209,9 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
           // ── Search bar ───────────────────────────────────────────────────
           Container(
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+              color: cs.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+              border: Border.all(color: cs.outlineVariant),
             ),
             child: TextField(
               controller: _searchCtrl,
@@ -241,15 +238,14 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
           // ── Content ──────────────────────────────────────────────────────
           if (_loading)
             const Center(
-              child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()),
+              child: Padding(padding: EdgeInsets.all(32), child: const CmLoading()),
             )
           else if (_error != null)
             LiquidGlassCard(
               padding: const EdgeInsets.all(18),
               borderRadius: BorderRadius.circular(20),
-              blurSigma: 10,
-              color: cs.errorContainer.withValues(alpha: 0.55),
-              border: Border.all(color: cs.error.withValues(alpha: 0.22)),
+              color: cs.errorContainer,
+              border: Border.all(color: cs.error),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -263,12 +259,11 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
             LiquidGlassCard(
               padding: const EdgeInsets.all(24),
               borderRadius: BorderRadius.circular(20),
-              blurSigma: 10,
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
               child: Column(
                 children: [
-                  Icon(Icons.person_search_rounded, size: 40, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  Icon(Icons.person_search_rounded, size: 40, color: cs.onSurfaceVariant),
                   const SizedBox(height: 12),
                   Text(
                     l.teacherInsightsNoStudents,
@@ -293,9 +288,8 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                     child: LiquidGlassCard(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       borderRadius: BorderRadius.circular(18),
-                      blurSigma: 10,
-                      color: cs.surface.withValues(alpha: 0.82),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                      color: cs.surfaceContainerLow,
+                      border: Border.all(color: cs.outlineVariant),
                       child: Row(
                         children: [
                           // Avatar
@@ -303,18 +297,14 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [cs.primary, cs.tertiary],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: cs.primaryContainer,
                               borderRadius: BorderRadius.circular(13),
                             ),
                             child: Center(
                               child: Text(
                                 initials,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: cs.onPrimaryContainer,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 15,
                                 ),

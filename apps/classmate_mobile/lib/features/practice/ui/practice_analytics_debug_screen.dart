@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../providers/practice_providers.dart';
 import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 Color _subjectAccent(String subject) {
   switch (subject.toLowerCase()) {
@@ -100,7 +101,7 @@ class PracticeAnalyticsDebugScreen extends ConsumerWidget {
         title: Text(l.practiceAnalyticsTitle),
       ),
       body: analytics.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: const CmLoading()),
         error: (e, _) => Center(
           child: Text('${l.practiceHistoryErrorPrefix} $e'),
         ),
@@ -206,7 +207,7 @@ class _TopicTile extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: CircleAvatar(
-          backgroundColor: accent.withValues(alpha: 0.18),
+          backgroundColor: accent,
           child: Icon(icon, color: accent, size: 18),
         ),
         title: CMAiMessage(

@@ -233,11 +233,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get solutionsSamePageFallbackSubtitle =>
-      'fallback שימושי כשלשאלה המדויקת שלך אין עדיין הועלאה.';
+      'מקור משלים שימושי כשטרם הועלה פתרון לשאלה המדויקת שלך.';
 
   @override
   String get solutionsSamePageEmptyBody =>
-      'עדיין אין הועלאות בסביבה בעמוד זה. העלאה חדשה כאן תהיה באמת עוזרת.';
+      'עדיין אין העלאות קרובות בעמוד זה. העלאה חדשה כאן תעזור מאוד.';
 
   @override
   String get solutionsVerifiedByNova => 'אומת על ידי NOVA';
@@ -498,7 +498,16 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherAttendanceNoteLabel => 'הערה';
 
   @override
+  String get teacherAttendanceClassNotesLabel => 'הערות שיעור';
+
+  @override
+  String get teacherAttendanceClassNotesHint => 'מה כוסה בשיעור זה...';
+
+  @override
   String get teacherAttendanceSaving => 'שומר…';
+
+  @override
+  String get teacherAttendanceSaveAll => 'שמור נוכחות';
 
   @override
   String teacherAttendanceSaveCount(int count) {
@@ -522,8 +531,11 @@ class AppLocalizationsHe extends AppLocalizations {
       'לוח הזמנים מתרענן מהר מדי כרגע. חכו רגע ונסו שוב.';
 
   @override
+  String get scheduleSessionExpired => 'פג תוקף ההתחברות שלך. אנא התחבר מחדש.';
+
+  @override
   String get scheduleNotOnboarded =>
-      'פרופיל התלמיד שלך עדיין לא הוגדר במלואו, ולכן עדיין אין לוח זמנים זמין.';
+      'פרופיל התלמיד שלך עדיין לא הוגדר. בקש ממנהל בית הספר לשייך אותך לכיתה.';
 
   @override
   String get scheduleLoadError => 'עדיין לא ניתן לטעון את לוח הזמנים.';
@@ -562,7 +574,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get scheduleClassFallback => 'שיעור';
 
   @override
-  String get scheduleNoSubjectLocation => 'עדיין אין מקצוע או מיקום';
+  String get scheduleNoSubjectLocation => 'No subject or location yet';
+
+  @override
+  String get scheduleNotes => 'Notes';
+
+  @override
+  String get scheduleGoToClassroom => 'Go to Classroom';
 
   @override
   String get loginTitle => 'התחברות בנייד לתלמידים ומורים';
@@ -934,7 +952,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'בנה לי תוכנית התאוששות מהתובנות האחרונות שלי.';
 
   @override
-  String get insightsAiStudyCoachTitle => 'מאמן לימוד מבוסס AI';
+  String get insightsAiStudyCoachTitle => 'מאמן לימוד AI';
 
   @override
   String get insightsSchoolToolsTitle => 'כלי בית ספר';
@@ -988,14 +1006,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorTapToOpenHistory => 'הקשו כדי לפתוח היסטוריה';
 
   @override
-  String get tutorAiTutorSubtitle => 'המורה האישי שלכם מבוסס AI';
+  String get tutorAiTutorSubtitle => 'המורה ה-AI שלך';
 
   @override
   String get tutorHeroBody =>
       'היסטוריית צ\'אט אמיתית, שרשורים נקיים יותר וגישה מהירה יותר.';
 
   @override
-  String get tutorStartFreshConversation => 'התחילו שיחה חדשה';
+  String get tutorStartFreshConversation => 'התחל שיחה חדשה';
 
   @override
   String get tutorSearchHistoryHint => 'חיפוש בהיסטוריית הצ\'אט';
@@ -1007,7 +1025,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatComposerReplyingToMessage => 'מגיבים להודעה';
 
   @override
-  String get chatComposerReplyFallback => 'תגובה';
+  String get chatComposerReplyFallback => 'השב';
 
   @override
   String get chatComposerMicHint =>
@@ -1478,7 +1496,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorImageUnavailable => 'התמונה אינה זמינה';
 
   @override
-  String get tutorYou => 'אתם';
+  String get tutorYou => 'אתה';
 
   @override
   String get tutorRegenerate => 'צור מחדש';
@@ -1862,7 +1880,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get announcementsLatestSourceLabel => 'מקור אחרון';
 
   @override
-  String get announcementsNone => 'אף אחד';
+  String get announcementsNone => 'אין';
 
   @override
   String announcementsUnreadCountTitle(int count) {
@@ -1876,7 +1894,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get announcementsAllReadTitle => 'הכל קרא';
+  String get announcementsAllReadTitle => 'הכל נקרא';
 
   @override
   String announcementsEmptyForAudience(Object audience) {
@@ -1969,7 +1987,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get meetingsEmptyForAccount =>
-      'אין פגישות כיתה זמינות לחשבון הסטודנט הזה כעת.';
+      'אין פגישות כיתה זמינות לחשבון התלמיד הזה כעת.';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {
@@ -2076,14 +2094,14 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get meetingsAttachedLinkMissingBody =>
-      'הפגישה הזו גלויה בפיד הכיתה שלך, אך לא צורפה URL תקפה בעומס הסטודנט הנוכחי.';
+      'הפגישה הזו גלויה בפיד הכיתה שלך, אך לא צורפה URL תקפה בעומס התלמיד הנוכחי.';
 
   @override
   String get meetingsDetailsTitle => 'פרטי הפגישה';
 
   @override
   String get meetingsDetailsSubtitle =>
-      'הכל הרלוונטי לסטודנט שזמין כעת בעומס פגישת הכיתה.';
+      'הכל הרלוונטי לסטודנט שזמין כעת הזמינים כעת.';
 
   @override
   String get meetingsDetailClassroomLabel => 'כיתה';
@@ -3122,7 +3140,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get practiceSessionUnknownAnswer => 'לא ידוע';
 
   @override
-  String get practiceSessionReflectionTitle => 'רפלקציה';
+  String get practiceSessionReflectionTitle => 'הרהור';
 
   @override
   String get practiceSessionReflectionKnewIt => 'ידעתי את זה';
@@ -3372,10 +3390,10 @@ class AppLocalizationsHe extends AppLocalizations {
       'לא ניתן היה להתחבר למשימות כעת. בדוק את החיבור שלך ונסה שוב.';
 
   @override
-  String get assignmentsStatusOverdue => 'איחור בתאריך';
+  String get assignmentsStatusOverdue => 'באיחור';
 
   @override
-  String get assignmentsStatusDueSoon => 'יעד קרוב';
+  String get assignmentsStatusDueSoon => 'מועד קרוב';
 
   @override
   String get assignmentsStatusUpcoming => 'קרוב';
@@ -3570,6 +3588,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'הסר קובץ מצורף';
+
+  @override
+  String get assignmentsSubmitted => 'הוגש';
 
   @override
   String get attendanceUndated => 'ללא תאריך';
@@ -3920,7 +3941,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get gradesBandLabel => 'פס';
+  String get gradesBandLabel => 'טווח';
 
   @override
   String get gradesInViewLabel => 'בתצוגה';
@@ -4217,6 +4238,15 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherStudentsLabel => 'תלמידים';
 
   @override
+  String get teacherSearchStudents => 'חפש לפי שם או כיתה...';
+
+  @override
+  String get teacherNoStudentsLoaded => 'לא נמצאו תלמידים בבית ספר זה.';
+
+  @override
+  String get teacherActions => 'פעולות מהירות';
+
+  @override
   String get teacherParentsLabel => 'הורים';
 
   @override
@@ -4229,7 +4259,19 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'לא ניתן לטעון את הלוח';
 
   @override
-  String get teacherAttendanceLast30 => 'נוכחות (30 ימים אחרונים)';
+  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+
+  @override
+  String teacherAttendanceFrom(Object date) {
+    return 'From $date';
+  }
+
+  @override
+  String get teacherAttendanceChangeDate => 'Change date';
+
+  @override
+  String get teacherAttendanceNoSessions =>
+      'No saved attendance sessions.\nMark attendance from the schedule.';
 
   @override
   String get teacherRecentGrades => 'ציונים אחרונים';
@@ -4569,7 +4611,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get diplomasComingSoon => 'ניהול תעודות בקרוב.';
 
   @override
-  String get teacherExamsTitle => 'בחינות והערכות';
+  String get teacherExamsTitle => 'בחינות';
 
   @override
   String get teacherExamsUpcoming => 'הבאות';
@@ -4618,7 +4660,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherFormsNoResponses => 'אין תגובות עדיין.';
 
   @override
-  String get diplomasTitle => 'תעודות ודיפלומות';
+  String get diplomasTitle => 'תעודות';
 
   @override
   String get diplomasEmpty => 'טרם הונפקו תעודות. הקש + להנפקת תעודה.';
@@ -4682,4 +4724,47 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'פתח ציונים';
+
+  @override
+  String get teacherGradesSaveAction => 'שמור';
+
+  @override
+  String get teacherGradesNothingToSave => 'אין שינויים לשמירה.';
+
+  @override
+  String get teacherRetry => 'נסה שוב';
+
+  @override
+  String get teacherExamGradesStudents => 'תלמידים';
+
+  @override
+  String get teacherExamGradesGraded => 'מוערכים';
+
+  @override
+  String get teacherExamGradesNoStudents =>
+      'אין תלמידים ממוקדים.\nערוך את הבחינה כדי להוסיף קהל.';
+
+  @override
+  String get teacherExamGradesEnterGrades => 'הזן ציונים';
+
+  @override
+  String get teacherDeleteExamTitle => 'מחיקת מבחן?';
+
+  @override
+  String get teacherDeleteExamBody => 'המבחן יימחק לצמיתות.';
+
+  @override
+  String get teacherMeetingsEmpty => 'אין פגישות עדיין.\nלחץ + לתזמון אחת.';
+
+  @override
+  String get teacherStudentsNoMatch => 'אין תלמידים תואמים';
+
+  @override
+  String get teacherMaterialsTitle => 'חומרים';
+
+  @override
+  String get profileNamesTitle => 'שם בשפות';
+
+  @override
+  String get profileDisplayNameLang => 'שפת הצגת שם';
 }

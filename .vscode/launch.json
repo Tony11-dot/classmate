@@ -2,62 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ClassMate — Student",
+      "name": "ClassMate (Simulator)",
       "request": "launch",
       "type": "dart",
       "program": "apps/classmate_mobile/lib/main.dart",
       "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-student@classmate.local",
+        "--dart-define=CM_CLEAR_SESSION=true",
         "--dart-define=CM_API_BASE_URL=http://localhost:3001"
       ]
     },
     {
-      "name": "ClassMate — Teacher",
+      "name": "ClassMate (Device)",
       "request": "launch",
       "type": "dart",
       "program": "apps/classmate_mobile/lib/main.dart",
       "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-teacher@classmate.local",
-        "--dart-define=CM_API_BASE_URL=http://localhost:3001"
-      ]
-    },
-    {
-      "name": "ClassMate — Admin",
-      "request": "launch",
-      "type": "dart",
-      "program": "apps/classmate_mobile/lib/main.dart",
-      "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-admin@classmate.local",
-        "--dart-define=CM_API_BASE_URL=http://localhost:3001"
-      ]
-    },
-    {
-      "name": "ClassMate — Parent",
-      "request": "launch",
-      "type": "dart",
-      "program": "apps/classmate_mobile/lib/main.dart",
-      "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-parent@classmate.local",
-        "--dart-define=CM_API_BASE_URL=http://localhost:3001"
-      ]
-    },
-    {
-      "name": "ClassMate — Student (Device)",
-      "request": "launch",
-      "type": "dart",
-      "program": "apps/classmate_mobile/lib/main.dart",
-      "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-student@classmate.local",
-        "--dart-define=CM_API_BASE_URL=http://Tonys-MacBook-Air.local:3001"
-      ]
-    },
-    {
-      "name": "ClassMate — Teacher (Device)",
-      "request": "launch",
-      "type": "dart",
-      "program": "apps/classmate_mobile/lib/main.dart",
-      "args": [
-        "--dart-define=CM_DEV_TOKEN=dev-token-teacher@classmate.local",
+        "--dart-define=CM_CLEAR_SESSION=true",
         "--dart-define=CM_API_BASE_URL=http://Tonys-MacBook-Air.local:3001"
       ]
     }

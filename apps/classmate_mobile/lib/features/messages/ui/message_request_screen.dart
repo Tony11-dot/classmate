@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../models/message_request_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'components/message_request_banner.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class MessageRequestScreen extends ConsumerWidget {
   const MessageRequestScreen({
@@ -24,7 +25,7 @@ class MessageRequestScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l.messagesRequestTitle)),
       body: request.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: const CmLoading()),
         error: (error, stackTrace) => Center(
           child: Text(l.messagesRequestLoadFailed(error.toString())),
         ),

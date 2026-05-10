@@ -55,7 +55,7 @@ class ThemeController extends Notifier<ThemeState> {
     _load();
     return const ThemeState(
       mode: ThemeMode.system,
-      accent: Color(0xFF4F46E5),
+      accent: Color(0xFF0EA5E9),
       radius: 18.0,
       density: 0.0,
       textScale: 1.0,
@@ -74,7 +74,7 @@ class ThemeController extends Notifier<ThemeState> {
     };
 
     final accent = Color(
-      prefs.getInt(_kAccent) ?? const Color(0xFF4F46E5).toARGB32(),
+      prefs.getInt(_kAccent) ?? const Color(0xFF0EA5E9).toARGB32(),
     );
 
     final radius = (prefs.getDouble(_kRadius) ?? 18.0)
@@ -176,6 +176,8 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
+      // Use the exact same surface color as the scaffold body so every
+      // AppBar blends seamlessly with the page beneath it.
       backgroundColor: scheme.surface,
       foregroundColor: scheme.onSurface,
       surfaceTintColor: Colors.transparent,
@@ -209,6 +211,29 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: scheme.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: scheme.error, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
   );
 }

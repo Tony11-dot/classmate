@@ -12,7 +12,9 @@ import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import '../../chat_core/policies/chat_action_policy.dart';
 import '../../chat_core/ui/chat_thread_view.dart';
 import '../data/classrooms_repository.dart';
+import '../providers/classrooms_repo_provider.dart';
 import '../providers/classrooms_providers.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class ClassroomDetailScreen extends ConsumerStatefulWidget {
   const ClassroomDetailScreen({super.key, required this.courseId});
@@ -39,12 +41,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   void initState() {
     super.initState();
     final session = ref.read(authSessionProvider);
+    // Use the real database userId (from JWT sub) so isMine comparisons
+    // against server-returned senderUserId work correctly.
+    final realUserId = session.userId.isNotEmpty
+        ? session.userId
+        : (session.displayName.isNotEmpty ? session.displayName : (session.token ?? ''));
     _chatController = ClassroomChatThreadController(
       ref: ref,
       courseId: widget.courseId,
-      currentUserId: session.displayName.isNotEmpty
-          ? session.displayName
-          : (session.token ?? ''),
+      currentUserId: realUserId,
     );
 
     _loadClassroomTabsCollapsed();
@@ -87,9 +92,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Future<void> _openUrl(String raw) async {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) return;
-    final uri = Uri.tryParse(trimmed);
+    if (trimmed.startsWith('/') || trimmed.startsWith('file:')) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This file is not yet available.')),
+      );
+      return;
+    }
+    Uri? uri = Uri.tryParse(trimmed);
+    if (uri != null && !uri.hasScheme && trimmed.contains('.')) {
+      uri = Uri.tryParse('https://$trimmed');
+    }
     if (uri == null || !uri.hasScheme) return;
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.classroomsCouldNotOpenLink)),
@@ -180,6 +195,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             detail.when(
@@ -224,8 +240,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             const SizedBox(height: 0),
             if (!_classroomTabsCollapsed) _CenteredTabs(controller: _tabs),
             const SizedBox(height: 2),
-            Flexible(
-              fit: FlexFit.loose,
+            Expanded(
               child: TabBarView(
                 controller: _tabs,
                 children: [
@@ -247,11 +262,29 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     emptySubtitle: l.classroomDetailNoAssignmentsSubtitle,
                     itemBuilder: (item) {
                       final assignmentId = _pick(item, 'id');
+                      // Resolve classroom metadata for the assignment detail screen.
+                      final detailMap = detail.whenOrNull(data: (d) => d) ?? const <String, dynamic>{};
+                      final courseName = ((detailMap['name'] ?? '').toString().trim().isNotEmpty
+                              ? detailMap['name']
+                              : detailMap['subject'] ?? '')
+                          .toString()
+                          .trim();
+                      final courseSubject = (detailMap['subject'] ?? '').toString().trim();
+                      final peopleMap = people.whenOrNull(data: (d) => d) ?? const <String, dynamic>{};
+                      final items2 = peopleMap['items'] is Map
+                          ? Map<String, dynamic>.from(peopleMap['items'] as Map)
+                          : const <String, dynamic>{};
+                      final teacher = items2['teacher'] is Map
+                          ? Map<String, dynamic>.from(items2['teacher'] as Map)
+                          : const <String, dynamic>{};
+                      final teacherName = (teacher['name'] ?? '').toString().trim();
                       return _SimpleCard(
                         title: _pick(item, 'title',
                             fallback: l.classroomDetailAssignmentFallback),
-                        subtitle: _pick(item, 'body'),
-                        trailing: _friendlyDateTime(_pick(item, 'dueAt')),
+                        subtitle: _pickFirst(item, ['body', 'description', 'instructions']),
+                        trailing: _friendlyDateTime(
+                            _pickFirst(item, ['dueAt', 'dueDate', 'due', 'deadline'])),
+                        leadingIcon: Icons.assignment_rounded,
                         onTap: assignmentId.isNotEmpty
                             ? () => context.push(
                                 '/assignments/$assignmentId',
@@ -260,6 +293,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                       ? Map<String, dynamic>.from(item)
                                       : <String, dynamic>{},
                                   '_courseId': widget.courseId,
+                                  '_courseName': courseName,
+                                  '_subject': courseSubject,
+                                  '_teacherName': teacherName,
                                 },
                               )
                             : null,
@@ -271,13 +307,50 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     emptyTitle: l.classroomDetailNoMaterialsTitle,
                     emptySubtitle: l.classroomDetailNoMaterialsSubtitle,
                     itemBuilder: (item) {
-                      final url = _pick(item, 'url');
+                      final url = _pickFirst(item, [
+                        'url', 'fileUrl', 'link', 'attachmentUrl', 'downloadUrl',
+                      ]);
+                      final mime = _pickFirst(item, ['mime', 'mimeType', 'type']);
+                      final id = _pick(item, 'id');
+                      final isFile = mime.isNotEmpty ||
+                          RegExp(r'\.(pdf|doc|docx|xls|xlsx|ppt|pptx|zip|mp4|mp3|jpg|png|jpeg)(\?|$)',
+                                  caseSensitive: false)
+                              .hasMatch(url);
+                      final isTeacher = ref.read(authSessionProvider).isTeacherLike;
                       return _SimpleCard(
                         title: _pick(item, 'title',
                             fallback: l.classroomDetailMaterialFallback),
                         subtitle: _pick(item, 'description'),
-                        trailing: _pick(item, 'mime'),
+                        trailing: mime.isNotEmpty ? mime : '',
+                        leadingIcon: isFile
+                            ? Icons.insert_drive_file_rounded
+                            : Icons.link_rounded,
                         onTap: url.isNotEmpty ? () => _openUrl(url) : null,
+                        onDelete: (isTeacher && id.isNotEmpty)
+                            ? () async {
+                                final ok = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Delete material?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                                      FilledButton(
+                                        style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (ok != true || !mounted) return;
+                                try {
+                                  await ref.read(classroomsRepoProvider).deleteClassroomMaterial(widget.courseId, id);
+                                  ref.invalidate(classroomMaterialsProvider(widget.courseId));
+                                } catch (e) {
+                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                }
+                              }
+                            : null,
                       );
                     },
                   ),
@@ -286,12 +359,16 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     emptyTitle: l.classroomDetailNoMeetingsTitle,
                     emptySubtitle: l.classroomDetailNoMeetingsSubtitle,
                     itemBuilder: (item) {
-                      final link = _pick(item, 'link');
+                      final link = _pickFirst(item, [
+                        'link', 'joinLink', 'meetingLink', 'url', 'joinUrl',
+                      ]);
                       return _SimpleCard(
                         title: _pick(item, 'title',
                             fallback: l.classroomDetailMeetingFallback),
-                        subtitle: _pick(item, 'agenda'),
-                        trailing: _friendlyDateTime(_pick(item, 'startsAt')),
+                        subtitle: _pickFirst(item, ['agenda', 'description', 'body']),
+                        trailing: _friendlyDateTime(
+                            _pickFirst(item, ['startsAt', 'startAt', 'date', 'scheduledAt'])),
+                        leadingIcon: Icons.video_call_rounded,
                         onTap: link.isNotEmpty ? () => _openUrl(link) : null,
                         actionLabel: link.isNotEmpty ? l.meetingsJoinAction : null,
                       );
@@ -310,34 +387,70 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Widget _peopleTab(AsyncValue<Map<String, dynamic>> people) {
     final l = AppLocalizations.of(context)!;
     return people.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: const CmLoading()),
       error: (e, st) => _CenteredState(
         icon: Icons.group_outlined,
         title: l.classroomDetailCouldNotLoadPeople,
         subtitle: '$e',
       ),
       data: (m) {
-        final items = (m['items'] is Map)
-            ? Map<String, dynamic>.from(m['items'] as Map)
-            : <String, dynamic>{};
-
-        final raw = <Map<String, dynamic>>[];
-        final teacher = items['teacher'];
-        final teacherUserId = (items['teacherUserId'] ?? '').toString().trim();
-        if (teacher is Map) {
-          raw.add(<String, dynamic>{
-            'id': teacherUserId,
-            'name': (teacher['name'] ?? teacher['email'] ?? l.roleTeacher)
-                .toString(),
-            'email': (teacher['email'] ?? '').toString(),
-          });
+        // Normalise multiple server response shapes:
+        //   {items: {teacher:…, students:[…]}}
+        //   {items: [{name,email,role},…]}
+        //   {teachers:[…], students:[…]}
+        //   {members:[…]}
+        Map<String, dynamic> asMapItems() {
+          final v = m['items'];
+          if (v is Map) return Map<String, dynamic>.from(v);
+          return <String, dynamic>{};
         }
 
-        final students = (items['students'] is List)
-            ? (items['students'] as List)
-            : const <dynamic>[];
-        for (final s in students) {
-          if (s is Map) raw.add(Map<String, dynamic>.from(s));
+        List<dynamic> asList(dynamic v) =>
+            v is List ? v : const <dynamic>[];
+
+        final itemsMap = asMapItems();
+        final raw = <Map<String, dynamic>>[];
+
+        // Teacher(s) — handle both single teacher map and teachers list
+        void addPerson(dynamic p, {bool isTeacher = false}) {
+          if (p is! Map) return;
+          final person = Map<String, dynamic>.from(p);
+          if (isTeacher) person['_isTeacher'] = true;
+          raw.add(person);
+        }
+
+        final teacher = itemsMap['teacher'] ?? m['teacher'];
+        final teacherUserId = (itemsMap['teacherUserId'] ?? m['teacherUserId'] ?? '').toString().trim();
+        if (teacher is Map) {
+          final t = Map<String, dynamic>.from(teacher);
+          t['id'] ??= teacherUserId;
+          t['_isTeacher'] = true;
+          raw.add(t);
+        }
+        for (final t in asList(itemsMap['teachers'] ?? m['teachers'])) {
+          addPerson(t, isTeacher: true);
+        }
+
+        // Students
+        for (final s in asList(itemsMap['students'] ?? m['students'])) {
+          addPerson(s);
+        }
+
+        // Flat members list
+        for (final p in asList(m['members'] ?? m['users'])) {
+          if (p is Map) {
+            final role = (p['role'] ?? p['type'] ?? '').toString().toLowerCase();
+            addPerson(p, isTeacher: role.contains('teacher'));
+          }
+        }
+
+        // If items is a flat list of people
+        if (m['items'] is List) {
+          for (final p in m['items'] as List) {
+            addPerson(p,
+                isTeacher: (p is Map &&
+                    (p['role'] ?? p['type'] ?? '').toString().toLowerCase().contains('teacher')));
+          }
         }
 
         if (raw.isEmpty) {
@@ -348,50 +461,107 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           );
         }
 
-        return ListView.separated(
-          padding: EdgeInsets.fromLTRB(
-            12,
-            8,
-            12,
-            24 + MediaQuery.of(context).viewInsets.bottom,
-          ),
-          itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 2),
-          itemBuilder: (context, index) {
-            final item = raw[index];
-            final name = _pick(item, 'name', fallback: l.student);
-            final email = _pick(item, 'email');
-            return Container(
-              padding: const EdgeInsets.all(12),
-              decoration: _panelDecoration(context),
-              child: Row(
-                children: [
-                  _InitialsAvatar(name: name),
-                  const SizedBox(width: 2),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13.5,
-                          ),
-                        ),
-                        if (email.trim().isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(email,
-                              style: Theme.of(context).textTheme.bodySmall),
-                        ],
-                      ],
-                    ),
+        final teachers = raw.where((p) => p['_isTeacher'] == true).toList();
+        final students = raw.where((p) => p['_isTeacher'] != true).toList();
+
+        // Derive a 6-char classroom code from the courseId UUID.
+        final classCode = widget.courseId
+            .replaceAll('-', '')
+            .substring(0, widget.courseId.replaceAll('-', '').length >= 6 ? 6 : widget.courseId.replaceAll('-', '').length)
+            .toUpperCase();
+
+        Widget personTile(Map<String, dynamic> item) {
+          final name = _pick(item, 'name', fallback: l.student);
+          final email = _pick(item, 'email');
+          final isT = item['_isTeacher'] == true;
+          final cs = Theme.of(context).colorScheme;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: _panelDecoration(context),
+            child: Row(
+              children: [
+                _InitialsAvatar(name: name),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name,
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      if (email.trim().isNotEmpty)
+                        Text(email,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: cs.onSurfaceVariant)),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
+                ),
+                if (isT)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                        color: cs.primaryContainer,
+                        borderRadius: BorderRadius.circular(999)),
+                    child: Text(l.roleTeacher,
+                        style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
+                  ),
+              ],
+            ),
+          );
+        }
+
+        Widget sectionHeader(String title, int count) {
+          final cs = Theme.of(context).colorScheme;
+          return Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4, left: 4),
+            child: Text('$title ($count)',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onSurfaceVariant,
+                    letterSpacing: 0.6)),
+          );
+        }
+
+        return ListView(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + MediaQuery.of(context).viewInsets.bottom),
+          children: [
+            // ── Classroom code ───────────────────────────────────────────
+            LiquidGlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              border: Border.all(color: Theme.of(context).colorScheme.secondary),
+              child: Row(children: [
+                Icon(Icons.vpn_key_rounded, size: 16,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Classroom code',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w700)),
+                    Text(classCode,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 3,
+                            color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                  ]),
+                ),
+              ]),
+            ),
+            if (teachers.isNotEmpty) ...[
+              sectionHeader('Teacher', teachers.length),
+              ...teachers.map(personTile),
+            ],
+            if (students.isNotEmpty) ...[
+              sectionHeader('Students', students.length),
+              ...students.map(personTile),
+            ],
+          ],
         );
       },
     );
@@ -405,7 +575,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }) {
     final l = AppLocalizations.of(context)!;
     return value.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: const CmLoading()),
       error: (e, st) => _CenteredState(
         icon: Icons.cloud_off_rounded,
         title: l.classroomDetailCouldNotLoadTab,
@@ -465,9 +635,8 @@ class _TopHeader extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         borderRadius: BorderRadius.circular(16),
-        blurSigma: 14,
-        color: cs.surface.withValues(alpha: 0.88),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+        color: cs.surface,
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         child: Row(
           children: [
             IconButton(
@@ -536,8 +705,7 @@ class _HeaderSkeleton extends StatelessWidget {
         height: 84,
         child: LiquidGlassCard(
           borderRadius: BorderRadius.circular(18),
-          blurSigma: 12,
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.78),
+          color: Theme.of(context).colorScheme.surface,
           child: const SizedBox.expand(),
         ),
       ),
@@ -554,18 +722,12 @@ class _CenteredTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        12,
-        8,
-        12,
-        24 + MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(6),
         borderRadius: BorderRadius.circular(14),
-        blurSigma: 12,
-        color: cs.surfaceContainerLow.withValues(alpha: 0.92),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.28)),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: TabBar(
           controller: controller,
           isScrollable: true,
@@ -574,16 +736,9 @@ class _CenteredTabs extends StatelessWidget {
           labelPadding: const EdgeInsets.symmetric(horizontal: 6),
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
-            color: cs.primaryContainer.withValues(alpha: 0.95),
+            color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-                color: Colors.black.withValues(alpha: 0.06),
-              ),
-            ],
+            border: Border.all(color: cs.outlineVariant),
           ),
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
@@ -642,14 +797,18 @@ class _SimpleCard extends StatelessWidget {
     required this.subtitle,
     required this.trailing,
     this.onTap,
+    this.onDelete,
     this.actionLabel,
+    this.leadingIcon,
   });
 
   final String title;
   final String subtitle;
   final String trailing;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
   final String? actionLabel;
+  final IconData? leadingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -657,11 +816,24 @@ class _SimpleCard extends StatelessWidget {
     final card = LiquidGlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(14),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.84),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (leadingIcon != null) ...[
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: Icon(leadingIcon, size: 18, color: cs.onPrimaryContainer),
+            ),
+            const SizedBox(width: 10),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,6 +881,16 @@ class _SimpleCard extends StatelessWidget {
             const SizedBox(width: 8),
             Icon(Icons.open_in_new_rounded, size: 18, color: cs.primary),
           ],
+          if (onDelete != null) ...[
+            const SizedBox(width: 4),
+            IconButton(
+              icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
+              onPressed: onDelete,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              style: IconButton.styleFrom(padding: EdgeInsets.zero),
+            ),
+          ],
         ],
       ),
     );
@@ -746,9 +928,8 @@ class _CenteredState extends StatelessWidget {
           child: LiquidGlassCard(
             padding: const EdgeInsets.all(24),
             borderRadius: BorderRadius.circular(24),
-            blurSigma: 14,
-            color: cs.surface.withValues(alpha: 0.82),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+            color: cs.surfaceContainerLow,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -793,8 +974,8 @@ class _InitialsAvatar extends StatelessWidget {
       width: 36,
       height: 36,
       child: LiquidGlassCard(
+        padding: EdgeInsets.zero,
         borderRadius: BorderRadius.circular(999),
-        blurSigma: 8,
         color: bg,
         border: Border.all(
           color: Theme.of(context)
@@ -806,7 +987,7 @@ class _InitialsAvatar extends StatelessWidget {
           child: Text(
             _initialsForName(name),
             style:
-                TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
+                TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: fg),
           ),
         ),
       ),
@@ -817,9 +998,9 @@ class _InitialsAvatar extends StatelessWidget {
 BoxDecoration _panelDecoration(BuildContext context) {
   final cs = Theme.of(context).colorScheme;
   return BoxDecoration(
-    color: cs.surface,
+    color: cs.surfaceContainerLow,
     borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45)),
+    border: Border.all(color: cs.outlineVariant),
   );
 }
 
@@ -827,6 +1008,16 @@ String _pick(dynamic item, String key, {String fallback = ''}) {
   if (item is Map) {
     final value = item[key];
     return (value ?? fallback).toString();
+  }
+  return fallback;
+}
+
+/// Tries each key in order; returns the first non-empty value found.
+String _pickFirst(dynamic item, List<String> keys, {String fallback = ''}) {
+  if (item is! Map) return fallback;
+  for (final k in keys) {
+    final v = item[k];
+    if (v != null && v.toString().trim().isNotEmpty) return v.toString().trim();
   }
   return fallback;
 }

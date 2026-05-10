@@ -41,6 +41,74 @@ export class AdminController {
     return this.admin.generateJoinCode(req.user, body);
   }
 
+  // ── School period defaults ───────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN)
+  @Get('period-defaults')
+  getPeriodDefaults(@Req() req: any) {
+    return this.admin.getSchoolPeriodDefaults(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('period-defaults')
+  setPeriodDefaults(@Req() req: any, @Body() body: any) {
+    return this.admin.setSchoolPeriodDefaults(req.user, body);
+  }
+
+  // ── Period CRUD ──────────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN)
+  @Get('periods')
+  listPeriods(@Req() req: any) {
+    return this.admin.listPeriods(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('periods')
+  createPeriod(@Req() req: any, @Body() body: any) {
+    return this.admin.createPeriod(req.user, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('periods/:id')
+  updatePeriod(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.updatePeriod(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete('periods/:id')
+  deletePeriod(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deletePeriod(req.user, id);
+  }
+
+  // ── DDL helpers ──────────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN)
+  @Get('ddl/students')
+  ddlStudents(@Req() req: any, @Query('q') q?: string, @Query('cohortId') cohortId?: string) {
+    return this.admin.listStudentsForDDL(req.user, { q, cohortId });
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('ddl/teachers')
+  ddlTeachers(@Req() req: any) {
+    return this.admin.listTeachersForDDL(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('ddl/cohorts')
+  ddlCohorts(@Req() req: any) {
+    return this.admin.listCohortsForDDL(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('ddl/classrooms')
+  ddlClassrooms(@Req() req: any, @Query('teacherId') teacherId: string) {
+    return this.admin.listClassroomsForTeacher(req.user, teacherId);
+  }
+
+  // ── Schedule overrides (legacy cohort-based) ─────────────────────────────────
+
   @Roles(Role.ADMIN)
   @Get('schedule/cohort/:cohortId')
   cohortSchedule(@Req() req: any, @Param('cohortId') cohortId: string) {
@@ -48,131 +116,20 @@ export class AdminController {
   }
 
   @Roles(Role.ADMIN)
-  @Post('schedule/slot')
-  setSlot(
-    @Req() req: any,
-    @Body()
-    body: {
-      cohortId: string;
-      dayOfWeek: number;
-      period: number;
-      courseId?: string | null;
-    },
-  ) {
-    return this.admin.setScheduleSlot(req.user, body);
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('schedule/bulk')
-  setBulk(
-    @Req() req: any,
-    @Body()
-    body: {
-      cohortId: string;
-      slots: { dayOfWeek: number; period: number; courseId?: string | null }[];
-    },
-  ) {
-    return this.admin.setScheduleBulk(req.user, body);
-  }
-
-  @Roles(Role.ADMIN)
   @Post('schedule/override')
-  setOverride(
-    @Req() req: any,
-    @Body()
-    body: {
-      cohortId: string;
-      date: string;
-      period: number;
-      courseId?: string | null;
-    },
-  ) {
+  setOverride(@Req() req: any, @Body() body: { cohortId: string; date: string; period: number }) {
     return this.admin.setScheduleOverride(req.user, body);
   }
 
-  // ---- Courses ----
-
-  @Roles(Role.ADMIN)
-  @Get('courses')
-  listCourses(@Req() req: any, @Query('cohortId') cohortId?: string) {
-    return this.admin.listCourses(req.user, { cohortId });
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('courses')
-  createCourse(
-    @Req() req: any,
-    @Body()
-    body: {
-      name: string;
-      subject: string;
-      teacherId?: string | null;
-      cohortId?: string | null;
-      groupTag?: string | null;
-    },
-  ) {
-    return this.admin.createCourse(req.user, body);
-  }
-
-  @Roles(Role.ADMIN)
-  @Patch('courses/:id')
-  updateCourse(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body()
-    body: {
-      name?: string;
-      subject?: string;
-      teacherId?: string | null;
-      cohortId?: string | null;
-      groupTag?: string | null;
-    },
-  ) {
-    return this.admin.updateCourse(req.user, id, body);
-  }
-
-  @Roles(Role.ADMIN)
-  @Delete('courses/:id')
-  deleteCourse(@Req() req: any, @Param('id') id: string) {
-    return this.admin.deleteCourse(req.user, id);
-  }
-
-  // ---- Schedule template helpers ----
-
-  @Roles(Role.ADMIN)
-  @Delete('schedule/template')
-  clearTemplate(@Req() req: any, @Query('cohortId') cohortId: string) {
-    return this.admin.clearScheduleTemplate(req.user, cohortId);
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('schedule/template/clear-period')
-  clearPeriod(
-    @Req() req: any,
-    @Body() body: { cohortId: string; period: number },
-  ) {
-    return this.admin.clearSchedulePeriodAcrossWeek(req.user, body);
-  }
-
-  // ---- Schedule overrides helpers ----
-
   @Roles(Role.ADMIN)
   @Get('schedule/overrides')
-  listOverrides(
-    @Req() req: any,
-    @Query('cohortId') cohortId: string,
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ) {
+  listOverrides(@Req() req: any, @Query('cohortId') cohortId: string, @Query('from') from: string, @Query('to') to: string) {
     return this.admin.listScheduleOverrides(req.user, { cohortId, from, to });
   }
 
   @Roles(Role.ADMIN)
   @Post('schedule/override/delete')
-  deleteOverride(
-    @Req() req: any,
-    @Body() body: { cohortId: string; date: string; period: number },
-  ) {
+  deleteOverride(@Req() req: any, @Body() body: { cohortId: string; date: string; period: number }) {
     return this.admin.deleteScheduleOverride(req.user, body);
   }
 

@@ -9,6 +9,7 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'announcements_models.dart';
 import 'announcements_provider.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 final announcementReadStateProvider =
     NotifierProvider<AnnouncementReadController, Set<String>>(
@@ -245,7 +246,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
 
     return announcementsAsync.when(
       loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: const CmLoading()),
       ),
       error: (error, _) => Scaffold(
         body: ListView(
@@ -520,7 +521,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
 
     return announcementsAsync.when(
       loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: const CmLoading()),
       ),
       error: (error, _) => Scaffold(
         body: SafeArea(
@@ -593,15 +594,10 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.94),
-                                    Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.94),
-                                  ],
-                                ),
+                                color: Theme.of(context).colorScheme.primaryContainer,
                                 borderRadius: BorderRadius.circular(28),
                                 border: Border.all(
-                                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.25),
+                                  color: Theme.of(context).colorScheme.outlineVariant,
                                 ),
                               ),
                               child: Column(
@@ -612,25 +608,16 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                                     runSpacing: 8,
                                     children: [
                                       _Chip(
-                                        label: _readStateLabel(context, isRead),
-                                        backgroundColor: (isRead
-                                                ? Theme.of(context).colorScheme.secondaryContainer
-                                                : Theme.of(context).colorScheme.tertiaryContainer)
-                                            .withValues(alpha: 0.88),
-                                        foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                      ),
-                                      _Chip(
                                         label: _severityLabelLocalized(
                                           context,
                                           announcement.severity,
                                         ),
-                                        backgroundColor: _severityTone(context, announcement.severity)
-                                            .withValues(alpha: 0.88),
+                                        backgroundColor: _severityTone(context, announcement.severity),
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                       ),
                                       _Chip(
                                         label: _sourceLabel(context, announcement.source),
-                                        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+                                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ],
@@ -640,6 +627,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                                     announcement.title,
                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       fontWeight: FontWeight.w900,
+                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -656,8 +644,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                             _SectionCard(
                               title: AppLocalizations.of(context)!
                                   .announcementsDetailsTitle,
-                              subtitle: AppLocalizations.of(context)!
-                                  .announcementsDetailsSubtitle,
+                              subtitle: '',
                               child: Column(
                                 children: [
                                   _DetailRow(
@@ -722,18 +709,11 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.96),
+                          color: Theme.of(context).colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(22),
                           border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.24),
+                            color: Theme.of(context).colorScheme.outlineVariant,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 18,
-                              color: Colors.black.withValues(alpha: 0.08),
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
                         ),
                         child: Row(
                           children: [
@@ -815,18 +795,8 @@ class _AnnouncementCard extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
-        blurSigma: 10,
-        color: (isRead ? cs.surface : cs.surfaceContainerLow)
-            .withValues(alpha: isRead ? 0.74 : 0.82),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 22,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
-            color: Colors.black.withValues(alpha: 0.10),
-          ),
-        ],
+        color: isRead ? cs.surfaceContainerLowest : cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -834,16 +804,8 @@ class _AnnouncementCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    _severityTone(context, announcement.severity).withValues(alpha: 0.92),
-                    cs.surface.withValues(alpha: 0.58),
-                  ],
-                ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.16)),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Icon(_sourceIcon(announcement.source), color: cs.onSurface),
             ),
@@ -887,18 +849,17 @@ class _AnnouncementCard extends StatelessWidget {
                     children: [
                       _Chip(
                         label: _readStateLabel(context, isRead),
-                        backgroundColor: (isRead ? cs.secondaryContainer : cs.tertiaryContainer)
-                            .withValues(alpha: 0.84),
+                        backgroundColor: isRead ? cs.secondaryContainer : cs.tertiaryContainer,
                         foregroundColor: cs.onSurface,
                       ),
                       _Chip(
                         label: _sourceLabel(context, announcement.source),
-                        backgroundColor: cs.surface.withValues(alpha: 0.72),
+                        backgroundColor: cs.surface,
                         foregroundColor: cs.onSurface,
                       ),
                       _Chip(
                         label: _friendlyDateTime(context, announcement.createdAt),
-                        backgroundColor: cs.surface.withValues(alpha: 0.58),
+                        backgroundColor: cs.surface,
                         foregroundColor: cs.onSurfaceVariant,
                       ),
                     ],
@@ -930,35 +891,22 @@ class _HeroCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
-      blurSigma: 18,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.primaryContainer.withValues(alpha: 0.90),
-          cs.surfaceContainerHigh.withValues(alpha: 0.78),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
-      boxShadow: [
-        BoxShadow(
-          blurRadius: 26,
-          spreadRadius: -8,
-          offset: const Offset(0, 14),
-          color: cs.primary.withValues(alpha: 0.14),
-        ),
-      ],
+      color: cs.primaryContainer,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: cs.onPrimaryContainer,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+            style: TextStyle(color: cs.onPrimaryContainer.withValues(alpha: 0.75), height: 1.35),
           ),
           const SizedBox(height: 16),
           child,
@@ -985,25 +933,18 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 14,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          cs.surface.withValues(alpha: 0.76),
-          cs.surfaceContainerLow.withValues(alpha: 0.72),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.24)),
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-          ),
+          if (subtitle.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+            ),
+          ],
           const SizedBox(height: 14),
           child,
         ],
@@ -1029,9 +970,8 @@ class _MetricTile extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
-      blurSigma: 10,
-      color: cs.surface.withValues(alpha: 0.62),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1068,9 +1008,8 @@ class _SignalBanner extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
-      blurSigma: 12,
-      color: cs.surface.withValues(alpha: 0.68),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1109,16 +1048,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      blurSigma: 8,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          (backgroundColor ?? cs.surfaceContainerHighest).withValues(alpha: 0.94),
-          cs.surface.withValues(alpha: 0.52),
-        ],
-      ),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.14)),
+      border: Border.all(color: cs.outlineVariant),
       child: Text(
         label,
         maxLines: 1,
@@ -1150,9 +1080,8 @@ class _EmptyStateCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
-      blurSigma: 12,
-      color: cs.surfaceContainerLow.withValues(alpha: 0.58),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1236,7 +1165,7 @@ class _DetailRow extends StatelessWidget {
             const SizedBox(height: 12),
             Divider(
               height: 1,
-              color: cs.outlineVariant.withValues(alpha: 0.22),
+              color: cs.outlineVariant,
             ),
           ],
         ],

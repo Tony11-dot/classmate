@@ -182,9 +182,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
     final accent = widget.isMine ? Colors.white : scheme.primary;
     final onBubble = widget.isMine
-        ? Colors.white.withValues(alpha: 0.92)
+        ? Colors.white
         : scheme.onSurface;
-    final dimColor = onBubble.withValues(alpha: 0.50);
+    final dimColor = onBubble;
 
     // ── Waveform bars ──────────────────────────────────────────────────────
     const baseHeights = <double>[5, 9, 14, 18, 12, 8, 16, 10, 15, 6];
@@ -197,8 +197,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       final isFocus = (i - focusIdx).abs() <= 1;
       final h = baseHeights[i % baseHeights.length] + (isFocus ? 3 : 0);
       final color = active
-          ? accent.withValues(alpha: 0.95)
-          : dimColor.withValues(alpha: 0.35);
+          ? accent
+          : dimColor;
       return AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: 3,
@@ -227,14 +227,14 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: accent.withValues(alpha: 0.15),
+              color: accent,
               border: Border.all(
                 color: accent.withValues(alpha: unreadDot ? 0.60 : 0.28),
               ),
               boxShadow: _isPlaying
                   ? [
                       BoxShadow(
-                        color: accent.withValues(alpha: 0.22),
+                        color: accent,
                         blurRadius: 14,
                         spreadRadius: -6,
                         offset: const Offset(0, 6),
@@ -313,7 +313,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
               Container(
                 height: 3,
                 decoration: BoxDecoration(
-                  color: dimColor.withValues(alpha: 0.20),
+                  color: dimColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -324,12 +324,6 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   child: Container(
                     height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          accent.withValues(alpha: 0.40),
-                          accent.withValues(alpha: 0.85),
-                        ],
-                      ),
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -373,9 +367,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.08),
+            color: accent,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: accent.withValues(alpha: 0.14)),
+            border: Border.all(color: accent),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -389,7 +383,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                       horizontal: 9, vertical: 5),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? accent.withValues(alpha: 0.20)
+                        ? accent
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(999),
                   ),
@@ -417,8 +411,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     Widget checksWidget = const SizedBox.shrink();
     if (widget.isMine) {
       final seenColor = const Color(0xFF53BDEB);
-      final pendingColor = Colors.white.withValues(alpha: 0.44);
-      final deliveredColor = Colors.white.withValues(alpha: 0.64);
+      final pendingColor = Colors.white;
+      final deliveredColor = Colors.white;
       checksWidget = Icon(
         widget.seen || widget.delivered
             ? Icons.done_all_rounded
@@ -441,20 +435,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         Container(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                widget.bubbleColor.withValues(alpha: 0.96),
-                Color.alphaBlend(
-                  Colors.white.withValues(alpha: widget.isMine ? 0.04 : 0.03),
-                  widget.bubbleColor,
-                ),
-              ],
-            ),
             borderRadius: BorderRadius.circular(20),
             border:
-                Border.all(color: Colors.white.withValues(alpha: 0.07)),
+                Border.all(color: Colors.white),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

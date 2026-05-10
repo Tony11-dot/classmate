@@ -196,12 +196,12 @@ class _ProseWidget extends StatelessWidget {
       tableHead:
           baseStyle?.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
       blockquote: baseStyle?.copyWith(
-        color: cs.onSurface.withValues(alpha: 0.65),
+        color: cs.onSurface,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
         border: Border(left: BorderSide(color: cs.primary, width: 3)),
-        color: cs.primary.withValues(alpha: 0.06),
+        color: cs.primary,
         borderRadius: BorderRadius.circular(4),
       ),
       blockquotePadding:
@@ -210,7 +210,7 @@ class _ProseWidget extends StatelessWidget {
         fontFamily: 'monospace',
         fontSize: 13,
         color: cs.onSurface,
-        backgroundColor: cs.onSurface.withValues(alpha: 0.08),
+        backgroundColor: cs.onSurface,
       ),
       codeblockDecoration: BoxDecoration(
         color: const Color(0xFF282C34),
@@ -220,7 +220,7 @@ class _ProseWidget extends StatelessWidget {
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: cs.onSurface.withValues(alpha: 0.12),
+            color: cs.onSurface,
             width: 1,
           ),
         ),
@@ -238,7 +238,7 @@ class _ProseWidget extends StatelessWidget {
       tableColumnWidth: const FlexColumnWidth(),
       tableCellsPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       tableBorder: TableBorder.all(
-        color: cs.outlineVariant.withValues(alpha: 0.35),
+        color: cs.outlineVariant,
         width: 0.5,
       ),
     );
@@ -390,7 +390,7 @@ class _MathFallback extends StatelessWidget {
       style: style?.copyWith(
         fontFamily: 'monospace',
         fontStyle: FontStyle.italic,
-        color: cs.onSurface.withValues(alpha: 0.75),
+        color: cs.onSurface,
       ),
     );
   }

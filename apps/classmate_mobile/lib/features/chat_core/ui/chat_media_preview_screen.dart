@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class ChatMediaPreviewResult {
   const ChatMediaPreviewResult({required this.paths, required this.caption});
@@ -219,7 +220,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF151A20),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          border: Border.all(color: Colors.white),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -298,7 +299,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   Widget _buildVideoPreview() {
     if (_videoCtl == null || !_videoCtl!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: const CmLoading());
     }
 
     final c = _videoCtl!;
@@ -369,9 +370,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.10),
+                  color: Colors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  border: Border.all(color: Colors.white),
                 ),
                 child: IconButton(
                   onPressed: () async {
@@ -498,7 +499,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
               margin: const EdgeInsets.only(right: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -562,7 +563,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF151A20),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                        border: Border.all(color: Colors.white),
                       ),
                       child: TextField(
                         controller: _captionCtl,

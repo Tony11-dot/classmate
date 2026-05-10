@@ -50,7 +50,7 @@ class _TypingDotsState extends State<TypingDots>
   @override
   Widget build(BuildContext context) {
     final color =
-        widget.color ?? Colors.white.withValues(alpha: 0.85);
+        widget.color ?? Colors.white;
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,7 +128,7 @@ class TypingIndicatorRow extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: color.withValues(alpha: 0.80),
+              color: color,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -233,13 +233,13 @@ class _VoiceRecordingHudState extends State<VoiceRecordingHud>
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isDark
-              ? Colors.white.withValues(alpha: 0.07)
-              : Colors.black.withValues(alpha: 0.05),
+              ? Colors.white
+              : Colors.black,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.06),
+                ? Colors.white
+                : Colors.black,
           ),
         ),
         child: Row(
@@ -375,7 +375,7 @@ class _PulsingDotState extends State<_PulsingDot>
         height: 10,
         decoration: BoxDecoration(
           color: widget.paused
-              ? widget.color.withValues(alpha: 0.45)
+              ? widget.color
               : widget.color,
           shape: BoxShape.circle,
         ),

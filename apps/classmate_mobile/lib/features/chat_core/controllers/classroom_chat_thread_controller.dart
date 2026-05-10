@@ -54,10 +54,12 @@ class ClassroomChatThreadController extends ChatThreadController {
   // immediately (no async race with SharedPreferences loading).
   static final Map<String, List<Map<String, dynamic>>> _staticLocalMessages = {};
 
+  String get _localMsgKey => '$_courseId:$_currentUserId';
+
   List<Map<String, dynamic>> get _localSentMessages =>
-      _staticLocalMessages.putIfAbsent(_courseId, () => []);
+      _staticLocalMessages.putIfAbsent(_localMsgKey, () => []);
   set _localSentMessages(List<Map<String, dynamic>> value) =>
-      _staticLocalMessages[_courseId] = value;
+      _staticLocalMessages[_localMsgKey] = value;
 
   @override
   String get threadId => _courseId;
@@ -70,7 +72,11 @@ class ClassroomChatThreadController extends ChatThreadController {
 
   ClassroomsRepository get _repo => ref.read(classroomsRepoProvider);
 
-  String _key(String suffix) => 'classroom_chat:$_courseId:$suffix';
+  // Key includes currentUserId so different users on the same device don't
+  // share local messages (teacher's optimistic messages must not appear as
+  // "mine" when a student logs in on the same device).
+  String _key(String suffix) =>
+      'classroom_chat:$_courseId:$_currentUserId:$suffix';
 
   String _sk(String msgId) => '$_courseId:$msgId';
   String? _cachedUrl(String msgId) => _sessionCache[_sk(msgId)];
@@ -274,12 +280,14 @@ class ClassroomChatThreadController extends ChatThreadController {
     }).toList();
 
     // Inject CDN URLs into own server items that lack a media URL.
-    // IMPORTANT: No kind restriction — the server may return kind:'TEXT' for
-    // image/voice messages.  We match by isMine + closest timestamp from our
-    // locally saved outgoing media entries.
+    // Use senderUserId as the authoritative isMine check — it compares the
+    // actual DB UUID rather than relying on the server's isMine boolean which
+    // can be wrong if the JWT/session is mismatched between users.
     final patchedServerItems = serverItems.map((raw) {
-      final isMine = _pick(raw, 'isMine') == 'true' ||
-          (raw is Map && raw['isMine'] == true);
+      final senderUserId = _pick(raw, 'senderUserId');
+      final serverIsMine = raw is Map && raw['isMine'] == true;
+      final isMine = serverIsMine ||
+          (senderUserId.isNotEmpty && senderUserId == _currentUserId);
       if (!isMine) return raw; // Never patch others' messages
 
       final existingUrl = [
@@ -289,6 +297,17 @@ class ClassroomChatThreadController extends ChatThreadController {
         _pick(raw, 'attachmentUrl'),
       ].firstWhere((s) => s.isNotEmpty, orElse: () => '');
       if (existingUrl.isNotEmpty) return raw; // Already has a URL — nothing to do
+
+      // Text messages never need a media URL injected.
+      // Strategy 2 (timestamp match) must only apply to empty-text server rows
+      // — otherwise nearby text messages absorb the video URL and render as
+      // video players instead of text bubbles.
+      final rawText = [
+        _pick(raw, 'text'),
+        _pick(raw, 'body'),
+        _pick(raw, 'content'),
+      ].firstWhere((s) => s.isNotEmpty, orElse: () => '');
+      if (rawText.isNotEmpty) return raw;
 
       final created = _readTimestamp(raw);
 
@@ -342,15 +361,25 @@ class ClassroomChatThreadController extends ChatThreadController {
       if (kind == 'TEXT') {
         return text.isNotEmpty && !serverTextSet.contains(text);
       }
-      // For media: exclude from fallback once the server confirms by timestamp
-      // (server may use a different kind, so don't require kind match).
+      // For media: exclude from fallback only when the server returns a media
+      // message (has a URL or non-TEXT kind) near the same timestamp.
+      // Using text-only server messages as the "confirmed" signal caused
+      // false positives: nearby text messages suppressed an unconfirmed video.
       final created = DateTime.tryParse((m['createdAt'] ?? '').toString());
       if (created == null) return false;
       for (final si in patchedServerItems) {
+        final siUrl = [
+          _pick(si, 'mediaUrl'),
+          _pick(si, 'fileUrl'),
+          _pick(si, 'url'),
+        ].firstWhere((u) => u.isNotEmpty, orElse: () => '');
+        final siKind = _pick(si, 'kind').toUpperCase();
+        final siIsMedia = siUrl.isNotEmpty || siKind != 'TEXT';
+        if (!siIsMedia) continue; // skip plain text server messages
         final sCreated = DateTime.tryParse(_pick(si, 'createdAt'));
         if (sCreated != null &&
             sCreated.difference(created).inSeconds.abs() <= 90) {
-          return false; // Server has a message at this time — patched or not
+          return false; // Server has a media message at this time
         }
       }
       return true;
@@ -462,6 +491,15 @@ class ClassroomChatThreadController extends ChatThreadController {
     return false;
   }
 
+  String? _pickNullable(dynamic row, List<String> keys) {
+    if (row is! Map) return null;
+    for (final k in keys) {
+      final v = row[k];
+      if (v != null && v.toString().trim().isNotEmpty) return v.toString().trim();
+    }
+    return null;
+  }
+
   int? _pickInt(dynamic row, List<String> keys) {
     if (row is! Map) return null;
     for (final k in keys) {
@@ -478,7 +516,11 @@ class ClassroomChatThreadController extends ChatThreadController {
 
   ChatMessage _convertClassroomRow(dynamic row) {
     final id = _pick(row, 'id');
-    final senderId = _pick(row, 'senderId');
+    // Server returns the sender's DB UUID as 'senderUserId'; fall back to
+    // 'senderId' for any future API that uses the shorter field name.
+    final senderId = _pick(row, 'senderUserId').isNotEmpty
+        ? _pick(row, 'senderUserId')
+        : _pick(row, 'senderId');
     // Server may return senderName, authorName, or userName
     final senderName = [
       _pick(row, 'senderName'),
@@ -487,8 +529,13 @@ class ClassroomChatThreadController extends ChatThreadController {
       _pick(row, 'name'),
     ].firstWhere((s) => s.isNotEmpty, orElse: () => 'Unknown');
 
-    final isMine = _pick(row, 'isMine') == 'true' ||
-        row is Map && row['isMine'] == true;
+    // The server's isMine boolean is compared server-side (JWT sub vs senderUserId)
+    // and is always authoritative. UUID comparison is a secondary check for when
+    // the client _currentUserId matches the actual DB UUID.
+    final senderUserId = _pick(row, 'senderUserId');
+    final serverIsMine = row is Map && row['isMine'] == true;
+    final isMine = serverIsMine ||
+        (senderUserId.isNotEmpty && senderUserId == _currentUserId);
 
     // Server may return text in 'text', 'body', or 'content'
     final rawText = _editedTextByMessage[id] ?? [
@@ -562,6 +609,11 @@ class ClassroomChatThreadController extends ChatThreadController {
     final deleteMode = _deletedMessages[id];
     final deletedForEveryone = deleteMode == 'DELETED_FOR_EVERYONE';
 
+    // Reply fields — server stores replyToMessageId and denormalised reply preview
+    final replyToMessageId = _pickNullable(row, ['replyToMessageId', 'replyTo', 'replyMessageId']);
+    final replyToSenderName = _pickNullable(row, ['replyToSenderName', 'replyAuthor', 'replySender']);
+    final replyToText = _pickNullable(row, ['replyToText', 'replyBody', 'replyContent', 'replySnippet']);
+
     return ChatMessage(
       id: id,
       senderId: senderId,
@@ -578,6 +630,9 @@ class ClassroomChatThreadController extends ChatThreadController {
       isOwn: isMine,
       isOptimistic: id.startsWith('optimistic-'),
       deletedForEveryone: deletedForEveryone,
+      replyToMessageId: replyToMessageId,
+      replyToSenderName: replyToSenderName,
+      replyToText: replyToText,
     );
   }
 
@@ -600,7 +655,22 @@ class ClassroomChatThreadController extends ChatThreadController {
   Future<void> sendText(String text, {String? replyToMessageId}) async {
     final optimisticId = 'optimistic-${DateTime.now().millisecondsSinceEpoch}';
     final now = DateTime.now().toUtc().toIso8601String();
-    _optimisticMessages.add({
+
+    // Look up reply context from cached messages so the optimistic bubble
+    // shows the replied-to message preview immediately (mirrors DM behaviour).
+    String? replySenderName;
+    String? replyText;
+    if ((replyToMessageId ?? '').trim().isNotEmpty) {
+      try {
+        final replied = _cachedMessages.firstWhere(
+          (m) => m.id == replyToMessageId,
+        );
+        replySenderName = replied.senderName;
+        replyText = replied.text;
+      } catch (_) {}
+    }
+
+    final optimistic = <String, dynamic>{
       'id': optimisticId,
       'text': text,
       'body': text,
@@ -608,18 +678,29 @@ class ClassroomChatThreadController extends ChatThreadController {
       'isMine': true,
       'kind': 'TEXT',
       'createdAt': now,
-    });
+    };
+    if ((replyToMessageId ?? '').trim().isNotEmpty) {
+      optimistic['replyToMessageId'] = replyToMessageId!.trim();
+    }
+    if ((replySenderName ?? '').trim().isNotEmpty) {
+      optimistic['replyToSenderName'] = replySenderName!.trim();
+    }
+    if ((replyText ?? '').trim().isNotEmpty) {
+      optimistic['replyToText'] = replyText!.trim();
+    }
+    _optimisticMessages.add(optimistic);
     // Invalidate immediately so the widget rebuilds and shows the optimistic.
     invalidate();
 
     try {
-      await _repo.sendChatText(_courseId, text);
+      await _repo.sendChatText(_courseId, text,
+          replyToMessageId: replyToMessageId);
       // Remove the optimistic immediately on success so it doesn't appear
       // alongside the real server message when the post-send invalidate fires.
       // The localSentMessages fallback provides persistence until the server
       // confirms the message in its next GET response.
       _optimisticMessages.removeWhere((m) => m['id'] == optimisticId);
-      await _saveLocalMessage({
+      final localMsg = <String, dynamic>{
         'id': 'local-${DateTime.now().millisecondsSinceEpoch}',
         'text': text,
         'body': text,
@@ -627,7 +708,17 @@ class ClassroomChatThreadController extends ChatThreadController {
         'isMine': true,
         'kind': 'TEXT',
         'createdAt': now,
-      });
+      };
+      if ((replyToMessageId ?? '').trim().isNotEmpty) {
+        localMsg['replyToMessageId'] = replyToMessageId!.trim();
+      }
+      if ((replySenderName ?? '').trim().isNotEmpty) {
+        localMsg['replyToSenderName'] = replySenderName!.trim();
+      }
+      if ((replyText ?? '').trim().isNotEmpty) {
+        localMsg['replyToText'] = replyText!.trim();
+      }
+      await _saveLocalMessage(localMsg);
       // Caller handles the post-send invalidate() in .then()
     } catch (e) {
       _optimisticMessages.removeWhere((m) => m['id'] == optimisticId);
@@ -887,12 +978,22 @@ class ClassroomChatThreadController extends ChatThreadController {
     List<ForwardTarget> targets,
   ) async {
     if (targets.isEmpty) return;
-    final targetThreadIds = targets.map((t) => t.id).toList();
+
+    // Collect all target IDs (classrooms and DM threads alike) and send them
+    // together via the classroom forward endpoint, which accepts both types.
+    // This avoids passing the classroom courseId as a DM fromThreadId, which
+    // the DM messages API would reject.
+    final allTargetIds = targets.map((t) {
+      if (t is ForwardTargetClassroom) return t.courseId;
+      if (t is ForwardTargetDm) return t.threadId;
+      return '';
+    }).where((id) => id.isNotEmpty).toList();
+
     for (final messageId in messageIds) {
       await _repo.forwardChatMessage(
         _courseId,
         messageId: messageId,
-        targetThreadIds: targetThreadIds,
+        targetThreadIds: allTargetIds,
       );
     }
   }

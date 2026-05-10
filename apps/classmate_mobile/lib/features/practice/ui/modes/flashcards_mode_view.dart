@@ -42,7 +42,7 @@ class FlashcardsModeView extends StatelessWidget {
                 alpha: d.showExplanation ? 0.12 : 0.06,
               ),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: d.accent.withValues(alpha: 0.22)),
+              border: Border.all(color: d.accent),
             ),
             child: d.showExplanation
                 ? Column(

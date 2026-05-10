@@ -80,15 +80,7 @@ class _PracticeHistoryReviewScreenState
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: accent.withValues(alpha: 0.24)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  accent.withValues(alpha: 0.16),
-                  accent.withValues(alpha: 0.06),
-                ],
-              ),
+              border: Border.all(color: accent),
             ),
             child: Column(
               children: [
@@ -176,10 +168,10 @@ class _PracticeHistoryReviewScreenState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: cs.surface,
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.28),
+                  color: cs.outlineVariant,
                 ),
               ),
               child: Text(
@@ -207,12 +199,12 @@ class _PracticeHistoryReviewScreenState
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: cs.surface,
+                  color: cs.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
                     color: q.isCorrect
-                        ? Colors.green.withValues(alpha: 0.30)
-                        : cs.outlineVariant.withValues(alpha: 0.32),
+                        ? Colors.green
+                        : cs.outlineVariant,
                   ),
                 ),
                 child: Column(

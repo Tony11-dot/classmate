@@ -12,36 +12,45 @@ final examsRepositoryProvider = Provider<StudentExamsRepository>((ref) {
   return const StudentExamsRepository();
 });
 
-// ── Live provider (hits /student/assessments) ────────────────────────────────
+// ── Live provider — merges /student/exams (new) with /student/assessments ────
 
-final examsLiveProvider = FutureProvider<List<StudentExamItem>>((
-  ref,
-) async {
+final examsLiveProvider = FutureProvider<List<StudentExamItem>>((ref) async {
   final now = DateTime.now();
-  final cachedAt = _examsCachedAt;
-  final cachedItems = _examsCachedItems;
-  if (cachedAt != null &&
-      cachedItems != null &&
-      now.difference(cachedAt) < _examsCacheTtl) {
-    return cachedItems;
+  if (_examsCachedAt != null &&
+      _examsCachedItems != null &&
+      now.difference(_examsCachedAt!) < _examsCacheTtl) {
+    return _examsCachedItems!;
   }
 
-  final inflight = _examsInflight;
-  if (inflight != null) {
-    return inflight;
-  }
+  if (_examsInflight != null) return _examsInflight!;
 
   final repo = ref.read(classroomsRepoProvider);
-  final future = repo.studentAssessments().then((raw) {
-    final mapped = raw.map(_mapToExamItem).toList(growable: false);
-    _examsCachedItems = mapped;
+
+  final future = Future.wait<List<StudentExamItem>>([
+    // The canonical endpoint — only published TeacherExam records that target
+    // this student. Ghost exams (deleted or unpublished) never appear here.
+    repo.studentTeacherExams().then((raw) => raw.map(_mapToExamItem).toList()).catchError((_) => <StudentExamItem>[]),
+  ]).then((lists) {
+    // Merge and deduplicate by id.
+    final seen = <String>{};
+    final merged = <StudentExamItem>[];
+    for (final list in lists) {
+      for (final item in list) {
+        if (seen.add(item.id)) merged.add(item);
+      }
+    }
+    // Sort: today first, then upcoming, then past
+    merged.sort((a, b) {
+      final da = DateTime.tryParse(a.dateLabel);
+      final db = DateTime.tryParse(b.dateLabel);
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return db.compareTo(da);
+    });
+    _examsCachedItems = merged;
     _examsCachedAt = DateTime.now();
-    return mapped;
-  }).onError((err, st) {
-    // If the endpoint is unavailable, return empty list gracefully
-    _examsCachedItems = const <StudentExamItem>[];
-    _examsCachedAt = DateTime.now();
-    return const <StudentExamItem>[];
+    return merged;
   });
 
   _examsInflight = future;
@@ -65,6 +74,17 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
     for (final k in keys) {
       final v = (j[k]?.toString() ?? '').trim();
       if (v.isNotEmpty) return v;
+    }
+    return null;
+  }
+
+  int? intOpt(List<String> keys) {
+    for (final k in keys) {
+      final v = j[k];
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      final parsed = int.tryParse((v ?? '').toString());
+      if (parsed != null) return parsed;
     }
     return null;
   }
@@ -108,6 +128,8 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
       label: str(['audienceLabel', 'audience', 'audienceGroup'], 'Class'),
     ),
     materials: materials,
+    grade: intOpt(['grade']),
+    maxGrade: intOpt(['maxGrade']),
   );
 }
 

@@ -15,11 +15,15 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/native_glass_view.dart';
+import '../../../core/realtime/realtime_listener.dart';
 import '../controllers/chat_thread_controller.dart';
 import '../domain/chat_delete_mode.dart';
 import '../domain/chat_message.dart';
 import '../domain/chat_message_kind.dart';
+import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
+import '../../messages/data/messages_repository.dart';
+import '../../messages/providers/messages_repository_provider.dart';
 import '../models/chat_message_info.dart';
 import '../policies/chat_action_policy.dart';
 import '../utils/chat_reply_codec.dart';
@@ -32,6 +36,7 @@ import 'chat_message_info_page.dart';
 import 'chat_reaction_details_sheet.dart';
 import 'chat_recording_tokens.dart';
 import 'chat_scroll_to_bottom_fab.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 /// Shared chat thread surface used by both DM and Classroom screens.
 class ChatThreadView extends ConsumerStatefulWidget {
@@ -140,6 +145,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   void _handleScroll() {
     if (!_scrollController.hasClients) return;
+    // Dismiss keyboard whenever the list scrolls (handles TabBarView contexts
+    // where keyboardDismissBehavior.onDrag alone is insufficient).
+    FocusManager.instance.primaryFocus?.unfocus();
     final nearBottom = _nearBottom(96);
     if (nearBottom && _newMessagesBelow) {
       if (!mounted) return;
@@ -372,13 +380,16 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         _deleteSelectedMessageIds.clear();
       });
 
-  void _toggleDeleteSelection(String id) => setState(() {
-        if (_deleteSelectedMessageIds.contains(id)) {
-          _deleteSelectedMessageIds.remove(id);
-        } else {
-          _deleteSelectedMessageIds.add(id);
-        }
-      });
+  void _toggleDeleteSelection(String id) {
+    setState(() {
+      if (_deleteSelectedMessageIds.contains(id)) {
+        _deleteSelectedMessageIds.remove(id);
+      } else {
+        _deleteSelectedMessageIds.add(id);
+      }
+    });
+    if (_deleteSelectedMessageIds.isEmpty) _exitDeleteMode();
+  }
 
   Future<void> _commitDelete() async {
     if (_deleteSelectedMessageIds.isEmpty) return;
@@ -447,13 +458,16 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         _forwardSelectedMessageIds.clear();
       });
 
-  void _toggleForwardSelection(String id) => setState(() {
-        if (_forwardSelectedMessageIds.contains(id)) {
-          _forwardSelectedMessageIds.remove(id);
-        } else {
-          _forwardSelectedMessageIds.add(id);
-        }
-      });
+  void _toggleForwardSelection(String id) {
+    setState(() {
+      if (_forwardSelectedMessageIds.contains(id)) {
+        _forwardSelectedMessageIds.remove(id);
+      } else {
+        _forwardSelectedMessageIds.add(id);
+      }
+    });
+    if (_forwardSelectedMessageIds.isEmpty) _exitForwardMode();
+  }
 
   Future<void> _commitForward() async {
     if (_forwardSelectedMessageIds.isEmpty) return;
@@ -478,7 +492,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
               Text(n == 1 ? 'Forwarded to 1 chat' : 'Forwarded to $n chats')),
     );
     _exitForwardMode();
+    // Invalidate source AND all target threads so the forwarded message appears.
     widget.controller.invalidate();
+    for (final t in targets) {
+      if (t is ForwardTargetDm) {
+        ref.invalidate(messageThreadProvider(t.threadId));
+      }
+    }
     _openForwardedThreadIfSingle(targets);
   }
 
@@ -489,9 +509,54 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   // ─── info sheet ──────────────────────────────────────────────────────────
 
-  void _openInfoPage(ChatMessage message) {
+  Future<void> _openInfoPage(ChatMessage message) async {
     String fmtDt(DateTime? dt) => dt == null ? '' : _formatTime(dt);
 
+    // For DM threads, fetch per-participant seen/delivered state.
+    List<MessageReadParticipant> seenBy = [];
+    List<MessageReadParticipant> deliveredTo = [];
+    List<MessageReadParticipant> pendingFor = [];
+
+    if (widget.controller.threadType == ChatThreadType.direct) {
+      try {
+        final repo = ref.read(messagesRepositoryProvider) as ApiMessagesRepository;
+        final raw = await repo.fetchThreadInfo(
+            threadId: widget.controller.threadId);
+        final threadMap = raw['thread'] is Map
+            ? Map<String, dynamic>.from(raw['thread'] as Map)
+            : <String, dynamic>{};
+        final members = threadMap['members'] is List
+            ? (threadMap['members'] as List)
+                .map((m) => Map<String, dynamic>.from(m is Map ? m : {}))
+                .toList()
+            : <Map<String, dynamic>>[];
+
+        for (final m in members) {
+          final userId = (m['userId'] ?? '').toString();
+          if (userId == widget.controller.currentUserId) continue;
+          final name = (m['name'] ?? '').toString();
+          final lastSeenRaw = (m['lastSeenAt'] ?? '').toString().trim();
+          if (lastSeenRaw.isEmpty) {
+            pendingFor.add(MessageReadParticipant(name: name));
+            continue;
+          }
+          final lastSeenDt = DateTime.tryParse(lastSeenRaw)?.toLocal();
+          if (lastSeenDt == null) {
+            pendingFor.add(MessageReadParticipant(name: name));
+            continue;
+          }
+          final timeLabel = _formatTime(lastSeenDt);
+          if (!lastSeenDt.isBefore(message.createdAt)) {
+            seenBy.add(MessageReadParticipant(name: name, time: timeLabel));
+          } else {
+            deliveredTo
+                .add(MessageReadParticipant(name: name, time: timeLabel));
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ChatMessageInfoPage(
@@ -515,8 +580,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                     ? 'DELETED_FOR_ME'
                     : 'VISIBLE',
           ),
-          previewBubbleBuilder: (ctx) =>
-              _buildBubble(message, showName: true),
+          previewBubbleBuilder: (ctx) => _buildBubble(message, showName: true),
+          seenBy: seenBy,
+          deliveredTo: deliveredTo,
+          pendingFor: pendingFor,
         ),
       ),
     );
@@ -921,10 +988,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
+            color: scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.20)),
+                color: scheme.outlineVariant),
           ),
           child: Text(label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -938,8 +1005,19 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   bool _startsGroup(List<ChatMessage> rows, int index) {
     if (index == 0) return true;
-    return rows[index - 1].senderId != rows[index].senderId ||
-        !_sameMessageDay(rows[index - 1], rows[index]);
+    final prev = rows[index - 1];
+    final curr = rows[index];
+    if (!_sameMessageDay(prev, curr)) return true;
+    // Primary: compare by senderId (UUID) when both are available.
+    if (prev.senderId.isNotEmpty && curr.senderId.isNotEmpty) {
+      return prev.senderId != curr.senderId;
+    }
+    // Secondary: compare by senderName when IDs are missing (stale cache).
+    if (prev.senderName.isNotEmpty && curr.senderName.isNotEmpty) {
+      return prev.senderName != curr.senderName;
+    }
+    // Last resort: own vs other — works for 1:1 DMs.
+    return prev.isOwn != curr.isOwn;
   }
 
   bool _endsGroup(List<ChatMessage> rows, int index) {
@@ -980,7 +1058,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         shape: BoxShape.circle,
         border: Border.all(
           color:
-              Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.25),
+              Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       alignment: Alignment.center,
@@ -1250,10 +1328,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.92),
+            color: scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.20)),
+                color: scheme.outlineVariant),
           ),
           child: Row(
             children: [
@@ -1303,10 +1381,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.92),
+            color: scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.20)),
+                color: scheme.outlineVariant),
           ),
           child: Row(
             children: [
@@ -1355,10 +1433,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       margin: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: scheme.primaryContainer.withValues(alpha: 0.65),
+        color: scheme.primaryContainer,
         borderRadius: BorderRadius.circular(14),
         border:
-            Border.all(color: scheme.primary.withValues(alpha: 0.18)),
+            Border.all(color: scheme.primary),
       ),
       child: Row(
         children: [
@@ -1387,6 +1465,17 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+
+    // Real-time push: invalidate when SSE fires a relevant event
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event == null) return;
+      final tid = widget.controller.threadId;
+      if ((event.type == 'classroom_message' && event.classroomId == tid) ||
+          (event.type == 'dm_message' && event.threadId == tid)) {
+        widget.controller.invalidate();
+      }
+    });
+
     final messagesAsync = widget.controller.watchMessages(ref);
     final typingAsync = widget.controller.watchTyping(ref);
     final isPeerTyping =
@@ -1397,7 +1486,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       _lastKnownMessages = messagesAsync.requireValue;
     }
 
-    Widget buildBody(List<ChatMessage> messages) {
+    Widget buildBody(List<ChatMessage> allMessages) {
+      // Pre-filter invisible messages (system, [SYSTEM] text) once, up-front.
+      // All downstream consumers — _onMessagesRendered, _buildPinnedStrip,
+      // _buildMessageList — see the same consistent visible-only list so that
+      // grouping, date separators, and jump-to-message all work correctly.
+      final messages = allMessages
+          .where((m) => !_isInvisible(m))
+          .toList(growable: false);
+
       _onMessagesRendered(messages);
 
       if (!_markedRead && messages.isNotEmpty) {
@@ -1418,9 +1515,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 _buildMessageList(messages, l, isPeerTyping),
                 if (_showScrollToBottom)
                   Positioned(
-                    right: 16,
+                    left: 0,
+                    right: 0,
                     bottom: 12,
-                    child: ChatScrollToBottomFab(
+                    child: Center(child: ChatScrollToBottomFab(
                       show: _showScrollToBottom,
                       hasUnreadBelow: _newMessagesBelow,
                       bottomInset: 0,
@@ -1433,7 +1531,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                         });
                         _scrollToBottom();
                       },
-                    ),
+                    )),
                   ),
               ],
             ),
@@ -1451,7 +1549,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
             data: buildBody,
             loading: () => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
-                : const Center(child: CircularProgressIndicator()),
+                : const Center(child: const CmLoading()),
             error: (err, _) => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
                 : Center(child: Text('Error: $err')),
@@ -1463,11 +1561,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           _buildDeleteActionBar()
         else ...[
           _buildDraftAttachmentsPreview(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 4),
-            child: NativeGlassView(
-              borderRadius: 28,
-              child: ChatComposer(
+          ChatComposer(
                 controller: _textController,
                 enabled: widget.canSend,
                 isRecording: _recording,
@@ -1512,18 +1606,33 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                     ? _buildEditingBanner()
                     : null,
               ),
-            ),
-          ),
         ],
       ],
     );
   }
+
+  // Returns true for messages that must be completely excluded from the UI —
+  // no avatar placeholder, no date separator, no row height.
+  //
+  // • kind=system          → internal markers (typing, read-receipts, etc.)
+  // • [SYSTEM] text prefix → server-generated housekeeping ("user started chat")
+  // • deletedForMe         → user explicitly hid this message; omit entirely so
+  //                          no 36 px avatar placeholder floats without a bubble
+  //   (deletedForEveryone is intentionally NOT hidden — it shows the
+  //    "This message was deleted" stamp, which is useful context)
+  static bool _isInvisible(ChatMessage m) =>
+      m.kind == ChatMessageKind.system ||
+      m.text.startsWith('[SYSTEM]') ||
+      m.text.startsWith('[system]') ||
+      (m.deletedForMe && !m.deletedForEveryone);
 
   Widget _buildMessageList(
     List<ChatMessage> messages,
     AppLocalizations l,
     bool peerTyping,
   ) {
+    // Caller (buildBody) already pre-filtered invisible messages.
+    // Use the list directly — no further filtering needed here.
     return ListView.builder(
       controller: _scrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -1552,17 +1661,6 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         final startsGroup = _startsGroup(messages, index);
         final endsGroup = _endsGroup(messages, index);
 
-        if (row.kind == ChatMessageKind.system) {
-          final label = row.text.trim();
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Center(
-              child: _buildDaySeparatorChip(
-                  context, label.isEmpty ? 'System' : label),
-            ),
-          );
-        }
-
         final swipeDx = _swipeDxByMessage[row.id] ?? 0.0;
         final isHighlighted = _highlightedMessageId == row.id;
         final isSelected = _isForwardSelectionMode
@@ -1589,26 +1687,27 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                       : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // Reply icon (appears on right swipe)
-                    Opacity(
-                      opacity: (swipeDx / 44).clamp(0.0, 1.0),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            shape: BoxShape.circle,
+                    // Reply icon — only occupies space when actively swiping
+                    if (swipeDx > 0)
+                      Opacity(
+                        opacity: (swipeDx / 44).clamp(0.0, 1.0),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.reply_rounded,
+                                size: 15,
+                                color: Theme.of(context).colorScheme.primary),
                           ),
-                          child: Icon(Icons.reply_rounded,
-                              size: 15,
-                              color: Theme.of(context).colorScheme.primary),
                         ),
                       ),
-                    ),
                     if (!row.isOwn) ...[
                       SizedBox(
                         width: 36,

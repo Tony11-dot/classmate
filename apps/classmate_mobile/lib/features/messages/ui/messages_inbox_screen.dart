@@ -10,6 +10,8 @@ import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
 import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
+import '../../../ui/widgets/cm_loading.dart';
+import '../../../core/realtime/realtime_listener.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
   const MessagesInboxScreen({super.key});
@@ -28,8 +30,9 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   }
 
   Future<void> _startNewChat() async {
-    final threadId = await Navigator.of(context).push<String>(
+    final threadId = await Navigator.of(context, rootNavigator: true).push<String>(
       MaterialPageRoute<String>(
+        fullscreenDialog: false,
         builder: (_) => const NewChatScreen(),
       ),
     );
@@ -65,22 +68,22 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: cs.surface,
+                    color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.22)),
+                    border: Border.all(color: cs.outlineVariant),
                   ),
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+                      Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
                       const SizedBox(height: 20),
                       Row(
                         children: [
                           Container(
                             width: 44, height: 44,
-                            decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(14)),
-                            child: Icon(Icons.group_add_rounded, color: cs.primary, size: 22),
+                            decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+                            child: Icon(Icons.group_add_rounded, color: cs.onPrimaryContainer, size: 22),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -103,10 +106,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           hintText: '• • • • • • • •',
-                          hintStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
+                          hintStyle: TextStyle(color: cs.onSurfaceVariant),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                           filled: true,
-                          fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                          fillColor: cs.surfaceContainerHighest,
                           errorText: errorMsg,
                         ),
                       ),
@@ -187,26 +190,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   }
 
   Widget _bottomNavCover(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return IgnorePointer(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          height: 108,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                scheme.surface.withValues(alpha: 0),
-                scheme.surface.withValues(alpha: 0.76),
-                scheme.surface,
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    return const IgnorePointer(child: SizedBox.shrink());
   }
 
   DateTime? _parseInboxTimestamp(String raw) {
@@ -263,6 +247,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    // Real-time: refresh inbox when DM/group message arrives
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'dm_message') ref.invalidate(messagesInboxProvider);
+    });
     final inbox = ref.watch(messagesInboxProvider);
     final query = _searchCtl.text.trim().toLowerCase();
 
@@ -270,7 +258,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: inbox.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: const CmLoading()),
           error: (error, stackTrace) =>
               Center(child: Text(l.messagesLoadFailed(error.toString()))),
           data: (items) {
@@ -447,13 +435,13 @@ class _InboxRow extends StatelessWidget {
         ? item.lastMessageAt.trim()
         : trailingLabel.trim();
     final borderColor = isRequest || showUnread
-        ? scheme.primary.withValues(alpha: 0.2)
-        : scheme.outlineVariant.withValues(alpha: 0.18);
+        ? scheme.primary
+        : scheme.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
-        color: scheme.surface.withValues(alpha: 0.0),
+        color: scheme.surface,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
@@ -472,14 +460,6 @@ class _InboxRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               color: scheme.surfaceContainerLowest,
               border: Border.all(color: borderColor),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 14,
-                  spreadRadius: -10,
-                  offset: const Offset(0, 8),
-                  color: Colors.black.withValues(alpha: 0.12),
-                ),
-              ],
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

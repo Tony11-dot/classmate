@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../schedule/schedule_empty_state_copy.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import 'teacher_shared_widgets.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 String _friendlyError(BuildContext context, String? error) {
   final l = AppLocalizations.of(context)!;
@@ -18,16 +21,27 @@ String _friendlyError(BuildContext context, String? error) {
   return raw;
 }
 
+Color _statusColor(BuildContext context, String status) {
+  final cs = Theme.of(context).colorScheme;
+  switch (status.trim().toUpperCase()) {
+    case AttendanceStatus.present: return const Color(0xFF22C55E);
+    case AttendanceStatus.absent: return cs.error;
+    case AttendanceStatus.late: return const Color(0xFFF59E0B);
+    case AttendanceStatus.excused: return const Color(0xFF60A5FA);
+    default: return cs.onSurfaceVariant;
+  }
+}
+
 String _statusLabel(BuildContext context, String status) {
   final l = AppLocalizations.of(context)!;
   switch (status.trim().toUpperCase()) {
-    case 'PRESENT':
+    case AttendanceStatus.present:
       return l.attendanceStatusPresent;
-    case 'ABSENT':
+    case AttendanceStatus.absent:
       return l.attendanceStatusAbsent;
-    case 'LATE':
+    case AttendanceStatus.late:
       return l.attendanceStatusLate;
-    case 'EXCUSED':
+    case AttendanceStatus.excused:
       return l.attendanceStatusExcused;
     default:
       return status;
@@ -60,6 +74,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
   bool _saving = false;
   String? _error;
   DateTime _selectedDate = DateTime.now();
+  final TextEditingController _classNoteCtrl = TextEditingController();
+  final TextEditingController _studentSearchCtrl = TextEditingController();
 
   String get _formattedDate {
     final d = _selectedDate;
@@ -79,7 +95,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
       _session = null;
       _drafts.clear();
     });
-    // Re-load today's schedule for context, then reload session with new date
     if (_selectedCohortId != null && _selectedPeriod != null) {
       await _loadSessionForDate(_selectedCohortId!, _selectedPeriod!);
     }
@@ -95,6 +110,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
         period: period,
       );
       if (!mounted) return;
+      _classNoteCtrl.text = session.classNote;
       setState(() { _session = session; _loading = false; });
     } catch (error) {
       if (!mounted) return;
@@ -103,9 +119,27 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
   }
 
   @override
+  void dispose() {
+    _classNoteCtrl.dispose();
+    _studentSearchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _cycleStatus(String studentId) {
+    final current = _drafts[studentId]?.status ?? AttendanceStatus.present;
+    final next = AttendanceStatus.values[(AttendanceStatus.values.indexOf(current) + 1) % AttendanceStatus.values.length];
+    setState(() {
+      _drafts[studentId] = TeacherAttendanceDraftRecord(
+        studentId: studentId,
+        status: next,
+        note: _drafts[studentId]?.note ?? '',
+      );
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
-    // If pre-selected from action sheet, parse and use the initial date
     final initDate = widget.initialDate;
     if (initDate != null && initDate.isNotEmpty) {
       final dt = DateTime.tryParse(initDate);
@@ -120,8 +154,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
       _error = null;
     });
 
-    // If coming from a schedule slot tap (pre-selected cohort + period),
-    // load that session directly without needing to fetch the full schedule first.
     final initCohortId = widget.initialCohortId;
     final initPeriod = widget.initialPeriod;
     if (initCohortId != null && initCohortId.isNotEmpty && initPeriod != null) {
@@ -139,7 +171,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           _session = session;
           _loading = false;
         });
-        // Also load today's schedule so the slot chips are visible
         final today = await repo.fetchTodaySchedule();
         if (mounted) setState(() => _today = today);
       } catch (_) {
@@ -218,8 +249,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
   Future<void> _save() async {
     final session = _session;
     if (session == null) return;
-    final dirty = session.students.where(_isDirty).map(_draftFor).toList(growable: false);
-    if (dirty.isEmpty) return;
+    // Always send all students — on first save this records the default PRESENT status.
+    final allRecords = session.students.map(_draftFor).toList(growable: false);
     setState(() {
       _saving = true;
       _error = null;
@@ -229,7 +260,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             cohortId: session.cohort.id,
             date: session.date,
             period: session.period,
-            records: dirty,
+            records: allRecords,
+            classNote: _classNoteCtrl.text.trim().isEmpty ? null : _classNoteCtrl.text.trim(),
           );
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -272,44 +304,44 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     final cs = theme.colorScheme;
     final session = _session;
     final slots = _today?.slots.where((slot) => slot.cohort != null && slot.course != null).toList(growable: false) ?? const <TeacherTodaySlot>[];
-    final dirtyCount = session == null ? 0 : session.students.where(_isDirty).length;
+    final classNoteDirty = session != null && _classNoteCtrl.text.trim() != session.classNote;
+    final dirtyCount = session == null ? 0 : session.students.where(_isDirty).length + (classNoteDirty ? 1 : 0);
 
     final markedCount = session == null ? 0 : session.students.length;
     final presentCount = session == null ? 0 : session.students.where((s) {
       final draft = _draftFor(s);
-      return draft.status.toUpperCase() == 'PRESENT';
+      return draft.status.toUpperCase() == AttendanceStatus.present;
     }).length;
     final absentCount = session == null ? 0 : session.students.where((s) {
       final draft = _draftFor(s);
-      return draft.status.toUpperCase() == 'ABSENT';
+      return draft.status.toUpperCase() == AttendanceStatus.absent;
     }).length;
     final attPct = markedCount > 0 ? presentCount / markedCount : 0.0;
 
-    return RefreshIndicator(
+    return Scaffold(
+      body: SafeArea(
+      child: RefreshIndicator(
       onRefresh: _loadToday,
       child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
           // ── Hero Banner ───────────────────────────────────────────────
           LiquidGlassCard(
+            color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            blurSigma: 20,
-            gradient: LinearGradient(
-              colors: [
-                cs.primaryContainer.withValues(alpha: 0.9),
-                cs.secondaryContainer.withValues(alpha: 0.65),
-                cs.surfaceContainerHigh.withValues(alpha: 0.82),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
-            boxShadow: [BoxShadow(color: cs.primary.withValues(alpha: 0.12), blurRadius: 22, offset: const Offset(0, 8), spreadRadius: -4)],
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
+                    // ← back button
+                    GestureDetector(
+                      onTap: () { if (context.canPop()) context.pop(); },
+                      child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: cs.onSurface),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,15 +353,14 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                       ),
                     ),
                     // Date picker button
-                    InkWell(
+                    GestureDetector(
                       onTap: _pickDate,
-                      borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.55),
+                          color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                          border: Border.all(color: cs.outlineVariant),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -348,13 +379,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                   // Progress stats
                   Row(
                     children: [
-                      _AttStatPill(value: '$presentCount', label: AppLocalizations.of(context)!.attendanceStatusPresent, color: const Color(0xFF22C55E)),
+                      _AttStatPill(value: '$presentCount', label: AppLocalizations.of(context)!.attendanceStatusPresent, color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '$absentCount', label: AppLocalizations.of(context)!.attendanceStatusAbsent, color: cs.error),
+                      _AttStatPill(value: '$absentCount', label: AppLocalizations.of(context)!.attendanceStatusAbsent, color: cs.errorContainer, textColor: cs.onErrorContainer),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: AppLocalizations.of(context)!.teacherAttendanceOther, color: cs.tertiary),
+                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: AppLocalizations.of(context)!.teacherAttendanceOther, color: cs.tertiaryContainer, textColor: cs.onTertiaryContainer),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '$markedCount', label: AppLocalizations.of(context)!.teacherTotal, color: cs.secondary),
+                      _AttStatPill(value: '$markedCount', label: AppLocalizations.of(context)!.teacherTotal, color: cs.surfaceContainerLow, textColor: cs.onSurfaceVariant),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -375,7 +406,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                         child: LinearProgressIndicator(
                           value: attPct,
                           minHeight: 8,
-                          backgroundColor: cs.outlineVariant.withValues(alpha: 0.3),
+                          backgroundColor: cs.outlineVariant,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error,
                           ),
@@ -392,16 +423,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           ),
           const SizedBox(height: 18),
           LiquidGlassCard(
-            color: cs.surface.withValues(alpha: 0.76),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.surface.withValues(alpha: 0.84),
-                cs.surfaceContainerHigh.withValues(alpha: 0.64),
-              ],
-            ),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+            color: cs.surfaceContainerLow,
+            border: Border.all(color: cs.outlineVariant),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -411,7 +434,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 ),
                 const SizedBox(height: 12),
                 if (_loading && _today == null)
-                  const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
+                  const Center(child: Padding(padding: EdgeInsets.all(20), child: const CmLoading()))
                 else if (slots.isEmpty)
                   Text(ScheduleEmptyStateCopy.subtitle(l, l.today))
                 else
@@ -435,22 +458,14 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           const SizedBox(height: 14),
           if (_error != null)
             LiquidGlassCard(
-              color: cs.errorContainer.withValues(alpha: 0.72),
+              color: cs.errorContainer,
               child: Text(_friendlyError(context, _error), style: theme.textTheme.bodyMedium),
             ),
           if (session != null) ...[
             const SizedBox(height: 14),
             LiquidGlassCard(
-              color: cs.surface.withValues(alpha: 0.76),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  cs.surface.withValues(alpha: 0.84),
-                  cs.surfaceContainerHigh.withValues(alpha: 0.66),
-                ],
-              ),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -470,99 +485,120 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _BulkStatusButton(label: l.attendanceStatusPresent, onTap: () => _setAllStatus('PRESENT')),
-                      _BulkStatusButton(label: l.attendanceStatusAbsent, onTap: () => _setAllStatus('ABSENT')),
-                      _BulkStatusButton(label: l.attendanceStatusLate, onTap: () => _setAllStatus('LATE')),
-                      _BulkStatusButton(label: l.attendanceStatusExcused, onTap: () => _setAllStatus('EXCUSED')),
+                      _BulkStatusButton(label: l.attendanceStatusPresent, onTap: () => _setAllStatus(AttendanceStatus.present)),
+                      _BulkStatusButton(label: l.attendanceStatusAbsent, onTap: () => _setAllStatus(AttendanceStatus.absent)),
+                      _BulkStatusButton(label: l.attendanceStatusLate, onTap: () => _setAllStatus(AttendanceStatus.late)),
+                      _BulkStatusButton(label: l.attendanceStatusExcused, onTap: () => _setAllStatus(AttendanceStatus.excused)),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            ...session.students.map((student) {
+            TextField(
+              controller: _classNoteCtrl,
+              maxLines: 2,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: l.teacherAttendanceClassNotesLabel,
+                hintText: l.teacherAttendanceClassNotesHint,
+                prefixIcon: const Icon(Icons.notes_rounded),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            TextField(
+              controller: _studentSearchCtrl,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: l.teacherSearchStudents,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            ...session.students.where((s) {
+              final q = _studentSearchCtrl.text.trim().toLowerCase();
+              return q.isEmpty || s.name.toLowerCase().contains(q);
+            }).map((student) {
               final draft = _draftFor(student);
+              final statusColor = _statusColor(context, draft.status);
+              final initial = student.name.trim().isNotEmpty ? student.name[0].toUpperCase() : '?';
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: LiquidGlassCard(
-                  color: _isDirty(student) ? cs.primaryContainer.withValues(alpha: 0.36) : cs.surface.withValues(alpha: 0.74),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: _isDirty(student)
-                        ? [
-                            cs.primaryContainer.withValues(alpha: 0.64),
-                            cs.surface.withValues(alpha: 0.68),
-                          ]
-                        : [
-                            cs.surface.withValues(alpha: 0.82),
-                            cs.surfaceContainerHigh.withValues(alpha: 0.62),
-                          ],
-                  ),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.18)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _cycleStatus(student.studentId),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: cs.outlineVariant),
+                      ),
+                      child: Row(
                         children: [
-                          Expanded(
-                            child: Text(student.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                          Container(
+                            width: 36, height: 36,
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: cs.onPrimaryContainer))),
                           ),
-                          if (_isDirty(student)) Chip(label: Text(l.teacherAttendanceChanged)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              student.name,
+                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => _cycleStatus(student.studentId),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 120),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: statusColor, width: 1.5),
+                              ),
+                              child: Text(
+                                _statusLabel(context, draft.status),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        initialValue: draft.status,
-                        decoration: InputDecoration(labelText: l.editProfileStatus),
-                        items: const ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']
-                            .map(
-                              (status) => DropdownMenuItem<String>(
-                                value: status,
-                                child: Text(_statusLabel(context, status)),
-                              ),
-                            )
-                            .toList(growable: false),
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setState(() {
-                            _drafts[student.studentId] = TeacherAttendanceDraftRecord(
-                              studentId: student.studentId,
-                              status: value,
-                              note: draft.note,
-                            );
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        initialValue: draft.note,
-                        decoration: InputDecoration(labelText: l.teacherAttendanceNoteLabel),
-                        onChanged: (value) {
-                          setState(() {
-                            _drafts[student.studentId] = TeacherAttendanceDraftRecord(
-                              studentId: student.studentId,
-                              status: _draftFor(student).status,
-                              note: value,
-                            );
-                          });
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );
             }),
+
+            const SizedBox(height: 14),
+            // ── Save button ───────────────────────────────────────────────
             FilledButton.icon(
-              onPressed: _saving || dirtyCount == 0 ? null : _save,
+              onPressed: _saving ? null : _save,
               icon: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save_rounded),
-              label: Text(
-                _saving ? l.teacherAttendanceSaving : l.teacherAttendanceSaveCount(dirtyCount),
-              ),
+              label: Text(_saving
+                  ? l.teacherAttendanceSaving
+                  : dirtyCount > 0
+                      ? l.teacherAttendanceSaveCount(dirtyCount)
+                      : l.teacherAttendanceSaveAll),
             ),
           ],
         ],
       ),
+    ),
+    ),
     );
   }
 }
@@ -580,8 +616,8 @@ class _BulkStatusButton extends StatelessWidget {
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        backgroundColor: cs.surface.withValues(alpha: 0.32),
-        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.22)),
+        backgroundColor: cs.surface,
+        side: BorderSide(color: cs.outlineVariant),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Text(label),
@@ -590,10 +626,11 @@ class _BulkStatusButton extends StatelessWidget {
 }
 
 class _AttStatPill extends StatelessWidget {
-  const _AttStatPill({required this.value, required this.label, required this.color});
+  const _AttStatPill({required this.value, required this.label, required this.color, required this.textColor});
   final String value;
   final String label;
   final Color color;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -601,14 +638,14 @@ class _AttStatPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.22)),
+          border: Border.all(color: color),
         ),
         child: Column(
           children: [
-            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: color, height: 1.1)),
-            Text(label, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w600)),
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textColor, height: 1.1)),
+            Text(label, style: TextStyle(fontSize: 9, color: textColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

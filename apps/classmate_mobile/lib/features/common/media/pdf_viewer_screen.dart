@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final String url;
@@ -88,7 +89,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: const CmLoading())
           : (_localPath != null
               ? PDFView(
                   filePath: _localPath!,

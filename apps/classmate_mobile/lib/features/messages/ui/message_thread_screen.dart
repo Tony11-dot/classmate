@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/messages_repository.dart';
+import '../../../core/auth/auth_session.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../chat_core/controllers/dm_chat_thread_controller.dart';
@@ -11,6 +12,7 @@ import '../../chat_core/policies/chat_action_policy.dart';
 import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 class MessageThreadScreen extends ConsumerStatefulWidget {
   const MessageThreadScreen({super.key, required this.threadId});
@@ -28,10 +30,12 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   @override
   void initState() {
     super.initState();
+    final session = ref.read(authSessionProvider);
+    final realUserId = session.userId.isNotEmpty ? session.userId : session.displayName;
     _chatController = DmChatThreadController(
       ref: ref,
       threadId: widget.threadId,
-      currentUserId: '',
+      currentUserId: realUserId,
     );
   }
 
@@ -142,6 +146,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   Widget _incomingRequestBanner(MessageThreadDetail detail) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final title = detail.isGroup
         ? '${l.messagesThreadLeaveGroupTitle.replaceFirst('?', '').trim()}?'
         : l.messagesRequestBannerIncoming;
@@ -152,17 +157,30 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: scheme.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: scheme.primary.withValues(alpha: 0.20)),
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.outlineVariant, width: 1.5),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(radius: 28, child: Text(_avatarText(detail))),
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: scheme.primaryContainer,
+                  child: Text(
+                    _avatarText(detail),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: scheme.onPrimaryContainer,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -172,18 +190,20 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: scheme.onSurface,
+                        ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         subtitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
                       ),
                     ],
                   ),
@@ -196,6 +216,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 Expanded(
                   child: FilledButton(
                     onPressed: () => _approveRequest(detail),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: scheme.primary,
+                      foregroundColor: scheme.onPrimary,
+                    ),
                     child: Text(l.messagesApproveAction),
                   ),
                 ),
@@ -207,6 +231,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                       if (!mounted) return;
                       Navigator.of(context).pop();
                     },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: scheme.error,
+                      side: BorderSide(color: scheme.error.withValues(alpha: 0.5)),
+                    ),
                     child: Text(
                       detail.isGroup
                           ? l.classroomDetailLeaveAction
@@ -239,10 +267,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
+          color: scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           border:
-              Border.all(color: scheme.outlineVariant.withValues(alpha: 0.20)),
+              Border.all(color: scheme.outlineVariant),
         ),
         child: Row(
           children: [
@@ -281,8 +309,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
+        bottom: false,
         child: thread.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: const CmLoading()),
           error: (error, _) => Center(
               child: Text(
                 AppLocalizations.of(context)!.messagesRequestLoadFailed(error),
@@ -303,6 +332,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 AppBar(
                   automaticallyImplyLeading: false,
                   titleSpacing: 0,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
                   title: Row(
                     children: [
                       IconButton(
@@ -348,7 +381,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                         Text(
                                           'Tap for group info',
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                         ),
                                     ],
@@ -629,14 +662,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
       minChildSize: 0.35,
       builder: (ctx, scrollCtrl) => Container(
         decoration: BoxDecoration(
-          color: cs.surface,
+          color: cs.surfaceContainerLow,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
             // Handle
             const SizedBox(height: 8),
-            Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2))),
+            Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             // Avatar + name
             CircleAvatar(
@@ -727,18 +760,18 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: cs.primaryContainer.withValues(alpha: 0.4),
+                    color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+                    border: Border.all(color: cs.outlineVariant),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.vpn_key_rounded, size: 16, color: cs.primary),
+                      Icon(Icons.vpn_key_rounded, size: 16, color: cs.onPrimaryContainer),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _inviteCode!,
-                          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 3, color: cs.primary, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 3, color: cs.onPrimaryContainer, fontSize: 15),
                         ),
                       ),
                       IconButton(
@@ -761,7 +794,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
             // Content: members or participants + people search for add
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: const CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(24),
@@ -853,7 +886,7 @@ class _ActionPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tint = color ?? (active ? cs.primary : cs.onSurfaceVariant);
-    final bg = active ? cs.primaryContainer.withValues(alpha: 0.5) : cs.surfaceContainerHighest.withValues(alpha: 0.5);
+    final bg = active ? cs.primaryContainer : cs.surfaceContainerHighest;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -965,7 +998,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.88,
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surfaceContainerLow,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -979,7 +1012,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                   child: Container(
                     width: 36, height: 4,
                     decoration: BoxDecoration(
-                      color: cs.outlineVariant.withValues(alpha: 0.5),
+                      color: cs.outlineVariant,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1016,7 +1049,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                         : null,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     filled: true,
-                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                    fillColor: cs.surfaceContainerHighest,
                     isDense: true,
                   ),
                 ),
@@ -1028,13 +1061,13 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
           // List
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: const CmLoading())
                 : filtered.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant.withValues(alpha: 0.35)),
+                            Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant),
                             const SizedBox(height: 12),
                             Text(
                               _search.text.isEmpty ? 'No people to add' : 'No results for "${_search.text}"',
@@ -1064,13 +1097,13 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: selected
-                                      ? cs.primary.withValues(alpha: 0.10)
-                                      : cs.surfaceContainerHighest.withValues(alpha: 0.55),
+                                      ? cs.primary
+                                      : cs.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: selected
-                                        ? cs.primary.withValues(alpha: 0.30)
-                                        : cs.outlineVariant.withValues(alpha: 0.18),
+                                        ? cs.primary
+                                        : cs.outlineVariant,
                                     width: selected ? 1.5 : 1,
                                   ),
                                 ),
@@ -1080,13 +1113,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                                     Container(
                                       width: 42, height: 42,
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: selected
-                                              ? [cs.primary, cs.tertiary]
-                                              : [cs.primaryContainer, cs.secondaryContainer],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
+
                                         borderRadius: BorderRadius.circular(13),
                                       ),
                                       child: Center(
@@ -1157,8 +1184,8 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
               child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 decoration: BoxDecoration(
-                  color: cs.surface,
-                  border: Border(top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.25))),
+                  color: cs.surfaceContainerLow,
+                  border: Border(top: BorderSide(color: cs.outlineVariant)),
                 ),
                 child: SizedBox(
                   width: double.infinity,

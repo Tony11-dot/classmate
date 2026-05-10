@@ -26,16 +26,9 @@ export class AdminScheduleController {
   }
 
   @Put('template')
-  upsertTemplate(
-    @Req() req: any,
-    @Body()
-    body: {
-      cohortId: string;
-      slots: { dayOfWeek: number; period: number; courseId?: string | null }[];
-    },
-  ) {
+  upsertTemplate(@Req() req: any, @Body() body: any) {
     this.assertAdmin(req);
-    return this.admin.upsertScheduleTemplate(body);
+    return this.admin.createPeriod(req.user, body);
   }
 
   @Post('override')
@@ -46,7 +39,6 @@ export class AdminScheduleController {
       cohortId: string;
       date: string; // YYYY-MM-DD
       period: number;
-      courseId?: string | null;
     },
   ) {
     this.assertAdmin(req);

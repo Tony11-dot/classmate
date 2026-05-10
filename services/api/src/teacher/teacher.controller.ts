@@ -63,6 +63,26 @@ export class TeacherController {
   bulk(@Req() req: any, @Body() body: any) {
     return this.teacher.bulkAttendance(req.user, body);
   }
+  @Get('attendance/sessions')
+  listAttendanceSessions(@Req() req: any, @Query('from') from?: string, @Query('to') to?: string) {
+    return this.teacher.listAttendanceSessions(req.user, { from, to });
+  }
+
+  @Get('school-students')
+  schoolStudents(@Req() req: any) {
+    return this.teacher.schoolStudents(req.user);
+  }
+
+  @Get('cohorts')
+  teacherCohorts(@Req() req: any) {
+    return this.teacher.teacherCohorts(req.user);
+  }
+
+  @Get('school-cohorts')
+  schoolCohorts(@Req() req: any) {
+    return this.teacher.schoolCohorts(req.user);
+  }
+
   @Get('cohorts/:cohortId/students')
   @Get('cohort/:cohortId/students')
   cohortStudents(@Req() req: any, @Param('cohortId') cohortId: string) {
@@ -82,8 +102,8 @@ export class TeacherController {
   }
 
   @Get('grades/assessments')
-  listAssessments(@Req() req: any, @Query('courseId') courseId?: string) {
-    return this.teacher.listAssessments(req.user, { courseId });
+  listAssessments(@Req() req: any, @Query('cohortId') cohortId?: string) {
+    return this.teacher.listAssessments(req.user, { cohortId } as any);
   }
   @Get('assessments/:id/grades')
   @Get('grades/assessment/:id/grades')
@@ -105,121 +125,121 @@ export class TeacherController {
     return this.teacher.deleteAssessment(req.user, id);
   }
 
-  // ---- Classroom management ----
+  // ── Classroom management ────────────────────────────────────────────────────
+
+  @Post('classrooms')
+  createClassroom(@Req() req: any, @Body() body: any) {
+    return this.teacher.createClassroom(req.user, body);
+  }
 
   @Get('classrooms')
   listClassrooms(@Req() req: any) {
     return this.teacher.listClassrooms(req.user);
   }
 
-  @Get('classrooms/:courseId')
-  getClassroom(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.getClassroom(req.user, courseId);
+  @Get('classrooms/:id')
+  getClassroom(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.getClassroom(req.user, id);
   }
 
-  @Get('classrooms/:courseId/chat')
+  @Patch('classrooms/:id')
+  updateClassroom(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.updateClassroom(req.user, id, body);
+  }
+
+  @Delete('classrooms/:id')
+  deleteClassroom(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.deleteClassroom(req.user, id);
+  }
+
+  @Get('classrooms/:id/members')
+  listClassroomMembers(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.listClassroomMembers(req.user, id);
+  }
+
+  @Post('classrooms/:id/members')
+  addClassroomMembers(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.addClassroomMembers(req.user, id, body);
+  }
+
+  @Delete('classrooms/:id/members/:studentId')
+  removeClassroomMember(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
+    return this.teacher.removeClassroomMember(req.user, id, studentId);
+  }
+
+  @Get('classrooms/:id/chat')
   getClassroomChat(
     @Req() req: any,
-    @Param('courseId') courseId: string,
+    @Param('id') id: string,
     @Query('limit') limit?: string,
     @Query('cursor') cursor?: string,
   ) {
-    return this.teacher.getClassroomChat(req.user, courseId, { limit: limit ? Number(limit) : 30, cursor });
+    return this.teacher.getClassroomChat(req.user, id, { limit: limit ? Number(limit) : 30, cursor });
   }
 
-  @Post('classrooms/:courseId/chat')
-  sendClassroomChat(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
-    return this.teacher.sendClassroomChat(req.user, courseId, body);
+  @Post('classrooms/:id/chat')
+  sendClassroomChat(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.sendClassroomChat(req.user, id, body);
   }
 
-  @Get('classrooms/:courseId/assignments')
-  listClassroomAssignments(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.listClassroomAssignments(req.user, courseId);
+  @Get('classrooms/:id/assignments')
+  listClassroomAssignments(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.listClassroomAssignments(req.user, id);
   }
 
-  @Post('classrooms/:courseId/assignments')
-  createClassroomAssignment(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
-    return this.teacher.createClassroomAssignment(req.user, courseId, body);
+  @Post('classrooms/:id/assignments')
+  createClassroomAssignment(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.createClassroomAssignment(req.user, id, body);
   }
 
-  @Patch('classrooms/:courseId/assignments/:id')
-  updateClassroomAssignment(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('id') id: string,
-    @Body() body: any,
-  ) {
-    return this.teacher.updateClassroomAssignment(req.user, courseId, id, body);
+  @Patch('classrooms/:id/assignments/:aId')
+  updateClassroomAssignment(@Req() req: any, @Param('id') id: string, @Param('aId') aId: string, @Body() body: any) {
+    return this.teacher.updateClassroomAssignment(req.user, id, aId, body);
   }
 
-  @Delete('classrooms/:courseId/assignments/:id')
-  deleteClassroomAssignment(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('id') id: string,
-  ) {
-    return this.teacher.deleteClassroomAssignment(req.user, courseId, id);
+  @Delete('classrooms/:id/assignments/:aId')
+  deleteClassroomAssignment(@Req() req: any, @Param('id') id: string, @Param('aId') aId: string) {
+    return this.teacher.deleteClassroomAssignment(req.user, id, aId);
   }
 
-  @Get('classrooms/:courseId/materials')
-  listClassroomMaterials(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.listClassroomMaterials(req.user, courseId);
+  @Get('classrooms/:id/assignments/:aId/submissions')
+  listSubmissions(@Req() req: any, @Param('id') id: string, @Param('aId') aId: string) {
+    return this.teacher.listAssignmentSubmissions(req.user, id, aId);
   }
 
-  @Post('classrooms/:courseId/materials')
-  createClassroomMaterial(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
-    return this.teacher.createClassroomMaterial(req.user, courseId, body);
+  @Get('classrooms/:id/materials')
+  listClassroomMaterials(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.listClassroomMaterials(req.user, id);
   }
 
-  @Delete('classrooms/:courseId/materials/:id')
-  deleteClassroomMaterial(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('id') id: string,
-  ) {
-    return this.teacher.deleteClassroomMaterial(req.user, courseId, id);
+  @Post('classrooms/:id/materials')
+  createClassroomMaterial(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.createClassroomMaterial(req.user, id, body);
   }
 
-  @Get('classrooms/:courseId/meetings')
-  listClassroomMeetings(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.listClassroomMeetings(req.user, courseId);
+  @Delete('classrooms/:id/materials/:mId')
+  deleteClassroomMaterial(@Req() req: any, @Param('id') id: string, @Param('mId') mId: string) {
+    return this.teacher.deleteClassroomMaterial(req.user, id, mId);
   }
 
-  @Post('classrooms/:courseId/meetings')
-  createClassroomMeeting(@Req() req: any, @Param('courseId') courseId: string, @Body() body: any) {
-    return this.teacher.createClassroomMeeting(req.user, courseId, body);
+  @Get('classrooms/:id/meetings')
+  listClassroomMeetings(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.listClassroomMeetings(req.user, id);
   }
 
-  @Delete('classrooms/:courseId/meetings/:id')
-  deleteClassroomMeeting(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('id') id: string,
-  ) {
-    return this.teacher.deleteClassroomMeeting(req.user, courseId, id);
+  @Post('classrooms/:id/meetings')
+  createClassroomMeeting(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.createClassroomMeeting(req.user, id, body);
   }
 
-  @Get('classrooms/:courseId/people')
-  getClassroomPeople(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.getClassroomPeople(req.user, courseId);
+  @Delete('classrooms/:id/meetings/:mId')
+  deleteClassroomMeeting(@Req() req: any, @Param('id') id: string, @Param('mId') mId: string) {
+    return this.teacher.deleteClassroomMeeting(req.user, id, mId);
   }
 
-  // ---- Submissions ----
-
-  @Get('classrooms/:courseId/assignments/:assignmentId/submissions')
-  listSubmissions(
-    @Req() req: any,
-    @Param('courseId') courseId: string,
-    @Param('assignmentId') assignmentId: string,
-  ) {
-    return this.teacher.listAssignmentSubmissions(req.user, courseId, assignmentId);
-  }
-
-  // ---- Analytics ----
-
-  @Get('classrooms/:courseId/analytics')
-  classroomAnalytics(@Req() req: any, @Param('courseId') courseId: string) {
-    return this.teacher.classroomAnalytics(req.user, courseId);
+  @Get('classrooms/:id/analytics')
+  classroomAnalytics(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.classroomAnalytics(req.user, id);
   }
 
   @Get('student/:studentId/profile')
@@ -234,22 +254,22 @@ export class TeacherController {
 
   // ---- Student management in classrooms ----
 
-  @Post('classrooms/:courseId/students')
+  @Post('classrooms/:cohortId/students')
   addStudentToClassroom(
     @Req() req: any,
-    @Param('courseId') courseId: string,
+    @Param('cohortId') cohortId: string,
     @Body() body: any,
   ) {
-    return this.teacher.addStudentToClassroom(req.user, courseId, body);
+    return this.teacher.addStudentToClassroom(req.user, cohortId, body);
   }
 
-  @Delete('classrooms/:courseId/students/:studentId')
+  @Delete('classrooms/:cohortId/students/:studentId')
   removeStudentFromClassroom(
     @Req() req: any,
-    @Param('courseId') courseId: string,
+    @Param('cohortId') cohortId: string,
     @Param('studentId') studentId: string,
   ) {
-    return this.teacher.removeStudentFromClassroom(req.user, courseId, studentId);
+    return this.teacher.removeStudentFromClassroom(req.user, cohortId, studentId);
   }
 
   @Get('attendance/history')
@@ -303,4 +323,74 @@ export class TeacherController {
   deleteDiploma(@Req() req: any, @Param('id') id: string) {
     return this.teacher.deleteDiploma(req.user, id);
   }
+
+  // ── Subjects ──────────────────────────────────────────────────────────────
+
+  @Get('subjects')
+  listSubjects(@Req() req: any) { return this.teacher.listSubjects(req.user); }
+
+  // ── Teacher Assignments ───────────────────────────────────────────────────
+
+  @Get('assignments')
+  listTeacherAssignments(@Req() req: any) { return this.teacher.listTeacherAssignments(req.user); }
+
+  @Post('assignments')
+  createTeacherAssignment(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherAssignment(req.user, body); }
+
+  @Patch('assignments/:id')
+  updateTeacherAssignment(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherAssignment(req.user, id, body); }
+
+  @Delete('assignments/:id')
+  deleteTeacherAssignment(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherAssignment(req.user, id); }
+
+  @Get('assignments/:id/submissions')
+  getAssignmentSubmissions(@Req() req: any, @Param('id') id: string) { return this.teacher.getAssignmentSubmissions(req.user, id); }
+
+  @Patch('assignments/:id/submissions/:studentId/grade')
+  gradeAssignmentSubmission(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string, @Body() body: any) { return this.teacher.gradeAssignmentSubmission(req.user, id, studentId, body); }
+
+  // ── Teacher Materials ─────────────────────────────────────────────────────
+
+  @Get('materials')
+  listTeacherMaterials(@Req() req: any) { return this.teacher.listTeacherMaterials(req.user); }
+
+  @Post('materials')
+  createTeacherMaterial(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherMaterial(req.user, body); }
+
+  @Patch('materials/:id')
+  updateTeacherMaterial(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherMaterial(req.user, id, body); }
+
+  @Delete('materials/:id')
+  deleteTeacherMaterial(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherMaterial(req.user, id); }
+
+  // ── Teacher Meetings ──────────────────────────────────────────────────────
+
+  @Get('meetings')
+  listTeacherMeetings(@Req() req: any) { return this.teacher.listTeacherMeetings(req.user); }
+
+  @Post('meetings')
+  createTeacherMeeting(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherMeeting(req.user, body); }
+
+  @Patch('meetings/:id')
+  updateTeacherMeeting(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherMeeting(req.user, id, body); }
+
+  @Delete('meetings/:id')
+  deleteTeacherMeeting(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherMeeting(req.user, id); }
+
+  // ── Teacher Exams ─────────────────────────────────────────────────────────
+
+  @Get('exams')
+  listTeacherExams(@Req() req: any) { return this.teacher.listTeacherExams(req.user); }
+
+  @Post('exams')
+  createTeacherExam(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherExam(req.user, body); }
+
+  @Delete('exams/:id')
+  deleteTeacherExam(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherExam(req.user, id); }
+
+  @Get('exams/:id/grades')
+  getExamGrades(@Req() req: any, @Param('id') id: string) { return this.teacher.getExamGrades(req.user, id); }
+
+  @Post('exams/:id/grades')
+  saveExamGrades(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.saveExamGrades(req.user, id, body); }
 }

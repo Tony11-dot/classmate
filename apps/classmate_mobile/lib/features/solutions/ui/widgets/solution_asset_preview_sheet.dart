@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import '../../domain/solutions_models.dart';
+import '../../../../ui/widgets/cm_loading.dart';
 
 /// Opens a full-screen, swipeable gallery starting at [initialIndex].
 /// Supports both local/remote images and local/remote PDFs.
@@ -17,7 +18,7 @@ void openSolutionGallery(
   Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder<void>(
       opaque: false,
-      barrierColor: Colors.black.withValues(alpha: 0.92),
+      barrierColor: Colors.black,
       pageBuilder: (ctx, anim, sec) => _GalleryScreen(
         assets: assets,
         initialIndex: initialIndex,
@@ -288,7 +289,7 @@ class _Thumb extends StatelessWidget {
         return Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: cs.surfaceContainerHighest),
+            Container(color: cs.surfaceContainerLow),
             _PdfThumb(asset: asset),
             // PDF badge
             Positioned(
@@ -310,7 +311,7 @@ class _Thumb extends StatelessWidget {
         );
       }
       return Container(
-        color: cs.surfaceContainerHighest,
+        color: cs.surfaceContainerLow,
         child: Icon(Icons.picture_as_pdf_rounded, size: 48, color: cs.onSurfaceVariant),
       );
     }
@@ -326,19 +327,19 @@ class _Thumb extends StatelessWidget {
         loadingBuilder: (_, child, progress) {
           if (progress == null) return child;
           return Container(
-            color: cs.surfaceContainerHighest,
-            child: const Center(child: CircularProgressIndicator()),
+            color: cs.surfaceContainerLow,
+            child: const Center(child: const CmLoading()),
           );
         },
         errorBuilder: (ctx, err, trace) => Container(
-          color: cs.surfaceContainerHighest,
+          color: cs.surfaceContainerLow,
           child: Icon(Icons.broken_image_rounded, color: cs.onSurfaceVariant, size: 36),
         ),
       );
     }
 
     return Container(
-      color: cs.surfaceContainerHighest,
+      color: cs.surfaceContainerLow,
       child: Icon(Icons.image_rounded, color: cs.onSurfaceVariant, size: 36),
     );
   }
@@ -492,7 +493,7 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: cs.surface.withValues(alpha: 0.14),
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: Colors.white12),
               ),
