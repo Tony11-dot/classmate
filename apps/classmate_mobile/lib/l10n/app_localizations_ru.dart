@@ -4738,4 +4738,294 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileDisplayNameLang => 'Язык отображения';
+
+  @override
+  String get navDashboard => 'Панель управления';
+
+  @override
+  String get navPeople => 'Люди';
+
+  @override
+  String get navCohorts => 'Группы';
+
+  @override
+  String get navSchool => 'Школа';
+
+  @override
+  String get adminDashboardTitle => 'Обзор школы';
+
+  @override
+  String get adminStudents => 'Ученики';
+
+  @override
+  String get adminTeachers => 'Учителя';
+
+  @override
+  String get adminParents => 'Родители';
+
+  @override
+  String get adminSecretaries => 'Секретари';
+
+  @override
+  String get adminTodaySessions => 'Занятия сегодня';
+
+  @override
+  String get adminQuickActions => 'Быстрые действия';
+
+  @override
+  String get adminAttendanceLast30 => 'Посещаемость — последние 30 дней';
+
+  @override
+  String get adminNoAttendanceData =>
+      'Нет данных о посещаемости за последние 30 дней.';
+
+  @override
+  String get adminAddUser => 'Добавить пользователя';
+
+  @override
+  String get adminCreateUser => 'Создать';
+
+  @override
+  String get adminFullName => 'Полное имя';
+
+  @override
+  String get adminEmailAddress => 'Электронная почта';
+
+  @override
+  String get adminRoleLabel => 'Роль';
+
+  @override
+  String get adminUserCreated => 'Пользователь создан';
+
+  @override
+  String get adminTempPassword => 'Временный пароль';
+
+  @override
+  String get adminCopied => 'Скопировано в буфер обмена';
+
+  @override
+  String get adminResetPassword => 'Сбросить пароль';
+
+  @override
+  String get adminPasswordReset => 'Сброс пароля';
+
+  @override
+  String adminTempPasswordFor(Object name) {
+    return 'Временный пароль для $name';
+  }
+
+  @override
+  String get adminDeleteUser => 'Удалить пользователя';
+
+  @override
+  String adminDeleteUserConfirm(Object name) {
+    return 'Удалить $name? Это действие нельзя отменить.';
+  }
+
+  @override
+  String get adminDeleteCohort => 'Удалить группу';
+
+  @override
+  String adminDeleteCohortConfirm(Object name) {
+    return 'Удалить \"$name\"? Все участники будут удалены.';
+  }
+
+  @override
+  String get adminAddCohort => 'Добавить группу';
+
+  @override
+  String get adminNewCohort => 'Новая группа';
+
+  @override
+  String get adminCohortName => 'Название группы (напр. 10-2)';
+
+  @override
+  String get adminCohortGrade => 'Класс';
+
+  @override
+  String get adminRenameCohort => 'Переименовать группу';
+
+  @override
+  String get adminAddStudents => 'Добавить учеников';
+
+  @override
+  String adminAddTo(Object name) {
+    return 'Добавить в $name';
+  }
+
+  @override
+  String get adminRemoveStudent => 'Удалить ученика';
+
+  @override
+  String adminRemoveStudentConfirm(Object name, Object cohort) {
+    return 'Удалить $name из $cohort?';
+  }
+
+  @override
+  String get adminNoCohortsYet => 'Нет групп';
+
+  @override
+  String get adminNoStudentsInCohort => 'В этой группе нет учеников';
+
+  @override
+  String adminStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учеников',
+      one: '1 ученик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminSearchStudents => 'Поиск учеников…';
+
+  @override
+  String get adminScheduleTitle => 'Расписание';
+
+  @override
+  String get adminScheduleAddPeriod => 'Добавить урок';
+
+  @override
+  String get adminScheduleNewPeriod => 'Новый урок';
+
+  @override
+  String get adminScheduleDayLabel => 'День';
+
+  @override
+  String get adminSchedulePeriodLabel => 'Урок';
+
+  @override
+  String get adminScheduleTeacherLabel => 'Учитель';
+
+  @override
+  String get adminScheduleNoneTeacher => 'Нет учителя';
+
+  @override
+  String get adminScheduleCohortLabel => 'Группа / Ученики';
+
+  @override
+  String get adminScheduleFrequencyLabel => 'Частота';
+
+  @override
+  String get adminScheduleFreqWeekly => 'Каждую неделю';
+
+  @override
+  String get adminScheduleFreqBiweekly => 'Каждые 2 недели';
+
+  @override
+  String get adminScheduleFreqMonthly => 'Каждые 4 недели';
+
+  @override
+  String get adminScheduleFreqCustom => 'Настроить';
+
+  @override
+  String adminScheduleFreqCustomLabel(int n) {
+    return 'Каждые $n недели';
+  }
+
+  @override
+  String get adminScheduleAddSlot => 'Добавить слот';
+
+  @override
+  String get adminScheduleAddAnother => 'Добавить ещё день / урок';
+
+  @override
+  String get adminScheduleSave => 'Сохранить';
+
+  @override
+  String get adminScheduleSearchTeacher => 'Поиск учителей…';
+
+  @override
+  String get adminScheduleSearchCohort => 'Поиск групп…';
+
+  @override
+  String get adminScheduleSelectTeacher => 'Выбрать учителя';
+
+  @override
+  String get adminScheduleSelectCohort => 'Выбрать группу';
+
+  @override
+  String get adminScheduleOrStudents => 'Или выбрать учеников отдельно';
+
+  @override
+  String get adminScheduleNoSlots => 'Нет уроков';
+
+  @override
+  String get adminScheduleNoSlotsHint =>
+      'Нажмите + для добавления первого урока';
+
+  @override
+  String get adminSchoolSettingsTitle => 'Настройки школы';
+
+  @override
+  String get adminSchoolName => 'Название школы';
+
+  @override
+  String get adminSchoolLogoUrl => 'URL логотипа (необязательно)';
+
+  @override
+  String get adminSchoolLogoHint => 'https://…';
+
+  @override
+  String get adminSchoolSaved => 'Сохранено';
+
+  @override
+  String get adminSubjectsTitle => 'Предметы';
+
+  @override
+  String adminSubjectsGrade(int grade) {
+    return 'Класс $grade';
+  }
+
+  @override
+  String get adminSubjectsAddHint => 'Добавить предмет…';
+
+  @override
+  String get adminSubjectsNoSubjects => 'Предметы не настроены';
+
+  @override
+  String get adminSubjectsAdd => 'Добавить';
+
+  @override
+  String get adminSubjectsRemove => 'Удалить';
+
+  @override
+  String get adminSettingsTitle => 'Настройки';
+
+  @override
+  String get adminSettingsBellSchedule => 'Звонок';
+
+  @override
+  String get adminSettingsPeriodDefaults => 'Расписание звонков';
+
+  @override
+  String get adminSettingsPeriodDefaultsSubtitle =>
+      'Установить время для каждого урока';
+
+  @override
+  String get adminDeleteConfirmCancel => 'Отмена';
+
+  @override
+  String get adminDeleteConfirmDelete => 'Удалить';
+
+  @override
+  String get adminSave => 'Сохранить';
+
+  @override
+  String get adminCancel => 'Отмена';
+
+  @override
+  String get adminSearchPeople => 'Поиск по имени…';
+
+  @override
+  String adminNoResults(Object query) {
+    return 'Нет результатов для \"$query\"';
+  }
+
+  @override
+  String adminNoPeopleYet(Object role) {
+    return 'Нет $role';
+  }
 }

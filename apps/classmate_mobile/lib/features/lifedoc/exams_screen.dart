@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import 'data/exams_repository.dart';
@@ -78,6 +79,13 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     final isFormsOnly = widget.mode == ExamsScreenMode.formsOnly;
     final asyncExams = isFormsOnly ? null : ref.watch(examsLiveProvider);
     final asyncForms = isFormsOnly ? ref.watch(formsLiveProvider) : null;
+
+    // Refresh when grades are updated in real-time
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'grade_updated') {
+        ref.invalidate(examsLiveProvider);
+      }
+    });
 
     if ((asyncExams?.isLoading ?? false) || (asyncForms?.isLoading ?? false)) {
       return const Center(child: const CmLoading());

@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BrainService } from './brain.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('brain')
 export class BrainController {
   constructor(private readonly brain: BrainService) {}

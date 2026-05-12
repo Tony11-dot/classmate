@@ -64,6 +64,14 @@ import '../features/solutions/ui/filter/solutions_books_screen.dart';
 import '../features/solutions/ui/filter/solutions_pages_screen.dart';
 import '../features/solutions/ui/filter/solutions_questions_screen.dart';
 import '../features/solutions/ui/filter/solutions_subject_screen.dart';
+import '../features/admin/ui/admin_bell_schedule_screen.dart';
+import '../features/admin/ui/admin_dashboard_screen.dart';
+import '../features/admin/ui/admin_people_screen.dart';
+import '../features/admin/ui/admin_cohorts_screen.dart';
+import '../features/admin/ui/admin_schedule_screen.dart';
+import '../features/admin/ui/admin_school_settings_screen.dart';
+import '../features/admin/ui/admin_settings_screen.dart';
+import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
 
@@ -87,8 +95,22 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isLogin = state.matchedLocation == '/login';
       final loggedIn = session.isLoggedIn;
+      final primaryRole = session.primaryRole;
+      final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';
       final isTeacherRoute = loc.startsWith('/teacher/');
-      final isCommonTeacherSafe =
+      // Admin-ONLY routes that Secretary must not access
+      final isAdminOnlyRoute = loc.startsWith('/admin/');
+      final isAdminRoute = loc.startsWith('/admin/')
+          || loc.startsWith('/secretary/')
+          || loc.startsWith('/messages')
+          || loc.startsWith('/announcements')
+          || loc == '/tutor'
+          || loc.startsWith('/tutor/')
+          || loc == '/notifications'
+          || loc.startsWith('/notifications/')
+          || loc == '/settings'
+          || loc == '/profile';
+      final isCommonSafe =
           loc.startsWith('/messages') ||
           loc.startsWith('/tutor') ||
           loc == '/exams' ||
@@ -122,11 +144,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/notifications' ||
           loc.startsWith('/notifications/');
 
+      final isSecretary = primaryRole == 'SECRETARY';
+
       if (!loggedIn && !isLogin) return '/login';
       if (loggedIn && isLogin) {
+        if (isSecretary) return '/announcements';
+        if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
       }
-      if (loggedIn && session.isTeacherLike && !isTeacherRoute && !isCommonTeacherSafe) {
+      // Secretary must not access admin-only routes (e.g. /admin/dashboard, /admin/schedule)
+      if (loggedIn && isSecretary && isAdminOnlyRoute) {
+        return '/announcements';
+      }
+      // Admin/Secretary: redirect away from non-admin/secretary routes
+      if (loggedIn && isAdminLike && !isAdminRoute && !isCommonSafe) {
+        return isSecretary ? '/announcements' : '/admin/dashboard';
+      }
+      // Teacher: redirect away from student routes
+      if (loggedIn && session.isTeacherLike && !isAdminLike && !isTeacherRoute && !isCommonSafe) {
         return '/teacher/schedule';
       }
       if (loggedIn && !session.isTeacherLike && isTeacherRoute) return '/schedule';
@@ -477,6 +512,38 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/admin/periods',
             builder: (context, state) => const AdminPeriodsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/dashboard',
+            builder: (context, state) => const AdminDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/admin/people',
+            builder: (context, state) => const AdminPeopleScreen(),
+          ),
+          GoRoute(
+            path: '/admin/cohorts',
+            builder: (context, state) => const AdminCohortsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/schedule',
+            builder: (context, state) => const AdminScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/admin/school',
+            builder: (context, state) => const AdminSchoolSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/bell-schedule',
+            builder: (context, state) => const AdminBellScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/admin/settings',
+            builder: (context, state) => const AdminSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/secretary/students',
+            builder: (context, state) => const SecretaryStudentsScreen(),
           ),
           GoRoute(
             path: '/teacher/insights',

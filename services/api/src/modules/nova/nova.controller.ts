@@ -1,10 +1,12 @@
-import { Controller, Post, UploadedFile, UseInterceptors, Body } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseGuards, UseInterceptors, Body } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+@UseGuards(JwtAuthGuard)
 @Controller('nova')
 export class NovaController {
 

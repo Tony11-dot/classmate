@@ -32,7 +32,7 @@ export class NotificationsService {
       body: String(row.body ?? row.message ?? ''),
       source: String(row.type ?? 'system').toLowerCase(),
       createdAt: row.createdAt,
-      isRead: row.seenAt != null || row.readAt != null || row.isRead == true,
+      isRead: row.seenAt != null,
       severity:
         String(row.type ?? '').toLowerCase().includes('alert')
           ? 'critical'

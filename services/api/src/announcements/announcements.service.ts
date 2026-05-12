@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
+import { RealtimeService } from '../realtime/realtime.service';
 
 function parseDateish(input?: string): Date | null {
   if (!input) return null;
@@ -18,7 +19,10 @@ function parseDateish(input?: string): Date | null {
 
 @Injectable()
 export class AnnouncementsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   private ensureCanPost(user: any) {
     const roles: string[] = user?.roles ?? [];
@@ -91,6 +95,20 @@ export class AnnouncementsService {
       },
     });
 
+    // Emit real-time notification to explicitly targeted users only.
+    // For broadcast announcements (targets=[]) the feed is role-filtered server-side,
+    // so all connected users will pick it up on their next poll/refresh.
+    try {
+      const targetUserIds: string[] = [];
+      if (created.targets?.length) {
+        for (const t of created.targets) {
+          if (t.userId) targetUserIds.push(t.userId);
+        }
+      }
+      if (targetUserIds.length) {
+        this.realtime.emitToUsers(targetUserIds, { type: 'notification', userId: '' });
+      }
+    } catch {}
     return { ok: true, announcement: created };
   }
 

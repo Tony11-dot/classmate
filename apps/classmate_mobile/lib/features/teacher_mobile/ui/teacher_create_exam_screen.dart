@@ -150,7 +150,12 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         } catch (_) {
           // Upload failed — store local path as fallback (visible to teacher only).
           setState(() {
-            _attachments.add({'title': file.name, 'url': path, '_localOnly': true});
+            // Upload failed — skip this attachment rather than storing a local path the server can't access
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Upload failed for ${file.name}. File skipped.')),
+              );
+            }
           });
         }
       }
@@ -199,7 +204,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'targetType': _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
             'targetCohortIds': _selectedCohortIds.toList(),
             'targetStudentIds': _selectedStudentIds.toList(),
-            'attachments': _attachments,
+            'attachments': _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
           },
         );
       } else {
@@ -213,7 +218,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           targetType: _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
-          attachments: _attachments,
+          attachments: _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
         );
       }
       if (!mounted) return;

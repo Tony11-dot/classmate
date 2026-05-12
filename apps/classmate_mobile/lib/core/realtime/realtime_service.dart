@@ -7,17 +7,27 @@ import '../config/env.dart';
 
 /// Event types emitted by the server over SSE.
 class RealtimeEvent {
-  const RealtimeEvent({required this.type, this.classroomId, this.threadId, this.studentId});
+  const RealtimeEvent({
+    required this.type,
+    this.classroomId,
+    this.threadId,
+    this.studentId,
+    this.targetUserIds,
+  });
   final String type;
   final String? classroomId;
   final String? threadId;
   final String? studentId;
+  final List<String>? targetUserIds;
 
   factory RealtimeEvent.fromJson(Map<String, dynamic> j) => RealtimeEvent(
     type: (j['type'] ?? '').toString(),
     classroomId: j['classroomId']?.toString(),
     threadId: j['threadId']?.toString(),
     studentId: j['studentId']?.toString(),
+    targetUserIds: j['targetUserIds'] is List
+        ? List<String>.from((j['targetUserIds'] as List).map((e) => e.toString()))
+        : null,
   );
 }
 

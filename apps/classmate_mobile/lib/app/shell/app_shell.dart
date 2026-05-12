@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -9,8 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../core/auth/auth_session.dart';
+import '../../core/realtime/realtime_listener.dart';
+import '../../features/lifedoc/assignments_screen.dart';
+import '../../features/lifedoc/data/exams_repository.dart';
 import '../../features/lifedoc/diplomas_screen.dart';
+import '../../features/lifedoc/meetings_screen.dart';
 import '../../features/lifedoc/notifications_provider.dart';
+import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
@@ -37,6 +40,20 @@ const _teacherBottomNavPaths = <String>{
   '/messages',
 };
 
+const _adminBottomNavPaths = <String>{
+  '/admin/dashboard',
+  '/admin/people',
+  '/admin/cohorts',
+  '/admin/schedule',
+  '/messages',
+};
+
+const _secretaryBottomNavPaths = <String>{
+  '/announcements',
+  '/secretary/students',
+  '/messages',
+};
+
 String _routePathOnly(String loc) {
   final uri = Uri.tryParse(loc);
   return (uri?.path ?? loc).toLowerCase();
@@ -57,7 +74,9 @@ bool _hideTopBarForRoute(String loc) {
       l.startsWith('/forms/') ||
       l.startsWith('/meetings/') ||
       l.startsWith('/solutions/') ||
-      (l.startsWith('/classrooms/') && l != '/classrooms');
+      (l.startsWith('/classrooms/') && l != '/classrooms') ||
+      l.startsWith('/admin/cohorts/') ||
+      l.startsWith('/secretary/cohorts/');
 }
 
 class AppShell extends ConsumerWidget {
@@ -99,6 +118,42 @@ class AppShell extends ConsumerWidget {
     _ => '/teacher/schedule',
   };
 
+  int _adminIndexFor(String loc, bool isAdmin) {
+    if (!isAdmin) {
+      // Secretary: Announcements | Students | Messages
+      if (loc.startsWith('/secretary/')) return 1;
+      if (loc.startsWith('/messages')) return 2;
+      return 0; // announcements
+    }
+    // Admin: Dashboard | People | Cohorts | Schedule | Messages
+    if (loc.startsWith('/admin/people')) return 1;
+    if (loc.startsWith('/admin/cohorts')) return 2;
+    if (loc.startsWith('/admin/schedule')) return 3;
+    if (loc.startsWith('/messages')) return 4;
+    return 0;
+  }
+
+  String _adminLocFor(int index, bool isAdmin) {
+    if (!isAdmin) {
+      // Secretary
+      return switch (index) {
+        0 => '/announcements',
+        1 => '/secretary/students',
+        2 => '/messages',
+        _ => '/announcements',
+      };
+    }
+    // Admin
+    return switch (index) {
+      0 => '/admin/dashboard',
+      1 => '/admin/people',
+      2 => '/admin/cohorts',
+      3 => '/admin/schedule',
+      4 => '/messages',
+      _ => '/admin/dashboard',
+    };
+  }
+
   // Ordered most-specific prefix first (teacher/student/ before teacher/students)
   static const _teacherPrefixes = <String>[
     '/teacher/student/',     // must precede /teacher/students
@@ -126,6 +181,26 @@ class AppShell extends ConsumerWidget {
     '/settings',
   ];
 
+  static const _adminPrefixes = <String>[
+    '/admin/dashboard',
+    '/admin/people',
+    '/admin/cohorts',
+    '/admin/schedule',
+    '/admin/school',
+    '/admin/bell-schedule',
+    '/admin/settings',
+    '/admin/periods',
+    '/admin/',
+    '/secretary/students',
+    '/secretary/',
+    '/messages',
+    '/tutor',
+    '/announcements',
+    '/notifications',
+    '/profile',
+    '/settings',
+  ];
+
   static const _studentPrefixes = <String>[
     '/classrooms',
     '/messages',
@@ -147,6 +222,27 @@ class AppShell extends ConsumerWidget {
     '/profile',
     '/settings',
   ];
+
+  String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/admin/dashboard' => l.navDashboard,
+    '/admin/people' => l.navPeople,
+    '/admin/cohorts' => l.navCohorts,
+    '/admin/schedule' => l.adminScheduleTitle,
+    '/admin/school' => l.adminSchoolSettingsTitle,
+    '/admin/bell-schedule' => l.adminSettingsBellSchedule,
+    '/admin/settings' => l.adminSettingsTitle,
+    '/admin/periods' => l.adminSettingsPeriodDefaults,
+    '/admin/' => l.roleAdmin,
+    '/secretary/students' => l.adminStudents,
+    '/secretary/' => l.roleSecretary,
+    '/messages' => l.titleMessages,
+    '/tutor' => l.titleNova,
+    '/announcements' => l.navAnnouncements,
+    '/notifications' => l.navNotifications,
+    '/profile' => l.navProfile,
+    '/settings' => l.navSettings,
+    _ => l.roleSecretary,
+  };
 
   String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/teacher/student/' => l.teacherStudentsLabel,
@@ -198,8 +294,14 @@ class AppShell extends ConsumerWidget {
     _ => l.titleSchedule,
   };
 
-  String _pageTitle(BuildContext context, String loc, bool isTeacherLike) {
+  String _pageTitle(BuildContext context, String loc, bool isTeacherLike, bool isAdminLike) {
     final l = AppLocalizations.of(context)!;
+    if (isAdminLike) {
+      for (final p in _adminPrefixes) {
+        if (loc.startsWith(p)) return _adminTitle(l, p);
+      }
+      return 'Admin';
+    }
     final prefixes = isTeacherLike ? _teacherPrefixes : _studentPrefixes;
     for (final p in prefixes) {
       if (loc.startsWith(p)) {
@@ -209,16 +311,20 @@ class AppShell extends ConsumerWidget {
     return isTeacherLike ? l.navTeacherWorkspace : l.titleSchedule;
   }
 
-  bool _hideBottomNav(String loc, bool isTeacherLike) {
+  bool _hideBottomNav(String loc, bool isTeacherLike, bool isAdminLike, bool isAdmin) {
     final path = _routePathOnly(loc);
+    if (isAdminLike) {
+      final allowed = isAdmin ? _adminBottomNavPaths : _secretaryBottomNavPaths;
+      return !allowed.contains(path);
+    }
     final allowed = isTeacherLike ? _teacherBottomNavPaths : _coreBottomNavPaths;
     return !allowed.contains(path);
   }
 
-  Widget? _buildFab(BuildContext context, WidgetRef ref, String loc, bool isTeacherLike) {
+  Widget? _buildFab(BuildContext context, WidgetRef ref, String loc, bool isTeacherLike, {bool isAdminLike = false}) {
     final cs = Theme.of(context).colorScheme;
-    final l = AppLocalizations.of(context)!;
-    if (!isTeacherLike) return null;
+    // Secretary can post announcements — allow isAdminLike to reach the FAB logic too
+    if (!isTeacherLike && !isAdminLike) return null;
     if (loc == '/announcements') {
       return FloatingActionButton(
         heroTag: 'fab_announce',
@@ -298,28 +404,59 @@ class AppShell extends ConsumerWidget {
     return null;
   }
 
-  void _showCreateExamSheet(BuildContext context, WidgetRef ref, AppLocalizations l) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _CreateExamSheet(ref: ref, l: l),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
+    final primaryRole = session.primaryRole;
+    final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';
+    final isAdmin = primaryRole == 'ADMIN';
     final loc = GoRouterState.of(context).matchedLocation;
     final unreadMessages = ref.watch(unreadMessagesCountProvider);
-    final idx = isTeacherLike ? _teacherIndexFor(loc) : _studentIndexFor(loc);
-    final hideBottomNav = _hideBottomNav(loc, isTeacherLike);
+    final idx = isAdminLike
+        ? _adminIndexFor(loc, isAdmin)
+        : isTeacherLike
+            ? _teacherIndexFor(loc)
+            : _studentIndexFor(loc);
+    final hideBottomNav = _hideBottomNav(loc, isTeacherLike, isAdminLike, isAdmin);
     final hideTopBar = _hideTopBarForRoute(loc);
 
-    final pageTitle = _pageTitle(context, loc, isTeacherLike);
+    final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike);
+
+    // Global real-time event handler — invalidates providers when SSE events arrive
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event == null) return;
+      switch (event.type) {
+        case 'grade_updated':
+          ref.invalidate(examsLiveProvider);
+          break;
+        case 'assignment_created':
+          ref.invalidate(assignmentsFeedProvider);
+          break;
+        case 'material_created':
+          ref.invalidate(studentMaterialsProvider);
+          break;
+        case 'meeting_created':
+          ref.invalidate(meetingsFeedProvider);
+          break;
+        case 'notification':
+          ref.invalidate(notificationInboxProvider);
+          ref.invalidate(unreadNotificationsCountProvider);
+          break;
+        case 'schedule_updated':
+          // Student's schedule was updated by admin — invalidate schedule cache
+          // The schedule screen uses _teacherWeekProvider (teacher) or weekScheduleProvider (student)
+          // Both are FutureProvider.autoDispose so they refetch on next render automatically
+          break;
+        case 'classroom_message':
+        case 'dm_message':
+          // Messages handle their own invalidation in messages screens
+          break;
+        default:
+          break;
+      }
+    });
 
     // Dismiss keyboard whenever any scroll view starts scrolling — applies
     // globally so every screen gets dismiss-on-drag without per-ListView changes.
@@ -335,13 +472,22 @@ class AppShell extends ConsumerWidget {
         loc: loc,
         idx: idx,
         isTeacherLike: isTeacherLike,
+        isAdminLike: isAdminLike,
+        isAdmin: isAdmin,
         hideBottomNav: hideBottomNav,
         hideTopBar: hideTopBar,
         unreadMessages: unreadMessages,
         child: child,
-        buildFab: (ctx) => _buildFab(ctx, ref, loc, isTeacherLike),
+        buildFab: (ctx) => _buildFab(ctx, ref, loc, isTeacherLike, isAdminLike: isAdminLike),
         onTap: (i) {
-          final next = isTeacherLike ? _teacherLocFor(i) : _studentLocFor(i);
+          final String next;
+          if (isAdminLike) {
+            next = _adminLocFor(i, isAdmin);
+          } else if (isTeacherLike) {
+            next = _teacherLocFor(i);
+          } else {
+            next = _studentLocFor(i);
+          }
           if (next == loc) return;
           context.go(next);
         },
@@ -358,6 +504,8 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
     required this.loc,
     required this.idx,
     required this.isTeacherLike,
+    required this.isAdminLike,
+    required this.isAdmin,
     required this.hideBottomNav,
     required this.hideTopBar,
     required this.unreadMessages,
@@ -371,6 +519,8 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
   final String loc;
   final int idx;
   final bool isTeacherLike;
+  final bool isAdminLike;
+  final bool isAdmin;
   final bool hideBottomNav;
   final bool hideTopBar;
   final int unreadMessages;
@@ -420,21 +570,36 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       bottomNavigationBar: widget.hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
-              items: widget.isTeacherLike
-                  ? <_NavItem>[
-                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                      _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                    ]
-                  : <_NavItem>[
-                      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
-                      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-                    ],
+              items: widget.isAdminLike
+                  ? widget.isAdmin
+                      ? <_NavItem>[
+                          _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navDashboard),
+                          _NavItem(Icons.people_outline_rounded, Icons.people_rounded, l.navPeople),
+                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navCohorts),
+                          _NavItem(Icons.manage_history_outlined, Icons.manage_history_rounded, l.adminScheduleTitle),
+                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+                        ]
+                      : <_NavItem>[
+                          // Secretary: Announcements | Students | Messages
+                          _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
+                          _NavItem(Icons.school_outlined, Icons.school_rounded, l.adminStudents),
+                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+                        ]
+                  : widget.isTeacherLike
+                      ? <_NavItem>[
+                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+                        ]
+                      : <_NavItem>[
+                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+                          _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
+                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+                        ],
               index: widget.idx,
               onTap: widget.onTap,
             ),
@@ -580,9 +745,6 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final pillTint = cs.surface;
 
     // Stretch factors — large enough to overflow the bar (dramatic iOS 26 feel)
-    final sx = 1.0 + (_dragDx.abs() / 120).clamp(0.0, 0.55);
-    final sy = 1.0 + (_dragDy.abs() / 120).clamp(0.0, 0.40);
-
     return SafeArea(
       top: false, left: false, right: false, bottom: true,
       child: Padding(

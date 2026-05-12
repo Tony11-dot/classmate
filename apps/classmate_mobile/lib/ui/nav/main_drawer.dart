@@ -15,7 +15,8 @@ class MainDrawer extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
-    final isAdmin = session.primaryRole == 'ADMIN' || session.primaryRole == 'SECRETARY';
+    final isSecretary = session.primaryRole == 'SECRETARY';
+    final isPureAdmin = session.primaryRole == 'ADMIN';
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
@@ -279,18 +280,25 @@ class MainDrawer extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: 12),
                 children: [
                   sectionHeader(l.sectionCore),
-                  if (isTeacherLike) ...[
+                  if (isSecretary) ...[
+                    // Secretary: focused on announcements, students, messaging
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                  ] else if (isPureAdmin) ...[
+                    navItem(icon: Icons.dashboard_rounded, label: l.navDashboard, route: '/admin/dashboard'),
+                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/admin/people'),
+                    navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/admin/cohorts'),
+                    navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/admin/schedule'),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                  ] else if (isTeacherLike) ...[
                     navItem(
                       icon: Icons.event_note_rounded,
                       label: l.navSchedule,
                       route: '/teacher/schedule',
                     ),
-                    if (isAdmin)
-                      navItem(
-                        icon: Icons.manage_history_rounded,
-                        label: 'Manage Periods',
-                        route: '/admin/periods',
-                      ),
                     navItem(
                       icon: Icons.groups_rounded,
                       label: l.navClassrooms,
@@ -340,7 +348,16 @@ class MainDrawer extends ConsumerWidget {
                   ],
 
                   sectionHeader(l.sectionSchoolTools),
-                  if (isTeacherLike) ...[
+                  if (isSecretary) ...[
+                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
+                    navItem(icon: Icons.settings_rounded, label: l.navSettings, route: '/settings'),
+                  ] else if (isPureAdmin) ...[
+                    navItem(icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle, route: '/admin/school'),
+                    navItem(icon: Icons.settings_rounded, label: l.adminSettingsTitle, route: '/admin/settings'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
+                    navItem(icon: Icons.lightbulb_rounded, label: l.navSolutions, route: '/solutions'),
+                  ] else if (isTeacherLike) ...[
                     navItem(
                       icon: Icons.dashboard_rounded,
                       label: l.navTeacherWorkspace,

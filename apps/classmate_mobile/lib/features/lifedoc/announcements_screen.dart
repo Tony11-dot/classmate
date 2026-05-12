@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
@@ -188,6 +191,13 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
 
   String _selectedSource = _allSources;
   String _selectedReadState = _allReadStates;
+  Timer? _realtimeDebounce;
+
+  @override
+  void dispose() {
+    _realtimeDebounce?.cancel();
+    super.dispose();
+  }
 
   List<AnnouncementItem> _filteredItems(
     List<AnnouncementItem> items,
@@ -243,6 +253,17 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
     final readIds = ref.watch(announcementReadStateProvider);
     final session = ref.watch(authSessionProvider);
     final accountLabel = _audienceLabel(context, session.isTeacherLike);
+
+    // Refresh when a new announcement is created (real-time push)
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'notification') {
+        // Debounce rapid events (e.g. bulk announcements) to avoid multiple fetches
+        _realtimeDebounce?.cancel();
+        _realtimeDebounce = Timer(const Duration(milliseconds: 500), () {
+          if (mounted) ref.invalidate(publishedAnnouncementsProvider);
+        });
+      }
+    });
 
     return announcementsAsync.when(
       loading: () => const Scaffold(

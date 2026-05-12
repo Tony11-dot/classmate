@@ -53,9 +53,11 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               child: TextField(
                 controller: _nameCtl,
                 textCapitalization: TextCapitalization.words,
+                maxLength: 50,
                 decoration: InputDecoration(
                   hintText: l.messagesGroupNameHint,
                   prefixIcon: const Icon(Icons.group_rounded),
+                  counterText: '', // hide the counter — keeps UI clean
                 ),
               ),
             ),

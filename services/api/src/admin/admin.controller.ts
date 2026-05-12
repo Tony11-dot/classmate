@@ -211,4 +211,128 @@ export class AdminController {
     return this.admin.assignUserToSchool(req.user, id, body);
   }
 
+  // ── User Management ───────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('users')
+  listUsers(@Req() req: any, @Query('q') q?: string, @Query('role') role?: string, @Query('page') page?: string) {
+    return this.admin.listUsers(req.user, { q, role, page: page ? Number(page) : 0 });
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('users')
+  createUser(@Req() req: any, @Body() body: any) {
+    return this.admin.createUser(req.user, body);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('users/:id')
+  getUserDetail(@Req() req: any, @Param('id') id: string) {
+    return this.admin.getUserDetail(req.user, id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('users/:id')
+  updateUser(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.updateUser(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete('users/:id')
+  deleteUser(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deleteUser(req.user, id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('users/:id/reset-password')
+  resetUserPassword(@Req() req: any, @Param('id') id: string) {
+    return this.admin.resetUserPassword(req.user, id);
+  }
+
+  // ── Parent Links ──────────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Post('parent-links')
+  linkParent(@Req() req: any, @Body() body: any) {
+    return this.admin.linkParent(req.user, body);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Delete('parent-links/:id')
+  unlinkParent(@Req() req: any, @Param('id') id: string) {
+    return this.admin.unlinkParent(req.user, id);
+  }
+
+  // ── Cohort Management ─────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('cohorts')
+  listCohorts(@Req() req: any) {
+    return this.admin.listCohorts(req.user);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Patch('cohorts/:id')
+  updateCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.updateCohort(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete('cohorts/:id')
+  deleteCohort(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deleteCohort(req.user, id);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('cohorts/:id/roster')
+  getCohortRoster(@Req() req: any, @Param('id') id: string) {
+    return this.admin.getCohortRoster(req.user, id);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Post('cohorts/:id/students')
+  addStudentsToCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.addStudentsToCohort(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Delete('cohorts/:id/students/:studentId')
+  removeStudentFromCohort(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
+    return this.admin.removeStudentFromCohort(req.user, id, studentId);
+  }
+
+  // ── School Settings ───────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('school')
+  getMySchool(@Req() req: any) {
+    return this.admin.getMySchool(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('school')
+  updateMySchool(@Req() req: any, @Body() body: any) {
+    return this.admin.updateMySchool(req.user, body);
+  }
+
+  // ── Analytics ─────────────────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('analytics/overview')
+  analyticsOverview(@Req() req: any) {
+    return this.admin.getAnalyticsOverview(req.user);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('analytics/attendance')
+  analyticsAttendance(@Req() req: any) {
+    return this.admin.getAnalyticsAttendance(req.user);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('analytics/grades')
+  analyticsGrades(@Req() req: any) {
+    return this.admin.getAnalyticsGrades(req.user);
+  }
+
 }

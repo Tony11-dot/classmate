@@ -4,6 +4,9 @@
   "packageManager": "pnpm@10.26.2",
   "scripts": {
     "approve-builds": "pnpm approve-builds",
+    "seed:test": "node scripts/seed-test.mjs",
+    "test": "pnpm --dir apps/admin-web exec playwright test e2e/features.spec.ts --reporter=list --project=chromium",
+    "test:e2e:features": "E2E_API_BASE_URL=http://127.0.0.1:3001 pnpm run test",
     "dev": "pnpm -r --parallel --filter api --filter admin-web run dev",
     "dev:admin": "pnpm --dir apps/admin-web dev",
     "dev:api": "pnpm --dir services/api dev",

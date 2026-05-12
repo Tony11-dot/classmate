@@ -54,6 +54,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       setState(() => _error = 'Please enter your email and password.');
       return;
     }
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      setState(() => _error = 'Please enter a valid email address.');
+      return;
+    }
     setState(() { _loading = true; _error = null; });
     try {
       final session = ref.read(authSessionProvider);
@@ -62,7 +66,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       GoRouter.of(context).go(session.isTeacherLike ? '/teacher/schedule' : '/schedule');
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      final raw = e.toString().toLowerCase();
+      final friendly = raw.contains('socket') || raw.contains('connection refused') || raw.contains('network')
+          ? 'No connection. Check your internet and try again.'
+          : raw.contains('timeout')
+              ? 'Request timed out. Please try again.'
+              : e.toString().replaceFirst('Exception: ', '');
+      setState(() => _error = friendly);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

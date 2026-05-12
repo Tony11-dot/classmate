@@ -28,14 +28,23 @@ export class RealtimeService {
       this.send(res, { type: 'ping' });
     }, 25_000);
 
-    return () => {
+    const unsubscribe = () => {
       clearInterval(pingInterval);
+      try { res.removeListener('error', onError); } catch (_) {}
+      try { res.removeListener('close', unsubscribe); } catch (_) {}
       const set = this.connections.get(userId);
       if (set) {
         set.delete(res);
         if (set.size === 0) this.connections.delete(userId);
       }
     };
+
+    // Clean up on write error or abrupt network drop so connections don't leak
+    const onError = () => unsubscribe();
+    try { res.on('error', onError); } catch (_) {}
+    try { res.on('close', unsubscribe); } catch (_) {}
+
+    return unsubscribe;
   }
 
   private send(res: Response, event: RealtimeEvent) {

@@ -61,11 +61,13 @@ class _TeacherAttendanceHistoryScreenState
       final sessions = await ref
           .read(teacherMobileRepositoryProvider)
           .fetchAttendanceSessions(from: _ymd(_from));
+      if (!mounted) return;
       setState(() => _sessions = sessions);
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } finally {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 

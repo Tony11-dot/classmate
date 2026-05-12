@@ -6,8 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/attachment_pill.dart';
 import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import '../../chat_core/policies/chat_action_policy.dart';
 import '../../chat_core/ui/chat_thread_view.dart';
@@ -139,10 +141,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 (items['teacherUserId'] ?? '').toString().trim();
             if (teacherUserId.isEmpty) return false;
             final session = ref.read(authSessionProvider);
-            final myId = session.displayName.isNotEmpty
-                ? session.displayName
-                : (session.token ?? '');
-            return myId.toLowerCase() == teacherUserId.toLowerCase();
+            // userId is the JWT sub claim — the correct identifier for ownership checks
+            final myId = session.userId.isNotEmpty ? session.userId : '';
+            return myId.isNotEmpty && myId == teacherUserId;
           },
         ) ??
         false;
@@ -191,6 +192,20 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
     final materials = ref.watch(classroomMaterialsProvider(widget.courseId));
     final meetings = ref.watch(classroomMeetingsProvider(widget.courseId));
+
+    // Live-refresh when teacher pushes new assignments/materials/meetings
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event == null) return;
+      final cid = event.classroomId;
+      if (cid != null && cid != widget.courseId) return;
+      if (event.type == 'assignment_created') {
+        ref.invalidate(classroomAssignmentsProvider(widget.courseId));
+      } else if (event.type == 'material_created') {
+        ref.invalidate(classroomMaterialsProvider(widget.courseId));
+      } else if (event.type == 'meeting_created') {
+        ref.invalidate(classroomMeetingsProvider(widget.courseId));
+      }
+    });
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -299,6 +314,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 },
                               )
                             : null,
+                        // Show teacher-attached files directly in the list
+                        attachmentPills: () {
+                          final rawAtt = item is Map ? item['attachments'] : null;
+                          if (rawAtt is! List || rawAtt.isEmpty) return null;
+                          final pills = rawAtt.whereType<Map>()
+                              .map((a) => Map<String, dynamic>.from(a)).toList();
+                          return AttachmentPills(attachments: pills);
+                        }(),
                       );
                     },
                   ),
@@ -351,6 +374,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 }
                               }
                             : null,
+                        // Render material attachments inline
+                        attachmentPills: () {
+                          final rawAtt = item is Map ? item['attachments'] : null;
+                          if (rawAtt is! List || rawAtt.isEmpty) return null;
+                          final pills = rawAtt.whereType<Map>()
+                              .map((a) => Map<String, dynamic>.from(a)).toList();
+                          return AttachmentPills(attachments: pills);
+                        }(),
                       );
                     },
                   ),
@@ -800,6 +831,7 @@ class _SimpleCard extends StatelessWidget {
     this.onDelete,
     this.actionLabel,
     this.leadingIcon,
+    this.attachmentPills,
   });
 
   final String title;
@@ -809,6 +841,7 @@ class _SimpleCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final String? actionLabel;
   final IconData? leadingIcon;
+  final Widget? attachmentPills;
 
   @override
   Widget build(BuildContext context) {
@@ -862,6 +895,10 @@ class _SimpleCard extends StatelessWidget {
                           color: cs.onSurfaceVariant,
                         ),
                   ),
+                ],
+                if (attachmentPills != null) ...[
+                  const SizedBox(height: 8),
+                  attachmentPills!,
                 ],
               ],
             ),

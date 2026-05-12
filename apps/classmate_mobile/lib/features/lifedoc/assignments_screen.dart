@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/attachment_pill.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
@@ -283,6 +285,11 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
     final async = ref.watch(assignmentsFeedProvider);
     final l = AppLocalizations.of(context)!;
 
+    // Refresh assignments list when teacher creates a new one
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'assignment_created') ref.invalidate(assignmentsFeedProvider);
+    });
+
     return Scaffold(
       body: async.when(
         skipLoadingOnRefresh: true,
@@ -544,6 +551,7 @@ class AssignmentDetailScreen extends ConsumerStatefulWidget {
 
 class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen> {
   final List<_DraftAttachment> _draftAttachments = <_DraftAttachment>[];
+  final _noteCtrl = TextEditingController();
   bool _submitting = false;
   bool _submitted = false;
   bool _initializedFromData = false;
@@ -581,34 +589,43 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     });
   }
 
+  @override
+  void dispose() {
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _stageSubmission() async {
     if (_submitting) return;
 
-    if (_draftAttachments.isEmpty) {
+    final note = _noteCtrl.text.trim();
+    final hasFiles = _draftAttachments.isNotEmpty;
+
+    // Allow submitting with just a note, just files, or both. Only block if truly empty.
+    if (!hasFiles && note.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Attach at least one file before handing in.')),
+        const SnackBar(content: Text('Add a note or attach a file before handing in.')),
       );
       return;
     }
 
     setState(() => _submitting = true);
     try {
-      // Upload each file first to get a server-hosted URL.
+      // Upload any attached files to get server-hosted URLs first.
       final teacherRepo = ref.read(teacherMobileRepositoryProvider);
       final uploadedFiles = <Map<String, String>>[];
       for (final a in _draftAttachments) {
         try {
           final res = await teacherRepo.uploadAttachmentFile(a.path, a.name);
           final url = (res['url'] ?? res['fileUrl'] ?? '').toString().trim();
-          if (url.isNotEmpty) {
-            uploadedFiles.add({'url': url, 'name': a.name});
-          }
+          if (url.isNotEmpty) uploadedFiles.add({'url': url, 'name': a.name});
         } catch (_) {
-          // If upload fails for a file, skip it silently.
+          // If a single file fails, skip it and continue with the rest.
         }
       }
 
-      if (uploadedFiles.isEmpty) {
+      // If the student added files but all uploads failed, warn them.
+      if (hasFiles && uploadedFiles.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('File upload failed — please try again.')),
@@ -622,11 +639,14 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
         await repo.submitAssignment(
           courseId,
           widget.assignmentId,
+          note: note.isNotEmpty ? note : null,
           files: uploadedFiles,
         );
       }
       if (!mounted) return;
-      setState(() { _submitted = true; _draftAttachments.clear(); });
+      setState(() { _submitted = true; _draftAttachments.clear(); _noteCtrl.clear(); });
+      // Invalidate so the assignments list shows "submitted" on next visit
+      ref.invalidate(assignmentsFeedProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Assignment handed in!')),
       );
@@ -824,12 +844,28 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                 ),
                               ),
                             ),
+                            // Teacher-attached files
+                            Builder(builder: (context) {
+                              final rawAtt = assignment['attachments'];
+                              final List<Map<String, dynamic>> pills = rawAtt is List
+                                  ? rawAtt.whereType<Map>().map((a) => Map<String, dynamic>.from(a)).toList()
+                                  : <Map<String, dynamic>>[];
+                              if (pills.isEmpty) return const SizedBox.shrink();
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 0, bottom: 16),
+                                child: _SectionCard(
+                                  title: 'Attachments',
+                                  subtitle: 'Files shared by your teacher',
+                                  child: AttachmentPills(attachments: pills),
+                                ),
+                              );
+                            }),
                             const SizedBox(height: 16),
                             _SectionCard(
                               title: 'Your submission',
                               subtitle: _submitted
                                   ? 'You have already handed in this assignment.'
-                                  : 'Attach your file(s) and press Hand in.',
+                                  : 'Add a note or attach files, then press Hand in.',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -867,6 +903,22 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                       ]),
                                     ),
                                   ] else ...[
+                                    // Note field — optional text comment with submission
+                                    TextField(
+                                      controller: _noteCtrl,
+                                      maxLines: 3,
+                                      minLines: 1,
+                                      textCapitalization: TextCapitalization.sentences,
+                                      decoration: InputDecoration(
+                                        hintText: 'Add a note (optional)…',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 12),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
                                     OutlinedButton.icon(
                                       onPressed: _pickFiles,
                                       icon: const Icon(Icons.attach_file_rounded,

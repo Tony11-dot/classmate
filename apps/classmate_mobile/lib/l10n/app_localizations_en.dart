@@ -4805,4 +4805,293 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileDisplayNameLang => 'Display name language';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navPeople => 'People';
+
+  @override
+  String get navCohorts => 'Cohorts';
+
+  @override
+  String get navSchool => 'School';
+
+  @override
+  String get adminDashboardTitle => 'School Overview';
+
+  @override
+  String get adminStudents => 'Students';
+
+  @override
+  String get adminTeachers => 'Teachers';
+
+  @override
+  String get adminParents => 'Parents';
+
+  @override
+  String get adminSecretaries => 'Secretaries';
+
+  @override
+  String get adminTodaySessions => 'Today\'s sessions';
+
+  @override
+  String get adminQuickActions => 'Quick Actions';
+
+  @override
+  String get adminAttendanceLast30 => 'Attendance — Last 30 Days';
+
+  @override
+  String get adminNoAttendanceData =>
+      'No attendance data for the last 30 days.';
+
+  @override
+  String get adminAddUser => 'Add User';
+
+  @override
+  String get adminCreateUser => 'Create';
+
+  @override
+  String get adminFullName => 'Full Name';
+
+  @override
+  String get adminEmailAddress => 'Email address';
+
+  @override
+  String get adminRoleLabel => 'Role';
+
+  @override
+  String get adminUserCreated => 'User Created';
+
+  @override
+  String get adminTempPassword => 'Temporary password';
+
+  @override
+  String get adminCopied => 'Copied to clipboard';
+
+  @override
+  String get adminResetPassword => 'Reset Password';
+
+  @override
+  String get adminPasswordReset => 'Password Reset';
+
+  @override
+  String adminTempPasswordFor(Object name) {
+    return 'Temporary password for $name';
+  }
+
+  @override
+  String get adminDeleteUser => 'Delete User';
+
+  @override
+  String adminDeleteUserConfirm(Object name) {
+    return 'Delete $name? This cannot be undone.';
+  }
+
+  @override
+  String get adminDeleteCohort => 'Delete Cohort';
+
+  @override
+  String adminDeleteCohortConfirm(Object name) {
+    return 'Delete \"$name\"? All student memberships will be removed.';
+  }
+
+  @override
+  String get adminAddCohort => 'Add Cohort';
+
+  @override
+  String get adminNewCohort => 'New Cohort';
+
+  @override
+  String get adminCohortName => 'Cohort Name (e.g. 10th-2)';
+
+  @override
+  String get adminCohortGrade => 'Grade';
+
+  @override
+  String get adminRenameCohort => 'Rename Cohort';
+
+  @override
+  String get adminAddStudents => 'Add Students';
+
+  @override
+  String adminAddTo(Object name) {
+    return 'Add to $name';
+  }
+
+  @override
+  String get adminRemoveStudent => 'Remove Student';
+
+  @override
+  String adminRemoveStudentConfirm(Object name, Object cohort) {
+    return 'Remove $name from $cohort?';
+  }
+
+  @override
+  String get adminNoCohortsYet => 'No cohorts yet';
+
+  @override
+  String get adminNoStudentsInCohort => 'No students in this cohort';
+
+  @override
+  String adminStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminSearchStudents => 'Search students…';
+
+  @override
+  String get adminScheduleTitle => 'Schedule';
+
+  @override
+  String get adminScheduleAddPeriod => 'Add Period';
+
+  @override
+  String get adminScheduleNewPeriod => 'New Period';
+
+  @override
+  String get adminScheduleDayLabel => 'Day';
+
+  @override
+  String get adminSchedulePeriodLabel => 'Period';
+
+  @override
+  String get adminScheduleTeacherLabel => 'Teacher';
+
+  @override
+  String get adminScheduleNoneTeacher => 'No teacher assigned';
+
+  @override
+  String get adminScheduleCohortLabel => 'Cohort / Students';
+
+  @override
+  String get adminScheduleFrequencyLabel => 'Frequency';
+
+  @override
+  String get adminScheduleFreqWeekly => 'Every week';
+
+  @override
+  String get adminScheduleFreqBiweekly => 'Every 2 weeks';
+
+  @override
+  String get adminScheduleFreqMonthly => 'Every 4 weeks';
+
+  @override
+  String get adminScheduleFreqCustom => 'Custom';
+
+  @override
+  String adminScheduleFreqCustomLabel(int n) {
+    return 'Every $n weeks';
+  }
+
+  @override
+  String get adminScheduleAddSlot => 'Add Slot';
+
+  @override
+  String get adminScheduleAddAnother => 'Add another day / period';
+
+  @override
+  String get adminScheduleSave => 'Save';
+
+  @override
+  String get adminScheduleSearchTeacher => 'Search teachers…';
+
+  @override
+  String get adminScheduleSearchCohort => 'Search cohorts…';
+
+  @override
+  String get adminScheduleSelectTeacher => 'Select teacher';
+
+  @override
+  String get adminScheduleSelectCohort => 'Select cohort';
+
+  @override
+  String get adminScheduleOrStudents => 'Or pick individual students';
+
+  @override
+  String get adminScheduleNoSlots => 'No periods yet';
+
+  @override
+  String get adminScheduleNoSlotsHint => 'Tap + to add the first period';
+
+  @override
+  String get adminSchoolSettingsTitle => 'School Settings';
+
+  @override
+  String get adminSchoolName => 'School Name';
+
+  @override
+  String get adminSchoolLogoUrl => 'Logo URL (optional)';
+
+  @override
+  String get adminSchoolLogoHint => 'https://…';
+
+  @override
+  String get adminSchoolSaved => 'Saved';
+
+  @override
+  String get adminSubjectsTitle => 'Subjects';
+
+  @override
+  String adminSubjectsGrade(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get adminSubjectsAddHint => 'Add subject…';
+
+  @override
+  String get adminSubjectsNoSubjects => 'No subjects configured';
+
+  @override
+  String get adminSubjectsAdd => 'Add';
+
+  @override
+  String get adminSubjectsRemove => 'Remove';
+
+  @override
+  String get adminSettingsTitle => 'Settings';
+
+  @override
+  String get adminSettingsBellSchedule => 'Bell Schedule';
+
+  @override
+  String get adminSettingsPeriodDefaults => 'Period Defaults';
+
+  @override
+  String get adminSettingsPeriodDefaultsSubtitle =>
+      'Set bell times for each period';
+
+  @override
+  String get adminDeleteConfirmCancel => 'Cancel';
+
+  @override
+  String get adminDeleteConfirmDelete => 'Delete';
+
+  @override
+  String get adminSave => 'Save';
+
+  @override
+  String get adminCancel => 'Cancel';
+
+  @override
+  String get adminSearchPeople => 'Search by name…';
+
+  @override
+  String adminNoResults(Object query) {
+    return 'No results for \"$query\"';
+  }
+
+  @override
+  String adminNoPeopleYet(Object role) {
+    return 'No $role yet';
+  }
 }

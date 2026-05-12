@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PracticeAdaptiveService } from './practice_adaptive.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('practice-adaptive')
 export class PracticeAdaptiveController {
   constructor(private readonly service: PracticeAdaptiveService) {}

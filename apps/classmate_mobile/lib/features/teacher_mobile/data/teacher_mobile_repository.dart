@@ -314,6 +314,7 @@ class TeacherMobileRepository {
     required String title,
     String? body,
     String? dueAt,
+    List<Map<String, dynamic>> attachments = const [],
   }) async {
     await _api.postJson(
       '/teacher/classrooms/$courseId/assignments',
@@ -321,6 +322,7 @@ class TeacherMobileRepository {
         'title': title.trim(),
         if ((body ?? '').trim().isNotEmpty) 'body': body!.trim(),
         if ((dueAt ?? '').trim().isNotEmpty) 'dueAt': dueAt!.trim(),
+        if (attachments.isNotEmpty) 'attachments': attachments,
       },
     );
   }
@@ -412,9 +414,13 @@ class TeacherMobileRepository {
     final members = _asList(map['members']);
     final teacher = map['teacher'] is Map ? map['teacher'] as Map : null;
 
-    final students = members.map((m) => <String, dynamic>{
-      'id': (m as Map)['studentId']?.toString() ?? '',
-      'name': m['name']?.toString() ?? '',
+    final students = members.map((m) {
+      final mMap = _asMap(m);
+      return <String, dynamic>{
+        'id': (mMap['studentId'] ?? mMap['id'] ?? mMap['userId'] ?? '').toString(),
+        'name': (mMap['name'] ?? mMap['displayName'] ?? mMap['studentName'] ?? '').toString(),
+        'email': (mMap['email'] ?? '').toString(),
+      };
     }).toList();
     final ids = students.map((s) => s['id'] as String).toList();
 
@@ -503,6 +509,7 @@ class TeacherMobileRepository {
       cohort: TeacherCohort.fromJson(_asMap(map['cohort'])),
       date: _asString(map['date']),
       period: _asInt(map['period']),
+      classNote: _asString(map['classNote']),
       course: TeacherCourse.fromJson(_asMap(map['course'])),
       students: _asList(map['students'])
           .map((item) => TeacherAttendanceStudent.fromJson(_asMap(item)))
@@ -776,13 +783,14 @@ class TeacherMobileRepository {
 
   Future<List<Map<String, dynamic>>> listTeacherExams() async {
     final raw = await _api.getJson('/teacher/exams');
-    if (raw is Map && raw['exams'] is List) {
-      return (raw['exams'] as List)
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
+    // Handle multiple possible response shapes from the API
+    List<dynamic> items = const [];
+    if (raw is List) {
+      items = raw;
+    } else if (raw is Map) {
+      items = (raw['exams'] ?? raw['items'] ?? raw['data'] ?? const []) as List? ?? const [];
     }
-    return [];
+    return items.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   Future<Map<String, dynamic>> createTeacherExam({
@@ -896,13 +904,13 @@ class TeacherMobileRepository {
 
   Future<List<Map<String, dynamic>>> formResponses(String id) async {
     final raw = await _api.getJson('/teacher/forms/$id/responses');
-    if (raw is Map && raw['responses'] is List) {
-      return (raw['responses'] as List)
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
+    List<dynamic> items = const [];
+    if (raw is List) {
+      items = raw;
+    } else if (raw is Map) {
+      items = (raw['responses'] ?? raw['items'] ?? raw['data'] ?? const []) as List? ?? const [];
     }
-    return [];
+    return items.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   // ── Diplomas ───────────────────────────────────────────────────────────────

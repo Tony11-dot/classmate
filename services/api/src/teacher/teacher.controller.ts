@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TeacherService } from './teacher.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.TEACHER, Role.ADMIN)
 @Controller('teacher')
 export class TeacherController {

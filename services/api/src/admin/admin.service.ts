@@ -25,10 +25,11 @@ export class AdminService {
     this.ensureAdmin(user);
     if (!body?.name || !body?.grade)
       throw new BadRequestException('name and grade are required');
+    const schoolId = (user as any)?.schoolId ?? null;
 
     try {
       const out = await this.prisma.cohort.create({
-        data: { name: body.name, grade: body.grade },
+        data: { name: body.name, grade: body.grade, schoolId } as any,
       });
       return out;
     } catch (e: any) {
@@ -156,11 +157,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     subject?: string;
     startTime?: string;
     endTime?: string;
+    frequencyWeeks?: number;
   }) {
     this.ensureAdmin(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, startTime, endTime } = body ?? {} as any;
+    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, startTime, endTime, frequencyWeeks = 1 } = body ?? {} as any;
     if (dayOfWeek === undefined || dayOfWeek < 0 || dayOfWeek > 6) throw new BadRequestException('dayOfWeek must be 0..6');
     if (!Number.isInteger(period) || period < 1 || period > 20) throw new BadRequestException('period must be 1..20');
 
@@ -181,7 +183,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         subject: subject ?? null,
         startTime: startTime ?? null,
         endTime: endTime ?? null,
-      },
+        frequencyWeeks: Number.isInteger(frequencyWeeks) && frequencyWeeks >= 1 ? frequencyWeeks : 1,
+      } as any,
     });
 
     if (cohortIds.length) {
@@ -210,6 +213,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     subject?: string | null;
     startTime?: string | null;
     endTime?: string | null;
+    frequencyWeeks?: number;
   }) {
     this.ensureAdmin(user);
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
@@ -228,6 +232,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if ('subject' in body) data.subject = body.subject ?? null;
     if ('startTime' in body) data.startTime = body.startTime ?? null;
     if ('endTime' in body) data.endTime = body.endTime ?? null;
+    if (body.frequencyWeeks !== undefined) data.frequencyWeeks = body.frequencyWeeks >= 1 ? body.frequencyWeeks : 1;
 
     const updated = await this.prisma.scheduleSlot.update({ where: { id }, data });
 
@@ -299,7 +304,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async listCohortsForDDL(user: any) {
     this.ensureAdmin(user);
+    const schoolId = (user as any)?.schoolId ?? null;
     const cohorts = await this.prisma.cohort.findMany({
+      where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
       select: { id: true, name: true, grade: true },
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
@@ -399,12 +406,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async setSubjectDefaults(user: any, dto: any) {
     this.requireAdminOrSecretary(user);
-  
-    const schoolId = String(dto?.schoolId ?? user?.schoolId ?? 'test-school');
+
+    const schoolId = String(dto?.schoolId ?? user?.schoolId ?? '').trim();
+    if (!schoolId) throw new BadRequestException('schoolId required — ensure your account is linked to a school');
     const grade = Number(dto?.grade);
     const subjects = normalizeSubjects(dto?.subjects);
-  
-    if (!schoolId) throw new BadRequestException('schoolId required');
+
     if (Number.isNaN(grade)) throw new BadRequestException('grade required');
     if (!subjects.length) throw new BadRequestException('subjects[] required');
   
@@ -419,11 +426,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
   async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
     this.requireAdminOrSecretary(user);
-  
-    const schoolId = String(query?.schoolId ?? user?.schoolId ?? 'test-school');
+
+    const schoolId = String(query?.schoolId ?? user?.schoolId ?? '').trim();
     const grade = query?.grade;
-  
-    if (!schoolId) throw new BadRequestException('schoolId required');
+
+    if (!schoolId) throw new BadRequestException('schoolId required — ensure your account is linked to a school');
     if (grade === undefined || Number.isNaN(Number(grade))) {
       throw new BadRequestException('grade required');
     }
@@ -513,5 +520,443 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const userId = await this.resolveUserId(identifier);
     await this.prisma.user.update({ where: { id: userId }, data: { schoolId } as any });
     return { ok: true };
+  }
+
+  // ── User Management ───────────────────────────────────────────────────────────
+
+  async listUsers(user: any, query: { q?: string; role?: string; page?: number }) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const where: any = { schoolId };
+    if (query?.role) where.roles = { some: { role: query.role.toUpperCase() } };
+    if (query?.q) where.name = { contains: query.q, mode: 'insensitive' };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          status: true,
+          roles: { select: { role: true } },
+        },
+        orderBy: { name: 'asc' },
+        take: 100,
+        skip: query?.page ? query.page * 100 : 0,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      ok: true,
+      users: rows.map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        status: u.status,
+        roles: u.roles.map((r) => r.role),
+      })),
+      total,
+    };
+  }
+
+  async getUserDetail(user: any, id: string) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+
+    const row = await this.prisma.user.findFirst({
+      where: { id, ...(schoolId ? { schoolId } : {}) },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        roles: { select: { role: true } },
+        studentProfile: {
+          select: {
+            cohortId: true,
+            cohort: { select: { name: true, grade: true } },
+            cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
+          },
+        },
+      },
+    });
+
+    if (!row) throw new NotFoundException('User not found');
+
+    const [attendanceRate, gradeAvg] = await Promise.all([
+      row.studentProfile
+        ? this.prisma.attendanceRecord.count({
+            where: { studentId: row.id, status: 'PRESENT' },
+          }).then(async (present) => {
+            const total = await this.prisma.attendanceRecord.count({ where: { studentId: row.id } });
+            return total > 0 ? Math.round((present / total) * 100) : null;
+          })
+        : null,
+      row.studentProfile
+        ? this.prisma.gradeRecord.aggregate({
+            where: { studentId: row.id },
+            _avg: { grade: true },
+          }).then((r) => r._avg.grade ? Math.round(r._avg.grade) : null)
+        : null,
+    ]);
+
+    return {
+      ok: true,
+      user: {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        status: row.status,
+        roles: row.roles.map((r) => r.role),
+        cohort: row.studentProfile?.cohort ?? null,
+        cohorts: row.studentProfile?.cohorts.map((c) => c.cohort) ?? [],
+        attendanceRate,
+        gradeAvg,
+      },
+    };
+  }
+
+  async createUser(user: any, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    const isSecretary = roles.includes('SECRETARY') && !roles.includes('ADMIN');
+    if (isSecretary) throw new ForbiddenException('Secretaries cannot create user accounts');
+
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const name = String(dto?.name ?? '').trim();
+    const email = String(dto?.email ?? '').trim().toLowerCase();
+    const role = String(dto?.role ?? 'STUDENT').toUpperCase();
+
+    if (!name) throw new BadRequestException('name is required');
+    if (!email || !email.includes('@')) throw new BadRequestException('valid email is required');
+    if (!['STUDENT', 'TEACHER', 'ADMIN', 'PARENT', 'SECRETARY'].includes(role))
+      throw new BadRequestException('invalid role');
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+
+    const tempPassword = `Classmate${randomDigits(6)}!`;
+    const hash = await bcrypt.hash(tempPassword, 10);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hash,
+        schoolId,
+        status: 'ACTIVE',
+        roles: { create: [{ role: role as any }] },
+      } as any,
+      select: { id: true, name: true, email: true, status: true, roles: { select: { role: true } } },
+    });
+
+    if (role === 'STUDENT') {
+      await this.prisma.studentProfile.create({
+        data: { userId: newUser.id, englishLevel: 5, mathLevel: 5 },
+      });
+    }
+
+    return {
+      ok: true,
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, roles: newUser.roles.map((r) => r.role) },
+      tempPassword,
+    };
+  }
+
+  async updateUser(user: any, id: string, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+
+    const target = await this.prisma.user.findFirst({
+      where: { id, ...(schoolId ? { schoolId } : {}) },
+      select: { id: true },
+    });
+    if (!target) throw new NotFoundException('User not found');
+
+    const data: any = {};
+    if (dto?.name !== undefined) data.name = String(dto.name).trim();
+    if (dto?.email !== undefined) data.email = String(dto.email).trim().toLowerCase();
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data,
+      select: { id: true, name: true, email: true, status: true, roles: { select: { role: true } } },
+    });
+
+    if (dto?.role !== undefined) {
+      const newRole = String(dto.role).toUpperCase();
+      await this.prisma.userRole.deleteMany({ where: { userId: id } });
+      await this.prisma.userRole.create({ data: { userId: id, role: newRole as any } });
+    }
+
+    return { ok: true, user: { id: updated.id, name: updated.name, email: updated.email, roles: updated.roles.map((r) => r.role) } };
+  }
+
+  async deleteUser(user: any, id: string) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can delete users');
+    const schoolId = (user as any)?.schoolId;
+
+    const target = await this.prisma.user.findFirst({
+      where: { id, ...(schoolId ? { schoolId } : {}) },
+      select: { id: true },
+    });
+    if (!target) throw new NotFoundException('User not found');
+
+    await this.prisma.user.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async resetUserPassword(user: any, id: string) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can reset passwords');
+    const schoolId = (user as any)?.schoolId;
+
+    const target = await this.prisma.user.findFirst({
+      where: { id, ...(schoolId ? { schoolId } : {}) },
+      select: { id: true, email: true },
+    });
+    if (!target) throw new NotFoundException('User not found');
+
+    const tempPassword = `Classmate${randomDigits(6)}!`;
+    const hash = await bcrypt.hash(tempPassword, 10);
+    await this.prisma.user.update({ where: { id }, data: { password: hash } });
+
+    return { ok: true, tempPassword, email: target.email };
+  }
+
+  // ── Parent Links ──────────────────────────────────────────────────────────────
+
+  async linkParent(user: any, dto: { parentId: string; studentId: string }) {
+    this.requireAdminOrSecretary(user);
+    if (!dto?.parentId || !dto?.studentId) throw new BadRequestException('parentId and studentId are required');
+
+    try {
+      const link = await this.prisma.parentChild.create({
+        data: { parentId: dto.parentId, childId: dto.studentId, status: 'APPROVED' },
+      });
+      return { ok: true, link };
+    } catch (e: any) {
+      if (e?.code === 'P2002') throw new HttpException('Link already exists', HttpStatus.CONFLICT);
+      throw e;
+    }
+  }
+
+  async unlinkParent(user: any, id: string) {
+    this.requireAdminOrSecretary(user);
+    await this.prisma.parentChild.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Cohort Management ─────────────────────────────────────────────────────────
+
+  async listCohorts(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+    // Include cohorts that either belong to this school OR have members from this school
+    const cohorts = await this.prisma.cohort.findMany({
+      where: schoolId
+        ? { OR: [{ schoolId } as any, { schoolId: null }] }
+        : {},
+      select: {
+        id: true,
+        name: true,
+        grade: true,
+        _count: { select: { studentLinks: true } },
+      },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+    return {
+      ok: true,
+      cohorts: cohorts.map((c) => ({
+        id: c.id,
+        name: c.name,
+        grade: c.grade,
+        studentCount: c._count.studentLinks,
+      })),
+    };
+  }
+
+  async updateCohort(user: any, id: string, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const data: any = {};
+    if (dto?.name !== undefined) data.name = String(dto.name).trim();
+    if (dto?.grade !== undefined) data.grade = Number(dto.grade);
+
+    const row = await this.prisma.cohort.update({ where: { id }, data });
+    return { ok: true, cohort: row };
+  }
+
+  async deleteCohort(user: any, id: string) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can delete cohorts');
+
+    await this.prisma.studentCohort.deleteMany({ where: { cohortId: id } });
+    await this.prisma.cohort.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async addStudentsToCohort(user: any, cohortId: string, dto: { studentIds: string[] }) {
+    this.requireAdminOrSecretary(user);
+    if (!Array.isArray(dto?.studentIds) || !dto.studentIds.length)
+      throw new BadRequestException('studentIds[] is required');
+
+    await this.prisma.studentCohort.createMany({
+      data: dto.studentIds.map((sid) => ({ studentId: sid, cohortId })),
+      skipDuplicates: true,
+    });
+    return { ok: true, added: dto.studentIds.length };
+  }
+
+  async removeStudentFromCohort(user: any, cohortId: string, studentId: string) {
+    this.requireAdminOrSecretary(user);
+    await this.prisma.studentCohort.delete({
+      where: { studentId_cohortId: { studentId, cohortId } },
+    });
+    return { ok: true };
+  }
+
+  async getCohortRoster(user: any, cohortId: string) {
+    this.requireAdminOrSecretary(user);
+    const links = await this.prisma.studentCohort.findMany({
+      where: { cohortId },
+      select: {
+        student: { select: { userId: true, user: { select: { id: true, name: true, email: true } } } },
+      },
+      orderBy: { student: { user: { name: 'asc' } } },
+    });
+    return {
+      ok: true,
+      students: links.map((l) => ({
+        id: l.student.user.id,
+        name: l.student.user.name,
+        email: l.student.user.email,
+      })),
+    };
+  }
+
+  // ── School Settings (scoped to admin's own school) ────────────────────────────
+
+  async getMySchool(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+    const row = await this.prisma.school.findUnique({ where: { id: schoolId } });
+    return { ok: true, school: row ?? null };
+  }
+
+  async updateMySchool(user: any, dto: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const data: any = {};
+    if (dto?.name !== undefined) data.name = String(dto.name).trim();
+    if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
+
+    const row = await this.prisma.school.update({ where: { id: schoolId }, data });
+    return { ok: true, school: row };
+  }
+
+  // ── Analytics ─────────────────────────────────────────────────────────────────
+
+  async getAnalyticsOverview(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const [students, teachers, cohorts, classrooms] = await Promise.all([
+      this.prisma.user.count({ where: { schoolId, roles: { some: { role: 'STUDENT' } } } }),
+      this.prisma.user.count({ where: { schoolId, roles: { some: { role: 'TEACHER' } } } }),
+      this.prisma.cohort.count({ where: { OR: [{ schoolId } as any, { schoolId: null }] } }),
+      this.prisma.classroom.count({ where: { schoolId } }),
+    ]);
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+    const todaySessions = await this.prisma.attendanceSession.count({
+      where: {
+        date: { gte: today, lt: tomorrow },
+        cohort: { OR: [{ schoolId } as any, { schoolId: null }] },
+      },
+    });
+
+    return { ok: true, students, teachers, cohorts, classrooms, todaySessions };
+  }
+
+  async getAnalyticsAttendance(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+
+    const since = new Date();
+    since.setUTCDate(since.getUTCDate() - 30);
+
+    const cohorts = await this.prisma.cohort.findMany({
+      where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
+      select: { id: true, name: true, grade: true },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+
+    const results = await Promise.all(
+      cohorts.map(async (c) => {
+        const [present, total] = await Promise.all([
+          this.prisma.attendanceRecord.count({
+            where: {
+              status: 'PRESENT',
+              session: { cohortId: c.id, date: { gte: since } },
+            },
+          }),
+          this.prisma.attendanceRecord.count({
+            where: { session: { cohortId: c.id, date: { gte: since } } },
+          }),
+        ]);
+        return {
+          cohortId: c.id,
+          cohortName: c.name,
+          grade: c.grade,
+          rate: total > 0 ? Math.round((present / total) * 100) : null,
+          total,
+        };
+      }),
+    );
+
+    return { ok: true, cohorts: results };
+  }
+
+  async getAnalyticsGrades(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+
+    const cohorts = await this.prisma.cohort.findMany({
+      where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
+      select: { id: true, name: true, grade: true },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+
+    const results = await Promise.all(
+      cohorts.map(async (c) => {
+        const avg = await this.prisma.gradeRecord.aggregate({
+          where: { assessment: { cohortId: c.id } },
+          _avg: { grade: true },
+        });
+        return {
+          cohortId: c.id,
+          cohortName: c.name,
+          grade: c.grade,
+          avgGrade: avg._avg.grade ? Math.round(avg._avg.grade) : null,
+        };
+      }),
+    );
+
+    return { ok: true, cohorts: results };
   }
 }

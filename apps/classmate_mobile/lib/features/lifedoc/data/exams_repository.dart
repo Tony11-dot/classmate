@@ -89,21 +89,25 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
     return null;
   }
 
-  final rawMaterials = j['materials'];
-  final materials = rawMaterials is List
-      ? rawMaterials
-            .whereType<Map>()
-            .map((m) {
-              final mi = m.map((k, v) => MapEntry(k.toString(), v));
-              return ExamMaterialItem(
-                id: str(['id'], 'mat-${mi.hashCode}'),
-                name: str(['name', 'title', 'filename'], 'Material'),
-                kind: str(['kind', 'type', 'mimeType'], 'File'),
-                url: opt(['url', 'fileUrl', 'link']),
-              );
-            })
-            .toList(growable: false)
-      : const <ExamMaterialItem>[];
+  // Backend returns 'attachments' (TeacherExam.attachments JSON); some legacy
+  // exam shapes also used 'materials'. Check both so neither source is dropped.
+  final rawMaterials = (j['attachments'] is List && (j['attachments'] as List).isNotEmpty)
+      ? j['attachments'] as List
+      : (j['materials'] is List ? j['materials'] as List : const []);
+  final materials = rawMaterials
+        .whereType<Map>()
+        .map((m) {
+          final mi = m.map((k, v) => MapEntry(k.toString(), v));
+          return ExamMaterialItem(
+            id: (mi['id'] ?? 'mat-${mi.hashCode}').toString(),
+            name: (mi['name'] ?? mi['title'] ?? mi['fileName'] ?? mi['filename'] ?? 'Attachment').toString(),
+            kind: (mi['kind'] ?? mi['type'] ?? mi['mimeType'] ?? 'file').toString(),
+            url: (mi['url'] ?? mi['fileUrl'] ?? mi['link'] ?? '').toString().trim().isNotEmpty
+                ? (mi['url'] ?? mi['fileUrl'] ?? mi['link']).toString().trim()
+                : null,
+          );
+        })
+        .toList(growable: false);
 
   final audienceRaw = str(['audienceType']).toUpperCase();
   final audienceType = audienceRaw.contains('MAJOR')

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/realtime/realtime_listener.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -82,6 +83,11 @@ class _TeacherAssignmentsScreenState
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
+
+    // Refresh when a student submits an assignment (assignment_created event)
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'assignment_created') _load();
+    });
 
     return RefreshIndicator(
       onRefresh: _load,

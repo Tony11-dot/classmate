@@ -177,7 +177,16 @@ class _TeacherAddMaterialScreenState
   }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+        'jpg', 'jpeg', 'png', 'webp', 'gif',
+        'mp4', 'mov', 'mp3', 'wav',
+        'zip', 'txt',
+      ],
+      allowMultiple: true,
+    );
     if (result != null && result.files.isNotEmpty) {
       setState(() => _files.addAll(result.files));
     }

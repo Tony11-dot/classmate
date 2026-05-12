@@ -210,12 +210,14 @@ class ClassroomsRepository {
 
   Future<List<Map<String, dynamic>>> list() async {
     final j = await _getJson('/student/classrooms', label: 'classrooms.list');
-
-    final raw = (j is List) ? j : const [];
-    return raw
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
+    // Handle both bare array and wrapped {items:[]} or {classrooms:[]} responses
+    List raw = const [];
+    if (j is List) {
+      raw = j;
+    } else if (j is Map) {
+      raw = (j['items'] ?? j['classrooms'] ?? j['data'] ?? const []) as List? ?? const [];
+    }
+    return raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   Future<Map<String, dynamic>> detail(String courseId) async {
@@ -556,7 +558,9 @@ class ClassroomsRepository {
     String text, {
     String? replyToMessageId,
   }) async {
-    final body = <String, dynamic>{'text': text};
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) throw ArgumentError('Message text cannot be empty');
+    final body = <String, dynamic>{'text': trimmed};
     if ((replyToMessageId ?? '').trim().isNotEmpty) {
       body['replyToMessageId'] = replyToMessageId!.trim();
     }

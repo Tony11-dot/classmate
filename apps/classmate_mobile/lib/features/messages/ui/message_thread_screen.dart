@@ -63,8 +63,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await ref
         .read(messagesRepositoryProvider)
         .blockDirectThread(threadId: widget.threadId);
-    ref.invalidate(messagesInboxProvider);
     if (!mounted) return;
+    ref.invalidate(messagesInboxProvider); // invalidate AFTER pop check — prevents race
     Navigator.of(context).pop();
   }
 

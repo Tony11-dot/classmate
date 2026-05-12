@@ -8,17 +8,17 @@ export class FormsController {
   constructor(private readonly forms: FormsService) {}
 
   @Get('live')
-  live(@Req() req: any) {
+  async live(@Req() req: any) {
     return this.forms.live(req.user);
   }
 
   @Get(':id')
-  byId(@Req() req: any, @Param('id') id: string) {
+  async byId(@Req() req: any, @Param('id') id: string) {
     return this.forms.byId(req.user, id);
   }
 
   @Post(':id/submit')
-  submit(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  async submit(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.forms.submit(req.user, id, body);
   }
 }

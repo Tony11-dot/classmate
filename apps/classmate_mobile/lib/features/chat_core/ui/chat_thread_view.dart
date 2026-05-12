@@ -1502,7 +1502,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           try {
             await widget.controller.markRead();
-          } catch (_) {}
+            // Invalidate the inbox provider so the unread badge decrements immediately
+            if (mounted) ref.invalidate(messagesInboxProvider);
+          } catch (_) {
+            // Reset so we retry on next render
+            _markedRead = false;
+          }
         });
       }
 

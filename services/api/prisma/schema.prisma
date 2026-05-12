@@ -132,9 +132,10 @@ model UserRole {
 }
 
 model Cohort {
-  id    String @id @default(uuid())
-  name  String @unique // e.g. "10th-2"
-  grade Int // 7..12
+  id       String  @id @default(uuid())
+  name     String  @unique // e.g. "10th-2"
+  grade    Int // 7..12
+  schoolId String? // null = legacy/global; non-null = school-scoped
 
   students              StudentProfile[]
   studentLinks          StudentCohort[]
@@ -171,6 +172,7 @@ model StudentCohort {
 
   @@id([studentId, cohortId])
   @@index([cohortId])
+  @@index([studentId])
 }
 
 model StudentProfile {
@@ -258,15 +260,16 @@ enum MessageDeleteMode {
 }
 
 model ScheduleSlot {
-  id          String  @id @default(uuid())
-  schoolId    String?
-  dayOfWeek   Int
-  period      Int
-  teacherId   String?
-  classroomId String?
-  subject     String?
-  startTime   String? // override school default, e.g. "08:00"
-  endTime     String? // override school default, e.g. "08:45"
+  id             String  @id @default(uuid())
+  schoolId       String?
+  dayOfWeek      Int
+  period         Int
+  teacherId      String?
+  classroomId    String?
+  subject        String?
+  startTime      String? // override school default, e.g. "08:00"
+  endTime        String? // override school default, e.g. "08:45"
+  frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc.
 
   school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)
@@ -369,6 +372,7 @@ model AttendanceRecord {
   @@index([studentId])
   @@index([sessionId])
   @@index([markedAt])
+  @@index([studentId, markedAt])
 }
 
 model Assessment {
@@ -1022,7 +1026,7 @@ model ScheduleTemplateSlot {
   location   String?
 
   template ScheduleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  teacher  User?            @relation("TeacherSlots", fields: [teacherId], references: [id])
+  teacher  User?            @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)
 
   @@unique([templateId, dayOfWeek, period])
   @@index([templateId, dayOfWeek, period])
@@ -1128,6 +1132,7 @@ model ClassroomAssignment {
   dueAt                DateTime?
   createdBy            String
   teacherAssignmentId  String?   // back-ref to TeacherAssignment mirror
+  attachments          Json      @default("[]")
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
@@ -1143,6 +1148,7 @@ model AssignmentSubmission {
   assignmentId String
   studentId    String
   note         String?
+  files        Json     @default("[]")
   submittedAt  DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -433,19 +433,49 @@ class _ExamDetailBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.grade_rounded, size: 20, color: cs.primary),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          l.examViewGradeBody,
-                          style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-                        ),
+                  if (exam.grade != null) ...[
+                    // Show the actual grade prominently
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.grade_rounded, size: 28, color: cs.primary),
+                          const SizedBox(width: 12),
+                          Text(
+                            exam.maxGrade != null
+                                ? '${exam.grade} / ${exam.maxGrade}'
+                                : '${exam.grade}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 28,
+                              color: cs.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ] else ...[
+                    Row(
+                      children: [
+                        Icon(Icons.grade_rounded, size: 20, color: cs.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l.examViewGradeBody,
+                            style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   FilledButton.icon(
                     onPressed: () => context.go('/grades'),
                     icon: const Icon(Icons.grade_rounded),

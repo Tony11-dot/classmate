@@ -8562,6 +8562,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Display name language'**
   String get profileDisplayNameLang;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navDashboard;
+
+  /// No description provided for @navPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get navPeople;
+
+  /// No description provided for @navCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get navCohorts;
+
+  /// No description provided for @navSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get navSchool;
+
+  /// No description provided for @adminDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'School Overview'**
+  String get adminDashboardTitle;
+
+  /// No description provided for @adminStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get adminStudents;
+
+  /// No description provided for @adminTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get adminTeachers;
+
+  /// No description provided for @adminParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get adminParents;
+
+  /// No description provided for @adminSecretaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretaries'**
+  String get adminSecretaries;
+
+  /// No description provided for @adminTodaySessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sessions'**
+  String get adminTodaySessions;
+
+  /// No description provided for @adminQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get adminQuickActions;
+
+  /// No description provided for @adminAttendanceLast30.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance — Last 30 Days'**
+  String get adminAttendanceLast30;
+
+  /// No description provided for @adminNoAttendanceData.
+  ///
+  /// In en, this message translates to:
+  /// **'No attendance data for the last 30 days.'**
+  String get adminNoAttendanceData;
+
+  /// No description provided for @adminAddUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get adminAddUser;
+
+  /// No description provided for @adminCreateUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get adminCreateUser;
+
+  /// No description provided for @adminFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get adminFullName;
+
+  /// No description provided for @adminEmailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get adminEmailAddress;
+
+  /// No description provided for @adminRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminRoleLabel;
+
+  /// No description provided for @adminUserCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'User Created'**
+  String get adminUserCreated;
+
+  /// No description provided for @adminTempPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary password'**
+  String get adminTempPassword;
+
+  /// No description provided for @adminCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get adminCopied;
+
+  /// No description provided for @adminResetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get adminResetPassword;
+
+  /// No description provided for @adminPasswordReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Reset'**
+  String get adminPasswordReset;
+
+  /// No description provided for @adminTempPasswordFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary password for {name}'**
+  String adminTempPasswordFor(Object name);
+
+  /// No description provided for @adminDeleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get adminDeleteUser;
+
+  /// No description provided for @adminDeleteUserConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}? This cannot be undone.'**
+  String adminDeleteUserConfirm(Object name);
+
+  /// No description provided for @adminDeleteCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Cohort'**
+  String get adminDeleteCohort;
+
+  /// No description provided for @adminDeleteCohortConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? All student memberships will be removed.'**
+  String adminDeleteCohortConfirm(Object name);
+
+  /// No description provided for @adminAddCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Cohort'**
+  String get adminAddCohort;
+
+  /// No description provided for @adminNewCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'New Cohort'**
+  String get adminNewCohort;
+
+  /// No description provided for @adminCohortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort Name (e.g. 10th-2)'**
+  String get adminCohortName;
+
+  /// No description provided for @adminCohortGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminCohortGrade;
+
+  /// No description provided for @adminRenameCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Cohort'**
+  String get adminRenameCohort;
+
+  /// No description provided for @adminAddStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Students'**
+  String get adminAddStudents;
+
+  /// No description provided for @adminAddTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to {name}'**
+  String adminAddTo(Object name);
+
+  /// No description provided for @adminRemoveStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Student'**
+  String get adminRemoveStudent;
+
+  /// No description provided for @adminRemoveStudentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from {cohort}?'**
+  String adminRemoveStudentConfirm(Object name, Object cohort);
+
+  /// No description provided for @adminNoCohortsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No cohorts yet'**
+  String get adminNoCohortsYet;
+
+  /// No description provided for @adminNoStudentsInCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in this cohort'**
+  String get adminNoStudentsInCohort;
+
+  /// No description provided for @adminStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String adminStudentCount(int count);
+
+  /// No description provided for @adminSearchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students…'**
+  String get adminSearchStudents;
+
+  /// No description provided for @adminScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get adminScheduleTitle;
+
+  /// No description provided for @adminScheduleAddPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Period'**
+  String get adminScheduleAddPeriod;
+
+  /// No description provided for @adminScheduleNewPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'New Period'**
+  String get adminScheduleNewPeriod;
+
+  /// No description provided for @adminScheduleDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get adminScheduleDayLabel;
+
+  /// No description provided for @adminSchedulePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get adminSchedulePeriodLabel;
+
+  /// No description provided for @adminScheduleTeacherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get adminScheduleTeacherLabel;
+
+  /// No description provided for @adminScheduleNoneTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'No teacher assigned'**
+  String get adminScheduleNoneTeacher;
+
+  /// No description provided for @adminScheduleCohortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort / Students'**
+  String get adminScheduleCohortLabel;
+
+  /// No description provided for @adminScheduleFrequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get adminScheduleFrequencyLabel;
+
+  /// No description provided for @adminScheduleFreqWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get adminScheduleFreqWeekly;
+
+  /// No description provided for @adminScheduleFreqBiweekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 2 weeks'**
+  String get adminScheduleFreqBiweekly;
+
+  /// No description provided for @adminScheduleFreqMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 4 weeks'**
+  String get adminScheduleFreqMonthly;
+
+  /// No description provided for @adminScheduleFreqCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get adminScheduleFreqCustom;
+
+  /// No description provided for @adminScheduleFreqCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {n} weeks'**
+  String adminScheduleFreqCustomLabel(int n);
+
+  /// No description provided for @adminScheduleAddSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Slot'**
+  String get adminScheduleAddSlot;
+
+  /// No description provided for @adminScheduleAddAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another day / period'**
+  String get adminScheduleAddAnother;
+
+  /// No description provided for @adminScheduleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminScheduleSave;
+
+  /// No description provided for @adminScheduleSearchTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Search teachers…'**
+  String get adminScheduleSearchTeacher;
+
+  /// No description provided for @adminScheduleSearchCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Search cohorts…'**
+  String get adminScheduleSearchCohort;
+
+  /// No description provided for @adminScheduleSelectTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Select teacher'**
+  String get adminScheduleSelectTeacher;
+
+  /// No description provided for @adminScheduleSelectCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cohort'**
+  String get adminScheduleSelectCohort;
+
+  /// No description provided for @adminScheduleOrStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Or pick individual students'**
+  String get adminScheduleOrStudents;
+
+  /// No description provided for @adminScheduleNoSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'No periods yet'**
+  String get adminScheduleNoSlots;
+
+  /// No description provided for @adminScheduleNoSlotsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add the first period'**
+  String get adminScheduleNoSlotsHint;
+
+  /// No description provided for @adminSchoolSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'School Settings'**
+  String get adminSchoolSettingsTitle;
+
+  /// No description provided for @adminSchoolName.
+  ///
+  /// In en, this message translates to:
+  /// **'School Name'**
+  String get adminSchoolName;
+
+  /// No description provided for @adminSchoolLogoUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo URL (optional)'**
+  String get adminSchoolLogoUrl;
+
+  /// No description provided for @adminSchoolLogoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://…'**
+  String get adminSchoolLogoHint;
+
+  /// No description provided for @adminSchoolSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get adminSchoolSaved;
+
+  /// No description provided for @adminSubjectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects'**
+  String get adminSubjectsTitle;
+
+  /// No description provided for @adminSubjectsGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String adminSubjectsGrade(int grade);
+
+  /// No description provided for @adminSubjectsAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subject…'**
+  String get adminSubjectsAddHint;
+
+  /// No description provided for @adminSubjectsNoSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'No subjects configured'**
+  String get adminSubjectsNoSubjects;
+
+  /// No description provided for @adminSubjectsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get adminSubjectsAdd;
+
+  /// No description provided for @adminSubjectsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get adminSubjectsRemove;
+
+  /// No description provided for @adminSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get adminSettingsTitle;
+
+  /// No description provided for @adminSettingsBellSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Bell Schedule'**
+  String get adminSettingsBellSchedule;
+
+  /// No description provided for @adminSettingsPeriodDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Period Defaults'**
+  String get adminSettingsPeriodDefaults;
+
+  /// No description provided for @adminSettingsPeriodDefaultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set bell times for each period'**
+  String get adminSettingsPeriodDefaultsSubtitle;
+
+  /// No description provided for @adminDeleteConfirmCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminDeleteConfirmCancel;
+
+  /// No description provided for @adminDeleteConfirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminDeleteConfirmDelete;
+
+  /// No description provided for @adminSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminSave;
+
+  /// No description provided for @adminCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminCancel;
+
+  /// No description provided for @adminSearchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name…'**
+  String get adminSearchPeople;
+
+  /// No description provided for @adminNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results for \"{query}\"'**
+  String adminNoResults(Object query);
+
+  /// No description provided for @adminNoPeopleYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No {role} yet'**
+  String adminNoPeopleYet(Object role);
 }
 
 class _AppLocalizationsDelegate

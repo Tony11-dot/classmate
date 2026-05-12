@@ -60,7 +60,9 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
       },
     );
     if (confirmed != true) return;
+    if (!mounted) return;
     await ref.read(teacherMobileRepositoryProvider).deleteTeacherMeeting(id);
+    if (!mounted) return;
     _load();
   }
 
@@ -423,6 +425,11 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
     }
     if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a meeting link.')));
+      return;
+    }
+    final linkUri = Uri.tryParse(link);
+    if (linkUri == null || !linkUri.isAbsolute || (!link.startsWith('http://') && !link.startsWith('https://'))) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid URL (e.g. https://zoom.us/j/...)')));
       return;
     }
     if (_startsAt == null) {

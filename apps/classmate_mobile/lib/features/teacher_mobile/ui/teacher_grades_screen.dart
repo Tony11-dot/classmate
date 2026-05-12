@@ -128,9 +128,8 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
           .toList()
         ..sort();
 
-      // Only show students who have at least one recorded grade
+      // Show ALL students — those without grades show empty cells so teacher can see who's missing
       final rows = allStudents
-          .where((s) => matrix.containsKey(s.studentId))
           .map((s) => _StudentGradeRow(
                 student: s,
                 gradeBySubject: matrix[s.studentId] ?? {},

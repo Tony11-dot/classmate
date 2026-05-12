@@ -4767,4 +4767,291 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get profileDisplayNameLang => 'שפת הצגת שם';
+
+  @override
+  String get navDashboard => 'לוח בקרה';
+
+  @override
+  String get navPeople => 'אנשים';
+
+  @override
+  String get navCohorts => 'קבוצות';
+
+  @override
+  String get navSchool => 'בית ספר';
+
+  @override
+  String get adminDashboardTitle => 'סקירת בית הספר';
+
+  @override
+  String get adminStudents => 'תלמידים';
+
+  @override
+  String get adminTeachers => 'מורים';
+
+  @override
+  String get adminParents => 'הורים';
+
+  @override
+  String get adminSecretaries => 'מזכירים';
+
+  @override
+  String get adminTodaySessions => 'שיעורים היום';
+
+  @override
+  String get adminQuickActions => 'פעולות מהירות';
+
+  @override
+  String get adminAttendanceLast30 => 'נוכחות — 30 ימים אחרונים';
+
+  @override
+  String get adminNoAttendanceData => 'אין נתוני נוכחות ל-30 הימים האחרונים.';
+
+  @override
+  String get adminAddUser => 'הוסף משתמש';
+
+  @override
+  String get adminCreateUser => 'צור';
+
+  @override
+  String get adminFullName => 'שם מלא';
+
+  @override
+  String get adminEmailAddress => 'כתובת דוא\"ל';
+
+  @override
+  String get adminRoleLabel => 'תפקיד';
+
+  @override
+  String get adminUserCreated => 'משתמש נוצר';
+
+  @override
+  String get adminTempPassword => 'סיסמה זמנית';
+
+  @override
+  String get adminCopied => 'הועתק ללוח';
+
+  @override
+  String get adminResetPassword => 'אפס סיסמה';
+
+  @override
+  String get adminPasswordReset => 'איפוס סיסמה';
+
+  @override
+  String adminTempPasswordFor(Object name) {
+    return 'סיסמה זמנית עבור $name';
+  }
+
+  @override
+  String get adminDeleteUser => 'מחק משתמש';
+
+  @override
+  String adminDeleteUserConfirm(Object name) {
+    return 'למחוק את $name? לא ניתן לבטל.';
+  }
+
+  @override
+  String get adminDeleteCohort => 'מחק קבוצה';
+
+  @override
+  String adminDeleteCohortConfirm(Object name) {
+    return 'למחוק \"$name\"? כל חברויות הסטודנטים יוסרו.';
+  }
+
+  @override
+  String get adminAddCohort => 'הוסף קבוצה';
+
+  @override
+  String get adminNewCohort => 'קבוצה חדשה';
+
+  @override
+  String get adminCohortName => 'שם הקבוצה (למשל י׳א)';
+
+  @override
+  String get adminCohortGrade => 'כיתה';
+
+  @override
+  String get adminRenameCohort => 'שנה שם קבוצה';
+
+  @override
+  String get adminAddStudents => 'הוסף תלמידים';
+
+  @override
+  String adminAddTo(Object name) {
+    return 'הוסף ל-$name';
+  }
+
+  @override
+  String get adminRemoveStudent => 'הסר תלמיד';
+
+  @override
+  String adminRemoveStudentConfirm(Object name, Object cohort) {
+    return 'להסיר את $name מ-$cohort?';
+  }
+
+  @override
+  String get adminNoCohortsYet => 'אין קבוצות עדיין';
+
+  @override
+  String get adminNoStudentsInCohort => 'אין תלמידים בקבוצה זו';
+
+  @override
+  String adminStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תלמידים',
+      one: 'תלמיד אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminSearchStudents => 'חפש תלמידים…';
+
+  @override
+  String get adminScheduleTitle => 'מערכת שעות';
+
+  @override
+  String get adminScheduleAddPeriod => 'הוסף שיעור';
+
+  @override
+  String get adminScheduleNewPeriod => 'שיעור חדש';
+
+  @override
+  String get adminScheduleDayLabel => 'יום';
+
+  @override
+  String get adminSchedulePeriodLabel => 'שיעור';
+
+  @override
+  String get adminScheduleTeacherLabel => 'מורה';
+
+  @override
+  String get adminScheduleNoneTeacher => 'ללא מורה';
+
+  @override
+  String get adminScheduleCohortLabel => 'קבוצה / תלמידים';
+
+  @override
+  String get adminScheduleFrequencyLabel => 'תדירות';
+
+  @override
+  String get adminScheduleFreqWeekly => 'כל שבוע';
+
+  @override
+  String get adminScheduleFreqBiweekly => 'כל שבועיים';
+
+  @override
+  String get adminScheduleFreqMonthly => 'כל 4 שבועות';
+
+  @override
+  String get adminScheduleFreqCustom => 'מותאם';
+
+  @override
+  String adminScheduleFreqCustomLabel(int n) {
+    return 'כל $n שבועות';
+  }
+
+  @override
+  String get adminScheduleAddSlot => 'הוסף חריץ';
+
+  @override
+  String get adminScheduleAddAnother => 'הוסף יום / שיעור נוסף';
+
+  @override
+  String get adminScheduleSave => 'שמור';
+
+  @override
+  String get adminScheduleSearchTeacher => 'חפש מורים…';
+
+  @override
+  String get adminScheduleSearchCohort => 'חפש קבוצות…';
+
+  @override
+  String get adminScheduleSelectTeacher => 'בחר מורה';
+
+  @override
+  String get adminScheduleSelectCohort => 'בחר קבוצה';
+
+  @override
+  String get adminScheduleOrStudents => 'או בחר תלמידים בנפרד';
+
+  @override
+  String get adminScheduleNoSlots => 'אין שיעורים עדיין';
+
+  @override
+  String get adminScheduleNoSlotsHint => 'לחץ + להוספת שיעור ראשון';
+
+  @override
+  String get adminSchoolSettingsTitle => 'הגדרות בית הספר';
+
+  @override
+  String get adminSchoolName => 'שם בית הספר';
+
+  @override
+  String get adminSchoolLogoUrl => 'כתובת לוגו (אופציונלי)';
+
+  @override
+  String get adminSchoolLogoHint => 'https://…';
+
+  @override
+  String get adminSchoolSaved => 'נשמר';
+
+  @override
+  String get adminSubjectsTitle => 'מקצועות';
+
+  @override
+  String adminSubjectsGrade(int grade) {
+    return 'כיתה $grade';
+  }
+
+  @override
+  String get adminSubjectsAddHint => 'הוסף מקצוע…';
+
+  @override
+  String get adminSubjectsNoSubjects => 'לא הוגדרו מקצועות';
+
+  @override
+  String get adminSubjectsAdd => 'הוסף';
+
+  @override
+  String get adminSubjectsRemove => 'הסר';
+
+  @override
+  String get adminSettingsTitle => 'הגדרות';
+
+  @override
+  String get adminSettingsBellSchedule => 'פעמון בית הספר';
+
+  @override
+  String get adminSettingsPeriodDefaults => 'ברירות מחדל לשיעורים';
+
+  @override
+  String get adminSettingsPeriodDefaultsSubtitle => 'הגדר זמנים לכל שיעור';
+
+  @override
+  String get adminDeleteConfirmCancel => 'ביטול';
+
+  @override
+  String get adminDeleteConfirmDelete => 'מחק';
+
+  @override
+  String get adminSave => 'שמור';
+
+  @override
+  String get adminCancel => 'ביטול';
+
+  @override
+  String get adminSearchPeople => 'חפש לפי שם…';
+
+  @override
+  String adminNoResults(Object query) {
+    return 'אין תוצאות עבור \"$query\"';
+  }
+
+  @override
+  String adminNoPeopleYet(Object role) {
+    return 'אין $role עדיין';
+  }
 }

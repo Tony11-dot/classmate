@@ -4882,4 +4882,295 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileDisplayNameLang => 'Langue d\'affichage';
+
+  @override
+  String get navDashboard => 'Tableau de bord';
+
+  @override
+  String get navPeople => 'Personnes';
+
+  @override
+  String get navCohorts => 'Cohortes';
+
+  @override
+  String get navSchool => 'École';
+
+  @override
+  String get adminDashboardTitle => 'Vue d\'ensemble de l\'école';
+
+  @override
+  String get adminStudents => 'Élèves';
+
+  @override
+  String get adminTeachers => 'Enseignants';
+
+  @override
+  String get adminParents => 'Parents';
+
+  @override
+  String get adminSecretaries => 'Secrétaires';
+
+  @override
+  String get adminTodaySessions => 'Sessions d\'aujourd\'hui';
+
+  @override
+  String get adminQuickActions => 'Actions rapides';
+
+  @override
+  String get adminAttendanceLast30 => 'Présence — 30 derniers jours';
+
+  @override
+  String get adminNoAttendanceData =>
+      'Aucune donnée de présence pour les 30 derniers jours.';
+
+  @override
+  String get adminAddUser => 'Ajouter un utilisateur';
+
+  @override
+  String get adminCreateUser => 'Créer';
+
+  @override
+  String get adminFullName => 'Nom complet';
+
+  @override
+  String get adminEmailAddress => 'Adresse e-mail';
+
+  @override
+  String get adminRoleLabel => 'Rôle';
+
+  @override
+  String get adminUserCreated => 'Utilisateur créé';
+
+  @override
+  String get adminTempPassword => 'Mot de passe temporaire';
+
+  @override
+  String get adminCopied => 'Copié dans le presse-papiers';
+
+  @override
+  String get adminResetPassword => 'Réinitialiser le mot de passe';
+
+  @override
+  String get adminPasswordReset => 'Réinitialisation du mot de passe';
+
+  @override
+  String adminTempPasswordFor(Object name) {
+    return 'Mot de passe temporaire pour $name';
+  }
+
+  @override
+  String get adminDeleteUser => 'Supprimer l\'utilisateur';
+
+  @override
+  String adminDeleteUserConfirm(Object name) {
+    return 'Supprimer $name ? Cette action est irréversible.';
+  }
+
+  @override
+  String get adminDeleteCohort => 'Supprimer la cohorte';
+
+  @override
+  String adminDeleteCohortConfirm(Object name) {
+    return 'Supprimer \"$name\" ? Toutes les adhésions d\'élèves seront supprimées.';
+  }
+
+  @override
+  String get adminAddCohort => 'Ajouter une cohorte';
+
+  @override
+  String get adminNewCohort => 'Nouvelle cohorte';
+
+  @override
+  String get adminCohortName => 'Nom (ex. 10ème-2)';
+
+  @override
+  String get adminCohortGrade => 'Niveau';
+
+  @override
+  String get adminRenameCohort => 'Renommer la cohorte';
+
+  @override
+  String get adminAddStudents => 'Ajouter des élèves';
+
+  @override
+  String adminAddTo(Object name) {
+    return 'Ajouter à $name';
+  }
+
+  @override
+  String get adminRemoveStudent => 'Retirer l\'élève';
+
+  @override
+  String adminRemoveStudentConfirm(Object name, Object cohort) {
+    return 'Retirer $name de $cohort ?';
+  }
+
+  @override
+  String get adminNoCohortsYet => 'Aucune cohorte pour l\'instant';
+
+  @override
+  String get adminNoStudentsInCohort => 'Aucun élève dans cette cohorte';
+
+  @override
+  String adminStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count élèves',
+      one: '1 élève',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminSearchStudents => 'Rechercher des élèves…';
+
+  @override
+  String get adminScheduleTitle => 'Emploi du temps';
+
+  @override
+  String get adminScheduleAddPeriod => 'Ajouter un cours';
+
+  @override
+  String get adminScheduleNewPeriod => 'Nouveau cours';
+
+  @override
+  String get adminScheduleDayLabel => 'Jour';
+
+  @override
+  String get adminSchedulePeriodLabel => 'Heure';
+
+  @override
+  String get adminScheduleTeacherLabel => 'Enseignant';
+
+  @override
+  String get adminScheduleNoneTeacher => 'Aucun enseignant';
+
+  @override
+  String get adminScheduleCohortLabel => 'Cohorte / Élèves';
+
+  @override
+  String get adminScheduleFrequencyLabel => 'Fréquence';
+
+  @override
+  String get adminScheduleFreqWeekly => 'Chaque semaine';
+
+  @override
+  String get adminScheduleFreqBiweekly => 'Toutes les 2 semaines';
+
+  @override
+  String get adminScheduleFreqMonthly => 'Toutes les 4 semaines';
+
+  @override
+  String get adminScheduleFreqCustom => 'Personnalisé';
+
+  @override
+  String adminScheduleFreqCustomLabel(int n) {
+    return 'Toutes les $n semaines';
+  }
+
+  @override
+  String get adminScheduleAddSlot => 'Ajouter un créneau';
+
+  @override
+  String get adminScheduleAddAnother => 'Ajouter un autre jour / cours';
+
+  @override
+  String get adminScheduleSave => 'Enregistrer';
+
+  @override
+  String get adminScheduleSearchTeacher => 'Rechercher des enseignants…';
+
+  @override
+  String get adminScheduleSearchCohort => 'Rechercher des cohortes…';
+
+  @override
+  String get adminScheduleSelectTeacher => 'Sélectionner un enseignant';
+
+  @override
+  String get adminScheduleSelectCohort => 'Sélectionner une cohorte';
+
+  @override
+  String get adminScheduleOrStudents =>
+      'Ou choisir des élèves individuellement';
+
+  @override
+  String get adminScheduleNoSlots => 'Aucun cours pour l\'instant';
+
+  @override
+  String get adminScheduleNoSlotsHint =>
+      'Appuyez sur + pour ajouter le premier cours';
+
+  @override
+  String get adminSchoolSettingsTitle => 'Paramètres de l\'école';
+
+  @override
+  String get adminSchoolName => 'Nom de l\'école';
+
+  @override
+  String get adminSchoolLogoUrl => 'URL du logo (optionnel)';
+
+  @override
+  String get adminSchoolLogoHint => 'https://…';
+
+  @override
+  String get adminSchoolSaved => 'Enregistré';
+
+  @override
+  String get adminSubjectsTitle => 'Matières';
+
+  @override
+  String adminSubjectsGrade(int grade) {
+    return 'Niveau $grade';
+  }
+
+  @override
+  String get adminSubjectsAddHint => 'Ajouter une matière…';
+
+  @override
+  String get adminSubjectsNoSubjects => 'Aucune matière configurée';
+
+  @override
+  String get adminSubjectsAdd => 'Ajouter';
+
+  @override
+  String get adminSubjectsRemove => 'Retirer';
+
+  @override
+  String get adminSettingsTitle => 'Paramètres';
+
+  @override
+  String get adminSettingsBellSchedule => 'Sonnerie';
+
+  @override
+  String get adminSettingsPeriodDefaults => 'Horaires par défaut';
+
+  @override
+  String get adminSettingsPeriodDefaultsSubtitle =>
+      'Définir les horaires de chaque cours';
+
+  @override
+  String get adminDeleteConfirmCancel => 'Annuler';
+
+  @override
+  String get adminDeleteConfirmDelete => 'Supprimer';
+
+  @override
+  String get adminSave => 'Enregistrer';
+
+  @override
+  String get adminCancel => 'Annuler';
+
+  @override
+  String get adminSearchPeople => 'Rechercher par nom…';
+
+  @override
+  String adminNoResults(Object query) {
+    return 'Aucun résultat pour \"$query\"';
+  }
+
+  @override
+  String adminNoPeopleYet(Object role) {
+    return 'Aucun $role pour l\'instant';
+  }
 }

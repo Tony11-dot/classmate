@@ -1,6 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BagrutService } from './bagrut.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('bagrut')
 export class BagrutController {
   constructor(private service: BagrutService) {}

@@ -3,11 +3,14 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GradeService } from './grade.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('nova')
 export class NovaController {
   constructor(private readonly gradeService: GradeService) {}

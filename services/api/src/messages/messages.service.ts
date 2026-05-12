@@ -740,8 +740,18 @@ export class MessagesService {
       throw new BadRequestException('Cannot message yourself');
     }
 
-    await this.requireUser(userId);
-    await this.requireUser(recipientUserId);
+    await Promise.all([
+      this.requireUser(userId),
+      this.requireUser(recipientUserId),
+    ]);
+    // Enforce same-school messaging — look up schoolIds directly
+    const [senderRow, recipientRow] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: userId }, select: { schoolId: true } }),
+      this.prisma.user.findUnique({ where: { id: recipientUserId }, select: { schoolId: true } }),
+    ]);
+    if (senderRow?.schoolId && recipientRow?.schoolId && senderRow.schoolId !== recipientRow.schoolId) {
+      throw new ForbiddenException('Cannot message users from a different school');
+    }
 
     const existing = await this.prisma.dmThread.findMany({
       where: {
@@ -848,6 +858,19 @@ export class MessagesService {
       where: { threadId },
       data: { state: DmParticipantState.ACCEPTED },
     });
+
+    // Notify all participants (including the requester) that the request was approved
+    // so their inbox/thread list updates immediately
+    try {
+      const participants = await this.prisma.dmParticipant.findMany({
+        where: { threadId },
+        select: { userId: true },
+      });
+      this.realtime.emitToUsers(
+        participants.map((p) => p.userId),
+        { type: 'dm_message', threadId },
+      );
+    } catch (_) {}
 
     return { ok: true };
   }
@@ -1167,15 +1190,16 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     });
 
     // Push real-time event to all thread participants except sender
-    this.prisma.dmParticipant.findMany({
-      where: { threadId, userId: { not: userId } },
-      select: { userId: true },
-    }).then((participants) => {
+    try {
+      const participants = await this.prisma.dmParticipant.findMany({
+        where: { threadId, userId: { not: userId } },
+        select: { userId: true },
+      });
       this.realtime.emitToUsers(
         participants.map((p) => p.userId),
         { type: 'dm_message', threadId },
       );
-    }).catch(() => {});
+    } catch (_) {}
 
     const users = await this.userMapForIds([userId]);
 
@@ -1263,13 +1287,16 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const participant = await this.loadParticipantOrThrow(threadId, userId);
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
 
-    if (
-      participant.thread.type !== DmThreadType.GROUP &&
-      message.senderId !== userId
-    ) {
-      throw new ForbiddenException(
-        'Only your own direct-message messages can be pinned',
-      );
+    if (participant.thread.type === DmThreadType.GROUP) {
+      // In group threads, only admins can pin any message
+      if (participant.role !== DmParticipantRole.ADMIN) {
+        throw new ForbiddenException('Only group admins can pin messages');
+      }
+    } else {
+      // In direct threads, only the sender can pin their own message
+      if (message.senderId !== userId) {
+        throw new ForbiddenException('Only your own direct messages can be pinned');
+      }
     }
 
     const updated = await this.prisma.dmMessage.update({
@@ -1294,8 +1321,10 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
 
     if (mode === 'deleteForEveryone') {
-    // allow any participant to delete for self
-
+      // Only the original sender may delete for everyone
+      if (message.senderId !== userId) {
+        throw new ForbiddenException('Only the sender can delete a message for everyone');
+      }
 
       await this.prisma.dmMessage.update({
         where: { id: messageId },
@@ -1459,6 +1488,17 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
           where: { threadId_userId: { threadId: targetThreadId, userId } },
           data: { lastSeenAt: new Date() },
         });
+        // Notify all other participants in the DM thread that a message arrived
+        try {
+          const dmParticipants = await this.prisma.dmParticipant.findMany({
+            where: { threadId: targetThreadId, userId: { not: userId } },
+            select: { userId: true },
+          });
+          this.realtime.emitToUsers(
+            dmParticipants.map((p) => p.userId),
+            { type: 'dm_message', threadId: targetThreadId },
+          );
+        } catch (_) {}
       } else {
         // Try classroom target (classrooms replaced old cohort-based rooms)
         const classroom = await this.prisma.classroom.findUnique({
@@ -1481,6 +1521,17 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
             durationSec: duration > 0 ? duration : null,
           },
         });
+        // Notify classroom participants of the forwarded message
+        try {
+          const classroomMembers = await this.prisma.classroomMember.findMany({
+            where: { classroomId: targetThreadId },
+            select: { studentId: true },
+          });
+          this.realtime.emitToUsers(
+            classroomMembers.map((m) => m.studentId),
+            { type: 'classroom_message', classroomId: targetThreadId },
+          );
+        } catch (_) {}
       }
     }
 

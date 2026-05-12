@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../ui/widgets/attachment_pill.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddAssignmentScreen extends ConsumerStatefulWidget {
@@ -24,9 +26,11 @@ class _TeacherClassroomAddAssignmentScreenState
     extends ConsumerState<TeacherClassroomAddAssignmentScreen> {
   final _titleCtrl = TextEditingController();
   final _bodyCtrl = TextEditingController();
+  final List<Map<String, dynamic>> _attachments = [];
   DateTime? _dueDate;
   bool _notify = true;
   bool _saving = false;
+  bool _uploading = false;
 
   @override
   void dispose() {
@@ -35,30 +39,42 @@ class _TeacherClassroomAddAssignmentScreenState
     super.dispose();
   }
 
+  Future<void> _pickFiles() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true);
+    if (result == null || result.files.isEmpty) return;
+    setState(() => _uploading = true);
+    final repo = ref.read(teacherMobileRepositoryProvider);
+    for (final file in result.files) {
+      final path = file.path ?? '';
+      if (path.isEmpty) continue;
+      try {
+        final uploaded = await repo.uploadAttachmentFile(path, file.name);
+        final url = (uploaded['url'] ?? uploaded['fileUrl'] ?? '').toString().trim();
+        if (url.isNotEmpty) setState(() => _attachments.add({'name': file.name, 'url': url, 'type': 'file'}));
+      } catch (_) {}
+    }
+    if (mounted) setState(() => _uploading = false);
+  }
+
   Future<void> _save() async {
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title required')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title required')));
       return;
     }
     setState(() => _saving = true);
     try {
       final dateIso = _dueDate?.toIso8601String();
       await ref.read(teacherMobileRepositoryProvider).createClassroomAssignment(
-            courseId: widget.courseId,
-            title: title,
-            body: _bodyCtrl.text.trim().isEmpty ? null : _bodyCtrl.text.trim(),
-            dueAt: dateIso,
-          );
+        courseId: widget.courseId,
+        title: title,
+        body: _bodyCtrl.text.trim().isEmpty ? null : _bodyCtrl.text.trim(),
+        dueAt: dateIso,
+        attachments: _attachments,
+      );
       if (context.mounted) context.pop(true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -213,6 +229,26 @@ class _TeacherClassroomAddAssignmentScreenState
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Attachments
+                  if (_attachments.isNotEmpty) ...[
+                    AttachmentPills(attachments: _attachments),
+                    const SizedBox(height: 8),
+                  ],
+                  OutlinedButton.icon(
+                    onPressed: _uploading ? null : _pickFiles,
+                    icon: _uploading
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.attach_file_rounded, size: 18),
+                    label: Text(_uploading
+                        ? 'Uploading…'
+                        : _attachments.isEmpty
+                            ? 'Attach files'
+                            : 'Add more files'),
                   ),
                 ],
               ),

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/roles';
@@ -44,11 +44,15 @@ export class ScheduleTemplatesController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Post()
-  async create(@Body() body: any) {
+  async create(@Req() req: any, @Body() body: any) {
+    const userSchoolId: string = req.user?.schoolId ?? '';
     const b = CreateTemplateBodySchema.parse(body);
+    // Always scope template to the requesting admin's school — ignore client-supplied schoolId
+    const schoolId = userSchoolId || b.schoolId;
+    if (!schoolId) throw new ForbiddenException('Admin account is not linked to a school');
     const t = await this.prisma.scheduleTemplate.create({
       data: {
-        schoolId: b.schoolId,
+        schoolId,
         kind: b.kind,
         name: b.name,
         grade: b.grade,

@@ -87,6 +87,17 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     context.push('/teacher/exams/create', extra: exam).then((_) => _load());
   }
 
+  Future<void> _publishExam(String id) async {
+    try {
+      await ref.read(teacherMobileRepositoryProvider).updateTeacherExam(id, {'published': true});
+      if (!mounted) return;
+      _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -187,6 +198,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                     onTap: () => _openExamGrades(e),
                     onEdit: () => _openExamEdit(e),
                     onDelete: () => _delete(e['id'] as String? ?? ''),
+                    onPublish: (e['published'] as bool? ?? true) ? null : () => _publishExam(e['id'] as String? ?? ''),
                   )),
               const SizedBox(height: 8),
             ],
@@ -200,6 +212,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                     onTap: () => _openExamGrades(e),
                     onEdit: () => _openExamEdit(e),
                     onDelete: () => _delete(e['id'] as String? ?? ''),
+                    onPublish: (e['published'] as bool? ?? true) ? null : () => _publishExam(e['id'] as String? ?? ''),
                   )),
             ],
           ],
@@ -217,6 +230,7 @@ class _ExamCard extends StatelessWidget {
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
+    this.onPublish,
   });
 
   final Map<String, dynamic> exam;
@@ -225,6 +239,7 @@ class _ExamCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback? onPublish;
 
   @override
   Widget build(BuildContext context) {
@@ -306,6 +321,14 @@ class _ExamCard extends StatelessWidget {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (!published && onPublish != null)
+                    IconButton(
+                      icon: Icon(Icons.publish_rounded, size: 16, color: cs.primary),
+                      tooltip: 'Publish',
+                      onPressed: onPublish,
+                      padding: const EdgeInsets.all(4),
+                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                    ),
                   IconButton(
                     icon: const Icon(Icons.edit_rounded, size: 16),
                     onPressed: onEdit,

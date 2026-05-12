@@ -140,11 +140,15 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
       ),
     );
 
-    // Capture text; don't dispose inline — the modal dismiss animation is still
-    // running and would crash if the controller listeners fire after dispose().
+    // Capture text THEN dispose — post-frame so the dismiss animation fully completes first
     final titleText = titleCtrl.text.trim();
     final subjectText = subjectCtrl.text.trim();
     final notesText = notesCtrl.text.trim();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      titleCtrl.dispose();
+      subjectCtrl.dispose();
+      notesCtrl.dispose();
+    });
 
     if (saved != true) return;
     try {

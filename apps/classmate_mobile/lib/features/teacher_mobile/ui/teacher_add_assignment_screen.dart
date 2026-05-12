@@ -202,12 +202,28 @@ class _TeacherAddAssignmentScreenState
       type: FileType.any,
       allowMultiple: true,
     );
-    if (result == null) return;
-    setState(() {
-      for (final file in result.files) {
-        _attachments.add({'name': file.name, 'path': file.path ?? '', 'size': file.size});
+    if (result == null || result.files.isEmpty) return;
+
+    // Show uploading state
+    setState(() {});
+    final repo = ref.read(teacherMobileRepositoryProvider);
+    for (final file in result.files) {
+      final path = file.path ?? '';
+      if (path.isEmpty) continue;
+      try {
+        final uploaded = await repo.uploadAttachmentFile(path, file.name);
+        final url = (uploaded['url'] ?? uploaded['fileUrl'] ?? '').toString().trim();
+        if (url.isNotEmpty) {
+          setState(() => _attachments.add({'name': file.name, 'url': url, 'type': 'file'}));
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not upload ${file.name}')),
+          );
+        }
       }
-    });
+    }
   }
 
   Future<void> _save({required bool published}) async {

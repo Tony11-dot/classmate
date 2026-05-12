@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
+import { RealtimeService } from '../realtime/realtime.service';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -112,7 +113,10 @@ export class TeacherService {
     return { cohortId: body.cohortId, code: String(code), expiresAt };
   }
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   private ensureTeacher(user: any) {
     if (!hasAnyRole(user, ['TEACHER','ADMIN']))
@@ -814,6 +818,8 @@ export class TeacherService {
           // don't break teacher flow on notification failures
         }
 
+      // Real-time push to student
+      this.realtime.emitToUser(g.studentId, { type: 'grade_updated', studentId: g.studentId });
       written++;
     }
 
@@ -976,6 +982,24 @@ export class TeacherService {
         })) as any[],
         skipDuplicates: true,
       });
+    } catch {}
+  }
+
+  private async emitToClassroomMembers(classroomId: string, event: Parameters<RealtimeService['emitToUsers']>[1]) {
+    try {
+      const members = await this.prisma.classroomMember.findMany({
+        where: { classroomId },
+        select: { studentId: true },
+      });
+      if (!members.length) return;
+      this.realtime.emitToUsers(members.map((m) => m.studentId), event);
+    } catch {}
+  }
+
+  private async emitToTeacherClassroomOwner(classroomId: string, event: Parameters<RealtimeService['emitToUsers']>[1]) {
+    try {
+      const cr = await this.prisma.classroom.findUnique({ where: { id: classroomId }, select: { teacherId: true } });
+      if (cr?.teacherId) this.realtime.emitToUser(cr.teacherId, event);
     } catch {}
   }
 
@@ -1189,11 +1213,13 @@ export class TeacherService {
     if (!title) throw new BadRequestException('title is required');
     const dueAt = body?.dueAt ? new Date(String(body.dueAt)) : null;
     const bodyText = body?.body ? String(body.body).trim() : null;
+    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
     const item = await this.prisma.classroomAssignment.create({
-      data: { classroomId, title, body: bodyText ?? undefined, dueAt: dueAt ?? undefined, createdBy: teacherId },
+      data: { classroomId, title, body: bodyText ?? undefined, dueAt: dueAt ?? undefined, createdBy: teacherId, attachments } as any,
     });
     const dueLabel = dueAt ? ` — due ${dueAt.toLocaleDateString()}` : '';
     await this.notifyClassroomMembers(classroomId, `New assignment: ${title}`, `${cr.name}${dueLabel}`, { type: 'NEW_ASSIGNMENT', assignmentId: item.id, classroomId });
+    void this.emitToClassroomMembers(classroomId, { type: 'assignment_created', classroomId });
     return { ok: true, item };
   }
 
@@ -1241,13 +1267,18 @@ export class TeacherService {
     const teacherId = user.id ?? user.sub;
     const cr = await this.assertTeacherOwnsClassroom(teacherId, classroomId);
     const title = String(body?.title ?? '').trim();
-    const url = String(body?.url ?? '').trim();
-    if (!title || !url) throw new BadRequestException('title and url are required');
-    try { new URL(url); } catch { throw new BadRequestException('url must be a valid URL (include https://)'); }
+    const url = String(body?.url ?? body?.fileUrl ?? '').trim();
+    if (!title) throw new BadRequestException('title is required');
+    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+    // Require either a URL or at least one attachment
+    const effectiveUrl = url || (attachments[0]?.url ?? '');
+    if (!effectiveUrl) throw new BadRequestException('url or at least one attachment is required');
+    if (url) { try { new URL(url); } catch { throw new BadRequestException('url must be a valid URL (include https://)'); } }
     const item = await this.prisma.classroomMaterial.create({
-      data: { classroomId, title, url, description: body?.description ? String(body.description).trim() : undefined, mime: body?.mime ? String(body.mime).trim() : undefined, createdBy: teacherId },
+      data: { classroomId, title, url: effectiveUrl, description: body?.description ? String(body.description).trim() : undefined, mime: body?.mime ? String(body.mime).trim() : undefined, createdBy: teacherId, attachments } as any,
     });
     await this.notifyClassroomMembers(classroomId, `New material: ${title}`, cr.name, { type: 'NEW_MATERIAL', materialId: item.id, classroomId });
+    void this.emitToClassroomMembers(classroomId, { type: 'material_created', classroomId });
     return { ok: true, item };
   }
 
@@ -1294,6 +1325,7 @@ export class TeacherService {
     });
     const timeLabel = startsAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     await this.notifyClassroomMembers(classroomId, `Meeting: ${title}`, `${cr.name} — ${timeLabel}`, { type: 'NEW_MEETING', meetingId: item.id, classroomId });
+    void this.emitToClassroomMembers(classroomId, { type: 'meeting_created', classroomId });
     return { ok: true, item };
   }
 
@@ -1321,7 +1353,7 @@ export class TeacherService {
     const [submissions, members] = await Promise.all([
       this.prisma.assignmentSubmission.findMany({
         where: { assignmentId },
-        select: { id: true, studentId: true, note: true, submittedAt: true, student: { select: { name: true } } },
+        select: { id: true, studentId: true, note: true, files: true, submittedAt: true, student: { select: { name: true } } } as any,
         orderBy: { submittedAt: 'desc' },
       }).catch(() => []),
       this.prisma.classroomMember.findMany({
@@ -1693,8 +1725,11 @@ export class TeacherService {
         grade: body.grade ? String(body.grade) : null,
         distinction: body.distinction ? String(body.distinction) : null,
         notes: body.notes ? String(body.notes) : null,
-      },
+        attachments: Array.isArray(body.attachments) ? body.attachments : [],
+      } as any,
     });
+    // Notify student in real-time
+    if (body.studentId) this.realtime.emitToUser(String(body.studentId), { type: 'notification', userId: String(body.studentId) });
     return { ok: true, diploma: { id: diploma.id } };
   }
 
@@ -1789,8 +1824,15 @@ export class TeacherService {
           dueAt: body?.dueAt ? new Date(String(body.dueAt)) : null,
           createdBy: teacherId,
           teacherAssignmentId: a.id,
-        },
+          attachments: Array.isArray(body?.attachments) ? body.attachments : [],
+        } as any,
       }).catch(() => {});
+      // Emit real-time to classroom members
+      void this.emitToClassroomMembers(classroomId, { type: 'assignment_created', classroomId });
+    }
+    // Emit to explicitly targeted students
+    if (a.published && a.targetStudentIds.length) {
+      this.realtime.emitToUsers(a.targetStudentIds, { type: 'assignment_created', targetUserIds: a.targetStudentIds });
     }
     return { ok: true, assignment: a };
   }
@@ -1886,6 +1928,7 @@ export class TeacherService {
       update: { grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date() },
       create: { assignmentId, studentId, grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date() },
     });
+    this.realtime.emitToUser(studentId, { type: 'grade_updated', studentId });
     return { ok: true };
   }
 
@@ -2223,6 +2266,7 @@ export class TeacherService {
           create: { assessmentId: assessment.id, studentId: g.studentId, grade: Number(g.grade) },
         });
         saved++;
+        this.realtime.emitToUser(g.studentId, { type: 'grade_updated', studentId: g.studentId });
       }
     }
     return { ok: true, saved };

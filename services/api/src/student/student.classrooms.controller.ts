@@ -271,7 +271,7 @@ export class StudentClassroomsController {
     const items = await this.prisma.classroomAssignment.findMany({
       where: { classroomId: id },
       orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
-      select: { id: true, title: true, body: true, dueAt: true, createdBy: true, createdAt: true, updatedAt: true },
+      select: { id: true, title: true, body: true, dueAt: true, attachments: true, createdBy: true, createdAt: true, updatedAt: true } as any,
     });
     return { ok: true, items };
   }
@@ -282,12 +282,18 @@ export class StudentClassroomsController {
     const studentId = this.uid(req);
     if (!studentId) throw new BadRequestException('Missing student identity');
     const note = body?.note ? String(body.note).trim().slice(0, 4000) : null;
+    const files = Array.isArray(body?.files) ? body.files : [];
     const submission = await this.prisma.assignmentSubmission.upsert({
       where: { assignmentId_studentId: { assignmentId, studentId } },
-      update: { note, updatedAt: new Date() },
-      create: { assignmentId, studentId, note },
-      select: { id: true, assignmentId: true, studentId: true, submittedAt: true, note: true },
+      update: { note, files, updatedAt: new Date() } as any,
+      create: { assignmentId, studentId, note, files } as any,
+      select: { id: true, assignmentId: true, studentId: true, submittedAt: true, note: true, files: true } as any,
     });
+    // Notify teacher in real-time about new submission
+    try {
+      const cr = await this.prisma.classroom.findUnique({ where: { id }, select: { teacherId: true } });
+      if (cr?.teacherId) this.realtime.emitToUser(cr.teacherId, { type: 'assignment_created', classroomId: id });
+    } catch {}
     return { ok: true, submission };
   }
 
@@ -297,7 +303,7 @@ export class StudentClassroomsController {
     const items = await this.prisma.classroomMaterial.findMany({
       where: { classroomId: id },
       orderBy: [{ createdAt: 'desc' }],
-      select: { id: true, title: true, description: true, url: true, mime: true, createdBy: true, createdAt: true, updatedAt: true },
+      select: { id: true, title: true, description: true, url: true, mime: true, attachments: true, createdBy: true, createdAt: true, updatedAt: true },
     });
     return { ok: true, items };
   }

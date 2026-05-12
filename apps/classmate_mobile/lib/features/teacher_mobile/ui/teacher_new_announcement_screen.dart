@@ -113,6 +113,24 @@ class _TeacherNewAnnouncementScreenState
       );
       return;
     }
+    // Confirm broadcast when no specific audience is selected
+    final targetsNow = _targets;
+    if (targetsNow.isEmpty) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (dCtx) => AlertDialog(
+          title: const Text('Broadcast to everyone?'),
+          content: const Text(
+            'No specific audience selected. This announcement will be visible to ALL students and teachers in the school.',
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dCtx, false), child: const Text('Cancel')),
+            FilledButton(onPressed: () => Navigator.pop(dCtx, true), child: const Text('Send to everyone')),
+          ],
+        ),
+      );
+      if (confirm != true || !mounted) return;
+    }
     setState(() => _saving = true);
     try {
       await ref.read(teacherMobileRepositoryProvider).createAnnouncement(

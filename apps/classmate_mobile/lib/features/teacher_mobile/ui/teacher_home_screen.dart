@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../core/http/cm_api.dart';
+import '../../../core/realtime/realtime_listener.dart';
 import '../../schedule/schedule_empty_state_copy.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -237,6 +238,16 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     final now = DateTime.now();
     final locale = Localizations.localeOf(context).toString();
     final dateLabel = '${DateFormat.EEEE(locale).format(now)}, ${DateFormat.MMM(locale).format(now)} ${now.day}';
+
+    // Refresh workspace when real-time events arrive (new grades, submissions, meetings)
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event != null &&
+          (event.type == 'grade_updated' ||
+           event.type == 'assignment_created' ||
+           event.type == 'meeting_created')) {
+        _load();
+      }
+    });
 
     return RefreshIndicator(
       onRefresh: _load,

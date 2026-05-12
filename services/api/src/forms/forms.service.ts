@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 type FormQuestionType =
   | 'shortAnswer'
@@ -46,37 +47,93 @@ type PublishedForm = {
 
 @Injectable()
 export class FormsService {
-  live(user: any) {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async live(user: any) {
+    // Prefer real DB forms created by teachers; fall back to demo forms for empty schools
+    const schoolId = (user as any)?.schoolId ?? null;
+    try {
+      const dbForms = await this.prisma.schoolForm.findMany({
+        where: { published: true, acceptingResponses: true, ...(schoolId ? { schoolId } : {}) },
+        orderBy: { publishedAt: 'desc' },
+        take: 50,
+      });
+      if (dbForms.length > 0) {
+        return {
+          ok: true,
+          items: dbForms.map((f) => ({
+            id: f.id,
+            subject: f.subject ?? '',
+            title: f.title,
+            description: f.description ?? '',
+            teacher: 'Teacher',
+            audienceLabel: f.audienceLabel ?? 'Class',
+            acceptingResponses: f.acceptingResponses,
+            allowMultipleResponses: f.allowMultipleResponses,
+            published: f.published,
+            publishedAt: f.publishedAt?.toISOString() ?? null,
+            questions: Array.isArray(f.questions) ? f.questions : [],
+            summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null },
+          })),
+        };
+      }
+    } catch (_) {}
     return { ok: true, items: this.visibleForms(user) };
   }
 
-  byId(user: any, id: string) {
+  async byId(user: any, id: string) {
+    // Check real DB first
+    try {
+      const dbForm = await this.prisma.schoolForm.findUnique({ where: { id } });
+      if (dbForm) return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: Array.isArray(dbForm.questions) ? dbForm.questions : [], summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
+    } catch (_) {}
     const form = this.visibleForms(user).find((item) => item.id === id);
-    if (!form) {
-      throw new NotFoundException('Form not found');
-    }
+    if (!form) throw new NotFoundException('Form not found');
     return { ok: true, form };
   }
 
-  submit(user: any, id: string, body: any) {
+  async submit(user: any, id: string, body: any) {
+    const answers = body?.answers ?? body ?? {};
+    const userId = String((user as any)?.sub ?? (user as any)?.id ?? '').trim();
+
+    // Try DB form first
+    try {
+      const dbForm = await this.prisma.schoolForm.findUnique({ where: { id } });
+      if (dbForm) {
+        if (!dbForm.acceptingResponses) return { ok: false, error: 'This form is closed.' };
+        // Validate required questions
+        const questions = Array.isArray(dbForm.questions) ? dbForm.questions as any[] : [];
+        for (const q of questions) {
+          if (!q.required) continue;
+          const val = answers[q.id];
+          if (val === null || val === undefined || (typeof val === 'string' && !val.trim()) || (Array.isArray(val) && !val.length)) {
+            return { ok: false, error: `Required: ${q.title}` };
+          }
+        }
+        // Persist response
+        const studentProfile = userId ? await this.prisma.studentProfile.findUnique({ where: { userId }, select: { userId: true } }) : null;
+        if (studentProfile) {
+          const existingResponse = await this.prisma.formResponse.findUnique({ where: { formId_studentId: { formId: id, studentId: userId } } });
+          if (existingResponse && !dbForm.allowMultipleResponses) {
+            throw new ConflictException('You have already submitted this form');
+          }
+          await this.prisma.formResponse.create({ data: { formId: id, studentId: userId, answers } });
+        }
+        return { ok: true, message: 'Response recorded. Thank you!' };
+      }
+    } catch (e: any) {
+      if (e?.status === 409) throw e; // Re-throw conflict
+    }
+
+    // Fall back to legacy in-memory forms
     const form = this.visibleForms(user).find((item) => item.id === id);
     if (!form) throw new NotFoundException('Form not found');
-    if (!form.acceptingResponses) {
-      return { ok: false, error: 'This form is closed and no longer accepting responses.' };
-    }
-    const answers = body?.answers ?? body ?? {};
-    // Validate required fields
+    if (!form.acceptingResponses) return { ok: false, error: 'This form is closed.' };
     for (const question of form.questions) {
       if (!question.required) continue;
       const value = answers[question.id];
-      const empty =
-        value === null ||
-        value === undefined ||
-        (typeof value === 'string' && value.trim() === '') ||
-        (Array.isArray(value) && value.length === 0);
-      if (empty) {
-        return { ok: false, error: `Required: ${question.title}` };
-      }
+      const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && !value.length);
+      if (empty) return { ok: false, error: `Required: ${question.title}` };
     }
     return { ok: true, message: 'Response recorded. Thank you!' };
   }

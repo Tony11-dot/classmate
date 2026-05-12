@@ -4788,4 +4788,291 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileDisplayNameLang => 'لغة عرض الاسم';
+
+  @override
+  String get navDashboard => 'لوحة التحكم';
+
+  @override
+  String get navPeople => 'الأشخاص';
+
+  @override
+  String get navCohorts => 'المجموعات';
+
+  @override
+  String get navSchool => 'المدرسة';
+
+  @override
+  String get adminDashboardTitle => 'نظرة عامة على المدرسة';
+
+  @override
+  String get adminStudents => 'الطلاب';
+
+  @override
+  String get adminTeachers => 'المعلمون';
+
+  @override
+  String get adminParents => 'أولياء الأمور';
+
+  @override
+  String get adminSecretaries => 'الأمناء';
+
+  @override
+  String get adminTodaySessions => 'جلسات اليوم';
+
+  @override
+  String get adminQuickActions => 'إجراءات سريعة';
+
+  @override
+  String get adminAttendanceLast30 => 'الحضور — آخر 30 يومًا';
+
+  @override
+  String get adminNoAttendanceData => 'لا توجد بيانات حضور خلال آخر 30 يومًا.';
+
+  @override
+  String get adminAddUser => 'إضافة مستخدم';
+
+  @override
+  String get adminCreateUser => 'إنشاء';
+
+  @override
+  String get adminFullName => 'الاسم الكامل';
+
+  @override
+  String get adminEmailAddress => 'البريد الإلكتروني';
+
+  @override
+  String get adminRoleLabel => 'الدور';
+
+  @override
+  String get adminUserCreated => 'تم إنشاء المستخدم';
+
+  @override
+  String get adminTempPassword => 'كلمة مرور مؤقتة';
+
+  @override
+  String get adminCopied => 'تم النسخ إلى الحافظة';
+
+  @override
+  String get adminResetPassword => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get adminPasswordReset => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String adminTempPasswordFor(Object name) {
+    return 'كلمة المرور المؤقتة لـ $name';
+  }
+
+  @override
+  String get adminDeleteUser => 'حذف المستخدم';
+
+  @override
+  String adminDeleteUserConfirm(Object name) {
+    return 'حذف $name؟ لا يمكن التراجع عن هذا.';
+  }
+
+  @override
+  String get adminDeleteCohort => 'حذف المجموعة';
+
+  @override
+  String adminDeleteCohortConfirm(Object name) {
+    return 'حذف \"$name\"؟ ستُحذف جميع عضويات الطلاب.';
+  }
+
+  @override
+  String get adminAddCohort => 'إضافة مجموعة';
+
+  @override
+  String get adminNewCohort => 'مجموعة جديدة';
+
+  @override
+  String get adminCohortName => 'اسم المجموعة (مثال: 10أ)';
+
+  @override
+  String get adminCohortGrade => 'الصف';
+
+  @override
+  String get adminRenameCohort => 'إعادة تسمية المجموعة';
+
+  @override
+  String get adminAddStudents => 'إضافة طلاب';
+
+  @override
+  String adminAddTo(Object name) {
+    return 'إضافة إلى $name';
+  }
+
+  @override
+  String get adminRemoveStudent => 'إزالة الطالب';
+
+  @override
+  String adminRemoveStudentConfirm(Object name, Object cohort) {
+    return 'إزالة $name من $cohort؟';
+  }
+
+  @override
+  String get adminNoCohortsYet => 'لا توجد مجموعات بعد';
+
+  @override
+  String get adminNoStudentsInCohort => 'لا يوجد طلاب في هذه المجموعة';
+
+  @override
+  String adminStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلاب',
+      one: 'طالب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminSearchStudents => 'ابحث عن الطلاب…';
+
+  @override
+  String get adminScheduleTitle => 'الجدول الدراسي';
+
+  @override
+  String get adminScheduleAddPeriod => 'إضافة حصة';
+
+  @override
+  String get adminScheduleNewPeriod => 'حصة جديدة';
+
+  @override
+  String get adminScheduleDayLabel => 'اليوم';
+
+  @override
+  String get adminSchedulePeriodLabel => 'الحصة';
+
+  @override
+  String get adminScheduleTeacherLabel => 'المعلم';
+
+  @override
+  String get adminScheduleNoneTeacher => 'لا يوجد معلم';
+
+  @override
+  String get adminScheduleCohortLabel => 'المجموعة / الطلاب';
+
+  @override
+  String get adminScheduleFrequencyLabel => 'التكرار';
+
+  @override
+  String get adminScheduleFreqWeekly => 'كل أسبوع';
+
+  @override
+  String get adminScheduleFreqBiweekly => 'كل أسبوعين';
+
+  @override
+  String get adminScheduleFreqMonthly => 'كل 4 أسابيع';
+
+  @override
+  String get adminScheduleFreqCustom => 'مخصص';
+
+  @override
+  String adminScheduleFreqCustomLabel(int n) {
+    return 'كل $n أسابيع';
+  }
+
+  @override
+  String get adminScheduleAddSlot => 'إضافة وقت';
+
+  @override
+  String get adminScheduleAddAnother => 'إضافة يوم / حصة أخرى';
+
+  @override
+  String get adminScheduleSave => 'حفظ';
+
+  @override
+  String get adminScheduleSearchTeacher => 'ابحث عن المعلمين…';
+
+  @override
+  String get adminScheduleSearchCohort => 'ابحث عن المجموعات…';
+
+  @override
+  String get adminScheduleSelectTeacher => 'اختر المعلم';
+
+  @override
+  String get adminScheduleSelectCohort => 'اختر المجموعة';
+
+  @override
+  String get adminScheduleOrStudents => 'أو اختر طلابًا بشكل فردي';
+
+  @override
+  String get adminScheduleNoSlots => 'لا توجد حصص بعد';
+
+  @override
+  String get adminScheduleNoSlotsHint => 'اضغط + لإضافة أول حصة';
+
+  @override
+  String get adminSchoolSettingsTitle => 'إعدادات المدرسة';
+
+  @override
+  String get adminSchoolName => 'اسم المدرسة';
+
+  @override
+  String get adminSchoolLogoUrl => 'رابط الشعار (اختياري)';
+
+  @override
+  String get adminSchoolLogoHint => 'https://…';
+
+  @override
+  String get adminSchoolSaved => 'تم الحفظ';
+
+  @override
+  String get adminSubjectsTitle => 'المواد الدراسية';
+
+  @override
+  String adminSubjectsGrade(int grade) {
+    return 'الصف $grade';
+  }
+
+  @override
+  String get adminSubjectsAddHint => 'أضف مادة…';
+
+  @override
+  String get adminSubjectsNoSubjects => 'لم يتم تكوين مواد دراسية';
+
+  @override
+  String get adminSubjectsAdd => 'إضافة';
+
+  @override
+  String get adminSubjectsRemove => 'إزالة';
+
+  @override
+  String get adminSettingsTitle => 'الإعدادات';
+
+  @override
+  String get adminSettingsBellSchedule => 'جرس المدرسة';
+
+  @override
+  String get adminSettingsPeriodDefaults => 'مواعيد الحصص الافتراضية';
+
+  @override
+  String get adminSettingsPeriodDefaultsSubtitle => 'ضبط أوقات كل حصة';
+
+  @override
+  String get adminDeleteConfirmCancel => 'إلغاء';
+
+  @override
+  String get adminDeleteConfirmDelete => 'حذف';
+
+  @override
+  String get adminSave => 'حفظ';
+
+  @override
+  String get adminCancel => 'إلغاء';
+
+  @override
+  String get adminSearchPeople => 'ابحث بالاسم…';
+
+  @override
+  String adminNoResults(Object query) {
+    return 'لا نتائج لـ \"$query\"';
+  }
+
+  @override
+  String adminNoPeopleYet(Object role) {
+    return 'لا يوجد $role بعد';
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
@@ -105,6 +106,11 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(unifiedStudentInsightsProvider);
     final l = AppLocalizations.of(context)!;
+
+    // Refresh grades when teacher posts grades in real-time
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'grade_updated') ref.invalidate(unifiedStudentInsightsProvider);
+    });
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 

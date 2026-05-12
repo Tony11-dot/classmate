@@ -1143,16 +1143,19 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               await sessionCtl.start(startFilter);
                             } catch (e) {
                               if (context.mounted &&
-                                  Navigator.of(
-                                    context,
-                                    rootNavigator: true,
-                                  ).canPop()) {
-                                Navigator.of(
-                                  context,
-                                  rootNavigator: true,
-                                ).pop();
+                                  Navigator.of(context, rootNavigator: true).canPop()) {
+                                Navigator.of(context, rootNavigator: true).pop();
                               }
-                              rethrow;
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(
+                                    e.toString().contains('socket') || e.toString().contains('connection')
+                                        ? 'No internet connection. Please try again.'
+                                        : 'Could not generate questions. Please try again.',
+                                  )),
+                                );
+                              }
+                              return; // Don't rethrow — the user already sees the error message
                             }
 
                             if (!context.mounted) return;

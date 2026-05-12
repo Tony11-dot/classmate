@@ -49,19 +49,21 @@ class _RealtimeListenerState extends ConsumerState<RealtimeListener> {
     final session = ref.read(authSessionProvider);
     final token = session.token ?? '';
     if (token == _connectedToken) return;
+
+    // Always cancel the old subscription first, then disconnect the old connection,
+    // BEFORE starting a new one — prevents duplicate SSE streams.
+    _eventSub?.cancel();
+    _eventSub = null;
+    if (_connectedToken != null && _connectedToken!.isNotEmpty) {
+      RealtimeService.instance.disconnect();
+    }
     _connectedToken = token;
 
-    if (token.isEmpty) {
-      RealtimeService.instance.disconnect();
-      _eventSub?.cancel();
-      return;
-    }
+    if (token.isEmpty) return;
 
     RealtimeService.instance.connect(token);
-    _eventSub?.cancel();
     _eventSub = RealtimeService.instance.events.listen((event) {
       if (!mounted) return;
-      // Broadcast to all screens via the provider
       ref.read(realtimeEventProvider.notifier).emit(event);
     });
   }

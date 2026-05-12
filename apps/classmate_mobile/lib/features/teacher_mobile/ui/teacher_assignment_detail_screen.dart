@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/realtime/realtime_listener.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -138,6 +139,11 @@ class _TeacherAssignmentDetailScreenState
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
+
+    // Refresh when student submits (teacher sees new submission live)
+    ref.listen(realtimeEventProvider, (_, event) {
+      if (event?.type == 'assignment_created') _load();
+    });
 
     return Scaffold(
       backgroundColor: cs.surface,
