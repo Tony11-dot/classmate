@@ -387,7 +387,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   // =========================================================
 
   private requireAdminOrSecretary(user: any) {
+    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
+    const isDev = appEnv.toLowerCase().includes('dev') || appEnv.toLowerCase().includes('test');
+    if (isDev) return; // matches RolesGuard dev bypass
+
     const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    console.log('[ADMIN_AUTH] roles:', roles, 'user.id:', user?.id);
     if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
       throw new ForbiddenException('Admin/Secretary only');
     }
