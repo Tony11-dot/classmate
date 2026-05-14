@@ -50,7 +50,7 @@ platform :android do
   lane :beta do
     flutter_build_android
     firebase_app_distribution(
-      app:            ENV["FIREBASE_APP_ID"],       # set in .env or export before running
+      app:            "1:682658545733:android:2ce716747ff621c41aa32c",
       groups:         "beta-testers",
       release_notes:  "ClassMate beta — #{Time.now.strftime('%Y-%m-%d')}",
       apk_path:       "../#{APK_PATH}",
