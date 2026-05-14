@@ -276,13 +276,33 @@ function buildPage(): string {
     .logo-status.ok  { color:var(--green); }
     .logo-status.err { color:var(--red); }
 
-    /* periods */
-    .periods { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .period { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
-    .period-lbl { font-size:11px; font-weight:800; color:var(--blue); margin-bottom:6px; }
-    .period-times { display:flex; gap:6px; align-items:center; }
-    .period-times input { padding:6px 7px; font-size:12px; text-align:center; }
-    .period-sep { color:var(--muted); font-size:11px; flex-shrink:0; }
+    /* chips */
+    .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; min-height:4px; }
+    .chip { display:flex; align-items:center; gap:6px; padding:6px 10px 6px 12px;
+            background:var(--surface2); border:1px solid var(--border); border-radius:20px;
+            font-size:13px; font-weight:600; }
+    .chip-del { background:none; border:none; color:var(--muted); cursor:pointer;
+                font-size:16px; line-height:1; padding:0; transition:color .1s; }
+    .chip-del:hover { color:var(--red); }
+
+    /* add row */
+    .add-row { display:flex; gap:10px; }
+    .add-row input { flex:1; }
+    .add-btn { padding:10px 18px; background:var(--blue); color:#fff; border:none;
+               border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;
+               white-space:nowrap; transition:background .15s; flex-shrink:0; }
+    .add-btn:hover { background:var(--blue2); }
+
+    /* period rows */
+    .period-row { display:flex; align-items:center; gap:10px; padding:10px 14px;
+                  background:var(--bg); border:1px solid var(--border); border-radius:12px;
+                  margin-bottom:8px; }
+    .period-badge { min-width:32px; font-size:12px; font-weight:900; color:var(--blue); }
+    .period-row input[type=time] { flex:1; padding:8px 10px; font-size:13px; }
+    .period-sep { color:var(--muted); font-size:13px; flex-shrink:0; }
+    .period-del { background:none; border:none; color:var(--muted); cursor:pointer;
+                  font-size:18px; padding:0 4px; transition:color .1s; }
+    .period-del:hover { color:var(--red); }
 
     /* secret */
     .secret-card { background:var(--surface); border:1px solid #3a1010;
@@ -347,27 +367,20 @@ function buildPage(): string {
     <!-- Subjects -->
     <div class="card">
       <div class="card-hdr">Subjects <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <div class="field">
-        <textarea id="subjects" placeholder="Math, Science, English, History, Art, Physical Education, Computer Science"></textarea>
-        <div class="hint">Comma-separated. Visible to all teachers when creating assignments and assessments.</div>
+      <div class="chips" id="subjectChips"></div>
+      <div class="add-row">
+        <input id="subjectInput" type="text" placeholder="e.g. Mathematics" autocomplete="off">
+        <button type="button" class="add-btn" id="addSubject">Add</button>
       </div>
+      <div class="hint" style="margin-top:8px">Visible to all teachers when creating assignments and assessments.</div>
     </div>
 
     <!-- Bell Schedule -->
     <div class="card">
       <div class="card-hdr">Bell Schedule <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <div class="hint" style="margin-bottom:16px">Set default start and end times for each period. Can be changed later in the app.</div>
-      <div class="periods">
-        ${[1,2,3,4,5,6,7,8,9].map(p => `
-        <div class="period">
-          <div class="period-lbl">P${p}</div>
-          <div class="period-times">
-            <input type="time" name="p${p}s">
-            <span class="period-sep">→</span>
-            <input type="time" name="p${p}e">
-          </div>
-        </div>`).join('')}
-      </div>
+      <div class="hint" style="margin-bottom:14px">Set default start/end times per period. Can be changed later in the app.</div>
+      <div id="periodList"></div>
+      <button type="button" class="add-btn" id="addPeriod" style="margin-top:8px">+ Add Period</button>
     </div>
 
     <!-- Admin Account -->
@@ -418,6 +431,62 @@ function buildPage(): string {
 
 </div>
 <script>
+  // ── Subjects ──────────────────────────────────────────────────────────────
+  const subjects = [];
+  const subjectChips = document.getElementById('subjectChips');
+  const subjectInput = document.getElementById('subjectInput');
+
+  function renderSubjects() {
+    subjectChips.innerHTML = subjects.map((s,i) =>
+      '<div class="chip">' + s +
+      '<button type="button" class="chip-del" data-i="'+i+'">×</button></div>'
+    ).join('');
+    subjectChips.querySelectorAll('.chip-del').forEach(b =>
+      b.addEventListener('click', () => { subjects.splice(+b.dataset.i, 1); renderSubjects(); })
+    );
+  }
+
+  function addSubject() {
+    const v = subjectInput.value.trim();
+    if (!v || subjects.includes(v)) return;
+    subjects.push(v);
+    subjectInput.value = '';
+    renderSubjects();
+    subjectInput.focus();
+  }
+  document.getElementById('addSubject').addEventListener('click', addSubject);
+  subjectInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } });
+
+  // ── Bell Schedule ──────────────────────────────────────────────────────────
+  let periodCount = 0;
+  const periodList = document.getElementById('periodList');
+
+  function addPeriod(startTime, endTime) {
+    periodCount++;
+    const n = periodCount;
+    const row = document.createElement('div');
+    row.className = 'period-row'; row.dataset.n = n;
+    row.innerHTML =
+      '<span class="period-badge">P'+n+'</span>' +
+      '<input type="time" class="ps" value="'+(startTime||'')+'">' +
+      '<span class="period-sep">→</span>' +
+      '<input type="time" class="pe" value="'+(endTime||'')+'">' +
+      '<button type="button" class="period-del" title="Remove">×</button>';
+    row.querySelector('.period-del').addEventListener('click', () => {
+      row.remove();
+      // Renumber remaining periods
+      periodList.querySelectorAll('.period-row').forEach((r,i) => {
+        r.querySelector('.period-badge').textContent = 'P'+(i+1);
+      });
+    });
+    periodList.appendChild(row);
+  }
+
+  document.getElementById('addPeriod').addEventListener('click', () => addPeriod());
+  // Seed with P1–P5 to start
+  for (let i = 0; i < 5; i++) addPeriod();
+
+  // ── Show/hide password toggles ─────────────────────────────────────────────
   // Show/hide password toggles
   function togglePw(inputId, btnId) {
     const inp = document.getElementById(inputId);
@@ -475,14 +544,13 @@ function buildPage(): string {
     btn.disabled = true; btn.textContent = 'Creating…';
     result.style.display = 'none';
 
+    // Collect bell schedule from dynamic rows
     const bell = [];
-    for (let p = 1; p <= 9; p++) {
-      const s = document.querySelector('[name=p'+p+'s]').value;
-      const en = document.querySelector('[name=p'+p+'e]').value;
-      if (s && en) bell.push({ period:p, startTime:s, endTime:en });
-    }
-    const subjectRaw = document.getElementById('subjects').value.trim();
-    const subjects = subjectRaw ? subjectRaw.split(',').map(s=>s.trim()).filter(Boolean) : undefined;
+    document.querySelectorAll('#periodList .period-row').forEach((row, i) => {
+      const s = row.querySelector('.ps').value;
+      const en = row.querySelector('.pe').value;
+      if (s && en) bell.push({ period: i+1, startTime: s, endTime: en });
+    });
 
     // Upload logo first if a file was picked
     const secret = document.getElementById('secret').value;
@@ -492,8 +560,8 @@ function buildPage(): string {
     const payload = {
       schoolName:     document.getElementById('schoolName').value.trim(),
       logoUrl:        document.getElementById('logoUrl').value || undefined,
-      subjects,
-      bellSchedule:   bell.length ? bell : undefined,
+      subjects: subjects.length ? subjects : undefined,
+      bellSchedule: bell.length ? bell : undefined,
       adminName:      document.getElementById('adminName').value.trim(),
       adminUsername:  document.getElementById('adminUsername').value.trim() || undefined,
       adminEmail:     document.getElementById('adminEmail').value.trim() || undefined,
