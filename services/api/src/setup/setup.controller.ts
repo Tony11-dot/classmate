@@ -430,43 +430,42 @@ function buildPage(): string {
   togglePw('adminPassword', 'pwToggle');
   togglePw('secret', 'secretToggle');
 
-  // Logo upload
+  // Logo — show preview immediately on file select, upload at submit time
   const logoFile = document.getElementById('logoFile');
   const logoZone = document.getElementById('logoZone');
   const logoPreview = document.getElementById('logoPreview');
   const logoStatus = document.getElementById('logoStatus');
   const logoUrl = document.getElementById('logoUrl');
 
-  logoFile.addEventListener('change', async () => {
+  logoFile.addEventListener('change', () => {
     const file = logoFile.files[0];
     if (!file) return;
-    const secret = document.getElementById('secret').value;
-    if (!secret) { logoStatus.textContent = 'Enter your setup secret first.'; logoStatus.className = 'logo-status err'; return; }
-
-    // Preview
+    // Show local preview immediately — no secret needed yet
     const reader = new FileReader();
     reader.onload = e => { logoPreview.src = e.target.result; };
     reader.readAsDataURL(file);
     logoZone.classList.add('has-file');
-    logoStatus.textContent = 'Uploading…'; logoStatus.className = 'logo-status';
+    logoStatus.textContent = 'Ready to upload'; logoStatus.className = 'logo-status';
+    logoUrl.value = ''; // cleared until actual upload at submit
+  });
 
-    // Upload
+  async function uploadLogoIfPending(secret) {
+    const file = logoFile.files[0];
+    if (!file) return true; // no file selected — ok
+    logoStatus.textContent = 'Uploading logo…'; logoStatus.className = 'logo-status';
     const fd = new FormData();
     fd.append('file', file);
-    try {
-      const res = await fetch('/cmss/upload', { method:'POST', headers:{'x-setup-secret':secret}, body:fd });
-      const data = await res.json();
-      if (res.ok) {
-        logoUrl.value = data.url;
-        logoStatus.textContent = '✓ Logo uploaded'; logoStatus.className = 'logo-status ok';
-      } else {
-        logoStatus.textContent = '✗ ' + (data.message || 'Upload failed'); logoStatus.className = 'logo-status err';
-        logoUrl.value = '';
-      }
-    } catch(e) {
-      logoStatus.textContent = '✗ Network error'; logoStatus.className = 'logo-status err';
+    const res = await fetch('/cmss/upload', { method:'POST', headers:{'x-setup-secret':secret}, body:fd });
+    const data = await res.json();
+    if (res.ok) {
+      logoUrl.value = data.url;
+      logoStatus.textContent = '✓ Logo uploaded'; logoStatus.className = 'logo-status ok';
+      return true;
+    } else {
+      logoStatus.textContent = '✗ ' + (data.message || 'Upload failed'); logoStatus.className = 'logo-status err';
+      return false;
     }
-  });
+  }
 
   // Form submit
   document.getElementById('form').addEventListener('submit', async e => {
@@ -485,6 +484,11 @@ function buildPage(): string {
     const subjectRaw = document.getElementById('subjects').value.trim();
     const subjects = subjectRaw ? subjectRaw.split(',').map(s=>s.trim()).filter(Boolean) : undefined;
 
+    // Upload logo first if a file was picked
+    const secret = document.getElementById('secret').value;
+    const logoOk = await uploadLogoIfPending(secret);
+    if (!logoOk) { btn.disabled = false; btn.textContent = 'Create School'; return; }
+
     const payload = {
       schoolName:     document.getElementById('schoolName').value.trim(),
       logoUrl:        document.getElementById('logoUrl').value || undefined,
@@ -499,7 +503,7 @@ function buildPage(): string {
     try {
       const res = await fetch('/cms/school', {
         method:'POST',
-        headers:{'Content-Type':'application/json','x-setup-secret':document.getElementById('secret').value},
+        headers:{'Content-Type':'application/json','x-setup-secret':secret},
         body:JSON.stringify(payload),
       });
       const data = await res.json();
