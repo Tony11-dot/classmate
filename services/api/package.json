@@ -6,7 +6,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "sh -lc 'set -eu; if [ -f .env.prod ]; then set -a; . ./.env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production node dist/main.js'",
+    "start:prod": "sh -lc 'set -eu; if [ -f .env.prod ]; then set -a; . ./.env.prod; set +a; fi; ENABLE_E2E_SEED= NODE_ENV=production npx prisma db push --skip-generate --accept-data-loss && node dist/main.js'",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "pnpm -s prisma generate && pnpm -s db:push:test && NODE_ENV=test jest -c jest.config.cjs --testPathIgnorePatterns=e2e\\.spec\\.ts$",
     "test:watch": "jest --watch",
