@@ -158,10 +158,7 @@ export class ParentService {
     const parentId = user.sub ?? user.id;
 
     const links = await this.prisma.parentChild.findMany({
-      where: {
-        parentId,
-        status: 'APPROVED',
-      },
+      where: { parentId, status: 'APPROVED' },
       include: {
         child: {
           include: {
@@ -176,6 +173,7 @@ export class ParentService {
       studentId: l.childId,
       name: l.child.name,
       status: l.status,
+      schoolId: (l.child as any).schoolId ?? null, // parent uses this as X-Acting-Student-Id context
       cohort: l.child.studentProfile?.cohort
         ? {
             id: l.child.studentProfile.cohort.id,

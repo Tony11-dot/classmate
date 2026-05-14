@@ -130,7 +130,25 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           cohortId = provisioned.cohortId;
         }
 
-        const resolvedSchoolId = existing?.schoolId ?? schoolId ?? null;
+        let resolvedSchoolId = existing?.schoolId ?? schoolId ?? null;
+
+        // Parent multi-school support:
+        // If a parent has no schoolId but is acting as a child, resolve the school
+        // from the child's profile. Also verify the parent actually has access to that child.
+        if (!resolvedSchoolId && actingStudentId && activeRoles.includes(Role.PARENT)) {
+          const link = await this.prisma.parentChild.findFirst({
+            where: { parentId: userId, childId: actingStudentId, status: 'APPROVED' },
+          });
+          if (link) {
+            const childRow = await this.prisma.user.findUnique({
+              where: { id: actingStudentId },
+              select: { schoolId: true, studentProfile: { select: { cohortId: true } } },
+            });
+            resolvedSchoolId = childRow?.schoolId ?? null;
+            if (!cohortId) cohortId = childRow?.studentProfile?.cohortId ?? undefined;
+          }
+          // If no valid link, actingStudentId is silently ignored for school context
+        }
 
         return {
           sub: userId,
