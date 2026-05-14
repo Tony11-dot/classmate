@@ -225,10 +225,12 @@ function buildPage(): string {
     .wrap { width:100%; max-width:600px; }
 
     /* header */
-    .hdr { display:flex; align-items:center; gap:14px; margin-bottom:40px; }
-    .hdr img { width:160px; height:auto; }
-    .hdr-info h1 { font-size:22px; font-weight:900; }
-    .hdr-info p { font-size:13px; color:var(--muted); margin-top:2px; }
+    .hdr { display:flex; flex-direction:column; align-items:center;
+           text-align:center; margin-bottom:44px; gap:14px; }
+    .hdr img { width:220px; height:auto; }
+    .hdr-info h1 { font-size:13px; font-weight:700; color:var(--muted);
+                   text-transform:uppercase; letter-spacing:1px; }
+    .hdr-info p { font-size:12px; color:#444; margin-top:3px; }
 
     /* cards */
     .card { background:var(--surface); border:1px solid var(--border);
