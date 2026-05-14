@@ -965,6 +965,31 @@ export class TeacherService {
 
   // ── Classroom management ─────────────────────────────────────────────────────
 
+  // ── School isolation helpers ──────────────────────────────────────────────
+  // Every cross-user operation must go through these to prevent data leakage.
+
+  /** Throws 403 if targetUserId does not belong to the same school as user. */
+  private async assertInSchool(user: any, targetUserId: string): Promise<void> {
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) return; // no school context = dev mode
+    const target = await this.prisma.user.findFirst({
+      where: { id: targetUserId, schoolId },
+      select: { id: true },
+    });
+    if (!target) throw new ForbiddenException('That user does not belong to your school');
+  }
+
+  /** Returns only the IDs from the input list that belong to user's school. */
+  private async filterToSchool(user: any, userIds: string[]): Promise<string[]> {
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId || userIds.length === 0) return userIds;
+    const valid = await this.prisma.user.findMany({
+      where: { id: { in: userIds }, schoolId },
+      select: { id: true },
+    });
+    return valid.map((u) => u.id);
+  }
+
   private async assertTeacherOwnsClassroom(teacherId: string, classroomId: string) {
     const cr = await this.prisma.classroom.findUnique({
       where: { id: classroomId },
@@ -1121,12 +1146,16 @@ export class TeacherService {
 
     if (!studentIds.length) throw new BadRequestException('No students specified');
 
+    // School isolation: only add students from the same school
+    const schoolStudentIds = await this.filterToSchool(user, studentIds);
+    if (!schoolStudentIds.length) throw new ForbiddenException('None of the specified students belong to your school');
+
     await this.prisma.classroomMember.createMany({
-      data: studentIds.map((sid) => ({ classroomId, studentId: sid })),
+      data: schoolStudentIds.map((sid) => ({ classroomId, studentId: sid })),
       skipDuplicates: true,
     });
 
-    return { ok: true, added: studentIds.length };
+    return { ok: true, added: schoolStudentIds.length };
   }
 
   async removeClassroomMember(user: any, classroomId: string, studentId: string) {
@@ -1390,6 +1419,7 @@ export class TeacherService {
   async resetAssignmentSubmission(user: any, assignmentId: string, studentId: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
+    await this.assertInSchool(user, studentId);
     // Verify the assignment belongs to one of teacher's classrooms
     const assignment = await this.prisma.classroomAssignment.findFirst({
       where: { id: assignmentId, classroom: { teacherId } },
@@ -1438,6 +1468,7 @@ export class TeacherService {
 
   async getStudentProfile(user: any, studentId: string) {
     this.ensureTeacher(user);
+    await this.assertInSchool(user, studentId);
 
     const [profile, recentGrades, recentAttendance, submissions] = await Promise.all([
       this.prisma.studentProfile.findUnique({
@@ -1559,10 +1590,11 @@ export class TeacherService {
     const identifier = String(body?.email ?? body?.userId ?? '').trim();
     if (!identifier) throw new BadRequestException('email or userId required');
 
+    const schoolId = (user as any)?.schoolId;
     const student = identifier.includes('@')
-      ? await this.prisma.user.findUnique({ where: { email: identifier }, select: { id: true, name: true } })
-      : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true, name: true } });
-    if (!student) throw new BadRequestException('Student not found');
+      ? await this.prisma.user.findFirst({ where: { email: identifier, ...(schoolId ? { schoolId } : {}) }, select: { id: true, name: true } })
+      : await this.prisma.user.findFirst({ where: { id: identifier, ...(schoolId ? { schoolId } : {}) }, select: { id: true, name: true } });
+    if (!student) throw new BadRequestException('Student not found in your school');
 
     await this.prisma.classroomMember.upsert({
       where: { classroomId_studentId: { classroomId, studentId: student.id } },
@@ -1740,6 +1772,8 @@ export class TeacherService {
     const teacherId = String(user?.sub ?? user?.id ?? '');
     const u = await this.prisma.user.findUnique({ where: { id: teacherId }, select: { schoolId: true } });
     if (!u?.schoolId) throw new BadRequestException('No school');
+    // School isolation: verify the diploma recipient belongs to the same school
+    if (body?.studentId) await this.assertInSchool(user, String(body.studentId));
     const diploma = await this.prisma.teacherDiploma.create({
       data: {
         schoolId: u.schoolId,
@@ -2254,7 +2288,12 @@ export class TeacherService {
     const exam = await this.prisma.teacherExam.findFirst({ where: { id: examId, teacherId } });
     if (!exam) throw new NotFoundException('Exam not found');
 
-    const grades: { studentId: string; grade: number }[] = Array.isArray(body?.grades) ? body.grades : [];
+    let grades: { studentId: string; grade: number }[] = Array.isArray(body?.grades) ? body.grades : [];
+    if (!grades.length) return { ok: true, saved: 0 };
+
+    // School isolation: only grade students from the teacher's school
+    const allowedIds = new Set(await this.filterToSchool(user, grades.map((g) => g.studentId)));
+    grades = grades.filter((g) => allowedIds.has(g.studentId));
     if (!grades.length) return { ok: true, saved: 0 };
 
     // Group grades by student's cohort so each assessment is cohort-scoped

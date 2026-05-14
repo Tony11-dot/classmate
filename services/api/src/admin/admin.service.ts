@@ -386,6 +386,28 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   // Session 10: School subject defaults + per-student overrides
   // =========================================================
 
+  /** Throws 403 if targetUserId does not belong to the admin's school. */
+  private async assertUserInSchool(user: any, targetUserId: string): Promise<void> {
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) return;
+    const target = await this.prisma.user.findFirst({
+      where: { id: targetUserId, schoolId },
+      select: { id: true },
+    });
+    if (!target) throw new ForbiddenException('That user does not belong to your school');
+  }
+
+  /** Returns only IDs from the list that belong to admin's school. */
+  private async filterUsersToSchool(user: any, userIds: string[]): Promise<string[]> {
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId || !userIds.length) return userIds;
+    const valid = await this.prisma.user.findMany({
+      where: { id: { in: userIds }, schoolId },
+      select: { id: true },
+    });
+    return valid.map((u) => u.id);
+  }
+
   private requireAdminOrSecretary(user: any) {
     const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
     const isDev = appEnv.toLowerCase().includes('dev') || appEnv.toLowerCase().includes('test');
@@ -938,6 +960,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async linkParent(user: any, dto: { parentId: string; studentId: string }) {
     this.requireAdminOrSecretary(user);
     if (!dto?.parentId || !dto?.studentId) throw new BadRequestException('parentId and studentId are required');
+    // School isolation: both parent and student must be in the admin's school
+    await Promise.all([
+      this.assertUserInSchool(user, dto.parentId),
+      this.assertUserInSchool(user, dto.studentId),
+    ]);
 
     try {
       const link = await this.prisma.parentChild.create({
@@ -1009,15 +1036,20 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!Array.isArray(dto?.studentIds) || !dto.studentIds.length)
       throw new BadRequestException('studentIds[] is required');
 
+    // School isolation: only add students from the same school
+    const schoolStudentIds = await this.filterUsersToSchool(user, dto.studentIds);
+    if (!schoolStudentIds.length) throw new ForbiddenException('None of the specified students belong to your school');
+
     await this.prisma.studentCohort.createMany({
-      data: dto.studentIds.map((sid) => ({ studentId: sid, cohortId })),
+      data: schoolStudentIds.map((sid) => ({ studentId: sid, cohortId })),
       skipDuplicates: true,
     });
-    return { ok: true, added: dto.studentIds.length };
+    return { ok: true, added: schoolStudentIds.length };
   }
 
   async removeStudentFromCohort(user: any, cohortId: string, studentId: string) {
     this.requireAdminOrSecretary(user);
+    await this.assertUserInSchool(user, studentId);
     await this.prisma.studentCohort.delete({
       where: { studentId_cohortId: { studentId, cohortId } },
     });
