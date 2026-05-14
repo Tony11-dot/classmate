@@ -97,7 +97,7 @@ export class SetupController {
     @Body() body: {
       schoolName: string;
       logoUrl?: string;
-      subjects?: string[];
+      subjects?: { nameEn: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string }[];
       bellSchedule?: { period: number; startTime: string; endTime: string }[];
       adminName: string;
       adminEmail?: string;
@@ -224,13 +224,13 @@ function buildPage(): string {
            display:flex; align-items:flex-start; justify-content:center; padding:40px 20px 100px; }
     .wrap { width:100%; max-width:600px; }
 
-    /* header */
-    .hdr { display:flex; flex-direction:column; align-items:center;
-           text-align:center; margin-bottom:44px; gap:14px; }
-    .hdr img { width:220px; height:auto; }
+    /* header — always vertical, centred */
+    .hdr { display:block; text-align:center; margin-bottom:44px; }
+    .hdr img { display:block; width:200px; max-width:70%; height:auto;
+               margin:0 auto 16px; }
     .hdr-info h1 { font-size:13px; font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:1px; }
-    .hdr-info p { font-size:12px; color:#444; margin-top:3px; }
+    .hdr-info p  { font-size:12px; color:#444; margin-top:4px; }
 
     /* cards */
     .card { background:var(--surface); border:1px solid var(--border);
@@ -329,7 +329,24 @@ function buildPage(): string {
     .result pre { font-family:monospace; font-size:12px; white-space:pre-wrap;
                   background:rgba(0,0,0,.3); border-radius:8px; padding:12px; margin-top:10px; color:#ccc; }
 
-    @media(max-width:500px) { .row2, .periods { grid-template-columns:1fr; } }
+    /* subject list */
+    .subj-item { display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
+                 background:var(--bg); border:1px solid var(--border); border-radius:12px;
+                 margin-bottom:8px; }
+    .subj-names { flex:1; }
+    .subj-en { font-size:14px; font-weight:700; }
+    .subj-langs { font-size:12px; color:var(--muted); margin-top:2px; }
+    .subj-del { background:none; border:none; color:var(--muted); cursor:pointer;
+                font-size:18px; padding:0; transition:color .1s; flex-shrink:0; }
+    .subj-del:hover { color:var(--red); }
+    .subj-form { background:var(--surface2); border:1px solid var(--border);
+                 border-radius:14px; padding:16px; margin-bottom:10px; }
+    .subj-lang-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:0; }
+    .subj-lang-row .field { margin-bottom:12px; }
+
+    @media(max-width:500px) {
+      .row2, .periods, .subj-lang-row { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -369,10 +386,39 @@ function buildPage(): string {
     <!-- Subjects -->
     <div class="card">
       <div class="card-hdr">Subjects <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <div class="chips" id="subjectChips"></div>
-      <div class="add-row">
-        <input id="subjectInput" type="text" placeholder="e.g. Mathematics" autocomplete="off">
-        <button type="button" class="add-btn" id="addSubject">Add</button>
+      <div id="subjectList"></div>
+      <button type="button" class="add-btn" id="showAddSubject" style="margin-bottom:8px">+ Add Subject</button>
+      <!-- inline add form, hidden by default -->
+      <div id="subjectForm" class="subj-form" style="display:none">
+        <div class="subj-lang-row">
+          <div class="field">
+            <label>English <span class="req">*</span></label>
+            <input id="sEn" type="text" placeholder="Mathematics" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Arabic</label>
+            <input id="sAr" type="text" placeholder="رياضيات" autocomplete="off" dir="auto">
+          </div>
+        </div>
+        <div class="subj-lang-row">
+          <div class="field">
+            <label>Hebrew</label>
+            <input id="sHe" type="text" placeholder="מתמטיקה" autocomplete="off" dir="auto">
+          </div>
+          <div class="field">
+            <label>French</label>
+            <input id="sFr" type="text" placeholder="Mathématiques" autocomplete="off">
+          </div>
+        </div>
+        <div class="field" style="max-width:50%">
+          <label>Russian</label>
+          <input id="sRu" type="text" placeholder="Математика" autocomplete="off">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button type="button" class="add-btn" id="confirmAddSubject">Add Subject</button>
+          <button type="button" class="add-btn" id="cancelAddSubject"
+            style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)">Cancel</button>
+        </div>
       </div>
       <div class="hint" style="margin-top:8px">Visible to all teachers when creating assignments and assessments.</div>
     </div>
@@ -433,31 +479,52 @@ function buildPage(): string {
 
 </div>
 <script>
-  // ── Subjects ──────────────────────────────────────────────────────────────
-  const subjects = [];
-  const subjectChips = document.getElementById('subjectChips');
-  const subjectInput = document.getElementById('subjectInput');
+  // ── Subjects (multi-lang) ──────────────────────────────────────────────────
+  const subjects = []; // each: { nameEn, nameAr, nameHe, nameFr, nameRu }
+  const subjectList = document.getElementById('subjectList');
+  const subjectForm = document.getElementById('subjectForm');
 
   function renderSubjects() {
-    subjectChips.innerHTML = subjects.map((s,i) =>
-      '<div class="chip">' + s +
-      '<button type="button" class="chip-del" data-i="'+i+'">×</button></div>'
-    ).join('');
-    subjectChips.querySelectorAll('.chip-del').forEach(b =>
+    subjectList.innerHTML = subjects.map((s, i) => {
+      const langs = [s.nameAr, s.nameHe, s.nameFr, s.nameRu].filter(Boolean).join(' · ');
+      return '<div class="subj-item">' +
+        '<div class="subj-names">' +
+          '<div class="subj-en">' + s.nameEn + '</div>' +
+          (langs ? '<div class="subj-langs">' + langs + '</div>' : '') +
+        '</div>' +
+        '<button type="button" class="subj-del" data-i="'+i+'">×</button>' +
+      '</div>';
+    }).join('');
+    subjectList.querySelectorAll('.subj-del').forEach(b =>
       b.addEventListener('click', () => { subjects.splice(+b.dataset.i, 1); renderSubjects(); })
     );
   }
 
-  function addSubject() {
-    const v = subjectInput.value.trim();
-    if (!v || subjects.includes(v)) return;
-    subjects.push(v);
-    subjectInput.value = '';
+  document.getElementById('showAddSubject').addEventListener('click', () => {
+    subjectForm.style.display = 'block';
+    document.getElementById('sEn').focus();
+  });
+  document.getElementById('cancelAddSubject').addEventListener('click', () => {
+    subjectForm.style.display = 'none';
+    ['sEn','sAr','sHe','sFr','sRu'].forEach(id => document.getElementById(id).value = '');
+  });
+  document.getElementById('confirmAddSubject').addEventListener('click', () => {
+    const nameEn = document.getElementById('sEn').value.trim();
+    if (!nameEn) { document.getElementById('sEn').focus(); return; }
+    subjects.push({
+      nameEn,
+      nameAr: document.getElementById('sAr').value.trim() || undefined,
+      nameHe: document.getElementById('sHe').value.trim() || undefined,
+      nameFr: document.getElementById('sFr').value.trim() || undefined,
+      nameRu: document.getElementById('sRu').value.trim() || undefined,
+    });
+    ['sEn','sAr','sHe','sFr','sRu'].forEach(id => document.getElementById(id).value = '');
+    subjectForm.style.display = 'none';
     renderSubjects();
-    subjectInput.focus();
-  }
-  document.getElementById('addSubject').addEventListener('click', addSubject);
-  subjectInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } });
+  });
+  document.getElementById('sEn').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('confirmAddSubject').click(); }
+  });
 
   // ── Bell Schedule ──────────────────────────────────────────────────────────
   let periodCount = 0;
