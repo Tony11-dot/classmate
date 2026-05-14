@@ -1,0 +1,61 @@
+PROD_API = "https://pacific-enchantment-production-7a80.up.railway.app"
+IOS_IPA  = "build/ios/ipa/classmate_mobile.ipa"
+APK_PATH = "build/app/outputs/flutter-apk/app-release.apk"
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
+
+def flutter_build_ios
+  sh "cd .. && flutter build ipa --release \
+    --dart-define=CM_API_BASE_URL=#{PROD_API} \
+    --export-options-plist=ios/ExportOptions.plist"
+end
+
+def flutter_build_android
+  sh "cd .. && flutter build apk --release \
+    --dart-define=CM_API_BASE_URL=#{PROD_API}"
+end
+
+# ── iOS lanes ─────────────────────────────────────────────────────────────────
+
+platform :ios do
+
+  desc "Upload to TestFlight (beta)"
+  lane :beta do
+    flutter_build_ios
+    upload_to_testflight(
+      ipa:                        "../#{IOS_IPA}",
+      skip_waiting_for_build_processing: true,
+      changelog:                  "ClassMate beta build — #{Time.now.strftime('%Y-%m-%d')}",
+    )
+    UI.success "✅ Uploaded to TestFlight!"
+  end
+
+  desc "Submit to App Store for review"
+  lane :release do
+    flutter_build_ios
+    deliver(
+      ipa:           "../#{IOS_IPA}",
+      submit_for_review: false,   # set true when ready to submit
+      force:         true,
+    )
+  end
+
+end
+
+# ── Android lanes ─────────────────────────────────────────────────────────────
+
+platform :android do
+
+  desc "Distribute via Firebase App Distribution (beta)"
+  lane :beta do
+    flutter_build_android
+    firebase_app_distribution(
+      app:            ENV["FIREBASE_APP_ID"],       # set in .env or export before running
+      groups:         "beta-testers",
+      release_notes:  "ClassMate beta — #{Time.now.strftime('%Y-%m-%d')}",
+      apk_path:       "../#{APK_PATH}",
+    )
+    UI.success "✅ Distributed via Firebase!"
+  end
+
+end

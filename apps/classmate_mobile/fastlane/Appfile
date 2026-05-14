@@ -1,0 +1,4 @@
+app_identifier("com.tonyaboud.classmate")
+apple_id("aboudtony22@gmail.com")
+itc_team_id("")   # fill in after Apple Developer account is active
+team_id("")       # fill in after Apple Developer account is active
