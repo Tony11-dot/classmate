@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../features/common/media/pdf_viewer_screen.dart';
+import '../../features/common/media/image_viewer_screen.dart';
+import '../../core/config/env.dart';
+
 /// Renders a single attachment (link or file) as a tappable pill.
-/// Opens in-app browser for both links and files.
+/// PDFs and images open in the in-app viewer; all other files use the browser.
 class AttachmentPill extends StatelessWidget {
   const AttachmentPill({
     super.key,
@@ -24,8 +29,42 @@ class AttachmentPill extends StatelessWidget {
     return Icons.link_rounded;
   }
 
-  Future<void> _open() async {
-    final uri = Uri.tryParse(url);
+  /// Resolve relative server paths to full URLs.
+  String _resolve(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    if (trimmed.startsWith('/uploads') || trimmed.startsWith('/api/')) {
+      final base = Env.apiBaseUrl.replaceAll(RegExp(r'/+$'), '').replaceAll(RegExp(r'/api/?$'), '');
+      return '$base$trimmed';
+    }
+    return trimmed;
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final resolved = _resolve(url);
+    if (resolved.isEmpty) return;
+
+    final lower = resolved.toLowerCase();
+    final t = type.toLowerCase();
+    final isPdf = t == 'pdf' || lower.endsWith('.pdf');
+    final isImage = t == 'image' ||
+        lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') || lower.endsWith('.webp');
+
+    if (!context.mounted) return;
+    if (isPdf) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => PdfViewerScreen(url: resolved, title: name.isNotEmpty ? name : 'Document'),
+      ));
+      return;
+    }
+    if (isImage) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ImageViewerScreen(url: resolved, title: name.isNotEmpty ? name : 'Image'),
+      ));
+      return;
+    }
+    final uri = Uri.tryParse(resolved);
     if (uri == null) return;
     await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
   }
@@ -38,7 +77,7 @@ class AttachmentPill extends StatelessWidget {
     final displayName = name.isNotEmpty ? name : url;
 
     return GestureDetector(
-      onTap: _open,
+      onTap: () => _open(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
@@ -80,7 +119,6 @@ class AttachmentPill extends StatelessWidget {
 }
 
 /// Renders a list of attachments as a wrap of pills.
-/// Each attachment is a Map with keys: url, name, type.
 class AttachmentPills extends StatelessWidget {
   const AttachmentPills({super.key, required this.attachments});
 

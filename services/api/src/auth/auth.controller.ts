@@ -13,8 +13,10 @@ export class AuthController {
   @Public()
   @Post('login')
   async login(@Body() body: any) {
-    const { email } = body;
-    return { token: 'dev-token-' + email };
+    // identifier can be email or username
+    const identifier = String(body?.identifier ?? body?.email ?? body?.username ?? '').trim().toLowerCase();
+    if (!identifier) throw new BadRequestException('identifier (email or username) required');
+    return { token: 'dev-token-' + identifier };
   }
 
   @Public()

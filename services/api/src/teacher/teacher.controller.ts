@@ -207,6 +207,15 @@ export class TeacherController {
     return this.teacher.listAssignmentSubmissions(req.user, id, aId);
   }
 
+  @Delete('assignments/:assignmentId/submissions/:studentId')
+  resetSubmission(
+    @Req() req: any,
+    @Param('assignmentId') assignmentId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.teacher.resetAssignmentSubmission(req.user, assignmentId, studentId);
+  }
+
   @Get('classrooms/:id/materials')
   listClassroomMaterials(@Req() req: any, @Param('id') id: string) {
     return this.teacher.listClassroomMaterials(req.user, id);

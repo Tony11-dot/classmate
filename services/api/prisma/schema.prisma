@@ -49,7 +49,8 @@ model School {
 
 model User {
   id                      String                   @id @default(uuid())
-  email                   String                   @unique
+  email                   String?                  @unique
+  username                String?                  @unique // login identifier when no email
   password                String
   name                    String
   parentNotificationState ParentNotificationState?
@@ -178,6 +179,7 @@ model StudentCohort {
 model StudentProfile {
   userId       String @id
   cohortId     String?
+  grade        Int?   // primary grade level for this student
   englishLevel Int    @default(0)
   mathLevel    Int    @default(0)
 
@@ -270,6 +272,7 @@ model ScheduleSlot {
   startTime      String? // override school default, e.g. "08:00"
   endTime        String? // override school default, e.g. "08:45"
   frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc.
+  startDate      String? // ISO date "YYYY-MM-DD" of the first occurrence for bi-weekly etc.
 
   school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)

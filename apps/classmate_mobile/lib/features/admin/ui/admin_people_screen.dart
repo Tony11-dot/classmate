@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
+import 'admin_edit_user_screen.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -28,8 +29,8 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   final _searchCtrl = TextEditingController();
   String _search = '';
 
-  static const _roles = ['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY'];
-  static const _roleLabels = ['Students', 'Teachers', 'Parents', 'Secretaries'];
+  static const _roles = ['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
+  static const _roleLabels = ['Students', 'Teachers', 'Parents', 'Secretaries', 'Admins'];
 
   @override
   void initState() {
@@ -106,21 +107,14 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   }
 
   Future<void> _showAddUserSheet(BuildContext context) async {
-    final createdRole = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => _AddUserSheet(repo: ref.read(adminRepositoryProvider)),
+    final createdRole = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => AdminAddUserScreen(repo: ref.read(adminRepositoryProvider))),
     );
     if (createdRole != null && createdRole.isNotEmpty) {
       for (final role in _roles) {
         ref.invalidate(_usersProvider(role));
       }
-      // Auto-navigate to the tab matching the created user's role
       final tabIndex = _roles.indexOf(createdRole);
       if (tabIndex >= 0 && tabIndex < _tabs.length) {
         _tabs.animateTo(tabIndex);
@@ -184,7 +178,16 @@ class _UserTab extends ConsumerWidget {
             user: filtered[i],
             isAdmin: isAdmin,
             onDelete: () => _confirmDelete(ctx, ref, filtered[i]),
-            onResetPassword: () => _resetPassword(ctx, ref, filtered[i]),
+            onEdit: () async {
+              final updated = await Navigator.push<bool>(
+                ctx,
+                MaterialPageRoute(builder: (_) => AdminEditUserScreen(
+                  userId: filtered[i].id,
+                  repo: ref.read(adminRepositoryProvider),
+                )),
+              );
+              if (updated == true) onRefresh();
+            },
           ),
         );
       },
@@ -220,56 +223,6 @@ class _UserTab extends ConsumerWidget {
     }
   }
 
-  Future<void> _resetPassword(BuildContext ctx, WidgetRef ref, AdminUser user) async {
-    final l = AppLocalizations.of(ctx)!;
-    try {
-      final temp = await ref.read(adminRepositoryProvider).resetUserPassword(user.id);
-      if (!ctx.mounted) return;
-      showDialog(
-        context: ctx,
-        builder: (dCtx) {
-          final dl = AppLocalizations.of(dCtx)!;
-          return AlertDialog(
-            title: Text(dl.adminPasswordReset),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(dl.adminTempPasswordFor(user.name)),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(dCtx).colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SelectableText(
-                    temp,
-                    style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: temp));
-                  ScaffoldMessenger.of(dCtx).showSnackBar(
-                    SnackBar(content: Text(dl.adminCopied)),
-                  );
-                },
-                child: const Text('Copy'),
-              ),
-              FilledButton(onPressed: () => Navigator.pop(dCtx), child: const Text('Done')),
-            ],
-          );
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
 }
 
 // ── User tile ──────────────────────────────────────────────────────────────────
@@ -279,13 +232,13 @@ class _UserTile extends StatelessWidget {
     required this.user,
     required this.isAdmin,
     required this.onDelete,
-    required this.onResetPassword,
+    required this.onEdit,
   });
 
   final AdminUser user;
   final bool isAdmin;
   final VoidCallback onDelete;
-  final VoidCallback onResetPassword;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -302,135 +255,147 @@ class _UserTile extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: Text(
-              initials,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 14,
-                color: cs.onPrimaryContainer,
-              ),
-            ),
-          ),
+          width: 42, height: 42,
+          decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
+          child: Center(child: Text(initials, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer))),
         ),
-        title: Text(
-          user.name,
-          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-        ),
+        title: Text(user.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(
-          user.email,
+          user.email.isNotEmpty ? user.email : '(no email)',
           style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
         ),
-        trailing: isAdmin
-            ? PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded),
-                onSelected: (v) {
-                  if (v == 'delete') onDelete();
-                  if (v == 'reset') onResetPassword();
-                },
-                itemBuilder: (ctx) {
-                  final l = AppLocalizations.of(ctx)!;
-                  return [
-                    PopupMenuItem(value: 'reset', child: Text(l.adminResetPassword)),
-                    PopupMenuItem(value: 'delete', child: Text(l.adminDeleteUser)),
-                  ];
-                },
-              )
-            : null,
+        trailing: PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert_rounded),
+          onSelected: (v) {
+            if (v == 'edit') onEdit();
+            if (v == 'delete') onDelete();
+          },
+          itemBuilder: (ctx) {
+            final l = AppLocalizations.of(ctx)!;
+            return [
+              const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_rounded, size: 16), SizedBox(width: 10), Text('Edit')])),
+              PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(ctx).colorScheme.error), SizedBox(width: 10), Text(l.adminDeleteUser, style: TextStyle(color: Theme.of(ctx).colorScheme.error))])),
+            ];
+          },
+        ),
       ),
     );
   }
 }
 
-// ── Add user sheet ─────────────────────────────────────────────────────────────
+// ── Add user — full-screen ─────────────────────────────────────────────────────
 
-class _AddUserSheet extends StatefulWidget {
-  const _AddUserSheet({required this.repo});
+class AdminAddUserScreen extends StatefulWidget {
+  const AdminAddUserScreen({super.key, required this.repo});
   final AdminRepository repo;
 
   @override
-  State<_AddUserSheet> createState() => _AddUserSheetState();
+  State<AdminAddUserScreen> createState() => _AdminAddUserScreenState();
 }
 
-class _AddUserSheetState extends State<_AddUserSheet> {
-  final _nameCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-  String _role = 'STUDENT';
-  bool _saving = false;
+class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
+  final _nameEnCtrl   = TextEditingController();
+  final _nameArCtrl   = TextEditingController();
+  final _nameHeCtrl   = TextEditingController();
+  final _nameFrCtrl   = TextEditingController();
+  final _nameRuCtrl   = TextEditingController();
+  final _emailCtrl    = TextEditingController();
+  final _usernameCtrl = TextEditingController();
+  String _role  = 'STUDENT';
+  int?   _grade;
+  bool   _saving = false;
 
-  static const _roles = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT'];
-  static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent'];
+  static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
+  static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
+  static const _grades     = [5, 6, 7, 8, 9, 10, 11, 12];
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
+    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _save() async {
-    final name = _nameCtrl.text.trim();
-    final email = _emailCtrl.text.trim();
-    if (name.isEmpty || email.isEmpty) return;
-
+    final nameEn   = _nameEnCtrl.text.trim();
+    final email    = _emailCtrl.text.trim();
+    final username = _usernameCtrl.text.trim();
+    if (nameEn.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('English name is required')));
+      return;
+    }
+    if (email.isEmpty && username.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('At least a username or email is required')));
+      return;
+    }
     setState(() => _saving = true);
     try {
       final result = await widget.repo.createUser(
-        name: name,
-        email: email,
+        nameEn: nameEn,
+        nameAr: _nameArCtrl.text.trim().isEmpty ? null : _nameArCtrl.text.trim(),
+        nameHe: _nameHeCtrl.text.trim().isEmpty ? null : _nameHeCtrl.text.trim(),
+        nameFr: _nameFrCtrl.text.trim().isEmpty ? null : _nameFrCtrl.text.trim(),
+        nameRu: _nameRuCtrl.text.trim().isEmpty ? null : _nameRuCtrl.text.trim(),
+        email: email.isEmpty ? null : email,
+        username: username.isEmpty ? null : username,
         role: _role,
+        grade: _grade,
       );
       if (!mounted) return;
-      // Show temp password dialog BEFORE closing the sheet — after pop() the context is unmounted
+      final createdUsername = result.username ?? username;
       await showDialog(
         context: context,
         builder: (dCtx) {
           final dl = AppLocalizations.of(dCtx)!;
+          final cs2 = Theme.of(dCtx).colorScheme;
           return AlertDialog(
             title: Text(dl.adminUserCreated),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(dl.adminTempPasswordFor(result.user.name)),
+                Text('${result.user.name} created.'),
                 const SizedBox(height: 12),
-                Text(dl.adminTempPassword, style: Theme.of(dCtx).textTheme.labelMedium),
-                const SizedBox(height: 6),
+                // Login credentials card
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Theme.of(dCtx).colorScheme.surfaceContainerHigh,
+                    color: cs2.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: SelectableText(
-                    result.tempPassword,
-                    style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w700),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _CredRow(label: 'Username', value: createdUsername),
+                      if (email.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        _CredRow(label: 'Email', value: email),
+                      ],
+                      const SizedBox(height: 6),
+                      _CredRow(label: 'Password', value: result.tempPassword, mono: true),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text('Share these credentials with the student.', style: Theme.of(dCtx).textTheme.bodySmall?.copyWith(color: cs2.onSurfaceVariant)),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: result.tempPassword));
-                  ScaffoldMessenger.of(dCtx)
-                      .showSnackBar(SnackBar(content: Text(dl.adminCopied)));
+                  final text = 'Username: $createdUsername\n${email.isNotEmpty ? 'Email: $email\n' : ''}Password: ${result.tempPassword}';
+                  Clipboard.setData(ClipboardData(text: text));
+                  ScaffoldMessenger.of(dCtx).showSnackBar(SnackBar(content: Text(dl.adminCopied)));
                 },
-                child: const Text('Copy'),
+                child: const Text('Copy All'),
               ),
               FilledButton(onPressed: () => Navigator.pop(dCtx), child: const Text('Done')),
             ],
           );
         },
       );
-      // Pop the sheet AFTER the dialog is dismissed, returning the created role
       if (!mounted) return;
       Navigator.of(context).pop(_role);
     } catch (e) {
@@ -441,77 +406,127 @@ class _AddUserSheetState extends State<_AddUserSheet> {
     }
   }
 
+  Widget _langField(TextEditingController ctrl, String langLabel, {bool required = false}) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: ctrl,
+        textCapitalization: TextCapitalization.words,
+        decoration: InputDecoration(
+          labelText: required ? '$langLabel *' : langLabel,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(
+              langLabel.split(' ').last,
+              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700),
+            ),
+          ),
+          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final cs = Theme.of(context).colorScheme;
+    final l   = AppLocalizations.of(context)!;
+    final cs  = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l.adminAddUser,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => Navigator.pop(context)),
+                  Expanded(child: Text(l.adminAddUser, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
+                  FilledButton.icon(
+                    onPressed: _saving ? null : _save,
+                    icon: _saving
+                        ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.check_rounded, size: 16),
+                    label: Text(l.adminCreateUser),
                   ),
-                ),
-                FilledButton.icon(
-                  onPressed: _saving ? null : _save,
-                  icon: _saving
-                      ? const SizedBox.square(
-                          dimension: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.check_rounded, size: 16),
-                  label: Text(l.adminCreateUser),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _nameCtrl,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                labelText: '${l.adminFullName} *',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              decoration: InputDecoration(
-                labelText: '${l.adminEmailAddress} *',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l.adminRoleLabel,
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: cs.primary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: List.generate(
-                _roles.length,
-                (i) => ChoiceChip(
-                  label: Text(_roleLabels[i]),
-                  selected: _role == _roles[i],
-                  onSelected: (_) => setState(() => _role = _roles[i]),
-                ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                children: [
+                  // ── Login credentials ──────────────────────────────────────
+                  Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  const SizedBox(height: 4),
+                  Text('At least username or email required. Password is auto-generated.',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _usernameCtrl,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: 'Username (e.g. john.doe)',
+                      prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: 'Email (optional)',
+                      prefixIcon: const Icon(Icons.email_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // ── Name fields ────────────────────────────────────────────
+                  Text('Name', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  const SizedBox(height: 4),
+                  Text('At least English is required. Other languages are optional.',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 12),
+                  _langField(_nameEnCtrl, 'Name in English', required: true),
+                  _langField(_nameArCtrl, 'Name in Arabic (اسم)'),
+                  _langField(_nameHeCtrl, 'Name in Hebrew (שם)'),
+                  _langField(_nameFrCtrl, 'Name in French'),
+                  _langField(_nameRuCtrl, 'Name in Russian'),
+                  const SizedBox(height: 20),
+                  // ── Role ───────────────────────────────────────────────────
+                  Text(l.adminRoleLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: List.generate(_roles.length, (i) => ChoiceChip(
+                      label: Text(_roleLabels[i]),
+                      selected: _role == _roles[i],
+                      onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
+                    )),
+                  ),
+                  // ── Grade (students only) ──────────────────────────────────
+                  if (_role == 'STUDENT') ...[
+                    const SizedBox(height: 20),
+                    Text('Grade', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8, runSpacing: 8,
+                      children: _grades.map((g) => ChoiceChip(
+                        label: Text('Grade $g'),
+                        selected: _grade == g,
+                        onSelected: (_) => setState(() => _grade = g),
+                      )).toList(),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
@@ -522,6 +537,39 @@ class _AddUserSheetState extends State<_AddUserSheet> {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+class _CredRow extends StatelessWidget {
+  const _CredRow({required this.label, required this.value, this.mono = false});
+  final String label;
+  final String value;
+  final bool mono;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: mono ? 13 : 12,
+              fontWeight: FontWeight.w700,
+              fontFamily: mono ? 'monospace' : null,
+              color: mono ? const Color(0xFF7C3AED) : cs.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 String _initials(String name) {
   if (name.isEmpty) return 'CM';

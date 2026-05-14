@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
@@ -30,120 +31,175 @@ final _studentsDdlProvider = FutureProvider.autoDispose<List<Map<String, dynamic
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-class AdminScheduleScreen extends ConsumerWidget {
+class AdminScheduleScreen extends ConsumerStatefulWidget {
   const AdminScheduleScreen({super.key});
 
-  static const _dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  static const _dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  @override
+  ConsumerState<AdminScheduleScreen> createState() => _AdminScheduleScreenState();
+}
+
+class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
+  // Filter
+  String _filterMode = 'all'; // all | cohort | grade | student
+  String? _filterCohortId;
+  int?    _filterGrade;
+  String? _filterStudentId;
+
+  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  bool _slotMatchesFilter(Map<String, dynamic> slot) {
+    if (_filterMode == 'all') return true;
+    final cohortsList = slot['cohorts'] as List? ?? [];
+    final studentsList = slot['students'] as List? ?? [];
+    if (_filterMode == 'cohort' && _filterCohortId != null) {
+      return cohortsList.any((c) => (c is Map ? (c['cohortId'] ?? c['cohort']?['id']) : null)?.toString() == _filterCohortId);
+    }
+    if (_filterMode == 'grade' && _filterGrade != null) {
+      return cohortsList.any((c) => c is Map && (c['cohort'] is Map ? c['cohort']['grade'] : null) == _filterGrade);
+    }
+    if (_filterMode == 'student' && _filterStudentId != null) {
+      return studentsList.any((s) => s is Map && s['studentId']?.toString() == _filterStudentId);
+    }
+    return false;
+  }
+
+  Future<void> _openAddPeriod({int? preDay, int? prePeriod}) async {
+    final teachers = await ref.read(_teachersDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final cohorts  = await ref.read(_cohortsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final students = await ref.read(_studentsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final defaults = await ref.read(_defaultsProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    if (!mounted) return;
+
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => AdminAddPeriodScreen(
+        repo: ref.read(adminRepositoryProvider),
+        teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
+        initialDay: preDay, initialPeriod: prePeriod,
+      )),
+    );
+    if (created == true) ref.invalidate(_periodsProvider);
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context)!;
+  Widget build(BuildContext context) {
+    final l  = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final periodsAsync = ref.watch(_periodsProvider);
+    final periodsAsync   = ref.watch(_periodsProvider);
+    final cohortsAsync   = ref.watch(_cohortsDdlProvider);
+    final studentsAsync  = ref.watch(_studentsDdlProvider);
+
+    final allCohorts  = cohortsAsync.maybeWhen(data: (d) => d, orElse: () => <Map<String, dynamic>>[]);
+    final allStudents = studentsAsync.maybeWhen(data: (d) => d, orElse: () => <Map<String, dynamic>>[]);
+    final allGrades   = allCohorts
+        .map((c) => (c['grade'] as num?)?.toInt())
+        .whereType<int>()
+        .toSet()
+        .toList()
+      ..sort();
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(_periodsProvider),
-        child: periodsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('$e')),
-          data: (periods) {
-            if (periods.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.event_note_rounded, size: 64, color: cs.outlineVariant),
-                    const SizedBox(height: 16),
-                    Text(l.adminScheduleNoSlots,
-                        style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
-                    const SizedBox(height: 6),
-                    Text(l.adminScheduleNoSlotsHint,
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.outlineVariant)),
-                  ],
-                ),
-              );
-            }
-
-            // Group by dayOfWeek
-            final byDay = <int, List<Map<String, dynamic>>>{};
-            for (final p in periods) {
-              final dow = (p['dayOfWeek'] as num?)?.toInt() ?? 0;
-              byDay.putIfAbsent(dow, () => []).add(p);
-            }
-            final sortedDays = byDay.keys.toList()..sort();
-
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
-              children: sortedDays.expand((dow) {
-                final daySlots = byDay[dow]!
-                  ..sort((a, b) => ((a['period'] as num?)?.toInt() ?? 0)
-                      .compareTo((b['period'] as num?)?.toInt() ?? 0));
-                return [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                    child: Text(
-                      dow < _dayNamesFull.length ? _dayNamesFull[dow] : 'Day $dow',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: cs.primary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  ...daySlots.map((slot) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _PeriodCard(
-                      slot: slot,
-                      onDelete: () async {
-                        await ref.read(adminRepositoryProvider).deletePeriod(slot['id'].toString());
-                        ref.invalidate(_periodsProvider);
-                      },
-                    ),
-                  )),
-                ];
-              }).toList(),
-            );
-          },
-        ),
-      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_admin_schedule',
-        onPressed: () => _showAddPeriodSheet(context, ref),
+        onPressed: () => _openAddPeriod(),
         icon: const Icon(Icons.add_rounded),
         label: Text(l.adminScheduleAddPeriod),
       ),
-    );
-  }
+      body: Column(
+        children: [
+          // ── Filter bar ────────────────────────────────────────────────────
+          SizedBox(
+            height: 44,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                _FilterChipItem(label: 'All', selected: _filterMode == 'all',
+                    onTap: () => setState(() { _filterMode = 'all'; })),
+                const SizedBox(width: 6),
+                // Grade filter
+                PopupMenuButton<int>(
+                  onSelected: (g) => setState(() { _filterMode = 'grade'; _filterGrade = g; }),
+                  itemBuilder: (_) => allGrades.map((g) => PopupMenuItem(value: g, child: Text('Grade $g'))).toList(),
+                  child: _FilterChipItem(
+                    label: _filterMode == 'grade' ? 'Grade $_filterGrade ▾' : 'By Grade ▾',
+                    selected: _filterMode == 'grade',
+                    onTap: null,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Cohort filter
+                PopupMenuButton<String>(
+                  onSelected: (id) => setState(() { _filterMode = 'cohort'; _filterCohortId = id; }),
+                  itemBuilder: (_) => allCohorts.map((c) => PopupMenuItem(
+                    value: c['id']?.toString() ?? '',
+                    child: Text(c['name']?.toString() ?? ''),
+                  )).toList(),
+                  child: _FilterChipItem(
+                    label: _filterMode == 'cohort'
+                        ? (allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort') + ' ▾'
+                        : 'By Cohort ▾',
+                    selected: _filterMode == 'cohort',
+                    onTap: null,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Student filter
+                PopupMenuButton<String>(
+                  onSelected: (id) => setState(() { _filterMode = 'student'; _filterStudentId = id; }),
+                  itemBuilder: (_) => allStudents.map((s) => PopupMenuItem(
+                    value: s['id']?.toString() ?? '',
+                    child: Text(s['name']?.toString() ?? ''),
+                  )).toList(),
+                  child: _FilterChipItem(
+                    label: _filterMode == 'student'
+                        ? (allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student') + ' ▾'
+                        : 'By Student ▾',
+                    selected: _filterMode == 'student',
+                    onTap: null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ── Grid ──────────────────────────────────────────────────────────
+          Expanded(
+            child: periodsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
+              data: (allPeriods) {
+                // Build (day, period) → [slots] map filtered by current selection
+                final filtered = allPeriods.where(_slotMatchesFilter).toList();
+                final grid = <(int, int), List<Map<String, dynamic>>>{};
+                for (final s in filtered) {
+                  final k = ((s['dayOfWeek'] as num?)?.toInt() ?? 0, (s['period'] as num?)?.toInt() ?? 1);
+                  grid.putIfAbsent(k, () => []).add(s);
+                }
 
-  Future<void> _showAddPeriodSheet(BuildContext context, WidgetRef ref) async {
-    final teachers = await ref.read(_teachersDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
-    final cohorts = await ref.read(_cohortsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
-    final students = await ref.read(_studentsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
-    final defaults = await ref.read(_defaultsProvider.future).catchError((_) => <Map<String, dynamic>>[]);
-
-    if (!context.mounted) return;
-
-    final created = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                return _ScheduleGrid(
+                  grid: grid,
+                  onCellTap: (day, period) => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => _CellDetailScreen(
+                      day: day, period: period,
+                      slots: grid[(day, period)] ?? [],
+                      dayName: _dayShort[day],
+                      onDelete: (id) async {
+                        await ref.read(adminRepositoryProvider).deletePeriod(id);
+                        ref.invalidate(_periodsProvider);
+                      },
+                      onAdd: () => _openAddPeriod(preDay: day, prePeriod: period),
+                    )),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      builder: (ctx) => _AddPeriodSheet(
-        repo: ref.read(adminRepositoryProvider),
-        teachers: teachers,
-        cohorts: cohorts,
-        students: students,
-        defaults: defaults,
-      ),
     );
-    if (created == true) ref.invalidate(_periodsProvider);
   }
 }
 
@@ -224,16 +280,382 @@ class _PeriodCard extends StatelessWidget {
   }
 }
 
-// ── Add Period Sheet ───────────────────────────────────────────────────────────
+// ── Interactive 7×9 schedule grid ─────────────────────────────────────────────
+
+class _ScheduleGrid extends StatelessWidget {
+  const _ScheduleGrid({required this.grid, required this.onCellTap});
+
+  final Map<(int, int), List<Map<String, dynamic>>> grid;
+  final void Function(int day, int period) onCellTap;
+
+  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  static const double _headerH = 36;
+  static const double _headerW = 48;
+  static const double _cellW   = 110;
+  static const double _cellH   = 90;
+  static const int _periods    = 9;
+  static const int _days       = 7;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    final totalW = _headerW + _days * _cellW;
+    final totalH = _headerH + _periods * _cellH;
+
+    return InteractiveViewer(
+      constrained: false,
+      boundaryMargin: const EdgeInsets.all(40),
+      minScale: 0.45,
+      maxScale: 2.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          width: totalW,
+          height: totalH,
+          child: Column(
+            children: [
+              // Header row
+              Row(
+                children: [
+                  // Corner
+                  SizedBox(width: _headerW, height: _headerH),
+                  ...List.generate(_days, (d) => Container(
+                    width: _cellW,
+                    height: _headerH,
+                    alignment: Alignment.center,
+                    child: Text(
+                      _dayShort[d],
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  )),
+                ],
+              ),
+              // Period rows
+              ...List.generate(_periods, (pi) {
+                final period = pi + 1;
+                return Row(
+                  children: [
+                    // Period label
+                    Container(
+                      width: _headerW,
+                      height: _cellH,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'P$period',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    ...List.generate(_days, (day) {
+                      final slots = grid[(day, period)] ?? [];
+                      return _GridCell(
+                        width: _cellW,
+                        height: _cellH,
+                        slots: slots,
+                        onTap: () => onCellTap(day, period),
+                      );
+                    }),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GridCell extends StatelessWidget {
+  const _GridCell({required this.width, required this.height, required this.slots, required this.onTap});
+  final double width;
+  final double height;
+  final List<Map<String, dynamic>> slots;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final hasSlots = slots.isNotEmpty;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
+          color: hasSlots ? cs.primaryContainer.withValues(alpha: 0.08) : cs.surface,
+        ),
+        padding: const EdgeInsets.all(4),
+        child: hasSlots
+            ? SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: slots.take(3).map((s) => _SlotCard(slot: s)).toList(),
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+class _SlotCard extends StatelessWidget {
+  const _SlotCard({required this.slot});
+  final Map<String, dynamic> slot;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final subject     = slot['subject']?.toString() ?? '';
+    final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
+    final cohorts     = slot['cohorts'] as List? ?? [];
+    final cohortName  = cohorts.isNotEmpty && cohorts.first is Map
+        ? ((cohorts.first['cohort'] is Map ? cohorts.first['cohort']['name'] : null)?.toString() ?? '')
+        : '';
+    final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            subject.isNotEmpty ? subject : teacherName.isNotEmpty ? teacherName : 'Period',
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (cohortName.isNotEmpty)
+            Text(cohortName, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+          if (freq > 1)
+            Container(
+              margin: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: cs.secondaryContainer,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text('×$freq wks', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: cs.onSecondaryContainer)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Cell detail screen ─────────────────────────────────────────────────────────
+
+class _CellDetailScreen extends StatelessWidget {
+  const _CellDetailScreen({
+    required this.day,
+    required this.period,
+    required this.slots,
+    required this.dayName,
+    required this.onDelete,
+    required this.onAdd,
+  });
+
+  final int day;
+  final int period;
+  final List<Map<String, dynamic>> slots;
+  final String dayName;
+  final Future<void> Function(String id) onDelete;
+  final VoidCallback onAdd;
+
+  static const _freqLabels = {1: 'Weekly', 2: 'Bi-weekly', 4: 'Monthly'};
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Period $period', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(dayName, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: onAdd,
+                    icon: const Icon(Icons.add_rounded, size: 16),
+                    label: const Text('Add here'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: slots.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.event_busy_rounded, size: 48, color: cs.outlineVariant),
+                          const SizedBox(height: 12),
+                          Text('No classes at this time', style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: slots.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (ctx, i) {
+                        final s = slots[i];
+                        final subject     = s['subject']?.toString() ?? '';
+                        final teacherName = s['teacher'] is Map ? (s['teacher']['name']?.toString() ?? '') : '';
+                        final cohorts     = s['cohorts'] as List? ?? [];
+                        final cohortNames = cohorts.whereType<Map>()
+                            .map((c) => c['cohort'] is Map ? c['cohort']['name']?.toString() ?? '' : '')
+                            .where((n) => n.isNotEmpty)
+                            .join(', ');
+                        final freq = (s['frequencyWeeks'] as num?)?.toInt() ?? 1;
+                        final startDate = s['startDate']?.toString() ?? '';
+                        final start = s['startTime']?.toString() ?? '';
+                        final end   = s['endTime']?.toString() ?? '';
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                            title: Text(
+                              subject.isNotEmpty ? subject : teacherName.isNotEmpty ? teacherName : 'Period $period',
+                              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (teacherName.isNotEmpty) Text(teacherName, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                                if (cohortNames.isNotEmpty) Text(cohortNames, style: theme.textTheme.labelSmall?.copyWith(color: cs.primary)),
+                                Text(
+                                  [
+                                    _freqLabels[freq] ?? 'Every $freq wks',
+                                    if (startDate.isNotEmpty) 'from $startDate',
+                                    if (start.isNotEmpty && end.isNotEmpty) '$start–$end',
+                                  ].join(' · '),
+                                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete_outline_rounded, color: cs.error),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: ctx,
+                                  builder: (d) => AlertDialog(
+                                    title: const Text('Delete period?'),
+                                    content: const Text('This will remove this class from the schedule.'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
+                                      FilledButton(
+                                        onPressed: () => Navigator.pop(d, true),
+                                        style: FilledButton.styleFrom(backgroundColor: Theme.of(d).colorScheme.error),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm != true || !ctx.mounted) return;
+                                await onDelete(s['id'].toString());
+                                if (ctx.mounted) Navigator.pop(ctx);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Filter chip ────────────────────────────────────────────────────────────────
+
+class _FilterChipItem extends StatelessWidget {
+  const _FilterChipItem({required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.5)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? cs.primary : cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Add Period — full-screen ───────────────────────────────────────────────────
 // Multi-slot: admin can add N day+period pairs, shared teacher/cohort/frequency
 
-class _AddPeriodSheet extends StatefulWidget {
-  const _AddPeriodSheet({
+class AdminAddPeriodScreen extends StatefulWidget {
+  const AdminAddPeriodScreen({
+    super.key,
     required this.repo,
     required this.teachers,
     required this.cohorts,
     required this.students,
     required this.defaults,
+    this.initialDay,
+    this.initialPeriod,
   });
 
   final AdminRepository repo;
@@ -241,9 +663,11 @@ class _AddPeriodSheet extends StatefulWidget {
   final List<Map<String, dynamic>> cohorts;
   final List<Map<String, dynamic>> students;
   final List<Map<String, dynamic>> defaults;
+  final int? initialDay;
+  final int? initialPeriod;
 
   @override
-  State<_AddPeriodSheet> createState() => _AddPeriodSheetState();
+  State<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
 }
 
 class _DayPeriodSlot {
@@ -252,26 +676,32 @@ class _DayPeriodSlot {
   _DayPeriodSlot({this.dayOfWeek = 0, this.period = 1});
 }
 
-class _AddPeriodSheetState extends State<_AddPeriodSheet> {
-  // Multiple day+period combos
-  final List<_DayPeriodSlot> _slots = [_DayPeriodSlot()];
+class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
+  late final List<_DayPeriodSlot> _slots;
 
-  // Shared settings
   String? _teacherId;
   String? _teacherName;
-  final Set<String> _cohortIds = {};
+  final Set<String> _cohortIds  = {};
   final Set<String> _studentIds = {};
-  bool _useCohorts = true; // false = individual students
+  bool _useCohorts = true;
 
-  // Frequency
-  int _frequencyWeeks = 1;
+  int  _frequencyWeeks = 1;
   bool _customFreq = false;
   final _customFreqCtrl = TextEditingController();
+  DateTime? _startDate; // first occurrence for bi-weekly etc.
 
   bool _saving = false;
 
   static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  static const _schoolDays = [0, 1, 2, 3, 4];
+
+  @override
+  void initState() {
+    super.initState();
+    _slots = [_DayPeriodSlot(
+      dayOfWeek: widget.initialDay ?? 1,
+      period: widget.initialPeriod ?? 1,
+    )];
+  }
 
   @override
   void dispose() {
@@ -299,6 +729,9 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
 
     for (final slot in _slots) {
       try {
+        final sd = _startDate != null
+            ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
+            : null;
         await widget.repo.createPeriod(
           dayOfWeek: slot.dayOfWeek,
           period: slot.period,
@@ -308,6 +741,7 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
           startTime: _defaultTime(slot.period, true).isNotEmpty ? _defaultTime(slot.period, true) : null,
           endTime: _defaultTime(slot.period, false).isNotEmpty ? _defaultTime(slot.period, false) : null,
           frequencyWeeks: freq,
+          startDate: sd,
         );
         created++;
       } catch (e) {
@@ -342,36 +776,33 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.92,
-      minChildSize: 0.5,
-      maxChildSize: 0.98,
-      builder: (ctx, scrollCtrl) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: ListView(
-          controller: scrollCtrl,
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Column(
           children: [
-            // ── Header ──────────────────────────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: Text(l.adminScheduleNewPeriod,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                ),
-                FilledButton.icon(
-                  onPressed: _saving ? null : _save,
-                  icon: _saving
-                      ? const SizedBox.square(
-                          dimension: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.check_rounded, size: 16),
-                  label: Text(l.adminScheduleSave),
-                ),
-              ],
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => Navigator.pop(context)),
+                  Expanded(child: Text(l.adminScheduleNewPeriod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
+                  FilledButton.icon(
+                    onPressed: _saving ? null : _save,
+                    icon: _saving
+                        ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.check_rounded, size: 16),
+                    label: Text(l.adminScheduleSave),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
+            const Divider(height: 1),
+            Expanded(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+          children: [
 
             // ── Day + Period slots ────────────────────────────────────────
             _SectionLabel(label: l.adminScheduleDayLabel, cs: cs, theme: theme),
@@ -401,18 +832,26 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
             // ── Teacher DDL ───────────────────────────────────────────────
             _SectionLabel(label: l.adminScheduleTeacherLabel, cs: cs, theme: theme),
             const SizedBox(height: 8),
-            _SearchPickerField(
-              value: _teacherName,
-              hintText: l.adminScheduleSelectTeacher,
+            LiquidGlassDropdown<String>(
+              label: l.adminScheduleSelectTeacher,
+              value: _teacherId ?? '',
               searchHint: l.adminScheduleSearchTeacher,
-              items: widget.teachers,
-              nameKey: 'name',
-              subtitleKey: null,
-              onSelected: (item) => setState(() {
-                _teacherId = item['id']?.toString();
-                _teacherName = item['name']?.toString();
+              items: [
+                LiquidGlassDropdownItem(value: '', label: '— None —'),
+                ...widget.teachers.map((t) => LiquidGlassDropdownItem(
+                  value: t['id']?.toString() ?? '',
+                  label: t['name']?.toString() ?? '',
+                )),
+              ],
+              onChanged: (v) => setState(() {
+                if (v.isEmpty) { _teacherId = null; _teacherName = null; }
+                else {
+                  _teacherId = v;
+                  _teacherName = widget.teachers
+                      .firstWhere((t) => t['id']?.toString() == v, orElse: () => const {})['name']
+                      ?.toString();
+                }
               }),
-              onClear: () => setState(() { _teacherId = null; _teacherName = null; }),
             ),
             const SizedBox(height: 16),
 
@@ -438,7 +877,7 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
               ],
             ),
             const SizedBox(height: 10),
-            if (_useCohorts)
+            if (_useCohorts) ...[
               _MultiPickerList(
                 items: widget.cohorts,
                 selected: _cohortIds,
@@ -450,8 +889,17 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
                 searchHint: l.adminScheduleSearchCohort,
                 onToggle: (id) => setState(() =>
                   _cohortIds.contains(id) ? _cohortIds.remove(id) : _cohortIds.add(id)),
-              )
-            else
+              ),
+              // Student preview for selected cohorts
+              if (_cohortIds.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                _CohortStudentPreview(
+                  allStudents: widget.students,
+                  selectedCohortIds: _cohortIds,
+                  cohorts: widget.cohorts,
+                ),
+              ],
+            ] else
               _MultiPickerList(
                 items: widget.students,
                 selected: _studentIds,
@@ -508,11 +956,54 @@ class _AddPeriodSheetState extends State<_AddPeriodSheet> {
                 ],
               ),
             ],
+
+            // ── Start date (shown when frequency > 1) ─────────────────────
+            if (_frequencyWeeks > 1 || _customFreq) ...[
+              const SizedBox(height: 20),
+              _SectionLabel(label: 'Starting Date', cs: cs, theme: theme),
+              const SizedBox(height: 4),
+              Text(
+                'Pick which ${_slots.isNotEmpty ? _dayLabels[_slots.first.dayOfWeek] : 'day'} to start from.',
+                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: _nextMatchingDates(_slots.isNotEmpty ? _slots.first.dayOfWeek : 1, 6).map((d) {
+                  final label = '${_monthName(d.month)} ${d.day}';
+                  final selected = _startDate != null && _startDate!.year == d.year && _startDate!.month == d.month && _startDate!.day == d.day;
+                  return ChoiceChip(
+                    label: Text(label),
+                    selected: selected,
+                    onSelected: (_) => setState(() => _startDate = d),
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        ),
+            ),
           ],
         ),
       ),
     );
   }
+
+  // Compute next N dates that fall on the given dayOfWeek (0=Sun)
+  List<DateTime> _nextMatchingDates(int targetDow, int count) {
+    final today = DateTime.now();
+    final results = <DateTime>[];
+    var day = today;
+    while (results.length < count) {
+      if (day.weekday % 7 == targetDow) results.add(day);
+      day = day.add(const Duration(days: 1));
+    }
+    return results;
+  }
+
+  static const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  String _monthName(int m) => m >= 1 && m <= 12 ? _months[m] : '$m';
 }
 
 // ── Day + Period row ───────────────────────────────────────────────────────────
@@ -540,7 +1031,7 @@ class _DayPeriodRow extends StatefulWidget {
 
 class _DayPeriodRowState extends State<_DayPeriodRow> {
   static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  static const _schoolDays = [0, 1, 2, 3, 4];
+  static const _allDays = [0, 1, 2, 3, 4, 5, 6];
 
   @override
   Widget build(BuildContext context) {
@@ -571,10 +1062,11 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
             ],
           ),
           const SizedBox(height: 10),
-          // Days row
+          // Days row — all 7 days
           Wrap(
             spacing: 6,
-            children: _schoolDays.map((d) => ChoiceChip(
+            runSpacing: 4,
+            children: _allDays.map((d) => ChoiceChip(
               label: Text(_dayShort[d], style: const TextStyle(fontSize: 12)),
               selected: widget.slot.dayOfWeek == d,
               visualDensity: VisualDensity.compact,
@@ -585,26 +1077,21 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
             )).toList(),
           ),
           const SizedBox(height: 10),
-          // Period dropdown
-          DropdownButtonFormField<int>(
+          // Period picker (LiquidGlass style)
+          LiquidGlassDropdown<int>(
+            label: 'Period',
             value: widget.slot.period,
-            isDense: true,
-            decoration: InputDecoration(
-              labelText: 'Period',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
             items: List.generate(9, (i) => i + 1).map((p) {
               final def = widget.defaults.firstWhere(
                 (d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
-              final hint = def.isNotEmpty ? '  ${def['startTime'] ?? ''}' : '';
-              return DropdownMenuItem(value: p, child: Text('P$p$hint'));
+              final hint = def.isNotEmpty && (def['startTime'] ?? '').toString().isNotEmpty
+                  ? ' · ${def['startTime']}'
+                  : '';
+              return LiquidGlassDropdownItem(value: p, label: 'Period $p$hint');
             }).toList(),
             onChanged: (v) {
-              if (v != null) {
-                setState(() => widget.slot.period = v);
-                widget.onChanged();
-              }
+              setState(() => widget.slot.period = v);
+              widget.onChanged();
             },
           ),
         ],
@@ -914,6 +1401,94 @@ class _FreqChip extends StatelessWidget {
             color: selected ? cs.onPrimary : cs.onSurface,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Cohort student preview ────────────────────────────────────────────────────
+
+class _CohortStudentPreview extends StatelessWidget {
+  const _CohortStudentPreview({
+    required this.allStudents,
+    required this.selectedCohortIds,
+    required this.cohorts,
+  });
+
+  final List<Map<String, dynamic>> allStudents;
+  final Set<String> selectedCohortIds;
+  final List<Map<String, dynamic>> cohorts;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    // Find cohort names for header
+    final names = cohorts
+        .where((c) => selectedCohortIds.contains(c['id']?.toString()))
+        .map((c) => c['name']?.toString() ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    // Filter students who belong to selected cohorts
+    final students = allStudents.where((s) {
+      final cid = s['cohortId']?.toString() ?? '';
+      // Fallback: match by cohortName if cohortId isn't present
+      if (cid.isNotEmpty) return selectedCohortIds.contains(cid);
+      final cn = s['cohortName']?.toString() ?? '';
+      return names.any((n) => n == cn);
+    }).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.people_rounded, size: 14, color: cs.primary),
+              const SizedBox(width: 6),
+              Text(
+                '${students.length} student${students.length == 1 ? '' : 's'} in selected cohort${selectedCohortIds.length == 1 ? '' : 's'}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cs.primary,
+                ),
+              ),
+            ],
+          ),
+          if (students.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: students.take(20).map((s) {
+                final name = s['name']?.toString() ?? '';
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: cs.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                  ),
+                  child: Text(name, style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600)),
+                );
+              }).toList(),
+            ),
+            if (students.length > 20)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text('+${students.length - 20} more',
+                    style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+              ),
+          ],
+        ],
       ),
     );
   }

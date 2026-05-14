@@ -8,6 +8,8 @@ import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/attachment_pill.dart';
 import '../../core/config/env.dart';
+import '../common/media/pdf_viewer_screen.dart';
+import '../common/media/image_viewer_screen.dart';
 
 final studentMaterialsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -24,25 +26,50 @@ class StudentMaterialsScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen> {
-  Future<void> _openUrl(BuildContext context, String raw) async {
+  Future<void> _openUrl(BuildContext context, String raw, {String? mime, String? title}) async {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) return;
-    if (trimmed.startsWith('/') || trimmed.startsWith('file:')) {
+
+    // Resolve relative server paths to full URL
+    String resolved = trimmed;
+    if (trimmed.startsWith('/uploads') || trimmed.startsWith('/api/')) {
+      final base = Env.apiBaseUrl.replaceAll(RegExp(r'/+$'), '').replaceAll(RegExp(r'/api/?$'), '');
+      resolved = '$base$trimmed';
+    } else if (trimmed.startsWith('/') || trimmed.startsWith('file:')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('This file is not yet available.')),
       );
       return;
     }
-    Uri? uri = Uri.tryParse(trimmed);
-    if (uri != null && !uri.hasScheme && trimmed.contains('.')) {
-      uri = Uri.tryParse('https://$trimmed');
+
+    Uri? uri = Uri.tryParse(resolved);
+    if (uri != null && !uri.hasScheme && resolved.contains('.')) {
+      uri = Uri.tryParse('https://$resolved');
     }
     if (uri == null || !uri.hasScheme) return;
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open this link.')),
-      );
+
+    final lower = resolved.toLowerCase();
+    final isPdf = (mime?.contains('pdf') ?? false) || lower.endsWith('.pdf');
+    final isImage = (mime?.startsWith('image/') ?? false) ||
+        lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') || lower.endsWith('.webp');
+
+    if (!context.mounted) return;
+    if (isPdf) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => PdfViewerScreen(url: resolved, title: title ?? 'Document'),
+      ));
+    } else if (isImage) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ImageViewerScreen(url: resolved, title: title ?? 'Image'),
+      ));
+    } else {
+      if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open this link.')),
+        );
+      }
     }
   }
 

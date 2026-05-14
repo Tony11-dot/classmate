@@ -62,29 +62,78 @@ class AdminRepository {
     return AdminUserDetail.fromJson(_m(_m(raw)['user']));
   }
 
+  /// Returns the full raw user map (with nameEn, nameAr, username, grade, etc.)
+  Future<Map<String, dynamic>> getUserDetailRaw(String id) async {
+    final raw = await _api.getJson('/admin/users/$id');
+    return Map<String, dynamic>.from(_m(_m(raw)['user']));
+  }
+
   Future<AdminCreateResult> createUser({
-    required String name,
-    required String email,
+    required String nameEn,
+    String? nameAr,
+    String? nameHe,
+    String? nameFr,
+    String? nameRu,
+    String? email,
+    String? username,
     required String role,
+    int? grade,
   }) async {
     final raw = await _api.postJson('/admin/users', body: {
-      'name': name,
-      'email': email,
+      'name': nameEn,
+      'nameEn': nameEn,
+      if (nameAr != null && nameAr.isNotEmpty) 'nameAr': nameAr,
+      if (nameHe != null && nameHe.isNotEmpty) 'nameHe': nameHe,
+      if (nameFr != null && nameFr.isNotEmpty) 'nameFr': nameFr,
+      if (nameRu != null && nameRu.isNotEmpty) 'nameRu': nameRu,
+      if (email != null && email.isNotEmpty) 'email': email,
+      if (username != null && username.isNotEmpty) 'username': username,
       'role': role,
+      if (grade != null) 'grade': grade,
     });
     final m = _m(raw);
     return AdminCreateResult(
       user: AdminUser.fromJson(_m(m['user'])),
       tempPassword: m['tempPassword']?.toString() ?? '',
+      username: m['username']?.toString(),
     );
   }
 
-  Future<void> updateUser(String id, {String? name, String? email, String? role}) async {
+  Future<void> updateUser(String id, {
+    String? nameEn,
+    String? nameAr,
+    String? nameHe,
+    String? nameFr,
+    String? nameRu,
+    String? email,
+    String? username,
+    String? role,
+    int? grade,
+  }) async {
     await _api.patchJson('/admin/users/$id', body: {
-      if (name != null) 'name': name,
+      if (nameEn != null) 'nameEn': nameEn,
+      if (nameAr != null) 'nameAr': nameAr,
+      if (nameHe != null) 'nameHe': nameHe,
+      if (nameFr != null) 'nameFr': nameFr,
+      if (nameRu != null) 'nameRu': nameRu,
       if (email != null) 'email': email,
+      if (username != null) 'username': username,
       if (role != null) 'role': role,
+      if (grade != null) 'grade': grade,
     });
+  }
+
+  Future<List<Map<String, dynamic>>> getUserChildren(String userId) async {
+    final raw = await _api.getJson('/admin/users/$userId/children');
+    return _l(_m(raw)['children']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  Future<void> linkParent({required String parentId, required String studentId}) async {
+    await _api.postJson('/admin/parent-links', body: {'parentId': parentId, 'studentId': studentId});
+  }
+
+  Future<void> unlinkChild(String parentId, String childId) async {
+    await _api.deleteJson('/admin/users/$parentId/children/$childId');
   }
 
   Future<void> deleteUser(String id) async {
@@ -168,6 +217,29 @@ class AdminRepository {
     return _l(_m(raw)['teachers']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
+  Future<List<Map<String, dynamic>>> exportStudents({
+    String? cohortId,
+    int? grade,
+    bool generatePasswords = false,
+    List<String>? studentIds,
+  }) async {
+    final q = <String, String>{};
+    if (studentIds != null && studentIds.isNotEmpty) {
+      q['studentIds'] = studentIds.join(',');
+    } else {
+      if (cohortId != null && cohortId.isNotEmpty) q['cohortId'] = cohortId;
+      if (grade != null) q['grade'] = '$grade';
+    }
+    if (generatePasswords) q['generatePasswords'] = 'true';
+    final raw = await _api.getJson('/admin/export/students', query: q.isEmpty ? null : q);
+    return _l(_m(raw)['students']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> exportCohorts() async {
+    final raw = await _api.getJson('/admin/export/cohorts');
+    return _l(_m(raw)['cohorts']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<List<Map<String, dynamic>>> getPeriods() async {
     final raw = await _api.getJson('/admin/periods');
     return _l(_m(raw)['slots']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
@@ -183,6 +255,7 @@ class AdminRepository {
     String? startTime,
     String? endTime,
     int frequencyWeeks = 1,
+    String? startDate,
   }) async {
     await _api.postJson('/admin/periods', body: {
       'dayOfWeek': dayOfWeek,
@@ -194,6 +267,7 @@ class AdminRepository {
       if (startTime != null) 'startTime': startTime,
       if (endTime != null) 'endTime': endTime,
       'frequencyWeeks': frequencyWeeks,
+      if (startDate != null) 'startDate': startDate,
     });
   }
 
@@ -360,9 +434,10 @@ class AdminUserDetail extends AdminUser {
 }
 
 class AdminCreateResult {
-  const AdminCreateResult({required this.user, required this.tempPassword});
+  const AdminCreateResult({required this.user, required this.tempPassword, this.username});
   final AdminUser user;
   final String tempPassword;
+  final String? username; // auto-generated or provided username
 }
 
 class AdminCohort {

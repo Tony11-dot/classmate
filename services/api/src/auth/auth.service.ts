@@ -11,9 +11,11 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async login(email: string, password: string) {
-  const user = await this.prisma.user.findUnique({
-    where: { email },
+  async login(identifier: string, password: string) {
+  // identifier can be email or username
+  const isEmail = identifier.includes('@');
+  const user = await this.prisma.user.findFirst({
+    where: isEmail ? { email: identifier } : { OR: [{ username: identifier }, { email: identifier }] },
     include: { roles: true },
   });
 

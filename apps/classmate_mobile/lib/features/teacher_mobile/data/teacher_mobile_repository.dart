@@ -348,6 +348,10 @@ class TeacherMobileRepository {
     await _api.deleteJson('/teacher/classrooms/$courseId/assignments/$id');
   }
 
+  Future<void> resetAssignmentSubmission(String assignmentId, String studentId) async {
+    await _api.deleteJson('/teacher/assignments/$assignmentId/submissions/$studentId');
+  }
+
   Future<List<Map<String, dynamic>>> fetchClassroomMaterials(String courseId) async {
     final raw = await _api.getJson('/teacher/classrooms/$courseId/materials');
     final map = _asMap(raw);

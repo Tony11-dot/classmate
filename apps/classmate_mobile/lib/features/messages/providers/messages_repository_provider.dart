@@ -10,7 +10,7 @@ final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
 });
 
 final messagesInboxProvider = FutureProvider<List<MessageThreadSummary>>((ref) {
-  final repo = ref.read(messagesRepositoryProvider);
+  final repo = ref.watch(messagesRepositoryProvider);
   return repo.fetchInbox();
 });
 

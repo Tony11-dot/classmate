@@ -139,4 +139,10 @@ export class StudentController {
     return this.student.myTeacherAssignments(req.user);
   }
 
+  @SkipThrottle()
+  @Get('diplomas')
+  diplomas(@Req() req: any) {
+    return this.student.myDiplomas(req.user);
+  }
+
 }

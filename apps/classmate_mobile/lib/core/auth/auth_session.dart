@@ -310,12 +310,13 @@ class AuthSession extends ChangeNotifier {
 
   Future<void> devSetToken(String token) => setToken(token);
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({String? identifier, String? email, required String password}) async {
+    final id = (identifier ?? email ?? '').trim();
     final api = CMApi();
     try {
       final raw = await api.postJson(
         '/auth/login',
-        body: <String, dynamic>{'email': email.trim(), 'password': password},
+        body: <String, dynamic>{'identifier': id, 'password': password},
       );
       final token = (raw is Map ? raw['token'] : null)?.toString().trim() ?? '';
       if (token.isEmpty) {
@@ -326,7 +327,7 @@ class AuthSession extends ChangeNotifier {
       await _refreshAuthMe(clearUnauthorizedToken: true);
 
       if (displayName.isEmpty) {
-        await setDisplayName(_displayNameFromEmail(email));
+        if (email != null) await setDisplayName(_displayNameFromEmail(email));
       }
     } finally {
       api.dispose();

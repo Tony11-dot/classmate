@@ -387,7 +387,45 @@ class _TeacherAssignmentDetailScreenState
 
                                   const SizedBox(height: 12),
                                   const Divider(height: 1),
-                                  const SizedBox(height: 12),
+                                  // Allow re-submit button (deletes submission so student can hand in again)
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: cs.error,
+                                        textStyle: const TextStyle(fontSize: 12),
+                                      ),
+                                      icon: const Icon(Icons.restart_alt_rounded, size: 14),
+                                      label: const Text('Allow re-submit'),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: const Text('Allow re-submit?'),
+                                            content: Text('This will delete $name\'s submission so they can hand in again.'),
+                                            actions: [
+                                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                                              FilledButton(
+                                                onPressed: () => Navigator.pop(ctx, true),
+                                                child: const Text('Allow'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirm != true || !mounted) return;
+                                        try {
+                                          await ref.read(teacherMobileRepositoryProvider).resetAssignmentSubmission(
+                                            widget.assignmentId, sid,
+                                          );
+                                          _load();
+                                        } catch (e) {
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
 
                                   // Grade input
                                   Row(

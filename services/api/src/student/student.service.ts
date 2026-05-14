@@ -554,4 +554,31 @@ export class StudentService {
 
     return { ok: true, items };
   }
+
+  async myDiplomas(user: any) {
+    const userId = String(user?.sub ?? user?.id ?? '');
+    if (!userId) return { ok: true, diplomas: [] };
+
+    const diplomas = await this.prisma.teacherDiploma.findMany({
+      where: { studentId: userId },
+      orderBy: { issuedAt: 'desc' },
+      include: { teacher: { select: { name: true } } },
+    });
+
+    return {
+      ok: true,
+      diplomas: diplomas.map((d) => ({
+        id: d.id,
+        studentName: d.studentName,
+        title: d.title,
+        subject: d.subject ?? '',
+        grade: d.grade ?? '',
+        distinction: d.distinction ?? '',
+        notes: d.notes ?? '',
+        issuedAt: d.issuedAt.toISOString(),
+        issuedBy: (d as any).teacher?.name ?? null,
+        attachments: Array.isArray((d as any).attachments) ? (d as any).attachments : [],
+      })),
+    };
+  }
 }

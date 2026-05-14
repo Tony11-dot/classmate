@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
 
 // ── Data helpers ─────────────────────────────────────────────────────────────
 
@@ -401,17 +402,15 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                         children: [
                           Text('Period', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                           const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
+                          LiquidGlassDropdown<int>(
+                            label: 'Period',
                             value: _period,
-                            decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-                            items: List.generate(10, (i) => i + 1)
-                                .map((p) {
-                                  final def = _defaults.firstWhere((d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
-                                  final timeHint = def.isNotEmpty ? ' (${def['startTime']})' : '';
-                                  return DropdownMenuItem(value: p, child: Text('P$p$timeHint'));
-                                })
-                                .toList(),
-                            onChanged: (v) { if (v != null) _onPeriodChanged(v); },
+                            items: List.generate(10, (i) => i + 1).map((p) {
+                              final def = _defaults.firstWhere((d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
+                              final hint = def.isNotEmpty && (def['startTime'] ?? '').toString().isNotEmpty ? ' · ${def['startTime']}' : '';
+                              return LiquidGlassDropdownItem(value: p, label: 'P$p$hint');
+                            }).toList(),
+                            onChanged: (v) => _onPeriodChanged(v),
                           ),
                         ],
                       ),
@@ -441,14 +440,14 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 // Teacher DDL
                 Text('Teacher', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _teacherId,
-                  decoration: InputDecoration(hintText: 'Select teacher…', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+                LiquidGlassDropdown<String>(
+                  label: 'Select teacher…',
+                  value: _teacherId ?? '',
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('None')),
-                    ..._teachers.map((t) => DropdownMenuItem(value: t['id']?.toString(), child: Text(t['name']?.toString() ?? ''))),
+                    const LiquidGlassDropdownItem(value: '', label: '— None —'),
+                    ..._teachers.map((t) => LiquidGlassDropdownItem(value: t['id']?.toString() ?? '', label: t['name']?.toString() ?? '')),
                   ],
-                  onChanged: (v) => _onTeacherChanged(v),
+                  onChanged: (v) => _onTeacherChanged(v.isEmpty ? null : v),
                 ),
                 const SizedBox(height: 16),
 
@@ -456,14 +455,14 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 if (_teacherId != null && _teacherId!.isNotEmpty) ...[
                   Text('Classroom (optional)', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _classroomId,
-                    decoration: InputDecoration(hintText: 'Link to classroom…', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+                  LiquidGlassDropdown<String>(
+                    label: 'Link to classroom…',
+                    value: _classroomId ?? '',
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('None')),
-                      ..._classrooms.map((c) => DropdownMenuItem(value: c['id']?.toString(), child: Text('${c['name']} (${c['subject']})'))),
+                      const LiquidGlassDropdownItem(value: '', label: '— None —'),
+                      ..._classrooms.map((c) => LiquidGlassDropdownItem(value: c['id']?.toString() ?? '', label: '${c['name']} (${c['subject']})')),
                     ],
-                    onChanged: (v) => setState(() => _classroomId = v),
+                    onChanged: (v) => setState(() => _classroomId = v.isEmpty ? null : v),
                   ),
                   const SizedBox(height: 16),
                 ],

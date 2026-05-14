@@ -219,6 +219,22 @@ export class AdminController {
     return this.admin.listUsers(req.user, { q, role, page: page ? Number(page) : 0 });
   }
 
+  @Get('export/students')
+  exportStudents(
+    @Req() req: any,
+    @Query('cohortId') cohortId?: string,
+    @Query('grade') grade?: string,
+    @Query('generatePasswords') generatePasswords?: string,
+    @Query('studentIds') studentIds?: string,
+  ) {
+    return this.admin.exportStudents(req.user, { cohortId, grade, generatePasswords, studentIds });
+  }
+
+  @Get('export/cohorts')
+  exportCohorts(@Req() req: any) {
+    return this.admin.exportCohorts(req.user);
+  }
+
   @Roles(Role.ADMIN)
   @Post('users')
   createUser(@Req() req: any, @Body() body: any) {
@@ -247,6 +263,18 @@ export class AdminController {
   @Post('users/:id/reset-password')
   resetUserPassword(@Req() req: any, @Param('id') id: string) {
     return this.admin.resetUserPassword(req.user, id);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('users/:id/children')
+  getUserChildren(@Req() req: any, @Param('id') id: string) {
+    return this.admin.getUserChildren(req.user, id);
+  }
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Delete('users/:parentId/children/:childId')
+  unlinkChild(@Req() req: any, @Param('parentId') parentId: string, @Param('childId') childId: string) {
+    return this.admin.unlinkChild(req.user, parentId, childId);
   }
 
   // ── Parent Links ──────────────────────────────────────────────────────────────

@@ -1376,6 +1376,21 @@ export class TeacherService {
     };
   }
 
+  async resetAssignmentSubmission(user: any, assignmentId: string, studentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    // Verify the assignment belongs to one of teacher's classrooms
+    const assignment = await this.prisma.classroomAssignment.findFirst({
+      where: { id: assignmentId, classroom: { teacherId } },
+      select: { id: true },
+    });
+    if (!assignment) throw new NotFoundException('Assignment not found or not yours');
+    await this.prisma.assignmentSubmission.deleteMany({
+      where: { assignmentId, studentId },
+    });
+    return { ok: true };
+  }
+
   async classroomAnalytics(user: any, classroomId: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;

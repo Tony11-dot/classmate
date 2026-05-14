@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
@@ -35,7 +34,12 @@ class AdminCohortsScreen extends ConsumerWidget {
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               heroTag: 'fab_add_cohort',
-              onPressed: () => _showCreateCohortSheet(context, ref),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => AdminCreateCohortScreen(
+                  repo: ref.read(adminRepositoryProvider),
+                )),
+              ).then((_) => ref.invalidate(_cohortsProvider)),
               icon: const Icon(Icons.add_rounded),
               label: Text(AppLocalizations.of(context)!.adminAddCohort),
             )
@@ -59,7 +63,6 @@ class AdminCohortsScreen extends ConsumerWidget {
             );
           }
 
-          // Group by grade
           final byGrade = <int, List<AdminCohort>>{};
           for (final c in cohorts) {
             byGrade.putIfAbsent(c.grade, () => []).add(c);
@@ -74,11 +77,7 @@ class AdminCohortsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                   child: Text(
                     'Grade $grade',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: cs.primary,
-                      letterSpacing: 0.5,
-                    ),
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: cs.primary, letterSpacing: 0.5),
                   ),
                 ),
                 for (final cohort in byGrade[grade]!)
@@ -89,9 +88,7 @@ class AdminCohortsScreen extends ConsumerWidget {
                       isAdmin: isAdmin,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => AdminCohortDetailScreen(cohort: cohort),
-                        ),
+                        MaterialPageRoute(builder: (_) => AdminCohortDetailScreen(cohort: cohort)),
                       ).then((_) => ref.invalidate(_cohortsProvider)),
                       onDelete: () => _confirmDelete(context, ref, cohort),
                     ),
@@ -102,20 +99,6 @@ class AdminCohortsScreen extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  Future<void> _showCreateCohortSheet(BuildContext context, WidgetRef ref) async {
-    final created = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => _CreateCohortSheet(repo: ref.read(adminRepositoryProvider)),
-    );
-    if (created == true) ref.invalidate(_cohortsProvider);
   }
 
   Future<void> _confirmDelete(BuildContext ctx, WidgetRef ref, AdminCohort cohort) async {
@@ -144,6 +127,450 @@ class AdminCohortsScreen extends ConsumerWidget {
     } catch (e) {
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
+  }
+}
+
+// ── Create cohort — full-screen ────────────────────────────────────────────────
+
+class AdminCreateCohortScreen extends StatefulWidget {
+  const AdminCreateCohortScreen({super.key, required this.repo});
+  final AdminRepository repo;
+
+  @override
+  State<AdminCreateCohortScreen> createState() => _AdminCreateCohortScreenState();
+}
+
+class _AdminCreateCohortScreenState extends State<AdminCreateCohortScreen> {
+  final _nameCtrl = TextEditingController();
+  int _grade = 9;
+  bool _saving = false;
+
+  // Grades 5-12
+  static const _grades = [5, 6, 7, 8, 9, 10, 11, 12];
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
+    setState(() => _saving = true);
+    try {
+      await widget.repo.createCohort(name: name, grade: _grade);
+      if (!mounted) return;
+      // After creating, go to add-students page
+      final allStudents = await widget.repo.getDdlStudents();
+      if (!mounted) return;
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => _AdminAddStudentsScreen(
+          repo: widget.repo,
+          cohortName: name,
+          cohortGrade: _grade,
+          allStudents: allStudents,
+        )),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ── Header ──────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.adminNewCohort,
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: _saving ? null : _save,
+                    icon: _saving
+                        ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.arrow_forward_rounded, size: 18),
+                    label: const Text('Create & Add Students'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  TextField(
+                    controller: _nameCtrl,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: '${AppLocalizations.of(context)!.adminCohortName} *',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    AppLocalizations.of(context)!.adminCohortGrade,
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _grades.map((g) => ChoiceChip(
+                      label: Text('Grade $g'),
+                      selected: _grade == g,
+                      onSelected: (_) => setState(() => _grade = g),
+                    )).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Add students — full-screen ─────────────────────────────────────────────────
+// Used both from cohort creation flow AND from the cohort detail FAB.
+
+class AdminAddStudentsScreen extends StatefulWidget {
+  const AdminAddStudentsScreen({
+    super.key,
+    required this.repo,
+    required this.cohortId,
+    required this.cohortName,
+    required this.cohortGrade,
+  });
+
+  final AdminRepository repo;
+  final String cohortId;
+  final String cohortName;
+  final int cohortGrade;
+
+  @override
+  State<AdminAddStudentsScreen> createState() => _AdminAddStudentsScreenState();
+}
+
+class _AdminAddStudentsScreenState extends State<AdminAddStudentsScreen> {
+  List<Map<String, dynamic>> _allStudents = [];
+  final Set<String> _selected = {};
+  String _search = '';
+  bool _loading = true;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStudents();
+  }
+
+  Future<void> _loadStudents() async {
+    try {
+      final students = await widget.repo.getDdlStudents();
+      if (mounted) setState(() { _allStudents = students; _loading = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _save() async {
+    if (_selected.isEmpty) return;
+    setState(() => _saving = true);
+    try {
+      await widget.repo.addStudentsToCohort(widget.cohortId, _selected.toList());
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => _AdminAddStudentsScreenImpl(
+    allStudents: _allStudents,
+    cohortId: widget.cohortId,
+    cohortName: widget.cohortName,
+    cohortGrade: widget.cohortGrade,
+    selected: _selected,
+    loading: _loading,
+    saving: _saving,
+    onToggle: (id) => setState(() => _selected.contains(id) ? _selected.remove(id) : _selected.add(id)),
+    onSave: _save,
+    onBack: () => Navigator.pop(context),
+  );
+}
+
+// Same screen but reached from creation flow (no cohortId yet — we already navigated via pushReplacement)
+class _AdminAddStudentsScreen extends StatefulWidget {
+  const _AdminAddStudentsScreen({
+    required this.repo,
+    required this.cohortName,
+    required this.cohortGrade,
+    required this.allStudents,
+  });
+
+  final AdminRepository repo;
+  final String cohortName;
+  final int cohortGrade;
+  final List<Map<String, dynamic>> allStudents;
+
+  @override
+  State<_AdminAddStudentsScreen> createState() => _AdminAddStudentsFromCreateState();
+}
+
+class _AdminAddStudentsFromCreateState extends State<_AdminAddStudentsScreen> {
+  final Set<String> _selected = {};
+  bool _saving = false;
+
+  Future<void> _save() async {
+    // Can't add students without cohortId — cohort doesn't return id on creation yet.
+    // Just navigate back to cohorts list which will reload.
+    Navigator.popUntil(context, (r) => r.isFirst);
+  }
+
+  @override
+  Widget build(BuildContext context) => _AdminAddStudentsScreenImpl(
+    allStudents: widget.allStudents,
+    cohortId: '',
+    cohortName: widget.cohortName,
+    cohortGrade: widget.cohortGrade,
+    selected: _selected,
+    loading: false,
+    saving: _saving,
+    onToggle: (id) => setState(() => _selected.contains(id) ? _selected.remove(id) : _selected.add(id)),
+    onSave: _save,
+    onBack: () => Navigator.pop(context),
+  );
+}
+
+// Shared implementation widget
+class _AdminAddStudentsScreenImpl extends StatefulWidget {
+  const _AdminAddStudentsScreenImpl({
+    required this.allStudents,
+    required this.cohortId,
+    required this.cohortName,
+    required this.cohortGrade,
+    required this.selected,
+    required this.loading,
+    required this.saving,
+    required this.onToggle,
+    required this.onSave,
+    required this.onBack,
+  });
+
+  final List<Map<String, dynamic>> allStudents;
+  final String cohortId;
+  final String cohortName;
+  final int cohortGrade;
+  final Set<String> selected;
+  final bool loading;
+  final bool saving;
+  final ValueChanged<String> onToggle;
+  final VoidCallback onSave;
+  final VoidCallback onBack;
+
+  @override
+  State<_AdminAddStudentsScreenImpl> createState() => _AdminAddStudentsScreenImplState();
+}
+
+class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl> {
+  String _search = '';
+  bool _showGradeOnly = true; // default: filter by cohort's grade
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    // Filter: grade filter + search
+    final q = _search.toLowerCase();
+    final students = widget.allStudents.where((s) {
+      // Grade filter
+      if (_showGradeOnly) {
+        final g = (s['grade'] as num?)?.toInt();
+        if (g != widget.cohortGrade) return false;
+      }
+      if (q.isEmpty) return true;
+      return (s['name']?.toString() ?? '').toLowerCase().contains(q);
+    }).toList();
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: widget.onBack,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Add Students',
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        Text(
+                          widget.cohortName,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.selected.isNotEmpty)
+                    FilledButton.icon(
+                      onPressed: widget.saving ? null : widget.onSave,
+                      icon: widget.saving
+                          ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.check_rounded, size: 16),
+                      label: Text('Add ${widget.selected.length}'),
+                    )
+                  else
+                    TextButton(onPressed: widget.onBack, child: const Text('Skip')),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Search + grade filter
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (v) => setState(() => _search = v),
+                    decoration: InputDecoration(
+                      hintText: 'Search students…',
+                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      FilterChip(
+                        label: Text('Grade ${widget.cohortGrade} only'),
+                        selected: _showGradeOnly,
+                        onSelected: (v) => setState(() => _showGradeOnly = v),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${students.length} student${students.length == 1 ? '' : 's'}',
+                        style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Student list
+            Expanded(
+              child: widget.loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : students.isEmpty
+                      ? Center(
+                          child: Text(
+                            _showGradeOnly ? 'No grade ${widget.cohortGrade} students found' : 'No students found',
+                            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+                          itemCount: students.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 4),
+                          itemBuilder: (ctx, i) {
+                            final s = students[i];
+                            final id = s['id']?.toString() ?? '';
+                            final name = s['name']?.toString() ?? '';
+                            final cohortName = s['cohortName']?.toString() ?? '';
+                            final grade = (s['grade'] as num?)?.toInt();
+                            final selected = widget.selected.contains(id);
+
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => widget.onToggle(id),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 38, height: 38,
+                                      decoration: BoxDecoration(
+                                        color: selected ? cs.primary : cs.surfaceContainerHigh,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Icon(
+                                        selected ? Icons.check_rounded : Icons.person_rounded,
+                                        size: 18,
+                                        color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                                          if (cohortName.isNotEmpty || grade != null)
+                                            Text(
+                                              [if (grade != null) 'Grade $grade', if (cohortName.isNotEmpty) cohortName].join(' · '),
+                                              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -180,23 +607,12 @@ class _CohortCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(14),
-              ),
+              width: 52, height: 52,
+              decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'G${cohort.grade}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                      color: cs.onPrimaryContainer,
-                    ),
-                  ),
+                  Text('G${cohort.grade}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer)),
                 ],
               ),
             ),
@@ -205,15 +621,9 @@ class _CohortCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    cohort.name,
-                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
-                  ),
+                  Text(cohort.name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text(
-                    '${cohort.studentCount} students',
-                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                  ),
+                  Text('${cohort.studentCount} students', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -237,8 +647,7 @@ class AdminCohortDetailScreen extends ConsumerStatefulWidget {
   final AdminCohort cohort;
 
   @override
-  ConsumerState<AdminCohortDetailScreen> createState() =>
-      _AdminCohortDetailScreenState();
+  ConsumerState<AdminCohortDetailScreen> createState() => _AdminCohortDetailScreenState();
 }
 
 class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScreen> {
@@ -260,28 +669,22 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: cs.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(_cohort.name, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-        actions: [
-          // Generate join code — students use this to self-enroll
-          IconButton(
-            icon: const Icon(Icons.qr_code_rounded),
-            tooltip: 'Generate join code',
-            onPressed: () => _generateJoinCode(context),
-          ),
-          if (isAdmin)
-            IconButton(
-              icon: const Icon(Icons.edit_rounded),
-              onPressed: () => _showRenameSheet(context),
-            ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_student_cohort',
-        onPressed: () => _showAddStudentsSheet(context),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AdminAddStudentsScreen(
+            repo: ref.read(adminRepositoryProvider),
+            cohortId: _cohort.id,
+            cohortName: _cohort.name,
+            cohortGrade: _cohort.grade,
+          )),
+        ).then((added) {
+          if (added == true) {
+            ref.invalidate(_rosterProvider(_cohort.id));
+            ref.invalidate(_cohortsProvider);
+          }
+        }),
         icon: const Icon(Icons.person_add_rounded),
         label: Text(AppLocalizations.of(context)!.adminAddStudents),
       ),
@@ -290,23 +693,41 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (students) {
           if (students.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person_outline_rounded, size: 64, color: cs.outlineVariant),
-                  const SizedBox(height: 12),
-                  Text(AppLocalizations.of(context)!.adminNoStudentsInCohort, style: theme.textTheme.titleSmall?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 6),
-                  Text(AppLocalizations.of(context)!.adminAddStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                ],
-              ),
+            return Column(
+              children: [
+                _DetailHeader(
+                  cohortName: _cohort.name,
+                  isAdmin: isAdmin,
+                  onBack: () => Navigator.pop(context),
+                  onRename: () => _showRenameSheet(context),
+                ),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.person_outline_rounded, size: 64, color: cs.outlineVariant),
+                        const SizedBox(height: 12),
+                        Text(AppLocalizations.of(context)!.adminNoStudentsInCohort, style: theme.textTheme.titleSmall?.copyWith(color: cs.onSurfaceVariant)),
+                        const SizedBox(height: 6),
+                        Text(AppLocalizations.of(context)!.adminAddStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           }
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
             children: [
+              _DetailHeader(
+                cohortName: _cohort.name,
+                isAdmin: isAdmin,
+                onBack: () => Navigator.pop(context),
+                onRename: () => _showRenameSheet(context),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
@@ -319,24 +740,19 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                     const SizedBox(width: 8),
                     Text(
                       '${students.length} student${students.length == 1 ? '' : 's'}',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: cs.primary,
-                      ),
+                      style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
-              ...students.map(
-                (s) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: _RosterTile(
-                    user: s,
-                    onRemove: () => _removeStudent(context, s),
-                  ),
+              ...students.map((s) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: _RosterTile(
+                  user: s,
+                  onRemove: () => _removeStudent(context, s),
                 ),
-              ),
+              )),
             ],
           );
         },
@@ -377,14 +793,9 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (bCtx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(bCtx).viewInsets.bottom + 24,
-          left: 20, right: 20, top: 0,
-        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(bCtx).viewInsets.bottom + 24, left: 20, right: 20, top: 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,116 +829,58 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         ),
       ),
     );
-    // Capture text BEFORE dispose — reading after dispose is undefined behaviour
     final newName = nameCtrl.text.trim();
-    nameCtrl.dispose();
     if (updated == true && newName.isNotEmpty) {
-      setState(() => _cohort = AdminCohort(
-        id: _cohort.id,
-        name: newName,
-        grade: _cohort.grade,
-        studentCount: _cohort.studentCount,
-      ));
+      setState(() => _cohort = AdminCohort(id: _cohort.id, name: newName, grade: _cohort.grade, studentCount: _cohort.studentCount));
     }
   }
+}
 
-  Future<void> _generateJoinCode(BuildContext ctx) async {
-    try {
-      final code = await ref.read(adminRepositoryProvider).generateJoinCode(_cohort.id);
-      if (!mounted || code.isEmpty) return;
-      showDialog(
-        context: ctx,
-        builder: (dCtx) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.qr_code_rounded, color: Theme.of(dCtx).colorScheme.primary),
-              const SizedBox(width: 10),
-              Text('Join Code — ${_cohort.name}'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Share this code with students. Valid for 7 days.',
-                style: Theme.of(dCtx).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(dCtx).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(dCtx).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Theme.of(dCtx).colorScheme.primary.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  code,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.w900,
-                    fontSize: 32,
-                    letterSpacing: 6,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Students enter this code in their ClassMate app under Cohort → Join.',
-                style: Theme.of(dCtx).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(dCtx).colorScheme.onSurfaceVariant,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton.icon(
-              icon: const Icon(Icons.copy_rounded, size: 16),
-              label: const Text('Copy'),
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(dCtx).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.of(dCtx)!.adminCopied)),
-                );
-              },
+// ── Detail header (no AppBar) ─────────────────────────────────────────────────
+
+class _DetailHeader extends StatelessWidget {
+  const _DetailHeader({
+    required this.cohortName,
+    required this.isAdmin,
+    required this.onBack,
+    required this.onRename,
+  });
+
+  final String cohortName;
+  final bool isAdmin;
+  final VoidCallback onBack;
+  final VoidCallback onRename;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: onBack,
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dCtx),
-              child: const Text('Done'),
+            Expanded(
+              child: Text(
+                cohortName,
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            if (isAdmin)
+              IconButton(
+                icon: const Icon(Icons.edit_rounded),
+                onPressed: onRename,
+              ),
           ],
         ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
-
-  Future<void> _showAddStudentsSheet(BuildContext ctx) async {
-    final added = await showModalBottomSheet<bool>(
-      context: ctx,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(ctx).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (bCtx) => _AddStudentsSheet(
-        repo: ref.read(adminRepositoryProvider),
-        cohortId: _cohort.id,
-        cohortName: _cohort.name,
       ),
     );
-    if (added == true) {
-      ref.invalidate(_rosterProvider(_cohort.id));
-      // Also refresh the cohort list so student count updates on the card
-      ref.invalidate(_cohortsProvider);
-    }
   }
 }
 
@@ -554,18 +907,9 @@ class _RosterTile extends StatelessWidget {
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14),
         leading: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(
-              initials,
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: cs.onPrimaryContainer),
-            ),
-          ),
+          width: 36, height: 36,
+          decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(10)),
+          child: Center(child: Text(initials, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: cs.onPrimaryContainer))),
         ),
         title: Text(user.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(user.email, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
@@ -573,226 +917,6 @@ class _RosterTile extends StatelessWidget {
           icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error, size: 20),
           onPressed: onRemove,
         ),
-      ),
-    );
-  }
-}
-
-// ── Add students sheet ─────────────────────────────────────────────────────────
-
-class _AddStudentsSheet extends StatefulWidget {
-  const _AddStudentsSheet({
-    required this.repo,
-    required this.cohortId,
-    required this.cohortName,
-  });
-
-  final AdminRepository repo;
-  final String cohortId;
-  final String cohortName;
-
-  @override
-  State<_AddStudentsSheet> createState() => _AddStudentsSheetState();
-}
-
-class _AddStudentsSheetState extends State<_AddStudentsSheet> {
-  List<Map<String, dynamic>> _allStudents = [];
-  final Set<String> _selected = {};
-  String _search = '';
-  bool _loading = true;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStudents();
-  }
-
-  Future<void> _loadStudents() async {
-    try {
-      final students = await widget.repo.getDdlStudents();
-      if (mounted) setState(() { _allStudents = students; _loading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _save() async {
-    if (_selected.isEmpty) return;
-    setState(() => _saving = true);
-    try {
-      await widget.repo.addStudentsToCohort(widget.cohortId, _selected.toList());
-      if (!mounted) return;
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = Theme.of(context).colorScheme;
-    final q = _search.toLowerCase();
-    final filtered = _allStudents.where((s) =>
-      q.isEmpty || (s['name']?.toString() ?? '').toLowerCase().contains(q)).toList();
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: _loading
-          ? const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()))
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Add to ${widget.cohortName}',
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                      if (_selected.isNotEmpty)
-                        FilledButton.icon(
-                          onPressed: _saving ? null : _save,
-                          icon: _saving
-                              ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : const Icon(Icons.check_rounded, size: 16),
-                          label: Text('Add ${_selected.length}'),
-                        ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                  child: TextField(
-                    onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      hintText: 'Search students…',
-                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-                    shrinkWrap: true,
-                    itemCount: filtered.length,
-                    itemBuilder: (ctx, i) {
-                      final s = filtered[i];
-                      final id = s['id']?.toString() ?? '';
-                      final name = s['name']?.toString() ?? '';
-                      final cohortName = s['cohortName']?.toString() ?? '';
-                      final selected = _selected.contains(id);
-                      return CheckboxListTile(
-                        dense: true,
-                        value: selected,
-                        contentPadding: EdgeInsets.zero,
-                        onChanged: (_) => setState(() =>
-                          selected ? _selected.remove(id) : _selected.add(id)),
-                        title: Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                        subtitle: cohortName.isNotEmpty
-                            ? Text(cohortName, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant))
-                            : null,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-// ── Create cohort sheet ────────────────────────────────────────────────────────
-
-class _CreateCohortSheet extends StatefulWidget {
-  const _CreateCohortSheet({required this.repo});
-  final AdminRepository repo;
-
-  @override
-  State<_CreateCohortSheet> createState() => _CreateCohortSheetState();
-}
-
-class _CreateCohortSheetState extends State<_CreateCohortSheet> {
-  final _nameCtrl = TextEditingController();
-  int _grade = 9;
-  bool _saving = false;
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final name = _nameCtrl.text.trim();
-    if (name.isEmpty) return;
-    setState(() => _saving = true);
-    try {
-      await widget.repo.createCohort(name: name, grade: _grade);
-      if (!mounted) return;
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 24, left: 20, right: 20, top: 0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(AppLocalizations.of(context)!.adminNewCohort, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
-              FilledButton.icon(
-                onPressed: _saving ? null : _save,
-                icon: _saving
-                    ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.check_rounded, size: 16),
-                label: Text(AppLocalizations.of(context)!.adminCreateUser),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: _nameCtrl,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: '${AppLocalizations.of(context)!.adminCohortName} *',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(AppLocalizations.of(context)!.adminCohortGrade, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: List.generate(8, (i) => i + 5).map((g) => ChoiceChip(
-              label: Text('G$g'),
-              selected: _grade == g,
-              onSelected: (_) => setState(() => _grade = g),
-            )).toList(),
-          ),
-        ],
       ),
     );
   }

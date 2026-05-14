@@ -158,11 +158,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     startTime?: string;
     endTime?: string;
     frequencyWeeks?: number;
+    startDate?: string;
   }) {
     this.ensureAdmin(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, startTime, endTime, frequencyWeeks = 1 } = body ?? {} as any;
+    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
     if (dayOfWeek === undefined || dayOfWeek < 0 || dayOfWeek > 6) throw new BadRequestException('dayOfWeek must be 0..6');
     if (!Number.isInteger(period) || period < 1 || period > 20) throw new BadRequestException('period must be 1..20');
 
@@ -184,6 +185,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         startTime: startTime ?? null,
         endTime: endTime ?? null,
         frequencyWeeks: Number.isInteger(frequencyWeeks) && frequencyWeeks >= 1 ? frequencyWeeks : 1,
+        startDate: startDate ?? null,
       } as any,
     });
 
@@ -563,6 +565,107 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     };
   }
 
+  async exportStudents(user: any, query: { cohortId?: string; grade?: string; generatePasswords?: string; studentIds?: string }) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const where: any = {
+      schoolId,
+      roles: { some: { role: 'STUDENT' } },
+    };
+    const rows = await this.prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
+        email: true,
+        username: true,
+        studentProfile: {
+          select: {
+            cohort: { select: { id: true, name: true, grade: true } },
+            cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    // Filter: specific student IDs take precedence
+    let filtered = rows;
+    if (query?.studentIds) {
+      const ids = new Set(query.studentIds.split(',').map((s) => s.trim()).filter(Boolean));
+      filtered = filtered.filter((r) => ids.has(r.id));
+    } else if (query?.cohortId) {
+      filtered = filtered.filter((r) =>
+        r.studentProfile?.cohort?.id === query.cohortId ||
+        r.studentProfile?.cohorts?.some((c) => c.cohort.id === query.cohortId)
+      );
+    } else if (query?.grade) {
+      const g = Number(query.grade);
+      filtered = filtered.filter((r) =>
+        r.studentProfile?.cohort?.grade === g ||
+        r.studentProfile?.cohorts?.some((c) => c.cohort.grade === g)
+      );
+    }
+
+    const generatePasswords = query?.generatePasswords === 'true';
+    const result: Array<{
+      id: string; nameEn: string; nameAr: string; nameHe: string; nameFr: string; nameRu: string;
+      email: string | null; username?: string | null; grade: number | null; cohortName: string; tempPassword?: string;
+    }> = [];
+
+    for (const r of filtered) {
+      const entry = {
+        id: r.id,
+        nameEn: r.nameEn ?? r.name,
+        nameAr: r.nameAr ?? '',
+        nameHe: r.nameHe ?? '',
+        nameFr: r.nameFr ?? '',
+        nameRu: r.nameRu ?? '',
+        email: r.email ?? null,
+        username: (r as any).username ?? null,
+        grade: r.studentProfile?.cohort?.grade ?? r.studentProfile?.cohorts?.[0]?.cohort?.grade ?? null,
+        cohortName: r.studentProfile?.cohort?.name ?? r.studentProfile?.cohorts?.[0]?.cohort?.name ?? '',
+        tempPassword: undefined as string | undefined,
+      };
+      if (generatePasswords) {
+        const tempPassword = `Classmate${randomDigits(6)}!`;
+        const hash = await bcrypt.hash(tempPassword, 10);
+        await this.prisma.user.update({ where: { id: r.id }, data: { password: hash } });
+        entry.tempPassword = tempPassword;
+      }
+      result.push(entry);
+    }
+
+    return { ok: true, students: result };
+  }
+
+  async exportCohorts(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const cohorts = await this.prisma.cohort.findMany({
+      where: { schoolId },
+      include: {
+        students: { include: { user: { select: { name: true, email: true } } } },
+      },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+
+    return {
+      ok: true,
+      cohorts: cohorts.map((c) => ({
+        id: c.id,
+        name: c.name,
+        grade: c.grade,
+        studentCount: c.students.length,
+      })),
+    };
+  }
+
   async getUserDetail(user: any, id: string) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId;
@@ -572,12 +675,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
+        nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
+        username: true,
         status: true,
         roles: { select: { role: true } },
         studentProfile: {
           select: {
             cohortId: true,
+            grade: true,
             cohort: { select: { name: true, grade: true } },
             cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
           },
@@ -609,9 +715,16 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       user: {
         id: row.id,
         name: row.name,
+        nameEn: (row as any).nameEn ?? row.name,
+        nameAr: (row as any).nameAr ?? '',
+        nameHe: (row as any).nameHe ?? '',
+        nameFr: (row as any).nameFr ?? '',
+        nameRu: (row as any).nameRu ?? '',
         email: row.email,
+        username: (row as any).username ?? null,
         status: row.status,
         roles: row.roles.map((r) => r.role),
+        grade: (row.studentProfile as any)?.grade ?? null,
         cohort: row.studentProfile?.cohort ?? null,
         cohorts: row.studentProfile?.cohorts.map((c) => c.cohort) ?? [],
         attendanceRate,
@@ -629,17 +742,48 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this account');
 
-    const name = String(dto?.name ?? '').trim();
-    const email = String(dto?.email ?? '').trim().toLowerCase();
+    // Multi-lang names
+    const nameEn = String(dto?.nameEn ?? dto?.name ?? '').trim();
+    const nameAr = String(dto?.nameAr ?? '').trim() || undefined;
+    const nameHe = String(dto?.nameHe ?? '').trim() || undefined;
+    const nameFr = String(dto?.nameFr ?? '').trim() || undefined;
+    const nameRu = String(dto?.nameRu ?? '').trim() || undefined;
+    const name = nameEn || String(dto?.name ?? '').trim();
+    const rawEmail = String(dto?.email ?? '').trim().toLowerCase() || undefined;
+    const rawUsername = String(dto?.username ?? '').trim().toLowerCase() || undefined;
     const role = String(dto?.role ?? 'STUDENT').toUpperCase();
+    const grade = dto?.grade ? Number(dto.grade) : undefined;
 
-    if (!name) throw new BadRequestException('name is required');
-    if (!email || !email.includes('@')) throw new BadRequestException('valid email is required');
+    if (!name) throw new BadRequestException('At least an English name is required');
+    if (!rawEmail && !rawUsername) throw new BadRequestException('At least one of email or username is required');
+    if (rawEmail && !rawEmail.includes('@')) throw new BadRequestException('Email must be a valid email address');
     if (!['STUDENT', 'TEACHER', 'ADMIN', 'PARENT', 'SECRETARY'].includes(role))
       throw new BadRequestException('invalid role');
 
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+    // Auto-generate username if not provided
+    let username = rawUsername;
+    if (!username) {
+      const base = name.toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\s+/g, '.')
+        .replace(/[^a-z0-9._]/g, '');
+      username = base || `user${randomDigits(6)}`;
+      // Ensure uniqueness
+      let attempt = username;
+      let n = 1;
+      while (await this.prisma.user.findFirst({ where: { username: attempt } })) {
+        attempt = `${username}${n++}`;
+      }
+      username = attempt;
+    } else {
+      const existingUsername = await this.prisma.user.findFirst({ where: { username } });
+      if (existingUsername) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
+    }
+
+    if (rawEmail) {
+      const existingEmail = await this.prisma.user.findFirst({ where: { email: rawEmail } });
+      if (existingEmail) throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+    }
 
     const tempPassword = `Classmate${randomDigits(6)}!`;
     const hash = await bcrypt.hash(tempPassword, 10);
@@ -647,7 +791,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const newUser = await this.prisma.user.create({
       data: {
         name,
-        email,
+        nameEn: nameEn || undefined,
+        ...(nameAr ? { nameAr } : {}),
+        ...(nameHe ? { nameHe } : {}),
+        ...(nameFr ? { nameFr } : {}),
+        ...(nameRu ? { nameRu } : {}),
+        ...(rawEmail ? { email: rawEmail } : {}),
+        username,
         password: hash,
         schoolId,
         status: 'ACTIVE',
@@ -658,14 +808,20 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     if (role === 'STUDENT') {
       await this.prisma.studentProfile.create({
-        data: { userId: newUser.id, englishLevel: 5, mathLevel: 5 },
+        data: {
+          userId: newUser.id,
+          englishLevel: 5,
+          mathLevel: 5,
+          ...(grade ? { grade } : {}),
+        } as any,
       });
     }
 
     return {
       ok: true,
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, roles: newUser.roles.map((r) => r.role) },
+      user: { id: newUser.id, name: newUser.name, email: (newUser as any).email, username: (newUser as any).username, roles: (newUser as any).roles.map((r: any) => r.role) },
       tempPassword,
+      username,
     };
   }
 
@@ -680,14 +836,25 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!target) throw new NotFoundException('User not found');
 
     const data: any = {};
-    if (dto?.name !== undefined) data.name = String(dto.name).trim();
-    if (dto?.email !== undefined) data.email = String(dto.email).trim().toLowerCase();
+    if (dto?.name !== undefined || dto?.nameEn !== undefined) {
+      const n = String(dto?.nameEn ?? dto?.name ?? '').trim();
+      if (n) { data.name = n; data.nameEn = n; }
+    }
+    if (dto?.nameAr !== undefined) data.nameAr = String(dto.nameAr).trim() || null;
+    if (dto?.nameHe !== undefined) data.nameHe = String(dto.nameHe).trim() || null;
+    if (dto?.nameFr !== undefined) data.nameFr = String(dto.nameFr).trim() || null;
+    if (dto?.nameRu !== undefined) data.nameRu = String(dto.nameRu).trim() || null;
+    if (dto?.email !== undefined) data.email = String(dto.email).trim().toLowerCase() || null;
+    if (dto?.username !== undefined) {
+      const un = String(dto.username).trim().toLowerCase() || null;
+      if (un) {
+        const conflict = await this.prisma.user.findFirst({ where: { username: un } });
+        if (conflict && conflict.id !== id) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
+      }
+      data.username = un;
+    }
 
-    const updated = await this.prisma.user.update({
-      where: { id },
-      data,
-      select: { id: true, name: true, email: true, status: true, roles: { select: { role: true } } },
-    });
+    await this.prisma.user.update({ where: { id }, data });
 
     if (dto?.role !== undefined) {
       const newRole = String(dto.role).toUpperCase();
@@ -695,7 +862,37 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       await this.prisma.userRole.create({ data: { userId: id, role: newRole as any } });
     }
 
-    return { ok: true, user: { id: updated.id, name: updated.name, email: updated.email, roles: updated.roles.map((r) => r.role) } };
+    // Update student grade if provided
+    if (dto?.grade !== undefined) {
+      const g = dto.grade !== null ? Number(dto.grade) : null;
+      await this.prisma.studentProfile.updateMany({
+        where: { userId: id },
+        data: { grade: g } as any,
+      });
+    }
+
+    const updated = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true, nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true, email: true, username: true, status: true, roles: { select: { role: true } } },
+    }) as any;
+    return { ok: true, user: { ...updated, roles: updated.roles.map((r: any) => r.role) } };
+  }
+
+  async getUserChildren(user: any, userId: string) {
+    this.requireAdminOrSecretary(user);
+    const links = await this.prisma.parentChild.findMany({
+      where: { parentId: userId },
+      include: {
+        child: { select: { id: true, name: true, nameEn: true, email: true, username: true } },
+      },
+    });
+    return { ok: true, children: links.map((l) => ({ linkId: `${l.parentId}_${l.childId}`, child: l.child })) };
+  }
+
+  async unlinkChild(user: any, parentId: string, childId: string) {
+    this.requireAdminOrSecretary(user);
+    await this.prisma.parentChild.deleteMany({ where: { parentId, childId } });
+    return { ok: true };
   }
 
   async deleteUser(user: any, id: string) {

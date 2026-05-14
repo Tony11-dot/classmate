@@ -801,32 +801,12 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                 children: [
                                   _DetailRow(label: l.assignmentsDetailDueLabel, value: dueLabel),
                                   _DetailRow(
-                                    label: l.assignmentsDetailClassroomLabel,
-                                    value: courseName.isEmpty ? l.profileNotAvailable : courseName,
-                                  ),
-                                  _DetailRow(
                                     label: l.assignmentsSubjectLabel,
                                     value: subject.isEmpty ? l.profileNotAvailable : subject,
                                   ),
                                   _DetailRow(
                                     label: l.assignmentsDetailTeacherLabel,
                                     value: teacherName.isEmpty ? l.profileNotAvailable : teacherName,
-                                  ),
-                                  _DetailRow(
-                                    label: l.assignmentsDetailPostedByLabel,
-                                    value: createdBy.isEmpty ? l.profileNotAvailable : createdBy,
-                                  ),
-                                  _DetailRow(
-                                    label: l.assignmentsDetailPublishedLabel,
-                                    value: _friendlyDateTimeLabel(context, _stringValue(assignment, 'createdAt')),
-                                  ),
-                                  _DetailRow(
-                                    label: l.assignmentsDetailUpdatedLabel,
-                                    value: _friendlyDateTimeLabel(context, _stringValue(assignment, 'updatedAt')),
-                                  ),
-                                  _DetailRow(
-                                    label: l.assignmentsDetailIdLabel,
-                                    value: _stringValue(assignment, 'id'),
                                     isLast: true,
                                   ),
                                 ],

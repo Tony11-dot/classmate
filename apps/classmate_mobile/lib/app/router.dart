@@ -71,6 +71,8 @@ import '../features/admin/ui/admin_cohorts_screen.dart';
 import '../features/admin/ui/admin_schedule_screen.dart';
 import '../features/admin/ui/admin_school_settings_screen.dart';
 import '../features/admin/ui/admin_settings_screen.dart';
+import '../features/admin/ui/admin_export_screen.dart';
+import '../features/admin/ui/admin_edit_user_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
@@ -536,6 +538,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/admin/bell-schedule',
             builder: (context, state) => const AdminBellScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/admin/export',
+            builder: (context, state) => const AdminExportScreen(),
           ),
           GoRoute(
             path: '/admin/settings',

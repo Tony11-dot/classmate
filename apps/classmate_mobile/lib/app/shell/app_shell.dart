@@ -19,6 +19,7 @@ import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/classmate_logo.dart';
 import '../../ui/widgets/in_app_notification_banner.dart';
 import '../../l10n/app_localizations.dart';
@@ -190,6 +191,7 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule',
     '/admin/settings',
     '/admin/periods',
+    '/admin/export',
     '/admin/',
     '/secretary/students',
     '/secretary/',
@@ -232,6 +234,7 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule' => l.adminSettingsBellSchedule,
     '/admin/settings' => l.adminSettingsTitle,
     '/admin/periods' => l.adminSettingsPeriodDefaults,
+    '/admin/export' => 'Export Data',
     '/admin/' => l.roleAdmin,
     '/secretary/students' => l.adminStudents,
     '/secretary/' => l.roleSecretary,
@@ -312,11 +315,9 @@ class AppShell extends ConsumerWidget {
   }
 
   bool _hideBottomNav(String loc, bool isTeacherLike, bool isAdminLike, bool isAdmin) {
+    // Admin and Secretary navigate entirely via the drawer — no bottom pill nav.
+    if (isAdminLike) return true;
     final path = _routePathOnly(loc);
-    if (isAdminLike) {
-      final allowed = isAdmin ? _adminBottomNavPaths : _secretaryBottomNavPaths;
-      return !allowed.contains(path);
-    }
     final allowed = isTeacherLike ? _teacherBottomNavPaths : _coreBottomNavPaths;
     return !allowed.contains(path);
   }
@@ -1195,15 +1196,13 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
             Text(widget.l.teacherGradesCreateAssessmentTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
             if (_loadingCourses)
-              const Center(child: const CmLoading())
+              const Center(child: CmLoading())
             else
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCourseId,
-                decoration: InputDecoration(labelText: widget.l.teacherGradesFieldCourse, border: const OutlineInputBorder()),
-                items: _courses
-                    .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedCourseId = v),
+              LiquidGlassDropdown<String>(
+                label: widget.l.teacherGradesFieldCourse,
+                value: _selectedCourseId ?? '',
+                items: _courses.map((c) => LiquidGlassDropdownItem(value: c.id, label: c.name)).toList(),
+                onChanged: (v) => setState(() => _selectedCourseId = v.isEmpty ? null : v),
               ),
             const SizedBox(height: 12),
             TextField(

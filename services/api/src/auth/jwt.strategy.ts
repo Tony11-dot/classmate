@@ -80,41 +80,39 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKEN === '1') &&
       token.startsWith('dev-token-')
     ) {
-      const email = token.replace('dev-token-', '').trim().toLowerCase();
-      const inferredRoles = rolesFromEmail(email);
+      const identifier = token.replace('dev-token-', '').trim().toLowerCase();
+      const isEmail = identifier.includes('@');
+      const inferredRoles = rolesFromEmail(identifier);
 
       try {
-        const existing = await this.prisma.user.findUnique({
-          where: { email },
-          select: { id: true, email: true, name: true, displayName: true, schoolId: true, roles: { select: { role: true } } },
+        const existing = await this.prisma.user.findFirst({
+          where: isEmail
+            ? { email: identifier }
+            : { OR: [{ username: identifier }, { email: identifier }] },
+          select: { id: true, email: true, username: true, name: true, displayName: true, schoolId: true, roles: { select: { role: true } } },
         }) as any;
 
         let userId = existing?.id;
-        let userEmail = existing?.email ?? email;
+        let userEmail = existing?.email ?? (isEmail ? identifier : null);
         let userName =
           existing?.displayName ??
           existing?.name ??
-          email.split('@')[0];
+          identifier.split('@')[0];
         let cohortId: string | undefined;
 
         if (!userId) {
-          const passwordHash = await bcrypt.hash(`dev-token:${email}`, 10);
-
+          const passwordHash = await bcrypt.hash(`dev-token:${identifier}`, 10);
           const created = await this.prisma.user.create({
             data: {
-              email,
-              name: email.split('@')[0],
+              ...(isEmail ? { email: identifier } : { username: identifier }),
+              name: identifier.split('@')[0],
               password: passwordHash,
             },
-            select: { id: true, email: true, name: true, displayName: true },
+            select: { id: true, email: true, username: true, name: true, displayName: true },
           });
-
           userId = created.id;
           userEmail = created.email;
-          userName =
-            created.displayName ??
-            created.name ??
-            email.split('@')[0];
+          userName = created.displayName ?? created.name ?? identifier.split('@')[0];
         }
 
         // Use DB roles if the user already exists, otherwise fall back to email inference

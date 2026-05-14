@@ -279,219 +279,75 @@ class MainDrawer extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 12),
                 children: [
-                  sectionHeader(l.sectionCore),
+                  // ── Admin/Secretary drawer: 3 focused categories ──────────
                   if (isSecretary) ...[
-                    // Secretary: focused on announcements, students, messaging
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
+                    sectionHeader('School Tools'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
+                    sectionHeader('Secretary Tools'),
+                    navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
+                    navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
+                    sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[
+                    sectionHeader('School Tools'),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
+                    sectionHeader('Admin Tools'),
                     navItem(icon: Icons.dashboard_rounded, label: l.navDashboard, route: '/admin/dashboard'),
                     navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/admin/people'),
                     navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/admin/cohorts'),
                     navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/admin/schedule'),
-                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
-                  ] else if (isTeacherLike) ...[
-                    navItem(
-                      icon: Icons.event_note_rounded,
-                      label: l.navSchedule,
-                      route: '/teacher/schedule',
-                    ),
-                    navItem(
-                      icon: Icons.groups_rounded,
-                      label: l.navClassrooms,
-                      route: '/teacher/classrooms',
-                    ),
-                    navItem(
-                      icon: Icons.psychology_rounded,
-                      label: l.navNova,
-                      route: '/tutor',
-                    ),
-                    navItem(
-                      icon: Icons.insights_rounded,
-                      label: l.navInsights,
-                      route: '/teacher/insights',
-                    ),
-                    navItem(
-                      icon: Icons.chat_bubble_rounded,
-                      label: l.navMessages,
-                      route: '/messages',
-                    ),
-                  ] else ...[
-                    navItem(
-                      icon: Icons.calendar_month_rounded,
-                      label: l.navSchedule,
-                      route: '/schedule',
-                    ),
-                    navItem(
-                      icon: Icons.groups_rounded,
-                      label: l.navClassrooms,
-                      route: '/classrooms',
-                    ),
-                    navItem(
-                      icon: Icons.auto_awesome_rounded,
-                      label: l.navPractice,
-                      route: '/practice',
-                    ),
-                    navItem(
-                      icon: Icons.insights_rounded,
-                      label: l.navInsights,
-                      route: '/insights',
-                    ),
-                    navItem(
-                      icon: Icons.psychology_rounded,
-                      label: l.navNova,
-                      route: '/tutor',
-                    ),
-                  ],
-
-                  sectionHeader(l.sectionSchoolTools),
-                  if (isSecretary) ...[
-                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
-                    navItem(icon: Icons.settings_rounded, label: l.navSettings, route: '/settings'),
-                  ] else if (isPureAdmin) ...[
                     navItem(icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle, route: '/admin/school'),
-                    navItem(icon: Icons.settings_rounded, label: l.adminSettingsTitle, route: '/admin/settings'),
+                    navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
+                    sectionHeader(l.sectionAccount),
+                  // ── Teacher drawer ────────────────────────────────────────
+                  ] else if (isTeacherLike) ...[
+                    sectionHeader(l.sectionCore),
+                    navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/teacher/schedule'),
+                    navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/teacher/classrooms'),
+                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                    navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    sectionHeader(l.sectionSchoolTools),
+                    navItem(icon: Icons.dashboard_rounded, label: l.navTeacherWorkspace, route: '/teacher/home'),
+                    navItem(icon: Icons.fact_check_rounded, label: l.navAttendance, route: '/teacher/attendance'),
+                    navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/teacher/grades'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
-                    navItem(icon: Icons.lightbulb_rounded, label: l.navSolutions, route: '/solutions'),
-                  ] else if (isTeacherLike) ...[
-                    navItem(
-                      icon: Icons.dashboard_rounded,
-                      label: l.navTeacherWorkspace,
-                      route: '/teacher/home',
-                    ),
-                    navItem(
-                      icon: Icons.fact_check_rounded,
-                      label: l.navAttendance,
-                      route: '/teacher/attendance',
-                    ),
-                    navItem(
-                      icon: Icons.grade_rounded,
-                      label: l.navGrades,
-                      route: '/teacher/grades',
-                    ),
-                    navItem(
-                      icon: Icons.campaign_rounded,
-                      label: l.navAnnouncements,
-                      route: '/announcements',
-                    ),
-                    navItem(
-                      icon: Icons.notifications_rounded,
-                      label: l.navNotifications,
-                      route: '/notifications',
-                    ),
-                    navItem(
-                      icon: Icons.assignment_rounded,
-                      label: l.navAssignments,
-                      route: '/teacher/assignments',
-                    ),
-                    navItem(
-                      icon: Icons.folder_shared_rounded,
-                      label: 'Materials',
-                      route: '/teacher/materials',
-                    ),
-                    navItem(
-                      icon: Icons.video_call_rounded,
-                      label: l.navMeetings,
-                      route: '/teacher/meetings',
-                    ),
-                    navItem(
-                      icon: Icons.people_rounded,
-                      label: l.teacherStudentsLabel,
-                      route: '/teacher/students',
-                    ),
-                    navItem(
-                      icon: Icons.quiz_rounded,
-                      label: l.navExams,
-                      route: '/teacher/exams',
-                    ),
-                    navItem(
-                      icon: Icons.assignment_turned_in_rounded,
-                      label: l.navForms,
-                      route: '/teacher/forms',
-                    ),
-                    navItem(
-                      icon: Icons.workspace_premium_rounded,
-                      label: l.navDiplomas,
-                      route: '/diplomas',
-                    ),
-                    navItem(
-                      icon: Icons.lightbulb_rounded,
-                      label: l.navSolutions,
-                      route: '/solutions',
-                    ),
+                    navItem(icon: Icons.assignment_rounded, label: l.navAssignments, route: '/teacher/assignments'),
+                    navItem(icon: Icons.folder_shared_rounded, label: 'Materials', route: '/teacher/materials'),
+                    navItem(icon: Icons.video_call_rounded, label: l.navMeetings, route: '/teacher/meetings'),
+                    navItem(icon: Icons.people_rounded, label: l.teacherStudentsLabel, route: '/teacher/students'),
+                    navItem(icon: Icons.quiz_rounded, label: l.navExams, route: '/teacher/exams'),
+                    navItem(icon: Icons.assignment_turned_in_rounded, label: l.navForms, route: '/teacher/forms'),
+                    navItem(icon: Icons.workspace_premium_rounded, label: l.navDiplomas, route: '/diplomas'),
+                    sectionHeader(l.sectionAccount),
+                  // ── Student drawer ────────────────────────────────────────
                   ] else ...[
-                    navItem(
-                      icon: Icons.chat_bubble_rounded,
-                      label: l.navMessages,
-                      route: '/messages',
-                    ),
-                    navItem(
-                      icon: Icons.how_to_reg_rounded,
-                      label: l.navAttendance,
-                      route: '/attendance',
-                    ),
-                    navItem(
-                      icon: Icons.grade_rounded,
-                      label: l.navGrades,
-                      route: '/grades',
-                    ),
-                    navItem(
-                      icon: Icons.assignment_rounded,
-                      label: l.navAssignments,
-                      route: '/assignments',
-                    ),
-                    navItem(
-                      icon: Icons.folder_rounded,
-                      label: 'Materials',
-                      route: '/materials',
-                    ),
-                    navItem(
-                      icon: Icons.video_call_rounded,
-                      label: l.navMeetings,
-                      route: '/meetings',
-                    ),
-                    navItem(
-                      icon: Icons.campaign_rounded,
-                      label: l.navAnnouncements,
-                      route: '/announcements',
-                    ),
-                    navItem(
-                      icon: Icons.notifications_rounded,
-                      label: l.navNotifications,
-                      route: '/notifications',
-                    ),
-                    navItem(
-                      icon: Icons.lightbulb_rounded,
-                      label: l.navSolutions,
-                      route: '/solutions',
-                    ),
-                    navItem(
-                      icon: Icons.quiz_rounded,
-                      label: l.navExams,
-                      route: '/exams',
-                    ),
-                    navItem(
-                      icon: Icons.assignment_turned_in_rounded,
-                      label: l.navForms,
-                      route: '/forms',
-                    ),
-                    navItem(
-                      icon: Icons.bookmark_rounded,
-                      label: l.navSavedQuestions,
-                      route: '/saved-questions',
-                    ),
-                    navItem(
-                      icon: Icons.workspace_premium_rounded,
-                      label: l.navDiplomas,
-                      route: '/diplomas',
-                    ),
+                    sectionHeader(l.sectionCore),
+                    navItem(icon: Icons.calendar_month_rounded, label: l.navSchedule, route: '/schedule'),
+                    navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/classrooms'),
+                    navItem(icon: Icons.auto_awesome_rounded, label: l.navPractice, route: '/practice'),
+                    navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/insights'),
+                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                    sectionHeader(l.sectionSchoolTools),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.how_to_reg_rounded, label: l.navAttendance, route: '/attendance'),
+                    navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/grades'),
+                    navItem(icon: Icons.assignment_rounded, label: l.navAssignments, route: '/assignments'),
+                    navItem(icon: Icons.folder_rounded, label: 'Materials', route: '/materials'),
+                    navItem(icon: Icons.video_call_rounded, label: l.navMeetings, route: '/meetings'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
+                    navItem(icon: Icons.quiz_rounded, label: l.navExams, route: '/exams'),
+                    navItem(icon: Icons.assignment_turned_in_rounded, label: l.navForms, route: '/forms'),
+                    navItem(icon: Icons.bookmark_rounded, label: l.navSavedQuestions, route: '/saved-questions'),
+                    navItem(icon: Icons.workspace_premium_rounded, label: l.navDiplomas, route: '/diplomas'),
+                    sectionHeader(l.sectionAccount),
                   ],
 
-                  sectionHeader(l.sectionAccount),
                   navItem(
                     icon: Icons.person_rounded,
                     label: l.navProfile,

@@ -146,14 +146,23 @@ export class StudentClassroomsController {
   @Get(':id/people')
   async people(@Req() req: any, @Param('id') id: string) {
     await this.assertAccess(req, id);
-    const members = await this.prisma.classroomMember.findMany({
-      where: { classroomId: id },
-      select: { studentId: true, student: { select: { name: true } } },
-      orderBy: { joinedAt: 'asc' },
-    });
+    const [classroom, members] = await Promise.all([
+      this.prisma.classroom.findUnique({
+        where: { id },
+        select: { teacherId: true, teacher: { select: { id: true, name: true } } },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { classroomId: id },
+        select: { studentId: true, student: { select: { name: true } } },
+        orderBy: { joinedAt: 'asc' },
+      }),
+    ]);
+    const teacher = classroom?.teacher ?? null;
     return {
       ok: true,
       items: {
+        teacher: teacher ? { id: teacher.id, name: teacher.name } : null,
+        teacherUserId: classroom?.teacherId ?? null,
         students: members.map((m) => ({ id: m.studentId, name: m.student?.name ?? null })),
         studentUserIds: members.map((m) => m.studentId),
       },
