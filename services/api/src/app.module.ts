@@ -22,6 +22,7 @@ import { TutorModule } from './tutor/tutor.module';
 import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
 import { DmUploadController } from './uploads/dm-upload.controller';
+import { SetupController } from './setup/setup.controller';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -99,7 +100,7 @@ const seedControllers = [
     NovaModule,
     PracticeModule,
   ],
-  controllers: [DmUploadController, MetricsController, ...seedControllers],
+  controllers: [DmUploadController, SetupController, MetricsController, ...seedControllers],
   providers: [
     JsonLogger,
     RequestMetricsInterceptor,

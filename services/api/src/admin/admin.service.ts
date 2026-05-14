@@ -1055,26 +1055,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async updateMySchool(user: any, dto: any) {
     this.requireAdminOrSecretary(user);
-    const userId = (user as any)?.id ?? (user as any)?.sub ?? (user as any)?.userId;
-    let schoolId = (user as any)?.schoolId;
-
-    const name = dto?.name ? String(dto.name).trim() : null;
-    const logoUrl = dto?.logoUrl !== undefined ? (dto.logoUrl ? String(dto.logoUrl).trim() : null) : undefined;
-
-    if (!schoolId) {
-      // First-time setup — create the school and link it to this admin
-      const school = await this.prisma.school.create({
-        data: { name: name || 'My School', ...(logoUrl !== undefined ? { logoUrl } : {}) },
-      });
-      if (userId) {
-        await this.prisma.user.update({ where: { id: userId }, data: { schoolId: school.id } });
-      }
-      return { ok: true, school };
-    }
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
 
     const data: any = {};
-    if (name !== null) data.name = name;
-    if (logoUrl !== undefined) data.logoUrl = logoUrl;
+    if (dto?.name !== undefined) data.name = String(dto.name).trim();
+    if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
 
     const row = await this.prisma.school.update({ where: { id: schoolId }, data });
     return { ok: true, school: row };

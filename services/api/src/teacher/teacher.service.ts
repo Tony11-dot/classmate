@@ -722,7 +722,18 @@ export class TeacherService {
 
     const cohortId = assessment.cohortId ?? null;
 
-    const studentIds = body.grades.map((g) => g.studentId);
+    // School isolation: only grade students from the teacher's school
+    const schoolId = (user as any)?.schoolId;
+    let studentIds = body.grades.map((g) => g.studentId);
+    if (schoolId) {
+      const validStudents = await this.prisma.user.findMany({
+        where: { id: { in: studentIds }, schoolId },
+        select: { id: true },
+      });
+      const validSet = new Set(validStudents.map((s) => s.id));
+      body.grades = body.grades.filter((g) => validSet.has(g.studentId));
+      studentIds = body.grades.map((g) => g.studentId);
+    }
     const profiles = await this.prisma.studentProfile.findMany({
       where: { userId: { in: studentIds } },
       select: { userId: true, cohortId: true },
@@ -1936,8 +1947,14 @@ export class TeacherService {
   async gradeAssignmentSubmission(user: any, assignmentId: string, studentId: string, body: any) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
+    const schoolId = (user as any)?.schoolId;
     const assignment = await this.prisma.teacherAssignment.findFirst({ where: { id: assignmentId, teacherId } });
     if (!assignment) throw new NotFoundException('Assignment not found');
+    // School isolation: reject if student belongs to a different school
+    if (schoolId) {
+      const student = await this.prisma.user.findFirst({ where: { id: studentId, schoolId } });
+      if (!student) throw new ForbiddenException('Student does not belong to your school');
+    }
     await this.prisma.teacherAssignmentSubmission.upsert({
       where: { assignmentId_studentId: { assignmentId, studentId } },
       update: { grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date() },
