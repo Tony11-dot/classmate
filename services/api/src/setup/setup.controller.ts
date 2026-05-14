@@ -18,7 +18,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { Public } from '../auth/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
