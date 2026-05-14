@@ -41,7 +41,7 @@ function checkSecret(provided: string | undefined): void {
     throw new ForbiddenException('Wrong setup secret. Check your SETUP_SECRET environment variable.');
 }
 
-@Controller('cms')
+@Controller('cmss')
 export class SetupController {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -454,7 +454,7 @@ function buildPage(): string {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const res = await fetch('/cms/upload', { method:'POST', headers:{'x-setup-secret':secret}, body:fd });
+      const res = await fetch('/cmss/upload', { method:'POST', headers:{'x-setup-secret':secret}, body:fd });
       const data = await res.json();
       if (res.ok) {
         logoUrl.value = data.url;
