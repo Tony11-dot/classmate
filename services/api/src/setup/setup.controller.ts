@@ -80,11 +80,14 @@ export class SetupController {
   }))
   async uploadLogo(
     @Headers('x-setup-secret') secret: string,
+    @Req() req: Request,
     @UploadedFile() file: Express.Multer.File,
   ) {
     checkSecret(secret);
     if (!file) throw new BadRequestException('No file provided');
-    return { ok: true, url: `/uploads/setup/${file.filename}` };
+    const proto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0].trim() || req.protocol;
+    const host = (req.headers['x-forwarded-host'] as string) || req.get('host');
+    return { ok: true, url: `${proto}://${host}/uploads/setup/${file.filename}` };
   }
 
   // ── Create school ──────────────────────────────────────────────────────────
@@ -145,12 +148,18 @@ export class SetupController {
       : await this.prisma.school.create({ data: schoolData });
 
     // ── Subjects ─────────────────────────────────────────────────────────────
-    if (body?.subjects?.length) {
+    // Schema column is `subjects String[]` keyed by (schoolId, grade=0).
+    // The form collects multi-language objects; flatten to English names since
+    // the admin app reads them as plain strings.
+    const flatSubjects = (body?.subjects ?? [])
+      .map(s => String(s?.nameEn ?? '').trim())
+      .filter(s => s.length > 0);
+    if (flatSubjects.length) {
       await this.prisma.schoolGradeSubjectDefault.upsert({
-        where: { schoolId_grade: { schoolId: school.id, grade: 0 } } as any,
-        update: { subjects: body.subjects } as any,
-        create: { schoolId: school.id, grade: 0, subjects: body.subjects } as any,
-      }).catch(() => null);
+        where: { schoolId_grade_unique: { schoolId: school.id, grade: 0 } },
+        update: { subjects: flatSubjects },
+        create: { schoolId: school.id, grade: 0, subjects: flatSubjects },
+      });
     }
 
     // ── Bell schedule ─────────────────────────────────────────────────────────

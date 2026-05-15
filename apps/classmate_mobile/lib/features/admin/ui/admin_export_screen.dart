@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
@@ -139,7 +140,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.canPop() ? context.pop() : context.go('/admin/dashboard'),
                   ),
                   Expanded(
                     child: Text('Export Data', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),

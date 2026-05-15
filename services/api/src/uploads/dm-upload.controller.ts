@@ -57,12 +57,14 @@ export class DmUploadController {
       },
     }),
   )
-  async upload(@Req() _req: any, @UploadedFile() file: Express.Multer.File) {
+  async upload(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('file is required');
+    const proto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0].trim() || req.protocol;
+    const host = (req.headers['x-forwarded-host'] as string) || req.get('host');
     return {
       ok: true,
       file: {
-        url: `/uploads/dm/${file.filename}`,
+        url: `${proto}://${host}/uploads/dm/${file.filename}`,
         mimeType: file.mimetype,
         fileName: file.originalname,
         fileSize: file.size,

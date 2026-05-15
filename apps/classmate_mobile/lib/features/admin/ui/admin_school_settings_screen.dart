@@ -120,6 +120,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
 
       // Save the logo URL to the school record
       await ref.read(adminRepositoryProvider).updateMySchool(logoUrl: url);
+      await session.setSchoolLogoUrl(url);
 
       if (!mounted) return;
       setState(() {
@@ -142,6 +143,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     setState(() => _saving = true);
     try {
       await ref.read(adminRepositoryProvider).updateMySchool(logoUrl: '');
+      await ref.read(authSessionProvider).setSchoolLogoUrl(null);
       if (!mounted) return;
       setState(() { _logoUrl = null; _initialized = false; });
       ref.invalidate(_schoolProvider2);
@@ -159,6 +161,9 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     setState(() => _saving = true);
     try {
       await ref.read(adminRepositoryProvider).updateMySchool(name: name, logoUrl: _logoUrl ?? '');
+      final session = ref.read(authSessionProvider);
+      await session.setSchoolName(name);
+      await session.setSchoolLogoUrl(_logoUrl);
       ref.invalidate(_schoolProvider2);
       if (!mounted) return;
       setState(() { _dirty = false; _initialized = false; });
