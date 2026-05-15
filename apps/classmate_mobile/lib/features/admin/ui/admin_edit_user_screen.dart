@@ -42,7 +42,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
   static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
-  static const _grades     = [5, 6, 7, 8, 9, 10, 11, 12];
 
   @override
   void initState() {
@@ -302,7 +301,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8, runSpacing: 8,
-                      children: _grades.map((g) => ChoiceChip(
+                      children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(
                         label: Text('Grade $g'),
                         selected: _grade == g,
                         onSelected: (_) => setState(() => _grade = g),

@@ -93,6 +93,10 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
   // School logo stored as a URL (from server) — updated after upload
   String? _logoUrl;
 
+  // Grade range (admin-editable)
+  int _minGrade = 5;
+  int _maxGrade = 12;
+
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -160,10 +164,16 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     if (name.isEmpty) return;
     setState(() => _saving = true);
     try {
-      await ref.read(adminRepositoryProvider).updateMySchool(name: name, logoUrl: _logoUrl ?? '');
+      await ref.read(adminRepositoryProvider).updateMySchool(
+        name: name,
+        logoUrl: _logoUrl ?? '',
+        minGrade: _minGrade,
+        maxGrade: _maxGrade,
+      );
       final session = ref.read(authSessionProvider);
       await session.setSchoolName(name);
       await session.setSchoolLogoUrl(_logoUrl);
+      session.setSchoolGradeRange(_minGrade, _maxGrade);
       ref.invalidate(_schoolProvider2);
       if (!mounted) return;
       setState(() { _dirty = false; _initialized = false; });
@@ -195,6 +205,8 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
             if (!mounted) return;
             _nameCtrl.text = school.name;
             _logoUrl = school.logoUrl;
+            _minGrade = school.minGrade;
+            _maxGrade = school.maxGrade;
             setState(() {});
           });
         }
@@ -307,6 +319,48 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       hintText: l.adminSchoolName,
                     ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ── Grade range section ────────────────────────────────────────
+            _FieldCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _FieldLabel(label: 'Grade range'),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Grades available across cohorts, students, and pickers.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _GradeStepper(
+                          label: 'Lowest',
+                          value: _minGrade,
+                          onChanged: (v) {
+                            if (v < 1 || v > _maxGrade) return;
+                            setState(() { _minGrade = v; _dirty = true; });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _GradeStepper(
+                          label: 'Highest',
+                          value: _maxGrade,
+                          onChanged: (v) {
+                            if (v < _minGrade || v > 20) return;
+                            setState(() { _maxGrade = v; _dirty = true; });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -922,6 +976,50 @@ class _FieldLabel extends StatelessWidget {
     return Text(
       label,
       style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.onSurfaceVariant),
+    );
+  }
+}
+
+class _GradeStepper extends StatelessWidget {
+  const _GradeStepper({required this.label, required this.value, required this.onChanged});
+
+  final String label;
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text('Grade $value', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove_rounded),
+            onPressed: () => onChanged(value - 1),
+            visualDensity: VisualDensity.compact,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_rounded),
+            onPressed: () => onChanged(value + 1),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
     );
   }
 }

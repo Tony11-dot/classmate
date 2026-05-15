@@ -43,6 +43,8 @@ class AuthSession extends ChangeNotifier {
   String? _cohortName;
   String? _schoolName;
   String? _schoolLogoUrl;
+  int? _schoolMinGrade;
+  int? _schoolMaxGrade;
   String? _nameEn;
   String? _nameAr;
   String? _nameHe;
@@ -112,6 +114,14 @@ class AuthSession extends ChangeNotifier {
   String get cohortName => (_cohortName ?? '').trim();
   String get schoolName => (_schoolName ?? '').trim();
   String get schoolLogoUrl => (_schoolLogoUrl ?? '').trim();
+  int get schoolMinGrade => _schoolMinGrade ?? 5;
+  int get schoolMaxGrade => _schoolMaxGrade ?? 12;
+  List<int> get schoolGrades {
+    final lo = schoolMinGrade;
+    final hi = schoolMaxGrade;
+    if (hi < lo) return const <int>[];
+    return [for (int g = lo; g <= hi; g++) g];
+  }
   List<String> get roles => List<String>.unmodifiable(_roles);
 
   String get primaryRole {
@@ -271,6 +281,13 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSchoolGradeRange(int? min, int? max) {
+    final changed = _schoolMinGrade != min || _schoolMaxGrade != max;
+    _schoolMinGrade = min;
+    _schoolMaxGrade = max;
+    if (changed) notifyListeners();
+  }
+
   Future<void> setCohortId(String? cohortId) async {
     final prefs = await SharedPreferences.getInstance();
     final value = (cohortId ?? '').trim();
@@ -352,6 +369,7 @@ class AuthSession extends ChangeNotifier {
       await setCohortId(me.cohortId);
       await setSchoolName(me.schoolName);
       await setSchoolLogoUrl(me.schoolLogoUrl);
+      setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade);
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();
       if (cn.isNotEmpty) {

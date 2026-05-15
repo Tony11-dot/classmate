@@ -132,20 +132,18 @@ class AdminCohortsScreen extends ConsumerWidget {
 
 // ── Create cohort — full-screen ────────────────────────────────────────────────
 
-class AdminCreateCohortScreen extends StatefulWidget {
+class AdminCreateCohortScreen extends ConsumerStatefulWidget {
   const AdminCreateCohortScreen({super.key, required this.repo});
   final AdminRepository repo;
 
   @override
-  State<AdminCreateCohortScreen> createState() => _AdminCreateCohortScreenState();
+  ConsumerState<AdminCreateCohortScreen> createState() => _AdminCreateCohortScreenState();
 }
 
-class _AdminCreateCohortScreenState extends State<AdminCreateCohortScreen> {
+class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScreen> {
   final _nameCtrl = TextEditingController();
-  final Set<int> _grades = {9};
+  final Set<int> _grades = <int>{};
   bool _saving = false;
-
-  static const _availableGrades = [5, 6, 7, 8, 9, 10, 11, 12];
 
   @override
   void dispose() {
@@ -194,6 +192,7 @@ class _AdminCreateCohortScreenState extends State<AdminCreateCohortScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final multi = _grades.length > 1;
+    final availableGrades = ref.watch(authSessionProvider).schoolGrades;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -228,7 +227,7 @@ class _AdminCreateCohortScreenState extends State<AdminCreateCohortScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _availableGrades.map((g) => FilterChip(
+              children: availableGrades.map((g) => FilterChip(
                 label: Text('Grade $g'),
                 selected: _grades.contains(g),
                 onSelected: (sel) => setState(() {

@@ -100,6 +100,8 @@ export class SetupController {
     @Body() body: {
       schoolName: string;
       logoUrl?: string;
+      minGrade?: number;
+      maxGrade?: number;
       subjects?: { nameEn: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string }[];
       bellSchedule?: { period: number; startTime: string; endTime: string }[];
       adminName: string;
@@ -138,9 +140,16 @@ export class SetupController {
       }
     }
 
+    // ── Grade range ──────────────────────────────────────────────────────────
+    const minGrade = Number.isFinite(body?.minGrade) ? Number(body!.minGrade) : 5;
+    const maxGrade = Number.isFinite(body?.maxGrade) ? Number(body!.maxGrade) : 12;
+    if (minGrade < 1 || maxGrade > 20 || minGrade > maxGrade) {
+      throw new BadRequestException(`Invalid grade range ${minGrade}–${maxGrade}. Must be 1..20 and min ≤ max.`);
+    }
+
     // ── Create / update school ───────────────────────────────────────────────
     let school = await this.prisma.school.findFirst({ where: { name: schoolName } });
-    const schoolData: any = { name: schoolName };
+    const schoolData: any = { name: schoolName, minGrade, maxGrade };
     if (body?.logoUrl) schoolData.logoUrl = body.logoUrl;
 
     school = school
@@ -378,6 +387,16 @@ function buildPage(): string {
       <div class="field">
         <label>School Name <span class="req">*</span></label>
         <input id="schoolName" type="text" placeholder="e.g. Greenwood Academy" required autocomplete="off">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Lowest Grade <span class="req">*</span></label>
+          <input id="minGrade" type="number" min="1" max="20" value="5" required>
+        </div>
+        <div class="field">
+          <label>Highest Grade <span class="req">*</span></label>
+          <input id="maxGrade" type="number" min="1" max="20" value="12" required>
+        </div>
       </div>
       <div class="field">
         <label>School Logo</label>
@@ -639,6 +658,8 @@ function buildPage(): string {
     const payload = {
       schoolName:     document.getElementById('schoolName').value.trim(),
       logoUrl:        document.getElementById('logoUrl').value || undefined,
+      minGrade:       Number(document.getElementById('minGrade').value),
+      maxGrade:       Number(document.getElementById('maxGrade').value),
       subjects: subjects.length ? subjects : undefined,
       bellSchedule: bell.length ? bell : undefined,
       adminName:      document.getElementById('adminName').value.trim(),

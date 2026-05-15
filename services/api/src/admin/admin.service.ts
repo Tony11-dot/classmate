@@ -1093,6 +1093,16 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
     if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
+    if (dto?.minGrade !== undefined || dto?.maxGrade !== undefined) {
+      const current = await this.prisma.school.findUnique({ where: { id: schoolId }, select: { minGrade: true, maxGrade: true } as any }) as any;
+      const min = dto?.minGrade !== undefined ? Number(dto.minGrade) : current?.minGrade ?? 5;
+      const max = dto?.maxGrade !== undefined ? Number(dto.maxGrade) : current?.maxGrade ?? 12;
+      if (!Number.isFinite(min) || !Number.isFinite(max) || min < 1 || max > 20 || min > max) {
+        throw new BadRequestException(`Invalid grade range ${min}–${max}. Must be 1..20 and min ≤ max.`);
+      }
+      data.minGrade = min;
+      data.maxGrade = max;
+    }
 
     const row = await this.prisma.school.update({ where: { id: schoolId }, data });
     return { ok: true, school: row };

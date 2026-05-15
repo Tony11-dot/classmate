@@ -8,6 +8,8 @@ class AuthMe {
     required this.cohortId,
     required this.schoolName,
     required this.schoolLogoUrl,
+    this.schoolMinGrade,
+    this.schoolMaxGrade,
   });
 
   final String? id;
@@ -18,6 +20,8 @@ class AuthMe {
   final String? cohortId;
   final String? schoolName;
   final String? schoolLogoUrl;
+  final int? schoolMinGrade;
+  final int? schoolMaxGrade;
 
   static AuthMe fromJson(Map<String, dynamic> j) {
     final roles0 =
@@ -32,6 +36,8 @@ class AuthMe {
       cohortId: j['cohortId']?.toString(),
       schoolName: j['schoolName']?.toString(),
       schoolLogoUrl: j['schoolLogoUrl']?.toString(),
+      schoolMinGrade: (j['schoolMinGrade'] as num?)?.toInt(),
+      schoolMaxGrade: (j['schoolMaxGrade'] as num?)?.toInt(),
     );
   }
 }

@@ -119,14 +119,18 @@ export class AuthController {
       } catch {}
     }
 
+    let schoolMinGrade: number | null = null;
+    let schoolMaxGrade: number | null = null;
     if (schoolId) {
       try {
         const school = await this.prisma.school.findUnique({
           where: { id: schoolId },
-          select: { name: true, logoUrl: true },
-        });
+          select: { name: true, logoUrl: true, minGrade: true, maxGrade: true } as any,
+        }) as any;
         schoolName = school?.name ?? null;
         schoolLogoUrl = school?.logoUrl ?? null;
+        schoolMinGrade = school?.minGrade ?? null;
+        schoolMaxGrade = school?.maxGrade ?? null;
       } catch {}
     }
 
@@ -152,6 +156,8 @@ export class AuthController {
       cohortName,
       schoolName,
       schoolLogoUrl,
+      schoolMinGrade,
+      schoolMaxGrade,
       fullName,
       displayName,
       nameEn,

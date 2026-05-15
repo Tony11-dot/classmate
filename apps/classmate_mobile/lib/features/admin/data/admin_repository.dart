@@ -189,12 +189,14 @@ class AdminRepository {
     return AdminSchool.fromJson(_m(s));
   }
 
-  Future<AdminSchool> updateMySchool({String? name, String logoUrl = ''}) async {
+  Future<AdminSchool> updateMySchool({String? name, String logoUrl = '', int? minGrade, int? maxGrade}) async {
     // Always include logoUrl so the server knows to clear it when empty.
     // Empty string → null (clear); non-empty → set.
     final raw = await _api.patchJson('/admin/school', body: {
       if (name != null) 'name': name,
       'logoUrl': logoUrl.trim().isEmpty ? null : logoUrl.trim(),
+      if (minGrade != null) 'minGrade': minGrade,
+      if (maxGrade != null) 'maxGrade': maxGrade,
     });
     return AdminSchool.fromJson(_m(_m(raw)['school']));
   }
@@ -466,15 +468,21 @@ class AdminSchool {
     required this.id,
     required this.name,
     this.logoUrl,
+    this.minGrade = 5,
+    this.maxGrade = 12,
   });
 
   final String id;
   final String name;
   final String? logoUrl;
+  final int minGrade;
+  final int maxGrade;
 
   factory AdminSchool.fromJson(Map<String, dynamic> m) => AdminSchool(
         id: m['id']?.toString() ?? '',
         name: m['name']?.toString() ?? '',
         logoUrl: m['logoUrl']?.toString(),
+        minGrade: (m['minGrade'] as num?)?.toInt() ?? 5,
+        maxGrade: (m['maxGrade'] as num?)?.toInt() ?? 12,
       );
 }
