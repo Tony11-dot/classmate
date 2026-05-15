@@ -600,7 +600,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
       child: Stack(
         children: [
           if (_loading)
-            const Center(child: const CmLoading())
+            const Center(child: CmLoading())
           else if (_error != null)
             _CenteredState(
                 icon: Icons.error_outline_rounded,
@@ -778,7 +778,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
       child: Stack(
         children: [
           if (_loading)
-            const Center(child: const CmLoading())
+            const Center(child: CmLoading())
           else if (_error != null)
             _CenteredState(
                 icon: Icons.error_outline_rounded,
@@ -936,7 +936,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
       child: Stack(
         children: [
           if (_loading)
-            const Center(child: const CmLoading())
+            const Center(child: CmLoading())
           else if (_error != null)
             _CenteredState(
                 icon: Icons.error_outline_rounded,
@@ -1058,7 +1058,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    if (_loading) return const Center(child: const CmLoading());
+    if (_loading) return const Center(child: CmLoading());
     if (_error != null) {
       return _CenteredState(icon: Icons.error_outline_rounded, title: l.teacherCouldNotLoad, subtitle: _error!);
     }

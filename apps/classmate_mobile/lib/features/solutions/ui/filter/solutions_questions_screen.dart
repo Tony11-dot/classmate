@@ -226,7 +226,7 @@ class _SolutionsQuestionsScreenState
             ),
             const SizedBox(height: 10),
             if (exactAsync.isLoading && _exactItems.isEmpty)
-              const Center(child: const CmLoading())
+              const Center(child: CmLoading())
             else if (_exactItems.isEmpty)
               _EmptyCard(
                 text: l.solutionsExactQuestionEmptyBody,
@@ -259,7 +259,7 @@ class _SolutionsQuestionsScreenState
             ),
             const SizedBox(height: 10),
             if (samePageAsync.isLoading && _samePageItems.isEmpty)
-              const Center(child: const CmLoading())
+              const Center(child: CmLoading())
             else if (_samePageItems.isEmpty)
               _EmptyCard(
                 text: l.solutionsSamePageEmptyBody,

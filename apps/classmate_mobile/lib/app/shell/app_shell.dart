@@ -41,20 +41,6 @@ const _teacherBottomNavPaths = <String>{
   '/messages',
 };
 
-const _adminBottomNavPaths = <String>{
-  '/admin/dashboard',
-  '/admin/people',
-  '/admin/cohorts',
-  '/admin/schedule',
-  '/messages',
-};
-
-const _secretaryBottomNavPaths = <String>{
-  '/announcements',
-  '/secretary/students',
-  '/messages',
-};
-
 String _routePathOnly(String loc) {
   final uri = Uri.tryParse(loc);
   return (uri?.path ?? loc).toLowerCase();

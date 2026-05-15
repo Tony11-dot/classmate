@@ -96,7 +96,7 @@ class PracticeHistoryScreen extends ConsumerWidget {
         ],
       ),
       body: history.when(
-        loading: () => const Center(child: const CmLoading()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(_friendlyError(context, e))),
         data: (sessions) {
           if (sessions.isEmpty) {

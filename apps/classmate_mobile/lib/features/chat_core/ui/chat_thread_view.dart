@@ -14,7 +14,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/native_glass_view.dart';
 import '../../../core/realtime/realtime_listener.dart';
 import '../controllers/chat_thread_controller.dart';
 import '../domain/chat_delete_mode.dart';
@@ -1554,7 +1553,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
             data: buildBody,
             loading: () => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
-                : const Center(child: const CmLoading()),
+                : const Center(child: CmLoading()),
             error: (err, _) => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
                 : Center(child: Text('Error: $err')),

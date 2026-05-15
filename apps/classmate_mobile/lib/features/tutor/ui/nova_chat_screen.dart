@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
-import '../../../ui/glass/native_glass_view.dart';
 import '../../chat_core/ui/chat_recording_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:classmate_mobile/features/chat_core/ui/chat_scroll_to_bottom_fab.dart';

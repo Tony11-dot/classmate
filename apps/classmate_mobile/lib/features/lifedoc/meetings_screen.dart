@@ -1258,7 +1258,7 @@ class _MeetingsLoadingBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: const CmLoading());
+    return const Center(child: CmLoading());
   }
 }
 
@@ -1299,7 +1299,7 @@ class _DetailLoadingBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: const CmLoading());
+    return const Center(child: CmLoading());
   }
 }
 

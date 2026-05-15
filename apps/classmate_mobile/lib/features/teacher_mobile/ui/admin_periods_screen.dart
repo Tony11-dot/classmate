@@ -203,7 +203,7 @@ class _PeriodTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
-              Text('$start', style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
+              Text(start, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
             ],
           ),
         ),
@@ -515,7 +515,6 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                   final id = s['id']?.toString() ?? '';
                   final name = s['name']?.toString() ?? '';
                   final grade = s['grade'];
-                  final cohortName = s['cohortName']?.toString() ?? '';
                   final sub = grade != null ? 'Grade $grade' : '';
                   final selected = _studentIds.contains(id);
                   return CheckboxListTile(

@@ -25,7 +25,7 @@ class MessageRequestScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l.messagesRequestTitle)),
       body: request.when(
-        loading: () => const Center(child: const CmLoading()),
+        loading: () => const Center(child: CmLoading()),
         error: (error, stackTrace) => Center(
           child: Text(l.messagesRequestLoadFailed(error.toString())),
         ),

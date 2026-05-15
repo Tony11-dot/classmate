@@ -89,7 +89,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : (_localPath != null
               ? PDFView(
                   filePath: _localPath!,

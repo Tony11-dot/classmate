@@ -722,10 +722,12 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
         }
       }
       final periods = map.keys.toList()..sort();
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _times..clear()..addAll(map);
         _periods..clear()..addAll(periods);
       });
+      }
     } catch (_) {
       for (var i = 1; i <= 9; i++) {
         _times.putIfAbsent(i, () => _PeriodTime(start: '', end: ''));
@@ -752,10 +754,6 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
   }
 
   Future<void> _save() async {
-    final toSave = _periods
-        .map((i) => _times[i])
-        .whereType<_PeriodTime>()
-        .toList();
     // Pair with period numbers
     final payload = <Map<String, dynamic>>[];
     for (final p in _periods) {

@@ -81,7 +81,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(

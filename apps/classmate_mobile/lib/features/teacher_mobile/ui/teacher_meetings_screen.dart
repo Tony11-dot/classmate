@@ -119,7 +119,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
                 ]))),
 
           if (_loading && _meetings.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_meetings.isEmpty)
             Center(child: Padding(padding: const EdgeInsets.all(40),
               child: Column(children: [
@@ -340,7 +340,9 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
     final result = <String>[];
     void add(List<String> names) { for (final n in names) { if (seen.add(n)) result.add(n); } }
     if (_selectedCourseId != null) add(_memberCache[_selectedCourseId!] ?? []);
-    for (final id in _selectedCohortIds) add(_memberCache[id] ?? []);
+    for (final id in _selectedCohortIds) {
+      add(_memberCache[id] ?? []);
+    }
     result.sort();
     return result;
   }
@@ -377,7 +379,6 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
 
   Future<void> _openClassroomPickerMtg(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     await showModalBottomSheet<void>(
       context: context, isScrollControlled: true, useSafeArea: true,
       backgroundColor: cs.surfaceContainerLow,
@@ -389,16 +390,6 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
         onSelect: (id) => setState(() => _selectedCourseId = id.isEmpty ? null : id),
       ),
     );
-  }
-
-  String _targetSummary() {
-    if (_targetType == 'EVERYONE') return 'Everyone';
-    if (_targetType == 'COHORT') {
-      if (_selectedCohortIds.isEmpty) return 'No cohorts selected';
-      return _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', ');
-    }
-    if (_selectedStudentIds.isEmpty) return 'No students selected';
-    return '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}';
   }
 
   Future<void> _pickDateTime({required bool isStart}) async {
@@ -515,7 +506,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
               label: Text(AppLocalizations.of(context)!.actionSave))),
         ],
       ),
-      body: _loading ? const Center(child: const CmLoading())
+      body: _loading ? const Center(child: CmLoading())
           : ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
@@ -524,7 +515,9 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                 _SectionCard(title: 'Audience', child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _MtgAudiencePicker(icon: Icons.class_rounded, label: 'Classrooms', summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPickerMtg(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
                   const SizedBox(height: 8),
-                  _MtgAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPickerMtg(); for (final id in _selectedCohortIds) _fetchMembersFor(id); }, cs: cs, theme: theme),
+                  _MtgAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPickerMtg(); for (final id in _selectedCohortIds) {
+                    _fetchMembersFor(id);
+                  } }, cs: cs, theme: theme),
                   const SizedBox(height: 8),
                   _MtgAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
                   if (_previewMembers.isNotEmpty) ...[

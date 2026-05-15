@@ -450,13 +450,13 @@ class AuthSession extends ChangeNotifier {
     final api = CMApi(token: currentToken);
     try {
       await api.patchJson('/auth/profile/name', body: <String, dynamic>{
-        if (nameEn != null) 'nameEn': nameEn,
-        if (nameAr != null) 'nameAr': nameAr,
-        if (nameHe != null) 'nameHe': nameHe,
-        if (nameFr != null) 'nameFr': nameFr,
-        if (nameRu != null) 'nameRu': nameRu,
-        if (displayNameLang != null) 'displayNameLang': displayNameLang,
-        if (displayName != null) 'displayName': displayName,
+        'nameEn': ?nameEn,
+        'nameAr': ?nameAr,
+        'nameHe': ?nameHe,
+        'nameFr': ?nameFr,
+        'nameRu': ?nameRu,
+        'displayNameLang': ?displayNameLang,
+        'displayName': ?displayName,
       });
       // Persist locally
       final prefs = await SharedPreferences.getInstance();

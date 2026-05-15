@@ -289,7 +289,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(24),
           ),
-          child: const Center(child: const CmLoading()),
+          child: const Center(child: CmLoading()),
         ),
         const SizedBox(height: 12),
         ...List.generate(3, (i) => Padding(

@@ -418,7 +418,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   Widget _peopleTab(AsyncValue<Map<String, dynamic>> people) {
     final l = AppLocalizations.of(context)!;
     return people.when(
-      loading: () => const Center(child: const CmLoading()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, st) => _CenteredState(
         icon: Icons.group_outlined,
         title: l.classroomDetailCouldNotLoadPeople,
@@ -606,7 +606,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   }) {
     final l = AppLocalizations.of(context)!;
     return value.when(
-      loading: () => const Center(child: const CmLoading()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, st) => _CenteredState(
         icon: Icons.cloud_off_rounded,
         title: l.classroomDetailCouldNotLoadTab,

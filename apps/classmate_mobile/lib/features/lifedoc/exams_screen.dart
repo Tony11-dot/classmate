@@ -88,7 +88,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     });
 
     if ((asyncExams?.isLoading ?? false) || (asyncForms?.isLoading ?? false)) {
-      return const Center(child: const CmLoading());
+      return const Center(child: CmLoading());
     }
 
     if ((asyncExams?.hasError ?? false) || (asyncForms?.hasError ?? false)) {
@@ -130,9 +130,6 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     final headerIcon = isFormsOnly
         ? Icons.article_rounded
         : Icons.fact_check_rounded;
-    final content = isFormsOnly
-        ? _FormsTab(filtered: filteredForms, filter: _filter)
-        : _ExamsTab(filtered: filteredExams, filter: _filter);
 
     Widget header() {
       return Padding(
@@ -324,99 +321,6 @@ class _HeaderStat extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ExamsTab extends StatelessWidget {
-  const _ExamsTab({required this.filtered, required this.filter});
-
-  final List<StudentExamItem> filtered;
-  final String filter;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final l = AppLocalizations.of(context)!;
-    if (filtered.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: LiquidGlassCard(
-            padding: const EdgeInsets.all(20),
-            borderRadius: BorderRadius.circular(24),
-            color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
-            child: Text(
-              _filterMessage(
-                l,
-                filter,
-                emptyFallback: l.examsNoExamsPublished,
-                filteredMessageBuilder: l.examsNoExamsForFilter,
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-      itemCount: filtered.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final exam = filtered[index];
-        return _ExamCard(
-          exam: exam,
-          status: _statusOf(exam),
-          countdown: _countdownLabel(l, exam),
-        );
-      },
-    );
-  }
-}
-
-class _FormsTab extends StatelessWidget {
-  const _FormsTab({required this.filtered, required this.filter});
-
-  final List<StudentFormItem> filtered;
-  final String filter;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final l = AppLocalizations.of(context)!;
-    if (filtered.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: LiquidGlassCard(
-            padding: const EdgeInsets.all(20),
-            borderRadius: BorderRadius.circular(24),
-            color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
-            child: Text(
-              _filterMessage(
-                l,
-                filter,
-                emptyFallback: l.examsNoFormsPublished,
-                filteredMessageBuilder: l.examsNoFormsForFilter,
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-      itemCount: filtered.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _FormCard(form: filtered[index]),
     );
   }
 }
@@ -702,12 +606,3 @@ class _SmallChip extends StatelessWidget {
   }
 }
 
-String _filterMessage(
-  AppLocalizations l,
-  String filter, {
-  required String emptyFallback,
-  required String Function(String) filteredMessageBuilder,
-}) {
-  if (filter == _allSubjectsFilter) return emptyFallback;
-  return filteredMessageBuilder(filter);
-}

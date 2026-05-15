@@ -1,6 +1,5 @@
 // ignore_for_file: use_null_aware_elements
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -268,7 +267,6 @@ class TeacherMobileRepository {
     return _asList(map['classrooms'])
         .map((item) {
           final m = _asMap(item);
-          final count = m['_count'] is Map ? (m['_count'] as Map)['members'] as int? ?? 0 : (m['memberCount'] as int? ?? 0);
           return TeacherCourse(
             id: _asString(m['id']),
             name: _asString(m['name']),

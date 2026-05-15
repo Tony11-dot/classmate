@@ -519,40 +519,6 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
-  // Legacy multipart path — kept for backward compat but no longer called.
-  Future<Map<String, dynamic>> _submitMultipart(
-    String courseId,
-    String assignmentId, {
-    String? note,
-    List<String> filePaths = const [],
-  }) async {
-    final uri = _uri('/student/classrooms/$courseId/assignments/$assignmentId/submit');
-    final headers = await _headers();
-    final req = http.MultipartRequest('POST', uri)
-      ..headers.addAll(headers);
-    if ((note ?? '').trim().isNotEmpty) req.fields['note'] = note!.trim();
-    for (final path in filePaths) {
-      if (path.trim().isEmpty) continue;
-      try {
-        final name = path.split('/').last;
-        req.files.add(await http.MultipartFile.fromPath('files', path, filename: name));
-      } catch (_) {}
-    }
-    final streamed = await req.send().timeout(_timeout);
-    final body = await streamed.stream.bytesToString();
-    if (streamed.statusCode >= 400) {
-      throw Exception('Submit failed: ${streamed.statusCode}');
-    }
-    if (body.trim().isEmpty) return <String, dynamic>{'ok': true};
-    try {
-      final j = jsonDecode(body);
-      if (j is! Map) return <String, dynamic>{'ok': true};
-      return Map<String, dynamic>.from(j);
-    } catch (_) {
-      return <String, dynamic>{'ok': true};
-    }
-  }
-
   Future<Map<String, dynamic>> sendChatText(
     String courseId,
     String text, {

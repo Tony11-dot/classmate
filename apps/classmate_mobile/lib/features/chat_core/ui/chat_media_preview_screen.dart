@@ -299,7 +299,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   Widget _buildVideoPreview() {
     if (_videoCtl == null || !_videoCtl!.value.isInitialized) {
-      return const Center(child: const CmLoading());
+      return const Center(child: CmLoading());
     }
 
     final c = _videoCtl!;

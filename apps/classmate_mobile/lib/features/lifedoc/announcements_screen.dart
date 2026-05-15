@@ -267,7 +267,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
 
     return announcementsAsync.when(
       loading: () => const Scaffold(
-        body: Center(child: const CmLoading()),
+        body: Center(child: CmLoading()),
       ),
       error: (error, _) => Scaffold(
         body: ListView(
@@ -542,7 +542,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
 
     return announcementsAsync.when(
       loading: () => const Scaffold(
-        body: Center(child: const CmLoading()),
+        body: Center(child: CmLoading()),
       ),
       error: (error, _) => Scaffold(
         body: SafeArea(

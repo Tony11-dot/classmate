@@ -328,7 +328,7 @@ class _Thumb extends StatelessWidget {
           if (progress == null) return child;
           return Container(
             color: cs.surfaceContainerLow,
-            child: const Center(child: const CmLoading()),
+            child: const Center(child: CmLoading()),
           );
         },
         errorBuilder: (ctx, err, trace) => Container(

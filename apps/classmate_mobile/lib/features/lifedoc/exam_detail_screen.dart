@@ -134,7 +134,7 @@ class ExamDetailScreen extends ConsumerWidget {
     final asyncExam = ref.watch(examsLiveProvider);
     return asyncExam.when(
       loading: () => const Scaffold(
-        body: Center(child: const CmLoading()),
+        body: Center(child: CmLoading()),
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),

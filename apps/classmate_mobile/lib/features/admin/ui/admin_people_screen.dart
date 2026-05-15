@@ -52,7 +52,6 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final session = ref.watch(authSessionProvider);
     final isAdmin = session.primaryRole == 'ADMIN';
 

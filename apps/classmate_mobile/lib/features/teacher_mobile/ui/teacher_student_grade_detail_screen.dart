@@ -388,7 +388,6 @@ class _TeacherStudentGradeDetailScreenState
                                     Builder(builder: (ctx) {
                                       final ungraded = rows.where((e) => e.grade == null).toList();
                                       final graded = rows.where((e) => e.grade != null).toList();
-                                      final allRows = [...ungraded, ...graded];
 
                                       return Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -175,7 +175,7 @@ class _TeacherAssignmentDetailScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : _error != null
               ? Center(
                   child: Padding(

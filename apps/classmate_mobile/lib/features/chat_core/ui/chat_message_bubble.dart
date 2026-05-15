@@ -9,7 +9,6 @@ import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../utils/chat_reply_codec.dart';
 import 'chat_audio_bubble.dart';
-import '../../../ui/widgets/cm_loading.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({

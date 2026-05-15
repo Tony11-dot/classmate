@@ -173,7 +173,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
             ),
 
           if (_loading && _exams.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_exams.isEmpty)
             Center(
               child: Padding(

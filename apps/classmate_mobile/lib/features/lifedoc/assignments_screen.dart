@@ -711,10 +711,6 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
           final courseName = _stringValue(assignment, '_courseName');
           final subject = _stringValue(assignment, '_subject');
           final teacherName = _stringValue(assignment, '_teacherName');
-          final createdBy = _firstNonEmpty([
-            _stringValue(assignment, 'createdBy'),
-            teacherName,
-          ]);
 
           return SafeArea(
             bottom: false,

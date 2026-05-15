@@ -76,7 +76,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: const CmLoading());
+            return const Center(child: CmLoading());
           }
 
           if (snapshot.hasError) {

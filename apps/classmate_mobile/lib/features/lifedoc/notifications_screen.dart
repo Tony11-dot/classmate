@@ -130,7 +130,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       body: async.when(
-        loading: () => const Center(child: const CmLoading()),
+        loading: () => const Center(child: CmLoading()),
         error: (error, _) => Center(child: Text(error.toString())),
         data: (items) {
           final sources = items.map((item) => item.source).toSet().toList()..sort();
@@ -503,7 +503,7 @@ class _NotificationDetailScreenState
         loading: () {
           final initial = widget.initialNotification;
           if (initial == null) {
-            return const Center(child: const CmLoading());
+            return const Center(child: CmLoading());
           }
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),

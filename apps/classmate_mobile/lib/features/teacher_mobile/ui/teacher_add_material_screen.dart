@@ -146,7 +146,9 @@ class _TeacherAddMaterialScreenState
     final result = <String>[];
     void add(List<String> names) { for (final n in names) { if (seen.add(n)) result.add(n); } }
     if (_selectedCourseId != null) add(_memberCache[_selectedCourseId!] ?? []);
-    for (final id in _selectedCohortIds) add(_memberCache[id] ?? []);
+    for (final id in _selectedCohortIds) {
+      add(_memberCache[id] ?? []);
+    }
     result.sort();
     return result;
   }
@@ -164,16 +166,6 @@ class _TeacherAddMaterialScreenState
         if (mounted) setState(() => _memberCache[id] = students.map((s) => s.name).toList());
       }
     } catch (_) {}
-  }
-
-  String _targetSummary() {
-    if (_targetType == 'EVERYONE') return 'Everyone';
-    if (_targetType == 'COHORT') {
-      if (_selectedCohortIds.isEmpty) return 'No cohorts selected';
-      return _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', ');
-    }
-    if (_selectedStudentIds.isEmpty) return 'No students selected';
-    return '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}';
   }
 
   Future<void> _pickFile() async {
@@ -301,7 +293,6 @@ class _TeacherAddMaterialScreenState
 
   Future<void> _openClassroomPicker(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -380,7 +371,7 @@ class _TeacherAddMaterialScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
@@ -393,7 +384,9 @@ class _TeacherAddMaterialScreenState
                     children: [
                       _MatAudiencePicker(icon: Icons.class_rounded, label: 'Classrooms', summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPicker(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
                       const SizedBox(height: 8),
-                      _MatAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPicker(); for (final id in _selectedCohortIds) _fetchMembersFor(id); }, cs: cs, theme: theme),
+                      _MatAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPicker(); for (final id in _selectedCohortIds) {
+                        _fetchMembersFor(id);
+                      } }, cs: cs, theme: theme),
                       const SizedBox(height: 8),
                       _MatAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
                       if (_previewMembers.isNotEmpty) ...[
@@ -791,7 +784,7 @@ class _TeacherMaterialsStandaloneScreenState
                 TextButton(onPressed: _load, child: const Text('Retry')),
               ])),
           if (_loading && _materials.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_materials.isEmpty)
             Center(child: Padding(padding: const EdgeInsets.all(40),
               child: Column(children: [

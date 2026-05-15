@@ -49,11 +49,13 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
         ref.read(adminRepositoryProvider).getDdlStudents(),
         ref.read(adminRepositoryProvider).getDdlCohorts(),
       ]);
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _students = students;
         _cohorts  = cohorts;
         _loading  = false;
       });
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -549,13 +551,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               pw.SizedBox(width: 12),
               pw.Expanded(child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
                 pw.Text('ClassMate', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                if (schoolName.isNotEmpty) pw.Text(schoolName, style: const pw.TextStyle(fontSize: 11, color: const PdfColor(1, 1, 1, 0.7))),
+                if (schoolName.isNotEmpty) pw.Text(schoolName, style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
               ])),
               pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
                 pw.Text('Student Directory', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: const PdfColor(1, 1, 1, 0.7))),
-                pw.Text('By: $exportedBy', style: const pw.TextStyle(fontSize: 10, color: const PdfColor(1, 1, 1, 0.7))),
-                pw.Text('${students.length} students', style: const pw.TextStyle(fontSize: 10, color: const PdfColor(1, 1, 1, 0.7))),
+                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                pw.Text('By: $exportedBy', style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                pw.Text('${students.length} students', style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
               ]),
             ],
           ),

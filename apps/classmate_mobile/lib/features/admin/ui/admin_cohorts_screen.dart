@@ -270,7 +270,6 @@ class AdminAddStudentsScreen extends StatefulWidget {
 class _AdminAddStudentsScreenState extends State<AdminAddStudentsScreen> {
   List<Map<String, dynamic>> _allStudents = [];
   final Set<String> _selected = {};
-  String _search = '';
   bool _loading = true;
   bool _saving = false;
 
@@ -339,7 +338,7 @@ class _AdminAddStudentsScreen extends StatefulWidget {
 
 class _AdminAddStudentsFromCreateState extends State<_AdminAddStudentsScreen> {
   final Set<String> _selected = {};
-  bool _saving = false;
+  final bool _saving = false;
 
   Future<void> _save() async {
     // Can't add students without cohortId — cohort doesn't return id on creation yet.
@@ -841,53 +840,6 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
   }
 }
 
-// ── Detail header (no AppBar) ─────────────────────────────────────────────────
-
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader({
-    required this.cohortName,
-    required this.isAdmin,
-    required this.onBack,
-    required this.onRename,
-  });
-
-  final String cohortName;
-  final bool isAdmin;
-  final VoidCallback onBack;
-  final VoidCallback onRename;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded),
-              onPressed: onBack,
-            ),
-            Expanded(
-              child: Text(
-                cohortName,
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (isAdmin)
-              IconButton(
-                icon: const Icon(Icons.edit_rounded),
-                onPressed: onRename,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ── Roster tile ────────────────────────────────────────────────────────────────
 

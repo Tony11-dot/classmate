@@ -136,7 +136,7 @@ class _TeacherAttendanceHistoryScreenState
 
           // ── Content ─────────────────────────────────────────────────────
           if (_loading)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_error != null)
             LiquidGlassCard(
               color: cs.errorContainer,

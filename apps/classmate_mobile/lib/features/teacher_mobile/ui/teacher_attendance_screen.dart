@@ -434,7 +434,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 ),
                 const SizedBox(height: 12),
                 if (_loading && _today == null)
-                  const Center(child: Padding(padding: EdgeInsets.all(20), child: const CmLoading()))
+                  const Center(child: Padding(padding: EdgeInsets.all(20), child: CmLoading()))
                 else if (slots.isEmpty)
                   Text(ScheduleEmptyStateCopy.subtitle(l, l.today))
                 else

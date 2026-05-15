@@ -85,7 +85,6 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
   Widget build(BuildContext context) {
     final l  = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final periodsAsync   = ref.watch(_periodsProvider);
     final cohortsAsync   = ref.watch(_cohortsDdlProvider);
     final studentsAsync  = ref.watch(_studentsDdlProvider);
@@ -137,7 +136,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 // Cohort filter
                 _FilterChipItem(
                   label: _filterMode == 'cohort'
-                      ? (allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort') + ' ▾'
+                      ? '${allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort'} ▾'
                       : 'By Cohort ▾',
                   selected: _filterMode == 'cohort',
                   onTap: () async {
@@ -157,7 +156,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 // Student filter
                 _FilterChipItem(
                   label: _filterMode == 'student'
-                      ? (allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student') + ' ▾'
+                      ? '${allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student'} ▾'
                       : 'By Student ▾',
                   selected: _filterMode == 'student',
                   onTap: () async {
@@ -204,83 +203,6 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Period card ────────────────────────────────────────────────────────────────
-
-class _PeriodCard extends StatelessWidget {
-  const _PeriodCard({required this.slot, required this.onDelete});
-  final Map<String, dynamic> slot;
-  final VoidCallback onDelete;
-
-  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  static const _freqLabels = {1: 'Weekly', 2: 'Bi-weekly', 4: 'Monthly'};
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final period = (slot['period'] as num?)?.toInt() ?? 0;
-    final dow = (slot['dayOfWeek'] as num?)?.toInt() ?? 0;
-    final start = slot['startTime']?.toString() ?? '';
-    final end = slot['endTime']?.toString() ?? '';
-    final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
-    final teacherName = (slot['teacher'] is Map) ? slot['teacher']['name']?.toString() ?? '' : '';
-    final cohorts = slot['cohorts'] as List? ?? [];
-    final cohortNames = cohorts
-        .whereType<Map>()
-        .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
-        .where((n) => n.isNotEmpty)
-        .join(', ');
-    final freqLabel = _freqLabels[freq] ?? 'Every $freq wks';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.fromLTRB(14, 4, 8, 4),
-        leading: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('P$period',
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
-              if (dow < _dayShort.length)
-                Text(_dayShort[dow],
-                    style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.7))),
-            ],
-          ),
-        ),
-        title: Text(
-          teacherName.isNotEmpty ? teacherName : 'No teacher',
-          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        subtitle: Text(
-          [
-            if (cohortNames.isNotEmpty) cohortNames,
-            if (start.isNotEmpty && end.isNotEmpty) '$start–$end',
-            freqLabel,
-          ].join(' · '),
-          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete_outline_rounded, color: cs.error),
-          onPressed: onDelete,
-        ),
       ),
     );
   }
@@ -390,7 +312,6 @@ class _GridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final hasSlots = slots.isNotEmpty;
 
     return GestureDetector(
@@ -461,156 +382,6 @@ class _SlotCard extends StatelessWidget {
               child: Text('×$freq wks', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: cs.onSecondaryContainer)),
             ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Cell detail screen ─────────────────────────────────────────────────────────
-
-class _CellDetailScreen extends StatelessWidget {
-  const _CellDetailScreen({
-    required this.day,
-    required this.period,
-    required this.slots,
-    required this.dayName,
-    required this.onDelete,
-    required this.onAdd,
-  });
-
-  final int day;
-  final int period;
-  final List<Map<String, dynamic>> slots;
-  final String dayName;
-  final Future<void> Function(String id) onDelete;
-  final VoidCallback onAdd;
-
-  static const _freqLabels = {1: 'Weekly', 2: 'Bi-weekly', 4: 'Monthly'};
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Period $period', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                        Text(dayName, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                  ),
-                  FilledButton.icon(
-                    onPressed: onAdd,
-                    icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text('Add here'),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: slots.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.event_busy_rounded, size: 48, color: cs.outlineVariant),
-                          const SizedBox(height: 12),
-                          Text('No classes at this time', style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: slots.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (ctx, i) {
-                        final s = slots[i];
-                        final subject     = s['subject']?.toString() ?? '';
-                        final teacherName = s['teacher'] is Map ? (s['teacher']['name']?.toString() ?? '') : '';
-                        final cohorts     = s['cohorts'] as List? ?? [];
-                        final cohortNames = cohorts.whereType<Map>()
-                            .map((c) => c['cohort'] is Map ? c['cohort']['name']?.toString() ?? '' : '')
-                            .where((n) => n.isNotEmpty)
-                            .join(', ');
-                        final freq = (s['frequencyWeeks'] as num?)?.toInt() ?? 1;
-                        final startDate = s['startDate']?.toString() ?? '';
-                        final start = s['startTime']?.toString() ?? '';
-                        final end   = s['endTime']?.toString() ?? '';
-
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                            title: Text(
-                              subject.isNotEmpty ? subject : teacherName.isNotEmpty ? teacherName : 'Period $period',
-                              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (teacherName.isNotEmpty) Text(teacherName, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                                if (cohortNames.isNotEmpty) Text(cohortNames, style: theme.textTheme.labelSmall?.copyWith(color: cs.primary)),
-                                Text(
-                                  [
-                                    _freqLabels[freq] ?? 'Every $freq wks',
-                                    if (startDate.isNotEmpty) 'from $startDate',
-                                    if (start.isNotEmpty && end.isNotEmpty) '$start–$end',
-                                  ].join(' · '),
-                                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                                ),
-                              ],
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(Icons.delete_outline_rounded, color: cs.error),
-                              onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: ctx,
-                                  builder: (d) => AlertDialog(
-                                    title: const Text('Delete period?'),
-                                    content: const Text('This will remove this class from the schedule.'),
-                                    actions: [
-                                      TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-                                      FilledButton(
-                                        onPressed: () => Navigator.pop(d, true),
-                                        style: FilledButton.styleFrom(backgroundColor: Theme.of(d).colorScheme.error),
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                if (confirm != true || !ctx.mounted) return;
-                                await onDelete(s['id'].toString());
-                                if (ctx.mounted) Navigator.pop(ctx);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -694,7 +465,6 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
   late final List<_DayPeriodSlot> _slots;
 
   String? _teacherId;
-  String? _teacherName;
   final Set<String> _cohortIds  = {};
   final Set<String> _studentIds = {};
   int? _audienceGrade;
@@ -809,7 +579,7 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
       if (created < _slots.length && firstError != null) {
         // Partial success
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Created $created/${_slots.length} slots. ${firstError}'),
+          content: Text('Created $created/${_slots.length} slots. $firstError'),
           duration: const Duration(seconds: 5),
         ));
       }
@@ -878,13 +648,7 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                 )),
               ],
               onChanged: (v) => setState(() {
-                if (v.isEmpty) { _teacherId = null; _teacherName = null; }
-                else {
-                  _teacherId = v;
-                  _teacherName = widget.teachers
-                      .firstWhere((t) => t['id']?.toString() == v, orElse: () => const {})['name']
-                      ?.toString();
-                }
+                _teacherId = v.isEmpty ? null : v;
               }),
             ),
             const SizedBox(height: 16),
@@ -1154,180 +918,6 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ── Search picker field (single selection) ────────────────────────────────────
-
-class _SearchPickerField extends StatelessWidget {
-  const _SearchPickerField({
-    required this.value,
-    required this.hintText,
-    required this.searchHint,
-    required this.items,
-    required this.nameKey,
-    required this.subtitleKey,
-    required this.onSelected,
-    required this.onClear,
-  });
-
-  final String? value;
-  final String hintText;
-  final String searchHint;
-  final List<Map<String, dynamic>> items;
-  final String nameKey;
-  final String? subtitleKey;
-  final void Function(Map<String, dynamic> item) onSelected;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final hasValue = value != null && value!.isNotEmpty;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => _openPicker(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: cs.outlineVariant),
-          borderRadius: BorderRadius.circular(12),
-          color: cs.surfaceContainerLow,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                hasValue ? value! : hintText,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
-                  fontWeight: hasValue ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
-            ),
-            if (hasValue)
-              GestureDetector(
-                onTap: onClear,
-                child: Icon(Icons.close_rounded, size: 18, color: cs.onSurfaceVariant),
-              )
-            else
-              Icon(Icons.arrow_drop_down_rounded, color: cs.onSurfaceVariant),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openPicker(BuildContext ctx) async {
-    final selected = await showModalBottomSheet<Map<String, dynamic>>(
-      context: ctx,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(ctx).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (bCtx) => _SearchPickerSheet(
-        searchHint: searchHint,
-        items: items,
-        nameKey: nameKey,
-        subtitleKey: subtitleKey,
-      ),
-    );
-    if (selected != null) onSelected(selected);
-  }
-}
-
-class _SearchPickerSheet extends StatefulWidget {
-  const _SearchPickerSheet({
-    required this.searchHint,
-    required this.items,
-    required this.nameKey,
-    required this.subtitleKey,
-  });
-
-  final String searchHint;
-  final List<Map<String, dynamic>> items;
-  final String nameKey;
-  final String? subtitleKey;
-
-  @override
-  State<_SearchPickerSheet> createState() => _SearchPickerSheetState();
-}
-
-class _SearchPickerSheetState extends State<_SearchPickerSheet> {
-  String _q = '';
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final q = _q.toLowerCase();
-    final filtered = widget.items.where((item) {
-      final name = (item[widget.nameKey] ?? '').toString().toLowerCase();
-      return q.isEmpty || name.contains(q);
-    }).toList();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: TextField(
-            autofocus: true,
-            onChanged: (v) => setState(() => _q = v),
-            decoration: InputDecoration(
-              hintText: widget.searchHint,
-              prefixIcon: const Icon(Icons.search_rounded, size: 20),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-              isDense: true,
-              filled: true,
-              fillColor: cs.surfaceContainerHigh,
-            ),
-          ),
-        ),
-        if (widget.items.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.person_search_rounded, size: 40, color: cs.outlineVariant),
-                const SizedBox(height: 12),
-                Text(
-                  'No ${widget.searchHint.replaceAll('…', '').replaceAll('Search ', '').trim()} yet.\nCreate them in the People section first.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              ],
-            ),
-          )
-        else
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: filtered.isEmpty && _q.isNotEmpty ? 0 : filtered.length,
-            itemBuilder: (ctx, i) {
-              final item = filtered[i];
-              final name = item[widget.nameKey]?.toString() ?? '';
-              final sub = widget.subtitleKey != null ? item[widget.subtitleKey!]?.toString() : null;
-              return ListTile(
-                title: Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                subtitle: sub != null
-                    ? Text(sub, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant))
-                    : null,
-                onTap: () => Navigator.pop(ctx, item),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
     );
   }
 }

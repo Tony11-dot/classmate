@@ -35,8 +35,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   final List<Map<String, dynamic>> _attachments = [];
   bool _saving = false;
 
-  // Targeting
-  String _targetType = 'EVERYONE';
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
 
@@ -62,7 +60,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       if (dateRaw.isNotEmpty) _selectedDate = DateTime.tryParse(dateRaw);
       _selectedCourseId = exam['courseId']?.toString();
       _selectedSubject = exam['subject']?.toString();
-      _targetType = exam['targetType']?.toString() ?? 'EVERYONE';
 
       final cIds = exam['targetCohortIds'];
       if (cIds is List) _selectedCohortIds.addAll(cIds.map((e) => e.toString()));
@@ -71,7 +68,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       final sIds = exam['targetStudentIds'] ?? exam['prefillStudentIds'];
       if (sIds is List) {
         _selectedStudentIds.addAll(sIds.map((e) => e.toString()));
-        if (_selectedStudentIds.isNotEmpty) _targetType = 'STUDENTS';
       }
 
       final rawAttach = exam['attachments'];
@@ -120,16 +116,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   }
 
   List<String> get _subjects => _schoolSubjects;
-
-  String _targetSummary() {
-    if (_targetType == 'EVERYONE') return 'All students';
-    if (_targetType == 'COHORT') {
-      if (_selectedCohortIds.isEmpty) return 'No cohorts selected';
-      return _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', ');
-    }
-    if (_selectedStudentIds.isEmpty) return 'No students selected';
-    return '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}';
-  }
 
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true);
@@ -231,58 +217,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
     }
   }
 
-  Future<void> _openCohortPicker() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _PersonPickerSheet(
-        title: 'Select classes',
-        items: _cohorts.map((c) => _PickerItem(
-          id: c.id,
-          label: c.name,
-          subtitle: c.grade > 0 ? 'Grade ${c.grade}' : '',
-        )).toList(),
-        selected: Set.from(_selectedCohortIds),
-        onToggle: (id) => setState(() {
-          if (_selectedCohortIds.contains(id)) {
-            _selectedCohortIds.remove(id);
-          } else {
-            _selectedCohortIds.add(id);
-          }
-        }),
-      ),
-    );
-  }
-
-  Future<void> _openStudentPicker() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _PersonPickerSheet(
-        title: 'Select students',
-        items: _allStudents
-            .map((s) => _PickerItem(
-                  id: s.studentId,
-                  label: s.name,
-                  subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : s.cohortName,
-                ))
-            .toList(),
-        selected: Set.from(_selectedStudentIds),
-        onToggle: (id) => setState(() {
-          if (_selectedStudentIds.contains(id)) {
-            _selectedStudentIds.remove(id);
-          } else {
-            _selectedStudentIds.add(id);
-          }
-        }),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -317,7 +251,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         ],
       ),
       body: _loadingData
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
@@ -489,157 +423,3 @@ class _Card extends StatelessWidget {
   }
 }
 
-// ── Person picker sheet (shared) ───────────────────────────────────────────────
-
-class _PickerItem {
-  const _PickerItem({required this.id, required this.label, this.subtitle = ''});
-  final String id;
-  final String label;
-  final String subtitle;
-}
-
-class _PersonPickerSheet extends StatefulWidget {
-  const _PersonPickerSheet({
-    required this.title,
-    required this.items,
-    required this.selected,
-    required this.onToggle,
-  });
-  final String title;
-  final List<_PickerItem> items;
-  final Set<String> selected;
-  final void Function(String id) onToggle;
-
-  @override
-  State<_PersonPickerSheet> createState() => _PersonPickerSheetState();
-}
-
-class _PersonPickerSheetState extends State<_PersonPickerSheet> {
-  final _searchCtrl = TextEditingController();
-  String _query = '';
-  // Local mirror of selected — updates immediately on tap so checkmarks are live.
-  late Set<String> _localSelected;
-
-  @override
-  void initState() {
-    super.initState();
-    _localSelected = Set.from(widget.selected);
-  }
-
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
-  }
-
-  void _toggle(String id) {
-    setState(() {
-      if (_localSelected.contains(id)) {
-        _localSelected.remove(id);
-      } else {
-        _localSelected.add(id);
-      }
-    });
-    // Also update parent so the underlying set stays in sync.
-    widget.onToggle(id);
-  }
-
-  List<_PickerItem> get _filtered {
-    if (_query.trim().isEmpty) return widget.items;
-    final q = _query.toLowerCase();
-    return widget.items.where((i) => i.label.toLowerCase().contains(q)).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (ctx, scroll) => Container(
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-              child: Row(
-                children: [
-                  Expanded(child: Text(widget.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-                  if (_localSelected.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)),
-                      child: Text('${_localSelected.length} selected',
-                          style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12, fontWeight: FontWeight.w700)),
-                    ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-              child: TextField(
-                controller: _searchCtrl,
-                onChanged: (v) => setState(() => _query = v),
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: scroll,
-                itemCount: _filtered.length,
-                itemBuilder: (ctx, i) {
-                  final item = _filtered[i];
-                  final sel = _localSelected.contains(item.id); // ← local, updates live
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: sel ? cs.primaryContainer : cs.surfaceContainerHigh,
-                      child: Text(
-                        item.label.isNotEmpty ? item.label[0].toUpperCase() : '?',
-                        style: TextStyle(fontWeight: FontWeight.w700, color: sel ? cs.onPrimaryContainer : cs.onSurface),
-                      ),
-                    ),
-                    title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle) : null,
-                    trailing: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 150),
-                      child: sel
-                          ? Icon(Icons.check_circle_rounded, key: const ValueKey('checked'), color: cs.primary)
-                          : Icon(Icons.radio_button_unchecked, key: const ValueKey('unchecked'), color: cs.outlineVariant),
-                    ),
-                    onTap: () => _toggle(item.id),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Done (${_localSelected.length} selected)'),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -141,7 +141,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
             ),
 
           if (_loading && _forms.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_forms.isEmpty)
             Center(
               child: Padding(
@@ -295,7 +295,7 @@ class _ResponsesSheetState extends ConsumerState<_ResponsesSheet> {
           Text(widget.l.teacherFormsViewResponses, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: 16),
           if (_loading)
-            const Center(child: const CmLoading())
+            const Center(child: CmLoading())
           else if (_responses.isEmpty)
             Center(
               child: Padding(

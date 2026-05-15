@@ -157,7 +157,9 @@ class _TeacherAddAssignmentScreenState
       }
     }
     if (_selectedCourseId != null) add(_memberCache[_selectedCourseId!] ?? []);
-    for (final id in _selectedCohortIds) add(_memberCache[id] ?? []);
+    for (final id in _selectedCohortIds) {
+      add(_memberCache[id] ?? []);
+    }
     result.sort();
     return result;
   }
@@ -175,26 +177,6 @@ class _TeacherAddAssignmentScreenState
         if (mounted) setState(() => _memberCache[id] = students.map((s) => s.name).toList());
       }
     } catch (_) {}
-  }
-
-  String _targetSummary() {
-    if (_selectedCourseId == null && _selectedCohortIds.isEmpty && _selectedStudentIds.isEmpty) return 'Everyone';
-    if (_selectedCourseId != null && _selectedCohortIds.isEmpty && _selectedStudentIds.isEmpty) {
-      final name = _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? 'classroom';
-      return name;
-    }
-    if (_selectedCourseId == null && _selectedCohortIds.isEmpty) return 'STUDENTS'; // unused path guard
-    if (_targetType == 'EVERYONE') return 'Everyone';
-    if (_targetType == 'COHORT') {
-      if (_selectedCohortIds.isEmpty) return 'No cohorts selected';
-      final names = _cohorts
-          .where((c) => _selectedCohortIds.contains(c.id))
-          .map((c) => c.name)
-          .join(', ');
-      return names;
-    }
-    if (_selectedStudentIds.isEmpty) return 'No students selected';
-    return '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}';
   }
 
   Future<void> _pickFiles() async {
@@ -389,7 +371,7 @@ class _TeacherAddAssignmentScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
@@ -438,7 +420,9 @@ class _TeacherAddAssignmentScreenState
                         summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '),
                         onTap: () async {
                           await _openCohortPicker();
-                          for (final id in _selectedCohortIds) _fetchMembersFor(id);
+                          for (final id in _selectedCohortIds) {
+                            _fetchMembersFor(id);
+                          }
                         },
                         cs: cs,
                         theme: theme,
@@ -723,8 +707,11 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
 
   void _toggle(String id) {
     setState(() {
-      if (_localSelected.contains(id)) _localSelected.remove(id);
-      else _localSelected.add(id);
+      if (_localSelected.contains(id)) {
+        _localSelected.remove(id);
+      } else {
+        _localSelected.add(id);
+      }
     });
     widget.onToggle(id);
   }

@@ -258,7 +258,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: inbox.when(
-          loading: () => const Center(child: const CmLoading()),
+          loading: () => const Center(child: CmLoading()),
           error: (error, stackTrace) =>
               Center(child: Text(l.messagesLoadFailed(error.toString()))),
           data: (items) {

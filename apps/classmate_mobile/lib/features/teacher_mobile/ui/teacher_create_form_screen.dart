@@ -39,7 +39,6 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   bool _saving = false;
 
   // Audience targeting
-  String _targetType = 'EVERYONE';
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
 
@@ -76,16 +75,6 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
 
   List<String> get _subjects =>
       _courses.map((c) => c.subject).where((s) => s.isNotEmpty).toSet().toList()..sort();
-
-  String _targetSummary() {
-    if (_targetType == 'EVERYONE') return 'Everyone';
-    if (_targetType == 'COHORT') {
-      if (_selectedCohortIds.isEmpty) return 'No cohorts selected';
-      return _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', ');
-    }
-    if (_selectedStudentIds.isEmpty) return 'No students selected';
-    return '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}';
-  }
 
   void _addQuestion() {
     setState(() => _questions.add(_FormQuestion()));
@@ -134,25 +123,6 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
     } finally {
       if (mounted) setState(() => _saving = false);
     }
-  }
-
-  Future<void> _openStudentPicker() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _PersonPickerSheet(
-        items: _allStudents.map((s) => _PickerItem(
-          id: s.studentId, label: s.name,
-          subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : s.cohortName)).toList(),
-        selected: Set.from(_selectedStudentIds),
-        onToggle: (id) => setState(() {
-          if (_selectedStudentIds.contains(id)) { _selectedStudentIds.remove(id); }
-          else { _selectedStudentIds.add(id); }
-        }),
-      ),
-    );
   }
 
   String _typeLabel(String t) {
@@ -521,72 +491,3 @@ class _PreviewLabel extends StatelessWidget {
   ]);
 }
 
-class _PickerItem {
-  const _PickerItem({required this.id, required this.label, this.subtitle = ''});
-  final String id;
-  final String label;
-  final String subtitle;
-}
-
-class _PersonPickerSheet extends StatefulWidget {
-  const _PersonPickerSheet({required this.items, required this.selected, required this.onToggle});
-  final List<_PickerItem> items;
-  final Set<String> selected;
-  final void Function(String) onToggle;
-
-  @override
-  State<_PersonPickerSheet> createState() => _PersonPickerSheetState();
-}
-
-class _PersonPickerSheetState extends State<_PersonPickerSheet> {
-  final _searchCtrl = TextEditingController();
-  String _query = '';
-
-  @override
-  void dispose() { _searchCtrl.dispose(); super.dispose(); }
-
-  List<_PickerItem> get _filtered {
-    if (_query.trim().isEmpty) return widget.items;
-    final q = _query.toLowerCase();
-    return widget.items.where((i) => i.label.toLowerCase().contains(q) || i.subtitle.toLowerCase().contains(q)).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7, minChildSize: 0.4, maxChildSize: 0.95, expand: false,
-      builder: (ctx, scroll) => Container(
-        decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: const BorderRadius.vertical(top: Radius.circular(28))),
-        child: Column(children: [
-          Container(margin: const EdgeInsets.symmetric(vertical: 10), width: 36, height: 4,
-            decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
-          Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('Select students', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-          Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(controller: _searchCtrl, onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(hintText: 'Search students or grade...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), isDense: true))),
-          Expanded(child: ListView.builder(controller: scroll, itemCount: _filtered.length,
-            itemBuilder: (ctx, i) {
-              final item = _filtered[i]; final sel = widget.selected.contains(item.id);
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: sel ? cs.primaryContainer : cs.surfaceContainerHigh,
-                  child: Text(item.label.isNotEmpty ? item.label[0].toUpperCase() : '?',
-                    style: TextStyle(fontWeight: FontWeight.w700, color: sel ? cs.onPrimaryContainer : cs.onSurface))),
-                title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle) : null,
-                trailing: sel ? Icon(Icons.check_circle_rounded, color: cs.primary) : Icon(Icons.radio_button_unchecked, color: cs.outlineVariant),
-                onTap: () => widget.onToggle(item.id));
-            })),
-          Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: SizedBox(width: double.infinity,
-              child: FilledButton(onPressed: () => Navigator.of(context).pop(),
-                child: Text('Done (${widget.selected.length} selected)')))),
-        ]),
-      ),
-    );
-  }
-}

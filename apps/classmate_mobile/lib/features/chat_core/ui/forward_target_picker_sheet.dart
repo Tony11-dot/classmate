@@ -119,8 +119,11 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
   }
 
   void _toggle(String key) => setState(() {
-    if (_selected.contains(key)) _selected.remove(key);
-    else _selected.add(key);
+    if (_selected.contains(key)) {
+      _selected.remove(key);
+    } else {
+      _selected.add(key);
+    }
   });
 
   void _submit(List<MessageThreadSummary> allItems) {
@@ -146,7 +149,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
     );
 
     final allDms = inbox.asData?.value
-            ?.where((i) => !_isClassroom(i))
+            .where((i) => !_isClassroom(i))
             .toList() ??
         const <MessageThreadSummary>[];
 

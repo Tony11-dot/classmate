@@ -164,7 +164,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             weekAsync.when(
               data: (data) => _buildDaySlots(context, data, l, locale),
               loading: () => const Center(
-                child: Padding(padding: EdgeInsets.all(32), child: const CmLoading()),
+                child: Padding(padding: EdgeInsets.all(32), child: CmLoading()),
               ),
               error: (e, _) => _buildDayError(context, e.toString(), () => _refresh(weekOf), l),
             ),
@@ -325,7 +325,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       borderRadius: BorderRadius.circular(26),
       color: cs.surfaceContainerHigh,
       border: Border.all(color: cs.outlineVariant),
-      child: const Center(child: Padding(padding: EdgeInsets.all(16), child: const CmLoading())),
+      child: const Center(child: Padding(padding: EdgeInsets.all(16), child: CmLoading())),
     );
   }
 

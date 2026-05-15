@@ -688,7 +688,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
 
     return Scaffold(
       body: !_prefsLoaded
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : sessions.when(
               loading: () => ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -696,7 +696,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 children: [
                   topSection(),
                   const SizedBox(height: 24),
-                  const Center(child: const CmLoading()),
+                  const Center(child: CmLoading()),
                 ],
               ),
               error: (e, _) => ListView(

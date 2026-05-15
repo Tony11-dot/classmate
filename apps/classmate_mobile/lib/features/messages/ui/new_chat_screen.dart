@@ -166,7 +166,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             // Content
             Expanded(
               child: peopleValue.when(
-                loading: () => const Center(child: const CmLoading()),
+                loading: () => const Center(child: CmLoading()),
                 error: (e, _) => Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),

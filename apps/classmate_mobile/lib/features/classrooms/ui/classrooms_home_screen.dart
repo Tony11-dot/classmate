@@ -603,7 +603,7 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: const CmLoading());
+    return const Center(child: CmLoading());
   }
 }
 

@@ -6,7 +6,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../messages/data/messages_repository.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import 'teacher_student_grade_detail_screen.dart';
 
@@ -117,7 +116,7 @@ class _TeacherStudentProfileScreenState
             // Body
             Expanded(
               child: _loading
-                  ? const Center(child: const CmLoading())
+                  ? const Center(child: CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(32),

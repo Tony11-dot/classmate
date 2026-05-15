@@ -99,7 +99,7 @@ class _TeacherStudentsScreenState extends ConsumerState<TeacherStudentsScreen> {
             // ── Content ───────────────────────────────────────────────────
             Expanded(
               child: _loading
-                  ? const Center(child: const CmLoading())
+                  ? const Center(child: CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(20),

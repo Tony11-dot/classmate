@@ -389,7 +389,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           const SizedBox(height: 18),
 
           if (_loading)
-            const Center(child: Padding(padding: EdgeInsets.all(24), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(24), child: CmLoading()))
           else if (_error != null)
             _ErrorCard(message: _error!, onRetry: _load)
           else ...[

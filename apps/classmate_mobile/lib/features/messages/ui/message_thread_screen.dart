@@ -311,7 +311,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       body: SafeArea(
         bottom: false,
         child: thread.when(
-          loading: () => const Center(child: const CmLoading()),
+          loading: () => const Center(child: CmLoading()),
           error: (error, _) => Center(
               child: Text(
                 AppLocalizations.of(context)!.messagesRequestLoadFailed(error),
@@ -794,7 +794,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
             // Content: members or participants + people search for add
             Expanded(
               child: _loading
-                  ? const Center(child: const CmLoading())
+                  ? const Center(child: CmLoading())
                   : _error != null
                       ? Center(child: Padding(
                           padding: const EdgeInsets.all(24),
@@ -1061,7 +1061,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
           // List
           Expanded(
             child: _loading
-                ? const Center(child: const CmLoading())
+                ? const Center(child: CmLoading())
                 : filtered.isEmpty
                     ? Center(
                         child: Column(

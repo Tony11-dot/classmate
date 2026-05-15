@@ -78,7 +78,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
         ],
       ),
       body: async.when(
-        loading: () => const Center(child: const CmLoading()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),

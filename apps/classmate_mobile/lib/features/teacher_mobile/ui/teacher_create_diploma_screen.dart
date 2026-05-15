@@ -223,7 +223,7 @@ class _TeacherCreateDiplomaScreenState
           // ── Student list ─────────────────────────────────────────────
           Expanded(
             child: _loadingStudents
-                ? const Center(child: const CmLoading())
+                ? const Center(child: CmLoading())
                 : filtered.isEmpty
                     ? Center(
                         child: Text('No students found',

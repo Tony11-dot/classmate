@@ -159,7 +159,7 @@ class InsightsScreen extends ConsumerWidget {
               subtitle: l.insightsLoadingSubtitle,
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: const Center(child: const CmLoading()),
+                child: const Center(child: CmLoading()),
               ),
             ),
             error: (error, _) => _StateCard(
@@ -323,7 +323,7 @@ class InsightsScreen extends ConsumerWidget {
                       subtitle: l.insightsAiCoachLoadingSubtitle,
                       child: const SizedBox(
                         height: 60,
-                        child: Center(child: const CmLoading()),
+                        child: Center(child: CmLoading()),
                       ),
                     ),
                     error: (error, _) => _StateCard(

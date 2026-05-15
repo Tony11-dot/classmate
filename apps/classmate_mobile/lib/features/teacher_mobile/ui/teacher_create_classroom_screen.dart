@@ -26,7 +26,7 @@ class _TeacherCreateClassroomScreenState
   final Set<String> _selectedStudentIds = {};
   final Set<String> _selectedCohortIds = {};
   // Students fetched from selected cohorts (preview)
-  Map<String, List<TeacherStudent>> _cohortStudentsCache = {};
+  final Map<String, List<TeacherStudent>> _cohortStudentsCache = {};
   bool _loading = true;
   bool _saving = false;
 
@@ -332,7 +332,7 @@ class _TeacherCreateClassroomScreenState
                       Icon(Icons.people_rounded, size: 18, color: cs.onPrimaryContainer),
                       const SizedBox(width: 8),
                       Text(
-                        '${_selectedCohortIds.length > 0 ? '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? '' : 's'}' : ''}'
+                        '${_selectedCohortIds.isNotEmpty ? '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? '' : 's'}' : ''}'
                         '${_selectedCohortIds.isNotEmpty && _selectedStudentIds.isNotEmpty ? ' + ' : ''}'
                         '${_selectedStudentIds.isNotEmpty ? '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}' : ''}'
                         ' will be added',
@@ -528,17 +528,16 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
 }
 
 class _CountPill extends StatelessWidget {
-  const _CountPill({required this.count, required this.cs, this.label});
+  const _CountPill({required this.count, required this.cs});
   final int count;
   final ColorScheme cs;
-  final String? label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)),
-      child: Text(label != null ? '$count $label' : '$count',
+      child: Text('$count',
           style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12, fontWeight: FontWeight.w700)),
     );
   }

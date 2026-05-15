@@ -101,7 +101,7 @@ class PracticeAnalyticsDebugScreen extends ConsumerWidget {
         title: Text(l.practiceAnalyticsTitle),
       ),
       body: analytics.when(
-        loading: () => const Center(child: const CmLoading()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(
           child: Text('${l.practiceHistoryErrorPrefix} $e'),
         ),

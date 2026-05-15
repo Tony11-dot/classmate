@@ -149,7 +149,7 @@ class _TeacherAssignmentsScreenState
             ),
 
           if (_loading && _assignments.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (!_loading && _assignments.isEmpty)
             Center(
               child: Padding(

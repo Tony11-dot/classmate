@@ -49,10 +49,12 @@ class _AdminBellScheduleScreenState
       for (var i = 1; i <= _periodCount; i++) {
         map.putIfAbsent(i, () => _PeriodTime(start: '', end: ''));
       }
-      if (mounted) setState(() { _times
+      if (mounted) {
+        setState(() { _times
           ..clear()
           ..addAll(map);
       });
+      }
     } catch (_) {
       // Seed with empties on error
       for (var i = 1; i <= _periodCount; i++) {

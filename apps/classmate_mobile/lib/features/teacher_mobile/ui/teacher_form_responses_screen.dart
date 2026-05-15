@@ -90,7 +90,7 @@ class _TeacherFormResponsesScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : _error != null
               ? Center(
                   child: Column(

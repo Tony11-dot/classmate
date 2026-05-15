@@ -223,7 +223,7 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
 // ── Drum picker widget ────────────────────────────────────────────────────────
 
 class SolutionsDrumPicker extends StatelessWidget {
-  const SolutionsDrumPicker({
+  const SolutionsDrumPicker({super.key, 
     required this.controller,
     required this.itemCount,
     required this.labelBuilder,

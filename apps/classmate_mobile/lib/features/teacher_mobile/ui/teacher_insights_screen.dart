@@ -238,7 +238,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
           // ── Content ──────────────────────────────────────────────────────
           if (_loading)
             const Center(
-              child: Padding(padding: EdgeInsets.all(32), child: const CmLoading()),
+              child: Padding(padding: EdgeInsets.all(32), child: CmLoading()),
             )
           else if (_error != null)
             LiquidGlassCard(

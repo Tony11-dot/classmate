@@ -204,21 +204,6 @@ class _TeacherAddGradeScreenState
     );
   }
 
-  // ── Date picker ───────────────────────────────────────────────────────────
-
-  Future<void> _pickDate(
-    DateTime? current,
-    void Function(DateTime) onPicked,
-  ) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: current ?? DateTime.now(),
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (picked != null && mounted) setState(() => onPicked(picked));
-  }
-
   // ── Save ──────────────────────────────────────────────────────────────────
 
   Future<void> _save() async {
@@ -400,7 +385,7 @@ class _TeacherAddGradeScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: const CmLoading())
+          ? const Center(child: CmLoading())
           : _AddGradeBody(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   // ── 1: Students ─────────────────────────────────────────
                   _SectionCard(
@@ -588,10 +573,12 @@ class _TeacherAddGradeScreenState
                                       // Reload so new assignment appears in list
                                       final repo = ref.read(teacherMobileRepositoryProvider);
                                       final raw = await repo.fetchTeacherAssignments();
-                                      if (mounted) setState(() {
+                                      if (mounted) {
+                                        setState(() {
                                         _teacherAssignmentsList = raw;
                                         _selectedAssignmentId = null;
                                       });
+                                      }
                                     }
                                   },
                                   icon: const Icon(Icons.open_in_new_rounded),
@@ -672,11 +659,12 @@ class _TeacherAddGradeScreenState
                                     final repo = ref
                                         .read(teacherMobileRepositoryProvider);
                                     final raw = await repo.listTeacherExams();
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() {
                                         _teacherExamsList = raw;
                                         _selectedExamId = null;
                                       });
+                                    }
                                   }
                                 },
                                 icon: const Icon(Icons.open_in_new_rounded),
@@ -1271,77 +1259,3 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Date picker field
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _DatePickerField extends StatelessWidget {
-  const _DatePickerField({
-    required this.label,
-    required this.date,
-    required this.onTap,
-    this.onClear,
-  });
-
-  final String label;
-  final DateTime? date;
-  final VoidCallback onTap;
-  final VoidCallback? onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.calendar_today_rounded,
-                size: 18, color: cs.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: date == null
-                  ? Text(
-                      label,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: cs.onSurfaceVariant),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          label,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                              color: cs.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          DateFormat('MMM d, yyyy').format(date!),
-                          style: theme.textTheme.bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-            ),
-            if (date != null && onClear != null)
-              GestureDetector(
-                onTap: onClear,
-                child: Icon(Icons.close_rounded,
-                    size: 18, color: cs.onSurfaceVariant),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}

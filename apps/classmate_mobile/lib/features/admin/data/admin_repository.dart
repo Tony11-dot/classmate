@@ -89,7 +89,7 @@ class AdminRepository {
       if (email != null && email.isNotEmpty) 'email': email,
       if (username != null && username.isNotEmpty) 'username': username,
       'role': role,
-      if (grade != null) 'grade': grade,
+      'grade': ?grade,
     });
     final m = _m(raw);
     return AdminCreateResult(
@@ -111,15 +111,15 @@ class AdminRepository {
     int? grade,
   }) async {
     await _api.patchJson('/admin/users/$id', body: {
-      if (nameEn != null) 'nameEn': nameEn,
-      if (nameAr != null) 'nameAr': nameAr,
-      if (nameHe != null) 'nameHe': nameHe,
-      if (nameFr != null) 'nameFr': nameFr,
-      if (nameRu != null) 'nameRu': nameRu,
-      if (email != null) 'email': email,
-      if (username != null) 'username': username,
-      if (role != null) 'role': role,
-      if (grade != null) 'grade': grade,
+      'nameEn': ?nameEn,
+      'nameAr': ?nameAr,
+      'nameHe': ?nameHe,
+      'nameFr': ?nameFr,
+      'nameRu': ?nameRu,
+      'email': ?email,
+      'username': ?username,
+      'role': ?role,
+      'grade': ?grade,
     });
   }
 
@@ -158,8 +158,8 @@ class AdminRepository {
 
   Future<void> updateCohort(String id, {String? name, int? grade}) async {
     await _api.patchJson('/admin/cohorts/$id', body: {
-      if (name != null) 'name': name,
-      if (grade != null) 'grade': grade,
+      'name': ?name,
+      'grade': ?grade,
     });
   }
 
@@ -193,10 +193,10 @@ class AdminRepository {
     // Always include logoUrl so the server knows to clear it when empty.
     // Empty string → null (clear); non-empty → set.
     final raw = await _api.patchJson('/admin/school', body: {
-      if (name != null) 'name': name,
+      'name': ?name,
       'logoUrl': logoUrl.trim().isEmpty ? null : logoUrl.trim(),
-      if (minGrade != null) 'minGrade': minGrade,
-      if (maxGrade != null) 'maxGrade': maxGrade,
+      'minGrade': ?minGrade,
+      'maxGrade': ?maxGrade,
     });
     return AdminSchool.fromJson(_m(_m(raw)['school']));
   }
@@ -266,10 +266,10 @@ class AdminRepository {
       if (cohortIds != null && cohortIds.isNotEmpty) 'cohortIds': cohortIds,
       if (studentIds != null && studentIds.isNotEmpty) 'studentIds': studentIds,
       if (subject != null && subject.isNotEmpty) 'subject': subject,
-      if (startTime != null) 'startTime': startTime,
-      if (endTime != null) 'endTime': endTime,
+      'startTime': ?startTime,
+      'endTime': ?endTime,
       'frequencyWeeks': frequencyWeeks,
-      if (startDate != null) 'startDate': startDate,
+      'startDate': ?startDate,
     });
   }
 

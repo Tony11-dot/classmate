@@ -272,7 +272,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(26),
       ),
-      child: const Center(child: const CmLoading()),
+      child: const Center(child: CmLoading()),
     );
   }
 
@@ -966,7 +966,7 @@ class _LoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 40),
-      child: Center(child: const CmLoading()),
+      child: Center(child: CmLoading()),
     );
   }
 }

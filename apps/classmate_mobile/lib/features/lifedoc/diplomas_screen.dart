@@ -244,7 +244,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
             ),
 
           if (_loading && _diplomas.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(40), child: const CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_diplomas.isEmpty)
             Center(
               child: Padding(
