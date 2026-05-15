@@ -14,6 +14,30 @@ class LiquidGlassDropdownItem<T> {
   });
 }
 
+/// Opens the same searchable bottom-sheet picker that [LiquidGlassDropdown]
+/// uses internally — handy when you have a custom trigger (chip, icon, etc.)
+/// but want a consistent picker UI.
+Future<T?> showLiquidGlassPicker<T>({
+  required BuildContext context,
+  required String title,
+  required T currentValue,
+  required List<LiquidGlassDropdownItem<T>> items,
+  String? searchHint,
+}) {
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    useSafeArea: true,
+    builder: (_) => _LiquidGlassPicker<T>(
+      title: title,
+      value: currentValue,
+      items: items,
+      searchHint: searchHint,
+    ),
+  );
+}
+
 class LiquidGlassDropdown<T> extends StatelessWidget {
   final String label;
   final T value;

@@ -45,8 +45,6 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
   int?    _filterGrade;
   String? _filterStudentId;
 
-  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
   bool _slotMatchesFilter(Map<String, dynamic> slot) {
     if (_filterMode == 'all') return true;
     final cohortsList = slot['cohorts'] as List? ?? [];
@@ -63,7 +61,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     return false;
   }
 
-  Future<void> _openAddPeriod({int? preDay, int? prePeriod}) async {
+  Future<void> _openAddPeriod({int? preDay, int? prePeriod, String? preCohortId, String? preStudentId}) async {
     final teachers = await ref.read(_teachersDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
     final cohorts  = await ref.read(_cohortsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
     final students = await ref.read(_studentsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
@@ -76,6 +74,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
         repo: ref.read(adminRepositoryProvider),
         teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
         initialDay: preDay, initialPeriod: prePeriod,
+        initialCohortId: preCohortId, initialStudentId: preStudentId,
       )),
     );
     if (created == true) ref.invalidate(_periodsProvider);
@@ -120,46 +119,58 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                     onTap: () => setState(() { _filterMode = 'all'; })),
                 const SizedBox(width: 6),
                 // Grade filter
-                PopupMenuButton<int>(
-                  onSelected: (g) => setState(() { _filterMode = 'grade'; _filterGrade = g; }),
-                  itemBuilder: (_) => allGrades.map((g) => PopupMenuItem(value: g, child: Text('Grade $g'))).toList(),
-                  child: _FilterChipItem(
-                    label: _filterMode == 'grade' ? 'Grade $_filterGrade ▾' : 'By Grade ▾',
-                    selected: _filterMode == 'grade',
-                    onTap: null,
-                  ),
+                _FilterChipItem(
+                  label: _filterMode == 'grade' ? 'Grade $_filterGrade ▾' : 'By Grade ▾',
+                  selected: _filterMode == 'grade',
+                  onTap: () async {
+                    final picked = await showLiquidGlassPicker<int>(
+                      context: context,
+                      title: 'By Grade',
+                      currentValue: _filterGrade ?? -1,
+                      items: allGrades.map((g) => LiquidGlassDropdownItem(value: g, label: 'Grade $g')).toList(),
+                    );
+                    if (picked != null) setState(() { _filterMode = 'grade'; _filterGrade = picked; });
+                  },
                 ),
                 const SizedBox(width: 6),
                 // Cohort filter
-                PopupMenuButton<String>(
-                  onSelected: (id) => setState(() { _filterMode = 'cohort'; _filterCohortId = id; }),
-                  itemBuilder: (_) => allCohorts.map((c) => PopupMenuItem(
-                    value: c['id']?.toString() ?? '',
-                    child: Text(c['name']?.toString() ?? ''),
-                  )).toList(),
-                  child: _FilterChipItem(
-                    label: _filterMode == 'cohort'
-                        ? (allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort') + ' ▾'
-                        : 'By Cohort ▾',
-                    selected: _filterMode == 'cohort',
-                    onTap: null,
-                  ),
+                _FilterChipItem(
+                  label: _filterMode == 'cohort'
+                      ? (allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort') + ' ▾'
+                      : 'By Cohort ▾',
+                  selected: _filterMode == 'cohort',
+                  onTap: () async {
+                    final picked = await showLiquidGlassPicker<String>(
+                      context: context,
+                      title: 'By Cohort',
+                      currentValue: _filterCohortId ?? '',
+                      items: allCohorts.map((c) => LiquidGlassDropdownItem(
+                        value: c['id']?.toString() ?? '',
+                        label: c['name']?.toString() ?? '',
+                      )).toList(),
+                    );
+                    if (picked != null && picked.isNotEmpty) setState(() { _filterMode = 'cohort'; _filterCohortId = picked; });
+                  },
                 ),
                 const SizedBox(width: 6),
                 // Student filter
-                PopupMenuButton<String>(
-                  onSelected: (id) => setState(() { _filterMode = 'student'; _filterStudentId = id; }),
-                  itemBuilder: (_) => allStudents.map((s) => PopupMenuItem(
-                    value: s['id']?.toString() ?? '',
-                    child: Text(s['name']?.toString() ?? ''),
-                  )).toList(),
-                  child: _FilterChipItem(
-                    label: _filterMode == 'student'
-                        ? (allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student') + ' ▾'
-                        : 'By Student ▾',
-                    selected: _filterMode == 'student',
-                    onTap: null,
-                  ),
+                _FilterChipItem(
+                  label: _filterMode == 'student'
+                      ? (allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student') + ' ▾'
+                      : 'By Student ▾',
+                  selected: _filterMode == 'student',
+                  onTap: () async {
+                    final picked = await showLiquidGlassPicker<String>(
+                      context: context,
+                      title: 'By Student',
+                      currentValue: _filterStudentId ?? '',
+                      items: allStudents.map((s) => LiquidGlassDropdownItem(
+                        value: s['id']?.toString() ?? '',
+                        label: s['name']?.toString() ?? '',
+                      )).toList(),
+                    );
+                    if (picked != null && picked.isNotEmpty) setState(() { _filterMode = 'student'; _filterStudentId = picked; });
+                  },
                 ),
               ],
             ),
@@ -180,18 +191,11 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
 
                 return _ScheduleGrid(
                   grid: grid,
-                  onCellTap: (day, period) => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => _CellDetailScreen(
-                      day: day, period: period,
-                      slots: grid[(day, period)] ?? [],
-                      dayName: _dayShort[day],
-                      onDelete: (id) async {
-                        await ref.read(adminRepositoryProvider).deletePeriod(id);
-                        ref.invalidate(_periodsProvider);
-                      },
-                      onAdd: () => _openAddPeriod(preDay: day, prePeriod: period),
-                    )),
+                  onCellTap: (day, period) => _openAddPeriod(
+                    preDay: day,
+                    prePeriod: period,
+                    preCohortId: _filterMode == 'cohort' ? _filterCohortId : null,
+                    preStudentId: _filterMode == 'student' ? _filterStudentId : null,
                   ),
                 );
               },
@@ -656,6 +660,8 @@ class AdminAddPeriodScreen extends StatefulWidget {
     required this.defaults,
     this.initialDay,
     this.initialPeriod,
+    this.initialCohortId,
+    this.initialStudentId,
   });
 
   final AdminRepository repo;
@@ -665,6 +671,8 @@ class AdminAddPeriodScreen extends StatefulWidget {
   final List<Map<String, dynamic>> defaults;
   final int? initialDay;
   final int? initialPeriod;
+  final String? initialCohortId;
+  final String? initialStudentId;
 
   @override
   State<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
@@ -701,6 +709,13 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
       dayOfWeek: widget.initialDay ?? 1,
       period: widget.initialPeriod ?? 1,
     )];
+    if (widget.initialCohortId != null && widget.initialCohortId!.isNotEmpty) {
+      _useCohorts = true;
+      _cohortIds.add(widget.initialCohortId!);
+    } else if (widget.initialStudentId != null && widget.initialStudentId!.isNotEmpty) {
+      _useCohorts = false;
+      _studentIds.add(widget.initialStudentId!);
+    }
   }
 
   @override
