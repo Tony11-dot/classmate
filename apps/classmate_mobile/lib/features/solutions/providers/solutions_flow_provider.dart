@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/auth/auth_session.dart';
+import '../../../core/contracts/school_subject.dart';
+import '../../../core/http/cm_api.dart';
 import '../data/solutions_api.dart';
 import '../domain/solutions_models.dart';
 
@@ -16,9 +19,60 @@ final solutionsFlowProvider =
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
   SolutionsFlowState build() {
-    // Load persisted custom books asynchronously and merge into initial state.
-    Future.microtask(_loadCustomBooks);
+    // Try to populate the subject list from the user's school first, then
+    // merge any locally-persisted custom books on top. Each step is async
+    // and falls back gracefully if it fails (offline, no school, etc.).
+    Future.microtask(() async {
+      await _loadSchoolSubjects();
+      await _loadCustomBooks();
+    });
     return SolutionsFlowState.initial();
+  }
+
+  /// Replaces the subject list with the school's admin-defined subjects when
+  /// available. Existing book lists (including custom-* persisted books) are
+  /// preserved per-subject by matching on the sluggified subject id.
+  Future<void> _loadSchoolSubjects() async {
+    final session = ref.read(authSessionProvider);
+    final token = (session.token ?? '').trim();
+    if (token.isEmpty) return;
+
+    final api = CMApi(token: token);
+    Object? raw;
+    try {
+      raw = await api.getJson('/auth/me/subjects');
+    } catch (_) {
+      return;
+    } finally {
+      api.dispose();
+    }
+
+    if (raw is! Map) return;
+    final list = raw['subjects'];
+    if (list is! List || list.isEmpty) return;
+
+    final schoolSubjects = list
+        .map(SchoolSubject.fromJson)
+        .where((s) => s.nameEn.isNotEmpty)
+        .toList();
+    if (schoolSubjects.isEmpty) return;
+
+    // Build the new subject list, preserving book lists for any subject we
+    // already had (matched by id).
+    final existingById = {for (final s in state.subjects) s.id: s};
+    final updated = <SolutionSubject>[];
+    for (final ss in schoolSubjects) {
+      final id = _slugify(ss.nameEn);
+      final priorBooks = existingById[id]?.books ?? const <SolutionBook>[];
+      updated.add(SolutionSubject(id: id, title: ss.nameEn, books: priorBooks));
+    }
+    state = state.copyWith(subjects: updated);
+  }
+
+  static String _slugify(String s) {
+    final lower = s.toLowerCase();
+    final ascii = lower.replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+    return ascii.replaceAll(RegExp(r'^-+|-+$'), '');
   }
 
   // ── persistence ─────────────────────────────────────────────────────────

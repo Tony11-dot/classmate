@@ -169,6 +169,34 @@ export class AuthController {
     });
   }
 
+  /**
+   * Returns the current user's school's subject list (multi-language).
+   * Available to any authenticated role so the Solutions screen and other
+   * student-facing surfaces can render the school-owned subject selector.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('me/subjects')
+  async meSubjects(@Req() req: any) {
+    const schoolId = (req.user as any)?.schoolId;
+    if (!schoolId) return { ok: true, subjects: [] };
+
+    // Single canonical row at grade=0 (school-wide). Per-grade overrides not
+    // surfaced here yet — solutions UI just needs the school's master list.
+    const row = await this.prisma.schoolGradeSubjectDefault.findUnique({
+      where: { schoolId_grade_unique: { schoolId, grade: 0 } } as any,
+      select: { subjects: true, subjectsI18n: true } as any,
+    }) as any;
+    if (!row) return { ok: true, subjects: [] };
+
+    // Same fallback rule as getSubjectDefaults: prefer i18n, derive from
+    // legacy String[] if i18n is empty.
+    const i18nRaw = Array.isArray(row.subjectsI18n) ? row.subjectsI18n : [];
+    const i18n = i18nRaw.length
+      ? i18nRaw
+      : (row.subjects ?? []).map((s: string) => ({ nameEn: s }));
+    return { ok: true, subjects: i18n };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('me/password')
   async changePassword(@Req() req: any, @Body() body: any) {

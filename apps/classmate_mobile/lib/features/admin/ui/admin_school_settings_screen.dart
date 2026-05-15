@@ -7,7 +7,9 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/env.dart';
+import '../../../core/contracts/school_subject.dart';
 import '../data/admin_repository.dart';
+import 'admin_subject_detail_screen.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -393,7 +395,7 @@ class _SubjectsTab extends ConsumerStatefulWidget {
 }
 
 class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
-  List<String> _subjects = [];
+  List<SchoolSubject> _subjects = [];
   final _addCtrl = TextEditingController();
   bool _loading = true;
   bool _saving = false;
@@ -418,9 +420,11 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
       final raw = await api.getJson('/admin/subjects/defaults',
           query: {'schoolId': session.schoolId, 'grade': '0'});
       final rawDefaults = raw is Map ? raw['defaults'] : null;
-      final subjects = rawDefaults is Map ? rawDefaults['subjects'] : null;
-      if (subjects is List) {
-        _subjects = List<String>.from(subjects.map((s) => s.toString()));
+      final i18n = rawDefaults is Map ? rawDefaults['subjectsI18n'] : null;
+      final legacy = rawDefaults is Map ? rawDefaults['subjects'] : null;
+      final src = (i18n is List && i18n.isNotEmpty) ? i18n : legacy;
+      if (src is List) {
+        _subjects = src.map((e) => SchoolSubject.fromJson(e)).where((s) => s.nameEn.isNotEmpty).toList();
       } else {
         _subjects = [];
       }
@@ -440,7 +444,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
       await api.postJson('/admin/subjects/defaults', body: {
         'schoolId': session.schoolId,
         'grade': 0,
-        'subjects': _subjects,
+        'subjectsI18n': _subjects.map((s) => s.toJson()).toList(),
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -457,14 +461,14 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
 
   void _addSubject() {
     final text = _addCtrl.text.trim();
-    if (text.isEmpty || _subjects.contains(text)) return;
-    setState(() { _subjects = [..._subjects, text]; });
+    if (text.isEmpty || _subjects.any((s) => s.nameEn == text)) return;
+    setState(() { _subjects = [..._subjects, SchoolSubject(nameEn: text)]; });
     _addCtrl.clear();
   }
 
   void _removeSubject(int index) {
     setState(() {
-      final list = List<String>.from(_subjects);
+      final list = List<SchoolSubject>.from(_subjects);
       list.removeAt(index);
       _subjects = list;
     });
@@ -472,9 +476,22 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
 
   void _moveSubject(int from, int to) {
     setState(() {
-      final list = List<String>.from(_subjects);
+      final list = List<SchoolSubject>.from(_subjects);
       final item = list.removeAt(from);
       list.insert(to, item);
+      _subjects = list;
+    });
+  }
+
+  Future<void> _editSubject(int index) async {
+    final updated = await Navigator.push<SchoolSubject>(
+      context,
+      MaterialPageRoute(builder: (_) => AdminSubjectDetailScreen(initial: _subjects[index])),
+    );
+    if (updated == null || updated.nameEn.isEmpty) return;
+    setState(() {
+      final list = List<SchoolSubject>.from(_subjects);
+      list[index] = updated;
       _subjects = list;
     });
   }
@@ -568,6 +585,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
             subject: e.value,
             index: e.key,
             total: _subjects.length,
+            onTap: () => _editSubject(e.key),
             onDelete: () => _removeSubject(e.key),
             onMoveUp: e.key > 0 ? () => _moveSubject(e.key, e.key - 1) : null,
             onMoveDown: e.key < _subjects.length - 1 ? () => _moveSubject(e.key, e.key + 1) : null,
@@ -584,14 +602,16 @@ class _SubjectSection extends StatelessWidget {
     required this.subject,
     required this.index,
     required this.total,
+    required this.onTap,
     required this.onDelete,
     required this.onMoveUp,
     required this.onMoveDown,
   });
 
-  final String subject;
+  final SchoolSubject subject;
   final int index;
   final int total;
+  final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback? onMoveUp;
   final VoidCallback? onMoveDown;
@@ -611,6 +631,7 @@ class _SubjectSection extends StatelessWidget {
         ),
         child: ListTile(
           dense: true,
+          onTap: onTap,
           contentPadding: const EdgeInsets.only(left: 16, right: 4),
           leading: Container(
             width: 32,
@@ -626,7 +647,16 @@ class _SubjectSection extends StatelessWidget {
               ),
             ),
           ),
-          title: Text(subject, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+          title: Text(subject.nameEn, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+          subtitle: Builder(builder: (_) {
+            final extras = [subject.nameAr, subject.nameHe, subject.nameFr, subject.nameRu]
+                .where((s) => (s ?? '').trim().isNotEmpty)
+                .toList();
+            if (extras.isEmpty) {
+              return Text('Tap to add translations', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant));
+            }
+            return Text(extras.join(' · '), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis);
+          }),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

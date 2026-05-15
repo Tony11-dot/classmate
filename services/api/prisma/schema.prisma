@@ -969,12 +969,16 @@ model Notification {
 
 // ---- Session 10: School subject defaults + per-student overrides ----
 model SchoolGradeSubjectDefault {
-  id        String   @id @default(cuid())
-  schoolId  String
-  grade     Int
-  subjects  String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  schoolId     String
+  grade        Int
+  /// Legacy flat name list — kept in sync with `subjectsI18n[*].nameEn` for
+  /// backward compatibility with older clients still reading a String[].
+  subjects     String[]
+  /// Authoritative source. Array of { nameEn, nameAr?, nameHe?, nameFr?, nameRu? }.
+  subjectsI18n Json     @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([schoolId, grade], name: "schoolId_grade_unique")
   @@index([schoolId])

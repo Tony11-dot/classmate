@@ -157,17 +157,24 @@ export class SetupController {
       : await this.prisma.school.create({ data: schoolData });
 
     // ── Subjects ─────────────────────────────────────────────────────────────
-    // Schema column is `subjects String[]` keyed by (schoolId, grade=0).
-    // The form collects multi-language objects; flatten to English names since
-    // the admin app reads them as plain strings.
-    const flatSubjects = (body?.subjects ?? [])
-      .map(s => String(s?.nameEn ?? '').trim())
-      .filter(s => s.length > 0);
-    if (flatSubjects.length) {
+    // Authoritative store is `subjectsI18n` (multilang objects). The legacy
+    // `subjects` String[] is kept in sync (each entry = the i18n row's nameEn)
+    // for backward compatibility with clients that still read it.
+    const subjectsI18n = (body?.subjects ?? [])
+      .map(s => ({
+        nameEn: String(s?.nameEn ?? '').trim(),
+        nameAr: s?.nameAr?.trim() || null,
+        nameHe: s?.nameHe?.trim() || null,
+        nameFr: s?.nameFr?.trim() || null,
+        nameRu: s?.nameRu?.trim() || null,
+      }))
+      .filter(s => s.nameEn.length > 0);
+    if (subjectsI18n.length) {
+      const flat = subjectsI18n.map(s => s.nameEn);
       await this.prisma.schoolGradeSubjectDefault.upsert({
         where: { schoolId_grade_unique: { schoolId: school.id, grade: 0 } },
-        update: { subjects: flatSubjects },
-        create: { schoolId: school.id, grade: 0, subjects: flatSubjects },
+        update: { subjects: flat, subjectsI18n: subjectsI18n as any },
+        create: { schoolId: school.id, grade: 0, subjects: flat, subjectsI18n: subjectsI18n as any },
       });
     }
 

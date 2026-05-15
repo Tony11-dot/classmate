@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects } from '../subjects/subjects.store';
+import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects, normalizeSubjectsI18n } from '../subjects/subjects.store';
 import { hasAnyRole } from '../auth/permissions';
 
 function randomDigits(len = 6) {
@@ -439,18 +439,22 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const schoolId = String(dto?.schoolId ?? user?.schoolId ?? '').trim();
     if (!schoolId) throw new BadRequestException('schoolId required — ensure your account is linked to a school');
     const grade = Number(dto?.grade);
-    const subjects = normalizeSubjects(dto?.subjects);
+    // Authoritative shape is `subjectsI18n` (array of multilang objects). For
+    // back-compat the legacy `subjects` flat list is also written and kept in
+    // sync with each entry's nameEn.
+    const subjectsI18n = normalizeSubjectsI18n(dto?.subjectsI18n ?? dto?.subjects);
+    const subjects = subjectsI18n.map(s => s.nameEn);
 
     if (Number.isNaN(grade)) throw new BadRequestException('grade required');
-    if (!subjects.length) throw new BadRequestException('subjects[] required');
-  
+    if (!subjectsI18n.length) throw new BadRequestException('subjects[] required');
+
     const row = await this.prisma.schoolGradeSubjectDefault.upsert({
       where: { schoolId_grade_unique: { schoolId, grade } },
-      update: { subjects },
-      create: { schoolId, grade, subjects },
-      select: { schoolId: true, grade: true, subjects: true },
+      update: { subjects, subjectsI18n: subjectsI18n as any },
+      create: { schoolId, grade, subjects, subjectsI18n: subjectsI18n as any },
+      select: { schoolId: true, grade: true, subjects: true, subjectsI18n: true } as any,
     });
-  
+
     return { ok: true, defaults: row };
   }
   async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
@@ -463,13 +467,21 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (grade === undefined || Number.isNaN(Number(grade))) {
       throw new BadRequestException('grade required');
     }
-  
+
     const row = await this.prisma.schoolGradeSubjectDefault.findUnique({
       where: { schoolId_grade_unique: { schoolId, grade: Number(grade) } },
-      select: { schoolId: true, grade: true, subjects: true },
-    });
-  
-    return { ok: true, defaults: row ?? { schoolId, grade: Number(grade), subjects: [] } };
+      select: { schoolId: true, grade: true, subjects: true, subjectsI18n: true } as any,
+    }) as any;
+
+    if (!row) {
+      return { ok: true, defaults: { schoolId, grade: Number(grade), subjects: [], subjectsI18n: [] } };
+    }
+    // Defensive: if subjectsI18n is empty but legacy subjects has values
+    // (e.g. data written before the i18n column existed), surface them as
+    // English-only entries so clients always see a consistent shape.
+    const i18n = normalizeSubjectsI18n(row.subjectsI18n);
+    const finalI18n = i18n.length ? i18n : (row.subjects ?? []).map((s: string) => ({ nameEn: s }));
+    return { ok: true, defaults: { ...row, subjectsI18n: finalI18n } };
   }
   async upsertSubjectOverride(user: any, identifier: string, dto: any) {
     this.requireAdminOrSecretary(user);
