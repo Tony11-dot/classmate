@@ -70,8 +70,9 @@ export class EmailService {
 
 function buildResetEmailText(args: { recipientName?: string | null; schoolName?: string | null; resetUrl: string; expiresInMinutes: number }): string {
   const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
-  const sender = args.schoolName ? `the ${args.schoolName} team on ClassMate` : 'the ClassMate team';
   return [
+    'ClassMate — One app. Your whole school.',
+    '',
     greeting,
     '',
     `We received a request to reset the password on your ${args.schoolName ?? 'ClassMate'} account.`,
@@ -82,14 +83,14 @@ function buildResetEmailText(args: { recipientName?: string | null; schoolName?:
     '',
     "If you didn't request this, you can ignore this email — your password won't change.",
     '',
-    `— ${sender}`,
+    'Tony Aboud',
+    'Founder, ClassMate',
   ].join('\n');
 }
 
 function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?: string | null; resetUrl: string; expiresInMinutes: number }): string {
   const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
   const schoolLabel = args.schoolName ?? 'ClassMate';
-  const senderLine = args.schoolName ? `the ${args.schoolName} team on ClassMate` : 'the ClassMate team';
 
   // Inline CSS — most email clients strip <style> tags.
   return `<!DOCTYPE html>
@@ -104,9 +105,10 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
     <tr><td align="center" style="padding:40px 16px;">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
-        <!-- Header w/ logo -->
-        <tr><td align="center" style="padding:40px 24px 24px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
+        <!-- Header w/ logo + tagline -->
+        <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
           <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
 
         <!-- Body -->
@@ -143,9 +145,10 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
           <p style="margin:0;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
         </td></tr>
 
-        <!-- Footer -->
-        <tr><td align="center" style="padding:20px 32px 28px; border-top:1px solid #eee; font-size:12px; color:#888;">
-          <p style="margin:0;">— ${escapeHtml(senderLine)}</p>
+        <!-- Signature footer -->
+        <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
+          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
         </td></tr>
       </table>
     </td></tr>
