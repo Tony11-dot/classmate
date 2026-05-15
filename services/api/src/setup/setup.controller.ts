@@ -224,10 +224,11 @@ function buildPage(): string {
            display:flex; align-items:flex-start; justify-content:center; padding:40px 20px 100px; }
     .wrap { width:100%; max-width:600px; }
 
-    /* header — always vertical, centred */
+    /* header — always vertical, centred. Force logo white via CSS filter. */
     .hdr { display:block; text-align:center; margin-bottom:44px; }
     .hdr img { display:block; width:200px; max-width:70%; height:auto;
-               margin:0 auto 16px; }
+               margin:0 auto 16px;
+               filter: brightness(0) invert(1); /* turns any colour into pure white */ }
     .hdr-info h1 { font-size:13px; font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:1px; }
     .hdr-info p  { font-size:12px; color:#444; margin-top:4px; }
