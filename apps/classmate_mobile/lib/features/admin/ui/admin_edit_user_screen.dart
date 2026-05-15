@@ -223,28 +223,20 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_edit_user',
+        onPressed: _saving ? null : _save,
+        icon: _saving
+            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.check_rounded),
+        label: Text(l.adminSave),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => Navigator.pop(context)),
-                  Expanded(child: Text('Edit User', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
-                  FilledButton.icon(
-                    onPressed: _saving ? null : _save,
-                    icon: _saving ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.check_rounded, size: 16),
-                    label: Text(l.adminSave),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                 children: [
                   // ── Login credentials ──────────────────────────────────────
                   Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),

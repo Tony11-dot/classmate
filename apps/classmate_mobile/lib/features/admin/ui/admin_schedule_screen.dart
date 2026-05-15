@@ -61,7 +61,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     return false;
   }
 
-  Future<void> _openAddPeriod({int? preDay, int? prePeriod, String? preCohortId, String? preStudentId}) async {
+  Future<void> _openAddPeriod({int? preDay, int? prePeriod, String? preCohortId, String? preStudentId, int? preGrade}) async {
     final teachers = await ref.read(_teachersDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
     final cohorts  = await ref.read(_cohortsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
     final students = await ref.read(_studentsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
@@ -75,6 +75,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
         teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
         initialDay: preDay, initialPeriod: prePeriod,
         initialCohortId: preCohortId, initialStudentId: preStudentId,
+        initialGrade: preGrade,
       )),
     );
     if (created == true) ref.invalidate(_periodsProvider);
@@ -196,6 +197,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                     prePeriod: period,
                     preCohortId: _filterMode == 'cohort' ? _filterCohortId : null,
                     preStudentId: _filterMode == 'student' ? _filterStudentId : null,
+                    preGrade: _filterMode == 'grade' ? _filterGrade : null,
                   ),
                 );
               },
@@ -662,6 +664,7 @@ class AdminAddPeriodScreen extends StatefulWidget {
     this.initialPeriod,
     this.initialCohortId,
     this.initialStudentId,
+    this.initialGrade,
   });
 
   final AdminRepository repo;
@@ -673,6 +676,7 @@ class AdminAddPeriodScreen extends StatefulWidget {
   final int? initialPeriod;
   final String? initialCohortId;
   final String? initialStudentId;
+  final int? initialGrade;
 
   @override
   State<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
@@ -684,6 +688,8 @@ class _DayPeriodSlot {
   _DayPeriodSlot({this.dayOfWeek = 0, this.period = 1});
 }
 
+enum _AudienceMode { cohort, student, grade }
+
 class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
   late final List<_DayPeriodSlot> _slots;
 
@@ -691,7 +697,8 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
   String? _teacherName;
   final Set<String> _cohortIds  = {};
   final Set<String> _studentIds = {};
-  bool _useCohorts = true;
+  int? _audienceGrade;
+  _AudienceMode _audience = _AudienceMode.cohort;
 
   int  _frequencyWeeks = 1;
   bool _customFreq = false;
@@ -710,11 +717,14 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
       period: widget.initialPeriod ?? 1,
     )];
     if (widget.initialCohortId != null && widget.initialCohortId!.isNotEmpty) {
-      _useCohorts = true;
+      _audience = _AudienceMode.cohort;
       _cohortIds.add(widget.initialCohortId!);
     } else if (widget.initialStudentId != null && widget.initialStudentId!.isNotEmpty) {
-      _useCohorts = false;
+      _audience = _AudienceMode.student;
       _studentIds.add(widget.initialStudentId!);
+    } else if (widget.initialGrade != null) {
+      _audience = _AudienceMode.grade;
+      _audienceGrade = widget.initialGrade;
     }
   }
 
@@ -733,11 +743,33 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
     return def['endTime']?.toString() ?? '';
   }
 
+  /// Resolves the current audience selection into either cohortIds or studentIds
+  /// for the period-create API. Returns (cohortIds, studentIds) — at most one
+  /// is non-null. Grade mode expands to every cohort matching that grade.
+  ({List<String>? cohortIds, List<String>? studentIds}) _resolveAudience() {
+    switch (_audience) {
+      case _AudienceMode.cohort:
+        return (cohortIds: _cohortIds.isNotEmpty ? _cohortIds.toList() : null, studentIds: null);
+      case _AudienceMode.student:
+        return (cohortIds: null, studentIds: _studentIds.isNotEmpty ? _studentIds.toList() : null);
+      case _AudienceMode.grade:
+        final g = _audienceGrade;
+        if (g == null) return (cohortIds: null, studentIds: null);
+        final matching = widget.cohorts
+            .where((c) => (c['grade'] as num?)?.toInt() == g)
+            .map((c) => c['id']?.toString() ?? '')
+            .where((id) => id.isNotEmpty)
+            .toList();
+        return (cohortIds: matching.isNotEmpty ? matching : null, studentIds: null);
+    }
+  }
+
   Future<void> _save() async {
     final freq = _customFreq
         ? (int.tryParse(_customFreqCtrl.text.trim()) ?? 1).clamp(1, 52)
         : _frequencyWeeks;
 
+    final audience = _resolveAudience();
     setState(() => _saving = true);
     int created = 0;
     String? firstError;
@@ -751,8 +783,8 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
           dayOfWeek: slot.dayOfWeek,
           period: slot.period,
           teacherId: _teacherId,
-          cohortIds: _useCohorts && _cohortIds.isNotEmpty ? _cohortIds.toList() : null,
-          studentIds: !_useCohorts && _studentIds.isNotEmpty ? _studentIds.toList() : null,
+          cohortIds: audience.cohortIds,
+          studentIds: audience.studentIds,
           startTime: _defaultTime(slot.period, true).isNotEmpty ? _defaultTime(slot.period, true) : null,
           endTime: _defaultTime(slot.period, false).isNotEmpty ? _defaultTime(slot.period, false) : null,
           frequencyWeeks: freq,
@@ -793,30 +825,17 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_add_period',
+        onPressed: _saving ? null : _save,
+        icon: _saving
+            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.check_rounded),
+        label: Text(l.adminScheduleSave),
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => Navigator.pop(context)),
-                  Expanded(child: Text(l.adminScheduleNewPeriod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
-                  FilledButton.icon(
-                    onPressed: _saving ? null : _save,
-                    icon: _saving
-                        ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.check_rounded, size: 16),
-                    label: Text(l.adminScheduleSave),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
           children: [
 
             // ── Day + Period slots ────────────────────────────────────────
@@ -870,29 +889,25 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Audience: cohort or students ──────────────────────────────
+            // ── Audience: cohort, student, or by-grade ────────────────────
             _SectionLabel(label: l.adminScheduleCohortLabel, cs: cs, theme: theme),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: SegmentedButton<bool>(
-                    segments: [
-                      ButtonSegment(value: true, label: Text(l.adminScheduleSelectCohort)),
-                      ButtonSegment(value: false, label: Text(l.adminStudents)),
-                    ],
-                    selected: {_useCohorts},
-                    onSelectionChanged: (s) => setState(() {
-                      _useCohorts = s.first;
-                      _cohortIds.clear();
-                      _studentIds.clear();
-                    }),
-                  ),
-                ),
+            SegmentedButton<_AudienceMode>(
+              segments: [
+                ButtonSegment(value: _AudienceMode.cohort, label: Text(l.adminScheduleSelectCohort)),
+                ButtonSegment(value: _AudienceMode.student, label: Text(l.adminStudents)),
+                const ButtonSegment(value: _AudienceMode.grade, label: Text('By Grade')),
               ],
+              selected: {_audience},
+              onSelectionChanged: (s) => setState(() {
+                _audience = s.first;
+                _cohortIds.clear();
+                _studentIds.clear();
+                _audienceGrade = null;
+              }),
             ),
             const SizedBox(height: 10),
-            if (_useCohorts) ...[
+            if (_audience == _AudienceMode.cohort) ...[
               _MultiPickerList(
                 items: widget.cohorts,
                 selected: _cohortIds,
@@ -905,7 +920,6 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                 onToggle: (id) => setState(() =>
                   _cohortIds.contains(id) ? _cohortIds.remove(id) : _cohortIds.add(id)),
               ),
-              // Student preview for selected cohorts
               if (_cohortIds.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 _CohortStudentPreview(
@@ -914,7 +928,7 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                   cohorts: widget.cohorts,
                 ),
               ],
-            ] else
+            ] else if (_audience == _AudienceMode.student)
               _MultiPickerList(
                 items: widget.students,
                 selected: _studentIds,
@@ -928,7 +942,39 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                 searchHint: l.adminSearchStudents,
                 onToggle: (id) => setState(() =>
                   _studentIds.contains(id) ? _studentIds.remove(id) : _studentIds.add(id)),
-              ),
+              )
+            else ...[
+              // Grade mode — pick a single grade; expanded to all matching cohorts on save
+              Builder(builder: (ctx) {
+                final grades = widget.cohorts
+                    .map((c) => (c['grade'] as num?)?.toInt())
+                    .whereType<int>()
+                    .toSet()
+                    .toList()
+                  ..sort();
+                if (grades.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'No cohorts yet — create one first.',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                  );
+                }
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: grades.map((g) {
+                    final matching = widget.cohorts.where((c) => (c['grade'] as num?)?.toInt() == g).length;
+                    return ChoiceChip(
+                      label: Text('Grade $g · $matching cohorts'),
+                      selected: _audienceGrade == g,
+                      onSelected: (_) => setState(() => _audienceGrade = g),
+                    );
+                  }).toList(),
+                );
+              }),
+            ],
             const SizedBox(height: 16),
 
             // ── Frequency ─────────────────────────────────────────────────
@@ -996,9 +1042,6 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                 }).toList(),
               ),
             ],
-          ],
-        ),
-            ),
           ],
         ),
       ),
