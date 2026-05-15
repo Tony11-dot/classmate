@@ -892,6 +892,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       }
       data.username = un;
     }
+    if (dto?.phone !== undefined) {
+      // Normalize: trim, strip whitespace; empty string → null. Keep leading
+      // '+' for E.164 numbers (Twilio requires that format for SMS sends).
+      const raw = String(dto.phone).trim().replace(/\s+/g, '');
+      data.phone = raw.length > 0 ? raw : null;
+    }
 
     await this.prisma.user.update({ where: { id }, data });
 

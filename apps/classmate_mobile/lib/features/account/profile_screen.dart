@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_session.dart';
 import '../../core/auth/name_lang.dart';
@@ -662,6 +663,20 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
                     )
                   : Text(l.profileUpdatePassword),
             ),
+          ),
+          const SizedBox(height: 8),
+          // "Forgot password?" — same destination as on the login screen, for
+          // users who don't remember their current password and so can't fill
+          // the field above.
+          TextButton.icon(
+            onPressed: _loading
+                ? null
+                : () {
+                    Navigator.of(context).pop();
+                    GoRouter.of(context).push('/forgot-password');
+                  },
+            icon: const Icon(Icons.help_outline_rounded, size: 18),
+            label: const Text('Forgot password?'),
           ),
         ],
       ),

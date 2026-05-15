@@ -107,6 +107,7 @@ class AdminRepository {
     String? nameRu,
     String? email,
     String? username,
+    String? phone,
     String? role,
     int? grade,
   }) async {
@@ -118,6 +119,7 @@ class AdminRepository {
       'nameRu': ?nameRu,
       'email': ?email,
       'username': ?username,
+      'phone': ?phone,
       'role': ?role,
       'grade': ?grade,
     });

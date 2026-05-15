@@ -48,20 +48,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   Future<void> _submit() async {
-    final email = _emailCtrl.text.trim();
+    final identifier = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
-    if (email.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Please enter your email and password.');
-      return;
-    }
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
-      setState(() => _error = 'Please enter a valid email address.');
+    if (identifier.isEmpty || password.isEmpty) {
+      setState(() => _error = 'Please enter your email or username and password.');
       return;
     }
     setState(() { _loading = true; _error = null; });
     try {
       final session = ref.read(authSessionProvider);
-      await session.login(email: email, password: password);
+      await session.login(identifier: identifier, password: password);
       if (!mounted) return;
       GoRouter.of(context).go(session.isTeacherLike ? '/teacher/schedule' : '/schedule');
     } catch (e) {
@@ -81,6 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -103,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       Center(child: const ClassMateLogo(height: 168)),
                       const SizedBox(height: 40),
 
-                      // ── Email ─────────────────────────────────────────────
+                      // ── Email or username ────────────────────────────────
                       TextField(
                         controller: _emailCtrl,
                         focusNode: _emailFocus,
@@ -112,7 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         autocorrect: false,
                         onSubmitted: (_) => _passwordFocus.requestFocus(),
                         decoration: InputDecoration(
-                          labelText: l.loginEmailLabel,
+                          labelText: 'Email or username',
                           prefixIcon: Icon(Icons.alternate_email_rounded, color: cs.onSurfaceVariant, size: 20),
                           filled: true,
                           fillColor: cs.surfaceContainerHighest,
@@ -163,6 +160,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: cs.primary, width: 1.5),
+                          ),
+                        ),
+                      ),
+
+                      // ── Forgot password link ─────────────────────────────
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _loading
+                              ? null
+                              : () => GoRouter.of(context).push('/forgot-password'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            'Forgot password?',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

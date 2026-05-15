@@ -26,6 +26,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   final _nameRuCtrl   = TextEditingController();
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
+  final _phoneCtrl    = TextEditingController();
 
   String? _role;
   int?    _grade;
@@ -51,7 +52,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl]) {
+    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -67,6 +68,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       _nameRuCtrl.text   = m['nameRu']?.toString() ?? '';
       _emailCtrl.text    = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
+      _phoneCtrl.text    = m['phone']?.toString() ?? '';
       final roles = m['roles'];
       _role  = (roles is List && roles.isNotEmpty) ? roles.first.toString() : null;
       _grade = m['grade'] is num ? (m['grade'] as num).toInt() : null;
@@ -107,6 +109,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         nameRu: _nameRuCtrl.text.trim().isEmpty ? '' : _nameRuCtrl.text.trim(),
         email: _emailCtrl.text.trim().isEmpty ? '' : _emailCtrl.text.trim(),
         username: _usernameCtrl.text.trim().isEmpty ? '' : _usernameCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim().isEmpty ? '' : _phoneCtrl.text.trim(),
         role: _role,
         grade: _grade,
       );
@@ -258,6 +261,18 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                       labelText: 'Email (optional)',
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: 'Phone (optional, E.164 — e.g. +14155551234)',
+                      prefixIcon: const Icon(Icons.phone_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      helperText: 'Used for SMS password reset.',
                     ),
                   ),
                   const SizedBox(height: 8),

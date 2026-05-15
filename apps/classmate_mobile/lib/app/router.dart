@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/auth/auth_controller.dart';
 import '../features/account/login_screen.dart';
+import '../features/account/forgot_password_screen.dart';
 import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
@@ -94,7 +95,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         return loc.replaceFirst('/student', '');
       }
 
-      final isLogin = state.matchedLocation == '/login';
+      final isLogin = state.matchedLocation == '/login'
+          || state.matchedLocation == '/forgot-password';
       final loggedIn = session.isLoggedIn;
       final primaryRole = session.primaryRole;
       final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';
@@ -173,6 +175,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
       GoRoute(

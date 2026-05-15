@@ -134,6 +134,27 @@ model UserRole {
   @@unique([userId, role])
 }
 
+/// Single-use, time-limited token issued by /auth/forgot-password and consumed
+/// by /auth/reset-password. Only the SHA-256 hash of the raw token is stored;
+/// the raw value is sent to the user via email or SMS exactly once.
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  /// SHA-256 hex digest of the raw token.
+  tokenHash String   @unique
+  /// 'email' | 'sms' — for analytics/debug. Not used to validate.
+  channel   String
+  /// Hard expiry; rows past this are ignored even if unused.
+  expiresAt DateTime
+  /// Stamped the moment the token is redeemed. Tokens with usedAt != null cannot
+  /// be redeemed again.
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model Cohort {
   id       String  @id @default(uuid())
   name     String  @unique // e.g. "10th-2"

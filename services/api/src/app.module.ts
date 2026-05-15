@@ -23,6 +23,10 @@ import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
 import { DmUploadController } from './uploads/dm-upload.controller';
 import { SetupController } from './setup/setup.controller';
+import { PasswordResetController } from './auth/password-reset/password-reset.controller';
+import { PasswordResetService } from './auth/password-reset/password-reset.service';
+import { EmailService } from './auth/password-reset/email.service';
+import { SmsService } from './auth/password-reset/sms.service';
 import { TeacherModule } from './teacher/teacher.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -100,10 +104,13 @@ const seedControllers = [
     NovaModule,
     PracticeModule,
   ],
-  controllers: [DmUploadController, SetupController, MetricsController, ...seedControllers],
+  controllers: [DmUploadController, SetupController, PasswordResetController, MetricsController, ...seedControllers],
   providers: [
     JsonLogger,
     RequestMetricsInterceptor,
+    PasswordResetService,
+    EmailService,
+    SmsService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
