@@ -75,6 +75,7 @@ import '../features/admin/ui/admin_settings_screen.dart';
 import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
+import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
 
@@ -557,6 +558,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/admin/settings',
             builder: (context, state) => const AdminSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/support',
+            builder: (context, state) => const SupportScreen(),
+          ),
+          GoRoute(
+            path: '/about',
+            builder: (context, state) => const AboutScreen(),
           ),
           GoRoute(
             path: '/secretary/students',
