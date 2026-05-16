@@ -141,6 +141,18 @@ export class AdminController {
     return this.admin.setSubjectDefaults(req.user, body);
   }
 
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('subjects/all')
+  listAllSchoolSubjects(@Req() req: any) {
+    return this.admin.listAllSchoolSubjects(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('subjects/add-to-grades')
+  addSubjectToGrades(@Req() req: any, @Body() body: any) {
+    return this.admin.addSubjectToGrades(req.user, body);
+  }
+
   @Roles(Role.ADMIN)
   @Get('subjects/defaults')
   getSubjectDefaults(

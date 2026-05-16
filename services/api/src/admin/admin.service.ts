@@ -487,6 +487,94 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     return { ok: true, defaults: row };
   }
+  /**
+   * Returns the deduplicated union of every subject defined in this school
+   * across every grade. Used by the Schedule "Add Period" subject picker so
+   * admins can pick from the full library without first choosing a grade.
+   * Dedup key is nameEn (case-insensitive).
+   */
+  async listAllSchoolSubjects(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const rows = await this.prisma.schoolGradeSubjectDefault.findMany({
+      where: { schoolId },
+      select: { subjectsI18n: true, subjects: true } as any,
+    }) as any[];
+
+    const byKey = new Map<string, any>();
+    for (const r of rows) {
+      const i18n = normalizeSubjectsI18n(r.subjectsI18n);
+      const list = i18n.length ? i18n : (r.subjects ?? []).map((s: string) => ({ nameEn: s }));
+      for (const s of list) {
+        const key = String(s.nameEn ?? '').trim().toLowerCase();
+        if (!key) continue;
+        // Keep the richest entry — first non-empty for each lang wins.
+        const prev = byKey.get(key) ?? { nameEn: s.nameEn };
+        byKey.set(key, {
+          nameEn: prev.nameEn || s.nameEn,
+          nameAr: prev.nameAr || s.nameAr,
+          nameHe: prev.nameHe || s.nameHe,
+          nameFr: prev.nameFr || s.nameFr,
+          nameRu: prev.nameRu || s.nameRu,
+        });
+      }
+    }
+
+    const subjects = Array.from(byKey.values()).sort((a, b) =>
+      String(a.nameEn ?? '').localeCompare(String(b.nameEn ?? '')),
+    );
+    return { ok: true, subjects };
+  }
+
+  /**
+   * Persists a single subject (5-lang names) into the SchoolGradeSubjectDefault
+   * row for every grade in `grades`. Used when an admin creates a brand-new
+   * subject inline from the Schedule "Add Period" flow so it becomes part of
+   * the school's permanent subject library, not just a one-off slot label.
+   */
+  async addSubjectToGrades(user: any, dto: {
+    grades?: number[];
+    subject?: { nameEn?: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string };
+  }) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const grades = Array.isArray(dto?.grades) ? dto.grades.map(Number).filter(Number.isFinite) : [];
+    if (!grades.length) throw new BadRequestException('grades[] required');
+    const nameEn = String(dto?.subject?.nameEn ?? '').trim();
+    if (!nameEn) throw new BadRequestException('subject.nameEn required');
+
+    const incoming: any = {
+      nameEn,
+      ...(dto?.subject?.nameAr ? { nameAr: String(dto.subject.nameAr).trim() } : {}),
+      ...(dto?.subject?.nameHe ? { nameHe: String(dto.subject.nameHe).trim() } : {}),
+      ...(dto?.subject?.nameFr ? { nameFr: String(dto.subject.nameFr).trim() } : {}),
+      ...(dto?.subject?.nameRu ? { nameRu: String(dto.subject.nameRu).trim() } : {}),
+    };
+
+    for (const grade of grades) {
+      const existing = await this.prisma.schoolGradeSubjectDefault.findUnique({
+        where: { schoolId_grade_unique: { schoolId, grade } },
+        select: { subjectsI18n: true } as any,
+      }) as any;
+      const i18n = normalizeSubjectsI18n(existing?.subjectsI18n);
+      // De-dup by nameEn (case-insensitive). Replace if already present so
+      // the latest 5-lang values win.
+      const filtered = i18n.filter((s) => String(s.nameEn ?? '').trim().toLowerCase() !== nameEn.toLowerCase());
+      const next = [...filtered, incoming];
+      const subjects = next.map((s) => s.nameEn);
+      await this.prisma.schoolGradeSubjectDefault.upsert({
+        where: { schoolId_grade_unique: { schoolId, grade } },
+        update: { subjects, subjectsI18n: next as any },
+        create: { schoolId, grade, subjects, subjectsI18n: next as any },
+      });
+    }
+    return { ok: true, grades };
+  }
+
   async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
     this.requireAdminOrSecretary(user);
 
@@ -914,7 +1002,16 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (dto?.nameHe !== undefined) data.nameHe = String(dto.nameHe).trim() || null;
     if (dto?.nameFr !== undefined) data.nameFr = String(dto.nameFr).trim() || null;
     if (dto?.nameRu !== undefined) data.nameRu = String(dto.nameRu).trim() || null;
-    if (dto?.email !== undefined) data.email = String(dto.email).trim().toLowerCase() || null;
+    if (dto?.email !== undefined) {
+      const em = String(dto.email).trim().toLowerCase() || null;
+      if (em) {
+        // Global uniqueness — emails sign you in regardless of school, so
+        // two users sharing one email would break login + reset flows.
+        const conflict = await this.prisma.user.findFirst({ where: { email: em } });
+        if (conflict && conflict.id !== id) throw new HttpException('Email already in use', HttpStatus.CONFLICT);
+      }
+      data.email = em;
+    }
     if (dto?.username !== undefined) {
       const un = String(dto.username).trim().toLowerCase() || null;
       if (un) {
@@ -1233,11 +1330,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this account');
 
-    const [students, teachers, cohorts, classrooms] = await Promise.all([
+    const [students, teachers, cohorts, classrooms, school, subjectsRow, bellRow] = await Promise.all([
       this.prisma.user.count({ where: { schoolId, roles: { some: { role: 'STUDENT' } } } }),
       this.prisma.user.count({ where: { schoolId, roles: { some: { role: 'TEACHER' } } } }),
       this.prisma.cohort.count({ where: { OR: [{ schoolId } as any, { schoolId: null }] } }),
       this.prisma.classroom.count({ where: { schoolId } }),
+      this.prisma.school.findUnique({ where: { id: schoolId }, select: { name: true, logoUrl: true } }),
+      // First grade with any subject defined → cheap "do they have any?" probe.
+      this.prisma.schoolGradeSubjectDefault.findFirst({ where: { schoolId }, select: { id: true } }),
+      this.prisma.schoolPeriodDefault.findFirst({ where: { schoolId }, select: { id: true } }),
     ]);
 
     const today = new Date();
@@ -1252,7 +1353,19 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       },
     });
 
-    return { ok: true, students, teachers, cohorts, classrooms, todaySessions };
+    return {
+      ok: true,
+      students,
+      teachers,
+      cohorts,
+      classrooms,
+      todaySessions,
+      // Setup-progress signals used by the dashboard "School Setup" widget.
+      schoolNameSet: !!(school?.name && school.name.trim().length > 0),
+      schoolLogoSet: !!(school?.logoUrl && school.logoUrl.trim().length > 0),
+      subjectsConfigured: !!subjectsRow,
+      bellScheduleConfigured: !!bellRow,
+    };
   }
 
   async getAnalyticsAttendance(user: any) {
