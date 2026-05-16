@@ -131,9 +131,12 @@ export class AnnouncementsService {
 
       const cohort = await this.prisma.cohort.findUnique({
         where: { id: user.studentProfile.cohortId },
-        select: { grade: true },
-      });
-      if (cohort?.grade !== undefined) grades.push(cohort.grade);
+        select: { grade: true, grades: true } as any,
+      }) as any;
+      const cohortGrades: number[] = Array.isArray(cohort?.grades) && cohort.grades.length
+        ? cohort.grades
+        : (cohort?.grade != null ? [cohort.grade] : []);
+      for (const g of cohortGrades) grades.push(g);
     }
 
     // Parent: include all approved children cohorts/grades
@@ -158,10 +161,14 @@ export class AnnouncementsService {
       if (childCohortIds.length) {
         const cohorts = await this.prisma.cohort.findMany({
           where: { id: { in: childCohortIds } },
-          select: { grade: true },
-        });
-        for (const c of cohorts)
-          if (c.grade !== undefined) grades.push(c.grade);
+          select: { grade: true, grades: true } as any,
+        }) as any[];
+        for (const c of cohorts) {
+          const cg: number[] = Array.isArray(c.grades) && c.grades.length
+            ? c.grades
+            : (c.grade != null ? [c.grade] : []);
+          for (const g of cg) grades.push(g);
+        }
       }
     }
 
@@ -223,9 +230,12 @@ export class AnnouncementsService {
       cohortIds.push(user.studentProfile.cohortId);
       const cohort = await this.prisma.cohort.findUnique({
         where: { id: user.studentProfile.cohortId },
-        select: { grade: true },
-      });
-      if (cohort?.grade !== undefined) grades.push(cohort.grade);
+        select: { grade: true, grades: true } as any,
+      }) as any;
+      const cohortGrades: number[] = Array.isArray(cohort?.grades) && cohort.grades.length
+        ? cohort.grades
+        : (cohort?.grade != null ? [cohort.grade] : []);
+      for (const g of cohortGrades) grades.push(g);
     }
 
     if (hasAnyRole({ roles }, ['PARENT'])) {
@@ -245,10 +255,14 @@ export class AnnouncementsService {
       if (childCohortIds.length) {
         const cohorts = await this.prisma.cohort.findMany({
           where: { id: { in: childCohortIds } },
-          select: { grade: true },
-        });
-        for (const c of cohorts)
-          if (c.grade !== undefined) grades.push(c.grade);
+          select: { grade: true, grades: true } as any,
+        }) as any[];
+        for (const c of cohorts) {
+          const cg: number[] = Array.isArray(c.grades) && c.grades.length
+            ? c.grades
+            : (c.grade != null ? [c.grade] : []);
+          for (const g of cg) grades.push(g);
+        }
       }
     }
 

@@ -331,10 +331,18 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const schoolId = (user as any)?.schoolId ?? null;
     const cohorts = await this.prisma.cohort.findMany({
       where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
-      select: { id: true, name: true, grade: true },
+      select: { id: true, name: true, grade: true, grades: true } as any,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
-    return { ok: true, cohorts };
+    return {
+      ok: true,
+      cohorts: (cohorts as any[]).map((c) => ({
+        id: c.id,
+        name: c.name,
+        grade: c.grade,
+        grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
+      })),
+    };
   }
 
   async listClassroomsForTeacher(user: any, teacherId: string) {
@@ -722,6 +730,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         id: c.id,
         name: c.name,
         grade: c.grade,
+        grades: Array.isArray((c as any).grades) && (c as any).grades.length ? (c as any).grades : [c.grade],
         studentCount: c.students.length,
       })),
     };
@@ -1255,9 +1264,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const cohorts = await this.prisma.cohort.findMany({
       where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
-      select: { id: true, name: true, grade: true },
+      select: { id: true, name: true, grade: true, grades: true } as any,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
-    });
+    }) as any[];
 
     const results = await Promise.all(
       cohorts.map(async (c) => {
@@ -1276,6 +1285,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
           cohortId: c.id,
           cohortName: c.name,
           grade: c.grade,
+          grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
           rate: total > 0 ? Math.round((present / total) * 100) : null,
           total,
         };
@@ -1291,9 +1301,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const cohorts = await this.prisma.cohort.findMany({
       where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
-      select: { id: true, name: true, grade: true },
+      select: { id: true, name: true, grade: true, grades: true } as any,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
-    });
+    }) as any[];
 
     const results = await Promise.all(
       cohorts.map(async (c) => {
@@ -1305,6 +1315,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
           cohortId: c.id,
           cohortName: c.name,
           grade: c.grade,
+          grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
           avgGrade: avg._avg.grade ? Math.round(avg._avg.grade) : null,
         };
       }),

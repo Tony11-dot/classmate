@@ -149,7 +149,14 @@ export class TeacherService {
       subject: (t as any).subject ?? t.classroom?.subject ?? null,
       classroomId: t.classroomId,
       classroomName: t.classroom?.name ?? null,
-      cohorts: t.cohorts.map((sc) => ({ id: sc.cohort.id, name: sc.cohort.name, grade: sc.cohort.grade })),
+      cohorts: t.cohorts.map((sc) => ({
+        id: sc.cohort.id,
+        name: sc.cohort.name,
+        grade: sc.cohort.grade,
+        grades: Array.isArray((sc.cohort as any).grades) && (sc.cohort as any).grades.length
+          ? (sc.cohort as any).grades
+          : [sc.cohort.grade],
+      })),
     }));
 
     out.sort((a, b) => a.period - b.period);

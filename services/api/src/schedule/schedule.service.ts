@@ -112,9 +112,15 @@ export class ScheduleService {
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: cohortId },
-      select: { grade: true },
-    });
+      select: { grade: true, grades: true } as any,
+    }) as any;
     if (!cohort) return { templateRows: [] };
+
+    // Multi-grade cohorts pull templates for every grade they span. Falls back
+    // to single `grade` when grades[] hasn't been backfilled yet.
+    const gradesForTemplates: number[] = Array.isArray(cohort.grades) && cohort.grades.length
+      ? cohort.grades
+      : (cohort.grade != null ? [cohort.grade] : []);
 
     const [studentBinds, cohortBinds, gradeTemplates] = await Promise.all([
       this.prisma.studentScheduleTemplate.findMany({
@@ -127,10 +133,12 @@ export class ScheduleService {
         orderBy: [{ priority: 'asc' }, { id: 'asc' }],
         include: { template: true },
       }),
-      this.prisma.scheduleTemplate.findMany({
-        where: { schoolId, kind: 'GRADE', grade: cohort.grade },
-        orderBy: [{ id: 'asc' }],
-      }),
+      gradesForTemplates.length
+        ? this.prisma.scheduleTemplate.findMany({
+            where: { schoolId, kind: 'GRADE', grade: { in: gradesForTemplates } },
+            orderBy: [{ id: 'asc' }],
+          })
+        : Promise.resolve([] as any[]),
       Promise.resolve([]),
     ]);
 

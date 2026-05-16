@@ -58,6 +58,7 @@ export class ClassroomsService {
       teacherId: null,
       cohortId: c.id,
       grade: c.grade,
+      grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
       groupTag: null,
     }));
   }
@@ -67,7 +68,7 @@ export class ClassroomsService {
 
     const cohort = await (this.prisma as any).cohort.findUnique({
       where: { id: String(cohortId) },
-      select: { id: true, name: true, grade: true },
+      select: { id: true, name: true, grade: true, grades: true },
     });
     if (!cohort || cohort.id !== studentCohortId) throw new BadRequestException('Invalid classroom id');
 
@@ -96,6 +97,7 @@ export class ClassroomsService {
       id: cohort.id,
       name: cohort.name,
       grade: cohort.grade,
+      grades: Array.isArray((cohort as any).grades) && (cohort as any).grades.length ? (cohort as any).grades : [cohort.grade],
       cohortId: cohort.id,
       scheduleTemplate: template,
       announcements: [],
