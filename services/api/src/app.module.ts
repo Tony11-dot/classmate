@@ -127,9 +127,12 @@ const seedControllers = [
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    // Order matters — guards run top-to-bottom. JwtAuthGuard sets req.user;
+    // RolesGuard reads it. Putting Roles first (the old order) only worked
+    // when APP_ENV was 'development' because RolesGuard short-circuited.
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,
@@ -137,7 +140,7 @@ const seedControllers = [
     },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useClass: RolesGuard,
     },
   ],
 })

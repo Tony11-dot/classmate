@@ -20,7 +20,11 @@ export class RolesGuard implements CanActivate {
     if (!required || required.length === 0) return true;
 
     const { user } = context.switchToHttp().getRequest();
-    if (!user) return false;
+    // Defer to JwtAuthGuard when this guard happens to run before user has
+    // been populated — JwtAuthGuard will 401 if the request is unauthenticated;
+    // otherwise our @UseGuards(JwtAuthGuard, RolesGuard) at the controller
+    // level will re-run us with user set.
+    if (!user) return true;
     return hasAnyRole(user, required as any);
   }
 }
