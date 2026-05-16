@@ -176,9 +176,13 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
       await session.setSchoolName(name);
       await session.setSchoolLogoUrl(_logoUrl);
       session.setSchoolGradeRange(_minGrade, _maxGrade);
-      ref.invalidate(_schoolProvider2);
+      // Don't invalidate + reset _initialized — that briefly drops the
+      // textbox into a loading spinner before the new data lands, which
+      // looked like nothing had saved. We already have the canonical
+      // values in local state; do a quiet refetch in the background.
+      Future.microtask(() => ref.invalidate(_schoolProvider2));
       if (!mounted) return;
-      setState(() { _dirty = false; _initialized = false; });
+      setState(() { _dirty = false; });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.adminSchoolSaved)),
       );

@@ -36,6 +36,11 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   void initState() {
     super.initState();
     _tabs = TabController(length: _roles.length, vsync: this);
+    // Re-render Scaffold when tab changes so the FAB label can show
+    // "Add student" / "Add teacher" / etc based on the active tab.
+    _tabs.addListener(() {
+      if (!_tabs.indexIsChanging) setState(() {});
+    });
     _searchCtrl.addListener(() {
       final v = _searchCtrl.text.trim();
       if (v != _search) setState(() => _search = v);
@@ -55,14 +60,26 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
     final session = ref.watch(authSessionProvider);
     final isAdmin = session.primaryRole == 'ADMIN';
 
+    // Button copy + pre-selected role come from the currently-active tab:
+    // on Students tab → "Add student" + STUDENT role; same for the rest.
+    final activeRole = _roles[_tabs.index < _roles.length ? _tabs.index : 0];
+    final addLabel = switch (activeRole) {
+      'STUDENT'   => 'Add student',
+      'TEACHER'   => 'Add teacher',
+      'PARENT'    => 'Add parent',
+      'SECRETARY' => 'Add secretary',
+      'ADMIN'     => 'Add admin',
+      _           => AppLocalizations.of(context)!.adminAddUser,
+    };
+
     return Scaffold(
       backgroundColor: cs.surface,
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               heroTag: 'fab_add_user',
-              onPressed: () => _showAddUserSheet(context),
+              onPressed: () => _showAddUserSheet(context, initialRole: activeRole),
               icon: const Icon(Icons.person_add_rounded),
-              label: Text(AppLocalizations.of(context)!.adminAddUser),
+              label: Text(addLabel),
             )
           : null,
       body: Column(
@@ -105,10 +122,13 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
     );
   }
 
-  Future<void> _showAddUserSheet(BuildContext context) async {
+  Future<void> _showAddUserSheet(BuildContext context, {String initialRole = 'STUDENT'}) async {
     final createdRole = await Navigator.push<String>(
       context,
-      MaterialPageRoute(builder: (_) => AdminAddUserScreen(repo: ref.read(adminRepositoryProvider))),
+      MaterialPageRoute(builder: (_) => AdminAddUserScreen(
+        repo: ref.read(adminRepositoryProvider),
+        initialRole: initialRole,
+      )),
     );
     if (createdRole != null && createdRole.isNotEmpty) {
       for (final role in _roles) {
@@ -284,15 +304,16 @@ class _UserTile extends StatelessWidget {
 
 // ── Add user — full-screen ─────────────────────────────────────────────────────
 
-class AdminAddUserScreen extends StatefulWidget {
-  const AdminAddUserScreen({super.key, required this.repo});
+class AdminAddUserScreen extends ConsumerStatefulWidget {
+  const AdminAddUserScreen({super.key, required this.repo, this.initialRole = 'STUDENT'});
   final AdminRepository repo;
+  final String initialRole;
 
   @override
-  State<AdminAddUserScreen> createState() => _AdminAddUserScreenState();
+  ConsumerState<AdminAddUserScreen> createState() => _AdminAddUserScreenState();
 }
 
-class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
+class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   final _nameEnCtrl   = TextEditingController();
   final _nameArCtrl   = TextEditingController();
   final _nameHeCtrl   = TextEditingController();
@@ -300,13 +321,12 @@ class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
   final _nameRuCtrl   = TextEditingController();
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
-  String _role  = 'STUDENT';
+  late String _role = widget.initialRole;
   int?   _grade;
   bool   _saving = false;
 
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
   static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
-  static const _grades     = [5, 6, 7, 8, 9, 10, 11, 12];
 
   @override
   void dispose() {
@@ -405,12 +425,14 @@ class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
     }
   }
 
-  Widget _langField(TextEditingController ctrl, String langLabel, {bool required = false}) {
+  Widget _langField(TextEditingController ctrl, String langLabel, {bool required = false, bool autofocus = false}) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: ctrl,
+        autofocus: autofocus,
+        textInputAction: TextInputAction.next,
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           labelText: required ? '$langLabel *' : langLabel,
@@ -436,29 +458,20 @@ class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_add_user_screen',
+        onPressed: _saving ? null : _save,
+        icon: _saving
+            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.check_rounded),
+        label: Text(l.adminCreateUser),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => Navigator.pop(context)),
-                  Expanded(child: Text(l.adminAddUser, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
-                  FilledButton.icon(
-                    onPressed: _saving ? null : _save,
-                    icon: _saving
-                        ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.check_rounded, size: 16),
-                    label: Text(l.adminCreateUser),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                 children: [
                   // ── Login credentials ──────────────────────────────────────
                   Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
@@ -493,7 +506,7 @@ class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
                   Text('At least English is required. Other languages are optional.',
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, 'Name in English', required: true),
+                  _langField(_nameEnCtrl, 'Name in English', required: true, autofocus: true),
                   _langField(_nameArCtrl, 'Name in Arabic (اسم)'),
                   _langField(_nameHeCtrl, 'Name in Hebrew (שם)'),
                   _langField(_nameFrCtrl, 'Name in French'),
@@ -518,7 +531,7 @@ class _AdminAddUserScreenState extends State<AdminAddUserScreen> {
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8, runSpacing: 8,
-                      children: _grades.map((g) => ChoiceChip(
+                      children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(
                         label: Text('Grade $g'),
                         selected: _grade == g,
                         onSelected: (_) => setState(() => _grade = g),
