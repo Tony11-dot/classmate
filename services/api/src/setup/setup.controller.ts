@@ -722,9 +722,12 @@ function buildPage(): string {
     .school-card { background:var(--surface); border:1px solid var(--border);
                    border-radius:16px; padding:18px 20px; margin-bottom:12px; }
     .school-card-hdr { display:flex; align-items:center; gap:12px; }
-    .school-card-hdr img { width:36px; height:36px; border-radius:8px; object-fit:cover;
-                           filter: brightness(0) invert(1); background:var(--blue);
-                           padding:2px; }
+    /* Real uploaded school logos render as-is (could be color/transparent).
+       Fallback uses the ClassMate mark — needs the white filter to be readable. */
+    .school-card-hdr img { width:36px; height:36px; border-radius:8px; object-fit:cover; }
+    .school-card-hdr img.fallback-logo {
+      filter: brightness(0) invert(1); background:var(--blue); padding:2px;
+    }
     .school-card-hdr h3 { font-size:16px; font-weight:800; flex:1; min-width:0;
                           overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .school-card-hdr .school-actions { display:flex; gap:6px; flex-shrink:0; }
@@ -1284,9 +1287,12 @@ function buildPage(): string {
       : '<em>No admins</em>';
     const u = s.userCounts || {};
     const total = (u.STUDENT||0)+(u.TEACHER||0)+(u.SECRETARY||0)+(u.PARENT||0)+(u.ADMIN||0);
+    // Real uploaded logo renders untouched; fallback ClassMate mark gets the
+    // white-on-blue treatment for readability against the card background.
+    const fallback = ${JSON.stringify(LOGO_DATA_URI)};
     const logo = s.logoUrl
-      ? '<img src="' + escapeHtml(s.logoUrl) + '" onerror="this.style.display=\\'none\\'">'
-      : '<img src="' + ${JSON.stringify(LOGO_DATA_URI)} + '">';
+      ? '<img src="' + escapeHtml(s.logoUrl) + '" onerror="this.classList.add(\\'fallback-logo\\'); this.src=\\'' + fallback + '\\';">'
+      : '<img class="fallback-logo" src="' + fallback + '">';
     const payload = encodeURIComponent(JSON.stringify(s));
     return ''
       + '<div class="school-card">'

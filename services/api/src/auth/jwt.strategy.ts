@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy as CustomStrategy } from 'passport-custom';
+import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
@@ -29,8 +30,52 @@ type DevProvisionedStudent = {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+  ) {
     super();
+  }
+
+  /** Verifies a signed JWT (issued by AuthService.login) and hydrates the
+   * user object the rest of the app expects. Returns null if the token isn't
+   * a valid JWT — caller falls through to the dev-token path. */
+  private async tryRealJwt(token: string, schoolId?: string, actingStudentId?: string): Promise<any | null> {
+    let payload: any;
+    try {
+      payload = await this.jwt.verifyAsync(token);
+    } catch {
+      return null;
+    }
+    const userId = String(payload?.sub ?? '').trim();
+    if (!userId) return null;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: true, studentProfile: { select: { cohortId: true } } } as any,
+    }) as any;
+    if (!user) throw new UnauthorizedException('Account no longer exists');
+
+    const roles: Role[] = (user.roles ?? []).map((r: any) => r.role);
+    const displayName = user.displayName ?? user.nameEn ?? user.name ?? user.email?.split('@')[0] ?? '';
+    const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
+    const resolvedSchoolId = user.schoolId ?? schoolId ?? null;
+
+    return {
+      sub: user.id,
+      id: user.id,
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+      roles,
+      role: roles[0],
+      name: displayName,
+      displayName,
+      fullName: displayName,
+      ...(cohortId ? { cohortId } : {}),
+      ...(actingStudentId ? { actingStudentId } : {}),
+      ...(resolvedSchoolId ? { schoolId: resolvedSchoolId } : {}),
+    };
   }
 
   private async ensureDevStudentProfile(userId: string): Promise<DevProvisionedStudent> {
@@ -76,6 +121,15 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     const auth = String((req as any)?.headers?.authorization ?? '');
     const token = auth.replace(/^Bearer\s+/i, '').trim();
 
+    // 1) Real signed JWT (issued by /auth/login). This is the main path in
+    //    production — dev tokens are now off by default.
+    if (token && !token.startsWith('dev-token-')) {
+      const real = await this.tryRealJwt(token, schoolId, actingStudentId);
+      if (real) return real;
+    }
+
+    // 2) Dev token shortcut — gated behind ALLOW_DEV_TOKEN=1. Used by the
+    //    cmr local-dev alias and by smoke tests.
     if (
       (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKEN === '1') &&
       token.startsWith('dev-token-')

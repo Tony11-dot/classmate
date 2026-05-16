@@ -1,22 +1,30 @@
-import { BadRequestException, Body, ConflictException, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, ConflictException, Controller, Get, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Public } from './decorators/public.decorator';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuthService } from './auth.service';
 
 @SkipThrottle()
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auth: AuthService,
+  ) {}
 
   @Public()
   @Post('login')
   async login(@Body() body: any) {
-    // identifier can be email or username
     const identifier = String(body?.identifier ?? body?.email ?? body?.username ?? '').trim().toLowerCase();
+    const password = String(body?.password ?? '');
     if (!identifier) throw new BadRequestException('identifier (email or username) required');
-    return { token: 'dev-token-' + identifier };
+    if (!password) throw new BadRequestException('password required');
+
+    const result = await this.auth.login(identifier, password);
+    if (!result) throw new UnauthorizedException('Incorrect email/username or password.');
+    return result;
   }
 
   @Public()
