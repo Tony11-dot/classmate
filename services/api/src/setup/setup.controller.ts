@@ -43,7 +43,7 @@ const RESET_CODE_TTL_MIN = 15;
 const resetCodeStore = new Map<string, { codeHash: string; expiresAt: number }>();
 
 function defaultOwnerPhone(): string {
-  return process.env.PLATFORM_OWNER_PHONE?.trim() || '+9725488441';
+  return process.env.PLATFORM_OWNER_PHONE?.trim() || '+972525488441';
 }
 
 function maskPhone(p: string): string {
