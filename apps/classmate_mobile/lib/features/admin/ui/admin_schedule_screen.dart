@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
@@ -91,12 +92,9 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
 
     final allCohorts  = cohortsAsync.maybeWhen(data: (d) => d, orElse: () => <Map<String, dynamic>>[]);
     final allStudents = studentsAsync.maybeWhen(data: (d) => d, orElse: () => <Map<String, dynamic>>[]);
-    final allGrades   = allCohorts
-        .map((c) => (c['grade'] as num?)?.toInt())
-        .whereType<int>()
-        .toSet()
-        .toList()
-      ..sort();
+    // Show every grade configured for this school, not just grades that already
+    // have cohorts — admins planning a brand-new grade need to see it here too.
+    final allGrades = ref.watch(authSessionProvider).schoolGrades;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -348,9 +346,16 @@ class _SlotCard extends StatelessWidget {
     final subject     = slot['subject']?.toString() ?? '';
     final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
     final cohorts     = slot['cohorts'] as List? ?? [];
-    final cohortName  = cohorts.isNotEmpty && cohorts.first is Map
-        ? ((cohorts.first['cohort'] is Map ? cohorts.first['cohort']['name'] : null)?.toString() ?? '')
-        : '';
+    final cohortNames = cohorts
+        .whereType<Map>()
+        .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    final cohortLabel = cohortNames.isEmpty
+        ? ''
+        : cohortNames.length == 1
+            ? cohortNames.first
+            : '${cohortNames.first} +${cohortNames.length - 1}';
     final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
 
     return Container(
@@ -369,8 +374,8 @@ class _SlotCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          if (cohortName.isNotEmpty)
-            Text(cohortName, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+          if (cohortLabel.isNotEmpty)
+            Text(cohortLabel, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
           if (freq > 1)
             Container(
               margin: const EdgeInsets.only(top: 2),
@@ -423,7 +428,7 @@ class _FilterChipItem extends StatelessWidget {
 // ── Add Period — full-screen ───────────────────────────────────────────────────
 // Multi-slot: admin can add N day+period pairs, shared teacher/cohort/frequency
 
-class AdminAddPeriodScreen extends StatefulWidget {
+class AdminAddPeriodScreen extends ConsumerStatefulWidget {
   const AdminAddPeriodScreen({
     super.key,
     required this.repo,
@@ -450,7 +455,7 @@ class AdminAddPeriodScreen extends StatefulWidget {
   final int? initialGrade;
 
   @override
-  State<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
+  ConsumerState<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
 }
 
 class _DayPeriodSlot {
@@ -461,7 +466,7 @@ class _DayPeriodSlot {
 
 enum _AudienceMode { cohort, student, grade }
 
-class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
+class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   late final List<_DayPeriodSlot> _slots;
 
   String? _teacherId;
@@ -526,12 +531,34 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
         final g = _audienceGrade;
         if (g == null) return (cohortIds: null, studentIds: null);
         final matching = widget.cohorts
-            .where((c) => (c['grade'] as num?)?.toInt() == g)
+            .where((c) => _cohortGradesOf(c).contains(g))
             .map((c) => c['id']?.toString() ?? '')
             .where((id) => id.isNotEmpty)
             .toList();
         return (cohortIds: matching.isNotEmpty ? matching : null, studentIds: null);
     }
+  }
+
+  /// Returns the grades a cohort spans. Falls back to [grade] when the API
+  /// hasn't sent the multi-grade `grades` field yet (e.g. cached older data).
+  static List<int> _cohortGradesOf(Map<String, dynamic> c) {
+    final raw = c['grades'];
+    if (raw is List && raw.isNotEmpty) {
+      return raw.map((e) => (e as num).toInt()).toList();
+    }
+    final g = (c['grade'] as num?)?.toInt();
+    return g == null ? const [] : [g];
+  }
+
+  static String? _cohortGradeLabel(Map<String, dynamic> c) {
+    final gs = _cohortGradesOf(c);
+    if (gs.isEmpty) return null;
+    if (gs.length == 1) return 'Grade ${gs.first}';
+    final sorted = [...gs]..sort();
+    final isRange = sorted.last - sorted.first == sorted.length - 1;
+    return isRange
+        ? 'Grade ${sorted.first}-${sorted.last}'
+        : 'Grades ${sorted.join(', ')}';
   }
 
   Future<void> _save() async {
@@ -676,10 +703,7 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                 items: widget.cohorts,
                 selected: _cohortIds,
                 nameKey: 'name',
-                subtitleBuilder: (item) {
-                  final g = item['grade'];
-                  return g != null ? 'Grade $g' : null;
-                },
+                subtitleBuilder: (item) => _cohortGradeLabel(item),
                 searchHint: l.adminScheduleSearchCohort,
                 onToggle: (id) => setState(() =>
                   _cohortIds.contains(id) ? _cohortIds.remove(id) : _cohortIds.add(id)),
@@ -710,12 +734,10 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
             else ...[
               // Grade mode — pick a single grade; expanded to all matching cohorts on save
               Builder(builder: (ctx) {
-                final grades = widget.cohorts
-                    .map((c) => (c['grade'] as num?)?.toInt())
-                    .whereType<int>()
-                    .toSet()
-                    .toList()
-                  ..sort();
+                // Use the school's full grade range, not just grades that
+                // already have cohorts — admins planning a new grade need to
+                // see it in the picker too.
+                final grades = ref.watch(authSessionProvider).schoolGrades;
                 if (grades.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -729,7 +751,9 @@ class _AdminAddPeriodScreenState extends State<AdminAddPeriodScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: grades.map((g) {
-                    final matching = widget.cohorts.where((c) => (c['grade'] as num?)?.toInt() == g).length;
+                    final matching = widget.cohorts
+                        .where((c) => _cohortGradesOf(c).contains(g))
+                        .length;
                     return ChoiceChip(
                       label: Text('Grade $g · $matching cohorts'),
                       selected: _audienceGrade == g,
