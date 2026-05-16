@@ -190,7 +190,11 @@ model PasswordChangeRequest {
 model Cohort {
   id       String  @id @default(uuid())
   name     String  @unique // e.g. "10th-2"
-  grade    Int // 7..12
+  /// Primary/representative grade — kept in sync with grades[0] so legacy
+  /// readers (announcements, schedule, teacher.service, etc.) keep working.
+  grade    Int
+  /// Authoritative grade list. Multi-grade cohorts have length > 1.
+  grades   Int[]   @default([])
   schoolId String? // null = legacy/global; non-null = school-scoped
 
   students              StudentProfile[]

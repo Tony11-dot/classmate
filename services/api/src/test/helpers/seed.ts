@@ -7,7 +7,7 @@ export async function seedTeacherWithCohort(email: string) {
   if (!teacher) throw new Error(`Teacher not found: ${email}`);
 
   const cohort = await prisma.cohort.create({
-    data: { name: `E2E Cohort ${Date.now()}`, grade: 10 },
+    data: { name: `E2E Cohort ${Date.now()}`, grade: 10, grades: [10] },
     select: { id: true },
   });
 

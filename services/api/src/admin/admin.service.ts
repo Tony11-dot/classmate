@@ -13,6 +13,21 @@ function randomDigits(len = 6) {
   return out;
 }
 
+/**
+ * Accepts either a `grades` array or a legacy single `grade`. Returns a
+ * deduplicated, sorted `number[]` of valid integer grades. Empty if no usable
+ * input. Callers should validate non-empty themselves.
+ */
+function normalizeGrades(grades: unknown, fallback?: unknown): number[] {
+  const raw = Array.isArray(grades) && grades.length > 0
+    ? grades
+    : (fallback !== undefined && fallback !== null ? [fallback] : []);
+  const cleaned = raw
+    .map((g) => Number(g))
+    .filter((g) => Number.isInteger(g) && g > 0);
+  return Array.from(new Set(cleaned)).sort((a, b) => a - b);
+}
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -25,15 +40,18 @@ export class AdminService {
       throw new ForbiddenException('Admin or Teacher only');
   }
 
-  async createCohort(user: any, body: { name: string; grade: number }) {
+  async createCohort(user: any, body: { name: string; grade?: number; grades?: number[] }) {
     this.ensureAdmin(user);
-    if (!body?.name || !body?.grade)
-      throw new BadRequestException('name and grade are required');
+    if (!body?.name) throw new BadRequestException('name is required');
+
+    const grades = normalizeGrades(body?.grades, body?.grade);
+    if (!grades.length) throw new BadRequestException('grade or grades[] required');
+
     const schoolId = (user as any)?.schoolId ?? null;
 
     try {
       const out = await this.prisma.cohort.create({
-        data: { name: body.name, grade: body.grade, schoolId } as any,
+        data: { name: body.name, grade: grades[0], grades, schoolId } as any,
       });
       return out;
     } catch (e: any) {
@@ -1077,6 +1095,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         id: true,
         name: true,
         grade: true,
+        grades: true,
         _count: { select: { studentLinks: true } },
       },
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
@@ -1087,6 +1106,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         id: c.id,
         name: c.name,
         grade: c.grade,
+        grades: (c as any).grades?.length ? (c as any).grades : [c.grade],
         studentCount: c._count.studentLinks,
       })),
     };
@@ -1096,7 +1116,16 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.requireAdminOrSecretary(user);
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
-    if (dto?.grade !== undefined) data.grade = Number(dto.grade);
+
+    // Accept either grades[] or single grade. Keep both columns in sync so
+    // every legacy reader (announcements, schedule, teacher.service, …) keeps
+    // seeing a usable primary grade.
+    if (dto?.grades !== undefined || dto?.grade !== undefined) {
+      const grades = normalizeGrades(dto?.grades, dto?.grade);
+      if (!grades.length) throw new BadRequestException('grade or grades[] required');
+      data.grade = grades[0];
+      data.grades = grades;
+    }
 
     const row = await this.prisma.cohort.update({ where: { id }, data });
     return { ok: true, cohort: row };

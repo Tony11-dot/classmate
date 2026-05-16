@@ -24,7 +24,7 @@ export class AdminController {
 
   @Roles(Role.ADMIN)
   @Post('cohorts')
-  createCohort(@Req() req: any, @Body() body: { name: string; grade: number }) {
+  createCohort(@Req() req: any, @Body() body: { name: string; grade?: number; grades?: number[] }) {
     return this.admin.createCohort(req.user, body);
   }
 

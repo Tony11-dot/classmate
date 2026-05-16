@@ -23,8 +23,8 @@ export class E2ESeedController {
     try {
       const cohort = await prisma.cohort.upsert({
         where: { name: `Parent Web Cohort ${runId}` } as any,
-        update: { grade: 10 } as any,
-        create: { name: `Parent Web Cohort ${runId}`, grade: 10 } as any,
+        update: { grade: 10, grades: [10] } as any,
+        create: { name: `Parent Web Cohort ${runId}`, grade: 10, grades: [10] } as any,
       } as any);
 
       const teacher = await prisma.user.upsert({
@@ -154,8 +154,8 @@ export class E2ESeedController {
       const cohortName = 'E2E Cohort';
       const cohort = await prisma.cohort.upsert({
         where: { name: cohortName } as any,
-        update: { grade: 10 } as any,
-        create: { name: cohortName, grade: 10 } as any,
+        update: { grade: 10, grades: [10] } as any,
+        create: { name: cohortName, grade: 10, grades: [10] } as any,
       } as any);
       // ================================
       // Session 10: subject defaults seed

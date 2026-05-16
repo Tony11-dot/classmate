@@ -90,8 +90,8 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
 
     const cohort = await this.prisma.cohort.upsert({
       where: { name: DEV_COHORT_NAME },
-      update: { grade: 10 },
-      create: { name: DEV_COHORT_NAME, grade: 10 },
+      update: { grade: 10, grades: [10] },
+      create: { name: DEV_COHORT_NAME, grade: 10, grades: [10] },
       select: { id: true },
     });
 
