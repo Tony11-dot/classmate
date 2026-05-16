@@ -9,10 +9,14 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Headers,
   HttpCode,
+  NotFoundException,
+  Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -23,11 +27,29 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { mkdirSync } from 'fs';
+import { createHash, randomInt } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { Public } from '../auth/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
+import { SmsService } from '../auth/password-reset/sms.service';
 import { LOGO_DATA_URI } from './logo';
+
+// In-memory store for the "Reset All Data" confirmation code. Sufficient for a
+// single API instance; if Railway ever scales to >1 replica this needs Redis.
+// Map key is a random session id we return to the caller; value is the hash of
+// the code we SMS'd, plus its expiry.
+const RESET_CODE_TTL_MIN = 15;
+const resetCodeStore = new Map<string, { codeHash: string; expiresAt: number }>();
+
+function defaultOwnerPhone(): string {
+  return process.env.PLATFORM_OWNER_PHONE?.trim() || '+9725488441';
+}
+
+function maskPhone(p: string): string {
+  if (p.length <= 4) return p;
+  return `${p.slice(0, 4)}…${p.slice(-2)}`;
+}
 
 function ensureUploadsDir() {
   mkdirSync(join(process.cwd(), 'uploads', 'setup'), { recursive: true });
@@ -43,7 +65,10 @@ function checkSecret(provided: string | undefined): void {
 
 @Controller('cms')
 export class SetupController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sms: SmsService,
+  ) {}
 
   // ── Page UI ────────────────────────────────────────────────────────────────
 
@@ -225,6 +250,280 @@ export class SetupController {
       note: 'School created. Log in to the admin app with the credentials above.',
     };
   }
+
+  // ── List schools with stats ────────────────────────────────────────────────
+
+  @Public()
+  @Get('schools')
+  async listSchools(@Headers('x-setup-secret') secret: string) {
+    checkSecret(secret);
+    const schools = await this.prisma.school.findMany({ orderBy: { createdAt: 'desc' } });
+
+    const out = await Promise.all(schools.map(async (s: any) => {
+      const [
+        userRows,
+        admins,
+        cohortCount,
+        classroomCount,
+        subjectsRow,
+      ] = await Promise.all([
+        // Per-role user counts. UserRole has (userId, role); we count distinct
+        // userId per role for users belonging to this school.
+        this.prisma.userRole.groupBy({
+          by: ['role'],
+          where: { user: { schoolId: s.id } } as any,
+          _count: { userId: true },
+        }) as any,
+        this.prisma.user.findMany({
+          where: { schoolId: s.id, roles: { some: { role: 'ADMIN' as any } } } as any,
+          select: { id: true, email: true, username: true, name: true, nameEn: true } as any,
+          take: 20,
+        }) as any,
+        this.prisma.cohort.count({ where: { schoolId: s.id } } as any),
+        this.prisma.classroom.count({ where: { schoolId: s.id } } as any),
+        this.prisma.schoolGradeSubjectDefault.findUnique({
+          where: { schoolId_grade_unique: { schoolId: s.id, grade: 0 } } as any,
+          select: { subjects: true, subjectsI18n: true } as any,
+        }) as any,
+      ]);
+
+      const userCounts: Record<string, number> = {};
+      for (const row of userRows as any[]) {
+        userCounts[row.role] = row._count?.userId ?? 0;
+      }
+
+      const subjectsI18n = Array.isArray(subjectsRow?.subjectsI18n) ? subjectsRow.subjectsI18n : [];
+      const subjectCount = subjectsI18n.length || (subjectsRow?.subjects?.length ?? 0);
+
+      return {
+        id: s.id,
+        name: s.name,
+        logoUrl: s.logoUrl,
+        minGrade: s.minGrade,
+        maxGrade: s.maxGrade,
+        createdAt: s.createdAt,
+        userCounts,
+        cohortCount,
+        classroomCount,
+        subjectCount,
+        admins: (admins as any[]).map((a: any) => ({
+          id: a.id,
+          name: a.nameEn || a.name,
+          email: a.email,
+          username: a.username,
+        })),
+      };
+    }));
+
+    return { ok: true, schools: out };
+  }
+
+  // ── Single school detail ───────────────────────────────────────────────────
+
+  @Public()
+  @Get('schools/:id')
+  async getSchool(@Headers('x-setup-secret') secret: string, @Param('id') id: string) {
+    checkSecret(secret);
+    const school = await this.prisma.school.findUnique({ where: { id } });
+    if (!school) throw new NotFoundException('School not found');
+
+    // Re-use listSchools' aggregation shape for one row.
+    const [userRows, admins, cohortCount, classroomCount, subjectsRow] = await Promise.all([
+      this.prisma.userRole.groupBy({
+        by: ['role'],
+        where: { user: { schoolId: id } } as any,
+        _count: { userId: true },
+      }) as any,
+      this.prisma.user.findMany({
+        where: { schoolId: id, roles: { some: { role: 'ADMIN' as any } } } as any,
+        select: { id: true, email: true, username: true, name: true, nameEn: true } as any,
+      }) as any,
+      this.prisma.cohort.count({ where: { schoolId: id } } as any),
+      this.prisma.classroom.count({ where: { schoolId: id } } as any),
+      this.prisma.schoolGradeSubjectDefault.findUnique({
+        where: { schoolId_grade_unique: { schoolId: id, grade: 0 } } as any,
+        select: { subjects: true, subjectsI18n: true } as any,
+      }) as any,
+    ]);
+
+    const userCounts: Record<string, number> = {};
+    for (const row of userRows as any[]) {
+      userCounts[row.role] = row._count?.userId ?? 0;
+    }
+    const subjectsI18n = Array.isArray(subjectsRow?.subjectsI18n) ? subjectsRow.subjectsI18n : [];
+
+    return {
+      ok: true,
+      school: {
+        ...school,
+        userCounts,
+        cohortCount,
+        classroomCount,
+        admins,
+        subjects: subjectsI18n,
+      },
+    };
+  }
+
+  // ── Update school ──────────────────────────────────────────────────────────
+
+  @Public()
+  @Patch('schools/:id')
+  async updateSchool(
+    @Headers('x-setup-secret') secret: string,
+    @Param('id') id: string,
+    @Body() body: { name?: string; logoUrl?: string | null; minGrade?: number; maxGrade?: number },
+  ) {
+    checkSecret(secret);
+    const target = await this.prisma.school.findUnique({ where: { id } });
+    if (!target) throw new NotFoundException('School not found');
+
+    const data: any = {};
+    if (body.name !== undefined) {
+      const n = String(body.name).trim();
+      if (!n) throw new BadRequestException('Name cannot be empty.');
+      data.name = n;
+    }
+    if (body.logoUrl !== undefined) {
+      data.logoUrl = body.logoUrl ? String(body.logoUrl).trim() : null;
+    }
+    if (body.minGrade !== undefined || body.maxGrade !== undefined) {
+      const min = body.minGrade !== undefined ? Number(body.minGrade) : (target as any).minGrade ?? 5;
+      const max = body.maxGrade !== undefined ? Number(body.maxGrade) : (target as any).maxGrade ?? 12;
+      if (!Number.isFinite(min) || !Number.isFinite(max) || min < 1 || max > 20 || min > max) {
+        throw new BadRequestException(`Invalid grade range ${min}–${max}. Must be 1..20 and min ≤ max.`);
+      }
+      data.minGrade = min;
+      data.maxGrade = max;
+    }
+
+    const updated = await this.prisma.school.update({ where: { id }, data });
+    return { ok: true, school: updated };
+  }
+
+  // ── Delete one school (cascade) ────────────────────────────────────────────
+
+  @Public()
+  @Delete('schools/:id')
+  async deleteSchool(@Headers('x-setup-secret') secret: string, @Param('id') id: string) {
+    checkSecret(secret);
+    const target = await this.prisma.school.findUnique({ where: { id } });
+    if (!target) throw new NotFoundException('School not found');
+
+    // Delete child tables that don't auto-cascade. Most relations are
+    // `onDelete: Cascade` from School, so the final School delete will
+    // sweep most rows. Users have `schoolId: SetNull` so we want to remove
+    // them explicitly along with the school.
+    await this.prisma.$transaction([
+      // Subjects + period defaults — auto cascade from School, but explicit
+      // for clarity.
+      this.prisma.schoolGradeSubjectDefault.deleteMany({ where: { schoolId: id } } as any),
+      this.prisma.schoolPeriodDefault.deleteMany({ where: { schoolId: id } } as any),
+      // Cohorts and classrooms cascade from School. ScheduleSlot too.
+      // Users belonging to this school — delete entirely.
+      this.prisma.user.deleteMany({ where: { schoolId: id } } as any),
+      this.prisma.school.delete({ where: { id } }),
+    ]);
+
+    return { ok: true };
+  }
+
+  // ── Request reset-all confirmation code (sends SMS) ────────────────────────
+
+  @Public()
+  @Post('reset-all/request-code')
+  @HttpCode(200)
+  async requestResetCode(@Headers('x-setup-secret') secret: string) {
+    checkSecret(secret);
+
+    const phone = defaultOwnerPhone();
+    if (!this.sms.isConfigured) {
+      throw new BadRequestException(
+        'Twilio is not configured on the server. Add TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM to Railway env vars before triggering a database reset.',
+      );
+    }
+
+    // Random 6-digit code, zero-padded.
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    const sessionId = createHash('sha256').update(`${Date.now()}:${code}`).digest('hex').slice(0, 24);
+
+    resetCodeStore.set(sessionId, {
+      codeHash,
+      expiresAt: Date.now() + RESET_CODE_TTL_MIN * 60_000,
+    });
+
+    try {
+      await this.sms.send(
+        phone,
+        `ClassMate: your platform reset code is ${code}. This will DELETE ALL DATA. Code expires in ${RESET_CODE_TTL_MIN} min. If you didn't request this, ignore.`,
+      );
+    } catch (err) {
+      resetCodeStore.delete(sessionId);
+      throw new BadRequestException(`Failed to send SMS: ${(err as Error).message}`);
+    }
+
+    return {
+      ok: true,
+      sessionId,
+      sentTo: maskPhone(phone),
+      expiresInMinutes: RESET_CODE_TTL_MIN,
+    };
+  }
+
+  // ── Execute the reset (validates code + RESET text + nukes DB) ─────────────
+
+  @Public()
+  @Post('reset-all/execute')
+  @HttpCode(200)
+  async executeReset(
+    @Headers('x-setup-secret') secret: string,
+    @Body() body: { sessionId?: string; code?: string; confirm?: string },
+  ) {
+    checkSecret(secret);
+
+    const sessionId = String(body?.sessionId ?? '').trim();
+    const code = String(body?.code ?? '').trim();
+    const confirm = String(body?.confirm ?? '');
+
+    if (!sessionId || !code) throw new BadRequestException('sessionId and code are required.');
+    if (confirm !== 'RESET') throw new BadRequestException("Confirmation text must be exactly 'RESET'.");
+
+    const entry = resetCodeStore.get(sessionId);
+    if (!entry) throw new BadRequestException('No active reset session. Request a new code.');
+    if (entry.expiresAt < Date.now()) {
+      resetCodeStore.delete(sessionId);
+      throw new BadRequestException('Reset code expired. Request a new one.');
+    }
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    if (codeHash !== entry.codeHash) {
+      throw new BadRequestException('Wrong code.');
+    }
+
+    // Single-use: consume the session whether or not the wipe succeeds.
+    resetCodeStore.delete(sessionId);
+
+    // Wipe every user table. The `_prisma_migrations` table is preserved so
+    // the schema isn't re-bootstrapped on next deploy. Order doesn't matter
+    // because TRUNCATE … CASCADE handles FK chains automatically.
+    const tables = await this.prisma.$queryRaw<{ tablename: string }[]>`
+      SELECT tablename FROM pg_tables
+      WHERE schemaname = 'public' AND tablename != '_prisma_migrations'
+    `;
+    const truncated: string[] = [];
+    for (const t of tables) {
+      try {
+        await this.prisma.$executeRawUnsafe(`TRUNCATE TABLE "${t.tablename}" RESTART IDENTITY CASCADE`);
+        truncated.push(t.tablename);
+      } catch (err) {
+        // Some tables may already be empty / vacuum'd; continue.
+        // Surface the error in the response so the UI can show it.
+        truncated.push(`${t.tablename} (failed: ${(err as Error).message})`);
+      }
+    }
+
+    return { ok: true, truncated, message: `Truncated ${truncated.length} tables.` };
+  }
 }
 
 // ── Page HTML ──────────────────────────────────────────────────────────────
@@ -373,6 +672,79 @@ function buildPage(): string {
     @media(max-width:500px) {
       .row2, .periods, .subj-lang-row { grid-template-columns:1fr; }
     }
+
+    /* ── tabs ─────────────────────────────────────────────────────────── */
+    .tabs { display:flex; gap:6px; background:var(--surface); border:1px solid var(--border);
+            border-radius:14px; padding:6px; margin-bottom:24px; }
+    .tabs button { flex:1; padding:10px 12px; background:transparent; border:none;
+                   border-radius:9px; color:var(--muted); font-weight:700; font-size:13px;
+                   letter-spacing:.3px; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .tabs button:hover { color:var(--text); }
+    .tabs button.active { background:var(--blue); color:#fff; }
+    .pane { display:none; }
+    .pane.active { display:block; }
+
+    /* ── schools list ─────────────────────────────────────────────────── */
+    .school-card { background:var(--surface); border:1px solid var(--border);
+                   border-radius:16px; padding:18px 20px; margin-bottom:12px; }
+    .school-card-hdr { display:flex; align-items:center; gap:12px; }
+    .school-card-hdr img { width:36px; height:36px; border-radius:8px; object-fit:cover;
+                           filter: brightness(0) invert(1); background:var(--blue);
+                           padding:2px; }
+    .school-card-hdr h3 { font-size:16px; font-weight:800; flex:1; min-width:0;
+                          overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .school-card-hdr .school-actions { display:flex; gap:6px; flex-shrink:0; }
+    .school-card-hdr .school-actions button { padding:7px 12px; border-radius:8px;
+        border:1px solid var(--border); background:var(--surface2); color:var(--text);
+        font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .school-card-hdr .school-actions button:hover { border-color:var(--blue); color:var(--blue); }
+    .school-card-hdr .school-actions button.danger:hover { border-color:var(--red); color:var(--red); }
+    .school-stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:14px; }
+    .school-stat { background:var(--bg); border:1px solid var(--border); border-radius:10px;
+                   padding:10px 12px; text-align:center; }
+    .school-stat .num { font-size:18px; font-weight:800; color:var(--text); }
+    .school-stat .lbl { font-size:10px; color:var(--muted); text-transform:uppercase;
+                        letter-spacing:.4px; font-weight:700; margin-top:2px; }
+    .school-admins { margin-top:12px; font-size:12px; color:var(--muted); }
+    .school-empty { text-align:center; color:var(--muted); padding:60px 20px;
+                    background:var(--surface); border:1px dashed var(--border); border-radius:14px; }
+
+    @media(max-width:500px) {
+      .school-stats { grid-template-columns:repeat(2, 1fr); }
+    }
+
+    /* ── danger zone ──────────────────────────────────────────────────── */
+    .danger-card { background:#1c0808; border:1px solid var(--err-border); border-radius:16px;
+                   padding:24px; }
+    .danger-card h3 { color:var(--red); font-size:18px; font-weight:800; margin-bottom:6px; }
+    .danger-card p  { color:#c89090; font-size:13px; line-height:1.55; margin-bottom:6px; }
+    .danger-btn { width:100%; padding:14px; background:var(--red); color:#fff; border:none;
+                  border-radius:12px; font-size:14px; font-weight:800; cursor:pointer;
+                  margin-top:18px; font-family:inherit; letter-spacing:.3px; }
+    .danger-btn:hover:not(:disabled) { background:#dc2626; }
+    .danger-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* ── modal ────────────────────────────────────────────────────────── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none;
+                     align-items:center; justify-content:center; z-index:100; padding:20px; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px;
+             padding:28px; max-width:480px; width:100%; max-height:90vh; overflow:auto; }
+    .modal h3 { font-size:18px; font-weight:800; margin-bottom:8px; }
+    .modal p  { font-size:13px; color:var(--muted); line-height:1.55; margin-bottom:14px; }
+    .modal-row { display:flex; gap:10px; margin-top:16px; }
+    .modal-row button { flex:1; padding:11px 14px; border-radius:10px; border:none;
+                        font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .modal-row .secondary { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+    .modal-row .primary   { background:var(--blue); color:#fff; }
+    .modal-row .primary:disabled { opacity:.5; cursor:not-allowed; }
+    .modal-row .danger    { background:var(--red); color:#fff; }
+    .modal-row .danger:disabled { opacity:.5; cursor:not-allowed; }
+    .modal-status { margin-top:12px; padding:10px 12px; border-radius:8px; font-size:12px;
+                    display:none; }
+    .modal-status.show { display:block; }
+    .modal-status.err  { background:var(--err-bg); border:1px solid var(--err-border); color:var(--red); }
+    .modal-status.ok   { background:var(--ok-bg);  border:1px solid var(--ok-border); color:var(--green); }
   </style>
 </head>
 <body>
@@ -381,11 +753,20 @@ function buildPage(): string {
   <div class="hdr">
     <img src="${LOGO_DATA_URI}" alt="ClassMate">
     <div class="hdr-info">
-      <h1>School Setup</h1>
-      <p>Platform admin only · create a new school</p>
+      <h1>Platform Console</h1>
+      <p>Platform admin only · manage every school</p>
     </div>
   </div>
 
+  <!-- Tab nav -->
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="create">Create</button>
+    <button type="button" class="tab-btn" data-tab="schools">Schools</button>
+    <button type="button" class="tab-btn" data-tab="danger">Danger Zone</button>
+  </div>
+
+  <!-- Create tab (existing form) -->
+  <div id="tab-create" class="pane active">
   <form id="form">
 
     <!-- School Info -->
@@ -512,6 +893,112 @@ function buildPage(): string {
   </form>
 
   <div class="result" id="result"></div>
+  </div><!-- /tab-create -->
+
+  <!-- Schools tab -->
+  <div id="tab-schools" class="pane">
+    <div class="card">
+      <div class="card-hdr">All Schools <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0" id="schoolsCount"></span></div>
+      <div id="schoolsList">
+        <div class="school-empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger Zone tab -->
+  <div id="tab-danger" class="pane">
+    <div class="danger-card">
+      <h3>⚠️  Reset all platform data</h3>
+      <p>This deletes <strong>every school, every user, every cohort, classroom, schedule slot, message, assignment, exam, attendance record, password-reset token</strong> — everything.</p>
+      <p>The database schema stays intact. Resend / Twilio / Apple / your custom domain are untouched.</p>
+      <p>You'll receive a 6-digit code by SMS to <strong id="ownerPhoneLabel">your platform owner phone</strong>. Enter that code, then type <code>RESET</code> to confirm.</p>
+      <button type="button" class="danger-btn" id="resetStartBtn">Reset all data</button>
+    </div>
+  </div>
+
+  <!-- Edit-school modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3 id="editModalTitle">Edit school</h3>
+      <div class="field">
+        <label>School name</label>
+        <input id="editName" type="text">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Lowest grade</label>
+          <input id="editMin" type="number" min="1" max="20">
+        </div>
+        <div class="field">
+          <label>Highest grade</label>
+          <input id="editMax" type="number" min="1" max="20">
+        </div>
+      </div>
+      <div class="modal-status err" id="editErr"></div>
+      <div class="modal-row">
+        <button type="button" class="secondary" id="editCancel">Cancel</button>
+        <button type="button" class="primary" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View-school modal -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <h3 id="viewModalTitle">School details</h3>
+      <div id="viewModalBody"></div>
+      <div class="modal-row">
+        <button type="button" class="primary" id="viewClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete-one-school modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>Delete this school?</h3>
+      <p id="deleteModalBody">This will permanently delete the school and every user, cohort, classroom, message, and grade associated with it. No undo.</p>
+      <div class="field">
+        <label>Type the school's name to confirm</label>
+        <input id="deleteConfirmInput" type="text">
+      </div>
+      <div class="modal-status err" id="deleteErr"></div>
+      <div class="modal-row">
+        <button type="button" class="secondary" id="deleteCancel">Cancel</button>
+        <button type="button" class="danger" id="deleteGo" disabled>Delete forever</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset-all modal (2-step: code, then RESET text) -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal">
+      <h3 id="resetModalTitle">Reset all data</h3>
+      <p id="resetModalBody">Click "Send code" to receive a 6-digit code by SMS. The code expires in 15 minutes.</p>
+      <div id="resetStep1">
+        <div class="modal-row">
+          <button type="button" class="secondary" id="resetCancel1">Cancel</button>
+          <button type="button" class="danger" id="resetSendCode">Send code</button>
+        </div>
+      </div>
+      <div id="resetStep2" style="display:none">
+        <div class="field">
+          <label>6-digit code from SMS</label>
+          <input id="resetCode" type="text" inputmode="numeric" maxlength="6" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Type <code>RESET</code> to confirm</label>
+          <input id="resetConfirmText" type="text" autocomplete="off" placeholder="RESET">
+        </div>
+        <div class="modal-status err" id="resetErr"></div>
+        <div class="modal-row">
+          <button type="button" class="secondary" id="resetCancel2">Cancel</button>
+          <button type="button" class="danger" id="resetGo" disabled>Nuke everything</button>
+        </div>
+      </div>
+      <div class="modal-status ok" id="resetOk"></div>
+    </div>
+  </div>
 
 </div>
 <script>
@@ -701,6 +1188,297 @@ function buildPage(): string {
       result.innerHTML = '<strong>✗ Network error</strong><br>' + err.message;
     } finally {
       btn.disabled = false; btn.textContent = 'Create School';
+    }
+  });
+
+  // ── Tab switcher ──────────────────────────────────────────────────────────
+  function showTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.pane').forEach(p =>
+      p.classList.toggle('active', p.id === 'tab-' + name));
+    if (name === 'schools') loadSchools();
+  }
+  document.querySelectorAll('.tab-btn').forEach(b =>
+    b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  // ── Schools list ──────────────────────────────────────────────────────────
+  async function loadSchools() {
+    const secret = document.getElementById('secret').value.trim();
+    if (!secret) {
+      document.getElementById('schoolsList').innerHTML =
+        '<div class="school-empty">Enter your setup secret in the Create tab first.</div>';
+      return;
+    }
+    const list = document.getElementById('schoolsList');
+    list.innerHTML = '<div class="school-empty">Loading…</div>';
+    try {
+      const res = await fetch('/cms/schools', { headers: { 'x-setup-secret': secret } });
+      const data = await res.json();
+      if (!res.ok) {
+        list.innerHTML = '<div class="school-empty">' + (data.message || 'Failed to load.') + '</div>';
+        return;
+      }
+      const schools = data.schools || [];
+      document.getElementById('schoolsCount').textContent =
+        '(' + schools.length + ' school' + (schools.length === 1 ? '' : 's') + ')';
+      if (!schools.length) {
+        list.innerHTML = '<div class="school-empty">No schools yet — create one in the Create tab.</div>';
+        return;
+      }
+      list.innerHTML = schools.map(renderSchool).join('');
+      // Hook up actions
+      list.querySelectorAll('[data-view]').forEach(el =>
+        el.addEventListener('click', () => openView(el.dataset.view)));
+      list.querySelectorAll('[data-edit]').forEach(el =>
+        el.addEventListener('click', () => openEdit(JSON.parse(decodeURIComponent(el.dataset.edit)))));
+      list.querySelectorAll('[data-delete]').forEach(el =>
+        el.addEventListener('click', () => openDelete(JSON.parse(decodeURIComponent(el.dataset.delete)))));
+    } catch (err) {
+      list.innerHTML = '<div class="school-empty">' + err.message + '</div>';
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function renderSchool(s) {
+    const adminLine = s.admins && s.admins.length
+      ? s.admins.map(a => escapeHtml(a.name || a.email || a.username || '?')).join(', ')
+      : '<em>No admins</em>';
+    const u = s.userCounts || {};
+    const total = (u.STUDENT||0)+(u.TEACHER||0)+(u.SECRETARY||0)+(u.PARENT||0)+(u.ADMIN||0);
+    const logo = s.logoUrl
+      ? '<img src="' + escapeHtml(s.logoUrl) + '" onerror="this.style.display=\\'none\\'">'
+      : '<img src="' + ${JSON.stringify(LOGO_DATA_URI)} + '">';
+    const payload = encodeURIComponent(JSON.stringify(s));
+    return ''
+      + '<div class="school-card">'
+      +   '<div class="school-card-hdr">'
+      +     logo
+      +     '<h3>' + escapeHtml(s.name) + '</h3>'
+      +     '<div class="school-actions">'
+      +       '<button data-view="' + s.id + '">View</button>'
+      +       '<button data-edit="' + payload + '">Edit</button>'
+      +       '<button class="danger" data-delete="' + payload + '">Delete</button>'
+      +     '</div>'
+      +   '</div>'
+      +   '<div class="school-stats">'
+      +     '<div class="school-stat"><div class="num">' + total + '</div><div class="lbl">Users</div></div>'
+      +     '<div class="school-stat"><div class="num">' + (u.STUDENT || 0) + '</div><div class="lbl">Students</div></div>'
+      +     '<div class="school-stat"><div class="num">' + (s.cohortCount || 0) + '</div><div class="lbl">Cohorts</div></div>'
+      +     '<div class="school-stat"><div class="num">' + (s.subjectCount || 0) + '</div><div class="lbl">Subjects</div></div>'
+      +   '</div>'
+      +   '<div class="school-admins">Grades ' + s.minGrade + '–' + s.maxGrade
+      +     ' · Admins: ' + adminLine + '</div>'
+      + '</div>';
+  }
+
+  // ── View modal ────────────────────────────────────────────────────────────
+  async function openView(id) {
+    const secret = document.getElementById('secret').value.trim();
+    const body = document.getElementById('viewModalBody');
+    body.innerHTML = 'Loading…';
+    document.getElementById('viewModal').classList.add('show');
+    try {
+      const res = await fetch('/cms/schools/' + encodeURIComponent(id),
+        { headers: { 'x-setup-secret': secret } });
+      const data = await res.json();
+      if (!res.ok) { body.textContent = data.message || 'Failed.'; return; }
+      const s = data.school;
+      const u = s.userCounts || {};
+      const adminRows = (s.admins || []).map(a =>
+        '<tr><td>' + escapeHtml(a.nameEn || a.name || '?') + '</td><td>'
+        + escapeHtml(a.email || a.username || '—') + '</td></tr>').join('');
+      document.getElementById('viewModalTitle').textContent = s.name;
+      body.innerHTML = ''
+        + '<p>Created ' + new Date(s.createdAt).toLocaleString()
+        + ' · Grades ' + s.minGrade + '–' + s.maxGrade + '</p>'
+        + '<div class="row2">'
+        + '<div class="school-stat"><div class="num">' + (u.STUDENT||0) + '</div><div class="lbl">Students</div></div>'
+        + '<div class="school-stat"><div class="num">' + (u.TEACHER||0) + '</div><div class="lbl">Teachers</div></div>'
+        + '<div class="school-stat"><div class="num">' + (u.SECRETARY||0) + '</div><div class="lbl">Secretaries</div></div>'
+        + '<div class="school-stat"><div class="num">' + (u.PARENT||0)   + '</div><div class="lbl">Parents</div></div>'
+        + '<div class="school-stat"><div class="num">' + (u.ADMIN||0)    + '</div><div class="lbl">Admins</div></div>'
+        + '<div class="school-stat"><div class="num">' + (s.cohortCount||0) + '</div><div class="lbl">Cohorts</div></div>'
+        + '<div class="school-stat"><div class="num">' + (s.classroomCount||0) + '</div><div class="lbl">Classrooms</div></div>'
+        + '<div class="school-stat"><div class="num">' + (s.subjects?.length||0) + '</div><div class="lbl">Subjects</div></div>'
+        + '</div>'
+        + (adminRows
+            ? '<h3 style="margin-top:18px; font-size:13px;">Admins</h3>'
+              + '<table style="width:100%; font-size:13px; color:var(--muted);"><tbody>' + adminRows + '</tbody></table>'
+            : '');
+    } catch (err) {
+      body.textContent = err.message;
+    }
+  }
+  document.getElementById('viewClose').addEventListener('click', () =>
+    document.getElementById('viewModal').classList.remove('show'));
+
+  // ── Edit modal ────────────────────────────────────────────────────────────
+  let editingId = null;
+  function openEdit(s) {
+    editingId = s.id;
+    document.getElementById('editModalTitle').textContent = 'Edit ' + s.name;
+    document.getElementById('editName').value = s.name;
+    document.getElementById('editMin').value = s.minGrade;
+    document.getElementById('editMax').value = s.maxGrade;
+    document.getElementById('editErr').classList.remove('show');
+    document.getElementById('editModal').classList.add('show');
+  }
+  document.getElementById('editCancel').addEventListener('click', () =>
+    document.getElementById('editModal').classList.remove('show'));
+  document.getElementById('editSave').addEventListener('click', async () => {
+    const secret = document.getElementById('secret').value.trim();
+    const errEl = document.getElementById('editErr');
+    const btn = document.getElementById('editSave');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const res = await fetch('/cms/schools/' + encodeURIComponent(editingId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-setup-secret': secret },
+        body: JSON.stringify({
+          name: document.getElementById('editName').value,
+          minGrade: Number(document.getElementById('editMin').value),
+          maxGrade: Number(document.getElementById('editMax').value),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { errEl.textContent = data.message || 'Failed.'; errEl.classList.add('show'); return; }
+      document.getElementById('editModal').classList.remove('show');
+      loadSchools();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.classList.add('show');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save';
+    }
+  });
+
+  // ── Delete-one modal ──────────────────────────────────────────────────────
+  let deletingSchool = null;
+  function openDelete(s) {
+    deletingSchool = s;
+    document.getElementById('deleteModalBody').textContent =
+      'This will permanently delete "' + s.name + '" and every user, cohort, classroom, message, and grade associated with it. No undo.';
+    document.getElementById('deleteConfirmInput').value = '';
+    document.getElementById('deleteGo').disabled = true;
+    document.getElementById('deleteErr').classList.remove('show');
+    document.getElementById('deleteModal').classList.add('show');
+  }
+  document.getElementById('deleteConfirmInput').addEventListener('input', e => {
+    document.getElementById('deleteGo').disabled =
+      !deletingSchool || e.target.value.trim() !== deletingSchool.name;
+  });
+  document.getElementById('deleteCancel').addEventListener('click', () =>
+    document.getElementById('deleteModal').classList.remove('show'));
+  document.getElementById('deleteGo').addEventListener('click', async () => {
+    const secret = document.getElementById('secret').value.trim();
+    const errEl = document.getElementById('deleteErr');
+    const btn = document.getElementById('deleteGo');
+    btn.disabled = true; btn.textContent = 'Deleting…';
+    try {
+      const res = await fetch('/cms/schools/' + encodeURIComponent(deletingSchool.id), {
+        method: 'DELETE', headers: { 'x-setup-secret': secret },
+      });
+      const data = await res.json();
+      if (!res.ok) { errEl.textContent = data.message || 'Failed.'; errEl.classList.add('show'); btn.disabled = false; btn.textContent = 'Delete forever'; return; }
+      document.getElementById('deleteModal').classList.remove('show');
+      loadSchools();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Delete forever';
+    }
+  });
+
+  // ── Reset-all (danger zone) ───────────────────────────────────────────────
+  let resetSessionId = null;
+  function resetModalReset() {
+    document.getElementById('resetStep1').style.display = '';
+    document.getElementById('resetStep2').style.display = 'none';
+    document.getElementById('resetCode').value = '';
+    document.getElementById('resetConfirmText').value = '';
+    document.getElementById('resetGo').disabled = true;
+    document.getElementById('resetErr').classList.remove('show');
+    document.getElementById('resetOk').classList.remove('show');
+    resetSessionId = null;
+  }
+  document.getElementById('resetStartBtn').addEventListener('click', () => {
+    resetModalReset();
+    document.getElementById('resetModal').classList.add('show');
+  });
+  document.getElementById('resetCancel1').addEventListener('click', () =>
+    document.getElementById('resetModal').classList.remove('show'));
+  document.getElementById('resetCancel2').addEventListener('click', () =>
+    document.getElementById('resetModal').classList.remove('show'));
+
+  document.getElementById('resetSendCode').addEventListener('click', async () => {
+    const secret = document.getElementById('secret').value.trim();
+    const errEl = document.getElementById('resetErr');
+    const btn = document.getElementById('resetSendCode');
+    if (!secret) { alert('Enter your setup secret in the Create tab first.'); return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const res = await fetch('/cms/reset-all/request-code', {
+        method: 'POST', headers: { 'x-setup-secret': secret },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.message || 'Failed.'; errEl.classList.add('show');
+        return;
+      }
+      resetSessionId = data.sessionId;
+      document.getElementById('resetModalBody').textContent =
+        'Code sent to ' + data.sentTo + '. Enter it below, then type RESET. Code expires in ' + data.expiresInMinutes + ' min.';
+      document.getElementById('resetStep1').style.display = 'none';
+      document.getElementById('resetStep2').style.display = '';
+      errEl.classList.remove('show');
+    } catch (err) {
+      errEl.textContent = err.message; errEl.classList.add('show');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send code';
+    }
+  });
+
+  function updateResetGoEnabled() {
+    const code = document.getElementById('resetCode').value.trim();
+    const confirm = document.getElementById('resetConfirmText').value;
+    document.getElementById('resetGo').disabled =
+      !(code.length === 6 && confirm === 'RESET' && resetSessionId);
+  }
+  document.getElementById('resetCode').addEventListener('input', updateResetGoEnabled);
+  document.getElementById('resetConfirmText').addEventListener('input', updateResetGoEnabled);
+
+  document.getElementById('resetGo').addEventListener('click', async () => {
+    const secret = document.getElementById('secret').value.trim();
+    const errEl = document.getElementById('resetErr');
+    const okEl = document.getElementById('resetOk');
+    const btn = document.getElementById('resetGo');
+    btn.disabled = true; btn.textContent = 'Nuking…';
+    try {
+      const res = await fetch('/cms/reset-all/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-setup-secret': secret },
+        body: JSON.stringify({
+          sessionId: resetSessionId,
+          code: document.getElementById('resetCode').value.trim(),
+          confirm: document.getElementById('resetConfirmText').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.message || 'Failed.'; errEl.classList.add('show');
+        btn.disabled = false; btn.textContent = 'Nuke everything';
+        return;
+      }
+      okEl.textContent = '✓ Done. ' + data.message + ' Reload the page to start fresh.';
+      okEl.classList.add('show');
+      errEl.classList.remove('show');
+      btn.textContent = 'Done';
+    } catch (err) {
+      errEl.textContent = err.message; errEl.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Nuke everything';
     }
   });
 </script>

@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
@@ -124,41 +123,19 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     }
   }
 
-  Future<void> _resetPassword() async {
+  Future<void> _changePassword() async {
+    final newPassword = await showDialog<String>(
+      context: context,
+      builder: (d) => const _SetPasswordDialog(),
+    );
+    if (newPassword == null) return;
+
     setState(() => _resetting = true);
     try {
-      final temp = await widget.repo.resetUserPassword(widget.userId);
+      await widget.repo.setUserPassword(widget.userId, newPassword);
       if (!mounted) return;
-      final l = AppLocalizations.of(context)!;
-      await showDialog(
-        context: context,
-        builder: (d) => AlertDialog(
-          title: Text(l.adminPasswordReset),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('New temporary password for ${_nameEnCtrl.text}:'),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(d).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SelectableText(temp, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w700)),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () { Clipboard.setData(ClipboardData(text: temp)); ScaffoldMessenger.of(d).showSnackBar(SnackBar(content: Text(l.adminCopied))); },
-              child: const Text('Copy'),
-            ),
-            FilledButton(onPressed: () => Navigator.pop(d), child: const Text('Done')),
-          ],
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password changed for ${_nameEnCtrl.text}.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -278,9 +255,9 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   const SizedBox(height: 8),
                   // Reset password
                   OutlinedButton.icon(
-                    onPressed: _resetting ? null : _resetPassword,
+                    onPressed: _resetting ? null : _changePassword,
                     icon: _resetting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.lock_reset_rounded, size: 16),
-                    label: Text(l.adminResetPassword),
+                    label: const Text('Change password'),
                     style: OutlinedButton.styleFrom(foregroundColor: cs.error, side: BorderSide(color: cs.error.withValues(alpha: 0.5))),
                   ),
                   const SizedBox(height: 20),
@@ -402,3 +379,85 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     );
   }
 }
+
+/// Modal that asks the admin to type a new password (with confirm). Returns
+/// the typed password via Navigator.pop, or null if the admin cancels.
+class _SetPasswordDialog extends StatefulWidget {
+  const _SetPasswordDialog();
+
+  @override
+  State<_SetPasswordDialog> createState() => _SetPasswordDialogState();
+}
+
+class _SetPasswordDialogState extends State<_SetPasswordDialog> {
+  final _pw1 = TextEditingController();
+  final _pw2 = TextEditingController();
+  bool _obscure = true;
+  String? _error;
+
+  @override
+  void dispose() {
+    _pw1.dispose();
+    _pw2.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final p1 = _pw1.text;
+    final p2 = _pw2.text;
+    if (p1.length < 8) {
+      setState(() => _error = 'At least 8 characters.');
+      return;
+    }
+    if (p1 != p2) {
+      setState(() => _error = "Passwords don't match.");
+      return;
+    }
+    Navigator.pop(context, p1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Set new password'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _pw1,
+            obscureText: _obscure,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: 'New password',
+              suffixIcon: IconButton(
+                icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _pw2,
+            obscureText: _obscure,
+            decoration: const InputDecoration(labelText: 'Confirm password'),
+            onSubmitted: (_) => _submit(),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+          ],
+          const SizedBox(height: 8),
+          const Text(
+            'The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        FilledButton(onPressed: _submit, child: const Text('Set password')),
+      ],
+    );
+  }
+}
+

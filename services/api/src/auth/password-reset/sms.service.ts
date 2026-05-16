@@ -36,22 +36,26 @@ export class SmsService {
     expiresInMinutes: number;
     schoolName?: string | null;
   }): Promise<void> {
-    if (!this.client || !this.fromNumber) {
-      this.logger.warn(`Twilio not configured; would have sent SMS to ${args.to} with reset link ${args.resetUrl}`);
-      return;
-    }
     const label = args.schoolName ?? 'ClassMate';
     // Keep the body terse — single SMS segment (160 chars) is cheaper.
     const body = `${label}: reset your password — ${args.resetUrl} (expires in ${args.expiresInMinutes} min). If you didn't ask, ignore this.`;
+    await this.send(args.to, body);
+  }
 
+  /**
+   * Generic outbound SMS. Returns silently (and logs a warning) if Twilio
+   * env vars aren't set — callers can still rely on isConfigured to surface
+   * that to the end user.
+   */
+  async send(to: string, body: string): Promise<void> {
+    if (!this.client || !this.fromNumber) {
+      this.logger.warn(`Twilio not configured; would have sent SMS to ${to}: ${body.slice(0, 60)}…`);
+      return;
+    }
     try {
-      await this.client.messages.create({
-        from: this.fromNumber,
-        to: args.to,
-        body,
-      });
+      await this.client.messages.create({ from: this.fromNumber, to, body });
     } catch (err) {
-      this.logger.error(`Failed to send reset SMS to ${args.to}: ${(err as Error).message}`);
+      this.logger.error(`Failed to send SMS to ${to}: ${(err as Error).message}`);
       throw err;
     }
   }

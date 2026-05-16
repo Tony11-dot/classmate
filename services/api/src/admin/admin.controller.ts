@@ -260,9 +260,9 @@ export class AdminController {
   }
 
   @Roles(Role.ADMIN)
-  @Post('users/:id/reset-password')
-  resetUserPassword(@Req() req: any, @Param('id') id: string) {
-    return this.admin.resetUserPassword(req.user, id);
+  @Post('users/:id/set-password')
+  setUserPassword(@Req() req: any, @Param('id') id: string, @Body() body: { newPassword?: string }) {
+    return this.admin.setUserPassword(req.user, id, body);
   }
 
   @Roles(Role.ADMIN, Role.SECRETARY)

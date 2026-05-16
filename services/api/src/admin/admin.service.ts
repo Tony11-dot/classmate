@@ -955,10 +955,21 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true };
   }
 
-  async resetUserPassword(user: any, id: string) {
+  /**
+   * Admin directly sets a user's password to a value they type in. Replaces
+   * the old "reset to random temp password" flow — admins kept asking why
+   * they had to copy a temp password back to the user instead of just typing
+   * one. School isolation is preserved.
+   */
+  async setUserPassword(user: any, id: string, dto: { newPassword?: string }) {
     const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can reset passwords');
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can change passwords');
     const schoolId = (user as any)?.schoolId;
+
+    const newPassword = String(dto?.newPassword ?? '');
+    if (!newPassword || newPassword.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters.');
+    }
 
     const target = await this.prisma.user.findFirst({
       where: { id, ...(schoolId ? { schoolId } : {}) },
@@ -966,11 +977,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     if (!target) throw new NotFoundException('User not found');
 
-    const tempPassword = `Classmate${randomDigits(6)}!`;
-    const hash = await bcrypt.hash(tempPassword, 10);
+    const hash = await bcrypt.hash(newPassword, 10);
     await this.prisma.user.update({ where: { id }, data: { password: hash } });
 
-    return { ok: true, tempPassword, email: target.email };
+    // Invalidate any pending password-reset tokens for this user — the admin
+    // just set the password, so old reset links shouldn't work anymore.
+    await this.prisma.passwordResetToken.updateMany({
+      where: { userId: id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    return { ok: true, email: target.email };
   }
 
   // ── Parent Links ──────────────────────────────────────────────────────────────

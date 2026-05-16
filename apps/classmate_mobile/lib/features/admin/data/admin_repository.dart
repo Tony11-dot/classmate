@@ -142,9 +142,8 @@ class AdminRepository {
     await _api.deleteJson('/admin/users/$id');
   }
 
-  Future<String> resetUserPassword(String id) async {
-    final raw = await _api.postJson('/admin/users/$id/reset-password');
-    return _m(raw)['tempPassword']?.toString() ?? '';
+  Future<void> setUserPassword(String id, String newPassword) async {
+    await _api.postJson('/admin/users/$id/set-password', body: {'newPassword': newPassword});
   }
 
   // ── Cohorts ──────────────────────────────────────────────────────────────────
