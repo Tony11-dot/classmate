@@ -68,6 +68,31 @@ export class EmailService {
   }
 
   /**
+   * Platform-owner-only: sends a 6-digit confirmation code that authorizes a
+   * full database wipe via /cms → Danger Zone. Subject is intentionally
+   * alarm-bell-style so it can't be missed.
+   */
+  async sendPlatformResetCode(args: { to: string; code: string; expiresInMinutes: number }): Promise<void> {
+    if (!this.client) {
+      this.logger.warn(`Resend not configured; would have emailed platform-reset code to ${args.to}`);
+      return;
+    }
+    try {
+      await this.client.emails.send({
+        from: this.fromAddress,
+        to: args.to,
+        replyTo: this.replyTo,
+        subject: '⚠️  ClassMate platform reset code',
+        html: buildPlatformResetCodeHtml(args),
+        text: buildPlatformResetCodeText(args),
+      });
+    } catch (err) {
+      this.logger.error(`Failed to send platform-reset code to ${args.to}: ${(err as Error).message}`);
+      throw err;
+    }
+  }
+
+  /**
    * Notifies an admin that a user wants a password change. No reset link —
    * the admin is expected to open the admin app and approve/reject there.
    */
@@ -235,6 +260,76 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function buildPlatformResetCodeText(args: { code: string; expiresInMinutes: number }): string {
+  return [
+    'ClassMate — One app. Your whole school.',
+    '',
+    '⚠️  Platform reset code',
+    '',
+    `Your code is: ${args.code}`,
+    '',
+    `This code authorizes deleting EVERY school, user, cohort, message, and grade in your ClassMate database. It expires in ${args.expiresInMinutes} minutes.`,
+    '',
+    "If you didn't request this, change your SETUP_SECRET in Railway immediately — someone has access to your /cms page.",
+    '',
+    'Tony Aboud',
+    'Founder, ClassMate',
+  ].join('\n');
+}
+
+function buildPlatformResetCodeHtml(args: { code: string; expiresInMinutes: number }): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>ClassMate platform reset code</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f5f9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1a1a2e;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f5f9;">
+    <tr><td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
+
+        <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#dc2626 100%);">
+          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.85); letter-spacing:.3px;">Platform Reset</p>
+        </td></tr>
+
+        <tr><td style="padding:32px 32px 8px;">
+          <h1 style="margin:0 0 8px; font-size:22px; font-weight:800; color:#1a1a2e;">⚠️  Platform reset code</h1>
+          <p style="margin:0 0 4px; font-size:13px; color:#dc2626; text-transform:uppercase; letter-spacing:.5px; font-weight:700;">Danger zone</p>
+        </td></tr>
+
+        <tr><td style="padding:16px 32px 8px; font-size:15px; line-height:1.6; color:#333;">
+          <p style="margin:0 0 14px;">Your one-time code is:</p>
+        </td></tr>
+
+        <tr><td align="center" style="padding:0 32px 24px;">
+          <div style="display:inline-block; font-family:'SF Mono','Menlo','Monaco','Consolas',monospace; font-size:34px; font-weight:800; letter-spacing:8px; padding:18px 26px; background:#fff5f5; color:#dc2626; border:2px solid #fecaca; border-radius:14px;">
+            ${escapeHtml(args.code)}
+          </div>
+        </td></tr>
+
+        <tr><td style="padding:0 32px 16px; font-size:14px; line-height:1.6; color:#444;">
+          <p style="margin:0 0 12px;">
+            This code authorizes <strong>deleting every school, every user, every cohort, every message, and every grade</strong> in your ClassMate database. It expires in <strong>${args.expiresInMinutes} minutes</strong>.
+          </p>
+          <p style="margin:0 0 12px; color:#dc2626; font-weight:600;">
+            If you didn't request this, change your SETUP_SECRET in Railway right now — someone has access to your /cms page.
+          </p>
+        </td></tr>
+
+        <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
+          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }
 
 function buildPasswordRequestAdminText(args: {

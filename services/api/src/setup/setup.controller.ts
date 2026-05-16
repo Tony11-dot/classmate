@@ -33,6 +33,7 @@ import type { Request, Response } from 'express';
 import { Public } from '../auth/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmsService } from '../auth/password-reset/sms.service';
+import { EmailService } from '../auth/password-reset/email.service';
 import { LOGO_DATA_URI } from './logo';
 
 // In-memory store for the "Reset All Data" confirmation code. Sufficient for a
@@ -46,9 +47,19 @@ function defaultOwnerPhone(): string {
   return process.env.PLATFORM_OWNER_PHONE?.trim() || '+972525488441';
 }
 
+function defaultOwnerEmail(): string {
+  return process.env.PLATFORM_OWNER_EMAIL?.trim() || 'aboudtony22@gmail.com';
+}
+
 function maskPhone(p: string): string {
   if (p.length <= 4) return p;
   return `${p.slice(0, 4)}…${p.slice(-2)}`;
+}
+
+function maskEmail(e: string): string {
+  const at = e.indexOf('@');
+  if (at < 2) return e;
+  return `${e.slice(0, 2)}…${e.slice(at)}`;
 }
 
 function ensureUploadsDir() {
@@ -68,6 +79,7 @@ export class SetupController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sms: SmsService,
+    private readonly email: EmailService,
   ) {}
 
   // ── Page UI ────────────────────────────────────────────────────────────────
@@ -437,9 +449,13 @@ export class SetupController {
     checkSecret(secret);
 
     const phone = defaultOwnerPhone();
-    if (!this.sms.isConfigured) {
+    const emailAddr = defaultOwnerEmail();
+
+    // Need at least one channel configured. Email is the easier fallback —
+    // it doesn't require Twilio or a confirmed phone number.
+    if (!this.sms.isConfigured && !this.email.isConfigured) {
       throw new BadRequestException(
-        'Twilio is not configured on the server. Add TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM to Railway env vars before triggering a database reset.',
+        'Neither Twilio nor Resend is configured on the server. Add at least one set of env vars (TWILIO_* or RESEND_API_KEY) before triggering a database reset.',
       );
     }
 
@@ -453,20 +469,38 @@ export class SetupController {
       expiresAt: Date.now() + RESET_CODE_TTL_MIN * 60_000,
     });
 
-    try {
-      await this.sms.send(
-        phone,
-        `ClassMate: your platform reset code is ${code}. This will DELETE ALL DATA. Code expires in ${RESET_CODE_TTL_MIN} min. If you didn't request this, ignore.`,
-      );
-    } catch (err) {
+    // Fire both channels in parallel. At least one needs to succeed; if both
+    // fail we delete the session so the caller can retry cleanly.
+    const smsMessage = `ClassMate: your platform reset code is ${code}. This will DELETE ALL DATA. Code expires in ${RESET_CODE_TTL_MIN} min. If you didn't request this, ignore.`;
+
+    const results = await Promise.allSettled([
+      this.sms.isConfigured ? this.sms.send(phone, smsMessage) : Promise.resolve(),
+      this.email.isConfigured
+        ? this.email.sendPlatformResetCode({ to: emailAddr, code, expiresInMinutes: RESET_CODE_TTL_MIN })
+        : Promise.resolve(),
+    ]);
+
+    const sentChannels: string[] = [];
+    const failures: string[] = [];
+    if (this.sms.isConfigured) {
+      if (results[0].status === 'fulfilled') sentChannels.push(`phone ${maskPhone(phone)}`);
+      else failures.push(`SMS: ${(results[0].reason as Error)?.message ?? 'unknown'}`);
+    }
+    if (this.email.isConfigured) {
+      if (results[1].status === 'fulfilled') sentChannels.push(`email ${maskEmail(emailAddr)}`);
+      else failures.push(`Email: ${(results[1].reason as Error)?.message ?? 'unknown'}`);
+    }
+
+    if (sentChannels.length === 0) {
       resetCodeStore.delete(sessionId);
-      throw new BadRequestException(`Failed to send SMS: ${(err as Error).message}`);
+      throw new BadRequestException(`Failed to send code on every channel: ${failures.join(' · ')}`);
     }
 
     return {
       ok: true,
       sessionId,
-      sentTo: maskPhone(phone),
+      sentTo: sentChannels.join(' and '),
+      partialFailures: failures.length ? failures : undefined,
       expiresInMinutes: RESET_CODE_TTL_MIN,
     };
   }
