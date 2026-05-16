@@ -35,14 +35,14 @@ export class PasswordResetService {
     const lower = id.toLowerCase();
     const byEmail = await this.prisma.user.findFirst({
       where: { email: lower },
-      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true } as any,
+      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     if (byEmail) return byEmail as any;
 
     // Fallback to username (also lower-cased to match how it's stored).
     const byUsername = await this.prisma.user.findFirst({
       where: { username: lower } as any,
-      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true } as any,
+      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     return (byUsername ?? null) as any;
   }
@@ -79,6 +79,18 @@ export class PasswordResetService {
     }
     if (args.channel === 'sms' && !(user.phone && user.phone.trim())) {
       this.logger.warn(`User ${user.id} has no phone on file; skipping SMS reset`);
+      return;
+    }
+
+    // Refuse reset on an unverified channel — owner-of-channel hasn't been
+    // proven. Same anti-enumeration posture as no-such-user: silent return,
+    // generic message at the controller layer.
+    if (args.channel === 'email' && !(user as any).emailVerifiedAt) {
+      this.logger.warn(`User ${user.id} email not verified; skipping email reset`);
+      return;
+    }
+    if (args.channel === 'sms' && !(user as any).phoneVerifiedAt) {
+      this.logger.warn(`User ${user.id} phone not verified; skipping SMS reset`);
       return;
     }
 

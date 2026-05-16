@@ -34,6 +34,9 @@ export const AuthMeResponseSchema = z.object({
   nameFr: z.string().nullable().optional(),
   nameRu: z.string().nullable().optional(),
   displayNameLang: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  emailVerifiedAt: z.string().nullable().optional(),
+  phoneVerifiedAt: z.string().nullable().optional(),
 }).passthrough();
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;

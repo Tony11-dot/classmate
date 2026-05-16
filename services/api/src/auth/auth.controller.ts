@@ -96,6 +96,9 @@ export class AuthController {
     let nameRu: string | null = null;
     let displayNameLang: string | null = null;
     let displayName: string | null = null;
+    let phone: string | null = null;
+    let emailVerifiedAt: string | null = null;
+    let phoneVerifiedAt: string | null = null;
 
     // Fetch up-to-date user fields from DB (the JWT only carries the claim snapshot)
     if (userId) {
@@ -112,8 +115,11 @@ export class AuthController {
             nameFr: true,
             nameRu: true,
             displayNameLang: true,
-          },
-        });
+            phone: true,
+            emailVerifiedAt: true,
+            phoneVerifiedAt: true,
+          } as any,
+        }) as any;
         if (dbUser) {
           fullName = dbUser.legalName ?? dbUser.displayName ?? dbUser.name ?? null;
           displayName = dbUser.displayName ?? null;
@@ -123,6 +129,13 @@ export class AuthController {
           nameFr = dbUser.nameFr ?? null;
           nameRu = dbUser.nameRu ?? null;
           displayNameLang = dbUser.displayNameLang ?? null;
+          phone = dbUser.phone ?? null;
+          emailVerifiedAt = dbUser.emailVerifiedAt
+            ? new Date(dbUser.emailVerifiedAt).toISOString()
+            : null;
+          phoneVerifiedAt = dbUser.phoneVerifiedAt
+            ? new Date(dbUser.phoneVerifiedAt).toISOString()
+            : null;
         }
       } catch {}
     }
@@ -174,6 +187,9 @@ export class AuthController {
       nameFr,
       nameRu,
       displayNameLang,
+      phone,
+      emailVerifiedAt,
+      phoneVerifiedAt,
     });
   }
 

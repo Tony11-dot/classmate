@@ -82,6 +82,16 @@ model User {
   tzfonetEmail      String?
   tzfonetVerifiedAt DateTime?
 
+  /// Set when the user has confirmed a verification code sent to their
+  /// current email. Null = unverified. Cleared (set to null) on email change
+  /// — the new value must be re-verified before it can be used for resets.
+  emailVerifiedAt DateTime?
+  /// Set when the user has confirmed a verification code sent to their
+  /// current phone via SMS. Same null-on-change semantics as emailVerifiedAt.
+  phoneVerifiedAt DateTime?
+
+  verificationCodes VerificationCode[]
+
   roles          UserRole[]
   studentProfile StudentProfile?
 
@@ -137,6 +147,46 @@ model UserRole {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, role])
+}
+
+/// One-time 6-digit code issued when a user wants to verify their current
+/// email/phone or change it to a new value. Only the SHA-256 hash of the raw
+/// code is stored; the raw value is sent to the user once via the matching
+/// channel. `kind` distinguishes:
+///   - 'verify-current' — confirming ownership of the stored value (no change)
+///   - 'change'         — the code went to the OLD value; on confirm the user
+///                        also supplies `newValue` and the change is applied
+///                        with the new value marked unverified.
+/// `target` is whatever value the code was sent TO (current value for both
+/// kinds — the "send code to OLD when changing" guarantee).
+model VerificationCode {
+  id        String   @id @default(uuid())
+  userId    String
+  /// 'email' | 'sms' — selects which channel sent the code.
+  channel   String
+  /// 'verify-current' | 'change'
+  kind      String
+  /// Email address or E.164 phone the code was actually sent to.
+  target    String
+  /// Only used when kind = 'change'. The proposed new value the user wants
+  /// to switch to once they prove ownership of the current `target`.
+  newValue  String?
+  /// SHA-256 hex digest of the raw 6-digit code.
+  codeHash  String
+  /// Hard expiry; rows past this are ignored.
+  expiresAt DateTime
+  /// Stamped the moment the code is redeemed. Used codes cannot be redeemed
+  /// again — re-verify means asking for a fresh code.
+  usedAt    DateTime?
+  /// Bumped on every failed attempt; we lock after a small number to make
+  /// brute-forcing 6-digit codes impractical without spamming new codes.
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, channel, kind])
+  @@index([expiresAt])
 }
 
 /// Single-use, time-limited token issued by /auth/forgot-password and consumed

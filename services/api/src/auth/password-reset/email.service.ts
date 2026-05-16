@@ -162,6 +162,43 @@ export class EmailService {
       throw err;
     }
   }
+
+  /**
+   * Sends a short 6-digit verification code used by the email/phone verify
+   * flow. Plain content (no link), copy-paste friendly. Returns false if
+   * Resend isn't configured so callers can surface a "couldn't send" state.
+   */
+  async sendVerificationCode(args: {
+    to: string;
+    code: string;
+    schoolName?: string | null;
+    expiresInMinutes: number;
+  }): Promise<boolean> {
+    if (!this.client) {
+      this.logger.warn(`Resend not configured; would have emailed verify code ${args.code} to ${args.to}`);
+      return false;
+    }
+    const label = args.schoolName ?? 'ClassMate';
+    const subject = `${label}: your verification code`;
+    const text = `${label} verification code: ${args.code}\n\nExpires in ${args.expiresInMinutes} minutes. If you didn't ask for this, ignore the message.`;
+    const html = `<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">${label} verification code:</p>
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:34px;font-weight:800;letter-spacing:.18em;color:#000;margin:18px 0">${args.code}</p>
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#666">Expires in ${args.expiresInMinutes} minutes. If you didn't ask for this, ignore the message.</p>`;
+    try {
+      await this.client.emails.send({
+        from: this.fromAddress,
+        to: args.to,
+        replyTo: this.replyTo,
+        subject,
+        html,
+        text,
+      });
+      return true;
+    } catch (err) {
+      this.logger.error(`Failed to send verify code to ${args.to}: ${(err as Error).message}`);
+      return false;
+    }
+  }
 }
 
 function buildResetEmailText(args: { recipientName?: string | null; schoolName?: string | null; resetUrl: string; expiresInMinutes: number }): string {
