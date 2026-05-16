@@ -7,6 +7,7 @@ import '../../core/auth/name_lang.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import 'profile_controller.dart';
+import 'verify_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -28,8 +29,6 @@ class ProfileScreen extends ConsumerWidget {
     };
     final schoolInfo = session.schoolName.isNotEmpty ? session.schoolName : (session.schoolId.isNotEmpty ? session.schoolId : l.profileNotAvailable);
     final cohortInfo = session.cohortName.isNotEmpty ? session.cohortName : (session.cohortId.isNotEmpty ? session.cohortId : l.profileNotAvailable);
-    final resolvedEmail = profile.email.isNotEmpty ? profile.email : session.email;
-
     final displayName = session.displayName.isNotEmpty
         ? session.displayName
         : roleLabel;
@@ -235,20 +234,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                   const _Divider(),
-                  _InfoRow(
-                    icon: Icons.email_outlined,
-                    label: l.profileContactEmail,
-                    value: resolvedEmail.isEmpty ? l.profileEmptyValue : resolvedEmail,
-                    onEdit: () => _editField(
-                      context: context,
-                      title: l.profileEmailAddress,
-                      icon: Icons.email_outlined,
-                      hint: l.profileEmailHint,
-                      initial: resolvedEmail,
-                      keyboardType: TextInputType.emailAddress,
-                      onSave: pc.setEmail,
-                    ),
-                  ),
+                  const _VerifiableContactRows(),
                   const _Divider(),
                   _InfoRow(
                     icon: Icons.cake_rounded,
@@ -892,6 +878,395 @@ class _InfoRow extends StatelessWidget {
       ),
     );
   }
+}
+
+// ── Verifiable contact rows (email + phone with Verify state) ────────────────
+
+class _VerifiableContactRows extends ConsumerStatefulWidget {
+  const _VerifiableContactRows();
+
+  @override
+  ConsumerState<_VerifiableContactRows> createState() => _VerifiableContactRowsState();
+}
+
+class _VerifiableContactRowsState extends ConsumerState<_VerifiableContactRows> {
+  @override
+  void initState() {
+    super.initState();
+    // Pull fresh status on screen open so the badges aren't stale.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(verifyControllerProvider.notifier).refresh();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final status = ref.watch(verifyControllerProvider);
+
+    return Column(
+      children: [
+        _VerifiableRow(
+          channel: 'email',
+          icon: Icons.email_outlined,
+          label: l.profileContactEmail,
+          value: status.email ?? '',
+          verified: status.emailVerified,
+        ),
+        const _Divider(),
+        _VerifiableRow(
+          channel: 'sms',
+          icon: Icons.phone_rounded,
+          label: 'Phone',
+          value: status.phone ?? '',
+          verified: status.phoneVerified,
+        ),
+      ],
+    );
+  }
+}
+
+class _VerifiableRow extends ConsumerWidget {
+  const _VerifiableRow({
+    required this.channel,
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.verified,
+  });
+
+  final String channel; // 'email' | 'sms'
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool verified;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final hasValue = value.trim().isNotEmpty;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => _editContact(context, ref, channel: channel, current: value, label: label),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              height: 36,
+              child: LiquidGlassCard(
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.circular(10),
+                color: cs.primaryContainer,
+                child: Center(
+                  child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                      const SizedBox(width: 6),
+                      if (hasValue) _VerifyBadge(verified: verified),
+                    ],
+                  ),
+                  Text(
+                    hasValue ? value : l.profileEmptyValue,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (hasValue && !verified)
+              TextButton(
+                onPressed: () => _verifyCurrent(context, ref, channel: channel),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: const Size(0, 32),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Verify'),
+              )
+            else
+              Icon(Icons.edit_outlined, size: 16, color: cs.primary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VerifyBadge extends StatelessWidget {
+  const _VerifyBadge({required this.verified});
+  final bool verified;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final fg = verified ? cs.tertiary : cs.error;
+    final bg = (verified ? cs.tertiary : cs.error).withValues(alpha: 0.12);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(verified ? Icons.verified_rounded : Icons.priority_high_rounded, size: 11, color: fg),
+          const SizedBox(width: 3),
+          Text(
+            verified ? 'Verified' : 'Unverified',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: fg),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _verifyCurrent(BuildContext context, WidgetRef ref, {required String channel}) async {
+  final notifier = ref.read(verifyControllerProvider.notifier);
+  try {
+    final target = await notifier.startVerify(channel);
+    if (!context.mounted) return;
+    await _showCodeSheet(
+      context,
+      ref,
+      channel: channel,
+      target: target,
+      newValue: null,
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_humanizeError(e))));
+  }
+}
+
+Future<void> _editContact(
+  BuildContext context,
+  WidgetRef ref, {
+  required String channel,
+  required String current,
+  required String label,
+}) async {
+  final cs = Theme.of(context).colorScheme;
+  final ctrl = TextEditingController(text: current);
+  final newValue = await showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: cs.surface,
+    builder: (sCtx) {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 20, right: 20, top: 20,
+          bottom: MediaQuery.of(sCtx).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Change $label', style: Theme.of(sCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 8),
+            Text(
+              current.isEmpty
+                  ? 'A verification code will be sent to the value you enter — confirming you own it.'
+                  : 'A verification code will be sent to your CURRENT $label so you can prove ownership before switching.',
+              style: Theme.of(sCtx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ctrl,
+              autofocus: true,
+              keyboardType: channel == 'email' ? TextInputType.emailAddress : TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: channel == 'email' ? 'New email' : 'New phone (+E.164)',
+                hintText: channel == 'email' ? 'name@example.com' : '+15551234567',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(onPressed: () => Navigator.pop(sCtx), child: const Text('Cancel')),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: () {
+                    final v = ctrl.text.trim();
+                    if (v.isEmpty) return;
+                    Navigator.pop(sCtx, v);
+                  },
+                  child: const Text('Continue'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+  if (newValue == null || newValue.isEmpty) return;
+  if (newValue.toLowerCase() == current.trim().toLowerCase()) return;
+
+  final notifier = ref.read(verifyControllerProvider.notifier);
+  try {
+    final target = await notifier.startVerify(channel, newValue: newValue);
+    if (!context.mounted) return;
+    await _showCodeSheet(
+      context,
+      ref,
+      channel: channel,
+      target: target,
+      newValue: newValue,
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_humanizeError(e))));
+  }
+}
+
+Future<void> _showCodeSheet(
+  BuildContext context,
+  WidgetRef ref, {
+  required String channel,
+  required String target,
+  required String? newValue,
+}) async {
+  final cs = Theme.of(context).colorScheme;
+  final codeCtrl = TextEditingController();
+  bool submitting = false;
+  String? error;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: cs.surface,
+    builder: (sCtx) {
+      return StatefulBuilder(builder: (ctx, setSt) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20, right: 20, top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Enter the 6-digit code',
+                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                target.isNotEmpty
+                    ? 'Sent to $target. Expires in 15 minutes.'
+                    : 'Code sent. Expires in 15 minutes.',
+                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 18),
+              TextField(
+                controller: codeCtrl,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 8),
+                decoration: InputDecoration(
+                  counterText: '',
+                  hintText: '••••••',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 8),
+                Text(error!, style: TextStyle(color: cs.error, fontSize: 12)),
+              ],
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          setSt(() { submitting = true; error = null; });
+                          try {
+                            final changed = await ref
+                                .read(verifyControllerProvider.notifier)
+                                .confirmVerify(channel, code: codeCtrl.text, newValue: newValue);
+                            if (!ctx.mounted) return;
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(changed ? 'Updated and pending re-verification.' : 'Verified.')),
+                            );
+                            // Pull /auth/me so AuthSession's cached email stays in sync.
+                            if (changed) {
+                              await ref.read(authSessionProvider).reloadFromMe();
+                            }
+                          } catch (e) {
+                            setSt(() { submitting = false; error = _humanizeError(e); });
+                          }
+                        },
+                  child: submitting
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Confirm'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          setSt(() => error = null);
+                          try {
+                            await ref
+                                .read(verifyControllerProvider.notifier)
+                                .startVerify(channel, newValue: newValue);
+                            if (!ctx.mounted) return;
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(content: Text('Sent a fresh code.')),
+                            );
+                          } catch (e) {
+                            setSt(() => error = _humanizeError(e));
+                          }
+                        },
+                  child: const Text('Resend code'),
+                ),
+              ),
+            ],
+          ),
+        );
+      });
+    },
+  );
+}
+
+String _humanizeError(Object e) {
+  final s = e.toString();
+  // Pull the server's `message` out of common "Exception: 400: { ... }" wrappers.
+  final m = RegExp(r'"message":"([^"]+)"').firstMatch(s);
+  if (m != null) return m.group(1)!;
+  return s.replaceFirst(RegExp(r'^Exception: '), '');
 }
 
 class _PasswordField extends StatefulWidget {

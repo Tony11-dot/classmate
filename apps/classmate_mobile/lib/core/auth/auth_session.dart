@@ -351,6 +351,11 @@ class AuthSession extends ChangeNotifier {
     }
   }
 
+  /// Public wrapper around _refreshAuthMe — pulls `/auth/me` and rehydrates
+  /// every cached profile field. Call after any flow that changes server-side
+  /// state the session caches (e.g. email/phone change via verify flow).
+  Future<void> reloadFromMe() => _refreshAuthMe(clearUnauthorizedToken: false);
+
   Future<void> _refreshAuthMe({
     bool clearUnauthorizedToken = false,
     bool clearOnAnyError = false,
