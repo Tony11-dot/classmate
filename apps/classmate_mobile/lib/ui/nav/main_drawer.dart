@@ -293,6 +293,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/admin/cohorts'),
                     navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/admin/schedule'),
                     navItem(icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle, route: '/admin/school'),
+                    navItem(icon: Icons.shield_outlined, label: 'Password Requests', route: '/admin/password-requests'),
                     navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
                     sectionHeader(l.sectionAccount),
                   // ── Teacher drawer ────────────────────────────────────────

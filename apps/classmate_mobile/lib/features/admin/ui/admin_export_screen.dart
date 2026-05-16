@@ -147,20 +147,19 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
               ),
             ),
 
-            // Search
-            if (!_byCohort)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: TextField(
-                  onChanged: (v) => setState(() => _search = v),
-                  decoration: InputDecoration(
-                    hintText: 'Search students…',
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    isDense: true,
-                  ),
+            // Search — works in both modes; hint flips with selection
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: TextField(
+                onChanged: (v) => setState(() => _search = v),
+                decoration: InputDecoration(
+                  hintText: _byCohort ? 'Search cohorts…' : 'Search students…',
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  isDense: true,
                 ),
               ),
+            ),
 
             // Selection count
             if (_selectedCount > 0)
@@ -190,7 +189,11 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : _byCohort
                       ? _CohortPickerList(
-                          cohorts: _cohorts,
+                          cohorts: _cohorts.where((c) {
+                            if (q.isEmpty) return true;
+                            final name = (c['name']?.toString() ?? '').toLowerCase();
+                            return name.contains(q);
+                          }).toList(),
                           students: _students,
                           selectedCohortIds: _selectedCohortIds,
                           expandedCohortIds: _expandedCohortIds,

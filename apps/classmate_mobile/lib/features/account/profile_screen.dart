@@ -334,23 +334,65 @@ class ProfileScreen extends ConsumerWidget {
       isScrollControlled: true,
       builder: (ctx) => SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 16),
-              Text(l.profileDisplayNameLang, style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 8),
-              ...langs.map((lang) => ListTile(
-                leading: Icon(lang.icon),
-                title: Text(lang.label),
-                selected: session.displayNameLang == lang.code || (lang.code.isEmpty && session.displayNameLang.isEmpty),
-                selectedColor: cs.primary,
-                onTap: () => Navigator.of(ctx).pop(lang.code),
-              )),
-              const SizedBox(height: 8),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    l.profileDisplayNameLang,
+                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ...langs.map((lang) {
+                  final isSelected = session.displayNameLang == lang.code
+                      || (lang.code.isEmpty && session.displayNameLang.isEmpty);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+                    child: Material(
+                      color: isSelected ? cs.primaryContainer : Colors.transparent,
+                      borderRadius: BorderRadius.circular(14),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => Navigator.of(ctx).pop(lang.code),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          child: Row(
+                            children: [
+                              Icon(lang.icon, size: 20, color: isSelected ? cs.primary : cs.onSurfaceVariant),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Text(
+                                  lang.label,
+                                  style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                    color: isSelected ? cs.primary : cs.onSurface,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                Icon(Icons.check_circle_rounded, size: 20, color: cs.primary),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ),
