@@ -400,7 +400,6 @@ class _SubjectsTab extends ConsumerStatefulWidget {
 
 class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
   List<SchoolSubject> _subjects = [];
-  final _addCtrl = TextEditingController();
   bool _loading = true;
   bool _saving = false;
 
@@ -408,12 +407,6 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
   void initState() {
     super.initState();
     _loadSubjects();
-  }
-
-  @override
-  void dispose() {
-    _addCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _loadSubjects() async {
@@ -463,11 +456,19 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     }
   }
 
-  void _addSubject() {
-    final text = _addCtrl.text.trim();
-    if (text.isEmpty || _subjects.any((s) => s.nameEn == text)) return;
-    setState(() { _subjects = [..._subjects, SchoolSubject(nameEn: text)]; });
-    _addCtrl.clear();
+  Future<void> _addSubject() async {
+    // Route to the full-screen detail editor with an empty subject so admins
+    // can fill all five language names from the start. The previous inline
+    // "type then Add" path silently turned the typed text into nameEn only.
+    final created = await Navigator.push<SchoolSubject>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
+      ),
+    );
+    if (created == null || created.nameEn.isEmpty) return;
+    if (_subjects.any((s) => s.nameEn == created.nameEn)) return;
+    setState(() { _subjects = [..._subjects, created]; });
   }
 
   void _removeSubject(int index) {
@@ -545,33 +546,17 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
         ),
         const SizedBox(height: 16),
 
-        // ── Add field ──────────────────────────────────────────────────────
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _addCtrl,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: l.adminSubjectsAddHint,
-                  isDense: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                ),
-                onSubmitted: (_) => _addSubject(),
-              ),
+        // ── Add button ─────────────────────────────────────────────────────
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: _addSubject,
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: Text(l.adminSubjectsAdd),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _addSubject,
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: Text(l.adminSubjectsAdd),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                minimumSize: Size.zero,
-              ),
-            ),
-          ],
+          ),
         ),
         const SizedBox(height: 12),
 
