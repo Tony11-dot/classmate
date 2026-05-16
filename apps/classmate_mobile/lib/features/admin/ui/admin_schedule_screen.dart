@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/contracts/school_subject.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
+import 'admin_subject_detail_screen.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -480,6 +482,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   final _customFreqCtrl = TextEditingController();
   DateTime? _startDate; // first occurrence for bi-weekly etc.
 
+  /// Slot subject — either a school subject's nameEn or a freeform string.
+  String? _subject;
+
   bool _saving = false;
 
   static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -582,6 +587,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           teacherId: _teacherId,
           cohortIds: audience.cohortIds,
           studentIds: audience.studentIds,
+          subject: _subject,
           startTime: _defaultTime(slot.period, true).isNotEmpty ? _defaultTime(slot.period, true) : null,
           endTime: _defaultTime(slot.period, false).isNotEmpty ? _defaultTime(slot.period, false) : null,
           frequencyWeeks: freq,
@@ -677,6 +683,20 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               onChanged: (v) => setState(() {
                 _teacherId = v.isEmpty ? null : v;
               }),
+            ),
+            const SizedBox(height: 16),
+
+            // ── Subject ──────────────────────────────────────────────────
+            _SectionLabel(label: 'Subject', cs: cs, theme: theme),
+            const SizedBox(height: 8),
+            _SubjectPickerField(
+              repo: widget.repo,
+              value: _subject,
+              cohorts: widget.cohorts,
+              selectedCohortIds: _cohortIds,
+              audienceGrade: _audienceGrade,
+              audience: _audience,
+              onChanged: (v) => setState(() => _subject = v),
             ),
             const SizedBox(height: 16),
 
@@ -1184,4 +1204,373 @@ class _SectionLabel extends StatelessWidget {
       ),
     );
   }
+}
+
+// ── Subject picker ────────────────────────────────────────────────────────────
+// Three modes packed behind one chip:
+//   1. Pick from the school's defined subjects (fetched on first tap)
+//   2. Type freeform on the spot
+//   3. Create a new full 5-language subject and persist it to the school
+
+class _SubjectPickerField extends StatelessWidget {
+  const _SubjectPickerField({
+    required this.repo,
+    required this.value,
+    required this.cohorts,
+    required this.selectedCohortIds,
+    required this.audienceGrade,
+    required this.audience,
+    required this.onChanged,
+  });
+
+  final AdminRepository repo;
+  final String? value;
+  final List<Map<String, dynamic>> cohorts;
+  final Set<String> selectedCohortIds;
+  final int? audienceGrade;
+  final _AudienceMode audience;
+  final ValueChanged<String?> onChanged;
+
+  /// Grades that this slot's audience currently targets — used to decide
+  /// which SchoolGradeSubjectDefault rows a brand-new subject should land in.
+  List<int> _targetedGrades() {
+    switch (audience) {
+      case _AudienceMode.grade:
+        return audienceGrade != null ? [audienceGrade!] : const [];
+      case _AudienceMode.cohort:
+        final grades = <int>{};
+        for (final c in cohorts) {
+          if (!selectedCohortIds.contains(c['id']?.toString())) continue;
+          final raw = c['grades'];
+          if (raw is List && raw.isNotEmpty) {
+            for (final g in raw) {
+              grades.add((g as num).toInt());
+            }
+          } else {
+            final g = (c['grade'] as num?)?.toInt();
+            if (g != null) grades.add(g);
+          }
+        }
+        return grades.toList()..sort();
+      case _AudienceMode.student:
+        return const [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final hasValue = (value ?? '').trim().isNotEmpty;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => _openPicker(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.menu_book_rounded, size: 18, color: cs.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                hasValue ? value! : 'Pick a subject (optional)',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: hasValue ? FontWeight.w700 : FontWeight.w500,
+                  color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
+                ),
+              ),
+            ),
+            if (hasValue)
+              IconButton(
+                icon: Icon(Icons.clear_rounded, size: 18, color: cs.onSurfaceVariant),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+                onPressed: () => onChanged(null),
+              )
+            else
+              Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openPicker(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: cs.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _SubjectPickerSheet(
+        repo: repo,
+        currentValue: value,
+        targetGrades: _targetedGrades(),
+      ),
+    );
+    if (picked != null) onChanged(picked.isEmpty ? null : picked);
+  }
+}
+
+class _SubjectPickerSheet extends StatefulWidget {
+  const _SubjectPickerSheet({
+    required this.repo,
+    required this.currentValue,
+    required this.targetGrades,
+  });
+
+  final AdminRepository repo;
+  final String? currentValue;
+  final List<int> targetGrades;
+
+  @override
+  State<_SubjectPickerSheet> createState() => _SubjectPickerSheetState();
+}
+
+class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
+  late Future<List<SchoolSubject>> _subjectsFuture;
+  String _search = '';
+  final _freeformCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _subjectsFuture = widget.repo.listAllSchoolSubjects();
+    _freeformCtrl.text = widget.currentValue ?? '';
+  }
+
+  @override
+  void dispose() {
+    _freeformCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _createNew() async {
+    final created = await Navigator.push<SchoolSubject>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
+      ),
+    );
+    if (created == null || created.nameEn.trim().isEmpty) return;
+
+    // Persist to the school's subjects library — but only if we know which
+    // grades to add to. Otherwise it's used once as the slot label and
+    // skipped from the library (admin can add it via School Settings later).
+    if (widget.targetGrades.isNotEmpty) {
+      try {
+        await widget.repo.addSubjectToGrades(grades: widget.targetGrades, subject: created);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Saved as slot label only — couldn\'t add to library: $e')),
+          );
+        }
+      }
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saved as slot label. Pick an audience first to also add to the school library.')),
+      );
+    }
+
+    if (!mounted) return;
+    Navigator.pop(context, created.nameEn.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (ctx, scrollCtrl) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Subject',
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _createNew,
+                    icon: const Icon(Icons.add_rounded, size: 16),
+                    label: const Text('New 5-lang'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Freeform input — type anything, hit "Use" to apply
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _freeformCtrl,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        hintText: 'Type a subject…',
+                        prefixIcon: const Icon(Icons.edit_rounded, size: 18),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        isDense: true,
+                      ),
+                      onSubmitted: (v) {
+                        final t = v.trim();
+                        if (t.isNotEmpty) Navigator.pop(context, t);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () {
+                      final t = _freeformCtrl.text.trim();
+                      if (t.isNotEmpty) Navigator.pop(context, t);
+                    },
+                    child: const Text('Use'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            // Search across existing
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                onChanged: (v) => setState(() => _search = v),
+                decoration: InputDecoration(
+                  hintText: 'Search school subjects…',
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  isDense: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: FutureBuilder<List<SchoolSubject>>(
+                future: _subjectsFuture,
+                builder: (ctx, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final all = snap.data ?? const <SchoolSubject>[];
+                  final q = _search.trim().toLowerCase();
+                  final filtered = q.isEmpty
+                      ? all
+                      : all.where((s) => s.nameEn.toLowerCase().contains(q)).toList();
+                  if (filtered.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          all.isEmpty
+                              ? 'No school subjects yet. Type one above or tap "New 5-lang" to define one.'
+                              : 'No subjects match your search.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    controller: scrollCtrl,
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 4),
+                    itemBuilder: (lctx, i) {
+                      final s = filtered[i];
+                      final selected = widget.currentValue == s.nameEn;
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => Navigator.pop(context, s.nameEn),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: selected
+                                  ? cs.primary.withValues(alpha: 0.4)
+                                  : cs.outlineVariant.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.menu_book_rounded,
+                                size: 18,
+                                color: selected ? cs.primary : cs.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      s.nameEn,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                                        color: selected ? cs.primary : cs.onSurface,
+                                      ),
+                                    ),
+                                    if (_otherLangs(s).isNotEmpty)
+                                      Text(
+                                        _otherLangs(s),
+                                        style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (selected) Icon(Icons.check_circle_rounded, size: 18, color: cs.primary),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _otherLangs(SchoolSubject s) => [
+        if ((s.nameAr ?? '').isNotEmpty) s.nameAr!,
+        if ((s.nameHe ?? '').isNotEmpty) s.nameHe!,
+        if ((s.nameFr ?? '').isNotEmpty) s.nameFr!,
+        if ((s.nameRu ?? '').isNotEmpty) s.nameRu!,
+      ].join(' · ');
 }
