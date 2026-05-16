@@ -63,9 +63,13 @@ class AdminCohortsScreen extends ConsumerWidget {
             );
           }
 
+          // Group by primary grade (grades.first). Multi-grade cohorts appear
+          // once, under their lowest grade — keeps the list to one row per
+          // cohort while still being roughly sorted by grade.
           final byGrade = <int, List<AdminCohort>>{};
           for (final c in cohorts) {
-            byGrade.putIfAbsent(c.grade, () => []).add(c);
+            final primary = c.grades.isEmpty ? c.grade : c.grades.first;
+            byGrade.putIfAbsent(primary, () => []).add(c);
           }
           final grades = byGrade.keys.toList()..sort();
 
@@ -157,28 +161,20 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
     setState(() => _saving = true);
     try {
       final gradeList = _grades.toList()..sort();
-      final multi = gradeList.length > 1;
-      for (final g in gradeList) {
-        final cohortName = multi ? '$name · Grade $g' : name;
-        await widget.repo.createCohort(name: cohortName, grade: g);
-      }
+      await widget.repo.createCohort(name: name, grades: gradeList);
       if (!mounted) return;
 
-      if (multi) {
-        Navigator.pop(context, true);
-      } else {
-        final allStudents = await widget.repo.getDdlStudents();
-        if (!mounted) return;
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => _AdminAddStudentsScreen(
-            repo: widget.repo,
-            cohortName: name,
-            cohortGrade: gradeList.single,
-            allStudents: allStudents,
-          )),
-        );
-      }
+      final allStudents = await widget.repo.getDdlStudents();
+      if (!mounted) return;
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => _AdminAddStudentsScreen(
+          repo: widget.repo,
+          cohortName: name,
+          cohortGrades: gradeList,
+          allStudents: allStudents,
+        )),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -191,7 +187,6 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final multi = _grades.length > 1;
     final availableGrades = ref.watch(authSessionProvider).schoolGrades;
 
     return Scaffold(
@@ -201,8 +196,8 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
         onPressed: (_saving || _nameCtrl.text.trim().isEmpty || _grades.isEmpty) ? null : _save,
         icon: _saving
             ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Icon(multi ? Icons.add_rounded : Icons.arrow_forward_rounded),
-        label: Text(multi ? 'Create ${_grades.length} cohorts' : 'Create & Add Students'),
+            : const Icon(Icons.arrow_forward_rounded),
+        label: const Text('Create & Add Students'),
       ),
       body: SafeArea(
         child: ListView(
@@ -255,13 +250,13 @@ class AdminAddStudentsScreen extends StatefulWidget {
     required this.repo,
     required this.cohortId,
     required this.cohortName,
-    required this.cohortGrade,
+    required this.cohortGrades,
   });
 
   final AdminRepository repo;
   final String cohortId;
   final String cohortName;
-  final int cohortGrade;
+  final List<int> cohortGrades;
 
   @override
   State<AdminAddStudentsScreen> createState() => _AdminAddStudentsScreenState();
@@ -308,7 +303,7 @@ class _AdminAddStudentsScreenState extends State<AdminAddStudentsScreen> {
     allStudents: _allStudents,
     cohortId: widget.cohortId,
     cohortName: widget.cohortName,
-    cohortGrade: widget.cohortGrade,
+    cohortGrades: widget.cohortGrades,
     selected: _selected,
     loading: _loading,
     saving: _saving,
@@ -323,13 +318,13 @@ class _AdminAddStudentsScreen extends StatefulWidget {
   const _AdminAddStudentsScreen({
     required this.repo,
     required this.cohortName,
-    required this.cohortGrade,
+    required this.cohortGrades,
     required this.allStudents,
   });
 
   final AdminRepository repo;
   final String cohortName;
-  final int cohortGrade;
+  final List<int> cohortGrades;
   final List<Map<String, dynamic>> allStudents;
 
   @override
@@ -351,7 +346,7 @@ class _AdminAddStudentsFromCreateState extends State<_AdminAddStudentsScreen> {
     allStudents: widget.allStudents,
     cohortId: '',
     cohortName: widget.cohortName,
-    cohortGrade: widget.cohortGrade,
+    cohortGrades: widget.cohortGrades,
     selected: _selected,
     loading: false,
     saving: _saving,
@@ -367,7 +362,7 @@ class _AdminAddStudentsScreenImpl extends StatefulWidget {
     required this.allStudents,
     required this.cohortId,
     required this.cohortName,
-    required this.cohortGrade,
+    required this.cohortGrades,
     required this.selected,
     required this.loading,
     required this.saving,
@@ -379,7 +374,7 @@ class _AdminAddStudentsScreenImpl extends StatefulWidget {
   final List<Map<String, dynamic>> allStudents;
   final String cohortId;
   final String cohortName;
-  final int cohortGrade;
+  final List<int> cohortGrades;
   final Set<String> selected;
   final bool loading;
   final bool saving;
@@ -393,12 +388,30 @@ class _AdminAddStudentsScreenImpl extends StatefulWidget {
 
 class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl> {
   String _search = '';
-  bool _showGradeOnly = true; // default: filter by cohort's grade
+  bool _showGradeOnly = true; // default: filter by cohort's grade(s)
+
+  String get _gradeChipLabel {
+    final gs = widget.cohortGrades;
+    if (gs.length <= 1) return 'Grade ${gs.isEmpty ? '?' : gs.first} only';
+    final sorted = [...gs]..sort();
+    final isRange = sorted.last - sorted.first == sorted.length - 1;
+    return isRange
+        ? 'Grade ${sorted.first}-${sorted.last} only'
+        : 'Grades ${sorted.join(', ')} only';
+  }
+
+  String get _emptyMsg {
+    final gs = widget.cohortGrades;
+    if (gs.length <= 1) return 'No grade ${gs.isEmpty ? '?' : gs.first} students found';
+    return 'No students found in this cohort\'s grades';
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+
+    final gradeSet = widget.cohortGrades.toSet();
 
     // Filter: grade filter + search
     final q = _search.toLowerCase();
@@ -406,7 +419,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
       // Grade filter
       if (_showGradeOnly) {
         final g = (s['grade'] as num?)?.toInt();
-        if (g != widget.cohortGrade) return false;
+        if (g == null || !gradeSet.contains(g)) return false;
       }
       if (q.isEmpty) return true;
       return (s['name']?.toString() ?? '').toLowerCase().contains(q);
@@ -473,7 +486,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                   Row(
                     children: [
                       FilterChip(
-                        label: Text('Grade ${widget.cohortGrade} only'),
+                        label: Text(_gradeChipLabel),
                         selected: _showGradeOnly,
                         onSelected: (v) => setState(() => _showGradeOnly = v),
                       ),
@@ -494,7 +507,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                   : students.isEmpty
                       ? Center(
                           child: Text(
-                            _showGradeOnly ? 'No grade ${widget.cohortGrade} students found' : 'No students found',
+                            _showGradeOnly ? _emptyMsg : 'No students found',
                             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                           ),
                         )
@@ -598,12 +611,16 @@ class _CohortCard extends StatelessWidget {
           children: [
             Container(
               width: 52, height: 52,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('G${cohort.grade}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer)),
-                ],
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    cohort.gradeChip,
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 14),
@@ -667,7 +684,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
             repo: ref.read(adminRepositoryProvider),
             cohortId: _cohort.id,
             cohortName: _cohort.name,
-            cohortGrade: _cohort.grade,
+            cohortGrades: _cohort.grades,
           )),
         ).then((added) {
           if (added == true) {
@@ -835,7 +852,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
     );
     final newName = nameCtrl.text.trim();
     if (updated == true && newName.isNotEmpty) {
-      setState(() => _cohort = AdminCohort(id: _cohort.id, name: newName, grade: _cohort.grade, studentCount: _cohort.studentCount));
+      setState(() => _cohort = AdminCohort(id: _cohort.id, name: newName, grade: _cohort.grade, grades: _cohort.grades, studentCount: _cohort.studentCount));
     }
   }
 }

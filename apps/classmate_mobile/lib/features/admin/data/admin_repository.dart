@@ -168,14 +168,21 @@ class AdminRepository {
     return _l(_m(raw)['cohorts']).map((e) => AdminCohort.fromJson(_m(e))).toList();
   }
 
-  Future<void> createCohort({required String name, required int grade}) async {
-    await _api.postJson('/admin/cohorts', body: {'name': name, 'grade': grade});
+  Future<void> createCohort({required String name, required List<int> grades}) async {
+    await _api.postJson('/admin/cohorts', body: {
+      'name': name,
+      'grades': grades,
+      // Legacy single-grade field kept for older API builds and so existing
+      // server-side validators that still look at `grade` keep working.
+      'grade': grades.first,
+    });
   }
 
-  Future<void> updateCohort(String id, {String? name, int? grade}) async {
+  Future<void> updateCohort(String id, {String? name, List<int>? grades}) async {
     await _api.patchJson('/admin/cohorts/$id', body: {
       'name': ?name,
-      'grade': ?grade,
+      'grades': ?grades,
+      'grade': ?(grades?.first),
     });
   }
 
@@ -463,20 +470,52 @@ class AdminCohort {
     required this.id,
     required this.name,
     required this.grade,
+    required this.grades,
     required this.studentCount,
   });
 
   final String id;
   final String name;
+  /// Primary/representative grade (== grades.first). Kept for backward
+  /// compatibility with code that wasn't ported to multi-grade yet.
   final int grade;
+  /// All grades this cohort spans. Length 1 for single-grade cohorts.
+  final List<int> grades;
   final int studentCount;
 
-  factory AdminCohort.fromJson(Map<String, dynamic> m) => AdminCohort(
-        id: m['id']?.toString() ?? '',
-        name: m['name']?.toString() ?? '',
-        grade: (m['grade'] as num?)?.toInt() ?? 0,
-        studentCount: (m['studentCount'] as num?)?.toInt() ?? 0,
-      );
+  /// Human-readable grade label: "Grade 7", "Grade 7-9" (contiguous range),
+  /// or "Grades 7, 9, 11" (non-contiguous list).
+  String get gradeLabel {
+    if (grades.isEmpty) return 'Grade $grade';
+    if (grades.length == 1) return 'Grade ${grades.first}';
+    final sorted = [...grades]..sort();
+    final isRange = sorted.last - sorted.first == sorted.length - 1;
+    return isRange ? 'Grade ${sorted.first}-${sorted.last}' : 'Grades ${sorted.join(', ')}';
+  }
+
+  /// Compact label for tight chips: "G7", "G7-9", "G7,9,11".
+  String get gradeChip {
+    if (grades.isEmpty) return 'G$grade';
+    if (grades.length == 1) return 'G${grades.first}';
+    final sorted = [...grades]..sort();
+    final isRange = sorted.last - sorted.first == sorted.length - 1;
+    return isRange ? 'G${sorted.first}-${sorted.last}' : 'G${sorted.join(',')}';
+  }
+
+  factory AdminCohort.fromJson(Map<String, dynamic> m) {
+    final grade = (m['grade'] as num?)?.toInt() ?? 0;
+    final rawGrades = m['grades'];
+    final grades = rawGrades is List
+        ? rawGrades.map((e) => (e as num).toInt()).toList()
+        : <int>[grade];
+    return AdminCohort(
+      id: m['id']?.toString() ?? '',
+      name: m['name']?.toString() ?? '',
+      grade: grade,
+      grades: grades.isEmpty ? [grade] : grades,
+      studentCount: (m['studentCount'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 class AdminSchool {
