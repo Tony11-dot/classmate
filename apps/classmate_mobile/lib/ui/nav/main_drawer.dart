@@ -248,7 +248,9 @@ class MainDrawer extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Logo close button
+                  // Close button — always shows the CM mark. The school logo
+                  // already appears in the dedicated branding row above, so
+                  // mirroring it here just doubled the visual noise.
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
@@ -258,16 +260,7 @@ class MainDrawer extends ConsumerWidget {
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: schoolLogoUrl.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: Image.network(
-                                schoolLogoUrl,
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) => const ClassMateIcon(size: 22),
-                              ),
-                            )
-                          : const ClassMateIcon(size: 22),
+                      child: const Center(child: ClassMateIcon(size: 22)),
                     ),
                   ),
                 ],
