@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../core/contracts/school_subject.dart';
 import '../../../core/http/cm_api.dart';
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
@@ -26,6 +27,10 @@ class AdminRepository {
       cohorts: _i(m['cohorts']),
       classrooms: _i(m['classrooms']),
       todaySessions: _i(m['todaySessions']),
+      schoolNameSet: m['schoolNameSet'] == true,
+      schoolLogoSet: m['schoolLogoSet'] == true,
+      subjectsConfigured: m['subjectsConfigured'] == true,
+      bellScheduleConfigured: m['bellScheduleConfigured'] == true,
     );
   }
 
@@ -300,6 +305,29 @@ class AdminRepository {
     await _api.deleteJson('/admin/periods/$id');
   }
 
+  /// All subjects defined for this school, deduplicated across grades.
+  /// Feeds the Schedule "Add Period" subject picker.
+  Future<List<SchoolSubject>> listAllSchoolSubjects() async {
+    final raw = await _api.getJson('/admin/subjects/all');
+    return _l(_m(raw)['subjects'])
+        .map(SchoolSubject.fromJson)
+        .where((s) => s.nameEn.isNotEmpty)
+        .toList();
+  }
+
+  /// Persists a new 5-lang subject onto the SchoolGradeSubjectDefault rows
+  /// for each grade in [grades]. Returns nothing — the schedule UI just
+  /// proceeds with the subject's nameEn as the slot label.
+  Future<void> addSubjectToGrades({
+    required List<int> grades,
+    required SchoolSubject subject,
+  }) async {
+    await _api.postJson('/admin/subjects/add-to-grades', body: {
+      'grades': grades,
+      'subject': subject.toJson(),
+    });
+  }
+
   Future<List<Map<String, dynamic>>> getPeriodDefaults() async {
     final raw = await _api.getJson('/admin/period-defaults');
     return _l(_m(raw)['defaults']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
@@ -338,6 +366,10 @@ class AdminOverview {
     required this.cohorts,
     required this.classrooms,
     required this.todaySessions,
+    this.schoolNameSet = false,
+    this.schoolLogoSet = false,
+    this.subjectsConfigured = false,
+    this.bellScheduleConfigured = false,
   });
 
   final int students;
@@ -345,6 +377,12 @@ class AdminOverview {
   final int cohorts;
   final int classrooms;
   final int todaySessions;
+
+  /// Setup-progress signals — drive the dashboard School Setup widget.
+  final bool schoolNameSet;
+  final bool schoolLogoSet;
+  final bool subjectsConfigured;
+  final bool bellScheduleConfigured;
 }
 
 class CohortAttendance {

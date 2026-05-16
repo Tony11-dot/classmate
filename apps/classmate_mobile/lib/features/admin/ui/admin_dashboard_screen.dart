@@ -58,18 +58,16 @@ class AdminDashboardScreen extends ConsumerWidget {
                 child: overviewAsync.when(
                   loading: () => const _StatsGridSkeleton(),
                   error: (e, _) => _ErrorCard(message: e.toString()),
-                  data: (o) {
-                    final isEmpty = o.students == 0 && o.teachers == 0 && o.cohorts == 0;
-                    return Column(
-                      children: [
-                        _StatsGrid(overview: o),
-                        if (isEmpty) ...[
-                          const SizedBox(height: 20),
-                          _SetupGuide(isAdmin: isAdmin),
-                        ],
-                      ],
-                    );
-                  },
+                  data: (o) => Column(
+                    children: [
+                      _StatsGrid(overview: o),
+                      const SizedBox(height: 20),
+                      // Always shown — collapses to a compact "all done" pill
+                      // once everything is ticked, so admins can still spot-
+                      // check at a glance after first-time setup.
+                      _SetupGuide(isAdmin: isAdmin, overview: o),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -171,121 +169,168 @@ class AdminDashboardScreen extends ConsumerWidget {
 
 // ── First-time setup guide ─────────────────────────────────────────────────────
 
-class _SetupGuide extends StatelessWidget {
-  const _SetupGuide({required this.isAdmin});
+class _SetupGuide extends StatefulWidget {
+  const _SetupGuide({required this.isAdmin, required this.overview});
   final bool isAdmin;
+  final AdminOverview overview;
+
+  @override
+  State<_SetupGuide> createState() => _SetupGuideState();
+}
+
+class _SetupGuideState extends State<_SetupGuide> {
+  bool _expanded = true;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final o = widget.overview;
 
-    final steps = [
+    final steps = <_SetupStep>[
       _SetupStep(
-        icon: Icons.school_rounded,
-        title: 'Set school name & logo',
-        subtitle: "Personalise the app with your school's identity",
+        icon: Icons.image_rounded,
+        title: 'Upload school logo',
+        subtitle: 'Appears in headers and the drawer',
         route: '/admin/school',
-        done: false,
+        done: o.schoolLogoSet,
+      ),
+      _SetupStep(
+        icon: Icons.drive_file_rename_outline_rounded,
+        title: 'Set school name',
+        subtitle: "Shown to students, teachers, and parents",
+        route: '/admin/school',
+        done: o.schoolNameSet,
+      ),
+      _SetupStep(
+        icon: Icons.menu_book_rounded,
+        title: 'Define subjects',
+        subtitle: 'At least one grade with subjects configured',
+        route: '/admin/school',
+        done: o.subjectsConfigured,
       ),
       _SetupStep(
         icon: Icons.schedule_rounded,
         title: 'Set bell schedule',
-        subtitle: 'Define start/end times for each period (P1–P9)',
-        route: '/admin/bell-schedule',
-        done: false,
-      ),
-      _SetupStep(
-        icon: Icons.menu_book_rounded,
-        title: 'Set subjects per grade',
-        subtitle: 'Configure which subjects each grade studies',
+        subtitle: 'Start/end times for each period',
         route: '/admin/school',
-        done: false,
+        done: o.bellScheduleConfigured,
       ),
-      if (isAdmin)
-        _SetupStep(
-          icon: Icons.co_present_rounded,
-          title: 'Add teachers',
-          subtitle: 'Create teacher accounts with temporary passwords',
-          route: '/admin/people',
-          done: false,
-        ),
       _SetupStep(
         icon: Icons.groups_rounded,
         title: 'Create cohorts',
-        subtitle: 'Set up your class groups (e.g. 10th-1, 11th-2)',
+        subtitle: 'Set up your class groups',
         route: '/admin/cohorts',
-        done: false,
+        done: o.cohorts > 0,
       ),
       _SetupStep(
         icon: Icons.person_add_rounded,
         title: 'Add students',
-        subtitle: 'Create accounts or generate join codes for self-enrolment',
-        route: '/admin/cohorts',
-        done: false,
+        subtitle: 'Create accounts or generate join codes',
+        route: '/admin/people',
+        done: o.students > 0,
       ),
-      if (isAdmin)
-        _SetupStep(
-          icon: Icons.manage_history_rounded,
-          title: 'Build the weekly schedule',
-          subtitle: 'Assign teachers and cohorts to time slots',
-          route: '/admin/schedule',
-          done: false,
-        ),
+      _SetupStep(
+        icon: Icons.co_present_rounded,
+        title: 'Add teachers',
+        subtitle: 'Create teacher accounts',
+        route: '/admin/people',
+        done: o.teachers > 0,
+      ),
     ];
+
+    final doneCount = steps.where((s) => s.done).length;
+    final total = steps.length;
+    final allDone = doneCount == total;
+    final progress = total == 0 ? 0.0 : doneCount / total;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.2),
+        color: allDone
+            ? cs.tertiaryContainer.withValues(alpha: 0.25)
+            : cs.primaryContainer.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: (allDone ? cs.tertiary : cs.primary).withValues(alpha: 0.25),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.checklist_rounded, color: cs.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'School Setup',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.primary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  '${steps.length} steps',
-                  style: TextStyle(
-                    color: cs.onPrimary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+          InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: [
+                  Icon(
+                    allDone ? Icons.verified_rounded : Icons.checklist_rounded,
+                    color: allDone ? cs.tertiary : cs.primary,
+                    size: 20,
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'School Setup',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: allDone ? cs.tertiary : cs.primary,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: allDone ? cs.tertiary : cs.primary,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      '$doneCount/$total',
+                      style: TextStyle(
+                        color: allDone ? cs.onTertiary : cs.onPrimary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    _expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                    size: 20,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Your school isn\'t set up yet. Complete these steps to get started.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant,
-              height: 1.4,
             ),
           ),
-          const SizedBox(height: 14),
-          ...steps.asMap().entries.map((e) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: _SetupStepTile(step: e.value, number: e.key + 1),
-          )),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: cs.surfaceContainerHigh,
+              valueColor: AlwaysStoppedAnimation<Color>(allDone ? cs.tertiary : cs.primary),
+            ),
+          ),
+          if (_expanded) ...[
+            const SizedBox(height: 12),
+            Text(
+              allDone
+                  ? "You're all set. Tap any item to revisit or refine it."
+                  : 'Complete these steps to fully set up your school.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ...steps.asMap().entries.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _SetupStepTile(step: e.value, number: e.key + 1),
+            )),
+          ],
         ],
       ),
     );
@@ -316,15 +361,22 @@ class _SetupStepTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final done = step.done;
 
     return GestureDetector(
       onTap: () => context.push(step.route),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
+          color: done
+              ? cs.tertiaryContainer.withValues(alpha: 0.35)
+              : cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(
+            color: done
+                ? cs.tertiary.withValues(alpha: 0.4)
+                : cs.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
         child: Row(
           children: [
@@ -332,18 +384,20 @@ class _SetupStepTile extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: cs.primaryContainer,
+                color: done ? cs.tertiary : cs.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Text(
-                  '$number',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    color: cs.onPrimaryContainer,
-                  ),
-                ),
+                child: done
+                    ? Icon(Icons.check_rounded, color: cs.onTertiary, size: 18)
+                    : Text(
+                        '$number',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          color: cs.onPrimaryContainer,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 10),
@@ -353,7 +407,12 @@ class _SetupStepTile extends StatelessWidget {
                 children: [
                   Text(
                     step.title,
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      decoration: done ? TextDecoration.lineThrough : null,
+                      decorationColor: cs.onSurfaceVariant,
+                      color: done ? cs.onSurfaceVariant : cs.onSurface,
+                    ),
                   ),
                   Text(
                     step.subtitle,
@@ -364,7 +423,7 @@ class _SetupStepTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant),
           ],
         ),
       ),
