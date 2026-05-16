@@ -123,6 +123,11 @@ model User {
   teacherExams                   TeacherExam[]                 @relation("TeacherExams")
   teacherMaterials               TeacherMaterial[]             @relation("TeacherMaterials")
   teacherMeetings                TeacherMeeting[]              @relation("TeacherMeetings")
+
+  /// Password-change requests this user has filed on themselves.
+  passwordChangeRequests         PasswordChangeRequest[]       @relation("PasswordChangeRequestUser")
+  /// Pending password-change requests waiting for THIS user (an admin) to approve.
+  passwordChangeApprovals        PasswordChangeRequest[]       @relation("PasswordChangeRequestAdmin")
 }
 
 model UserRole {
@@ -153,6 +158,33 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+/// Admin-mediated password change. The user types the password they want and
+/// picks an admin from their school; the admin gets a notification and
+/// approves or rejects without ever seeing the raw password. On approve the
+/// stored bcrypt hash becomes the user's new password.
+model PasswordChangeRequest {
+  id           String   @id @default(uuid())
+  /// The user whose password should change.
+  userId       String
+  /// The admin chosen to approve the request.
+  toAdminId    String
+  /// Bcrypt hash of the user's desired password. Admin never sees plaintext.
+  passwordHash String
+  /// 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
+  status       String   @default("PENDING")
+  /// 24h from creation; expired rows can be auto-cleaned later.
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  /// Stamped when approve/reject happens.
+  resolvedAt   DateTime?
+
+  user    User @relation("PasswordChangeRequestUser",  fields: [userId],    references: [id], onDelete: Cascade)
+  toAdmin User @relation("PasswordChangeRequestAdmin", fields: [toAdminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([toAdminId, status])
 }
 
 model Cohort {

@@ -213,6 +213,177 @@ export class PasswordResetService {
     }
   }
 
+  // ── Admin-mediated password change (Path B) ─────────────────────────────
+
+  /**
+   * Looks up the admins eligible to approve a password change for the user
+   * identified by email-or-username. Returns the user's school name (so the
+   * UI can render "Ask one of <school>'s admins:") and a list of admin
+   * candidates. Always returns 200 with empty data when the identifier
+   * doesn't match anything — same anti-enumeration posture as forgot-password.
+   */
+  async lookupAdminsForRequest(identifier: string): Promise<{
+    schoolName: string | null;
+    admins: { id: string; name: string; email: string | null }[];
+  }> {
+    const user = await this.findUserByIdentifier(identifier);
+    if (!user) return { schoolName: null, admins: [] };
+    if (!user.schoolId) return { schoolName: null, admins: [] };
+
+    const schoolName = await this.lookupSchoolName(user.schoolId);
+    const admins = await this.prisma.user.findMany({
+      where: {
+        schoolId: user.schoolId,
+        roles: { some: { role: 'ADMIN' as any } },
+      } as any,
+      select: { id: true, name: true, nameEn: true, email: true } as any,
+      orderBy: { name: 'asc' },
+    }) as any[];
+
+    return {
+      schoolName,
+      admins: admins.map((a: any) => ({
+        id: a.id,
+        name: (a.nameEn || a.name || a.email || 'Admin').toString(),
+        email: a.email,
+      })),
+    };
+  }
+
+  /**
+   * User submits their desired password and picks an admin to approve.
+   * Stores the bcrypt hash so admins NEVER see the raw value. Notifies the
+   * chosen admin out-of-band (email + SMS). Always returns success so callers
+   * can't probe for valid (identifier, adminId) pairs.
+   */
+  async submitPasswordChangeRequest(args: {
+    identifier: string;
+    adminId: string;
+    desiredPassword: string;
+  }): Promise<void> {
+    const pw = args.desiredPassword ?? '';
+    if (pw.length < 8) throw new BadRequestException('Password must be at least 8 characters.');
+
+    const user = await this.findUserByIdentifier(args.identifier);
+    if (!user || !user.schoolId) {
+      this.logger.log(`submitPasswordChangeRequest: no user / no school for identifier=${args.identifier.slice(0, 3)}… (silently succeeding)`);
+      return;
+    }
+
+    // Verify the chosen admin actually belongs to this user's school.
+    const admin = await this.prisma.user.findFirst({
+      where: {
+        id: args.adminId,
+        schoolId: user.schoolId,
+        roles: { some: { role: 'ADMIN' as any } },
+      } as any,
+      select: { id: true, name: true, nameEn: true, email: true, phone: true } as any,
+    }) as any;
+    if (!admin) {
+      this.logger.warn(`submitPasswordChangeRequest: admin ${args.adminId} not valid for user ${user.id}`);
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(pw, 10);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60_000); // 24h
+
+    await this.prisma.passwordChangeRequest.create({
+      data: { userId: user.id, toAdminId: admin.id, passwordHash, expiresAt },
+    });
+
+    // Best-effort notification (don't block the user's submit on send failure).
+    const schoolName = await this.lookupSchoolName(user.schoolId);
+    const requesterName = (user.nameEn || user.name || 'A user').toString();
+    if (admin.email) {
+      try {
+        await this.email.sendPasswordChangeRequestToAdmin({
+          to: admin.email,
+          adminName: (admin.nameEn || admin.name || 'Admin').toString(),
+          requesterName,
+          requesterIdentifier: user.email || (user as any).username || '',
+          schoolName,
+        });
+      } catch (err) {
+        this.logger.warn(`submitPasswordChangeRequest: email notify failed: ${(err as Error).message}`);
+      }
+    }
+    if (admin.phone) {
+      try {
+        await this.sms.sendPasswordChangeRequestToAdmin({
+          to: admin.phone,
+          requesterName,
+          schoolName,
+        });
+      } catch (err) {
+        this.logger.warn(`submitPasswordChangeRequest: sms notify failed: ${(err as Error).message}`);
+      }
+    }
+  }
+
+  /** Admin approves: copy the stored hash into the user's password. */
+  async approveChangeRequest(approvingAdminId: string, requestId: string): Promise<void> {
+    const req = await this.prisma.passwordChangeRequest.findUnique({ where: { id: requestId } });
+    if (!req) throw new NotFoundException('Request not found');
+    if (req.toAdminId !== approvingAdminId) {
+      throw new BadRequestException("This request wasn't sent to you.");
+    }
+    if (req.status !== 'PENDING') throw new BadRequestException(`Request is already ${req.status}.`);
+    if (req.expiresAt.getTime() < Date.now()) {
+      await this.prisma.passwordChangeRequest.update({
+        where: { id: requestId },
+        data: { status: 'EXPIRED', resolvedAt: new Date() },
+      });
+      throw new BadRequestException('Request has expired.');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: req.userId }, data: { password: req.passwordHash } }),
+      this.prisma.passwordChangeRequest.update({
+        where: { id: requestId },
+        data: { status: 'APPROVED', resolvedAt: new Date() },
+      }),
+      // Invalidate any of the user's still-pending self-service reset tokens.
+      this.prisma.passwordResetToken.updateMany({
+        where: { userId: req.userId, usedAt: null },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+  }
+
+  /** Admin rejects (no password change happens). */
+  async rejectChangeRequest(approvingAdminId: string, requestId: string): Promise<void> {
+    const req = await this.prisma.passwordChangeRequest.findUnique({ where: { id: requestId } });
+    if (!req) throw new NotFoundException('Request not found');
+    if (req.toAdminId !== approvingAdminId) {
+      throw new BadRequestException("This request wasn't sent to you.");
+    }
+    if (req.status !== 'PENDING') throw new BadRequestException(`Request is already ${req.status}.`);
+
+    await this.prisma.passwordChangeRequest.update({
+      where: { id: requestId },
+      data: { status: 'REJECTED', resolvedAt: new Date() },
+    });
+  }
+
+  /** Pending requests routed to a specific admin, newest first. */
+  async listPendingForAdmin(adminId: string): Promise<any[]> {
+    const rows = await this.prisma.passwordChangeRequest.findMany({
+      where: { toAdminId: adminId, status: 'PENDING', expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, name: true, nameEn: true, email: true, username: true } as any } as any,
+      } as any,
+    }) as any[];
+    return rows.map((r: any) => ({
+      id: r.id,
+      requesterName: (r.user?.nameEn || r.user?.name || 'A user').toString(),
+      requesterEmail: r.user?.email,
+      requesterUsername: r.user?.username,
+      createdAt: r.createdAt,
+      expiresAt: r.expiresAt,
+    }));
+  }
+
   /**
    * Validates the raw token, sets the user's new password (bcrypt-hashed),
    * marks the token used, and invalidates any other still-pending tokens for

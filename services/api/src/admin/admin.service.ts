@@ -1002,6 +1002,22 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true, email: target.email };
   }
 
+  /** Pending password-change requests for THIS admin to approve. */
+  async listPasswordRequests(adminId: string) {
+    if (!adminId) throw new BadRequestException('Not authenticated');
+    return this.passwordReset.listPendingForAdmin(adminId);
+  }
+
+  async approvePasswordRequest(adminId: string, requestId: string) {
+    if (!adminId) throw new BadRequestException('Not authenticated');
+    await this.passwordReset.approveChangeRequest(adminId, requestId);
+  }
+
+  async rejectPasswordRequest(adminId: string, requestId: string) {
+    if (!adminId) throw new BadRequestException('Not authenticated');
+    await this.passwordReset.rejectChangeRequest(adminId, requestId);
+  }
+
   /** Best-effort display name for the admin who initiated an action. */
   private async lookupAdminDisplayName(user: any): Promise<string> {
     const fromJwt = String(user?.name ?? user?.email ?? '').trim();

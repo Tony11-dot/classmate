@@ -146,6 +146,21 @@ class AdminRepository {
     await _api.postJson('/admin/users/$id/set-password', body: {'newPassword': newPassword});
   }
 
+  // ── Password change requests (this admin's queue) ─────────────────────────
+
+  Future<List<PasswordChangeRequest>> listPasswordRequests() async {
+    final raw = await _api.getJson('/admin/password-requests');
+    return _l(_m(raw)['pending']).map((e) => PasswordChangeRequest.fromJson(_m(e))).toList();
+  }
+
+  Future<void> approvePasswordRequest(String id) async {
+    await _api.postJson('/admin/password-requests/$id/approve');
+  }
+
+  Future<void> rejectPasswordRequest(String id) async {
+    await _api.postJson('/admin/password-requests/$id/reject');
+  }
+
   // ── Cohorts ──────────────────────────────────────────────────────────────────
 
   Future<List<AdminCohort>> listCohorts() async {
@@ -487,3 +502,31 @@ class AdminSchool {
         maxGrade: (m['maxGrade'] as num?)?.toInt() ?? 12,
       );
 }
+
+class PasswordChangeRequest {
+  const PasswordChangeRequest({
+    required this.id,
+    required this.requesterName,
+    this.requesterEmail,
+    this.requesterUsername,
+    required this.createdAt,
+    required this.expiresAt,
+  });
+
+  final String id;
+  final String requesterName;
+  final String? requesterEmail;
+  final String? requesterUsername;
+  final DateTime createdAt;
+  final DateTime expiresAt;
+
+  factory PasswordChangeRequest.fromJson(Map<String, dynamic> m) => PasswordChangeRequest(
+        id: m['id']?.toString() ?? '',
+        requesterName: m['requesterName']?.toString() ?? '',
+        requesterEmail: m['requesterEmail']?.toString(),
+        requesterUsername: m['requesterUsername']?.toString(),
+        createdAt: DateTime.tryParse(m['createdAt']?.toString() ?? '') ?? DateTime.now(),
+        expiresAt: DateTime.tryParse(m['expiresAt']?.toString() ?? '') ?? DateTime.now(),
+      );
+}
+

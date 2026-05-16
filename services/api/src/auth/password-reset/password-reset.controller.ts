@@ -53,6 +53,38 @@ export class PasswordResetController {
   }
 
   /**
+   * Looks up the school's admins so the Flutter Forgot Password screen can
+   * render an admin picker for the "ask an admin" path. Always 200 with
+   * empty data when the identifier doesn't match anything.
+   */
+  @Public()
+  @Post('auth/password-request/lookup')
+  @HttpCode(200)
+  async lookupAdmins(@Body() body: { identifier?: string }) {
+    const identifier = String(body?.identifier ?? '').trim();
+    if (!identifier) throw new BadRequestException('identifier is required');
+    const out = await this.service.lookupAdminsForRequest(identifier);
+    return { ok: true, ...out };
+  }
+
+  /**
+   * User submits the password they want + which admin should approve. Hash
+   * is stored, admin gets a notification, but the raw password is never
+   * surfaced to the admin.
+   */
+  @Public()
+  @Post('auth/password-request/submit')
+  @HttpCode(200)
+  async submitRequest(@Body() body: { identifier?: string; adminId?: string; desiredPassword?: string }) {
+    const identifier = String(body?.identifier ?? '').trim();
+    const adminId = String(body?.adminId ?? '').trim();
+    const desiredPassword = String(body?.desiredPassword ?? '');
+    if (!identifier || !adminId) throw new BadRequestException('identifier and adminId are required');
+    await this.service.submitPasswordChangeRequest({ identifier, adminId, desiredPassword });
+    return { ok: true, message: 'Request sent. Your admin will receive a notification.' };
+  }
+
+  /**
    * Styled HTML reset page (matches /cms branding). User lands here from the
    * email/SMS link. JS posts to /auth/reset-password and renders success/error
    * inline so it works on any device with no app install.

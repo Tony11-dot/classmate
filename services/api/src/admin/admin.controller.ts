@@ -265,6 +265,32 @@ export class AdminController {
     return this.admin.setUserPassword(req.user, id, body);
   }
 
+  // ── Password-change requests (user-asked-the-admin flow) ─────────────────
+
+  @Roles(Role.ADMIN)
+  @Get('password-requests')
+  async listPasswordRequests(@Req() req: any) {
+    const adminId = req.user?.sub ?? req.user?.id;
+    const pending = await this.admin.listPasswordRequests(adminId);
+    return { ok: true, pending };
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('password-requests/:id/approve')
+  async approvePasswordRequest(@Req() req: any, @Param('id') id: string) {
+    const adminId = req.user?.sub ?? req.user?.id;
+    await this.admin.approvePasswordRequest(adminId, id);
+    return { ok: true };
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('password-requests/:id/reject')
+  async rejectPasswordRequest(@Req() req: any, @Param('id') id: string) {
+    const adminId = req.user?.sub ?? req.user?.id;
+    await this.admin.rejectPasswordRequest(adminId, id);
+    return { ok: true };
+  }
+
   @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('users/:id/children')
   getUserChildren(@Req() req: any, @Param('id') id: string) {
