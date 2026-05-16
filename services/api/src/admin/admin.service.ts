@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, HttpException, Htt
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects, normalizeSubjectsI18n } from '../subjects/subjects.store';
+import { PasswordResetService } from '../auth/password-reset/password-reset.service';
 import { hasAnyRole } from '../auth/permissions';
 
 function randomDigits(len = 6) {
@@ -14,7 +15,10 @@ function randomDigits(len = 6) {
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly passwordReset: PasswordResetService,
+  ) {}
 
   private ensureAdmin(user: any) {
     if (!hasAnyRole(user, ['ADMIN']))
@@ -987,7 +991,32 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       data: { usedAt: new Date() },
     });
 
+    // Notify the user that an admin changed their password, with a one-click
+    // link to set their own. Fire-and-forget — never let a notification
+    // failure block the password change.
+    const adminName = await this.lookupAdminDisplayName(user);
+    void this.passwordReset
+      .notifyPasswordChanged({ targetUserId: id, byAdminName: adminName })
+      .catch(() => undefined);
+
     return { ok: true, email: target.email };
+  }
+
+  /** Best-effort display name for the admin who initiated an action. */
+  private async lookupAdminDisplayName(user: any): Promise<string> {
+    const fromJwt = String(user?.name ?? user?.email ?? '').trim();
+    if (fromJwt) return fromJwt;
+    const adminId = user?.sub ?? user?.id;
+    if (!adminId) return 'an administrator';
+    try {
+      const row = await this.prisma.user.findUnique({
+        where: { id: adminId },
+        select: { nameEn: true, name: true, email: true } as any,
+      }) as any;
+      return (row?.nameEn || row?.name || row?.email || 'an administrator').toString();
+    } catch {
+      return 'an administrator';
+    }
   }
 
   // ── Parent Links ──────────────────────────────────────────────────────────────

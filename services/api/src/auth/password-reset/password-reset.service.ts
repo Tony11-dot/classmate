@@ -131,6 +131,89 @@ export class PasswordResetService {
   }
 
   /**
+   * Called after an admin directly changes a user's password (see
+   * admin.service.setUserPassword). Creates a fresh single-use reset token
+   * and emails/SMSes the affected user a "your password was changed" notice
+   * with a one-click link to set their own password.
+   *
+   * Resolves silently when:
+   *   - The user has no email AND no phone (we have no way to reach them).
+   *   - Email/SMS providers aren't configured (logged as warnings).
+   * Never throws — a notification failure must not block the password
+   * change that already happened.
+   */
+  async notifyPasswordChanged(args: { targetUserId: string; byAdminName: string }): Promise<void> {
+    let target: any;
+    try {
+      target = await this.prisma.user.findUnique({
+        where: { id: args.targetUserId },
+        select: {
+          id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true,
+        } as any,
+      });
+    } catch (err) {
+      this.logger.warn(`notifyPasswordChanged: could not load user ${args.targetUserId}: ${(err as Error).message}`);
+      return;
+    }
+    if (!target) return;
+
+    const hasEmail = !!(target.email && target.email.trim());
+    const hasPhone = !!(target.phone && target.phone.trim());
+    if (!hasEmail && !hasPhone) {
+      this.logger.log(`notifyPasswordChanged: user ${target.id} has neither email nor phone; skipping notify`);
+      return;
+    }
+
+    const rawToken = randomBytes(TOKEN_BYTES).toString('base64url');
+    const tokenHash = this.hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + TOKEN_TTL_MINUTES * 60_000);
+    const channel: ResetChannel = hasEmail ? 'email' : 'sms';
+
+    try {
+      await this.prisma.passwordResetToken.create({
+        data: { userId: target.id, tokenHash, channel, expiresAt },
+      });
+    } catch (err) {
+      this.logger.warn(`notifyPasswordChanged: token persist failed: ${(err as Error).message}`);
+      return;
+    }
+
+    const resetUrl = `${this.baseUrl}/reset-password?token=${rawToken}`;
+    const schoolName = await this.lookupSchoolName(target.schoolId);
+    const recipientName = (target.nameEn || target.name || '').trim() || null;
+
+    // Send via every available channel — email first (richer), SMS as a
+    // belt-and-suspenders fallback when both are on file.
+    if (hasEmail) {
+      try {
+        await this.email.sendPasswordChangedNotification({
+          to: target.email!,
+          recipientName,
+          schoolName,
+          byAdminName: args.byAdminName,
+          resetUrl,
+          expiresInMinutes: TOKEN_TTL_MINUTES,
+        });
+      } catch (err) {
+        this.logger.warn(`notifyPasswordChanged: email send failed: ${(err as Error).message}`);
+      }
+    }
+    if (hasPhone) {
+      try {
+        await this.sms.sendPasswordChangedSms({
+          to: target.phone!,
+          byAdminName: args.byAdminName,
+          resetUrl,
+          expiresInMinutes: TOKEN_TTL_MINUTES,
+          schoolName,
+        });
+      } catch (err) {
+        this.logger.warn(`notifyPasswordChanged: sms send failed: ${(err as Error).message}`);
+      }
+    }
+  }
+
+  /**
    * Validates the raw token, sets the user's new password (bcrypt-hashed),
    * marks the token used, and invalidates any other still-pending tokens for
    * the same user.

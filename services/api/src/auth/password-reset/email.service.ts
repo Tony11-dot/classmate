@@ -66,6 +66,44 @@ export class EmailService {
       throw err;
     }
   }
+
+  /**
+   * Sent automatically after an admin directly changes a user's password.
+   * Different copy from a self-initiated reset — leads with "your password
+   * was changed by X" and offers a one-click link to set a new one yourself.
+   */
+  async sendPasswordChangedNotification(args: {
+    to: string;
+    recipientName?: string | null;
+    schoolName?: string | null;
+    byAdminName: string;
+    resetUrl: string;
+    expiresInMinutes: number;
+  }): Promise<void> {
+    if (!this.client) {
+      this.logger.warn(`Resend not configured; would have notified ${args.to} of password change by ${args.byAdminName}`);
+      return;
+    }
+    const html = buildPasswordChangedHtml(args);
+    const text = buildPasswordChangedText(args);
+    const subject = args.schoolName
+      ? `Your ${args.schoolName} password was changed`
+      : 'Your ClassMate password was changed';
+
+    try {
+      await this.client.emails.send({
+        from: this.fromAddress,
+        to: args.to,
+        replyTo: this.replyTo,
+        subject,
+        html,
+        text,
+      });
+    } catch (err) {
+      this.logger.error(`Failed to send password-changed notice to ${args.to}: ${(err as Error).message}`);
+      throw err;
+    }
+  }
 }
 
 function buildResetEmailText(args: { recipientName?: string | null; schoolName?: string | null; resetUrl: string; expiresInMinutes: number }): string {
@@ -164,4 +202,94 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function buildPasswordChangedText(args: {
+  recipientName?: string | null; schoolName?: string | null; byAdminName: string;
+  resetUrl: string; expiresInMinutes: number;
+}): string {
+  const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
+  return [
+    'ClassMate — One app. Your whole school.',
+    '',
+    greeting,
+    '',
+    `Heads up — your ${args.schoolName ?? 'ClassMate'} password was just changed by ${args.byAdminName}, an administrator on your account.`,
+    '',
+    'If you asked them to do this, you can ignore this email — sign in with the new password they gave you.',
+    '',
+    `If this wasn't you, or you want to pick a different password, use the link below within the next ${args.expiresInMinutes} minutes:`,
+    '',
+    args.resetUrl,
+    '',
+    'Tony Aboud',
+    'Founder, ClassMate',
+  ].join('\n');
+}
+
+function buildPasswordChangedHtml(args: {
+  recipientName?: string | null; schoolName?: string | null; byAdminName: string;
+  resetUrl: string; expiresInMinutes: number;
+}): string {
+  const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
+  const schoolLabel = args.schoolName ?? 'ClassMate';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Your ${escapeHtml(schoolLabel)} password was changed</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f5f9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1a1a2e;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f5f9;">
+    <tr><td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
+
+        <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
+          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
+        </td></tr>
+
+        <tr><td style="padding:32px 32px 8px;">
+          <h1 style="margin:0 0 8px; font-size:22px; font-weight:800; color:#1a1a2e;">Your password was changed</h1>
+          <p style="margin:0 0 4px; font-size:13px; color:#6868a0; text-transform:uppercase; letter-spacing:.5px; font-weight:700;">${escapeHtml(schoolLabel)}</p>
+        </td></tr>
+
+        <tr><td style="padding:16px 32px 12px; font-size:15px; line-height:1.6; color:#333;">
+          <p style="margin:0 0 14px;">${escapeHtml(greeting)}</p>
+          <p style="margin:0 0 14px;">
+            Heads up — your <strong>${escapeHtml(schoolLabel)}</strong> password was just changed by
+            <strong>${escapeHtml(args.byAdminName)}</strong>, an administrator on your account.
+          </p>
+          <p style="margin:0 0 14px;">
+            If you asked them to do this, you're all set — sign in with the new password.
+          </p>
+          <p style="margin:0 0 14px; color:#555;">
+            <strong>If this wasn't you</strong> — or you'd like to pick a different password yourself —
+            tap the button below within the next <strong>${args.expiresInMinutes} minutes</strong>:
+          </p>
+        </td></tr>
+
+        <tr><td align="center" style="padding:8px 32px 32px;">
+          <a href="${args.resetUrl}"
+             style="display:inline-block; padding:14px 32px; background:#2563eb; color:#ffffff; text-decoration:none; border-radius:12px; font-weight:700; font-size:15px; letter-spacing:.2px;">
+            Set my own password
+          </a>
+        </td></tr>
+
+        <tr><td style="padding:0 32px 24px; font-size:12px; color:#888; line-height:1.5;">
+          <p style="margin:0 0 6px;">Or copy and paste this link into your browser:</p>
+          <p style="margin:0; word-break:break-all;"><a href="${args.resetUrl}" style="color:#2563eb; text-decoration:underline;">${args.resetUrl}</a></p>
+        </td></tr>
+
+        <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
+          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }

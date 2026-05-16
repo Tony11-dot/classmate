@@ -43,6 +43,21 @@ export class SmsService {
   }
 
   /**
+   * Sent automatically after an admin directly changes a user's password.
+   */
+  async sendPasswordChangedSms(args: {
+    to: string;
+    byAdminName: string;
+    resetUrl: string;
+    expiresInMinutes: number;
+    schoolName?: string | null;
+  }): Promise<void> {
+    const label = args.schoolName ?? 'ClassMate';
+    const body = `${label}: your password was changed by ${args.byAdminName}. Set your own here: ${args.resetUrl} (expires in ${args.expiresInMinutes} min).`;
+    await this.send(args.to, body);
+  }
+
+  /**
    * Generic outbound SMS. Returns silently (and logs a warning) if Twilio
    * env vars aren't set — callers can still rely on isConfigured to surface
    * that to the end user.
