@@ -922,6 +922,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const legalName = String(dto?.legalName ?? '').trim() || undefined;
     const rawEmail = String(dto?.email ?? '').trim().toLowerCase() || undefined;
     const rawUsername = String(dto?.username ?? '').trim().toLowerCase() || undefined;
+    // Optional admin-supplied password. When omitted we auto-generate one
+    // (existing behavior). When provided, validate basic strength so we
+    // don't store something weaker than the floor for self-service changes.
+    const explicitPassword = typeof dto?.password === 'string' ? String(dto.password) : '';
     // E.164 enforcement matches verify flow: leading '+' + digits. Empty
     // string → undefined (skipped). Stored as-is so SMS sends work.
     const rawPhone = String(dto?.phone ?? '').trim().replace(/\s+/g, '') || undefined;
@@ -932,37 +936,30 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const grade = dto?.grade ? Number(dto.grade) : undefined;
 
     if (!name) throw new BadRequestException('At least an English name is required');
-    if (!rawEmail && !rawUsername) throw new BadRequestException('At least one of email or username is required');
+    // Username is mandatory across the board now — it's the universal login
+    // identifier. Email stays optional (some students don't have one yet).
+    if (!rawUsername) throw new BadRequestException('Username is required');
     if (rawEmail && !rawEmail.includes('@')) throw new BadRequestException('Email must be a valid email address');
+    if (explicitPassword && explicitPassword.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters');
+    }
     if (!['STUDENT', 'TEACHER', 'ADMIN', 'PARENT', 'SECRETARY'].includes(role))
       throw new BadRequestException('invalid role');
 
-    // Auto-generate username if not provided
-    let username = rawUsername;
-    if (!username) {
-      const base = name.toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/\s+/g, '.')
-        .replace(/[^a-z0-9._]/g, '');
-      username = base || `user${randomDigits(6)}`;
-      // Ensure uniqueness
-      let attempt = username;
-      let n = 1;
-      while (await this.prisma.user.findFirst({ where: { username: attempt } })) {
-        attempt = `${username}${n++}`;
-      }
-      username = attempt;
-    } else {
-      const existingUsername = await this.prisma.user.findFirst({ where: { username } });
-      if (existingUsername) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
-    }
+    // Username is required (validated above) — verify global uniqueness.
+    const username = rawUsername!;
+    const existingUsername = await this.prisma.user.findFirst({ where: { username } });
+    if (existingUsername) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
 
     if (rawEmail) {
       const existingEmail = await this.prisma.user.findFirst({ where: { email: rawEmail } });
       if (existingEmail) throw new HttpException('Email already in use', HttpStatus.CONFLICT);
     }
 
-    const tempPassword = `Classmate${randomDigits(6)}!`;
+    // Either honor the admin's typed password or fall back to an
+    // auto-generated one. The dialog still shows the password back so the
+    // admin can hand it off — whether they chose it or we generated it.
+    const tempPassword = explicitPassword || `Classmate${randomDigits(6)}!`;
     const hash = await bcrypt.hash(tempPassword, 10);
 
     const newUser = await this.prisma.user.create({
