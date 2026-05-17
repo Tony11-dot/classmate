@@ -219,15 +219,22 @@ class AdminRepository {
     return AdminSchool.fromJson(_m(s));
   }
 
-  Future<AdminSchool> updateMySchool({String? name, String logoUrl = '', int? minGrade, int? maxGrade}) async {
-    // Always include logoUrl so the server knows to clear it when empty.
-    // Empty string → null (clear); non-empty → set.
-    final raw = await _api.patchJson('/admin/school', body: {
+  /// Partial update of the caller's school. Only fields that are actually
+  /// passed get sent — omitted fields stay untouched on the server.
+  /// `logoUrl == null` means "don't touch the logo"; pass an empty string
+  /// to explicitly clear it.
+  Future<AdminSchool> updateMySchool({String? name, String? logoUrl, int? minGrade, int? maxGrade}) async {
+    final body = <String, dynamic>{
       'name': ?name,
-      'logoUrl': logoUrl.trim().isEmpty ? null : logoUrl.trim(),
       'minGrade': ?minGrade,
       'maxGrade': ?maxGrade,
-    });
+    };
+    if (logoUrl != null) {
+      // Caller explicitly asked to touch the logo. Empty string clears.
+      final t = logoUrl.trim();
+      body['logoUrl'] = t.isEmpty ? null : t;
+    }
+    final raw = await _api.patchJson('/admin/school', body: body);
     return AdminSchool.fromJson(_m(_m(raw)['school']));
   }
 

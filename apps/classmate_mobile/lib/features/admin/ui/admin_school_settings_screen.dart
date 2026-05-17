@@ -148,6 +148,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
   Future<void> _removeLogo() async {
     setState(() => _saving = true);
     try {
+      // Explicit empty string == clear logo (vs null which == leave alone).
       await ref.read(adminRepositoryProvider).updateMySchool(logoUrl: '');
       await ref.read(authSessionProvider).setSchoolLogoUrl(null);
       if (!mounted) return;
@@ -166,9 +167,12 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     if (name.isEmpty) return;
     setState(() => _saving = true);
     try {
+      // Note: logoUrl deliberately NOT sent here. _pickLogo / _removeLogo
+      // already persist the logo immediately on user action; including it
+      // again here would wipe the logo any time _logoUrl was momentarily
+      // null (e.g. on first frame before the postFrame hydrate).
       await ref.read(adminRepositoryProvider).updateMySchool(
         name: name,
-        logoUrl: _logoUrl ?? '',
         minGrade: _minGrade,
         maxGrade: _maxGrade,
       );
