@@ -638,8 +638,26 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
           children: [
+            // ── Back chevron — no AppBar, so this is the only way back ─────
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  onPressed: () => Navigator.maybePop(context),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  l.adminScheduleAddPeriod,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
 
             // ── Day + Period slots ────────────────────────────────────────
             _SectionLabel(label: l.adminScheduleDayLabel, cs: cs, theme: theme),
