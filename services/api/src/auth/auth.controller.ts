@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ConflictException, Controller, Get, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, ConflictException, Controller, Get, HttpException, HttpStatus, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Public } from './decorators/public.decorator';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -57,6 +57,34 @@ export class AuthController {
     // Auth system uses dev-token pattern — token = 'dev-token-{email}'
     // The DevOverrideGuard handles user provisioning on first request
     return { token: `dev-token-${email}` };
+  }
+
+  /**
+   * Self-service username change with GLOBAL uniqueness. Returns 409 when
+   * another account already owns the requested username. Empty/null wipes
+   * the username (account becomes email-only).
+   */
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/username')
+  async updateMyUsername(@Req() req: any, @Body() body: { username?: string | null }) {
+    const userId = req.user?.sub ?? req.user?.id;
+    if (!userId) throw new BadRequestException('Not authenticated');
+
+    const raw = body?.username == null ? null : String(body.username).trim().toLowerCase();
+    const un = raw === '' ? null : raw;
+
+    if (un) {
+      // Mirror admin updateUser logic — global uniqueness, not per-school.
+      // Usernames are login identifiers; two users sharing one would break
+      // login. Conflict against THIS user's row is fine (no-op rename).
+      const conflict = await this.prisma.user.findFirst({ where: { username: un } as any });
+      if (conflict && conflict.id !== userId) {
+        throw new HttpException('Username already in use', HttpStatus.CONFLICT);
+      }
+    }
+
+    await this.prisma.user.update({ where: { id: userId }, data: { username: un } as any });
+    return { ok: true, username: un };
   }
 
   @UseGuards(JwtAuthGuard)

@@ -408,7 +408,17 @@ class ProfileScreen extends ConsumerWidget {
         keyboardType: keyboardType,
       ),
     );
-    if (result != null && context.mounted) await onSave(result);
+    if (result == null || !context.mounted) return;
+    try {
+      await onSave(result);
+    } catch (e) {
+      if (!context.mounted) return;
+      // Surface server-side validation errors (e.g. username already in use)
+      // instead of crashing on an uncaught exception.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_humanizeError(e))),
+      );
+    }
   }
 
   Future<void> _pickBirthday(
