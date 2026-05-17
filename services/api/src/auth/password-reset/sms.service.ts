@@ -57,6 +57,21 @@ export class SmsService {
   }
 
   /**
+   * Heads-up sent to the TARGET of an admin-mediated password change
+   * request. One-tap reject link lets them cancel before the admin acts —
+   * defends against someone filing a request with their identifier.
+   */
+  async sendPasswordChangeRequestToTarget(args: {
+    to: string;
+    rejectUrl: string;
+    schoolName?: string | null;
+  }): Promise<void> {
+    const label = args.schoolName ?? 'ClassMate';
+    const body = `${label}: someone asked your admin to reset your password. If this wasn't you, reject it: ${args.rejectUrl} (expires in 24h)`;
+    await this.send(args.to, body);
+  }
+
+  /**
    * Sent automatically after an admin directly changes a user's password.
    */
   async sendPasswordChangedSms(args: {

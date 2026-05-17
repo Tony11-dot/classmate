@@ -64,14 +64,47 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
   }
 
   Future<void> _approve(BuildContext context, WidgetRef ref, PasswordChangeRequest r) async {
+    final cs = Theme.of(context).colorScheme;
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
         title: const Text('Approve password change?'),
-        content: Text("This will set ${r.requesterName}'s password to the one they typed. The new password is not visible to you."),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("This sets ${r.requesterName}'s password to the one they typed (you don't see it)."),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: cs.errorContainer.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: cs.error.withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.warning_amber_rounded, size: 18, color: cs.error),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Only approve if you have verified the requester is really ${r.requesterName} — call them, or confirm in person. Anyone who knows a username can file this request.',
+                      style: TextStyle(fontSize: 12, color: cs.error, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('Approve')),
+          FilledButton(
+            onPressed: () => Navigator.pop(d, true),
+            style: FilledButton.styleFrom(backgroundColor: cs.error),
+            child: const Text('I verified — approve'),
+          ),
         ],
       ),
     );
@@ -189,6 +222,31 @@ class _RequestCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text('Wants their password changed. The new password is hidden.',
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+          const SizedBox(height: 10),
+          // Persistent reminder: identity isn't proven by the system —
+          // the admin is the gate. Surfacing this on every card so it
+          // can't be missed during a quick approve.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: cs.errorContainer.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: cs.error.withValues(alpha: 0.4)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.security_rounded, size: 16, color: cs.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Verify this is really ${request.requesterName} before approving (call them or confirm in person).',
+                    style: TextStyle(fontSize: 11, color: cs.error, height: 1.4, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [

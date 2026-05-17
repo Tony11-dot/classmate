@@ -94,20 +94,27 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     try {
       final raw = await api.postJson('/auth/password-request/lookup', body: {'identifier': identifier});
       if (!mounted) return;
-      final list = raw is Map ? raw['admins'] : null;
+      final m = raw is Map ? raw : const <String, dynamic>{};
+      final list = m['admins'];
       final adminList = list is List
-          ? list.whereType<Map>().map((m) => _AdminOption(
-                id: m['id']?.toString() ?? '',
-                name: m['name']?.toString() ?? '',
-                email: m['email']?.toString(),
+          ? list.whereType<Map>().map((mm) => _AdminOption(
+                id: mm['id']?.toString() ?? '',
+                name: mm['name']?.toString() ?? '',
+                email: mm['email']?.toString(),
               )).where((a) => a.id.isNotEmpty).toList()
           : <_AdminOption>[];
+      final blocked = m['blocked']?.toString();
       setState(() {
         _admins = adminList;
-        _schoolName = raw is Map ? raw['schoolName']?.toString() : null;
+        _schoolName = m['schoolName']?.toString();
         if (adminList.isEmpty) {
           _success = false;
-          _message = "We couldn't find any admins for that account. Double-check the email or username and try again.";
+          _message = switch (blocked) {
+            'no_school' =>
+              "This account isn't linked to a school yet, so we can't route it to an admin.",
+            'no_user' || _ =>
+              "We couldn't find an account with that email or username.",
+          };
         }
       });
     } catch (e) {
@@ -179,7 +186,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         headerCopy = "Enter your email or username and we'll text a reset link to the phone on your account.";
         break;
       case _ResetMode.admin:
-        headerCopy = "If you don't have an email or phone on file, an admin from your school can approve a new password for you.";
+        headerCopy = "Backup recovery — your admin approves a new password after verifying who you are. If your account has an email or phone, we'll also message it the moment a request is filed so you can reject it with one tap.";
         break;
     }
 

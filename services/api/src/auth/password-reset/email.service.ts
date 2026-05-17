@@ -164,6 +164,47 @@ export class EmailService {
   }
 
   /**
+   * Heads-up sent to the TARGET of an admin-mediated password change request.
+   * The whole point of this message is to give the target a one-tap reject
+   * before their admin acts. Subject line is alarm-bell-ish on purpose so
+   * it can't be lost in a busy inbox.
+   */
+  async sendPasswordChangeRequestToTarget(args: {
+    to: string;
+    recipientName?: string | null;
+    schoolName?: string | null;
+    rejectUrl: string;
+    adminName: string;
+  }): Promise<void> {
+    if (!this.client) {
+      this.logger.warn(`Resend not configured; would have notified target ${args.to} of password change request`);
+      return;
+    }
+    const label = args.schoolName ?? 'ClassMate';
+    const subject = `${label}: was this you? Password reset requested`;
+    const text = `Someone just asked ${args.adminName} to reset your ${label} password.\n\nIf this was YOU, do nothing — your admin will approve it after verifying your identity.\n\nIf this was NOT you, reject the request immediately: ${args.rejectUrl}`;
+    const html = `<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">Someone just asked <strong>${args.adminName}</strong> to reset your ${label} password.</p>
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#444;margin:14px 0">If this was <strong>you</strong>, do nothing — your admin will approve it after verifying your identity.</p>
+<p style="margin:18px 0">
+  <a href="${args.rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px">This wasn't me — reject it</a>
+</p>
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#666">The request expires in 24 hours either way.</p>`;
+    try {
+      await this.client.emails.send({
+        from: this.fromAddress,
+        to: args.to,
+        replyTo: this.replyTo,
+        subject,
+        html,
+        text,
+      });
+    } catch (err) {
+      this.logger.error(`Failed to send target heads-up to ${args.to}: ${(err as Error).message}`);
+      throw err;
+    }
+  }
+
+  /**
    * Sends a short 6-digit verification code used by the email/phone verify
    * flow. Plain content (no link), copy-paste friendly. Returns false if
    * Resend isn't configured so callers can surface a "couldn't send" state.

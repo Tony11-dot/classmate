@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { randomBytes, createHash } from 'crypto';
+import { randomBytes, createHash, createHmac } from 'crypto';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -257,10 +257,15 @@ export class PasswordResetService {
   async lookupAdminsForRequest(identifier: string): Promise<{
     schoolName: string | null;
     admins: { id: string; name: string; email: string | null }[];
+    /**
+     * Set when admins[] is empty for a reason worth explaining. The Flutter
+     * screen surfaces a more specific copy when this is present.
+     */
+    blocked?: 'no_user' | 'no_school';
   }> {
     const user = await this.findUserByIdentifier(identifier);
-    if (!user) return { schoolName: null, admins: [] };
-    if (!user.schoolId) return { schoolName: null, admins: [] };
+    if (!user) return { schoolName: null, admins: [], blocked: 'no_user' };
+    if (!user.schoolId) return { schoolName: null, admins: [], blocked: 'no_school' };
 
     const schoolName = await this.lookupSchoolName(user.schoolId);
     const admins = await this.prisma.user.findMany({
@@ -319,8 +324,9 @@ export class PasswordResetService {
     const passwordHash = await bcrypt.hash(pw, 10);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60_000); // 24h
 
-    await this.prisma.passwordChangeRequest.create({
+    const created = await this.prisma.passwordChangeRequest.create({
       data: { userId: user.id, toAdminId: admin.id, passwordHash, expiresAt },
+      select: { id: true },
     });
 
     // Best-effort notification (don't block the user's submit on send failure).
@@ -350,6 +356,77 @@ export class PasswordResetService {
         this.logger.warn(`submitPasswordChangeRequest: sms notify failed: ${(err as Error).message}`);
       }
     }
+
+    // ALSO notify the TARGET user out-of-band so they know an attempt was
+    // made on their account. The one-tap reject link lets them cancel the
+    // request before the admin acts — the core defense against someone
+    // filing a request using a known email/username for an account that
+    // isn't theirs.
+    const rejectUrl = `${this.baseUrl}/auth/password-request/reject?id=${created.id}&sig=${this.signRequestId(created.id)}`;
+    if (user.email) {
+      try {
+        await this.email.sendPasswordChangeRequestToTarget({
+          to: user.email,
+          recipientName: requesterName,
+          schoolName,
+          rejectUrl,
+          adminName: (admin.nameEn || admin.name || 'an admin').toString(),
+        });
+      } catch (err) {
+        this.logger.warn(`submitPasswordChangeRequest: target email notify failed: ${(err as Error).message}`);
+      }
+    }
+    if (user.phone) {
+      try {
+        await this.sms.sendPasswordChangeRequestToTarget({
+          to: user.phone,
+          rejectUrl,
+          schoolName,
+        });
+      } catch (err) {
+        this.logger.warn(`submitPasswordChangeRequest: target sms notify failed: ${(err as Error).message}`);
+      }
+    }
+  }
+
+  /**
+   * Public reject path — user clicks the link in the heads-up email/SMS we
+   * sent them and marks their own pending request as REJECTED. Validated by
+   * HMAC over the request id with JWT_SECRET so only links we issued work
+   * (no enumeration). Returns the resolved status so the controller can
+   * render a confirmation page.
+   */
+  async rejectViaPublicLink(requestId: string, providedSig: string): Promise<'rejected' | 'already_resolved' | 'expired' | 'not_found' | 'bad_sig'> {
+    const expected = this.signRequestId(requestId);
+    if (!providedSig || providedSig.length !== expected.length) return 'bad_sig';
+    // Constant-time compare to avoid leaking via timing.
+    let mismatch = 0;
+    for (let i = 0; i < expected.length; i++) {
+      mismatch |= expected.charCodeAt(i) ^ providedSig.charCodeAt(i);
+    }
+    if (mismatch !== 0) return 'bad_sig';
+
+    const req = await this.prisma.passwordChangeRequest.findUnique({ where: { id: requestId } });
+    if (!req) return 'not_found';
+    if (req.status !== 'PENDING') return 'already_resolved';
+    if (req.expiresAt.getTime() < Date.now()) {
+      await this.prisma.passwordChangeRequest.update({
+        where: { id: requestId },
+        data: { status: 'EXPIRED', resolvedAt: new Date() },
+      });
+      return 'expired';
+    }
+    await this.prisma.passwordChangeRequest.update({
+      where: { id: requestId },
+      data: { status: 'REJECTED', resolvedAt: new Date() },
+    });
+    return 'rejected';
+  }
+
+  /** HMAC-SHA256(requestId) using JWT_SECRET. Hex digest, lowercase. */
+  private signRequestId(requestId: string): string {
+    const secret = process.env.JWT_SECRET || 'dev-secret-do-not-use-in-prod';
+    return createHmac('sha256', secret).update(requestId).digest('hex');
   }
 
   /** Admin approves: copy the stored hash into the user's password. */
