@@ -4,10 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/contracts/school_subject.dart';
+import '../../../core/http/cm_api.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
-import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../data/teacher_mobile_repository.dart';
 import 'teacher_create_classroom_screen.dart';
 
 String _friendlyError(BuildContext context, String? error) {
@@ -302,10 +306,12 @@ class _TeacherClassroomsScreenState
           ],
         ),
           ),
-          // FAB positioned above the liquid-glass nav pill (~ 100 px from bottom)
+          // FAB positioned above the liquid-glass nav pill. Bumped from 100
+          // after the iOS-26 nav polish made the pill taller and pushed it
+          // up — 124px keeps a comfortable gap regardless.
           Positioned(
             right: 16,
-            bottom: 100,
+            bottom: 124,
             child: FloatingActionButton(
               heroTag: 'fab_create_classroom',
               backgroundColor: cs.primaryContainer,
@@ -336,19 +342,51 @@ class _CreateClassroomSheet extends ConsumerStatefulWidget {
 
 class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
   final _nameCtrl = TextEditingController();
-  final _subjectCtrl = TextEditingController();
+  /// Custom-subject text entry — only shown when the teacher picks
+  /// "Other (type custom)" from the school subjects DDL.
+  final _customSubjectCtrl = TextEditingController();
+  /// nameEn of the picked school subject. Empty string == "Other" mode.
+  String _subject = '';
+  late Future<List<SchoolSubject>> _subjectsFuture;
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _subjectsFuture = _loadSchoolSubjects();
+  }
+
+  Future<List<SchoolSubject>> _loadSchoolSubjects() async {
+    final token = (ref.read(authSessionProvider).token ?? '').trim();
+    if (token.isEmpty) return const [];
+    final api = CMApi(token: token);
+    try {
+      final raw = await api.getJson('/me/subjects');
+      final list = raw is Map ? raw['subjects'] : null;
+      if (list is! List) return const [];
+      return list
+          .map(SchoolSubject.fromJson)
+          .where((s) => s.nameEn.isNotEmpty)
+          .toList();
+    } catch (_) {
+      return const [];
+    } finally {
+      api.dispose();
+    }
+  }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _subjectCtrl.dispose();
+    _customSubjectCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
-    final subject = _subjectCtrl.text.trim();
+    final subject = _subject.isEmpty
+        ? _customSubjectCtrl.text.trim()
+        : _subject;
     if (name.isEmpty || subject.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Name and subject are required.')),
@@ -407,13 +445,64 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _subjectCtrl,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Subject *',
-                border: OutlineInputBorder(),
-              ),
+            // Subject picker — pulls the school's defined subjects so
+            // teachers can't typo their way into a subject that doesn't
+            // exist anywhere else. "Other (type custom)" reveals a
+            // freeform field for one-off subjects the school hasn't
+            // configured yet.
+            FutureBuilder<List<SchoolSubject>>(
+              future: _subjectsFuture,
+              builder: (ctx, snap) {
+                if (snap.connectionState != ConnectionState.done) {
+                  return const SizedBox(
+                    height: 56,
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  );
+                }
+                final subjects = snap.data ?? const <SchoolSubject>[];
+                if (subjects.isEmpty) {
+                  // School hasn't defined any subjects yet — fall back to
+                  // a plain text field so teachers aren't blocked.
+                  return TextField(
+                    controller: _customSubjectCtrl,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Subject *',
+                      helperText: 'School subjects aren\'t set up yet.',
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    LiquidGlassDropdown<String>(
+                      label: 'Subject *',
+                      value: _subject,
+                      searchHint: 'Search subjects…',
+                      items: [
+                        const LiquidGlassDropdownItem(value: '__other__', label: 'Other (type custom)'),
+                        for (final s in subjects)
+                          LiquidGlassDropdownItem(value: s.nameEn, label: s.nameEn),
+                      ],
+                      onChanged: (v) => setState(() {
+                        _subject = v == '__other__' ? '' : v;
+                      }),
+                    ),
+                    if (_subject.isEmpty) ...[
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _customSubjectCtrl,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Custom subject *',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 20),
             SizedBox(
