@@ -97,8 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         return loc.replaceFirst('/student', '');
       }
 
-      final isLogin = state.matchedLocation == '/login'
-          || state.matchedLocation == '/forgot-password';
+      // Only /login bounces logged-in users home. /forgot-password is
+      // legitimate for logged-in users too (e.g. testing the flow, or
+      // wanting to use email/SMS reset instead of typing current password).
+      final isLogin = state.matchedLocation == '/login';
       final loggedIn = session.isLoggedIn;
       final primaryRole = session.primaryRole;
       final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';

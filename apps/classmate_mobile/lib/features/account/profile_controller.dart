@@ -108,7 +108,11 @@ class ProfileController extends Notifier<ProfileState> {
     }
   }
 
-  /// Returns null on success, or an error message string on failure.
+  /// Returns null on success, or an error message string on failure. We
+  /// surface server-provided messages verbatim when we have them (e.g.
+  /// "New password must be at least 8 characters") so the user can see what
+  /// went wrong — previous "Something went wrong" swallow made testing
+  /// painful.
   Future<String?> changePassword({
     required String current,
     required String next,
@@ -125,10 +129,17 @@ class ProfileController extends Notifier<ProfileState> {
       return null;
     } catch (e) {
       final msg = e.toString();
-      if (msg.contains('400') || msg.contains('WRONG_PASSWORD')) {
+      if (msg.contains('WRONG_PASSWORD')) {
         return profilePasswordErrorWrongPassword;
       }
-      return profilePasswordErrorGeneric;
+      // Pull the server's `message` out of the JSON body if present
+      // (`HTTP 400 .../me/password :: {"message":"..."}`). Falls back to the
+      // raw exception string so admins debugging see SOMETHING actionable.
+      final m = RegExp(r'"message":"([^"]+)"').firstMatch(msg);
+      if (m != null) return m.group(1);
+      return msg.replaceFirst(RegExp(r'^Exception: '), '');
+    } finally {
+      api.dispose();
     }
   }
 }

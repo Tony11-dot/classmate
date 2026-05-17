@@ -626,7 +626,10 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    return Padding(
+    return SingleChildScrollView(
+      // Wrap in a scrollable so the sheet doesn't RenderFlex-overflow when
+      // the keyboard opens (especially with the "Forgot password?" button
+      // pushing total content past the available height).
       padding: EdgeInsets.only(
         left: 24,
         right: 24,

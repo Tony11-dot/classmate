@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/phone_field.dart';
@@ -36,6 +37,22 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   // when the lookup returns one.
   final _phoneCtrl = TextEditingController();
   String _dialCode = kDefaultDialCode;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-fill the identifier when the user is already logged in (e.g.
+    // they tapped "Forgot password?" from inside the Change Password sheet
+    // on Profile). Saves them retyping their own email/username.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final session = ref.read(authSessionProvider);
+      if (session.isLoggedIn && _identifierCtrl.text.isEmpty) {
+        final email = session.email.trim();
+        _identifierCtrl.text = email;
+      }
+    });
+  }
 
   @override
   void dispose() {
