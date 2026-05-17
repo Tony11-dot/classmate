@@ -75,12 +75,13 @@ export class PasswordResetController {
   @Public()
   @Post('auth/password-request/submit')
   @HttpCode(200)
-  async submitRequest(@Body() body: { identifier?: string; adminId?: string; desiredPassword?: string }) {
+  async submitRequest(@Body() body: { identifier?: string; adminId?: string; desiredPassword?: string; phone?: string }) {
     const identifier = String(body?.identifier ?? '').trim();
     const adminId = String(body?.adminId ?? '').trim();
     const desiredPassword = String(body?.desiredPassword ?? '');
+    const requesterPhone = body?.phone != null ? String(body.phone).trim() : null;
     if (!identifier || !adminId) throw new BadRequestException('identifier and adminId are required');
-    await this.service.submitPasswordChangeRequest({ identifier, adminId, desiredPassword });
+    await this.service.submitPasswordChangeRequest({ identifier, adminId, desiredPassword, requesterPhone });
     return { ok: true, message: 'Request sent. Your admin will receive a notification.' };
   }
 

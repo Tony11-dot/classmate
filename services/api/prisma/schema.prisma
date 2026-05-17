@@ -222,6 +222,10 @@ model PasswordChangeRequest {
   toAdminId    String
   /// Bcrypt hash of the user's desired password. Admin never sees plaintext.
   passwordHash String
+  /// Phone number the requester typed when filing the request — surfaced to
+  /// the admin so they can call/text it to verify identity before approving.
+  /// Optional: blank when the requester didn't provide one.
+  requesterPhone String?
   /// 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
   status       String   @default("PENDING")
   /// 24h from creation; expired rows can be auto-cleaned later.

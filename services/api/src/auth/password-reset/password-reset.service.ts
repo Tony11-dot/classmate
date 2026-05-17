@@ -258,6 +258,11 @@ export class PasswordResetService {
     schoolName: string | null;
     admins: { id: string; name: string; email: string | null }[];
     /**
+     * The user's currently-stored phone, if any — auto-fills the phone
+     * field on the Ask Admin form so the user doesn't retype.
+     */
+    currentPhone?: string | null;
+    /**
      * Set when admins[] is empty for a reason worth explaining. The Flutter
      * screen surfaces a more specific copy when this is present.
      */
@@ -279,6 +284,7 @@ export class PasswordResetService {
 
     return {
       schoolName,
+      currentPhone: user.phone ?? null,
       admins: admins.map((a: any) => ({
         id: a.id,
         name: (a.nameEn || a.name || a.email || 'Admin').toString(),
@@ -297,6 +303,8 @@ export class PasswordResetService {
     identifier: string;
     adminId: string;
     desiredPassword: string;
+    /** Optional phone the requester typed for admin to verify out-of-band. */
+    requesterPhone?: string | null;
   }): Promise<void> {
     const pw = args.desiredPassword ?? '';
     if (pw.length < 8) throw new BadRequestException('Password must be at least 8 characters.');
@@ -324,8 +332,23 @@ export class PasswordResetService {
     const passwordHash = await bcrypt.hash(pw, 10);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60_000); // 24h
 
+    // Sanitize the requester's phone to E.164 (strip spaces, require '+').
+    // Falsy → null (admin sees no phone). Invalid format → silently drop;
+    // we don't want to fail the whole request on a typo in the phone field.
+    const cleanPhone = (() => {
+      const raw = String(args.requesterPhone ?? '').trim().replace(/\s+/g, '');
+      if (!raw) return null;
+      return raw.startsWith('+') ? raw : null;
+    })();
+
     const created = await this.prisma.passwordChangeRequest.create({
-      data: { userId: user.id, toAdminId: admin.id, passwordHash, expiresAt },
+      data: {
+        userId: user.id,
+        toAdminId: admin.id,
+        passwordHash,
+        expiresAt,
+        ...(cleanPhone ? { requesterPhone: cleanPhone } : {}),
+      } as any,
       select: { id: true },
     });
 
@@ -480,7 +503,7 @@ export class PasswordResetService {
       where: { toAdminId: adminId, status: 'PENDING', expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { id: true, name: true, nameEn: true, email: true, username: true } as any } as any,
+        user: { select: { id: true, name: true, nameEn: true, email: true, username: true, phone: true } as any } as any,
       } as any,
     }) as any[];
     return rows.map((r: any) => ({
@@ -488,6 +511,9 @@ export class PasswordResetService {
       requesterName: (r.user?.nameEn || r.user?.name || 'A user').toString(),
       requesterEmail: r.user?.email,
       requesterUsername: r.user?.username,
+      // Prefer the phone the requester typed at submit time (their proof of
+      // contact). Fall back to whatever's on their user record.
+      requesterPhone: r.requesterPhone || r.user?.phone || null,
       createdAt: r.createdAt,
       expiresAt: r.expiresAt,
     }));
