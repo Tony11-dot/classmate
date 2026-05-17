@@ -17,40 +17,36 @@ class ProfileState {
   const ProfileState({
     required this.email,
     required this.username,
-    required this.birthday,
   });
 
   final String email;
   final String username;
-  final String? birthday; // stored as 'YYYY-MM-DD'
 
   ProfileState copyWith({
     String? email,
     String? username,
-    Object? birthday = _sentinel,
   }) {
     return ProfileState(
       email: email ?? this.email,
       username: username ?? this.username,
-      birthday: birthday == _sentinel ? this.birthday : birthday as String?,
     );
   }
 }
 
-const _sentinel = Object();
-
 class ProfileController extends Notifier<ProfileState> {
   static const _kEmail = 'profile_email';
   static const _kUsername = 'profile_username';
-  static const _kBirthday = 'profile_birthday';
 
   @override
   ProfileState build() {
     _load();
+    // Clear any legacy birthday stash on first build — feature removed.
+    SharedPreferences.getInstance()
+        .then((p) => p.remove('profile_birthday'))
+        .ignore();
     return const ProfileState(
       email: '',
       username: '',
-      birthday: null,
     );
   }
 
@@ -59,7 +55,6 @@ class ProfileController extends Notifier<ProfileState> {
     state = ProfileState(
       email: prefs.getString(_kEmail) ?? '',
       username: prefs.getString(_kUsername) ?? '',
-      birthday: prefs.getString(_kBirthday),
     );
   }
 
@@ -96,16 +91,6 @@ class ProfileController extends Notifier<ProfileState> {
     // Refresh /auth/me so the cached username in AuthSession (used by the
     // drawer/profile header) matches.
     await session.reloadFromMe();
-  }
-
-  Future<void> setBirthday(String? value) async {
-    state = state.copyWith(birthday: value);
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_kBirthday);
-    } else {
-      await prefs.setString(_kBirthday, value);
-    }
   }
 
   /// Returns null on success, or an error message string on failure. We

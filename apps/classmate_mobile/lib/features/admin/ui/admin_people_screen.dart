@@ -423,16 +423,20 @@ class AdminAddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
-  final _nameEnCtrl   = TextEditingController();
-  final _nameArCtrl   = TextEditingController();
-  final _nameHeCtrl   = TextEditingController();
-  final _nameFrCtrl   = TextEditingController();
-  final _nameRuCtrl   = TextEditingController();
-  final _emailCtrl    = TextEditingController();
-  final _usernameCtrl = TextEditingController();
-  final _phoneCtrl    = TextEditingController();
+  final _nameEnCtrl    = TextEditingController();
+  final _nameArCtrl    = TextEditingController();
+  final _nameHeCtrl    = TextEditingController();
+  final _nameFrCtrl    = TextEditingController();
+  final _nameRuCtrl    = TextEditingController();
+  final _displayCtrl   = TextEditingController();
+  final _emailCtrl     = TextEditingController();
+  final _usernameCtrl  = TextEditingController();
+  final _phoneCtrl     = TextEditingController();
+  // Optional admin-set password. Blank = server auto-generates (existing
+  // behavior); filled = used as-is so admins can hand the user a known one.
+  final _passwordCtrl  = TextEditingController();
   // Default to Israel since that's where this school is. User can change it.
-  String _dialCode    = '+972';
+  String _dialCode     = '+972';
   late String _role = widget.initialRole;
   int?   _grade;
   bool   _saving = false;
@@ -440,9 +444,17 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
   static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
 
+  String get _roleTitle => switch (_role) {
+    'TEACHER'   => 'Add teacher',
+    'PARENT'    => 'Add parent',
+    'SECRETARY' => 'Add secretary',
+    'ADMIN'     => 'Add admin',
+    _           => 'Add student',
+  };
+
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
+    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _displayCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -452,12 +464,19 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     final nameEn   = _nameEnCtrl.text.trim();
     final email    = _emailCtrl.text.trim();
     final username = _usernameCtrl.text.trim();
+    final password = _passwordCtrl.text; // intentionally NOT trimmed
     if (nameEn.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('English name is required')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Full name (English) is required')));
       return;
     }
-    if (email.isEmpty && username.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('At least a username or email is required')));
+    // Username is now mandatory — it's the universal login identifier.
+    // Email stays optional (some students don't have one yet).
+    if (username.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username is required')));
+      return;
+    }
+    if (password.isNotEmpty && password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must be at least 8 characters (or leave blank to auto-generate)')));
       return;
     }
     setState(() => _saving = true);
@@ -471,9 +490,11 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         nameHe: _nameHeCtrl.text.trim().isEmpty ? null : _nameHeCtrl.text.trim(),
         nameFr: _nameFrCtrl.text.trim().isEmpty ? null : _nameFrCtrl.text.trim(),
         nameRu: _nameRuCtrl.text.trim().isEmpty ? null : _nameRuCtrl.text.trim(),
+        displayName: _displayCtrl.text.trim().isEmpty ? null : _displayCtrl.text.trim(),
         email: email.isEmpty ? null : email,
-        username: username.isEmpty ? null : username,
+        username: username,
         phone: phoneE164,
+        password: password.isEmpty ? null : password,
         role: _role,
         grade: _grade,
       );
@@ -600,9 +621,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints.tightFor(width: 36, height: 36),
                       ),
-                      const SizedBox(width: 4),
+                  const SizedBox(width: 4),
                       Text(
-                        l.adminAddUser,
+                        _roleTitle,
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
@@ -611,14 +632,14 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   // ── Login credentials ──────────────────────────────────────
                   Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 4),
-                  Text('At least username or email required. Password is auto-generated.',
+                  Text('Username is required. Email is optional. Leave password blank to auto-generate one.',
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _usernameCtrl,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Username (e.g. john.doe)',
+                      labelText: 'Username * (e.g. john.doe)',
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -641,18 +662,42 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     dialCode: _dialCode,
                     onDialCodeChanged: (v) => setState(() => _dialCode = v),
                   ),
+                  const SizedBox(height: 12),
+                  // ── Optional password ─────────────────────────────────────
+                  TextField(
+                    controller: _passwordCtrl,
+                    autocorrect: false,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password (optional — auto-generated if blank)',
+                      helperText: 'At least 8 characters if provided.',
+                      prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   // ── Name fields ────────────────────────────────────────────
                   Text('Name', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 4),
-                  Text('At least English is required. Other languages are optional.',
+                  Text('Full name in English is required. Add other languages as needed. Display name (what others see) defaults to the full name if you leave it blank.',
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, 'Name in English', required: true, autofocus: true),
-                  _langField(_nameArCtrl, 'Name in Arabic (اسم)'),
-                  _langField(_nameHeCtrl, 'Name in Hebrew (שם)'),
-                  _langField(_nameFrCtrl, 'Name in French'),
-                  _langField(_nameRuCtrl, 'Name in Russian'),
+                  _langField(_nameEnCtrl, 'Full name in English', required: true, autofocus: true),
+                  _langField(_nameArCtrl, 'Full name in Arabic (اسم)'),
+                  _langField(_nameHeCtrl, 'Full name in Hebrew (שם)'),
+                  _langField(_nameFrCtrl, 'Full name in French'),
+                  _langField(_nameRuCtrl, 'Full name in Russian'),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: _displayCtrl,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Display name (e.g. "Tony" vs "Tony Aboud")',
+                      helperText: "Shown in chat headers + the drawer. Optional.",
+                      prefixIcon: const Icon(Icons.badge_outlined, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   // ── Role ───────────────────────────────────────────────────
                   Text(l.adminRoleLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),

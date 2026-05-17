@@ -6,6 +6,7 @@ import '../../core/auth/auth_session.dart';
 import '../../core/auth/name_lang.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/phone_field.dart';
 import 'profile_controller.dart';
 import 'verify_controller.dart';
 
@@ -235,13 +236,6 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const _Divider(),
                   const _VerifiableContactRows(),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.cake_rounded,
-                    label: l.profileBirthday,
-                    value: _formatBirthday(context, profile.birthday),
-                    onEdit: () => _pickBirthday(context, profile.birthday, pc),
-                  ),
                 ],
               ),
             ),
@@ -269,16 +263,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   // ── Edit helpers ───────────────────────────────────────────────────────────
-
-  String _formatBirthday(BuildContext context, String? raw) {
-    if (raw == null || raw.isEmpty) return AppLocalizations.of(context)!.profileEmptyValue;
-    try {
-      final d = DateTime.parse(raw);
-      return MaterialLocalizations.of(context).formatMediumDate(d);
-    } catch (_) {
-      return raw;
-    }
-  }
 
   // Static helper — no instance context needed
   static String _langLabel(String lang, AppLocalizations l) {
@@ -417,31 +401,6 @@ class ProfileScreen extends ConsumerWidget {
       // instead of crashing on an uncaught exception.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_humanizeError(e))),
-      );
-    }
-  }
-
-  Future<void> _pickBirthday(
-    BuildContext context,
-    String? current,
-    ProfileController pc,
-  ) async {
-    final initial = current != null
-        ? DateTime.tryParse(current) ?? DateTime(2005)
-        : DateTime(2005);
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime(1980),
-      lastDate: DateTime.now(),
-      helpText: AppLocalizations.of(context)!.profileSelectBirthday,
-    );
-    if (picked != null) {
-      await pc.setBirthday(
-        '${picked.year.toString().padLeft(4, '0')}-'
-        '${picked.month.toString().padLeft(2, '0')}-'
-        '${picked.day.toString().padLeft(2, '0')}',
       );
     }
   }
@@ -1078,61 +1037,16 @@ Future<void> _editContact(
   required String label,
 }) async {
   final cs = Theme.of(context).colorScheme;
-  final ctrl = TextEditingController(text: current);
   final newValue = await showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: cs.surface,
-    builder: (sCtx) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 20, right: 20, top: 20,
-          bottom: MediaQuery.of(sCtx).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Change $label', style: Theme.of(sCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
-            Text(
-              current.isEmpty
-                  ? 'A verification code will be sent to the value you enter — confirming you own it.'
-                  : 'A verification code will be sent to your CURRENT $label so you can prove ownership before switching.',
-              style: Theme.of(sCtx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ctrl,
-              autofocus: true,
-              keyboardType: channel == 'email' ? TextInputType.emailAddress : TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: channel == 'email' ? 'New email' : 'New phone (+E.164)',
-                hintText: channel == 'email' ? 'name@example.com' : '+15551234567',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(onPressed: () => Navigator.pop(sCtx), child: const Text('Cancel')),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: () {
-                    final v = ctrl.text.trim();
-                    if (v.isEmpty) return;
-                    Navigator.pop(sCtx, v);
-                  },
-                  child: const Text('Continue'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
+    builder: (sCtx) => _ChangeContactSheet(
+      channel: channel,
+      label: label,
+      current: current,
+    ),
   );
   if (newValue == null || newValue.isEmpty) return;
   if (newValue.toLowerCase() == current.trim().toLowerCase()) return;
@@ -1280,6 +1194,122 @@ String _humanizeError(Object e) {
   final m = RegExp(r'"message":"([^"]+)"').firstMatch(s);
   if (m != null) return m.group(1)!;
   return s.replaceFirst(RegExp(r'^Exception: '), '');
+}
+
+/// Change-email / change-phone sheet. Uses PhoneField (with dial-code
+/// picker) when the channel is 'sms' so the user gets the same input ergonomics
+/// the rest of the app uses; falls back to a plain TextField for 'email'.
+class _ChangeContactSheet extends StatefulWidget {
+  const _ChangeContactSheet({
+    required this.channel,
+    required this.label,
+    required this.current,
+  });
+  final String channel;
+  final String label;
+  final String current;
+
+  @override
+  State<_ChangeContactSheet> createState() => _ChangeContactSheetState();
+}
+
+class _ChangeContactSheetState extends State<_ChangeContactSheet> {
+  late final TextEditingController _ctrl;
+  late String _dialCode;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.channel == 'sms') {
+      // Pre-fill the local digits, NOT the full E.164 — PhoneField shows
+      // the country chip separately. Use splitE164 to extract.
+      final split = splitE164(widget.current);
+      _dialCode = split.dialCode;
+      _ctrl = TextEditingController(text: split.localDigits);
+    } else {
+      _dialCode = kDefaultDialCode;
+      _ctrl = TextEditingController(text: widget.current);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  String? _resolveValue() {
+    if (widget.channel == 'sms') {
+      return joinE164(_dialCode, _ctrl.text);
+    }
+    final t = _ctrl.text.trim();
+    return t.isEmpty ? null : t;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20, right: 20, top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Change ${widget.label}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.current.isEmpty
+                ? 'A verification code will be sent to the value you enter — confirming you own it.'
+                : 'A verification code will be sent to your CURRENT ${widget.label} so you can prove ownership before switching.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          if (widget.channel == 'sms')
+            PhoneField(
+              controller: _ctrl,
+              dialCode: _dialCode,
+              onDialCodeChanged: (v) => setState(() => _dialCode = v),
+              labelText: 'New phone',
+              helperText: null,
+              autofocus: true,
+            )
+          else
+            TextField(
+              controller: _ctrl,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'New email',
+                hintText: 'name@example.com',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed: () {
+                  final v = _resolveValue();
+                  if (v == null || v.isEmpty) return;
+                  Navigator.pop(context, v);
+                },
+                child: const Text('Continue'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PasswordField extends StatefulWidget {

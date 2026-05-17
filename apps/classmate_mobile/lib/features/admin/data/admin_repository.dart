@@ -79,9 +79,11 @@ class AdminRepository {
     String? nameHe,
     String? nameFr,
     String? nameRu,
+    String? displayName,
     String? email,
     String? username,
     String? phone,
+    String? password,
     required String role,
     int? grade,
   }) async {
@@ -92,9 +94,11 @@ class AdminRepository {
       if (nameHe != null && nameHe.isNotEmpty) 'nameHe': nameHe,
       if (nameFr != null && nameFr.isNotEmpty) 'nameFr': nameFr,
       if (nameRu != null && nameRu.isNotEmpty) 'nameRu': nameRu,
+      if (displayName != null && displayName.isNotEmpty) 'displayName': displayName,
       if (email != null && email.isNotEmpty) 'email': email,
       if (username != null && username.isNotEmpty) 'username': username,
       if (phone != null && phone.isNotEmpty) 'phone': phone,
+      if (password != null && password.isNotEmpty) 'password': password,
       'role': role,
       'grade': ?grade,
     });

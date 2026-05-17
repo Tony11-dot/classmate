@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
 
 class AdminEditUserScreen extends ConsumerStatefulWidget {
@@ -26,9 +27,13 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
   final _phoneCtrl    = TextEditingController();
+  String  _dialCode = kDefaultDialCode;
 
   String? _role;
   int?    _grade;
+  /// Cohorts the student is currently a member of (by name + grade).
+  /// Populated alongside _loadUser. Empty for non-student roles.
+  List<Map<String, dynamic>> _cohorts = const [];
   bool    _loading = true;
   bool    _saving  = false;
   bool    _resetting = false;
@@ -67,10 +72,24 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       _nameRuCtrl.text   = m['nameRu']?.toString() ?? '';
       _emailCtrl.text    = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
-      _phoneCtrl.text    = m['phone']?.toString() ?? '';
+      // Split the stored E.164 phone into dial-code + local digits so the
+      // PhoneField shows the right country chip on first paint.
+      final phoneRaw = m['phone']?.toString() ?? '';
+      if (phoneRaw.isNotEmpty) {
+        final split = splitE164(phoneRaw);
+        _dialCode = split.dialCode;
+        _phoneCtrl.text = split.localDigits;
+      }
       final roles = m['roles'];
       _role  = (roles is List && roles.isNotEmpty) ? roles.first.toString() : null;
       _grade = m['grade'] is num ? (m['grade'] as num).toInt() : null;
+      final cohorts = m['cohorts'];
+      if (cohorts is List) {
+        _cohorts = cohorts
+            .whereType<Map>()
+            .map((c) => Map<String, dynamic>.from(c))
+            .toList();
+      }
       if (mounted) setState(() => _loading = false);
 
       // If parent, load children
@@ -108,7 +127,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         nameRu: _nameRuCtrl.text.trim().isEmpty ? '' : _nameRuCtrl.text.trim(),
         email: _emailCtrl.text.trim().isEmpty ? '' : _emailCtrl.text.trim(),
         username: _usernameCtrl.text.trim().isEmpty ? '' : _usernameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim().isEmpty ? '' : _phoneCtrl.text.trim(),
+        phone: joinE164(_dialCode, _phoneCtrl.text) ?? '',
         role: _role,
         grade: _grade,
       );
@@ -264,16 +283,10 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  PhoneField(
                     controller: _phoneCtrl,
-                    keyboardType: TextInputType.phone,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: 'Phone (optional, E.164 — e.g. +14155551234)',
-                      prefixIcon: const Icon(Icons.phone_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      helperText: 'Used for SMS password reset.',
-                    ),
+                    dialCode: _dialCode,
+                    onDialCodeChanged: (v) => setState(() => _dialCode = v),
                   ),
                   const SizedBox(height: 8),
                   // Reset password
@@ -322,6 +335,73 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                         onSelected: (_) => setState(() => _grade = g),
                       )).toList(),
                     ),
+                    const SizedBox(height: 20),
+                    // ── Cohorts the student is in ───────────────────────────
+                    Text('Cohorts',
+                        style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                    const SizedBox(height: 4),
+                    Text(
+                      _cohorts.isEmpty
+                          ? "Not in any cohort yet — assign from the Cohorts screen."
+                          : 'Member of ${_cohorts.length} cohort${_cohorts.length == 1 ? '' : 's'}.',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    if (_cohorts.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _cohorts.map((c) {
+                          final name = c['name']?.toString() ?? '';
+                          final grade = (c['grade'] as num?)?.toInt();
+                          final gradesRaw = c['grades'];
+                          final grades = gradesRaw is List
+                              ? gradesRaw.map((e) => (e as num).toInt()).toList()
+                              : (grade != null ? [grade] : const <int>[]);
+                          final gradeLabel = grades.length <= 1
+                              ? (grades.isEmpty ? '' : 'G${grades.first}')
+                              : (() {
+                                  final sorted = [...grades]..sort();
+                                  final isRange = sorted.last - sorted.first == sorted.length - 1;
+                                  return isRange ? 'G${sorted.first}-${sorted.last}' : 'G${sorted.join(',')}';
+                                })();
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer.withValues(alpha: 0.4),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.groups_rounded, size: 14, color: cs.primary),
+                                const SizedBox(width: 6),
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: cs.onPrimaryContainer,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                if (gradeLabel.isNotEmpty) ...[
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '· $gradeLabel',
+                                    style: TextStyle(
+                                      color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ],
 
                   // ── Parent: children linking ───────────────────────────────
@@ -346,10 +426,18 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                         searchHint: 'Search students…',
                         items: [
                           const LiquidGlassDropdownItem(value: '', label: '— Choose student —'),
-                          ..._allStudents.map((s) => LiquidGlassDropdownItem(
-                            value: s['id']?.toString() ?? '',
-                            label: '${s['name']?.toString() ?? ''} (${s['cohortName']?.toString() ?? 'no cohort'})',
-                          )),
+                          ..._allStudents.map((s) {
+                            final name = s['name']?.toString() ?? '';
+                            final grade = (s['grade'] as num?)?.toInt();
+                            // Grade is more useful than cohort here — admin
+                            // is picking a child to link to a parent, and
+                            // grade is the meaningful disambiguator.
+                            final suffix = grade != null ? ' (Grade $grade)' : '';
+                            return LiquidGlassDropdownItem(
+                              value: s['id']?.toString() ?? '',
+                              label: '$name$suffix',
+                            );
+                          }),
                         ],
                         onChanged: (v) => setState(() => _linkStudentId = v.isEmpty ? null : v),
                       ),
