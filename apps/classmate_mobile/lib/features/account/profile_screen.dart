@@ -570,10 +570,14 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
     if (err != null) {
       setState(() {
         _loading = false;
+        // Sentinels first (localized copy for known cases). Anything else
+        // is the actual server error message — display it verbatim
+        // instead of swallowing as the localized "Something went wrong",
+        // which made the previous version useless for debugging.
         _error = switch (err) {
           profilePasswordErrorNotAuthenticated => l.profilePasswordNotAuthenticated,
           profilePasswordErrorWrongPassword => l.profilePasswordIncorrect,
-          _ => l.profilePasswordGenericError,
+          _ => err,
         };
       });
     } else {
@@ -672,8 +676,12 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             onPressed: _loading
                 ? null
                 : () {
+                    // Capture the GoRouter BEFORE popping the sheet — once
+                    // the modal pops, `context` here is stale and the push
+                    // either no-ops or lands on the wrong navigator.
+                    final router = GoRouter.of(context);
                     Navigator.of(context).pop();
-                    GoRouter.of(context).push('/forgot-password');
+                    router.push('/forgot-password');
                   },
             icon: const Icon(Icons.help_outline_rounded, size: 18),
             label: const Text('Forgot password?'),

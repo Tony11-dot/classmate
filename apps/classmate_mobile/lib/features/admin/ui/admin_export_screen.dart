@@ -542,10 +542,16 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final students = await _fetch();
       if (!mounted) return;
 
-      final headers = ['Name (EN)', 'Name (AR)', 'Name (HE)', 'Name (FR)', 'Name (RU)', 'Email', 'Username', 'Grade', 'Cohort'];
+      final headers = ['Name (EN)', 'Name (AR)', 'Name (HE)', 'Name (FR)', 'Name (RU)', 'Email', 'Username', 'Phone', 'Grade', 'Cohorts', 'School'];
       if (_includePasswords) headers.add('Password');
       final buf = StringBuffer()..writeln(headers.join(','));
       for (final s in students) {
+        // Cohorts list: prefer the new cohortNames[] field with every
+        // cohort the student belongs to; fall back to legacy cohortName.
+        final cohortNamesRaw = s['cohortNames'];
+        final cohortsJoined = cohortNamesRaw is List
+            ? cohortNamesRaw.whereType<String>().where((n) => n.isNotEmpty).join(' / ')
+            : (s['cohortName']?.toString() ?? '');
         final row = [
           _esc(s['nameEn']?.toString() ?? ''),
           _esc(s['nameAr']?.toString() ?? ''),
@@ -554,8 +560,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           _esc(s['nameRu']?.toString() ?? ''),
           _esc(s['email']?.toString() ?? ''),
           _esc(s['username']?.toString() ?? ''),
+          _esc(s['phone']?.toString() ?? ''),
           s['grade']?.toString() ?? '',
-          _esc(s['cohortName']?.toString() ?? ''),
+          _esc(cohortsJoined),
+          _esc(s['schoolName']?.toString() ?? ''),
           if (_includePasswords) _esc(s['tempPassword']?.toString() ?? ''),
         ];
         buf.writeln(row.join(','));
@@ -646,9 +654,15 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     const rowAlt       = PdfColor.fromInt(0xFFF8FAFD);
     const pwColor      = PdfColor.fromInt(0xFF7C3AED);
 
+    // PDF columns: Phone + School + multi-Cohort added. Dropped the AR/HE
+    // columns from the PDF entirely because the pdf package's table layout
+    // can't reliably reverse-direction Hebrew/Arabic glyphs inside a Text
+    // cell (without a Directionality wrapper, RTL scripts render in
+    // visual order which reads right-to-left scrambled). Localized names
+    // are still in the CSV export — admins who need them open Excel.
     final cols = withPasswords
-        ? [_Col('#', 0.04), _Col('Name EN', 0.17), _Col('Email', 0.18), _Col('Username', 0.13), _Col('Grade', 0.06), _Col('Cohort', 0.13), _Col('Password', 0.14), _Col('AR', 0.08), _Col('HE', 0.07)]
-        : [_Col('#', 0.04), _Col('Name EN', 0.22), _Col('Email', 0.22), _Col('Username', 0.14), _Col('Grade', 0.07), _Col('Cohort', 0.15), _Col('AR', 0.08), _Col('HE', 0.08)];
+        ? [_Col('#', 0.03), _Col('Name', 0.15), _Col('Email', 0.15), _Col('Username', 0.10), _Col('Phone', 0.11), _Col('Grade', 0.05), _Col('Cohorts', 0.14), _Col('School', 0.12), _Col('Password', 0.15)]
+        : [_Col('#', 0.04), _Col('Name', 0.18), _Col('Email', 0.18), _Col('Username', 0.11), _Col('Phone', 0.12), _Col('Grade', 0.05), _Col('Cohorts', 0.18), _Col('School', 0.14)];
 
     final fmt  = PdfPageFormat.a4.landscape;
     final pageW = fmt.availableWidth;
@@ -702,13 +716,21 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ...students.asMap().entries.map((entry) {
               final i = entry.key;
               final s = entry.value;
+              // Multi-cohort: join the new cohortNames[] field; fall back
+              // to the legacy singular cohortName for back-compat.
+              final cohortNamesRaw = s['cohortNames'];
+              final cohortsJoined = cohortNamesRaw is List
+                  ? cohortNamesRaw.whereType<String>().where((n) => n.isNotEmpty).join(' / ')
+                  : (s['cohortName']?.toString() ?? '');
               final cells = withPasswords
-                  ? ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', '${s['grade']??''}', s['cohortName']??'', s['tempPassword']??'', s['nameAr']??'', s['nameHe']??'']
-                  : ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', '${s['grade']??''}', s['cohortName']??'', s['nameAr']??'', s['nameHe']??''];
+                  ? ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', s['phone']??'', '${s['grade']??''}', cohortsJoined, s['schoolName']??'', s['tempPassword']??'']
+                  : ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', s['phone']??'', '${s['grade']??''}', cohortsJoined, s['schoolName']??''];
               return pw.TableRow(
                 decoration: pw.BoxDecoration(color: i.isOdd ? rowAlt : PdfColors.white),
                 children: cells.asMap().entries.map((ce) {
-                  final isPw = withPasswords && ce.key == 6;
+                  // Password is always the LAST column now (index 8 with
+                  // passwords) — keeps its monospace-ish purple styling.
+                  final isPw = withPasswords && ce.key == cells.length - 1;
                   return pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 5),
                     child: pw.Text(ce.value.toString(),

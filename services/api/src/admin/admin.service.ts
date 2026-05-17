@@ -296,7 +296,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
-        studentProfile: { select: { cohortId: true, cohort: { select: { name: true, grade: true } } } },
+        studentProfile: {
+          select: {
+            cohortId: true,
+            // Student's OWN grade (set when admin creates the user). Fallback
+            // for the case where they haven't been assigned to a cohort yet
+            // — otherwise the AddStudents grade filter on a fresh cohort
+            // returns zero matches even though students exist.
+            grade: true,
+            cohort: { select: { name: true, grade: true } },
+          },
+        },
       },
       orderBy: { name: 'asc' },
       take: 100,
@@ -306,7 +316,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       students: students.map((s) => ({
         id: s.id,
         name: s.name,
-        grade: s.studentProfile?.cohort?.grade ?? null,
+        // Prefer cohort's grade (more specific when assigned) → fall back
+        // to the student's own grade level → null only if neither set.
+        grade: s.studentProfile?.cohort?.grade ?? (s.studentProfile as any)?.grade ?? null,
         cohortName: s.studentProfile?.cohort?.name ?? null,
       })),
     };
@@ -739,15 +751,24 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
         username: true,
+        phone: true,
         studentProfile: {
           select: {
             cohort: { select: { id: true, name: true, grade: true } },
             cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
           },
         },
-      },
+      } as any,
       orderBy: { name: 'asc' },
+    }) as any[];
+
+    // School name — same for every row, fetch once. Used to label the
+    // export so downstream consumers (Excel, printouts) know which school.
+    const school = await this.prisma.school.findUnique({
+      where: { id: schoolId },
+      select: { name: true },
     });
+    const schoolName = school?.name ?? '';
 
     // Filter: specific student IDs take precedence
     let filtered = rows;
@@ -770,10 +791,29 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const generatePasswords = query?.generatePasswords === 'true';
     const result: Array<{
       id: string; nameEn: string; nameAr: string; nameHe: string; nameFr: string; nameRu: string;
-      email: string | null; username?: string | null; grade: number | null; cohortName: string; tempPassword?: string;
+      email: string | null; username?: string | null; phone: string | null;
+      grade: number | null;
+      cohortName: string;
+      cohortNames: string[];
+      schoolName: string;
+      tempPassword?: string;
     }> = [];
 
     for (const r of filtered) {
+      // Collect every cohort the student is in — primary + many-to-many —
+      // and dedupe by id so the export shows the full membership list,
+      // not just one. Keeps the legacy `cohortName` field as the primary
+      // for any old consumer still reading the singular.
+      const cohortMap = new Map<string, { id: string; name: string; grade: number | null }>();
+      if (r.studentProfile?.cohort?.id) {
+        cohortMap.set(r.studentProfile.cohort.id, r.studentProfile.cohort);
+      }
+      for (const c of r.studentProfile?.cohorts ?? []) {
+        if (c?.cohort?.id) cohortMap.set(c.cohort.id, c.cohort);
+      }
+      const cohortList = Array.from(cohortMap.values());
+      const cohortNames = cohortList.map((c) => c.name);
+
       const entry = {
         id: r.id,
         nameEn: r.nameEn ?? r.name,
@@ -783,8 +823,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         nameRu: r.nameRu ?? '',
         email: r.email ?? null,
         username: (r as any).username ?? null,
+        phone: (r as any).phone ?? null,
         grade: r.studentProfile?.cohort?.grade ?? r.studentProfile?.cohorts?.[0]?.cohort?.grade ?? null,
-        cohortName: r.studentProfile?.cohort?.name ?? r.studentProfile?.cohorts?.[0]?.cohort?.name ?? '',
+        // Legacy singular cohort name kept for back-compat with older
+        // export clients still reading the old field.
+        cohortName: cohortList[0]?.name ?? '',
+        cohortNames,
+        schoolName,
         tempPassword: undefined as string | undefined,
       };
       if (generatePasswords) {
@@ -796,7 +841,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       result.push(entry);
     }
 
-    return { ok: true, students: result };
+    return { ok: true, students: result, schoolName };
   }
 
   async exportCohorts(user: any) {

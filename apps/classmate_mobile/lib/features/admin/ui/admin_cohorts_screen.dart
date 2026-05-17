@@ -678,8 +678,10 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
       backgroundColor: cs.surface,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_student_cohort',
-        onPressed: () => Navigator.push(
-          context,
+        // Root navigator so AddStudents covers the shell's AppBar + bottom
+        // nav entirely — matches the Add User / Edit User full-screen
+        // pattern the rest of the admin flows use.
+        onPressed: () => Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(builder: (_) => AdminAddStudentsScreen(
             repo: ref.read(adminRepositoryProvider),
             cohortId: _cohort.id,
