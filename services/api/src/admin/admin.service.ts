@@ -836,6 +836,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
         username: true,
+        phone: true,
         status: true,
         roles: { select: { role: true } },
         studentProfile: {
@@ -846,8 +847,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
             cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
           },
         },
-      },
-    });
+      } as any,
+    }) as any;
 
     if (!row) throw new NotFoundException('User not found');
 
@@ -880,6 +881,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         nameRu: (row as any).nameRu ?? '',
         email: row.email,
         username: (row as any).username ?? null,
+        phone: (row as any).phone ?? null,
         status: row.status,
         roles: row.roles.map((r) => r.role),
         grade: (row.studentProfile as any)?.grade ?? null,
@@ -909,6 +911,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const name = nameEn || String(dto?.name ?? '').trim();
     const rawEmail = String(dto?.email ?? '').trim().toLowerCase() || undefined;
     const rawUsername = String(dto?.username ?? '').trim().toLowerCase() || undefined;
+    // E.164 enforcement matches verify flow: leading '+' + digits. Empty
+    // string → undefined (skipped). Stored as-is so SMS sends work.
+    const rawPhone = String(dto?.phone ?? '').trim().replace(/\s+/g, '') || undefined;
+    if (rawPhone && !rawPhone.startsWith('+')) {
+      throw new BadRequestException('Phone must be in E.164 format (e.g. +972525488441)');
+    }
     const role = String(dto?.role ?? 'STUDENT').toUpperCase();
     const grade = dto?.grade ? Number(dto.grade) : undefined;
 
@@ -955,6 +963,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(nameFr ? { nameFr } : {}),
         ...(nameRu ? { nameRu } : {}),
         ...(rawEmail ? { email: rawEmail } : {}),
+        ...(rawPhone ? { phone: rawPhone } : {}),
         username,
         password: hash,
         schoolId,
