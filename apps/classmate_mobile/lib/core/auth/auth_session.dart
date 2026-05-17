@@ -79,8 +79,14 @@ class AuthSession extends ChangeNotifier {
     }
   }
 
-  /// The name to display based on the user's language preference.
-  /// Falls back through: localized name → displayName → fullName → email-derived.
+  /// Name to display in drawer/profile headers. Resolves in this order:
+  ///   1. The localized name for the user's chosen language (if non-empty)
+  ///   2. The explicit `displayName` admin set ("Tony" vs full "Tony Aboud")
+  ///   3. ANY other localized name that's non-empty (so switching lang to one
+  ///      with no translation falls forward instead of showing nothing)
+  ///   4. The legal/full name as a last resort
+  /// Email prefix is NEVER used as a fallback — admins must set displayName
+  /// or a localized name explicitly.
   String get displayName {
     final lang = (_displayNameLang ?? '').trim().toLowerCase();
     final langEnum = NameLang.fromCode(lang);
@@ -93,8 +99,21 @@ class AuthSession extends ChangeNotifier {
       null => '',
     };
     if (localizedName.isNotEmpty) return localizedName;
+
+    // Explicit display-name override (e.g. "Tony" instead of the full
+    // localized name "Tony Aboud") — only when the picked language has no
+    // translation. Always takes precedence over arbitrary other-lang
+    // fallbacks because admins set it on purpose.
     final dn = (_displayName ?? '').trim();
     if (dn.isNotEmpty) return dn;
+
+    // Fall forward to any other non-empty localized name so the user sees
+    // SOMETHING when they pick a language they haven't filled in yet.
+    for (final candidate in [_nameEn, _nameAr, _nameHe, _nameFr, _nameRu]) {
+      final v = (candidate ?? '').trim();
+      if (v.isNotEmpty) return v;
+    }
+
     return (_fullName ?? '').trim();
   }
 

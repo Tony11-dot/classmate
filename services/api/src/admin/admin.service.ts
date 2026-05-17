@@ -833,6 +833,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
+        displayName: true,
+        legalName: true,
         nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
         username: true,
@@ -843,8 +845,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
           select: {
             cohortId: true,
             grade: true,
-            cohort: { select: { name: true, grade: true } },
-            cohorts: { select: { cohort: { select: { id: true, name: true, grade: true } } } },
+            cohort: { select: { name: true, grade: true, grades: true } },
+            cohorts: { select: { cohort: { select: { id: true, name: true, grade: true, grades: true } } } },
           },
         },
       } as any,
@@ -879,6 +881,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         nameHe: (row as any).nameHe ?? '',
         nameFr: (row as any).nameFr ?? '',
         nameRu: (row as any).nameRu ?? '',
+        displayName: (row as any).displayName ?? null,
+        legalName: (row as any).legalName ?? null,
         email: row.email,
         username: (row as any).username ?? null,
         phone: (row as any).phone ?? null,
@@ -909,6 +913,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const nameFr = String(dto?.nameFr ?? '').trim() || undefined;
     const nameRu = String(dto?.nameRu ?? '').trim() || undefined;
     const name = nameEn || String(dto?.name ?? '').trim();
+    // Optional friendly name shown in drawer/profile headers. When blank,
+    // clients fall back to the localized name for the user's preferred
+    // language — NEVER the email prefix.
+    const displayName = String(dto?.displayName ?? '').trim() || undefined;
+    // Legal/full name — separate from display name so admins can keep a
+    // formal record alongside what's shown to other students.
+    const legalName = String(dto?.legalName ?? '').trim() || undefined;
     const rawEmail = String(dto?.email ?? '').trim().toLowerCase() || undefined;
     const rawUsername = String(dto?.username ?? '').trim().toLowerCase() || undefined;
     // E.164 enforcement matches verify flow: leading '+' + digits. Empty
@@ -962,6 +973,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(nameHe ? { nameHe } : {}),
         ...(nameFr ? { nameFr } : {}),
         ...(nameRu ? { nameRu } : {}),
+        ...(displayName ? { displayName } : {}),
+        ...(legalName ? { legalName } : {}),
         ...(rawEmail ? { email: rawEmail } : {}),
         ...(rawPhone ? { phone: rawPhone } : {}),
         username,
@@ -1011,6 +1024,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (dto?.nameHe !== undefined) data.nameHe = String(dto.nameHe).trim() || null;
     if (dto?.nameFr !== undefined) data.nameFr = String(dto.nameFr).trim() || null;
     if (dto?.nameRu !== undefined) data.nameRu = String(dto.nameRu).trim() || null;
+    if (dto?.displayName !== undefined) data.displayName = String(dto.displayName).trim() || null;
+    if (dto?.legalName !== undefined) data.legalName = String(dto.legalName).trim() || null;
     if (dto?.email !== undefined) {
       const em = String(dto.email).trim().toLowerCase() || null;
       if (em) {

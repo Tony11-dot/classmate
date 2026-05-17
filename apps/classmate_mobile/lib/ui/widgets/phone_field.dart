@@ -45,10 +45,27 @@ const String kDefaultDialCode = '+972';
   return (dialCode: kDefaultDialCode, localDigits: raw.replaceFirst(RegExp(r'^\+'), ''));
 }
 
-/// Joins a dial-code + arbitrary user-typed local-digits string into E.164.
-/// Non-digits in the local part are stripped. Returns null if empty.
+/// Joins a dial-code + arbitrary user-typed local-digits string into E.164,
+/// normalizing common input formats so users don't have to think about it:
+///
+///   dial=+972, "0525488441"   → "+972525488441"   (strip national trunk 0)
+///   dial=+972, "525488441"    → "+972525488441"   (no normalization needed)
+///   dial=+972, "+972525488441" → "+972525488441"  (strip duplicate country code)
+///   dial=+972, "972525488441" → "+972525488441"   (already-prefixed, no +)
+///
+/// Non-digits are stripped before processing. Returns null when empty.
 String? joinE164(String dialCode, String localDigits) {
-  final digits = localDigits.replaceAll(RegExp(r'[^0-9]'), '');
+  var digits = localDigits.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.isEmpty) return null;
+  // If the user pasted the country code into the local field (with or
+  // without a +), don't double it.
+  final cc = dialCode.replaceAll(RegExp(r'[^0-9]'), '');
+  if (cc.isNotEmpty && digits.startsWith(cc)) {
+    digits = digits.substring(cc.length);
+  }
+  // Strip leading 0 (national trunk prefix in IL, FR, UK, etc.) — E.164
+  // country codes already absorb it.
+  digits = digits.replaceFirst(RegExp(r'^0+'), '');
   if (digits.isEmpty) return null;
   return '$dialCode$digits';
 }

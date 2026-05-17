@@ -462,10 +462,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     }
     setState(() => _saving = true);
     try {
-      // Combine dial code + local digits into one E.164 string. Strip any
-      // non-digits the user pasted (spaces, dashes, parens) before sending.
-      final phoneDigits = _phoneCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
-      final phoneE164 = phoneDigits.isEmpty ? null : '$_dialCode$phoneDigits';
+      // Normalize whatever the user typed (national `0525488441`, bare
+      // digits, or already-prefixed `+972...`) into a clean E.164.
+      final phoneE164 = joinE164(_dialCode, _phoneCtrl.text);
       final result = await widget.repo.createUser(
         nameEn: nameEn,
         nameAr: _nameArCtrl.text.trim().isEmpty ? null : _nameArCtrl.text.trim(),
