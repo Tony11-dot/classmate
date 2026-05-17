@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -747,14 +749,38 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
-    // Match the app background exactly — solid, no blur, no tint.
     final pillTint = cs.surface;
 
-    // Stretch factors — large enough to overflow the bar (dramatic iOS 26 feel)
+    // ── Android Material-3 fallback ──────────────────────────────────────
+    // The iOS 26 liquid-glass aesthetic is platform-specific; on Android
+    // it'd feel out of place against the rest of the M3 system chrome.
+    // Render Flutter's NavigationBar instead — themed automatically, gets
+    // ripple + indicator for free.
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      return NavigationBar(
+        selectedIndex: widget.index,
+        onDestinationSelected: (i) {
+          HapticFeedback.lightImpact();
+          widget.onTap(i);
+        },
+        destinations: [
+          for (final item in widget.items)
+            NavigationDestination(
+              icon: _BadgedIcon(icon: item.icon, badge: item.badge),
+              selectedIcon: _BadgedIcon(icon: item.selectedIcon, badge: item.badge),
+              label: item.label,
+            ),
+        ],
+      );
+    }
+
+    // ── iOS / macOS liquid-glass floating pill ───────────────────────────
     return SafeArea(
       top: false, left: false, right: false, bottom: true,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        // Bigger margin all around for the "floating island" look —
+        // detached from the screen edges instead of flush against them.
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         child: LayoutBuilder(builder: (context, box) {
           final width = box.maxWidth;
           return Listener(
@@ -763,50 +789,99 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
             onPointerMove: (e) => _onPointerMove(e, width),
             onPointerUp: (e) => _onPointerUp(e, width),
             onPointerCancel: _onPointerCancel,
-            // Bar stays static — only the pill capsule reacts to drag
-            child: NativeGlassView(
-                borderRadius: 28,
-                style: NativeGlassStyle.regular,
-                fallbackColor: pillTint,
-                child: SizedBox(
-                  height: 54,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // ── Animated selection capsule ────────────────────────
-                      // totalWidth passed from the outer LayoutBuilder so the
-                      // capsule computes slot positions without a nested
-                      // LayoutBuilder (Positioned must be a direct Stack child).
-                      _SelectionCapsule(
-                        itemCount: widget.items.length,
-                        selectedIndex: _hoveredIndex ?? widget.index,
-                        isDark: isDark,
-                        totalWidth: width,
-                        dragDx: _dragDx,
-                        dragDy: _dragDy,
-                        isRtl: _isRtl,
-                      ),
-                      // ── Tab icons + labels ────────────────────────────────
-                      Row(
-                        children: [
-                          for (var i = 0; i < widget.items.length; i++)
-                            Expanded(
-                              child: _TabLabel(
-                                item: widget.items[i],
-                                selected: i == widget.index,
-                                hovered: i == (_hoveredIndex ?? widget.index),
-                                activeColor: cs.primary,
+            // Soft outer shadow for depth — the glass already has a subtle
+            // highlight on the top edge via the native UIVisualEffectView.
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(34),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.12),
+                    blurRadius: 22,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: NativeGlassView(
+                  // Pill-style — half the bar height for a true capsule.
+                  borderRadius: 34,
+                  style: NativeGlassStyle.regular,
+                  fallbackColor: pillTint,
+                  child: SizedBox(
+                    height: 58,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        _SelectionCapsule(
+                          itemCount: widget.items.length,
+                          selectedIndex: _hoveredIndex ?? widget.index,
+                          isDark: isDark,
+                          totalWidth: width,
+                          dragDx: _dragDx,
+                          dragDy: _dragDy,
+                          isRtl: _isRtl,
+                        ),
+                        Row(
+                          children: [
+                            for (var i = 0; i < widget.items.length; i++)
+                              Expanded(
+                                child: _TabLabel(
+                                  item: widget.items[i],
+                                  selected: i == widget.index,
+                                  hovered: i == (_hoveredIndex ?? widget.index),
+                                  activeColor: cs.primary,
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+            ),
           );
         }),
       ),
+    );
+  }
+}
+
+/// Wraps a tab icon with a small red dot in the corner when the item has
+/// unread items (used by the Messages tab). Lives in module scope so the
+/// M3 NavigationBar branch above can also share it.
+class _BadgedIcon extends StatelessWidget {
+  const _BadgedIcon({required this.icon, required this.badge});
+  final IconData icon;
+  final int badge;
+
+  @override
+  Widget build(BuildContext context) {
+    if (badge <= 0) return Icon(icon);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Icon(icon),
+        Positioned(
+          right: -4, top: -2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.error,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            constraints: const BoxConstraints(minWidth: 14),
+            child: Text(
+              badge > 99 ? '99+' : '$badge',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onError,
+                fontSize: 9, fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -882,8 +957,12 @@ class _SelectionCapsule extends StatelessWidget {
   }
 }
 
-// Single tab icon + label (no press animations — handled by parent Listener)
-class _TabLabel extends StatelessWidget {
+/// Single tab icon + label. The bouncy spring pulse when a tab becomes
+/// selected is the "alive" feel from the iOS 26 spec — the press itself is
+/// detected by the parent Listener (which already handles drag physics), but
+/// we mirror the selection change with a per-tab scale spring so the user
+/// gets the visual "boop" they expect.
+class _TabLabel extends StatefulWidget {
   const _TabLabel({
     required this.item,
     required this.selected,
@@ -892,15 +971,47 @@ class _TabLabel extends StatelessWidget {
   });
   final _NavItem item;
   final bool selected;
-  final bool hovered; // finger is currently over this tab
+  final bool hovered;
   final Color activeColor;
+
+  @override
+  State<_TabLabel> createState() => _TabLabelState();
+}
+
+class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+  static const _spring = SpringDescription(mass: 1, stiffness: 320, damping: 14);
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController.unbounded(vsync: this, value: 1);
+  }
+
+  @override
+  void didUpdateWidget(covariant _TabLabel old) {
+    super.didUpdateWidget(old);
+    // Fresh selection → squish-then-bounce. Skipping the case where the tab
+    // was already selected avoids a pulse on rebuild for unrelated reasons.
+    if (widget.selected && !old.selected) {
+      _pulse.stop();
+      _pulse.value = 0.82;
+      _pulse.animateWith(SpringSimulation(_spring, 0.82, 1.0, 0));
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final inactiveColor = CupertinoColors.inactiveGray.resolveFrom(context);
-    final color = (selected || hovered) ? activeColor : inactiveColor;
-    final iconData = selected ? item.selectedIcon : item.icon;
-    final hasBadge = item.badge > 0;
+    final color = (widget.selected || widget.hovered) ? widget.activeColor : inactiveColor;
+    final iconData = widget.selected ? widget.item.selectedIcon : widget.item.icon;
+    final hasBadge = widget.item.badge > 0;
 
     return SizedBox.expand(
       child: Column(
@@ -909,9 +1020,13 @@ class _TabLabel extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 140),
-                child: Icon(iconData, key: ValueKey('${item.label}_$selected'), size: 22, color: color),
+              AnimatedBuilder(
+                animation: _pulse,
+                builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 140),
+                  child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
+                ),
               ),
               if (hasBadge)
                 Positioned(
@@ -926,7 +1041,7 @@ class _TabLabel extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 1.5),
                     ),
                     child: Text(
-                      item.badge > 99 ? '99+' : '${item.badge}',
+                      widget.item.badge > 99 ? '99+' : '${widget.item.badge}',
                       style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
                       textAlign: TextAlign.center,
                     ),
@@ -939,12 +1054,12 @@ class _TabLabel extends StatelessWidget {
             duration: const Duration(milliseconds: 140),
             style: TextStyle(
               fontSize: 10,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w400,
               color: color,
               height: 1.0,
               letterSpacing: -0.1,
             ),
-            child: Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            child: Text(widget.item.label, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
         ],
       ),
