@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 
-import { LOGO_DATA_URI } from '../../setup/logo';
-
 /**
  * Thin wrapper over the Resend HTTP API. The client is created lazily so the
  * service still boots in environments without RESEND_API_KEY (the call sites
@@ -183,7 +181,8 @@ export class EmailService {
     const label = args.schoolName ?? 'ClassMate';
     const subject = `${label}: was this you? Password reset requested`;
     const text = `Someone just asked ${args.adminName} to reset your ${label} password.\n\nIf this was YOU, do nothing — your admin will approve it after verifying your identity.\n\nIf this was NOT you, reject the request immediately: ${args.rejectUrl}`;
-    const html = `<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">Someone just asked <strong>${args.adminName}</strong> to reset your ${label} password.</p>
+    const html = `${cmBadgeHtml()}
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">Someone just asked <strong>${args.adminName}</strong> to reset your ${label} password.</p>
 <p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#444;margin:14px 0">If this was <strong>you</strong>, do nothing — your admin will approve it after verifying your identity.</p>
 <p style="margin:18px 0">
   <a href="${args.rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px">This wasn't me — reject it</a>
@@ -222,7 +221,8 @@ export class EmailService {
     const label = args.schoolName ?? 'ClassMate';
     const subject = `${label}: your verification code`;
     const text = `${label} verification code: ${args.code}\n\nExpires in ${args.expiresInMinutes} minutes. If you didn't ask for this, ignore the message.`;
-    const html = `<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">${label} verification code:</p>
+    const html = `${cmBadgeHtml()}
+<p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#222">${label} verification code:</p>
 <p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:34px;font-weight:800;letter-spacing:.18em;color:#000;margin:18px 0">${args.code}</p>
 <p style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#666">Expires in ${args.expiresInMinutes} minutes. If you didn't ask for this, ignore the message.</p>`;
     try {
@@ -281,7 +281,8 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
 
         <!-- Header w/ logo + tagline -->
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
 
@@ -331,6 +332,21 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
 </html>`;
 }
 
+/**
+ * Lightweight branded header for the simpler email templates (verify code,
+ * heads-up). The bigger marketing-style templates use the gradient banner.
+ * Renders a CM mark + "ClassMate" wordmark — small enough that Gmail won't
+ * truncate the message body underneath.
+ */
+function cmBadgeHtml(): string {
+  return `<table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px"><tr>
+  <td style="vertical-align:middle">
+    <div style="display:inline-block;width:42px;height:42px;background:#2563eb;border-radius:50%;line-height:42px;text-align:center;color:#ffffff;font-size:18px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+  </td>
+  <td style="vertical-align:middle;padding-left:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-weight:800;font-size:16px;color:#1a1a2e">ClassMate</td>
+</tr></table>`;
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -371,7 +387,8 @@ function buildPlatformResetCodeHtml(args: { code: string; expiresInMinutes: numb
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#dc2626 100%);">
-          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.85); letter-spacing:.3px;">Platform Reset</p>
         </td></tr>
 
@@ -448,7 +465,8 @@ function buildPasswordRequestAdminHtml(args: {
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
 
@@ -524,7 +542,8 @@ function buildPasswordChangedHtml(args: {
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <img src="${LOGO_DATA_URI}" alt="ClassMate" width="180" style="display:block; max-width:60%; height:auto; filter:brightness(0) invert(1);">
+          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
 
