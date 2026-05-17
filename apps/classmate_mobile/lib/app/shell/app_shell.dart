@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -445,11 +446,17 @@ class AppShell extends ConsumerWidget {
       }
     });
 
-    // Dismiss keyboard whenever any scroll view starts scrolling — applies
-    // globally so every screen gets dismiss-on-drag without per-ListView changes.
-    return NotificationListener<ScrollStartNotification>(
+    // Dismiss keyboard on USER-initiated scrolls only (drag/fling). We used
+    // to listen to ScrollStartNotification which fires on programmatic
+    // scrolls too — including the automatic scroll Flutter does to keep a
+    // freshly-focused TextField visible above the keyboard. That instantly
+    // unfocused the field, making fields "open and close" the moment you
+    // tapped them in forms inside a scroll view (Add User, etc.).
+    return NotificationListener<UserScrollNotification>(
       onNotification: (n) {
-        FocusManager.instance.primaryFocus?.unfocus();
+        if (n.direction != ScrollDirection.idle) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
         return false;
       },
       child: InAppNotificationOverlay(
