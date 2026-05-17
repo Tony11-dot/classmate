@@ -8,6 +8,23 @@ import { SmsService } from './sms.service';
 
 export type ResetChannel = 'email' | 'sms';
 
+/**
+ * Possible outcomes of a /auth/forgot-password request. The controller maps
+ * each to a user-facing message + a sent boolean so the Flutter UI can
+ * colour the result red/green.
+ */
+export type ResetOutcomeCode =
+  | 'sent'
+  | 'no_user'
+  | 'no_email_on_file'
+  | 'no_phone_on_file'
+  | 'email_not_verified'
+  | 'phone_not_verified';
+
+export interface ResetOutcome {
+  code: ResetOutcomeCode;
+}
+
 const TOKEN_TTL_MINUTES = 60;
 const TOKEN_BYTES = 32; // 256 bits, base64url-encoded
 
@@ -60,38 +77,40 @@ export class PasswordResetService {
 
   /**
    * Generates and stores a single-use token, then dispatches it via the chosen
-   * channel. Idempotent w.r.t. multiple requests — each one issues a new token,
-   * leaving older unused tokens in place (they expire on their own).
+   * channel. Returns a structured outcome so the controller can render an
+   * informative message ("email not verified", "no phone on file", etc.)
+   * instead of the old anti-enumeration "if an account matches…" template.
    *
-   * Always resolves successfully even when no user matched; callers should
-   * return a generic "if an account exists, we sent…" response.
+   * Trade-off: explicit outcomes reveal whether the identifier matches an
+   * account and which channels exist for it. Acceptable for the current
+   * solo-school MVP — see [[verify_grandfather]] for context.
    */
-  async requestReset(args: { identifier: string; channel: ResetChannel }): Promise<void> {
+  async requestReset(args: { identifier: string; channel: ResetChannel }): Promise<ResetOutcome> {
     const user = await this.findUserByIdentifier(args.identifier);
     if (!user) {
-      this.logger.log(`No user matched identifier=${args.identifier.slice(0, 3)}… (silently succeeding)`);
-      return;
+      this.logger.log(`No user matched identifier=${args.identifier.slice(0, 3)}…`);
+      return { code: 'no_user' };
     }
 
     if (args.channel === 'email' && !(user.email && user.email.trim())) {
-      this.logger.warn(`User ${user.id} has no email on file; skipping email reset`);
-      return;
+      this.logger.warn(`User ${user.id} has no email on file`);
+      return { code: 'no_email_on_file' };
     }
     if (args.channel === 'sms' && !(user.phone && user.phone.trim())) {
-      this.logger.warn(`User ${user.id} has no phone on file; skipping SMS reset`);
-      return;
+      this.logger.warn(`User ${user.id} has no phone on file`);
+      return { code: 'no_phone_on_file' };
     }
 
     // Refuse reset on an unverified channel — owner-of-channel hasn't been
-    // proven. Same anti-enumeration posture as no-such-user: silent return,
-    // generic message at the controller layer.
+    // proven. Now surfaced explicitly so the user knows to verify first
+    // rather than getting a silent no-op.
     if (args.channel === 'email' && !(user as any).emailVerifiedAt) {
-      this.logger.warn(`User ${user.id} email not verified; skipping email reset`);
-      return;
+      this.logger.warn(`User ${user.id} email not verified`);
+      return { code: 'email_not_verified' };
     }
     if (args.channel === 'sms' && !(user as any).phoneVerifiedAt) {
-      this.logger.warn(`User ${user.id} phone not verified; skipping SMS reset`);
-      return;
+      this.logger.warn(`User ${user.id} phone not verified`);
+      return { code: 'phone_not_verified' };
     }
 
     const rawToken = randomBytes(TOKEN_BYTES).toString('base64url');
@@ -127,6 +146,7 @@ export class PasswordResetService {
         schoolName,
       });
     }
+    return { code: 'sent' };
   }
 
   private async lookupSchoolName(schoolId: string | null | undefined): Promise<string | null> {

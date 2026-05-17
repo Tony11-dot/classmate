@@ -3,7 +3,7 @@ import type { Response } from 'express';
 
 import { Public } from '../decorators/public.decorator';
 import { LOGO_DATA_URI } from '../../setup/logo';
-import { PasswordResetService, ResetChannel } from './password-reset.service';
+import { PasswordResetService, ResetChannel, ResetOutcomeCode } from './password-reset.service';
 
 @Controller()
 export class PasswordResetController {
@@ -25,16 +25,16 @@ export class PasswordResetController {
       throw new BadRequestException('channel must be "email" or "sms"');
     }
 
-    // Fire-and-forget the actual send so timing doesn't leak whether the
-    // account exists. We still await it for now so test feedback is sane;
-    // swap to .catch() if leak-resistance becomes important.
-    await this.service.requestReset({ identifier, channel: channel as ResetChannel });
+    const outcome = await this.service.requestReset({
+      identifier,
+      channel: channel as ResetChannel,
+    });
 
     return {
       ok: true,
-      message: channel === 'email'
-        ? 'If an account matches, we just sent a reset link to its email.'
-        : 'If an account matches, we just sent a reset link to its phone.',
+      code: outcome.code,
+      sent: outcome.code === 'sent',
+      message: messageForOutcome(outcome.code, channel as ResetChannel),
     };
   }
 
@@ -94,6 +94,29 @@ export class PasswordResetController {
   resetPage(@Query('token') token: string, @Res() res: Response) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(buildResetPage(token ?? ''));
+  }
+}
+
+/**
+ * Renders the user-facing message for a forgot-password outcome. Channel-aware
+ * so "no email on file" and "no phone on file" can each speak its language.
+ */
+function messageForOutcome(code: ResetOutcomeCode, channel: ResetChannel): string {
+  switch (code) {
+    case 'sent':
+      return channel === 'email'
+        ? 'We just sent a reset link to your email. The link expires in 1 hour.'
+        : 'We just sent a reset link to your phone. The link expires in 1 hour.';
+    case 'no_user':
+      return "We couldn't find an account with that email or username. Double-check and try again.";
+    case 'no_email_on_file':
+      return "This account doesn't have an email on file. Try SMS, or ask an admin to reset your password.";
+    case 'no_phone_on_file':
+      return "This account doesn't have a phone on file. Try email, or ask an admin to reset your password.";
+    case 'email_not_verified':
+      return 'Your email isn\'t verified yet. Log in and verify it in Profile → Email → Verify, then try again.';
+    case 'phone_not_verified':
+      return "Your phone isn't verified yet. Log in and verify it in Profile → Phone → Verify, then try again.";
   }
 }
 

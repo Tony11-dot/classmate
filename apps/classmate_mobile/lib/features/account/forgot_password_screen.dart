@@ -54,12 +54,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         'channel': _mode == _ResetMode.email ? 'email' : 'sms',
       });
       if (!mounted) return;
+      // Server returns { ok, code, sent, message }. `sent` drives the
+      // success colouring; the message is rendered as-is and varies per
+      // outcome (no email on file, not verified, etc.).
+      final m = raw is Map ? raw : const <String, dynamic>{};
       setState(() {
-        _success = true;
-        _message = (raw is Map ? raw['message']?.toString() : null)
+        _success = m['sent'] == true;
+        _message = m['message']?.toString()
             ?? (_mode == _ResetMode.email
-                ? 'If an account matches, we just sent a reset link to its email.'
-                : 'If an account matches, we just sent a reset link to its phone.');
+                ? 'Reset link sent (if an account matches).'
+                : 'Reset link sent (if an account matches).');
       });
     } catch (e) {
       if (!mounted) return;
