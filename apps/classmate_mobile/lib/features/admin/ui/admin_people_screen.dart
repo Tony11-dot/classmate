@@ -692,8 +692,11 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     controller: _displayCtrl,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
-                      labelText: 'Display name (e.g. "Tony" vs "Tony Aboud")',
-                      helperText: "Shown in chat headers + the drawer. Optional.",
+                      // Avoid putting any specific name in the label —
+                      // admins kept typing the example verbatim and
+                      // ended up with every user nicknamed the example.
+                      labelText: 'Display name (optional)',
+                      helperText: "What others see in chat + drawer. Leave blank to use the full name.",
                       prefixIcon: const Icon(Icons.badge_outlined, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),

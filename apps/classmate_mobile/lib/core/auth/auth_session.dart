@@ -392,7 +392,17 @@ class AuthSession extends ChangeNotifier {
       await setSchoolId(me.schoolId);
       await setCohortId(me.cohortId);
       await setSchoolName(me.schoolName);
-      await setSchoolLogoUrl(me.schoolLogoUrl);
+      // Defensive: a /auth/me with a null/empty logoUrl does NOT wipe a
+      // non-empty cached value. We've seen the drawer logo silently
+      // disappear after transient empty server responses (or partial
+      // school lookups); only an explicit removal via School Settings
+      // should clear it. setSchoolLogoUrl(null) called directly from
+      // School Settings → _removeLogo still works because that path
+      // updates the cache through setSchoolLogoUrl directly with null.
+      final serverLogo = (me.schoolLogoUrl ?? '').trim();
+      if (serverLogo.isNotEmpty || (_schoolLogoUrl ?? '').trim().isEmpty) {
+        await setSchoolLogoUrl(me.schoolLogoUrl);
+      }
       setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade);
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();

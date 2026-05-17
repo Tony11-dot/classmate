@@ -52,7 +52,7 @@ export class MessagesService {
   private async requireUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, displayName: true },
+      select: { id: true, name: true, displayName: true, nameEn: true } as any,
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -62,11 +62,22 @@ export class MessagesService {
 
   private displayNameOf(
     user:
-      | { name?: string | null; displayName?: string | null }
+      | { name?: string | null; displayName?: string | null; nameEn?: string | null }
       | null
       | undefined,
   ) {
-    return String(user?.displayName ?? user?.name ?? '').trim() || 'Unknown';
+    // Fallback order: explicit displayName → English full name → legacy
+    // `name` → generic. nameEn comes before name so a misconfigured
+    // displayName (e.g. admin typed the example placeholder instead of a
+    // real value) doesn't lose us the canonical name entirely. We still
+    // honor a meaningful displayName when one is set.
+    const dn = String(user?.displayName ?? '').trim();
+    if (dn.length > 0) return dn;
+    const en = String(user?.nameEn ?? '').trim();
+    if (en.length > 0) return en;
+    const n = String(user?.name ?? '').trim();
+    if (n.length > 0) return n;
+    return 'Unknown';
   }
 
   private initialsOf(name: string) {
@@ -242,13 +253,13 @@ export class MessagesService {
     if (!ids.length)
       return new Map<
         string,
-        { id: string; name: string; displayName: string | null }
+        { id: string; name: string; displayName: string | null; nameEn: string | null }
       >();
 
-    const rows = await this.prisma.user.findMany({
+    const rows = (await this.prisma.user.findMany({
       where: { id: { in: ids } },
-      select: { id: true, name: true, displayName: true },
-    });
+      select: { id: true, name: true, displayName: true, nameEn: true } as any,
+    })) as unknown as Array<{ id: string; name: string; displayName: string | null; nameEn: string | null }>;
 
     return new Map(rows.map((row) => [row.id, row]));
   }
@@ -1603,7 +1614,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const userIds = (thread as any).participants.map((p: any) => p.userId as string);
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, name: true, displayName: true, email: true },
+      select: { id: true, name: true, displayName: true, nameEn: true, email: true } as any,
     });
     const userMap = new Map(users.map((u) => [u.id, u]));
 

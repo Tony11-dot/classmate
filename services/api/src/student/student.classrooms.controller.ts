@@ -241,10 +241,44 @@ export class StudentClassroomsController {
       if (dmParticipant) {
         if (String(dmParticipant.state) !== 'ACCEPTED') continue;
         await this.prisma.dmMessage.create({ data: { threadId: targetId, senderId: uid, kind: sourceKind as any, text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded', mediaUrl: source.mediaUrl ?? null, mediaMimeType: String(source.mediaMime ?? '') || null, forwardedFromId: null } });
+        // Bubble the thread to the top of the inbox + mark the sender as
+        // having seen their own message. Without this the inbox query
+        // (which orders by thread.updatedAt) didn't refresh — receivers
+        // could miss the new message until something else touched the row.
+        await this.prisma.dmThread.update({ where: { id: targetId }, data: { updatedAt: new Date() } });
+        await this.prisma.dmParticipant.update({
+          where: { threadId_userId: { threadId: targetId, userId: uid } },
+          data: { lastSeenAt: new Date() },
+        });
+        // Push to OTHER participants over realtime so their inbox + open
+        // thread refresh instantly, same as a normal DM send.
+        try {
+          const others = await this.prisma.dmParticipant.findMany({
+            where: { threadId: targetId, userId: { not: uid } },
+            select: { userId: true },
+          });
+          this.realtime.emitToUsers(
+            others.map((p) => p.userId),
+            { type: 'dm_message', threadId: targetId },
+          );
+        } catch (_) {}
       } else {
         const targetCr = await this.prisma.classroom.findUnique({ where: { id: targetId }, select: { id: true } });
         if (!targetCr) continue;
         await this.prisma.classroomMessage.create({ data: { classroomId: targetId, senderUserId: uid, kind: sourceKind as any, text: forwardedText != null ? `Forwarded\n${forwardedText}` : 'Forwarded', mediaUrl: source.mediaUrl ?? null, mediaMime: String(source.mediaMime ?? '') || null, durationSec: sourceDuration > 0 ? sourceDuration : null } });
+        // Realtime fanout to classroom members so the target classroom's
+        // open chat view refreshes instantly. Same pattern as a normal
+        // classroom send (line 213-216 above).
+        try {
+          const members = await this.prisma.classroomMember.findMany({
+            where: { classroomId: targetId, studentId: { not: uid } },
+            select: { studentId: true },
+          });
+          this.realtime.emitToUsers(
+            members.map((m) => m.studentId),
+            { type: 'classroom_message', classroomId: targetId },
+          );
+        } catch (_) {}
       }
     }
     return { ok: true, forwardedCount: targetThreadIds.length };
