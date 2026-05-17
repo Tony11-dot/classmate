@@ -43,15 +43,14 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   void initState() {
     super.initState();
     final session = ref.read(authSessionProvider);
-    // Use the real database userId (from JWT sub) so isMine comparisons
-    // against server-returned senderUserId work correctly.
-    final realUserId = session.userId.isNotEmpty
-        ? session.userId
-        : (session.displayName.isNotEmpty ? session.displayName : (session.token ?? ''));
+    // Strict: use ONLY the JWT sub for ownership comparisons. The previous
+    // fallback to displayName / raw token could cause messages to render
+    // as "mine" after a profile switch if JWT decode flickered, since the
+    // displayName might still match the previously-cached value.
     _chatController = ClassroomChatThreadController(
       ref: ref,
       courseId: widget.courseId,
-      currentUserId: realUserId,
+      currentUserId: session.userId,
     );
 
     _loadClassroomTabsCollapsed();

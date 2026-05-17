@@ -254,13 +254,13 @@ class MainDrawer extends ConsumerWidget {
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Center(child: ClassMateIcon(size: 22)),
+                      child: const Center(child: ClassMateIcon(size: 32)),
                     ),
                   ),
                 ],
