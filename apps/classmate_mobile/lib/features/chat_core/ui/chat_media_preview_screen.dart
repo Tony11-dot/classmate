@@ -570,10 +570,15 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                         minLines: 1,
                         maxLines: 4,
                         style: const TextStyle(color: Colors.white),
+                        // isDense + tight content padding stops Material's
+                        // default ~24-px vertical insets from inflating the
+                        // caption box to match the 54-px send button.
                         decoration: InputDecoration(
                           hintText: l.chatMediaPreviewCaptionHint,
                           hintStyle: const TextStyle(color: Colors.white54),
                           border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
                     ),

@@ -687,12 +687,18 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         .then((_) {
       _clearReply();
       widget.controller.invalidate();
-    }).catchError((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not send media.')),
-        );
-      }
+    }).catchError((Object e) {
+      if (!mounted) return;
+      // Surface the real reason — "Could not send media." was useless
+      // when the actual failure was e.g. file too large, network error,
+      // or a server validation message. Same pattern as the password
+      // change error surfacing.
+      final raw = e.toString();
+      final m = RegExp(r'"message":"([^"]+)"').firstMatch(raw);
+      final msg = m?.group(1) ?? raw.replaceFirst(RegExp(r'^Exception: '), '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Couldn\'t send: $msg')),
+      );
     });
   }
 
