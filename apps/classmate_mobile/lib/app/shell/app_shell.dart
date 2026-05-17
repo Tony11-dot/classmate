@@ -167,6 +167,8 @@ class AppShell extends ConsumerWidget {
     '/messages',
     '/profile',
     '/settings',
+    '/about',
+    '/support',
   ];
 
   static const _adminPrefixes = <String>[
@@ -188,6 +190,8 @@ class AppShell extends ConsumerWidget {
     '/notifications',
     '/profile',
     '/settings',
+    '/about',
+    '/support',
   ];
 
   static const _studentPrefixes = <String>[
@@ -210,6 +214,8 @@ class AppShell extends ConsumerWidget {
     '/saved-questions',
     '/profile',
     '/settings',
+    '/about',
+    '/support',
   ];
 
   String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
@@ -231,6 +237,8 @@ class AppShell extends ConsumerWidget {
     '/notifications' => l.navNotifications,
     '/profile' => l.navProfile,
     '/settings' => l.navSettings,
+    '/about' => 'About',
+    '/support' => 'Support',
     _ => l.roleSecretary,
   };
 
@@ -258,6 +266,8 @@ class AppShell extends ConsumerWidget {
     '/messages' => l.titleMessages,
     '/profile' => l.navProfile,
     '/settings' => l.navSettings,
+    '/about' => 'About',
+    '/support' => 'Support',
     _ => l.navTeacherWorkspace,
   };
 
@@ -281,6 +291,8 @@ class AppShell extends ConsumerWidget {
     '/saved-questions' => l.navSavedQuestions,
     '/profile' => l.navProfile,
     '/settings' => l.navSettings,
+    '/about' => 'About',
+    '/support' => 'Support',
     _ => l.titleSchedule,
   };
 

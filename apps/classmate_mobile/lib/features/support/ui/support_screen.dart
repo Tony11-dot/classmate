@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const _supportEmail = 'support@classmateapp.org';
+const _supportEmail = 'tony@classmateapp.org';
 const _supportPhone = '+972525488441';
 
 class SupportScreen extends StatelessWidget {
@@ -173,13 +173,10 @@ class SupportScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: const Text('Support'),
-        backgroundColor: cs.surface,
-        scrolledUnderElevation: 0,
-      ),
+      // No local AppBar — the shell's top bar already shows a "Support"
+      // pill when this route is active. Avoids stacking two titles.
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         children: [
           // ── Contact CTAs ─────────────────────────────────────────────────
           Container(
@@ -253,40 +250,11 @@ class AboutScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: const Text('About ClassMate'),
-        backgroundColor: cs.surface,
-        scrolledUnderElevation: 0,
-      ),
+      // No local AppBar — the shell's top bar already shows an "About"
+      // pill when this route is active.
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         children: [
-          Center(
-            child: Container(
-              width: 84,
-              height: 84,
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Icon(Icons.school_rounded, size: 46, color: cs.onPrimaryContainer),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              'ClassMate',
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              'Version $version',
-              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-          ),
-          const SizedBox(height: 24),
           _AboutBlock(
             title: 'What is ClassMate?',
             body: 'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.',
@@ -301,7 +269,16 @@ class AboutScreen extends StatelessWidget {
           ),
           _AboutBlock(
             title: 'Contact',
-            body: 'Built by Tony Aboud and the ClassMate team.\nQuestions: support@classmateapp.org',
+            body: 'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org',
+          ),
+          const SizedBox(height: 8),
+          // Tiny version stamp at the bottom — still discoverable, no longer
+          // a hero block stealing focus.
+          Center(
+            child: Text(
+              'ClassMate · v$version',
+              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
           ),
         ],
       ),
