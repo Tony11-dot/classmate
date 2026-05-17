@@ -215,8 +215,31 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
                 children: [
+                  // ── Back chevron + title — no AppBar, so this header is
+                  // the only visual way back.
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        onPressed: () => Navigator.maybePop(context),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          _nameEnCtrl.text.trim().isEmpty ? 'Edit user' : _nameEnCtrl.text.trim(),
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────
                   Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 12),

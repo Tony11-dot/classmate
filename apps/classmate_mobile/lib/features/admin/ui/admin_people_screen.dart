@@ -123,8 +123,10 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   }
 
   Future<void> _showAddUserSheet(BuildContext context, {String initialRole = 'STUDENT'}) async {
-    final createdRole = await Navigator.push<String>(
-      context,
+    // rootNavigator: true pushes onto the navigator above the shell so the
+    // shell's AppBar + bottom nav are fully covered. Without this the stale
+    // "Dashboard"/"People" title from the underlying tab kept showing.
+    final createdRole = await Navigator.of(context, rootNavigator: true).push<String>(
       MaterialPageRoute(builder: (_) => AdminAddUserScreen(
         repo: ref.read(adminRepositoryProvider),
         initialRole: initialRole,
@@ -198,8 +200,9 @@ class _UserTab extends ConsumerWidget {
             isAdmin: isAdmin,
             onDelete: () => _confirmDelete(ctx, ref, filtered[i]),
             onEdit: () async {
-              final updated = await Navigator.push<bool>(
-                ctx,
+              // Root navigator so the shell's AppBar/bottom-nav are covered
+              // — same reasoning as AddUser above.
+              final updated = await Navigator.of(ctx, rootNavigator: true).push<bool>(
                 MaterialPageRoute(builder: (_) => AdminEditUserScreen(
                   userId: filtered[i].id,
                   repo: ref.read(adminRepositoryProvider),
@@ -321,6 +324,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   final _nameRuCtrl   = TextEditingController();
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
+  final _phoneCtrl    = TextEditingController();
+  // Default to Israel since that's where this school is. User can change it.
+  String _dialCode    = '+972';
   late String _role = widget.initialRole;
   int?   _grade;
   bool   _saving = false;
@@ -330,7 +336,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl]) {
+    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -350,6 +356,10 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     }
     setState(() => _saving = true);
     try {
+      // Combine dial code + local digits into one E.164 string. Strip any
+      // non-digits the user pasted (spaces, dashes, parens) before sending.
+      final phoneDigits = _phoneCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final phoneE164 = phoneDigits.isEmpty ? null : '$_dialCode$phoneDigits';
       final result = await widget.repo.createUser(
         nameEn: nameEn,
         nameAr: _nameArCtrl.text.trim().isEmpty ? null : _nameArCtrl.text.trim(),
@@ -358,6 +368,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         nameRu: _nameRuCtrl.text.trim().isEmpty ? null : _nameRuCtrl.text.trim(),
         email: email.isEmpty ? null : email,
         username: username.isEmpty ? null : username,
+        phone: phoneE164,
         role: _role,
         grade: _grade,
       );
@@ -518,6 +529,13 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  // ── Phone with country dial-code picker ───────────────────
+                  _PhoneField(
+                    controller: _phoneCtrl,
+                    dialCode: _dialCode,
+                    onDialCodeChanged: (v) => setState(() => _dialCode = v),
+                  ),
                   const SizedBox(height: 20),
                   // ── Name fields ────────────────────────────────────────────
                   Text('Name', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
@@ -598,6 +616,167 @@ class _CredRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Phone field with country dial-code picker ────────────────────────────────
+
+/// Common dial codes — Israel first (default), then the rest of the
+/// Middle East + a few high-traffic westerners. List trimmed on purpose so
+/// the bottom-sheet picker stays short and scannable; users with unusual
+/// codes can paste the full E.164 directly into the digits field after
+/// picking "Other".
+const List<({String code, String name, String flag})> _dialCodes = [
+  (code: '+972', name: 'Israel',       flag: '🇮🇱'),
+  (code: '+970', name: 'Palestine',    flag: '🇵🇸'),
+  (code: '+961', name: 'Lebanon',      flag: '🇱🇧'),
+  (code: '+962', name: 'Jordan',       flag: '🇯🇴'),
+  (code: '+963', name: 'Syria',        flag: '🇸🇾'),
+  (code: '+966', name: 'Saudi Arabia', flag: '🇸🇦'),
+  (code: '+971', name: 'UAE',          flag: '🇦🇪'),
+  (code: '+20',  name: 'Egypt',        flag: '🇪🇬'),
+  (code: '+90',  name: 'Turkey',       flag: '🇹🇷'),
+  (code: '+1',   name: 'USA / Canada', flag: '🇺🇸'),
+  (code: '+44',  name: 'UK',           flag: '🇬🇧'),
+  (code: '+33',  name: 'France',       flag: '🇫🇷'),
+  (code: '+49',  name: 'Germany',      flag: '🇩🇪'),
+  (code: '+7',   name: 'Russia',       flag: '🇷🇺'),
+  (code: '+39',  name: 'Italy',        flag: '🇮🇹'),
+  (code: '+34',  name: 'Spain',        flag: '🇪🇸'),
+];
+
+class _PhoneField extends StatelessWidget {
+  const _PhoneField({
+    required this.controller,
+    required this.dialCode,
+    required this.onDialCodeChanged,
+  });
+
+  final TextEditingController controller;
+  final String dialCode;
+  final ValueChanged<String> onDialCodeChanged;
+
+  Future<void> _pickDialCode(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: cs.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sCtx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36, height: 4,
+                  decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  'Country code',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: _dialCodes.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 2),
+                  itemBuilder: (lctx, i) {
+                    final c = _dialCodes[i];
+                    final selected = c.code == dialCode;
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => Navigator.pop(sCtx, c.code),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: selected ? cs.primaryContainer : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(c.flag, style: const TextStyle(fontSize: 22)),
+                            const SizedBox(width: 14),
+                            SizedBox(
+                              width: 56,
+                              child: Text(
+                                c.code,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: selected ? cs.primary : cs.onSurface,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                c.name,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: selected ? cs.primary : cs.onSurface,
+                                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            if (selected) Icon(Icons.check_rounded, size: 18, color: cs.primary),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) onDialCodeChanged(picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.phone,
+      autocorrect: false,
+      decoration: InputDecoration(
+        labelText: 'Phone (optional)',
+        helperText: 'Used for SMS password reset',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        prefixIcon: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => _pickDialCode(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.phone_rounded, size: 18, color: cs.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text(
+                  dialCode,
+                  style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurface),
+                ),
+                Icon(Icons.arrow_drop_down_rounded, color: cs.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      ),
     );
   }
 }

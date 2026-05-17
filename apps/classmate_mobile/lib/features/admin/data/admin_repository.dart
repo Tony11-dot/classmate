@@ -81,6 +81,7 @@ class AdminRepository {
     String? nameRu,
     String? email,
     String? username,
+    String? phone,
     required String role,
     int? grade,
   }) async {
@@ -93,6 +94,7 @@ class AdminRepository {
       if (nameRu != null && nameRu.isNotEmpty) 'nameRu': nameRu,
       if (email != null && email.isNotEmpty) 'email': email,
       if (username != null && username.isNotEmpty) 'username': username,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
       'role': role,
       'grade': ?grade,
     });
