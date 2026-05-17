@@ -260,17 +260,20 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                 border: Border.all(color: cs.outlineVariant),
                                 child: Row(
                                   children: [
-                                    // Avatar with gradient
+                                    // Avatar — previously had no background
+                                    // colour, so the white initials rendered
+                                    // invisibly on white card in light mode.
                                     Container(
                                       width: 44,
                                       height: 44,
                                       decoration: BoxDecoration(
+                                        color: cs.primary,
                                         borderRadius: BorderRadius.circular(14),
                                       ),
                                       child: Center(
                                         child: Text(
                                           person.initials.trim().isNotEmpty ? person.initials.trim() : _initials(person.displayName),
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
+                                          style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w800, fontSize: 15),
                                         ),
                                       ),
                                     ),
