@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -422,25 +423,110 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   bool _includePasswords = false;
   bool _exporting = false;
 
+  /// Source rect for the iOS share popover. iPad + newer iPhone share sheets
+  /// require a non-zero anchor or they throw
+  /// `PlatformException(sharePositionOrigin: argument must be set...)`.
+  Rect _shareOrigin(BuildContext ctx) {
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box != null && box.hasSize) {
+      return box.localToGlobal(Offset.zero) & box.size;
+    }
+    // Fallback: anchor at top-center of the screen with a 1x1 rect.
+    final size = MediaQuery.sizeOf(ctx);
+    return Rect.fromLTWH(size.width / 2, 0, 1, 1);
+  }
+
+  /// Type-to-confirm dialog. The damage from accidentally resetting every
+  /// student's password is large — users locked out until they redeem the
+  /// printed temp passwords — so the confirm button stays disabled until
+  /// the admin literally types "RESET" into the field. Same posture as the
+  /// platform-reset Danger Zone over in /cms.
   Future<bool> _confirmReset() async {
+    final ctrl = TextEditingController();
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (d) => AlertDialog(
-        title: const Text('Reset passwords?'),
-        content: Text(
-          'This will generate new temporary passwords for all ${widget.studentCount} selected students '
-          'and include them in the export. Their existing passwords will be reset immediately.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () => Navigator.pop(d, true),
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(d).colorScheme.error),
-            child: const Text('Reset & Export'),
+      builder: (d) {
+        final cs = Theme.of(d).colorScheme;
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: cs.error),
+              const SizedBox(width: 10),
+              const Text('Reset every selected password?'),
+            ],
           ),
-        ],
-      ),
+          content: StatefulBuilder(builder: (sCtx, setSt) {
+            final matches = ctrl.text.trim().toUpperCase() == 'RESET';
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'This will generate brand-new temporary passwords for ALL '
+                  '${widget.studentCount} selected student${widget.studentCount == 1 ? '' : 's'} '
+                  'and include them in the export. Their existing passwords '
+                  'will stop working immediately — every affected student needs '
+                  'to be handed the new password before they can log in again.',
+                  style: const TextStyle(height: 1.4),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: cs.errorContainer.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "If you just want to print the directory without resetting, cancel and toggle off \"Include passwords\".",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: ctrl,
+                  autofocus: true,
+                  autocorrect: false,
+                  textCapitalization: TextCapitalization.characters,
+                  onChanged: (_) => setSt(() {}),
+                  decoration: InputDecoration(
+                    labelText: 'Type RESET to confirm',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    isDense: true,
+                  ),
+                ),
+                if (!matches && ctrl.text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      'Doesn\'t match. Type RESET in capitals.',
+                      style: TextStyle(fontSize: 11, color: cs.error),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Wrap(
+                    spacing: 6,
+                    children: [
+                      TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
+                      FilledButton(
+                        onPressed: matches ? () => Navigator.pop(d, true) : null,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: cs.error,
+                          disabledBackgroundColor: cs.error.withValues(alpha: 0.3),
+                        ),
+                        child: const Text('Reset & Export'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }),
+        );
+      },
     );
+    ctrl.dispose();
     return confirm == true;
   }
 
@@ -478,8 +564,16 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final file = File('${dir.path}/students_${DateTime.now().millisecondsSinceEpoch}.csv');
       await file.writeAsString(buf.toString());
       if (!mounted) return;
+      // iOS share sheet REQUIRES a non-zero source rect on iPad / newer
+      // iPhones. Grab the bottom-sheet's render box BEFORE we pop so we can
+      // anchor the share popover correctly.
+      final origin = _shareOrigin(context);
       Navigator.pop(context);
-      await Share.shareXFiles([XFile(file.path, mimeType: 'text/csv')], subject: 'ClassMate Students');
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'text/csv')],
+        subject: 'ClassMate Students',
+        sharePositionOrigin: origin,
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -500,8 +594,14 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
       final bytes = await _buildPdf(students, withPasswords: _includePasswords, schoolName: schoolName, exportedBy: exportedBy);
       if (!mounted) return;
+      final origin = _shareOrigin(context);
       Navigator.pop(context);
-      await Printing.sharePdf(bytes: bytes, filename: 'classmate_students.pdf');
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'classmate_students.pdf',
+        // Same iOS source-rect requirement as the CSV share above.
+        bounds: origin,
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -518,7 +618,25 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     required String schoolName,
     required String exportedBy,
   }) async {
-    final doc = pw.Document();
+    // Bundle Latin + Arabic + Hebrew fonts so multi-language student names
+    // actually render. Helvetica (the pdf-package default) only ships Latin
+    // glyphs — without these fallbacks Arabic / Hebrew names came out as
+    // tofu boxes and we got the "Helvetica has no Unicode support" warning.
+    final baseFont    = await PdfGoogleFonts.notoSansRegular();
+    final baseBold    = await PdfGoogleFonts.notoSansBold();
+    final arabicFont  = await PdfGoogleFonts.notoSansArabicRegular();
+    final hebrewFont  = await PdfGoogleFonts.notoSansHebrewRegular();
+    final cmLogo      = pw.MemoryImage(
+      (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
+    );
+
+    final doc = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: baseFont,
+        bold: baseBold,
+        fontFallback: [arabicFont, hebrewFont],
+      ),
+    );
     final now = DateTime.now();
     final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
 
@@ -547,9 +665,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             children: [
               pw.Container(
                 width: 44, height: 44,
+                padding: const pw.EdgeInsets.all(6),
                 decoration: pw.BoxDecoration(color: PdfColors.white, borderRadius: pw.BorderRadius.circular(10)),
                 alignment: pw.Alignment.center,
-                child: pw.Text('C', style: pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold, color: brandBlue)),
+                child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
               ),
               pw.SizedBox(width: 12),
               pw.Expanded(child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
