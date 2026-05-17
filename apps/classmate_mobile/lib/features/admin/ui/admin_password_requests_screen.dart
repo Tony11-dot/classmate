@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/admin_repository.dart';
 
@@ -222,6 +223,13 @@ class _RequestCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text('Wants their password changed. The new password is hidden.',
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+          if ((request.requesterPhone ?? '').isNotEmpty) ...[
+            const SizedBox(height: 10),
+            // Tap-to-call / tap-to-SMS the phone the requester provided.
+            // This is the primary out-of-band verification path — the admin
+            // confirms identity before approving.
+            _PhoneActionRow(phone: request.requesterPhone!),
+          ],
           const SizedBox(height: 10),
           // Persistent reminder: identity isn't proven by the system —
           // the admin is the gate. Surfacing this on every card so it
@@ -265,6 +273,66 @@ class _RequestCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Phone number + tap-to-call / tap-to-SMS chips. Surfaces the requester's
+/// phone so the admin can verify identity out-of-band before approving.
+class _PhoneActionRow extends StatelessWidget {
+  const _PhoneActionRow({required this.phone});
+  final String phone;
+
+  Future<void> _launch(BuildContext ctx, Uri uri) async {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (ctx.mounted) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          SnackBar(content: Text("Couldn't open ${uri.scheme} link")),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.phone_rounded, size: 16, color: cs.tertiary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              phone,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: cs.onTertiaryContainer,
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Call',
+            icon: const Icon(Icons.call_rounded, size: 18),
+            visualDensity: VisualDensity.compact,
+            color: cs.tertiary,
+            onPressed: () => _launch(context, Uri(scheme: 'tel', path: phone)),
+          ),
+          IconButton(
+            tooltip: 'SMS',
+            icon: const Icon(Icons.sms_rounded, size: 18),
+            visualDensity: VisualDensity.compact,
+            color: cs.tertiary,
+            onPressed: () => _launch(context, Uri(scheme: 'sms', path: phone)),
           ),
         ],
       ),

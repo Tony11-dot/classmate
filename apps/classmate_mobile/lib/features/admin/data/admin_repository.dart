@@ -595,6 +595,7 @@ class PasswordChangeRequest {
     required this.requesterName,
     this.requesterEmail,
     this.requesterUsername,
+    this.requesterPhone,
     required this.createdAt,
     required this.expiresAt,
   });
@@ -603,6 +604,9 @@ class PasswordChangeRequest {
   final String requesterName;
   final String? requesterEmail;
   final String? requesterUsername;
+  /// Phone the requester typed (or the one on their user record) — admin
+  /// uses this to call/text and verify identity before approving.
+  final String? requesterPhone;
   final DateTime createdAt;
   final DateTime expiresAt;
 
@@ -611,6 +615,7 @@ class PasswordChangeRequest {
         requesterName: m['requesterName']?.toString() ?? '',
         requesterEmail: m['requesterEmail']?.toString(),
         requesterUsername: m['requesterUsername']?.toString(),
+        requesterPhone: m['requesterPhone']?.toString(),
         createdAt: DateTime.tryParse(m['createdAt']?.toString() ?? '') ?? DateTime.now(),
         expiresAt: DateTime.tryParse(m['expiresAt']?.toString() ?? '') ?? DateTime.now(),
       );

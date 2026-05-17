@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/http/cm_api.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../ui/widgets/phone_field.dart';
 
 enum _ResetMode { email, sms, admin }
 
@@ -29,11 +31,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _pw2Ctrl = TextEditingController();
   bool _obscure = true;
 
+  // Phone the requester provides so the admin can call/text to verify
+  // identity before approving. Auto-filled from the user's stored phone
+  // when the lookup returns one.
+  final _phoneCtrl = TextEditingController();
+  String _dialCode = kDefaultDialCode;
+
   @override
   void dispose() {
     _identifierCtrl.dispose();
     _pw1Ctrl.dispose();
     _pw2Ctrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -104,6 +113,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               )).where((a) => a.id.isNotEmpty).toList()
           : <_AdminOption>[];
       final blocked = m['blocked']?.toString();
+      // Pre-fill the phone field from the user's stored phone (if any). Saves
+      // them retyping their own number; they can still change it before
+      // sending.
+      final currentPhone = m['currentPhone']?.toString();
+      if (currentPhone != null && currentPhone.isNotEmpty) {
+        final split = splitE164(currentPhone);
+        _dialCode = split.dialCode;
+        _phoneCtrl.text = split.localDigits;
+      }
       setState(() {
         _admins = adminList;
         _schoolName = m['schoolName']?.toString();
@@ -147,10 +165,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     final api = CMApi();
     try {
+      final phoneE164 = joinE164(_dialCode, _phoneCtrl.text);
       final raw = await api.postJson('/auth/password-request/submit', body: {
         'identifier': identifier,
         'adminId': adminId,
         'desiredPassword': pw1,
+        if (phoneE164 != null) 'phone': phoneE164,
       });
       if (!mounted) return;
       setState(() {
@@ -273,20 +293,37 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     child: Text('Choose an admin from $_schoolName:',
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ),
-                DropdownButtonFormField<_AdminOption>(
-                  initialValue: _pickedAdmin,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Send request to',
-                    prefixIcon: const Icon(Icons.shield_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                  ),
-                  items: _admins.map((a) => DropdownMenuItem(
-                    value: a,
-                    child: Text(a.email != null && a.email!.isNotEmpty
-                        ? '${a.name} (${a.email})' : a.name),
-                  )).toList(),
-                  onChanged: (v) => setState(() => _pickedAdmin = v),
+                LiquidGlassDropdown<String>(
+                  label: 'Send request to',
+                  value: _pickedAdmin?.id ?? '',
+                  searchHint: 'Search admins…',
+                  items: [
+                    const LiquidGlassDropdownItem(value: '', label: '— Choose admin —'),
+                    ..._admins.map((a) => LiquidGlassDropdownItem(
+                      value: a.id,
+                      label: a.email != null && a.email!.isNotEmpty
+                          ? '${a.name} (${a.email})'
+                          : a.name,
+                    )),
+                  ],
+                  onChanged: (v) {
+                    setState(() {
+                      _pickedAdmin = v.isEmpty
+                          ? null
+                          : _admins.firstWhere((a) => a.id == v, orElse: () => _admins.first);
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Phone field — auto-filled from user record if any, surfaced
+                // to the admin on their request card so they can call/text
+                // the requester to verify identity before approving.
+                PhoneField(
+                  controller: _phoneCtrl,
+                  dialCode: _dialCode,
+                  onDialCodeChanged: (v) => setState(() => _dialCode = v),
+                  labelText: 'Your phone (so the admin can verify it\'s really you)',
+                  helperText: 'The admin will call or text this number before approving.',
                 ),
                 const SizedBox(height: 16),
                 TextField(

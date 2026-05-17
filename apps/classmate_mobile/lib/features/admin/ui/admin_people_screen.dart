@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
 import 'admin_edit_user_screen.dart';
 
@@ -286,19 +287,124 @@ class _UserTile extends StatelessWidget {
           user.email.isNotEmpty ? user.email : '(no email)',
           style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
         ),
-        trailing: PopupMenuButton<String>(
+        trailing: IconButton(
           icon: const Icon(Icons.more_vert_rounded),
-          onSelected: (v) {
-            if (v == 'edit') onEdit();
-            if (v == 'delete') onDelete();
-          },
-          itemBuilder: (ctx) {
-            final l = AppLocalizations.of(ctx)!;
-            return [
-              const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_rounded, size: 16), SizedBox(width: 10), Text('Edit')])),
-              PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(ctx).colorScheme.error), SizedBox(width: 10), Text(l.adminDeleteUser, style: TextStyle(color: Theme.of(ctx).colorScheme.error))])),
-            ];
-          },
+          onPressed: () => _openUserActions(context, isAdmin: isAdmin, onEdit: onEdit, onDelete: onDelete),
+        ),
+      ),
+    );
+  }
+}
+
+/// LiquidGlass-styled action sheet replacing Material's PopupMenuButton —
+/// matches the rest of the picker UI (rounded surface, drag handle, bold
+/// option rows) so the per-row actions feel consistent with the cohort /
+/// schedule / subject pickers.
+Future<void> _openUserActions(
+  BuildContext context, {
+  required bool isAdmin,
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) async {
+  final cs = Theme.of(context).colorScheme;
+  final theme = Theme.of(context);
+  final l = AppLocalizations.of(context)!;
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: cs.surface,
+    useSafeArea: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (sCtx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 14),
+            _GlassAction(
+              icon: Icons.edit_rounded,
+              label: 'Edit user',
+              onTap: () { Navigator.pop(sCtx); onEdit(); },
+            ),
+            if (isAdmin) ...[
+              const SizedBox(height: 6),
+              _GlassAction(
+                icon: Icons.delete_outline_rounded,
+                label: l.adminDeleteUser,
+                destructive: true,
+                onTap: () { Navigator.pop(sCtx); onDelete(); },
+              ),
+            ],
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () => Navigator.pop(sCtx),
+              style: TextButton.styleFrom(foregroundColor: cs.onSurfaceVariant),
+              child: Text(l.adminCancel),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  // Suppress unused-variable warning when caller's theme isn't read here.
+  // (Kept the local for symmetry with the picker helpers.)
+  // ignore: unnecessary_statements
+  theme;
+}
+
+class _GlassAction extends StatelessWidget {
+  const _GlassAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.destructive = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final fg = destructive ? cs.error : cs.onSurface;
+    final bg = destructive
+        ? cs.errorContainer.withValues(alpha: 0.4)
+        : cs.surfaceContainerHigh;
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: (destructive ? cs.error : cs.outlineVariant).withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: fg),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(fontWeight: FontWeight.w700, color: fg),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, size: 18, color: fg.withValues(alpha: 0.5)),
+          ],
         ),
       ),
     );
@@ -531,7 +637,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   ),
                   const SizedBox(height: 12),
                   // ── Phone with country dial-code picker ───────────────────
-                  _PhoneField(
+                  PhoneField(
                     controller: _phoneCtrl,
                     dialCode: _dialCode,
                     onDialCodeChanged: (v) => setState(() => _dialCode = v),
@@ -616,167 +722,6 @@ class _CredRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Phone field with country dial-code picker ────────────────────────────────
-
-/// Common dial codes — Israel first (default), then the rest of the
-/// Middle East + a few high-traffic westerners. List trimmed on purpose so
-/// the bottom-sheet picker stays short and scannable; users with unusual
-/// codes can paste the full E.164 directly into the digits field after
-/// picking "Other".
-const List<({String code, String name, String flag})> _dialCodes = [
-  (code: '+972', name: 'Israel',       flag: '🇮🇱'),
-  (code: '+970', name: 'Palestine',    flag: '🇵🇸'),
-  (code: '+961', name: 'Lebanon',      flag: '🇱🇧'),
-  (code: '+962', name: 'Jordan',       flag: '🇯🇴'),
-  (code: '+963', name: 'Syria',        flag: '🇸🇾'),
-  (code: '+966', name: 'Saudi Arabia', flag: '🇸🇦'),
-  (code: '+971', name: 'UAE',          flag: '🇦🇪'),
-  (code: '+20',  name: 'Egypt',        flag: '🇪🇬'),
-  (code: '+90',  name: 'Turkey',       flag: '🇹🇷'),
-  (code: '+1',   name: 'USA / Canada', flag: '🇺🇸'),
-  (code: '+44',  name: 'UK',           flag: '🇬🇧'),
-  (code: '+33',  name: 'France',       flag: '🇫🇷'),
-  (code: '+49',  name: 'Germany',      flag: '🇩🇪'),
-  (code: '+7',   name: 'Russia',       flag: '🇷🇺'),
-  (code: '+39',  name: 'Italy',        flag: '🇮🇹'),
-  (code: '+34',  name: 'Spain',        flag: '🇪🇸'),
-];
-
-class _PhoneField extends StatelessWidget {
-  const _PhoneField({
-    required this.controller,
-    required this.dialCode,
-    required this.onDialCodeChanged,
-  });
-
-  final TextEditingController controller;
-  final String dialCode;
-  final ValueChanged<String> onDialCodeChanged;
-
-  Future<void> _pickDialCode(BuildContext context) async {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: cs.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sCtx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 36, height: 4,
-                  decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  'Country code',
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: _dialCodes.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 2),
-                  itemBuilder: (lctx, i) {
-                    final c = _dialCodes[i];
-                    final selected = c.code == dialCode;
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => Navigator.pop(sCtx, c.code),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: selected ? cs.primaryContainer : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(c.flag, style: const TextStyle(fontSize: 22)),
-                            const SizedBox(width: 14),
-                            SizedBox(
-                              width: 56,
-                              child: Text(
-                                c.code,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: selected ? cs.primary : cs.onSurface,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                c.name,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: selected ? cs.primary : cs.onSurface,
-                                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            if (selected) Icon(Icons.check_rounded, size: 18, color: cs.primary),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (picked != null) onDialCodeChanged(picked);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.phone,
-      autocorrect: false,
-      decoration: InputDecoration(
-        labelText: 'Phone (optional)',
-        helperText: 'Used for SMS password reset',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        prefixIcon: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _pickDialCode(context),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.phone_rounded, size: 18, color: cs.onSurfaceVariant),
-                const SizedBox(width: 8),
-                Text(
-                  dialCode,
-                  style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurface),
-                ),
-                Icon(Icons.arrow_drop_down_rounded, color: cs.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-      ),
     );
   }
 }
