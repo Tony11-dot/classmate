@@ -223,6 +223,16 @@ class SupportScreen extends StatelessWidget {
                   label: 'Phone',
                   value: _supportPhone,
                   onTap: () => _open(context, Uri(scheme: 'tel', path: _supportPhone)),
+                  // Calling is the primary tap action; surface SMS as a
+                  // secondary icon so users who'd rather text get one
+                  // tap to message instead of dialing.
+                  trailingActions: [
+                    _ContactAction(
+                      icon: Icons.sms_rounded,
+                      tooltip: 'Message',
+                      onTap: () => _open(context, Uri(scheme: 'sms', path: _supportPhone)),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -390,18 +400,30 @@ class _FaqTile extends StatelessWidget {
   }
 }
 
+class _ContactAction {
+  const _ContactAction({required this.icon, required this.tooltip, required this.onTap});
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+}
+
 class _ContactRow extends StatelessWidget {
   const _ContactRow({
     required this.icon,
     required this.label,
     required this.value,
     required this.onTap,
+    this.trailingActions = const [],
   });
 
   final IconData icon;
   final String label;
   final String value;
   final VoidCallback onTap;
+  /// Optional extra-tap icons rendered on the trailing edge — for the
+  /// phone row this is the "send SMS" button alongside the primary call
+  /// tap-anywhere. When empty, falls back to the chevron.
+  final List<_ContactAction> trailingActions;
 
   @override
   Widget build(BuildContext context) {
@@ -437,7 +459,17 @@ class _ContactRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant),
+            if (trailingActions.isEmpty)
+              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant)
+            else
+              for (final a in trailingActions)
+                IconButton(
+                  tooltip: a.tooltip,
+                  icon: Icon(a.icon, size: 20),
+                  color: cs.primary,
+                  visualDensity: VisualDensity.compact,
+                  onPressed: a.onTap,
+                ),
           ],
         ),
       ),

@@ -97,10 +97,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         return loc.replaceFirst('/student', '');
       }
 
-      // Only /login bounces logged-in users home. /forgot-password is
-      // legitimate for logged-in users too (e.g. testing the flow, or
-      // wanting to use email/SMS reset instead of typing current password).
-      final isLogin = state.matchedLocation == '/login';
+      // /login + /forgot-password are both reachable when LOGGED OUT
+      // (we don't bounce them to /login). But /login is the only route
+      // that we bounce LOGGED-IN users away from — they're allowed on
+      // /forgot-password so the in-app "Forgot password?" link from
+      // Profile → Change Password actually works.
+      final isAuthRoute = state.matchedLocation == '/login'
+          || state.matchedLocation == '/forgot-password';
+      final isLoginOnly = state.matchedLocation == '/login';
       final loggedIn = session.isLoggedIn;
       final primaryRole = session.primaryRole;
       final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';
@@ -149,12 +153,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/announcements' ||
           loc.startsWith('/announcements/') ||
           loc == '/notifications' ||
-          loc.startsWith('/notifications/');
+          loc.startsWith('/notifications/') ||
+          // Drawer-reachable info pages — must be open to every role
+          // (student / teacher / admin / secretary) without role-based
+          // redirect kicking the user back to their home.
+          loc == '/about' ||
+          loc == '/support';
 
       final isSecretary = primaryRole == 'SECRETARY';
 
-      if (!loggedIn && !isLogin) return '/login';
-      if (loggedIn && isLogin) {
+      if (!loggedIn && !isAuthRoute) return '/login';
+      if (loggedIn && isLoginOnly) {
         if (isSecretary) return '/announcements';
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
