@@ -173,6 +173,18 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     textTheme: fixedTextTheme,
     primaryTextTheme: fixedPrimaryTextTheme,
     scaffoldBackgroundColor: scheme.surface,
+    // Use the iOS slide-in transition AND swipe-back gesture for every
+    // MaterialPageRoute push on iOS. Without this, Material's default
+    // transition gives iOS users an Android-style fade with no swipe-back
+    // — surprising on a platform where edge-swipe-to-go-back is muscle
+    // memory. Android keeps the platform default.
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
+        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+      },
+    ),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
