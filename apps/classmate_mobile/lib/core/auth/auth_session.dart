@@ -391,14 +391,17 @@ class AuthSession extends ChangeNotifier {
       await setEmail(me.email);
       await setSchoolId(me.schoolId);
       await setCohortId(me.cohortId);
-      await setSchoolName(me.schoolName);
-      // Defensive: a /auth/me with a null/empty logoUrl does NOT wipe a
-      // non-empty cached value. We've seen the drawer logo silently
-      // disappear after transient empty server responses (or partial
-      // school lookups); only an explicit removal via School Settings
-      // should clear it. setSchoolLogoUrl(null) called directly from
-      // School Settings → _removeLogo still works because that path
-      // updates the cache through setSchoolLogoUrl directly with null.
+      // School identity fields (name, logo) are defended against transient
+      // empty responses: the /auth/me handler swallows DB lookup errors and
+      // returns null on partial failures (see auth.controller.ts:183), and
+      // a null wipe would briefly flash a blank drawer. Keep the cached
+      // value when the server says empty AND we have something cached; an
+      // explicit clear (logout / Remove logo in School Settings) still
+      // goes through setSchoolName(null) / setSchoolLogoUrl(null) directly.
+      final serverName = (me.schoolName ?? '').trim();
+      if (serverName.isNotEmpty || (_schoolName ?? '').trim().isEmpty) {
+        await setSchoolName(me.schoolName);
+      }
       final serverLogo = (me.schoolLogoUrl ?? '').trim();
       if (serverLogo.isNotEmpty || (_schoolLogoUrl ?? '').trim().isEmpty) {
         await setSchoolLogoUrl(me.schoolLogoUrl);

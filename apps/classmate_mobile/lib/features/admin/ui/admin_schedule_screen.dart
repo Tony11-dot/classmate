@@ -594,8 +594,30 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                   grid.putIfAbsent(k, () => []).add(s);
                 }
 
+                // Grid row count = max of:
+                //  - highest period in the school's configured defaults
+                //  - highest period that has an actual slot
+                //  - a sensible floor (8) so new schools don't render a stub.
+                int maxFromDefaults = 0;
+                final defaults = ref.watch(_defaultsProvider).maybeWhen(
+                      data: (d) => d,
+                      orElse: () => const <Map<String, dynamic>>[],
+                    );
+                for (final d in defaults) {
+                  final p = (d['period'] as num?)?.toInt() ?? 0;
+                  if (p > maxFromDefaults) maxFromDefaults = p;
+                }
+                int maxFromSlots = 0;
+                for (final s in allPeriods) {
+                  final p = (s['period'] as num?)?.toInt() ?? 0;
+                  if (p > maxFromSlots) maxFromSlots = p;
+                }
+                final periodCount = [maxFromDefaults, maxFromSlots, 8]
+                    .reduce((a, b) => a > b ? a : b);
+
                 return _ScheduleGrid(
                   grid: grid,
+                  periodCount: periodCount,
                   onCellTap: (day, period) => _openSquareSheet(
                     day: day,
                     period: period,
@@ -614,17 +636,24 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
 // ── Interactive 7×9 schedule grid ─────────────────────────────────────────────
 
 class _ScheduleGrid extends StatelessWidget {
-  const _ScheduleGrid({required this.grid, required this.onCellTap});
+  const _ScheduleGrid({
+    required this.grid,
+    required this.onCellTap,
+    this.periodCount = 9,
+  });
 
   final Map<(int, int), List<Map<String, dynamic>>> grid;
   final void Function(int day, int period) onCellTap;
+  /// Number of period rows the grid renders. Driven by the school's
+  /// period defaults + the highest scheduled slot — see the call site
+  /// in [AdminScheduleScreen.build].
+  final int periodCount;
 
   static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   static const double _headerH = 36;
   static const double _headerW = 48;
   static const double _cellW   = 110;
   static const double _cellH   = 90;
-  static const int _periods    = 9;
   static const int _days       = 7;
 
   @override
@@ -633,7 +662,7 @@ class _ScheduleGrid extends StatelessWidget {
     final theme = Theme.of(context);
 
     final totalW = _headerW + _days * _cellW;
-    final totalH = _headerH + _periods * _cellH;
+    final totalH = _headerH + periodCount * _cellH;
 
     return InteractiveViewer(
       constrained: false,
@@ -668,7 +697,7 @@ class _ScheduleGrid extends StatelessWidget {
                 ],
               ),
               // Period rows
-              ...List.generate(_periods, (pi) {
+              ...List.generate(periodCount, (pi) {
                 final period = pi + 1;
                 return Row(
                   children: [
