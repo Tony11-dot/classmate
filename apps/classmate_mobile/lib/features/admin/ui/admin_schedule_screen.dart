@@ -128,105 +128,166 @@ class AdminScheduleScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
-  // Filter
-  String _filterMode = 'all'; // all | cohort | grade | student
-  String? _filterCohortId;
-  int?    _filterGrade;
-  String? _filterStudentId;
+  // Filter — three independent sets, OR'd across types.  Empty everywhere
+  // means "show all".  Grade filter is transitive (covers cohorts + students
+  // at that grade); cohort filter is strict (explicit cohort membership
+  // only, even if a grade-level slot would otherwise also cover it).
+  final Set<int>    _filterGrades     = {};
+  final Set<String> _filterCohortIds  = {};
+  final Set<String> _filterStudentIds = {};
 
-  /// True when [slot] should appear under the current filter.  Transitive:
-  /// a student picked in "By Student" sees not only periods assigned to them
-  /// individually but also every period assigned to a cohort they belong to
-  /// (or any cohort at their grade).  Likewise "By Grade" matches cohorts
-  /// whose `grades[]` array contains the grade.
+  bool get _hasAnyFilter =>
+      _filterGrades.isNotEmpty ||
+      _filterCohortIds.isNotEmpty ||
+      _filterStudentIds.isNotEmpty;
+
+  /// True when [slot] should appear under the current filter selection.
+  /// Selections OR together across types: a slot matches if it satisfies
+  /// ANY selected grade, cohort, or student.  Per-type semantics:
+  ///  - **Grade**: transitive — slot.audienceGrade matches, OR any cohort
+  ///    on the slot includes that grade, OR an individually-enrolled
+  ///    student is at that grade.
+  ///  - **Cohort**: strict — the cohort id must be in slot.cohorts.  A
+  ///    grade-level slot covering this cohort transitively does NOT match.
+  ///  - **Student**: transitive — direct enrollment, cohort membership, or
+  ///    cohort-at-student's-grade all count.
   bool _slotMatchesFilter(
     Map<String, dynamic> slot, {
     required List<Map<String, dynamic>> allCohorts,
     required List<Map<String, dynamic>> allStudents,
   }) {
-    if (_filterMode == 'all') return true;
-    final cohortsList = slot['cohorts'] as List? ?? const [];
-    final studentsList = slot['students'] as List? ?? const [];
+    if (!_hasAnyFilter) return true;
 
-    if (_filterMode == 'cohort' && _filterCohortId != null) {
-      return cohortsList.any((c) =>
-          (c is Map ? (c['cohortId'] ?? c['cohort']?['id']) : null)
-              ?.toString() ==
-          _filterCohortId);
+    for (final g in _filterGrades) {
+      if (_slotCoversGrade(slot, g, allStudents)) return true;
     }
-
-    if (_filterMode == 'grade' && _filterGrade != null) {
-      return cohortsList.any((c) {
-        if (c is! Map) return false;
-        final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
-        // Newer payloads carry `grades: int[]`; older ones only carry a
-        // single `grade` int.  Match against either so multi-grade cohorts
-        // surface in every grade they cover.
-        final gs = cohort?['grades'];
-        if (gs is List && gs.any((e) => e == _filterGrade)) return true;
-        return cohort?['grade'] == _filterGrade;
-      });
+    for (final cid in _filterCohortIds) {
+      if (_slotHasCohortStrict(slot, cid, allCohorts)) return true;
     }
-
-    if (_filterMode == 'student' && _filterStudentId != null) {
-      final sid = _filterStudentId!;
-
-      // 1) Directly enrolled in the period.
-      if (studentsList.any((s) => s is Map && s['studentId']?.toString() == sid)) {
+    for (final sid in _filterStudentIds) {
+      if (_slotMatchesStudent(slot, sid,
+              allCohorts: allCohorts, allStudents: allStudents)) {
         return true;
       }
+    }
+    return false;
+  }
 
-      // Look up the student so we know which cohorts + grade they're in.
+  /// Grade filter — slot matches grade [g] if explicitly audienced to it,
+  /// has any cohort covering [g], or has an individually-enrolled student
+  /// whose own grade is [g].
+  bool _slotCoversGrade(
+    Map<String, dynamic> slot,
+    int g,
+    List<Map<String, dynamic>> allStudents,
+  ) {
+    final ag = slot['audienceGrade'];
+    if (ag is num && ag.toInt() == g) return true;
+
+    final cohortsList = slot['cohorts'] as List? ?? const [];
+    for (final c in cohortsList) {
+      if (c is! Map) continue;
+      final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
+      final gs = cohort?['grades'];
+      if (gs is List && gs.any((e) => e == g)) return true;
+      if (cohort?['grade'] == g) return true;
+    }
+
+    final studentsList = slot['students'] as List? ?? const [];
+    for (final s in studentsList) {
+      if (s is! Map) continue;
+      final sid = s['studentId']?.toString();
+      if (sid == null || sid.isEmpty) continue;
       final student = allStudents.firstWhere(
-        (s) => s['id']?.toString() == sid,
+        (st) => st['id']?.toString() == sid,
         orElse: () => const {},
       );
-      if (student.isEmpty) return false;
+      if (student.isEmpty) continue;
+      final sg = student['grade'];
+      final gradeN = sg is int ? sg : (sg is num ? sg.toInt() : null);
+      if (gradeN == g) return true;
+    }
+    return false;
+  }
 
-      // 2) In any cohort the period targets.
-      final studentCohortIds = <String>{
-        ...((student['cohortIds'] as List?)?.map((e) => e.toString()) ?? const []),
-        if ((student['cohortId'] ?? '').toString().isNotEmpty)
-          student['cohortId'].toString(),
-      };
-      // Backfill from the cohorts DDL — if a cohort lists this student in
-      // its `studentIds`, count it even when the student DDL hasn't yet
-      // surfaced multi-cohort membership.
-      for (final c in allCohorts) {
-        final ids = c['studentIds'];
-        if (ids is List && ids.any((e) => e.toString() == sid)) {
-          final cid = c['id']?.toString() ?? '';
-          if (cid.isNotEmpty) studentCohortIds.add(cid);
-        }
-      }
-      if (studentCohortIds.isNotEmpty) {
-        final slotCohortIds = cohortsList
-            .whereType<Map>()
-            .map((c) =>
-                (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
-                    ?.toString() ??
-                '')
-            .where((id) => id.isNotEmpty)
-            .toSet();
-        if (slotCohortIds.any(studentCohortIds.contains)) return true;
-      }
+  /// Cohort filter — strict.  The slot must have been *saved as a cohort
+  /// audience*, not as a grade (which gets persisted as the union of every
+  /// cohort at that grade and would otherwise leak into the cohort filter).
+  /// Grade-mode is identified via [slotAudienceGrade] (explicit
+  /// `audienceGrade` column when present, legacy heuristic otherwise).
+  bool _slotHasCohortStrict(
+    Map<String, dynamic> slot,
+    String cohortId,
+    List<Map<String, dynamic>> allCohorts,
+  ) {
+    if (slotAudienceGrade(slot, allCohorts) != null) return false;
+    final cohortsList = slot['cohorts'] as List? ?? const [];
+    for (final c in cohortsList) {
+      if (c is! Map) continue;
+      final id =
+          (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+              ?.toString();
+      if (id == cohortId) return true;
+    }
+    return false;
+  }
 
-      // 3) Any cohort at the student's own grade.  Catches "By Grade"
-      // periods that were saved as cohortIds (the common case) even when
-      // the student isn't directly enrolled in a particular cohort.
-      final grade = student['grade'];
-      final gradeN = grade is int ? grade : (grade is num ? grade.toInt() : null);
-      if (gradeN != null) {
-        for (final c in cohortsList) {
-          if (c is! Map) continue;
-          final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
-          final gs = cohort?['grades'];
-          if (gs is List && gs.any((e) => e == gradeN)) return true;
-          if (cohort?['grade'] == gradeN) return true;
-        }
-      }
+  /// Student filter — direct + cohort membership + student-grade transitive.
+  bool _slotMatchesStudent(
+    Map<String, dynamic> slot,
+    String sid, {
+    required List<Map<String, dynamic>> allCohorts,
+    required List<Map<String, dynamic>> allStudents,
+  }) {
+    final studentsList = slot['students'] as List? ?? const [];
+    if (studentsList.any((s) => s is Map && s['studentId']?.toString() == sid)) {
+      return true;
+    }
 
-      return false;
+    final student = allStudents.firstWhere(
+      (s) => s['id']?.toString() == sid,
+      orElse: () => const {},
+    );
+    if (student.isEmpty) return false;
+
+    final studentCohortIds = <String>{
+      ...((student['cohortIds'] as List?)?.map((e) => e.toString()) ?? const []),
+      if ((student['cohortId'] ?? '').toString().isNotEmpty)
+        student['cohortId'].toString(),
+    };
+    for (final c in allCohorts) {
+      final ids = c['studentIds'];
+      if (ids is List && ids.any((e) => e.toString() == sid)) {
+        final cid = c['id']?.toString() ?? '';
+        if (cid.isNotEmpty) studentCohortIds.add(cid);
+      }
+    }
+
+    final cohortsList = slot['cohorts'] as List? ?? const [];
+    if (studentCohortIds.isNotEmpty) {
+      final slotCohortIds = cohortsList
+          .whereType<Map>()
+          .map((c) =>
+              (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                  ?.toString() ??
+              '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      if (slotCohortIds.any(studentCohortIds.contains)) return true;
+    }
+
+    final grade = student['grade'];
+    final gradeN = grade is int ? grade : (grade is num ? grade.toInt() : null);
+    if (gradeN != null) {
+      for (final c in cohortsList) {
+        if (c is! Map) continue;
+        final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
+        final gs = cohort?['grades'];
+        if (gs is List && gs.any((e) => e == gradeN)) return true;
+        if (cohort?['grade'] == gradeN) return true;
+      }
+      final ag = slot['audienceGrade'];
+      if (ag is num && ag.toInt() == gradeN) return true;
     }
     return false;
   }
@@ -269,12 +330,23 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     if (action == null) return;
     switch (action.kind) {
       case _SquareSheetActionKind.add:
+        // Prefill the audience picker only when exactly one filter of a single
+        // type is active — otherwise the prefill is ambiguous and the admin
+        // probably wants a blank picker.
+        final onlyOneType =
+            (_filterGrades.length + _filterCohortIds.length + _filterStudentIds.length) == 1;
         await _openAddPeriod(
           preDay: day,
           prePeriod: period,
-          preCohortId: _filterMode == 'cohort' ? _filterCohortId : null,
-          preStudentId: _filterMode == 'student' ? _filterStudentId : null,
-          preGrade: _filterMode == 'grade' ? _filterGrade : null,
+          preCohortId: onlyOneType && _filterCohortIds.length == 1
+              ? _filterCohortIds.first
+              : null,
+          preStudentId: onlyOneType && _filterStudentIds.length == 1
+              ? _filterStudentIds.first
+              : null,
+          preGrade: onlyOneType && _filterGrades.length == 1
+              ? _filterGrades.first
+              : null,
         );
         break;
       case _SquareSheetActionKind.edit:
@@ -352,69 +424,149 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
       body: Column(
         children: [
           // ── Filter bar ────────────────────────────────────────────────────
+          // Layout: [selected pills (× to remove)] [Add: Grade / Cohort / Student]
+          // [Clear] (shown only when at least one filter is active).  Picking
+          // any item adds it to its set; tapping an already-selected pill
+          // removes it.  When every item of a type is selected, the matching
+          // Add chip greys out.
           SizedBox(
             height: 44,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                _FilterChipItem(label: 'All', selected: _filterMode == 'all',
-                    onTap: () => setState(() { _filterMode = 'all'; })),
-                const SizedBox(width: 6),
-                // Grade filter
+                // Selected grade pills
+                for (final g in _filterGrades) ...[
+                  _FilterChipItem(
+                    label: 'Grade $g',
+                    selected: true,
+                    showRemove: true,
+                    onTap: () => setState(() => _filterGrades.remove(g)),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                // Selected cohort pills
+                for (final cid in _filterCohortIds) ...[
+                  _FilterChipItem(
+                    label: allCohorts
+                            .firstWhere((c) => c['id']?.toString() == cid,
+                                orElse: () => const {})['name']
+                            ?.toString() ??
+                        'Cohort',
+                    selected: true,
+                    showRemove: true,
+                    onTap: () => setState(() => _filterCohortIds.remove(cid)),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                // Selected student pills
+                for (final sid in _filterStudentIds) ...[
+                  _FilterChipItem(
+                    label: allStudents
+                            .firstWhere((s) => s['id']?.toString() == sid,
+                                orElse: () => const {})['name']
+                            ?.toString() ??
+                        'Student',
+                    selected: true,
+                    showRemove: true,
+                    onTap: () => setState(() => _filterStudentIds.remove(sid)),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                // Add Grade
                 _FilterChipItem(
-                  label: _filterMode == 'grade' ? 'Grade $_filterGrade ▾' : 'By Grade ▾',
-                  selected: _filterMode == 'grade',
+                  label: 'By Grade ▾',
+                  selected: false,
+                  enabled: allGrades.any((g) => !_filterGrades.contains(g)),
                   onTap: () async {
+                    final remaining = allGrades
+                        .where((g) => !_filterGrades.contains(g))
+                        .toList();
+                    if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<int>(
                       context: context,
-                      title: 'By Grade',
-                      currentValue: _filterGrade ?? -1,
-                      items: allGrades.map((g) => LiquidGlassDropdownItem(value: g, label: 'Grade $g')).toList(),
+                      title: 'Add grade',
+                      currentValue: -1,
+                      items: remaining
+                          .map((g) => LiquidGlassDropdownItem(
+                              value: g, label: 'Grade $g'))
+                          .toList(),
                     );
-                    if (picked != null) setState(() { _filterMode = 'grade'; _filterGrade = picked; });
+                    if (picked != null) {
+                      setState(() => _filterGrades.add(picked));
+                    }
                   },
                 ),
                 const SizedBox(width: 6),
-                // Cohort filter
+                // Add Cohort
                 _FilterChipItem(
-                  label: _filterMode == 'cohort'
-                      ? '${allCohorts.firstWhere((c) => c['id']?.toString() == _filterCohortId, orElse: () => const {})['name']?.toString() ?? 'Cohort'} ▾'
-                      : 'By Cohort ▾',
-                  selected: _filterMode == 'cohort',
+                  label: 'By Cohort ▾',
+                  selected: false,
+                  enabled: allCohorts.any((c) =>
+                      !_filterCohortIds.contains(c['id']?.toString() ?? '')),
                   onTap: () async {
+                    final remaining = allCohorts
+                        .where((c) => !_filterCohortIds
+                            .contains(c['id']?.toString() ?? ''))
+                        .toList();
+                    if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<String>(
                       context: context,
-                      title: 'By Cohort',
-                      currentValue: _filterCohortId ?? '',
-                      items: allCohorts.map((c) => LiquidGlassDropdownItem(
-                        value: c['id']?.toString() ?? '',
-                        label: c['name']?.toString() ?? '',
-                      )).toList(),
+                      title: 'Add cohort',
+                      currentValue: '',
+                      items: remaining
+                          .map((c) => LiquidGlassDropdownItem(
+                                value: c['id']?.toString() ?? '',
+                                label: c['name']?.toString() ?? '',
+                              ))
+                          .toList(),
                     );
-                    if (picked != null && picked.isNotEmpty) setState(() { _filterMode = 'cohort'; _filterCohortId = picked; });
+                    if (picked != null && picked.isNotEmpty) {
+                      setState(() => _filterCohortIds.add(picked));
+                    }
                   },
                 ),
                 const SizedBox(width: 6),
-                // Student filter
+                // Add Student
                 _FilterChipItem(
-                  label: _filterMode == 'student'
-                      ? '${allStudents.firstWhere((s) => s['id']?.toString() == _filterStudentId, orElse: () => const {})['name']?.toString() ?? 'Student'} ▾'
-                      : 'By Student ▾',
-                  selected: _filterMode == 'student',
+                  label: 'By Student ▾',
+                  selected: false,
+                  enabled: allStudents.any((s) =>
+                      !_filterStudentIds.contains(s['id']?.toString() ?? '')),
                   onTap: () async {
+                    final remaining = allStudents
+                        .where((s) => !_filterStudentIds
+                            .contains(s['id']?.toString() ?? ''))
+                        .toList();
+                    if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<String>(
                       context: context,
-                      title: 'By Student',
-                      currentValue: _filterStudentId ?? '',
-                      items: allStudents.map((s) => LiquidGlassDropdownItem(
-                        value: s['id']?.toString() ?? '',
-                        label: s['name']?.toString() ?? '',
-                      )).toList(),
+                      title: 'Add student',
+                      currentValue: '',
+                      items: remaining
+                          .map((s) => LiquidGlassDropdownItem(
+                                value: s['id']?.toString() ?? '',
+                                label: s['name']?.toString() ?? '',
+                              ))
+                          .toList(),
                     );
-                    if (picked != null && picked.isNotEmpty) setState(() { _filterMode = 'student'; _filterStudentId = picked; });
+                    if (picked != null && picked.isNotEmpty) {
+                      setState(() => _filterStudentIds.add(picked));
+                    }
                   },
                 ),
+                if (_hasAnyFilter) ...[
+                  const SizedBox(width: 6),
+                  _FilterChipItem(
+                    label: 'Clear',
+                    selected: false,
+                    onTap: () => setState(() {
+                      _filterGrades.clear();
+                      _filterCohortIds.clear();
+                      _filterStudentIds.clear();
+                    }),
+                  ),
+                ],
               ],
             ),
           ),
@@ -682,30 +834,64 @@ class _SlotCard extends ConsumerWidget {
 // ── Filter chip ────────────────────────────────────────────────────────────────
 
 class _FilterChipItem extends StatelessWidget {
-  const _FilterChipItem({required this.label, required this.selected, required this.onTap});
+  const _FilterChipItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.showRemove = false,
+    this.enabled = true,
+  });
   final String label;
   final bool selected;
+  final bool showRemove;
+  final bool enabled;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final disabled = !enabled;
+    final bg = selected
+        ? cs.primaryContainer
+        : (disabled
+            ? cs.surfaceContainerLow.withValues(alpha: 0.5)
+            : cs.surfaceContainerLow);
+    final borderColor = selected
+        ? cs.primary.withValues(alpha: 0.4)
+        : cs.outlineVariant.withValues(alpha: disabled ? 0.3 : 0.5);
+    final fg = selected
+        ? cs.primary
+        : (disabled ? cs.onSurfaceVariant.withValues(alpha: 0.5) : cs.onSurfaceVariant);
     return GestureDetector(
-      onTap: onTap,
+      onTap: disabled ? null : onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.5)),
+        padding: EdgeInsets.only(
+          left: 14,
+          right: showRemove ? 8 : 14,
+          top: 8,
+          bottom: 8,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? cs.primary : cs.onSurfaceVariant,
-          ),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: fg,
+              ),
+            ),
+            if (showRemove) ...[
+              const SizedBox(width: 4),
+              Icon(Icons.close_rounded, size: 16, color: fg),
+            ],
+          ],
         ),
       ),
     );
