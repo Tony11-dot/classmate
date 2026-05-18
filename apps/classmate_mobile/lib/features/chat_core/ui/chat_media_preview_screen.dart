@@ -558,27 +558,41 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF151A20),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white),
-                      ),
-                      child: TextField(
-                        controller: _captionCtl,
-                        minLines: 1,
-                        maxLines: 4,
-                        style: const TextStyle(color: Colors.white),
-                        // isDense + tight content padding stops Material's
-                        // default ~24-px vertical insets from inflating the
-                        // caption box to match the 54-px send button.
-                        decoration: InputDecoration(
-                          hintText: l.chatMediaPreviewCaptionHint,
-                          hintStyle: const TextStyle(color: Colors.white54),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    // Single rounded pill — the prior white Border.all on
+                    // the dark fill was reading as a separate frame around
+                    // the TextField's own content area, giving a
+                    // "box-in-box" feel. Dropped the border so only the
+                    // dark fill defines the input.
+                    child: TextField(
+                      controller: _captionCtl,
+                      minLines: 1,
+                      maxLines: 4,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: l.chatMediaPreviewCaptionHint,
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: const Color(0xFF151A20),
+                        // No visible border in any state — the fill is the
+                        // box. enabled/focused/etc. all map to the same
+                        // BorderSide.none variant so focus doesn't flash a
+                        // frame.
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                          borderSide: BorderSide.none,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
                         ),
                       ),
                     ),
