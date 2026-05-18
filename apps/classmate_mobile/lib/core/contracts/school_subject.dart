@@ -1,6 +1,10 @@
 /// A school-owned subject, with names in up to five supported languages.
 /// `nameEn` is the canonical / fallback display string; the others are
 /// optional and may be empty/null when the admin hasn't translated them yet.
+///
+/// `color` is a hex string (e.g. `#FF5722`) used to tint the subject across
+/// the schedule grid, subject pickers, and period detail.  Optional — falls
+/// back to a deterministic hue derived from [nameEn] when unset.
 class SchoolSubject {
   const SchoolSubject({
     required this.nameEn,
@@ -8,6 +12,7 @@ class SchoolSubject {
     this.nameHe,
     this.nameFr,
     this.nameRu,
+    this.color,
   });
 
   final String nameEn;
@@ -15,6 +20,7 @@ class SchoolSubject {
   final String? nameHe;
   final String? nameFr;
   final String? nameRu;
+  final String? color;
 
   /// Picks the localized name for the given two-letter language code, falling
   /// back to English if the requested translation is missing or empty.
@@ -36,12 +42,14 @@ class SchoolSubject {
     String? nameHe,
     String? nameFr,
     String? nameRu,
+    String? color,
   }) => SchoolSubject(
     nameEn: nameEn ?? this.nameEn,
     nameAr: nameAr ?? this.nameAr,
     nameHe: nameHe ?? this.nameHe,
     nameFr: nameFr ?? this.nameFr,
     nameRu: nameRu ?? this.nameRu,
+    color: color ?? this.color,
   );
 
   Map<String, dynamic> toJson() => {
@@ -50,6 +58,7 @@ class SchoolSubject {
     if (nameHe != null && nameHe!.isNotEmpty) 'nameHe': nameHe,
     if (nameFr != null && nameFr!.isNotEmpty) 'nameFr': nameFr,
     if (nameRu != null && nameRu!.isNotEmpty) 'nameRu': nameRu,
+    if (color != null && color!.isNotEmpty) 'color': color,
   };
 
   static SchoolSubject fromJson(Object? raw) {
@@ -67,6 +76,7 @@ class SchoolSubject {
       nameHe: s('nameHe'),
       nameFr: s('nameFr'),
       nameRu: s('nameRu'),
+      color: s('color'),
     );
   }
 }

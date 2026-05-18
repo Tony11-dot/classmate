@@ -464,9 +464,10 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     // Route to the full-screen detail editor with an empty subject so admins
     // can fill all five language names from the start. The previous inline
     // "type then Add" path silently turned the typed text into nameEn only.
-    final created = await Navigator.push<SchoolSubject>(
-      context,
+    final created = await Navigator.of(context, rootNavigator: true)
+        .push<SchoolSubject>(
       MaterialPageRoute(
+        fullscreenDialog: true,
         builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
       ),
     );
@@ -493,9 +494,12 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
   }
 
   Future<void> _editSubject(int index) async {
-    final updated = await Navigator.push<SchoolSubject>(
-      context,
-      MaterialPageRoute(builder: (_) => AdminSubjectDetailScreen(initial: _subjects[index])),
+    final updated = await Navigator.of(context, rootNavigator: true)
+        .push<SchoolSubject>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => AdminSubjectDetailScreen(initial: _subjects[index]),
+      ),
     );
     if (updated == null || updated.nameEn.isEmpty) return;
     setState(() {

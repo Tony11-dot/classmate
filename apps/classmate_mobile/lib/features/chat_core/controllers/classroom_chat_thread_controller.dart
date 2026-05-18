@@ -280,14 +280,16 @@ class ClassroomChatThreadController extends ChatThreadController {
     }).toList();
 
     // Inject CDN URLs into own server items that lack a media URL.
-    // Use senderUserId as the authoritative isMine check — it compares the
-    // actual DB UUID rather than relying on the server's isMine boolean which
-    // can be wrong if the JWT/session is mismatched between users.
+    // UUID comparison is authoritative: the provider is not autoDispose, so a
+    // cached payload from a previous user (still in memory after logout/login
+    // on the same device) can carry stale isMine=true. Only fall back to the
+    // server flag when senderUserId is missing.
     final patchedServerItems = serverItems.map((raw) {
       final senderUserId = _pick(raw, 'senderUserId');
       final serverIsMine = raw is Map && raw['isMine'] == true;
-      final isMine = serverIsMine ||
-          (senderUserId.isNotEmpty && senderUserId == _currentUserId);
+      final isMine = senderUserId.isNotEmpty
+          ? (_currentUserId.isNotEmpty && senderUserId == _currentUserId)
+          : serverIsMine;
       if (!isMine) return raw; // Never patch others' messages
 
       final existingUrl = [
@@ -529,13 +531,15 @@ class ClassroomChatThreadController extends ChatThreadController {
       _pick(row, 'name'),
     ].firstWhere((s) => s.isNotEmpty, orElse: () => 'Unknown');
 
-    // The server's isMine boolean is compared server-side (JWT sub vs senderUserId)
-    // and is always authoritative. UUID comparison is a secondary check for when
-    // the client _currentUserId matches the actual DB UUID.
+    // UUID comparison is authoritative when senderUserId is present. The
+    // server's isMine boolean is only trusted when the UUID is missing,
+    // because the chat provider is not autoDispose — a cached row from the
+    // previous logged-in user on this device can still carry isMine=true.
     final senderUserId = _pick(row, 'senderUserId');
     final serverIsMine = row is Map && row['isMine'] == true;
-    final isMine = serverIsMine ||
-        (senderUserId.isNotEmpty && senderUserId == _currentUserId);
+    final isMine = senderUserId.isNotEmpty
+        ? (_currentUserId.isNotEmpty && senderUserId == _currentUserId)
+        : serverIsMine;
 
     // Server may return text in 'text', 'body', or 'content'
     final rawText = _editedTextByMessage[id] ?? [

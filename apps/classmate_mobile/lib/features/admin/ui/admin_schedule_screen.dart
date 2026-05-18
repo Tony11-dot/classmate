@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/school_subject.dart';
+import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
@@ -32,6 +33,91 @@ final _studentsDdlProvider = FutureProvider.autoDispose<List<Map<String, dynamic
   return ref.watch(adminRepositoryProvider).getDdlStudents();
 });
 
+// Decides whether a slot should render as "Grade N" rather than naming its
+// cohorts.  Priority: trust the slot's explicit `audienceGrade` column
+// (recorded when the admin originally picked By Grade) → otherwise fall
+// back to the heuristic of comparing the slot's cohorts against the school's
+// cohorts at each grade.  Returns null for cohort/student-mode periods.
+int? slotAudienceGrade(
+  Map<String, dynamic> slot,
+  List<Map<String, dynamic>> allCohorts,
+) {
+  final raw = slot['audienceGrade'];
+  final explicit = raw is int ? raw : (raw is num ? raw.toInt() : null);
+  if (explicit != null) return explicit;
+  final cohortRows = (slot['cohorts'] as List? ?? const [])
+      .whereType<Map>()
+      .map((c) => Map<String, dynamic>.from(c))
+      .toList();
+  return _detectSlotGradeHeuristic(cohortRows, allCohorts);
+}
+
+// Heuristic for legacy slots without an explicit `audienceGrade` — returns
+// the grade only when the slot's cohorts exactly equal the full set of
+// cohorts at some grade in [allCohorts] AND the grade has more than one
+// cohort (single-cohort grades are ambiguous).
+int? _detectSlotGradeHeuristic(
+  List<Map<String, dynamic>> slotCohortRows,
+  List<Map<String, dynamic>> allCohorts,
+) {
+  if (slotCohortRows.isEmpty) return null;
+  final slotCohortIds = slotCohortRows
+      .map((c) =>
+          (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+              ?.toString() ??
+          '')
+      .where((id) => id.isNotEmpty)
+      .toSet();
+  if (slotCohortIds.isEmpty) return null;
+
+  List<int> cohortGrades(Map<String, dynamic> c) {
+    final raw = c['grades'];
+    if (raw is List && raw.isNotEmpty) {
+      return raw.map((e) => e is num ? e.toInt() : int.tryParse('$e') ?? -1)
+          .where((g) => g >= 0)
+          .toList();
+    }
+    final g = c['grade'];
+    if (g is num) return [g.toInt()];
+    return const [];
+  }
+
+  final candidateGrades = <int>{};
+  for (final c in allCohorts) {
+    for (final g in cohortGrades(c)) {
+      candidateGrades.add(g);
+    }
+  }
+  for (final g in candidateGrades) {
+    final atGrade = allCohorts
+        .where((c) => cohortGrades(c).contains(g))
+        .map((c) => c['id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    if (atGrade.length <= 1) continue; // ambiguous — skip
+    if (atGrade.length != slotCohortIds.length) continue;
+    if (!atGrade.containsAll(slotCohortIds)) continue;
+    return g;
+  }
+  return null;
+}
+
+// Subject-name → hex color lookup, used to tint schedule cells when the slot
+// itself doesn't carry an explicit color override.  Empty map until fetched.
+final _subjectColorsProvider = FutureProvider.autoDispose<Map<String, String>>((ref) async {
+  try {
+    final subjects = await ref.watch(adminRepositoryProvider).listAllSchoolSubjects();
+    final m = <String, String>{};
+    for (final s in subjects) {
+      final c = s.color;
+      if (c != null && c.isNotEmpty) m[s.nameEn.toLowerCase()] = c;
+    }
+    return m;
+  } catch (_) {
+    return const <String, String>{};
+  }
+});
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 class AdminScheduleScreen extends ConsumerStatefulWidget {
@@ -48,20 +134,172 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
   int?    _filterGrade;
   String? _filterStudentId;
 
-  bool _slotMatchesFilter(Map<String, dynamic> slot) {
+  /// True when [slot] should appear under the current filter.  Transitive:
+  /// a student picked in "By Student" sees not only periods assigned to them
+  /// individually but also every period assigned to a cohort they belong to
+  /// (or any cohort at their grade).  Likewise "By Grade" matches cohorts
+  /// whose `grades[]` array contains the grade.
+  bool _slotMatchesFilter(
+    Map<String, dynamic> slot, {
+    required List<Map<String, dynamic>> allCohorts,
+    required List<Map<String, dynamic>> allStudents,
+  }) {
     if (_filterMode == 'all') return true;
-    final cohortsList = slot['cohorts'] as List? ?? [];
-    final studentsList = slot['students'] as List? ?? [];
+    final cohortsList = slot['cohorts'] as List? ?? const [];
+    final studentsList = slot['students'] as List? ?? const [];
+
     if (_filterMode == 'cohort' && _filterCohortId != null) {
-      return cohortsList.any((c) => (c is Map ? (c['cohortId'] ?? c['cohort']?['id']) : null)?.toString() == _filterCohortId);
+      return cohortsList.any((c) =>
+          (c is Map ? (c['cohortId'] ?? c['cohort']?['id']) : null)
+              ?.toString() ==
+          _filterCohortId);
     }
+
     if (_filterMode == 'grade' && _filterGrade != null) {
-      return cohortsList.any((c) => c is Map && (c['cohort'] is Map ? c['cohort']['grade'] : null) == _filterGrade);
+      return cohortsList.any((c) {
+        if (c is! Map) return false;
+        final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
+        // Newer payloads carry `grades: int[]`; older ones only carry a
+        // single `grade` int.  Match against either so multi-grade cohorts
+        // surface in every grade they cover.
+        final gs = cohort?['grades'];
+        if (gs is List && gs.any((e) => e == _filterGrade)) return true;
+        return cohort?['grade'] == _filterGrade;
+      });
     }
+
     if (_filterMode == 'student' && _filterStudentId != null) {
-      return studentsList.any((s) => s is Map && s['studentId']?.toString() == _filterStudentId);
+      final sid = _filterStudentId!;
+
+      // 1) Directly enrolled in the period.
+      if (studentsList.any((s) => s is Map && s['studentId']?.toString() == sid)) {
+        return true;
+      }
+
+      // Look up the student so we know which cohorts + grade they're in.
+      final student = allStudents.firstWhere(
+        (s) => s['id']?.toString() == sid,
+        orElse: () => const {},
+      );
+      if (student.isEmpty) return false;
+
+      // 2) In any cohort the period targets.
+      final studentCohortIds = <String>{
+        ...((student['cohortIds'] as List?)?.map((e) => e.toString()) ?? const []),
+        if ((student['cohortId'] ?? '').toString().isNotEmpty)
+          student['cohortId'].toString(),
+      };
+      // Backfill from the cohorts DDL — if a cohort lists this student in
+      // its `studentIds`, count it even when the student DDL hasn't yet
+      // surfaced multi-cohort membership.
+      for (final c in allCohorts) {
+        final ids = c['studentIds'];
+        if (ids is List && ids.any((e) => e.toString() == sid)) {
+          final cid = c['id']?.toString() ?? '';
+          if (cid.isNotEmpty) studentCohortIds.add(cid);
+        }
+      }
+      if (studentCohortIds.isNotEmpty) {
+        final slotCohortIds = cohortsList
+            .whereType<Map>()
+            .map((c) =>
+                (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                    ?.toString() ??
+                '')
+            .where((id) => id.isNotEmpty)
+            .toSet();
+        if (slotCohortIds.any(studentCohortIds.contains)) return true;
+      }
+
+      // 3) Any cohort at the student's own grade.  Catches "By Grade"
+      // periods that were saved as cohortIds (the common case) even when
+      // the student isn't directly enrolled in a particular cohort.
+      final grade = student['grade'];
+      final gradeN = grade is int ? grade : (grade is num ? grade.toInt() : null);
+      if (gradeN != null) {
+        for (final c in cohortsList) {
+          if (c is! Map) continue;
+          final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
+          final gs = cohort?['grades'];
+          if (gs is List && gs.any((e) => e == gradeN)) return true;
+          if (cohort?['grade'] == gradeN) return true;
+        }
+      }
+
+      return false;
     }
     return false;
+  }
+
+  /// Sheet listing every period that already lives at (day, period), with
+  /// per-row delete + an Add Period button.  Empty squares still open the
+  /// sheet so the Add button is one tap away and we can later surface
+  /// shortcut hints.
+  Future<void> _openSquareSheet({
+    required int day,
+    required int period,
+    required List<Map<String, dynamic>> slots,
+  }) async {
+    final repo = ref.read(adminRepositoryProvider);
+    final action = await showModalBottomSheet<_SquareSheetAction>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _SquarePeriodsSheet(
+        day: day,
+        period: period,
+        slots: slots,
+        onDelete: (id) async {
+          try {
+            await repo.deletePeriod(id);
+            return true;
+          } catch (_) {
+            return false;
+          }
+        },
+      ),
+    );
+    // Any sheet exit re-pulls periods — cheap, and covers swipe-dismiss
+    // after a delete (which the bottom sheet result can't communicate).
+    ref.invalidate(_periodsProvider);
+    if (action == null) return;
+    switch (action.kind) {
+      case _SquareSheetActionKind.add:
+        await _openAddPeriod(
+          preDay: day,
+          prePeriod: period,
+          preCohortId: _filterMode == 'cohort' ? _filterCohortId : null,
+          preStudentId: _filterMode == 'student' ? _filterStudentId : null,
+          preGrade: _filterMode == 'grade' ? _filterGrade : null,
+        );
+        break;
+      case _SquareSheetActionKind.edit:
+        await _openEditPeriod(action.slot!);
+        break;
+    }
+  }
+
+  Future<void> _openEditPeriod(Map<String, dynamic> slot) async {
+    final teachers = await ref.read(_teachersDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final cohorts  = await ref.read(_cohortsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final students = await ref.read(_studentsDdlProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    final defaults = await ref.read(_defaultsProvider.future).catchError((_) => <Map<String, dynamic>>[]);
+    if (!mounted) return;
+
+    final saved = await Navigator.of(context, rootNavigator: true).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => AdminAddPeriodScreen(
+          repo: ref.read(adminRepositoryProvider),
+          teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
+          editingSlot: slot,
+        ),
+      ),
+    );
+    if (saved == true) ref.invalidate(_periodsProvider);
   }
 
   Future<void> _openAddPeriod({int? preDay, int? prePeriod, String? preCohortId, String? preStudentId, int? preGrade}) async {
@@ -71,15 +309,20 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     final defaults = await ref.read(_defaultsProvider.future).catchError((_) => <Map<String, dynamic>>[]);
     if (!mounted) return;
 
-    final created = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => AdminAddPeriodScreen(
-        repo: ref.read(adminRepositoryProvider),
-        teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
-        initialDay: preDay, initialPeriod: prePeriod,
-        initialCohortId: preCohortId, initialStudentId: preStudentId,
-        initialGrade: preGrade,
-      )),
+    // rootNavigator covers the shell (tab bar hides). fullscreenDialog is
+    // intentionally OFF — the dialog flag suppresses the iOS swipe-back
+    // gesture, and the screen already presents full-screen via the root
+    // navigator push.
+    final created = await Navigator.of(context, rootNavigator: true).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => AdminAddPeriodScreen(
+          repo: ref.read(adminRepositoryProvider),
+          teachers: teachers, cohorts: cohorts, students: students, defaults: defaults,
+          initialDay: preDay, initialPeriod: prePeriod,
+          initialCohortId: preCohortId, initialStudentId: preStudentId,
+          initialGrade: preGrade,
+        ),
+      ),
     );
     if (created == true) ref.invalidate(_periodsProvider);
   }
@@ -182,7 +425,13 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
               error: (e, _) => Center(child: Text('$e')),
               data: (allPeriods) {
                 // Build (day, period) → [slots] map filtered by current selection
-                final filtered = allPeriods.where(_slotMatchesFilter).toList();
+                final filtered = allPeriods
+                    .where((s) => _slotMatchesFilter(
+                          s,
+                          allCohorts: allCohorts,
+                          allStudents: allStudents,
+                        ))
+                    .toList();
                 final grid = <(int, int), List<Map<String, dynamic>>>{};
                 for (final s in filtered) {
                   final k = ((s['dayOfWeek'] as num?)?.toInt() ?? 0, (s['period'] as num?)?.toInt() ?? 1);
@@ -191,12 +440,10 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
 
                 return _ScheduleGrid(
                   grid: grid,
-                  onCellTap: (day, period) => _openAddPeriod(
-                    preDay: day,
-                    prePeriod: period,
-                    preCohortId: _filterMode == 'cohort' ? _filterCohortId : null,
-                    preStudentId: _filterMode == 'student' ? _filterStudentId : null,
-                    preGrade: _filterMode == 'grade' ? _filterGrade : null,
+                  onCellTap: (day, period) => _openSquareSheet(
+                    day: day,
+                    period: period,
+                    slots: grid[(day, period)] ?? const [],
                   ),
                 );
               },
@@ -337,56 +584,94 @@ class _GridCell extends StatelessWidget {
   }
 }
 
-class _SlotCard extends StatelessWidget {
+class _SlotCard extends ConsumerWidget {
   const _SlotCard({required this.slot});
   final Map<String, dynamic> slot;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final subject     = slot['subject']?.toString() ?? '';
     final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
     final cohorts     = slot['cohorts'] as List? ?? [];
-    final cohortNames = cohorts
-        .whereType<Map>()
+    final cohortRows = cohorts.whereType<Map>().map((c) => Map<String, dynamic>.from(c)).toList();
+    final cohortNames = cohortRows
         .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
         .where((n) => n.isNotEmpty)
         .toList();
-    final cohortLabel = cohortNames.isEmpty
-        ? ''
-        : cohortNames.length == 1
-            ? cohortNames.first
-            : '${cohortNames.first} +${cohortNames.length - 1}';
+    // If this slot covers every cohort at some grade, prefer "Grade N" over
+    // listing cohort names — that's what the admin originally chose.
+    final allCohorts = ref.watch(_cohortsDdlProvider).maybeWhen(
+          data: (d) => d,
+          orElse: () => const <Map<String, dynamic>>[],
+        );
+    final gradeForSlot = slotAudienceGrade(slot, allCohorts);
+    final cohortLabel = gradeForSlot != null
+        ? 'Grade $gradeForSlot'
+        : (cohortNames.isEmpty
+            ? ''
+            : cohortNames.length == 1
+                ? cohortNames.first
+                : '${cohortNames.first} +${cohortNames.length - 1}');
     final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
+
+    // Color resolution: slot.color (per-period override) → subject's color
+    // (set in the subject editor) → deterministic palette hue keyed by name.
+    final slotColorHex = slot['color']?.toString();
+    final subjectColors = ref.watch(_subjectColorsProvider).maybeWhen(
+          data: (m) => m,
+          orElse: () => const <String, String>{},
+        );
+    final subjectColorHex = subject.isNotEmpty
+        ? subjectColors[subject.toLowerCase()]
+        : null;
+    final fallbackSeed = subject.isNotEmpty ? subject : teacherName;
+    final base = parseSubjectColor(slotColorHex)
+        ?? parseSubjectColor(subjectColorHex)
+        ?? subjectColorOrFallback(null, fallbackSeed);
+
+    // Tint the background; pick a contrasting foreground based on luminance.
+    final bg = Color.alphaBlend(base.withValues(alpha: 0.22), cs.surface);
+    final fg = base.computeLuminance() < 0.55
+        ? base
+        : HSLColor.fromColor(base).withLightness(0.32).toColor();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 3),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
+        color: bg,
         borderRadius: BorderRadius.circular(10),
+        border: Border(left: BorderSide(color: base, width: 3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             subject.isNotEmpty ? subject : teacherName.isNotEmpty ? teacherName : 'Period',
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 10, color: fg),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           if (cohortLabel.isNotEmpty)
-            Text(cohortLabel, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              cohortLabel,
+              style: TextStyle(fontSize: 9, color: fg.withValues(alpha: 0.78)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           if (freq > 1)
             Container(
               margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: cs.secondaryContainer,
+                color: base.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text('×$freq wks', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: cs.onSecondaryContainer)),
+              child: Text(
+                '×$freq wks',
+                style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: fg),
+              ),
             ),
         ],
       ),
@@ -443,6 +728,7 @@ class AdminAddPeriodScreen extends ConsumerStatefulWidget {
     this.initialCohortId,
     this.initialStudentId,
     this.initialGrade,
+    this.editingSlot,
   });
 
   final AdminRepository repo;
@@ -455,6 +741,11 @@ class AdminAddPeriodScreen extends ConsumerStatefulWidget {
   final String? initialCohortId;
   final String? initialStudentId;
   final int? initialGrade;
+
+  /// When non-null, the screen is in edit mode: fields are seeded from this
+  /// slot map (id + teacher + subject + color + cohorts + students + freq)
+  /// and saving issues PATCH /admin/periods/:id instead of POST.
+  final Map<String, dynamic>? editingSlot;
 
   @override
   ConsumerState<AdminAddPeriodScreen> createState() => _AdminAddPeriodScreenState();
@@ -477,6 +768,13 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   int? _audienceGrade;
   _AudienceMode _audience = _AudienceMode.cohort;
 
+  // Audience customization — when the admin tweaks the auto-populated student
+  // list in cohort/grade mode (adds or removes individuals), we treat the
+  // period as targeting individuals rather than the whole cohort/grade.  The
+  // cohort isn't modified; only this period's saved audience changes shape.
+  bool _audienceCustomized = false;
+  final Set<String> _customStudentIds = {};
+
   int  _frequencyWeeks = 1;
   bool _customFreq = false;
   final _customFreqCtrl = TextEditingController();
@@ -485,13 +783,96 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   /// Slot subject — either a school subject's nameEn or a freeform string.
   String? _subject;
 
+  /// Optional per-period color override (#RRGGBB).  Null = inherit from the
+  /// subject's color (or palette fallback) at render time.
+  String? _colorOverride;
+
   bool _saving = false;
 
-  static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  bool get _isEditing => widget.editingSlot != null;
+  String? get _editingId => widget.editingSlot?['id']?.toString();
 
   @override
   void initState() {
     super.initState();
+
+    final edit = widget.editingSlot;
+    if (edit != null) {
+      // Seed every field from the slot we're editing.  The audience picker
+      // starts in whichever mode the saved period was using — cohorts/
+      // students chosen, grade left blank since the server doesn't track
+      // "saved as grade" separately from "saved as the set of cohorts at
+      // that grade."  Admins re-pick grade explicitly if they want it.
+      final day = (edit['dayOfWeek'] as num?)?.toInt() ?? widget.initialDay ?? 1;
+      final period = (edit['period'] as num?)?.toInt() ?? widget.initialPeriod ?? 1;
+      _slots = [_DayPeriodSlot(dayOfWeek: day, period: period)];
+
+      _teacherId = edit['teacherId']?.toString().trim().isNotEmpty == true
+          ? edit['teacherId']?.toString()
+          : (edit['teacher'] is Map ? edit['teacher']['id']?.toString() : null);
+
+      _subject = edit['subject']?.toString();
+      final rawColor = edit['color']?.toString().trim() ?? '';
+      _colorOverride = rawColor.isEmpty ? null : rawColor;
+
+      final freq = (edit['frequencyWeeks'] as num?)?.toInt() ?? 1;
+      if (freq == 1 || freq == 2 || freq == 4) {
+        _frequencyWeeks = freq;
+        _customFreq = false;
+      } else if (freq > 0) {
+        _customFreq = true;
+        _customFreqCtrl.text = '$freq';
+      }
+
+      final cohortRows = (edit['cohorts'] as List?) ?? const [];
+      final existingCohortIds = cohortRows
+          .whereType<Map>()
+          .map((c) =>
+              (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                  ?.toString() ??
+              '')
+          .where((id) => id.isNotEmpty)
+          .toList();
+      final studentRows = (edit['students'] as List?) ?? const [];
+      final existingStudentIds = studentRows
+          .whereType<Map>()
+          .map((s) =>
+              (s['studentId'] ??
+                      (s['student'] is Map ? s['student']['userId'] : null))
+                  ?.toString() ??
+              '')
+          .where((id) => id.isNotEmpty)
+          .toList();
+
+      // Audience mode restore:
+      //   1) Trust the slot's explicit `audienceGrade` when present — this
+      //      is the admin's original intent recorded at save time.
+      //   2) Fall back to the heuristic for legacy slots created before the
+      //      `audienceGrade` column existed.
+      //   3) Otherwise default to cohort or student mode based on payload.
+      final rawAudienceGrade = edit['audienceGrade'];
+      final explicitGrade = rawAudienceGrade is int
+          ? rawAudienceGrade
+          : (rawAudienceGrade is num ? rawAudienceGrade.toInt() : null);
+      final detectedGrade = explicitGrade ??
+          _detectGradeFromAudience(
+            existingCohortIds: existingCohortIds.toSet(),
+            existingStudentIds: existingStudentIds,
+          );
+      if (detectedGrade != null) {
+        _audience = _AudienceMode.grade;
+        _audienceGrade = detectedGrade;
+      } else if (existingStudentIds.isNotEmpty && existingCohortIds.isEmpty) {
+        _audience = _AudienceMode.student;
+        _studentIds.addAll(existingStudentIds);
+      } else {
+        _audience = _AudienceMode.cohort;
+        _cohortIds.addAll(existingCohortIds);
+      }
+      return;
+    }
+
     _slots = [_DayPeriodSlot(
       dayOfWeek: widget.initialDay ?? 1,
       period: widget.initialPeriod ?? 1,
@@ -526,7 +907,12 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   /// Resolves the current audience selection into either cohortIds or studentIds
   /// for the period-create API. Returns (cohortIds, studentIds) — at most one
   /// is non-null. Grade mode expands to every cohort matching that grade.
+  /// If the admin customized the auto-populated student list, the period
+  /// targets those individuals regardless of mode.
   ({List<String>? cohortIds, List<String>? studentIds}) _resolveAudience() {
+    if (_audienceCustomized && _customStudentIds.isNotEmpty) {
+      return (cohortIds: null, studentIds: _customStudentIds.toList());
+    }
     switch (_audience) {
       case _AudienceMode.cohort:
         return (cohortIds: _cohortIds.isNotEmpty ? _cohortIds.toList() : null, studentIds: null);
@@ -537,11 +923,44 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         if (g == null) return (cohortIds: null, studentIds: null);
         final matching = widget.cohorts
             .where((c) => _cohortGradesOf(c).contains(g))
+            .toList();
+        final matchingIds = matching
             .map((c) => c['id']?.toString() ?? '')
             .where((id) => id.isNotEmpty)
             .toList();
-        return (cohortIds: matching.isNotEmpty ? matching : null, studentIds: null);
+        // Union of students already enrolled in matched cohorts — anyone in
+        // _customStudentIds outside this set is a standalone grade-N
+        // student.  Save the cohorts AND the standalone individuals so the
+        // grade grouping is preserved in the schedule record while
+        // standalone students still receive the period.
+        final cohortStudents = <String>{};
+        for (final c in matching) {
+          final ids = c['studentIds'];
+          if (ids is List) cohortStudents.addAll(ids.map((e) => e.toString()));
+        }
+        for (final cid in matchingIds) {
+          for (final r in (_cohortRosterCache[cid] ?? const [])) {
+            final id = r['id'] ?? '';
+            if (id.isNotEmpty) cohortStudents.add(id);
+          }
+        }
+        final standalone = _customStudentIds
+            .where((s) => !cohortStudents.contains(s))
+            .toList();
+        return (
+          cohortIds: matchingIds.isNotEmpty ? matchingIds : null,
+          studentIds: standalone.isNotEmpty ? standalone : null,
+        );
     }
+  }
+
+  void _onAudienceEdited(Set<String> effective, {required bool customized}) {
+    setState(() {
+      _audienceCustomized = customized;
+      _customStudentIds
+        ..clear()
+        ..addAll(effective);
+    });
   }
 
   /// Returns the grades a cohort spans. Falls back to [grade] when the API
@@ -553,6 +972,57 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     }
     final g = (c['grade'] as num?)?.toInt();
     return g == null ? const [] : [g];
+  }
+
+  /// Inverse of the grade-mode save: decides whether the existing audience
+  /// (cohorts + individual students) on a slot can be expressed as "By
+  /// Grade N".  Returns the grade if it fits — exact match on the school's
+  /// cohorts at N + any individuals all share grade N — otherwise null.
+  int? _detectGradeFromAudience({
+    required Set<String> existingCohortIds,
+    required List<String> existingStudentIds,
+  }) {
+    if (existingCohortIds.isEmpty && existingStudentIds.isEmpty) return null;
+    final candidates = <int>{};
+    for (final c in widget.cohorts) {
+      for (final g in _cohortGradesOf(c)) {
+        candidates.add(g);
+      }
+    }
+    for (final g in candidates) {
+      final atGrade = widget.cohorts
+          .where((c) => _cohortGradesOf(c).contains(g))
+          .map((c) => c['id']?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      if (atGrade.isEmpty) continue;
+      // Single-cohort grades are ambiguous (cohort mode and grade mode
+      // produce identical saves when nothing else is attached) — only
+      // restore as grade mode when there's a real signal that the admin
+      // picked a grade: either multiple matched cohorts or standalone
+      // grade-N students saved alongside.
+      if (atGrade.length == 1 && existingStudentIds.isEmpty) continue;
+      // Period must cover every cohort at this grade — no more, no less.
+      if (atGrade.length != existingCohortIds.length) continue;
+      if (!atGrade.containsAll(existingCohortIds)) continue;
+      // Any individually-listed students must also be at this grade
+      // (standalone grade-N students saved alongside the cohorts).
+      bool allMatch = true;
+      for (final sid in existingStudentIds) {
+        final s = widget.students.firstWhere(
+          (e) => e['id']?.toString() == sid,
+          orElse: () => const {},
+        );
+        final raw = s['grade'];
+        final sg = raw is int ? raw : (raw is num ? raw.toInt() : null);
+        if (sg != g) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return g;
+    }
+    return null;
   }
 
   static String? _cohortGradeLabel(Map<String, dynamic> c) {
@@ -567,12 +1037,66 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   }
 
   Future<void> _save() async {
+    // Subject is required — without one the slot renders as just a teacher
+    // name and the grid loses its primary affordance (what is being taught).
+    final subject = (_subject ?? '').trim();
+    if (subject.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Pick a subject before saving the period.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
     final freq = _customFreq
         ? (int.tryParse(_customFreqCtrl.text.trim()) ?? 1).clamp(1, 52)
         : _frequencyWeeks;
 
     final audience = _resolveAudience();
     setState(() => _saving = true);
+
+    // Edit path — single PATCH against the slot we opened.
+    if (_isEditing) {
+      final id = _editingId ?? '';
+      if (id.isEmpty) {
+        setState(() => _saving = false);
+        return;
+      }
+      try {
+        final slot = _slots.first;
+        await widget.repo.updatePeriod(
+          id: id,
+          dayOfWeek: slot.dayOfWeek,
+          period: slot.period,
+          teacherId: _teacherId,
+          setTeacherId: true,
+          subject: _subject,
+          setSubject: true,
+          color: _colorOverride,
+          setColor: true,
+          audienceGrade: _audience == _AudienceMode.grade ? _audienceGrade : null,
+          setAudienceGrade: true,
+          cohortIds: audience.cohortIds ?? const <String>[],
+          studentIds: audience.studentIds ?? const <String>[],
+          frequencyWeeks: freq,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _saving = false);
+      Navigator.pop(context, true);
+      return;
+    }
+
     int created = 0;
     String? firstError;
 
@@ -588,6 +1112,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           cohortIds: audience.cohortIds,
           studentIds: audience.studentIds,
           subject: _subject,
+          color: _colorOverride,
+          audienceGrade: _audience == _AudienceMode.grade ? _audienceGrade : null,
           startTime: _defaultTime(slot.period, true).isNotEmpty ? _defaultTime(slot.period, true) : null,
           endTime: _defaultTime(slot.period, false).isNotEmpty ? _defaultTime(slot.period, false) : null,
           frequencyWeeks: freq,
@@ -652,7 +1178,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  l.adminScheduleAddPeriod,
+                  _isEditing ? 'Edit period' : l.adminScheduleAddPeriod,
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
@@ -660,8 +1186,6 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
             const SizedBox(height: 16),
 
             // ── Day + Period slots ────────────────────────────────────────
-            _SectionLabel(label: l.adminScheduleDayLabel, cs: cs, theme: theme),
-            const SizedBox(height: 10),
             ..._slots.asMap().entries.map((entry) {
               final i = entry.key;
               final slot = entry.value;
@@ -677,18 +1201,20 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 ),
               );
             }),
-            TextButton.icon(
-              onPressed: () => setState(() => _slots.add(_DayPeriodSlot())),
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: Text(l.adminScheduleAddAnother),
-            ),
-            const SizedBox(height: 16),
+            // Multi-slot creation doesn't apply in edit mode — a single
+            // PATCH targets exactly one slot.  Hide the affordance so admins
+            // don't expect to spawn new rows from the editor.
+            if (!_isEditing)
+              TextButton.icon(
+                onPressed: () => setState(() => _slots.add(_DayPeriodSlot())),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Add slot'),
+              ),
+            const SizedBox(height: 12),
 
             // ── Teacher DDL ───────────────────────────────────────────────
-            _SectionLabel(label: l.adminScheduleTeacherLabel, cs: cs, theme: theme),
-            const SizedBox(height: 8),
             LiquidGlassDropdown<String>(
-              label: l.adminScheduleSelectTeacher,
+              label: 'Teacher',
               value: _teacherId ?? '',
               searchHint: l.adminScheduleSearchTeacher,
               items: [
@@ -702,11 +1228,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 _teacherId = v.isEmpty ? null : v;
               }),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-            // ── Subject ──────────────────────────────────────────────────
-            _SectionLabel(label: 'Subject', cs: cs, theme: theme),
-            const SizedBox(height: 8),
+            // ── Subject (required) ───────────────────────────────────────
             _SubjectPickerField(
               repo: widget.repo,
               value: _subject,
@@ -714,18 +1238,34 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               selectedCohortIds: _cohortIds,
               audienceGrade: _audienceGrade,
               audience: _audience,
-              onChanged: (v) => setState(() => _subject = v),
+              onChanged: (v) => setState(() {
+                _subject = v;
+                // Don't touch _colorOverride here.  If the admin already
+                // picked a palette swatch, they meant it — wiping it on a
+                // later subject change would silently undo their choice.
+                // When _colorOverride is null, the picker still re-resolves
+                // the "auto" tile to the new subject's color automatically.
+              }),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
+            _PeriodColorRow(
+              subjectName: _subject,
+              repo: widget.repo,
+              colorOverride: _colorOverride,
+              onChanged: (hex) => setState(() => _colorOverride = hex),
+            ),
+            const SizedBox(height: 12),
 
             // ── Audience: cohort, student, or by-grade ────────────────────
-            _SectionLabel(label: l.adminScheduleCohortLabel, cs: cs, theme: theme),
-            const SizedBox(height: 8),
             SegmentedButton<_AudienceMode>(
-              segments: [
-                ButtonSegment(value: _AudienceMode.cohort, label: Text(l.adminScheduleSelectCohort)),
-                ButtonSegment(value: _AudienceMode.student, label: Text(l.adminStudents)),
-                const ButtonSegment(value: _AudienceMode.grade, label: Text('By Grade')),
+              // showSelectedIcon=false drops the leading checkmark — with it
+              // on, the icon + "Students" overflows the segment width and the
+              // trailing "s" wraps to a new line.
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: _AudienceMode.cohort, label: Text('Cohorts')),
+                ButtonSegment(value: _AudienceMode.student, label: Text('Students')),
+                ButtonSegment(value: _AudienceMode.grade, label: Text('Grade')),
               ],
               selected: {_audience},
               onSelectionChanged: (s) => setState(() {
@@ -733,6 +1273,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 _cohortIds.clear();
                 _studentIds.clear();
                 _audienceGrade = null;
+                _audienceCustomized = false;
+                _customStudentIds.clear();
               }),
             ),
             const SizedBox(height: 10),
@@ -743,8 +1285,18 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 nameKey: 'name',
                 subtitleBuilder: (item) => _cohortGradeLabel(item),
                 searchHint: l.adminScheduleSearchCohort,
-                onToggle: (id) => setState(() =>
-                  _cohortIds.contains(id) ? _cohortIds.remove(id) : _cohortIds.add(id)),
+                onToggle: (id) => setState(() {
+                  if (_cohortIds.contains(id)) {
+                    _cohortIds.remove(id);
+                  } else {
+                    _cohortIds.add(id);
+                  }
+                  // Changing which cohorts are selected blows away any
+                  // per-student customization since the auto-derived set is
+                  // about to differ — restart from the new roster.
+                  _audienceCustomized = false;
+                  _customStudentIds.clear();
+                }),
               ),
               if (_cohortIds.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -752,6 +1304,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                   allStudents: widget.students,
                   selectedCohortIds: _cohortIds,
                   cohorts: widget.cohorts,
+                  onEdited: _onAudienceEdited,
                 ),
               ],
             ] else if (_audience == _AudienceMode.student)
@@ -789,23 +1342,31 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: grades.map((g) {
-                    final matching = widget.cohorts
-                        .where((c) => _cohortGradesOf(c).contains(g))
-                        .length;
                     return ChoiceChip(
-                      label: Text('Grade $g · $matching cohorts'),
+                      label: Text('Grade $g'),
                       selected: _audienceGrade == g,
-                      onSelected: (_) => setState(() => _audienceGrade = g),
+                      onSelected: (_) => setState(() {
+                        _audienceGrade = g;
+                        _audienceCustomized = false;
+                        _customStudentIds.clear();
+                      }),
                     );
                   }).toList(),
                 );
               }),
+              if (_audienceGrade != null) ...[
+                const SizedBox(height: 10),
+                _GradeStudentPreview(
+                  allStudents: widget.students,
+                  cohorts: widget.cohorts,
+                  grade: _audienceGrade!,
+                  onEdited: _onAudienceEdited,
+                ),
+              ],
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── Frequency ─────────────────────────────────────────────────
-            _SectionLabel(label: l.adminScheduleFrequencyLabel, cs: cs, theme: theme),
-            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -846,14 +1407,12 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
 
             // ── Start date (shown when frequency > 1) ─────────────────────
             if (_frequencyWeeks > 1 || _customFreq) ...[
-              const SizedBox(height: 20),
-              _SectionLabel(label: 'Starting Date', cs: cs, theme: theme),
-              const SizedBox(height: 4),
+              const SizedBox(height: 16),
               Text(
-                'Pick which ${_slots.isNotEmpty ? _dayLabels[_slots.first.dayOfWeek] : 'day'} to start from.',
-                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                'Starts on',
+                style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
                 runSpacing: 6,
@@ -1116,109 +1675,1296 @@ class _FreqChip extends StatelessWidget {
   }
 }
 
-// ── Cohort student preview ────────────────────────────────────────────────────
+// ── Audience preview/editor ──────────────────────────────────────────────────
+//
+// The cohort + grade audience pickers both render an editable student list.
+// Removing or adding a student auto-flips the period to "individual students"
+// (the cohort itself is untouched — only this period's saved audience shape
+// changes).  Both previews compute the auto-derived set + universe and hand
+// off to [_AudienceEditor] for the actual UI.
 
-class _CohortStudentPreview extends StatelessWidget {
+typedef AudienceEditCallback = void Function(Set<String> effective, {required bool customized});
+
+// Per-cohort roster cache shared between cohort + grade previews.  Lets us
+// stop refetching the same cohort during a single Add Period session and lets
+// both widgets benefit from any roster the other has already pulled.
+final Map<String, List<Map<String, String>>> _cohortRosterCache = {};
+
+bool _setEq(Set<String> a, Set<String> b) =>
+    a.length == b.length && a.containsAll(b);
+
+class _CohortStudentPreview extends ConsumerStatefulWidget {
   const _CohortStudentPreview({
     required this.allStudents,
     required this.selectedCohortIds,
     required this.cohorts,
+    required this.onEdited,
   });
 
   final List<Map<String, dynamic>> allStudents;
   final Set<String> selectedCohortIds;
   final List<Map<String, dynamic>> cohorts;
+  final AudienceEditCallback onEdited;
+
+  @override
+  ConsumerState<_CohortStudentPreview> createState() =>
+      _CohortStudentPreviewState();
+}
+
+class _CohortStudentPreviewState extends ConsumerState<_CohortStudentPreview> {
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMissingRosters();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CohortStudentPreview old) {
+    super.didUpdateWidget(old);
+    if (!_setEq(widget.selectedCohortIds, old.selectedCohortIds)) {
+      _fetchMissingRosters();
+    }
+  }
+
+  Future<void> _fetchMissingRosters() async {
+    final missing = widget.selectedCohortIds
+        .where((id) => id.isNotEmpty && !_cohortRosterCache.containsKey(id))
+        .toList();
+    if (missing.isEmpty) return;
+    if (mounted) setState(() => _loading = true);
+    final repo = ref.read(adminRepositoryProvider);
+    for (final cid in missing) {
+      try {
+        final roster = await repo.getCohortRoster(cid);
+        _cohortRosterCache[cid] = roster
+            .map((u) => {'id': u.id, 'name': u.name})
+            .toList();
+      } catch (_) {
+        _cohortRosterCache[cid] = const [];
+      }
+    }
+    if (mounted) setState(() {} );
+    if (mounted) setState(() => _loading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+    final cohorts = widget.cohorts;
+    final selectedCohortIds = widget.selectedCohortIds;
+    final allStudents = widget.allStudents;
 
-    // Find cohort names for header
     final names = cohorts
         .where((c) => selectedCohortIds.contains(c['id']?.toString()))
         .map((c) => c['name']?.toString() ?? '')
         .where((n) => n.isNotEmpty)
         .toList();
 
-    // Filter students who belong to selected cohorts
-    final students = allStudents.where((s) {
-      final cid = s['cohortId']?.toString() ?? '';
-      // Fallback: match by cohortName if cohortId isn't present
-      if (cid.isNotEmpty) return selectedCohortIds.contains(cid);
-      final cn = s['cohortName']?.toString() ?? '';
-      return names.any((n) => n == cn);
-    }).toList();
+    // Auto-derived student set: cohort.studentIds → roster cache → student
+    // DDL fields, deduped by id.
+    final auto = <String, String>{}; // id → name
+    final selectedStudentIdsFromCohorts = cohorts
+        .where((c) => selectedCohortIds.contains(c['id']?.toString()))
+        .expand((c) {
+          final ids = c['studentIds'];
+          return ids is List ? ids.map((e) => e.toString()) : const <String>[];
+        })
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    for (final cid in selectedCohortIds) {
+      for (final r in (_cohortRosterCache[cid] ?? const [])) {
+        final id = r['id'] ?? '';
+        if (id.isNotEmpty) auto[id] = r['name'] ?? '';
+      }
+    }
+    for (final s in allStudents) {
+      final sid = s['id']?.toString() ?? '';
+      if (sid.isEmpty) continue;
+      bool belongs = selectedStudentIdsFromCohorts.contains(sid);
+      if (!belongs) {
+        final ids = (s['cohortIds'] as List?)
+                ?.map((e) => e.toString())
+                .where((e) => e.isNotEmpty)
+                .toList() ??
+            const <String>[];
+        if (ids.any(selectedCohortIds.contains)) belongs = true;
+      }
+      if (!belongs) {
+        final cid = s['cohortId']?.toString() ?? '';
+        if (cid.isNotEmpty && selectedCohortIds.contains(cid)) belongs = true;
+      }
+      if (!belongs) {
+        final cn = s['cohortName']?.toString() ?? '';
+        if (cn.isNotEmpty && names.any((n) => n == cn)) belongs = true;
+      }
+      if (!belongs) {
+        final cnList = (s['cohortNames'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+        if (cnList.any(names.contains)) belongs = true;
+      }
+      if (belongs) {
+        auto[sid] = (s['name']?.toString() ?? auto[sid] ?? '');
+      }
+    }
+
+    final selectionKey = (selectedCohortIds.toList()..sort()).join(',');
+
+    return _AudienceEditor(
+      key: ValueKey('cohort:$selectionKey'),
+      accent: cs.primary,
+      autoStudents: auto,
+      allCandidates: allStudents,
+      countLabelBuilder: (n) =>
+          '$n student${n == 1 ? '' : 's'} in selected cohort${selectedCohortIds.length == 1 ? '' : 's'}',
+      loading: _loading,
+      onChanged: widget.onEdited,
+    );
+  }
+}
+
+// ── Grade student preview ────────────────────────────────────────────────────
+// Mirrors _CohortStudentPreview but resolves membership through the cohorts
+// that target the picked grade — so admins picking "By Grade" see exactly who
+// the period will land on before they commit.
+class _GradeStudentPreview extends ConsumerStatefulWidget {
+  const _GradeStudentPreview({
+    required this.allStudents,
+    required this.cohorts,
+    required this.grade,
+    required this.onEdited,
+  });
+
+  final List<Map<String, dynamic>> allStudents;
+  final List<Map<String, dynamic>> cohorts;
+  final int grade;
+  final AudienceEditCallback onEdited;
+
+  @override
+  ConsumerState<_GradeStudentPreview> createState() =>
+      _GradeStudentPreviewState();
+}
+
+class _GradeStudentPreviewState extends ConsumerState<_GradeStudentPreview> {
+  bool _loading = false;
+
+  List<int> _cohortGradesOf(Map<String, dynamic> c) {
+    final raw = c['grades'];
+    if (raw is List) {
+      return raw
+          .map((e) => e is int ? e : int.tryParse(e?.toString() ?? ''))
+          .whereType<int>()
+          .toList();
+    }
+    final single = c['grade'];
+    if (single is int) return [single];
+    if (single is String) {
+      final n = int.tryParse(single);
+      if (n != null) return [n];
+    }
+    return const [];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMissingRosters();
+  }
+
+  @override
+  void didUpdateWidget(covariant _GradeStudentPreview old) {
+    super.didUpdateWidget(old);
+    if (old.grade != widget.grade || old.cohorts.length != widget.cohorts.length) {
+      _fetchMissingRosters();
+    }
+  }
+
+  Future<void> _fetchMissingRosters() async {
+    final cohortIds = widget.cohorts
+        .where((c) => _cohortGradesOf(c).contains(widget.grade))
+        .map((c) => c['id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .where((id) => !_cohortRosterCache.containsKey(id))
+        .toList();
+    if (cohortIds.isEmpty) return;
+    if (mounted) setState(() => _loading = true);
+    final repo = ref.read(adminRepositoryProvider);
+    for (final cid in cohortIds) {
+      try {
+        final roster = await repo.getCohortRoster(cid);
+        _cohortRosterCache[cid] = roster
+            .map((u) => {'id': u.id, 'name': u.name})
+            .toList();
+      } catch (_) {
+        _cohortRosterCache[cid] = const [];
+      }
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final allStudents = widget.allStudents;
+    final cohorts = widget.cohorts;
+    final grade = widget.grade;
+
+    final cohortsForGrade =
+        cohorts.where((c) => _cohortGradesOf(c).contains(grade)).toList();
+    final cohortIdsForGrade = cohortsForGrade
+        .map((c) => c['id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final cohortNamesForGrade = cohortsForGrade
+        .map((c) => c['name']?.toString() ?? '')
+        .where((n) => n.isNotEmpty)
+        .toSet();
+    final studentIdsForGrade = cohortsForGrade
+        .expand((c) {
+          final ids = c['studentIds'];
+          return ids is List ? ids.map((e) => e.toString()) : const <String>[];
+        })
+        .where((s) => s.isNotEmpty)
+        .toSet();
+
+    final auto = <String, String>{};
+    for (final cid in cohortIdsForGrade) {
+      for (final r in (_cohortRosterCache[cid] ?? const [])) {
+        final id = r['id'] ?? '';
+        if (id.isNotEmpty) auto[id] = r['name'] ?? '';
+      }
+    }
+    for (final s in allStudents) {
+      final sid = s['id']?.toString() ?? '';
+      if (sid.isEmpty) continue;
+      bool belongs = studentIdsForGrade.contains(sid);
+      if (!belongs) {
+        final ids = (s['cohortIds'] as List?)
+                ?.map((e) => e.toString())
+                .where((e) => e.isNotEmpty)
+                .toList() ??
+            const <String>[];
+        if (ids.any(cohortIdsForGrade.contains)) belongs = true;
+      }
+      if (!belongs) {
+        final cid = s['cohortId']?.toString() ?? '';
+        if (cid.isNotEmpty && cohortIdsForGrade.contains(cid)) belongs = true;
+      }
+      if (!belongs) {
+        final cn = s['cohortName']?.toString() ?? '';
+        if (cn.isNotEmpty && cohortNamesForGrade.contains(cn)) belongs = true;
+      }
+      if (!belongs) {
+        final cnList = (s['cohortNames'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+        if (cnList.any(cohortNamesForGrade.contains)) belongs = true;
+      }
+      // Standalone grade-N students — admin set their grade level on the
+      // profile but they aren't in any cohort yet.  Include them so "By
+      // Grade" actually means everyone at that grade level.
+      if (!belongs) {
+        final g = s['grade'];
+        final gn = g is int ? g : (g is num ? g.toInt() : int.tryParse('$g'));
+        if (gn == grade) belongs = true;
+      }
+      if (belongs) {
+        auto[sid] = (s['name']?.toString() ?? auto[sid] ?? '');
+      }
+    }
+
+    return _AudienceEditor(
+      key: ValueKey('grade:$grade'),
+      accent: cs.primary,
+      autoStudents: auto,
+      allCandidates: allStudents,
+      countLabelBuilder: (n) =>
+          '$n ${n == 1 ? 'student' : 'students'} in Grade $grade',
+      loading: _loading,
+      onChanged: widget.onEdited,
+    );
+  }
+}
+
+// ── Shared audience editor ───────────────────────────────────────────────────
+
+class _AudienceEditor extends StatefulWidget {
+  const _AudienceEditor({
+    super.key,
+    required this.accent,
+    required this.autoStudents,
+    required this.allCandidates,
+    required this.countLabelBuilder,
+    required this.loading,
+    required this.onChanged,
+  });
+
+  /// Container/accent color (primary).
+  final Color accent;
+
+  /// id → name auto-derived from the current cohort/grade selection. The
+  /// editor seeds [effective] from this; if more students arrive later (e.g.
+  /// roster fetch resolves), they get unioned in unless the admin has already
+  /// customized the list.
+  final Map<String, String> autoStudents;
+
+  /// Universe used to populate the Add Student picker.
+  final List<Map<String, dynamic>> allCandidates;
+
+  final String Function(int count) countLabelBuilder;
+  final bool loading;
+  final AudienceEditCallback onChanged;
+
+  @override
+  State<_AudienceEditor> createState() => _AudienceEditorState();
+}
+
+class _AudienceEditorState extends State<_AudienceEditor> {
+  /// Live set the admin is editing.
+  final Map<String, String> _effective = {};
+
+  /// Snapshot of the auto-derived set the admin last accepted as the baseline.
+  /// Used to determine whether the current [_effective] is "customized" (admin
+  /// has diverged) — when they revert to exactly this, the period saves as a
+  /// clean cohort/grade period again.
+  Set<String> _baseline = const {};
+
+  bool _customized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _effective.addAll(widget.autoStudents);
+    _baseline = widget.autoStudents.keys.toSet();
+    // Notify parent of initial set so save logic resolves correctly even
+    // without any user edits.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.onChanged(_effective.keys.toSet(), customized: _customized);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _AudienceEditor old) {
+    super.didUpdateWidget(old);
+    // If the auto set grew (e.g. roster fetch landed) and admin hasn't
+    // customized yet, union the new entries in so they see the full list.
+    if (!_customized) {
+      final newKeys = widget.autoStudents.keys.toSet();
+      if (!_setEq(newKeys, _baseline)) {
+        _effective
+          ..clear()
+          ..addAll(widget.autoStudents);
+        _baseline = newKeys;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          widget.onChanged(_effective.keys.toSet(), customized: false);
+        });
+      }
+    }
+  }
+
+  void _recomputeCustomized() {
+    final current = _effective.keys.toSet();
+    final isCustom = !_setEq(current, _baseline);
+    if (isCustom != _customized) _customized = isCustom;
+    widget.onChanged(current, customized: _customized);
+  }
+
+  void _remove(String id) {
+    setState(() {
+      _effective.remove(id);
+      _recomputeCustomized();
+    });
+  }
+
+  Future<void> _openAddSheet() async {
+    final pool = widget.allCandidates
+        .where((s) {
+          final id = s['id']?.toString() ?? '';
+          return id.isNotEmpty && !_effective.containsKey(id);
+        })
+        .toList();
+    final picked = await showModalBottomSheet<List<Map<String, String>>>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _AddStudentsSheet(pool: pool),
+    );
+    if (picked == null || picked.isEmpty) return;
+    setState(() {
+      for (final s in picked) {
+        final id = s['id'] ?? '';
+        if (id.isNotEmpty) _effective[id] = s['name'] ?? '';
+      }
+      _recomputeCustomized();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final count = _effective.length;
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.25),
+        color: widget.accent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: widget.accent.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.people_rounded, size: 14, color: cs.primary),
+              Icon(Icons.people_rounded, size: 14, color: widget.accent),
               const SizedBox(width: 6),
-              Text(
-                '${students.length} student${students.length == 1 ? '' : 's'} in selected cohort${selectedCohortIds.length == 1 ? '' : 's'}',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cs.primary,
+              Expanded(
+                child: Text(
+                  widget.countLabelBuilder(count),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: widget.accent,
+                  ),
                 ),
               ),
+              if (widget.loading)
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 1.5, color: widget.accent),
+                ),
             ],
           ),
-          if (students.isNotEmpty) ...[
-            const SizedBox(height: 8),
+          if (_customized) ...[
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: cs.tertiaryContainer.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.person_pin_circle_rounded, size: 12, color: cs.onTertiaryContainer),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'Customized — saved as individual students',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: cs.onTertiaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          if (_effective.isNotEmpty)
             Wrap(
               spacing: 6,
-              runSpacing: 4,
-              children: students.take(20).map((s) {
-                final name = s['name']?.toString() ?? '';
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: cs.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+              runSpacing: 6,
+              children: [
+                ..._effective.entries.take(40).map((e) {
+                  final name = e.value;
+                  return InputChip(
+                    label: Text(
+                      name,
+                      style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    onDeleted: () => _remove(e.key),
+                    deleteIcon: const Icon(Icons.close_rounded, size: 14),
+                    backgroundColor: cs.surface,
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  );
+                }),
+                if (_effective.length > 40)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      '+${_effective.length - 40} more',
+                      style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
                   ),
-                  child: Text(name, style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600)),
-                );
-              }).toList(),
+              ],
             ),
-            if (students.length > 20)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text('+${students.length - 20} more',
-                    style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _openAddSheet,
+              icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
+              label: const Text('Add student'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                visualDensity: VisualDensity.compact,
+                minimumSize: const Size(0, 32),
+                foregroundColor: widget.accent,
               ),
-          ],
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-// ── Section label ──────────────────────────────────────────────────────────────
+class _AddStudentsSheet extends StatefulWidget {
+  const _AddStudentsSheet({required this.pool});
+  final List<Map<String, dynamic>> pool;
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.label, required this.cs, required this.theme});
-  final String label;
-  final ColorScheme cs;
-  final ThemeData theme;
+  @override
+  State<_AddStudentsSheet> createState() => _AddStudentsSheetState();
+}
+
+class _AddStudentsSheetState extends State<_AddStudentsSheet> {
+  String _q = '';
+  final Set<String> _picked = {};
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: theme.textTheme.labelLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: cs.primary,
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final q = _q.trim().toLowerCase();
+    final filtered = widget.pool.where((s) {
+      if (q.isEmpty) return true;
+      final name = (s['name'] ?? '').toString().toLowerCase();
+      return name.contains(q);
+    }).toList();
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              height: 4,
+              width: 40,
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Add students',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _picked.isEmpty
+                        ? null
+                        : () {
+                            final result = widget.pool
+                                .where((s) => _picked.contains(s['id']?.toString()))
+                                .map((s) => {
+                                      'id': (s['id'] ?? '').toString(),
+                                      'name': (s['name'] ?? '').toString(),
+                                    })
+                                .toList();
+                            Navigator.of(context).pop(result);
+                          },
+                    child: Text('Add (${_picked.length})'),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                onChanged: (v) => setState(() => _q = v),
+                decoration: InputDecoration(
+                  hintText: 'Search students…',
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Flexible(
+              child: filtered.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'No students match.',
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filtered.length,
+                      itemBuilder: (ctx, i) {
+                        final item = filtered[i];
+                        final id = item['id']?.toString() ?? '';
+                        final name = item['name']?.toString() ?? '';
+                        final grade = item['grade'];
+                        final cn = item['cohortName']?.toString() ?? '';
+                        final sub = grade != null
+                            ? 'Grade $grade${cn.isNotEmpty ? ' · $cn' : ''}'
+                            : (cn.isNotEmpty ? cn : null);
+                        final sel = _picked.contains(id);
+                        return CheckboxListTile(
+                          dense: true,
+                          value: sel,
+                          onChanged: (_) => setState(() {
+                            if (sel) {
+                              _picked.remove(id);
+                            } else {
+                              _picked.add(id);
+                            }
+                          }),
+                          title: Text(name,
+                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          subtitle: sub == null ? null : Text(sub,
+                              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Grid square periods sheet ────────────────────────────────────────────────
+//
+// Tapping a square in the schedule grid opens this sheet — it lists every
+// period sitting at (day, period), each with its color + subject + teacher +
+// cohort/student summary and a delete button, plus an Add Period CTA.
+
+enum _SquareSheetActionKind { add, edit }
+
+class _SquareSheetAction {
+  const _SquareSheetAction.add() : kind = _SquareSheetActionKind.add, slot = null;
+  const _SquareSheetAction.edit(this.slot) : kind = _SquareSheetActionKind.edit;
+  final _SquareSheetActionKind kind;
+  final Map<String, dynamic>? slot;
+}
+
+class _SquarePeriodsSheet extends ConsumerStatefulWidget {
+  const _SquarePeriodsSheet({
+    required this.day,
+    required this.period,
+    required this.slots,
+    required this.onDelete,
+  });
+
+  final int day;
+  final int period;
+  final List<Map<String, dynamic>> slots;
+  final Future<bool> Function(String slotId) onDelete;
+
+  @override
+  ConsumerState<_SquarePeriodsSheet> createState() =>
+      _SquarePeriodsSheetState();
+}
+
+class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
+  static const _dayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  /// Working copy — lets us strip rows out optimistically on delete without
+  /// having to round-trip through the parent rebuild.
+  late List<Map<String, dynamic>> _slots;
+
+  @override
+  void initState() {
+    super.initState();
+    _slots = List<Map<String, dynamic>>.from(widget.slots);
+  }
+
+  Future<void> _delete(Map<String, dynamic> slot) async {
+    final id = slot['id']?.toString() ?? '';
+    if (id.isEmpty) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete period?'),
+        content: const Text('This removes the slot from the schedule. Past attendance stays.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final ok = await widget.onDelete(id);
+    if (!mounted) return;
+    if (ok) {
+      setState(() {
+        _slots.removeWhere((s) => (s['id']?.toString() ?? '') == id);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete period.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final subjectColors = ref.watch(_subjectColorsProvider).maybeWhen(
+          data: (m) => m,
+          orElse: () => const <String, String>{},
+        );
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              height: 4,
+              width: 40,
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${_dayLong[widget.day]} · Period ${widget.period}',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.pop(context, const _SquareSheetAction.add()),
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('Add period'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Flexible(
+              child: _slots.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                      child: Text(
+                        'No periods here yet.',
+                        style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                      itemCount: _slots.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
+                      itemBuilder: (ctx, i) => _SquareSlotTile(
+                        slot: _slots[i],
+                        subjectColors: subjectColors,
+                        onDelete: () => _delete(_slots[i]),
+                        onTap: () => Navigator.pop(
+                          context,
+                          _SquareSheetAction.edit(_slots[i]),
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+class _SquareSlotTile extends ConsumerStatefulWidget {
+  const _SquareSlotTile({
+    required this.slot,
+    required this.subjectColors,
+    required this.onDelete,
+    required this.onTap,
+  });
+
+  final Map<String, dynamic> slot;
+  final Map<String, String> subjectColors;
+  final VoidCallback onDelete;
+  final VoidCallback onTap;
+
+  @override
+  ConsumerState<_SquareSlotTile> createState() => _SquareSlotTileState();
+}
+
+class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
+  bool _expanded = false;
+  bool _loadingRoster = false;
+
+  /// Cohort name + optional grade label, formatted for the audience header.
+  String _cohortDisplayLabel(Map cohortRow) {
+    final cohort = cohortRow['cohort'];
+    if (cohort is! Map) return '';
+    final name = cohort['name']?.toString() ?? '';
+    final grades = cohort['grades'];
+    String? gradeLabel;
+    if (grades is List && grades.isNotEmpty) {
+      final ints = grades
+          .map((e) => e is int ? e : int.tryParse('$e'))
+          .whereType<int>()
+          .toList()
+        ..sort();
+      if (ints.length == 1) {
+        gradeLabel = 'Grade ${ints.first}';
+      } else {
+        final contiguous = ints.last - ints.first == ints.length - 1;
+        gradeLabel = contiguous
+            ? 'Grade ${ints.first}-${ints.last}'
+            : 'Grades ${ints.join(', ')}';
+      }
+    } else {
+      final g = cohort['grade'];
+      if (g is int) gradeLabel = 'Grade $g';
+      if (g is num) gradeLabel = 'Grade ${g.toInt()}';
+    }
+    if (name.isEmpty && gradeLabel == null) return '';
+    if (name.isEmpty) return gradeLabel!;
+    if (gradeLabel == null) return name;
+    return '$name · $gradeLabel';
+  }
+
+  Future<void> _toggleExpand(List<Map<String, dynamic>> cohortRows) async {
+    if (_expanded) {
+      setState(() => _expanded = false);
+      return;
+    }
+    // Pull rosters for any cohort we haven't cached yet — the shared
+    // _cohortRosterCache lets us reuse work the Add Period previews did.
+    final missing = cohortRows
+        .map((c) =>
+            (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                ?.toString() ??
+            '')
+        .where((id) => id.isNotEmpty && !_cohortRosterCache.containsKey(id))
+        .toList();
+    if (missing.isNotEmpty) {
+      setState(() => _loadingRoster = true);
+      final repo = ref.read(adminRepositoryProvider);
+      for (final cid in missing) {
+        try {
+          final roster = await repo.getCohortRoster(cid);
+          _cohortRosterCache[cid] = roster
+              .map((u) => {'id': u.id, 'name': u.name})
+              .toList();
+        } catch (_) {
+          _cohortRosterCache[cid] = const [];
+        }
+      }
+      if (!mounted) return;
+    }
+    setState(() {
+      _loadingRoster = false;
+      _expanded = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final slot = widget.slot;
+    final subject = slot['subject']?.toString() ?? '';
+    final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
+
+    final cohortRows = (slot['cohorts'] as List? ?? [])
+        .whereType<Map>()
+        .map((c) => Map<String, dynamic>.from(c))
+        .where((c) => c['cohort'] is Map)
+        .toList();
+    final students = (slot['students'] as List? ?? [])
+        .whereType<Map>()
+        .map((s) => (s['student'] is Map && s['student']['user'] is Map
+                ? s['student']['user']['name']
+                : null)
+            ?.toString() ??
+            '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
+
+    final slotHex = slot['color']?.toString();
+    final subjectHex = subject.isNotEmpty ? widget.subjectColors[subject.toLowerCase()] : null;
+    final color = parseSubjectColor(slotHex)
+        ?? parseSubjectColor(subjectHex)
+        ?? subjectColorOrFallback(null, subject.isNotEmpty ? subject : teacherName);
+
+    final isCohortPeriod = cohortRows.isNotEmpty;
+    // Prefer a single "Grade N" label when the slot's cohorts cover every
+    // cohort at that grade — that's how the admin originally picked it.
+    final allCohorts = ref.watch(_cohortsDdlProvider).maybeWhen(
+          data: (d) => d,
+          orElse: () => const <Map<String, dynamic>>[],
+        );
+    final gradeForSlot = slotAudienceGrade(slot, allCohorts);
+    final cohortLabels = gradeForSlot != null
+        ? <String>['Grade $gradeForSlot']
+        : cohortRows.map(_cohortDisplayLabel).where((s) => s.isNotEmpty).toList();
+
+    // For cohort/grade periods we lazily fetch the union of cohort rosters
+    // on first expand.  Individual-student periods skip the chevron entirely
+    // and just list the names directly.
+    List<String> expandedNames = const [];
+    if (isCohortPeriod && _expanded) {
+      final seen = <String>{};
+      final names = <String>[];
+      for (final c in cohortRows) {
+        final cid =
+            (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                ?.toString() ??
+                '';
+        if (cid.isEmpty) continue;
+        for (final r in (_cohortRosterCache[cid] ?? const [])) {
+          final id = r['id'] ?? '';
+          final name = r['name'] ?? '';
+          if (id.isEmpty || !seen.add(id)) continue;
+          if (name.isNotEmpty) names.add(name);
+        }
+      }
+      expandedNames = names;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: widget.onTap,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+          decoration: BoxDecoration(
+            color: Color.alphaBlend(color.withValues(alpha: 0.12), cs.surface),
+            borderRadius: BorderRadius.circular(14),
+            border: Border(left: BorderSide(color: color, width: 4)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      subject.isNotEmpty ? subject : (teacherName.isNotEmpty ? teacherName : 'Period'),
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    if (teacherName.isNotEmpty && subject.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          teacherName,
+                          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+
+                    // ── Audience block ────────────────────────────────────
+                    if (isCohortPeriod) ...[
+                      const SizedBox(height: 6),
+                      // The whole row is the expand toggle; isolate it from
+                      // the parent InkWell with a separate GestureDetector
+                      // so tapping it doesn't fall through to "edit period."
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _toggleExpand(cohortRows),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(Icons.groups_rounded, size: 14, color: color),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  cohortLabels.join(' · '),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: cs.onSurface,
+                                  ),
+                                ),
+                              ),
+                              if (_loadingRoster)
+                                SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(strokeWidth: 1.5, color: color),
+                                )
+                              else
+                                AnimatedRotation(
+                                  duration: const Duration(milliseconds: 180),
+                                  turns: _expanded ? 0.5 : 0.0,
+                                  child: Icon(Icons.expand_more_rounded,
+                                      size: 18, color: cs.onSurfaceVariant),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (_expanded) ...[
+                        const SizedBox(height: 4),
+                        if (expandedNames.isEmpty)
+                          Text(
+                            'No students in these cohorts yet.',
+                            style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                          )
+                        else
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: expandedNames
+                                .map((n) => Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: cs.surface,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                            color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                      ),
+                                      child: Text(n, style: theme.textTheme.labelSmall),
+                                    ))
+                                .toList(),
+                          ),
+                      ],
+                    ] else if (students.isNotEmpty) ...[
+                      // Individual-student period — no expand affordance,
+                      // just list the names directly.
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: students
+                            .map((n) => Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: cs.surface,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                        color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                  ),
+                                  child: Text(n, style: theme.textTheme.labelSmall),
+                                ))
+                            .toList(),
+                      ),
+                    ],
+
+                    if (freq > 1)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Every $freq weeks',
+                          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.delete_outline_rounded, color: cs.error),
+                tooltip: 'Delete period',
+                onPressed: widget.onDelete,
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Period color row ─────────────────────────────────────────────────────────
+//
+// Compact swatch strip in Add Period.  Defaults to the subject's color (set in
+// the subject editor); admin can tap a swatch to override just for this slot,
+// or hit the auto/reset tile to fall back.
+
+class _PeriodColorRow extends StatefulWidget {
+  const _PeriodColorRow({
+    required this.subjectName,
+    required this.repo,
+    required this.colorOverride,
+    required this.onChanged,
+  });
+
+  final String? subjectName;
+  final AdminRepository repo;
+  final String? colorOverride;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  State<_PeriodColorRow> createState() => _PeriodColorRowState();
+}
+
+class _PeriodColorRowState extends State<_PeriodColorRow> {
+  /// Session-level cache so we don't hit /admin/subjects/all every rebuild.
+  static List<SchoolSubject>? _cachedSubjects;
+  static Future<List<SchoolSubject>>? _inFlight;
+
+  late Future<List<SchoolSubject>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _loadSubjects();
+  }
+
+  Future<List<SchoolSubject>> _loadSubjects() async {
+    if (_cachedSubjects != null) return _cachedSubjects!;
+    final pending = _inFlight ??= widget.repo.listAllSchoolSubjects().then((v) {
+      _cachedSubjects = v;
+      _inFlight = null;
+      return v;
+    }).catchError((_) {
+      _inFlight = null;
+      return <SchoolSubject>[];
+    });
+    return pending;
+  }
+
+  String? _subjectHex(List<SchoolSubject> subjects) {
+    final n = (widget.subjectName ?? '').trim();
+    if (n.isEmpty) return null;
+    for (final s in subjects) {
+      if (s.nameEn.trim().toLowerCase() == n.toLowerCase()) return s.color;
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return FutureBuilder<List<SchoolSubject>>(
+      future: _future,
+      builder: (ctx, snap) {
+        final subjects = snap.data ?? const <SchoolSubject>[];
+        final subjectHex = _subjectHex(subjects);
+        final seed = (widget.subjectName ?? '').trim();
+        // What the period would render as today, given override > subject > fallback.
+        final effective = parseSubjectColor(widget.colorOverride)
+            ?? parseSubjectColor(subjectHex)
+            ?? subjectColorOrFallback(null, seed);
+        final hasOverride = widget.colorOverride != null;
+
+        return Row(
+          children: [
+            Text(
+              'Color',
+              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: effective,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: cs.outlineVariant.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: SizedBox(
+                height: 32,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    // Auto/reset — match subject color (or fallback)
+                    _MiniSwatch(
+                      color: parseSubjectColor(subjectHex)
+                          ?? subjectColorOrFallback(null, seed),
+                      selected: !hasOverride,
+                      icon: Icons.auto_awesome_rounded,
+                      onTap: () => widget.onChanged(null),
+                    ),
+                    const SizedBox(width: 6),
+                    ...kSubjectPalette.map((c) {
+                      final hex = colorToHex(c);
+                      final isSelected = hasOverride && sameRgb(parseSubjectColor(widget.colorOverride)!, c);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: _MiniSwatch(
+                          color: c,
+                          selected: isSelected,
+                          onTap: () => widget.onChanged(hex),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MiniSwatch extends StatelessWidget {
+  const _MiniSwatch({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(7),
+      onTap: onTap,
+      child: Container(
+        width: 26,
+        height: 26,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(
+            color: selected ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: icon != null
+            ? Icon(icon, size: 13, color: Colors.white.withValues(alpha: 0.9))
+            : (selected ? const Icon(Icons.check_rounded, size: 15, color: Colors.white) : null),
       ),
     );
   }
@@ -1297,7 +3043,7 @@ class _SubjectPickerField extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                hasValue ? value! : 'Pick a subject (optional)',
+                hasValue ? value! : 'Subject *',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: hasValue ? FontWeight.w700 : FontWeight.w500,
                   color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
@@ -1374,9 +3120,10 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
   }
 
   Future<void> _createNew() async {
-    final created = await Navigator.push<SchoolSubject>(
-      context,
+    final created = await Navigator.of(context, rootNavigator: true)
+        .push<SchoolSubject>(
       MaterialPageRoute(
+        fullscreenDialog: true,
         builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
       ),
     );
@@ -1542,10 +3289,16 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.menu_book_rounded,
-                                size: 18,
-                                color: selected ? cs.primary : cs.onSurfaceVariant,
+                              Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: subjectColorOrFallback(s.color, s.nameEn),
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: cs.outlineVariant.withValues(alpha: 0.5),
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(

@@ -295,6 +295,8 @@ class AdminRepository {
     List<String>? cohortIds,
     List<String>? studentIds,
     String? subject,
+    String? color,
+    int? audienceGrade,
     String? startTime,
     String? endTime,
     int frequencyWeeks = 1,
@@ -307,6 +309,8 @@ class AdminRepository {
       if (cohortIds != null && cohortIds.isNotEmpty) 'cohortIds': cohortIds,
       if (studentIds != null && studentIds.isNotEmpty) 'studentIds': studentIds,
       if (subject != null && subject.isNotEmpty) 'subject': subject,
+      if (color != null && color.isNotEmpty) 'color': color,
+      if (audienceGrade != null) 'audienceGrade': audienceGrade,
       'startTime': ?startTime,
       'endTime': ?endTime,
       'frequencyWeeks': frequencyWeeks,
@@ -316,6 +320,46 @@ class AdminRepository {
 
   Future<void> deletePeriod(String id) async {
     await _api.deleteJson('/admin/periods/$id');
+  }
+
+  /// Updates an existing slot.  Pass only the fields you want to change —
+  /// the server treats `'in body'` semantics for nullable fields, so omitted
+  /// keys leave the existing value alone.  `cohortIds`/`studentIds` replace
+  /// the full audience when present.
+  Future<void> updatePeriod({
+    required String id,
+    int? dayOfWeek,
+    int? period,
+    String? teacherId,
+    bool setTeacherId = false,
+    String? subject,
+    bool setSubject = false,
+    String? color,
+    bool setColor = false,
+    int? audienceGrade,
+    bool setAudienceGrade = false,
+    List<String>? cohortIds,
+    List<String>? studentIds,
+    String? startTime,
+    bool setStartTime = false,
+    String? endTime,
+    bool setEndTime = false,
+    int? frequencyWeeks,
+  }) async {
+    final body = <String, dynamic>{
+      if (dayOfWeek != null) 'dayOfWeek': dayOfWeek,
+      if (period != null) 'period': period,
+      if (setTeacherId) 'teacherId': teacherId,
+      if (setSubject) 'subject': subject,
+      if (setColor) 'color': color,
+      if (setAudienceGrade) 'audienceGrade': audienceGrade,
+      if (cohortIds != null) 'cohortIds': cohortIds,
+      if (studentIds != null) 'studentIds': studentIds,
+      if (setStartTime) 'startTime': startTime,
+      if (setEndTime) 'endTime': endTime,
+      if (frequencyWeeks != null) 'frequencyWeeks': frequencyWeeks,
+    };
+    await _api.patchJson('/admin/periods/$id', body: body);
   }
 
   /// All subjects defined for this school, deduplicated across grades.

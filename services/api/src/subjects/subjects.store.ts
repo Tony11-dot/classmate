@@ -27,6 +27,8 @@ export type SubjectI18n = {
   nameHe?: string | null;
   nameFr?: string | null;
   nameRu?: string | null;
+  /// Hex `#RRGGBB`. Optional; clients render a deterministic fallback when null.
+  color?: string | null;
 };
 
 /**
@@ -52,6 +54,7 @@ export function normalizeSubjectsI18n(v: any): SubjectI18n[] {
           nameHe: trimOrNull((x as any).nameHe),
           nameFr: trimOrNull((x as any).nameFr),
           nameRu: trimOrNull((x as any).nameRu),
+          color: normalizeColor((x as any).color),
         };
       }
     }
@@ -66,6 +69,19 @@ export function normalizeSubjectsI18n(v: any): SubjectI18n[] {
 function trimOrNull(v: any): string | null {
   const t = String(v ?? '').trim();
   return t.length ? t : null;
+}
+
+/// Accepts `#RRGGBB`, `RRGGBB`, `#AARRGGBB`, or `0xAARRGGBB` and normalizes
+/// to `#RRGGBB` (uppercase, no alpha).  Returns null for empty / invalid.
+function normalizeColor(v: any): string | null {
+  let h = String(v ?? '').trim();
+  if (!h) return null;
+  if (h.startsWith('#')) h = h.slice(1);
+  if (h.toLowerCase().startsWith('0x')) h = h.slice(2);
+  if (h.length === 8) h = h.slice(2); // drop alpha
+  if (h.length !== 6) return null;
+  if (!/^[0-9A-Fa-f]{6}$/.test(h)) return null;
+  return `#${h.toUpperCase()}`;
 }
 
 export function defaultsKey(schoolId: string, grade: number): SubjectDefaultsKey {

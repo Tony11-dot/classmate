@@ -49,6 +49,7 @@ import { E2ESeedController } from './e2e/seed.controller';
 import { MessagesModule } from './messages/messages.module';
 import { FormsModule } from './forms/forms.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { GradeBumpModule } from './grade-bump/grade-bump.module';
 
 const env = loadEnv();
 
@@ -105,6 +106,7 @@ const seedControllers = [
     PracticeAdaptiveModule,
     NovaModule,
     PracticeModule,
+    GradeBumpModule,
   ],
   controllers: [DmUploadController, SetupController, PasswordResetController, VerifyController, MetricsController, ...seedControllers],
   providers: [

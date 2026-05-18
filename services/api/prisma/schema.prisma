@@ -38,6 +38,10 @@ model School {
   logoUrl   String?
   minGrade  Int      @default(5)
   maxGrade  Int      @default(12)
+  /// Year of the most recent Sept-1 grade bump that succeeded for this
+  /// school.  The bump runs at most once per year per school and is idempotent
+  /// — see GradeBumpService.
+  lastGradeBumpYear Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -382,6 +386,14 @@ model ScheduleSlot {
   teacherId      String?
   classroomId    String?
   subject        String?
+  /// Optional per-period color override (`#RRGGBB`).  Falls back to the
+  /// subject's color, then to a deterministic palette hue if both are null.
+  color          String?
+  /// When the admin picked "By Grade N" in Add Period, this is N.  The
+  /// resolved audience is still stored as cohortIds (so attendance/lookup
+  /// queries don't change), but this field records the original intent so
+  /// the grid label can read "Grade N" and edit mode restores the picker.
+  audienceGrade  Int?
   startTime      String? // override school default, e.g. "08:00"
   endTime        String? // override school default, e.g. "08:45"
   frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc.

@@ -18,6 +18,19 @@ function randomDigits(len = 6) {
  * deduplicated, sorted `number[]` of valid integer grades. Empty if no usable
  * input. Callers should validate non-empty themselves.
  */
+/// Normalize an incoming hex color to `#RRGGBB` (uppercase, no alpha).
+/// Returns null when empty / malformed.
+function normalizeHexColor(v: unknown): string | null {
+  let h = String(v ?? '').trim();
+  if (!h) return null;
+  if (h.startsWith('#')) h = h.slice(1);
+  if (h.toLowerCase().startsWith('0x')) h = h.slice(2);
+  if (h.length === 8) h = h.slice(2);
+  if (h.length !== 6) return null;
+  if (!/^[0-9A-Fa-f]{6}$/.test(h)) return null;
+  return `#${h.toUpperCase()}`;
+}
+
 function normalizeGrades(grades: unknown, fallback?: unknown): number[] {
   const raw = Array.isArray(grades) && grades.length > 0
     ? grades
@@ -162,7 +175,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       include: {
         teacher: { select: { id: true, name: true } },
         classroom: { select: { id: true, name: true, subject: true } },
-        cohorts: { select: { cohortId: true, cohort: { select: { name: true, grade: true } } } },
+        // `cohort.id` + `cohort.grades` are needed by the schedule UI so it
+        // can detect "this period covers every cohort at grade N" and
+        // restore the audience as grade mode on edit.
+        cohorts: {
+          select: {
+            cohortId: true,
+            cohort: { select: { id: true, name: true, grade: true, grades: true } as any },
+          },
+        },
         students: { select: { studentId: true, student: { select: { user: { select: { name: true } } } } } },
       },
     });
@@ -177,6 +198,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     cohortIds?: string[];
     studentIds?: string[];
     subject?: string;
+    color?: string;
+    audienceGrade?: number | null;
     startTime?: string;
     endTime?: string;
     frequencyWeeks?: number;
@@ -185,7 +208,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.ensureAdmin(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
+    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, color, audienceGrade, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
     if (dayOfWeek === undefined || dayOfWeek < 0 || dayOfWeek > 6) throw new BadRequestException('dayOfWeek must be 0..6');
     if (!Number.isInteger(period) || period < 1 || period > 20) throw new BadRequestException('period must be 1..20');
 
@@ -196,6 +219,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       if (cr.teacherId !== teacherId) throw new BadRequestException('Classroom does not belong to the selected teacher');
     }
 
+    const normalizedColor = normalizeHexColor(color);
+    const normalizedAudienceGrade =
+      typeof audienceGrade === 'number' && Number.isFinite(audienceGrade) ? audienceGrade : null;
     const slot = await this.prisma.scheduleSlot.create({
       data: {
         schoolId,
@@ -204,11 +230,23 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         teacherId: teacherId ?? null,
         classroomId: classroomId ?? null,
         subject: subject ?? null,
+        color: normalizedColor,
+        audienceGrade: normalizedAudienceGrade,
         startTime: startTime ?? null,
         endTime: endTime ?? null,
         frequencyWeeks: Number.isInteger(frequencyWeeks) && frequencyWeeks >= 1 ? frequencyWeeks : 1,
         startDate: startDate ?? null,
       } as any,
+    });
+    // One-line diagnostic so we can confirm the color round-trip on the
+    // server when admins report "color didn't stick".  `savedColor` being
+    // undefined here means the Prisma client wasn't regenerated for the
+    // `color String?` field — run `prisma db push` in services/api.
+    // eslint-disable-next-line no-console
+    console.log('[createPeriod]', {
+      requestedColor: color ?? null,
+      normalizedColor,
+      savedColor: (slot as any).color ?? null,
     });
 
     if (cohortIds.length) {
@@ -235,6 +273,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     cohortIds?: string[];
     studentIds?: string[];
     subject?: string | null;
+    color?: string | null;
+    audienceGrade?: number | null;
     startTime?: string | null;
     endTime?: string | null;
     frequencyWeeks?: number;
@@ -254,6 +294,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if ('teacherId' in body) data.teacherId = body.teacherId ?? null;
     if ('classroomId' in body) data.classroomId = body.classroomId ?? null;
     if ('subject' in body) data.subject = body.subject ?? null;
+    if ('color' in body) data.color = normalizeHexColor(body.color);
+    if ('audienceGrade' in body) {
+      data.audienceGrade =
+        typeof body.audienceGrade === 'number' && Number.isFinite(body.audienceGrade)
+          ? body.audienceGrade
+          : null;
+    }
     if ('startTime' in body) data.startTime = body.startTime ?? null;
     if ('endTime' in body) data.endTime = body.endTime ?? null;
     if (body.frequencyWeeks !== undefined) data.frequencyWeeks = body.frequencyWeeks >= 1 ? body.frequencyWeeks : 1;
@@ -305,6 +352,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
             // returns zero matches even though students exist.
             grade: true,
             cohort: { select: { name: true, grade: true } },
+            // Multi-cohort memberships via the StudentCohort join — the
+            // legacy studentProfile.cohortId only tracks a single cohort,
+            // so consumers that need to filter against the freshly-created
+            // multi-cohort assignments must read this array.
+            cohorts: { select: { cohortId: true, cohort: { select: { name: true } } } },
           },
         },
       },
@@ -313,14 +365,24 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     return {
       ok: true,
-      students: students.map((s) => ({
-        id: s.id,
-        name: s.name,
-        // Prefer cohort's grade (more specific when assigned) → fall back
-        // to the student's own grade level → null only if neither set.
-        grade: s.studentProfile?.cohort?.grade ?? (s.studentProfile as any)?.grade ?? null,
-        cohortName: s.studentProfile?.cohort?.name ?? null,
-      })),
+      students: students.map((s) => {
+        const memberships = s.studentProfile?.cohorts ?? [];
+        const cohortIds = memberships.map((m) => m.cohortId);
+        const cohortNames = memberships
+          .map((m) => m.cohort?.name)
+          .filter((n): n is string => !!n);
+        return {
+          id: s.id,
+          name: s.name,
+          // Prefer cohort's grade (more specific when assigned) → fall back
+          // to the student's own grade level → null only if neither set.
+          grade: s.studentProfile?.cohort?.grade ?? (s.studentProfile as any)?.grade ?? null,
+          cohortName: s.studentProfile?.cohort?.name ?? null,
+          cohortId: s.studentProfile?.cohortId ?? null,
+          cohortIds,
+          cohortNames,
+        };
+      }),
     };
   }
 
@@ -343,7 +405,16 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const schoolId = (user as any)?.schoolId ?? null;
     const cohorts = await this.prisma.cohort.findMany({
       where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
-      select: { id: true, name: true, grade: true, grades: true } as any,
+      select: {
+        id: true,
+        name: true,
+        grade: true,
+        grades: true,
+        // Multi-cohort membership via StudentCohort — the schedule UI uses
+        // this to render student counts/previews per cohort without making
+        // a follow-up roster call per cohort.
+        studentLinks: { select: { studentId: true } },
+      } as any,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
     return {
@@ -353,6 +424,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         name: c.name,
         grade: c.grade,
         grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
+        studentIds: Array.isArray(c.studentLinks)
+          ? c.studentLinks.map((l: any) => l.studentId).filter((id: any) => !!id)
+          : [],
       })),
     };
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/contracts/school_subject.dart';
+import '../../../core/util/subject_color.dart';
 
 /// Edits the 5-language names for a single school subject. Returns the
 /// updated [SchoolSubject] via Navigator.pop when the user taps save.
@@ -18,6 +19,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
   late final TextEditingController _he;
   late final TextEditingController _fr;
   late final TextEditingController _ru;
+  String? _colorHex;
 
   @override
   void initState() {
@@ -27,6 +29,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
     _he = TextEditingController(text: widget.initial.nameHe ?? '');
     _fr = TextEditingController(text: widget.initial.nameFr ?? '');
     _ru = TextEditingController(text: widget.initial.nameRu ?? '');
+    _colorHex = widget.initial.color;
   }
 
   @override
@@ -51,6 +54,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
       nameHe: _trimOrNull(_he.text),
       nameFr: _trimOrNull(_fr.text),
       nameRu: _trimOrNull(_ru.text),
+      color: _colorHex,
     ));
   }
 
@@ -137,19 +141,123 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
               isNew ? 'New subject' : widget.initial.nameEn,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Fill in any languages your students need. English is required; others fall back to it.',
-              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _field(_en, 'English', 'EN'),
             _field(_ar, 'Arabic',  'AR', dir: TextDirection.rtl),
             _field(_he, 'Hebrew',  'HE', dir: TextDirection.rtl),
             _field(_fr, 'French',  'FR'),
             _field(_ru, 'Russian', 'RU'),
+            const SizedBox(height: 4),
+            Text(
+              'Color',
+              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 8),
+            _ColorSwatchPicker(
+              value: _colorHex,
+              fallbackSeed: _en.text.trim(),
+              onChanged: (hex) => setState(() => _colorHex = hex),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Compact swatch grid for picking a subject color. `null` = use the
+/// deterministic fallback derived from the subject name.
+class _ColorSwatchPicker extends StatelessWidget {
+  const _ColorSwatchPicker({
+    required this.value,
+    required this.fallbackSeed,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final String fallbackSeed;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final current = parseSubjectColor(value);
+    final fallback = subjectColorOrFallback(null, fallbackSeed);
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        // Auto/default tile — shows the deterministic fallback hue.
+        _SwatchTile(
+          color: fallback,
+          selected: value == null,
+          icon: Icons.auto_awesome_rounded,
+          onTap: () => onChanged(null),
+        ),
+        ...kSubjectPalette.map((c) {
+          final hex = colorToHex(c);
+          final isSelected = current != null && sameRgb(current, c);
+          return _SwatchTile(
+            color: c,
+            selected: isSelected,
+            onTap: () => onChanged(hex),
+          );
+        }),
+        if (value != null)
+          TextButton(
+            onPressed: () => onChanged(null),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 32),
+              foregroundColor: cs.onSurfaceVariant,
+            ),
+            child: Text('Reset', style: theme.textTheme.labelSmall),
+          ),
+      ],
+    );
+  }
+}
+
+class _SwatchTile extends StatelessWidget {
+  const _SwatchTile({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
+            width: selected ? 2.2 : 1,
+          ),
+          boxShadow: selected
+              ? [BoxShadow(color: cs.primary.withValues(alpha: 0.25), blurRadius: 4, spreadRadius: 0.5)]
+              : null,
+        ),
+        child: icon != null
+            ? Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.85))
+            : (selected ? const Icon(Icons.check_rounded, size: 18, color: Colors.white) : null),
       ),
     );
   }

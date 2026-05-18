@@ -213,12 +213,12 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.adminCohortGrade,
-              style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary),
+              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,

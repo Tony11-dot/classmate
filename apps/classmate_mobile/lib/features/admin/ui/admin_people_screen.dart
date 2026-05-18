@@ -630,81 +630,65 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   ),
                   const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────
-                  Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 4),
-                  Text('Username is required. Email is optional. Leave password blank to auto-generate one.',
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 12),
                   TextField(
                     controller: _usernameCtrl,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Username * (e.g. john.doe)',
+                      labelText: 'Username *',
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Email (optional)',
+                      labelText: 'Email',
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   // ── Phone with country dial-code picker ───────────────────
                   PhoneField(
                     controller: _phoneCtrl,
                     dialCode: _dialCode,
                     onDialCodeChanged: (v) => setState(() => _dialCode = v),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   // ── Optional password ─────────────────────────────────────
                   TextField(
                     controller: _passwordCtrl,
                     autocorrect: false,
                     obscureText: true,
                     decoration: InputDecoration(
-                      labelText: 'Password (optional — auto-generated if blank)',
-                      helperText: 'At least 8 characters if provided.',
+                      labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // ── Name fields ────────────────────────────────────────────
-                  Text('Name', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 4),
-                  Text('Full name in English is required. Add other languages as needed. Display name (what others see) defaults to the full name if you leave it blank.',
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, 'Full name in English', required: true, autofocus: true),
-                  _langField(_nameArCtrl, 'Full name in Arabic (اسم)'),
-                  _langField(_nameHeCtrl, 'Full name in Hebrew (שם)'),
-                  _langField(_nameFrCtrl, 'Full name in French'),
-                  _langField(_nameRuCtrl, 'Full name in Russian'),
-                  const SizedBox(height: 4),
+                  _langField(_nameEnCtrl, 'Full name *', required: true, autofocus: true),
+                  _langField(_nameArCtrl, 'Arabic'),
+                  _langField(_nameHeCtrl, 'Hebrew'),
+                  _langField(_nameFrCtrl, 'French'),
+                  _langField(_nameRuCtrl, 'Russian'),
                   TextField(
                     controller: _displayCtrl,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
-                      // Avoid putting any specific name in the label —
-                      // admins kept typing the example verbatim and
-                      // ended up with every user nicknamed the example.
-                      labelText: 'Display name (optional)',
-                      helperText: "What others see in chat + drawer. Leave blank to use the full name.",
+                      labelText: 'Display name',
                       prefixIcon: const Icon(Icons.badge_outlined, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // ── Role ───────────────────────────────────────────────────
-                  Text(l.adminRoleLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 10),
+                  Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -716,9 +700,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   ),
                   // ── Grade (students only) ──────────────────────────────────
                   if (_role == 'STUDENT') ...[
-                    const SizedBox(height: 20),
-                    Text('Grade', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
+                    Text('Grade', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                    const SizedBox(height: 8),
                     Wrap(
                       spacing: 8, runSpacing: 8,
                       children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(

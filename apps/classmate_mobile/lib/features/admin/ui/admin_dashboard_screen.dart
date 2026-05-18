@@ -244,6 +244,11 @@ class _SetupGuideState extends State<_SetupGuide> {
     final allDone = doneCount == total;
     final progress = total == 0 ? 0.0 : doneCount / total;
 
+    // Once every setup item is complete the guide has nothing left to nudge
+    // toward — hide it entirely so the dashboard isn't permanently topped by
+    // a "great job, you finished" card.
+    if (allDone) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

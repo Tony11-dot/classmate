@@ -1085,8 +1085,19 @@ class ChatMessageBubble extends StatelessWidget {
           .withSaturation(base.saturation.clamp(0.24, 0.92))
           .toColor();
     }
-    // Others' messages: neutral surface — adapts to light/dark theme.
-    return theme.colorScheme.surfaceContainerHighest;
+    // Others' messages: neutral derived from onSurface so the bubble has real
+    // contrast against the chat background — M3's surfaceContainerHighest is
+    // too pale in light mode and bubbles disappear against the canvas.
+    if (theme.brightness == Brightness.dark) {
+      return Color.alphaBlend(
+        theme.colorScheme.onSurface.withOpacity(0.18),
+        theme.colorScheme.surface,
+      );
+    }
+    // Light mode: noticeably darker gray so bubbles read clearly against the
+    // off-white chat canvas. Pure neutral (no primary tint) to stay distinct
+    // from own-message bubbles.
+    return const Color(0xFFD8DBE0);
   }
 }
 
