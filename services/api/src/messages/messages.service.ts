@@ -1103,7 +1103,19 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const rawKind = String(dto.kind ?? '')
       .trim()
       .toUpperCase();
-    const kind = (rawKind || (mediaUrl ? 'FILE' : 'TEXT')) as DmMessageKind;
+    // If the client didn't tag the message kind explicitly, derive it from
+    // the media mime so images/videos/voice each land in the correct enum
+    // bucket and downstream renderers don't have to special-case "FILE with
+    // an image/* mime."
+    const inferredKind = ((): string => {
+      if (!mediaUrl) return 'TEXT';
+      const m = mediaMimeType.toLowerCase();
+      if (m.startsWith('image/')) return 'IMAGE';
+      if (m.startsWith('video/')) return 'VIDEO';
+      if (m.startsWith('audio/')) return 'VOICE';
+      return 'FILE';
+    })();
+    const kind = (rawKind || inferredKind) as DmMessageKind;
     const replyToMessageId = String((dto as any).replyToMessageId ?? '').trim();
 
     if (!threadId) {

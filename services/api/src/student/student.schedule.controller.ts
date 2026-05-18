@@ -15,28 +15,42 @@ export class StudentScheduleController {
     private readonly prisma: PrismaService,
   ) {}
 
-  private async cohortIdFromUser(req: any): Promise<string> {
+  private async studentContext(req: any): Promise<{
+    schoolId: string;
+    studentId: string;
+    cohortId: string;
+  }> {
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
     if (!uid) throw new Error('Missing user id');
-    const sp = await this.prisma.studentProfile.findUnique({
-      where: { userId: uid },
-      select: { cohortId: true },
-    });
-    if (!sp?.cohortId) throw new Error('Student not onboarded');
-    return String(sp.cohortId);
+    const user = await this.prisma.user.findUnique({
+      where: { id: uid },
+      select: {
+        schoolId: true,
+        studentProfile: { select: { cohortId: true } },
+      } as any,
+    }) as any;
+    const schoolId = String(user?.schoolId ?? '');
+    if (!schoolId) throw new Error('Student not onboarded');
+    return {
+      schoolId,
+      studentId: uid,
+      // Cohort is optional — students with only a grade still see grade-mode
+      // slots via the audienceGrade lookup in resolveTemplateSlotsForStudent.
+      cohortId: String(user?.studentProfile?.cohortId ?? ''),
+    };
   }
 
   @SkipThrottle()
   @Get('today')
   async today(@Req() req: any) {
-    const cohortId = await this.cohortIdFromUser(req);
-    return this.schedule.getTodayForCohort(cohortId);
+    const ctx = await this.studentContext(req);
+    return this.schedule.getTodayForStudent(ctx);
   }
 
   @SkipThrottle()
   @Get('week')
   async week(@Req() req: any, @Query('weekOf') weekOf?: string) {
-    const cohortId = await this.cohortIdFromUser(req);
-    return this.schedule.getWeekForCohort(cohortId, weekOf);
+    const ctx = await this.studentContext(req);
+    return this.schedule.getWeekForStudent({ ...ctx, weekOf });
   }
 }

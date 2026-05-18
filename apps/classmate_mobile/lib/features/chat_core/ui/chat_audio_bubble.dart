@@ -435,9 +435,15 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         Container(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           decoration: BoxDecoration(
+            // Inherit the same bubble color the message uses so the voice
+            // pill is visible against the chat canvas in light mode. The
+            // hairline outline keeps the pill defined when the fill color
+            // is very close to the surrounding surface.
+            color: widget.bubbleColor,
             borderRadius: BorderRadius.circular(20),
-            border:
-                Border.all(color: Colors.white),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

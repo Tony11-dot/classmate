@@ -23,6 +23,13 @@ export type ScheduleItem = {
   cohortId?: string;
   cohortName?: string;
   isOverride?: boolean;
+  /// Resolved teacher display name (joined from User.name). Null when the
+  /// slot has no teacher assigned. Clients render it as a subtitle.
+  teacherName?: string | null;
+  teacherId?: string | null;
+  /// Color override for the period (#RRGGBB). Lets the client pick a tint
+  /// without re-deriving from subject names.
+  color?: string | null;
 };
 
 const DOW_STR: DayOfWeek[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -110,17 +117,40 @@ export class ScheduleService {
   }): Promise<{ templateRows: any[] }> {
     const { schoolId, studentId, cohortId } = params;
 
-    const cohort = await this.prisma.cohort.findUnique({
-      where: { id: cohortId },
-      select: { grade: true, grades: true } as any,
-    }) as any;
-    if (!cohort) return { templateRows: [] };
+    // Pull cohort row + student's own grade so we can match slots via:
+    //   1. Direct enrollment (ScheduleSlotStudent)
+    //   2. Cohort membership (ScheduleSlotCohort) — includes multi-cohort
+    //      links via StudentCohort
+    //   3. Grade audience (ScheduleSlot.audienceGrade == student.grade) —
+    //      catches "By Grade N" slots even when the student isn't in any of
+    //      the grade's cohorts
+    const [cohort, studentProfile] = await Promise.all([
+      cohortId
+        ? this.prisma.cohort.findUnique({
+            where: { id: cohortId },
+            select: { grade: true, grades: true } as any,
+          })
+        : Promise.resolve(null),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true } as any,
+      }),
+    ]) as [any, any];
 
     // Multi-grade cohorts pull templates for every grade they span. Falls back
-    // to single `grade` when grades[] hasn't been backfilled yet.
-    const gradesForTemplates: number[] = Array.isArray(cohort.grades) && cohort.grades.length
-      ? cohort.grades
-      : (cohort.grade != null ? [cohort.grade] : []);
+    // to single `grade` when grades[] hasn't been backfilled yet, then to the
+    // student's own profile grade if they have no cohort.
+    const studentGrade: number | null =
+      typeof studentProfile?.grade === 'number' ? studentProfile.grade : null;
+    let gradesForTemplates: number[] = [];
+    if (cohort) {
+      gradesForTemplates = Array.isArray(cohort.grades) && cohort.grades.length
+        ? cohort.grades
+        : (cohort.grade != null ? [cohort.grade] : []);
+    }
+    if (!gradesForTemplates.length && studentGrade != null) {
+      gradesForTemplates = [studentGrade];
+    }
 
     const [studentBinds, cohortBinds, gradeTemplates] = await Promise.all([
       this.prisma.studentScheduleTemplate.findMany({
@@ -128,57 +158,78 @@ export class ScheduleService {
         orderBy: [{ priority: 'asc' }, { id: 'asc' }],
         include: { template: true },
       }),
-      this.prisma.cohortScheduleTemplate.findMany({
-        where: { cohortId },
-        orderBy: [{ priority: 'asc' }, { id: 'asc' }],
-        include: { template: true },
-      }),
+      cohortId
+        ? this.prisma.cohortScheduleTemplate.findMany({
+            where: { cohortId },
+            orderBy: [{ priority: 'asc' }, { id: 'asc' }],
+            include: { template: true },
+          })
+        : Promise.resolve([] as any[]),
       gradesForTemplates.length
         ? this.prisma.scheduleTemplate.findMany({
             where: { schoolId, kind: 'GRADE', grade: { in: gradesForTemplates } },
             orderBy: [{ id: 'asc' }],
           })
         : Promise.resolve([] as any[]),
-      Promise.resolve([]),
     ]);
 
     const orderedTemplateIds: string[] = [
       ...studentBinds.map((b) => b.templateId),
-      ...cohortBinds.map((b) => b.templateId),
-      ...gradeTemplates.map((t) => t.id),
+      ...cohortBinds.map((b: any) => b.templateId),
+      ...gradeTemplates.map((t: any) => t.id),
     ].filter(Boolean);
 
     const tmplSlots = orderedTemplateIds.length
       ? await this.prisma.scheduleTemplateSlot.findMany({
           where: { templateId: { in: orderedTemplateIds } },
+          include: { teacher: { select: { id: true, name: true } } } as any,
         })
       : [];
 
-    // Fetch slots the student can see: directly assigned or via their cohorts
+    // Fetch slots the student can see: directly assigned, via any cohort
+    // they belong to, OR via the slot's explicit audienceGrade matching the
+    // student's grade.
     const studentCohortLinks = await this.prisma.studentCohort.findMany({
       where: { studentId },
       select: { cohortId: true },
     });
-    const uniqueCohortIds = Array.from(new Set([cohortId, ...studentCohortLinks.map((sc) => sc.cohortId)]));
+    const uniqueCohortIds = Array.from(new Set(
+      [cohortId, ...studentCohortLinks.map((sc) => sc.cohortId)].filter(Boolean) as string[],
+    ));
 
-    const [byStudent, byCohort] = await Promise.all([
+    const [byStudent, byCohort, byGrade] = await Promise.all([
       this.prisma.scheduleSlotStudent.findMany({
         where: { studentId },
         select: { slotId: true },
       }),
-      this.prisma.scheduleSlotCohort.findMany({
-        where: { cohortId: { in: uniqueCohortIds } },
-        select: { slotId: true },
-      }),
+      uniqueCohortIds.length
+        ? this.prisma.scheduleSlotCohort.findMany({
+            where: { cohortId: { in: uniqueCohortIds } },
+            select: { slotId: true },
+          })
+        : Promise.resolve([] as any[]),
+      studentGrade != null
+        ? this.prisma.scheduleSlot.findMany({
+            where: { schoolId, audienceGrade: studentGrade } as any,
+            select: { id: true },
+          })
+        : Promise.resolve([] as any[]),
     ]);
 
     const slotIds = Array.from(new Set([
       ...byStudent.map((r) => r.slotId),
-      ...byCohort.map((r) => r.slotId),
+      ...byCohort.map((r: any) => r.slotId),
+      ...byGrade.map((r: any) => r.id),
     ]));
 
     const legacy = slotIds.length
-      ? await this.prisma.scheduleSlot.findMany({ where: { id: { in: slotIds } } })
+      ? await this.prisma.scheduleSlot.findMany({
+          where: { id: { in: slotIds } },
+          include: {
+            teacher: { select: { id: true, name: true } },
+            classroom: { select: { id: true, name: true } },
+          } as any,
+        })
       : [];
 
     const byKey = new Map<string, any>();
@@ -227,13 +278,16 @@ export class ScheduleService {
     endTimeOverride?: string | null;
     classroomId?: string | null;
     classroomName?: string | null;
+    teacherId?: string | null;
+    teacherName?: string | null;
+    color?: string | null;
   }): ScheduleItem {
     const t = this.timesForPeriod(params.period, { startTime: params.startTimeOverride, endTime: params.endTimeOverride });
     const title = params.classroomName ?? (params.subject ? `${params.subject} — P${params.period}` : `Period ${params.period}`);
     return {
       id: params.slotId,
       title,
-      location: params.location ?? null,
+      location: params.location ?? params.classroomName ?? null,
       dayOfWeek: DOW_STR[Math.max(0, Math.min(6, Number(params.dayOfWeek)))],
       startsAt: t.start,
       startTime: t.start,
@@ -244,6 +298,9 @@ export class ScheduleService {
       period: params.period,
       subject: params.subject ?? null,
       isOverride: !!params.isOverride,
+      teacherId: params.teacherId ?? null,
+      teacherName: params.teacherName ?? null,
+      color: params.color ?? null,
     };
   }
 
@@ -256,6 +313,10 @@ export class ScheduleService {
     return this.prisma.scheduleSlot.findMany({
       where: { id: { in: slotIds } },
       orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
+      include: {
+        teacher: { select: { id: true, name: true } },
+        classroom: { select: { id: true, name: true } },
+      } as any,
     });
   }
 
@@ -267,6 +328,7 @@ export class ScheduleService {
     return this.prisma.scheduleOverride.findMany({
       where: { cohortId, date: { gte: from, lt: toExclusive } },
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
+      include: { teacher: { select: { id: true, name: true } } } as any,
     });
   }
 
@@ -279,7 +341,20 @@ export class ScheduleService {
     const dow = dayOfWeekInJerusalem(params.date); // 0..6
     const tmpl = params.templateRows.filter((r) => Number(r.dayOfWeek) === dow);
 
-    const byPeriod = new Map<number, { id: string; isOverride: boolean; location: string | null; subject: string | null; startTime?: string | null; endTime?: string | null; classroomId?: string | null }>();
+    type Entry = {
+      id: string;
+      isOverride: boolean;
+      location: string | null;
+      subject: string | null;
+      startTime?: string | null;
+      endTime?: string | null;
+      classroomId?: string | null;
+      classroomName?: string | null;
+      teacherId?: string | null;
+      teacherName?: string | null;
+      color?: string | null;
+    };
+    const byPeriod = new Map<number, Entry>();
 
     for (const r of tmpl) {
       byPeriod.set(Number(r.period), {
@@ -290,6 +365,12 @@ export class ScheduleService {
         startTime: (r as any).startTime ?? null,
         endTime: (r as any).endTime ?? null,
         classroomId: (r as any).classroomId ?? null,
+        // Joined relations come from the slot queries that include teacher
+        // and classroom — see resolveTemplateSlotsForStudent / templateForCohort.
+        classroomName: (r as any).classroom?.name ?? null,
+        teacherId: (r as any).teacherId ?? (r as any).teacher?.id ?? null,
+        teacherName: (r as any).teacher?.name ?? null,
+        color: (r as any).color ?? null,
       });
     }
 
@@ -302,6 +383,10 @@ export class ScheduleService {
         startTime: (o as any).startTime ?? null,
         endTime: (o as any).endTime ?? null,
         classroomId: null,
+        // Override may swap the teacher for the day.
+        teacherId: (o as any).teacherId ?? (o as any).teacher?.id ?? null,
+        teacherName: (o as any).teacher?.name ?? null,
+        color: null,
       });
     }
 
@@ -320,6 +405,10 @@ export class ScheduleService {
         startTimeOverride: entry.startTime,
         endTimeOverride: entry.endTime,
         classroomId: entry.classroomId,
+        classroomName: entry.classroomName,
+        teacherId: entry.teacherId,
+        teacherName: entry.teacherName,
+        color: entry.color,
       });
     });
   }

@@ -25,7 +25,15 @@ Color _sessionPanelBg(ColorScheme cs, Color accent) {
           accent,
           cs.surfaceContainerHigh,
         )
-      : cs.surface;
+      // Light mode: surface == scaffold bg, so the panel blends in. Step up
+      // to a faintly elevated container so the card has shape.
+      : cs.surfaceContainerHigh;
+}
+
+/// Foreground that's guaranteed to contrast with a saturated accent fill.
+/// White if the accent is dark enough; black-ish otherwise.
+Color _onAccent(Color accent) {
+  return accent.computeLuminance() < 0.5 ? Colors.white : Colors.black87;
 }
 
 class ModeContextData {
@@ -328,7 +336,9 @@ Widget defaultQuestionHeader(ModeContextData d) {
             child: Text(
               practiceModeLabel(d.context, d.state.filter.mode),
               style: d.theme.textTheme.labelLarge?.copyWith(
-                color: d.accent,
+                // Was `d.accent` — identical to the chip fill, so the label
+                // disappeared. Pick a contrasting foreground for the accent.
+                color: _onAccent(d.accent),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -401,6 +411,12 @@ class ModeAnswerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // Use an elevated container for the default state so the tile is
+    // distinguishable from the scaffold background in light mode — plain
+    // `cs.surface` is the same color as the page behind it.
+    final defaultFill = cs.brightness == Brightness.dark
+        ? cs.surface
+        : cs.surfaceContainerHigh;
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
@@ -416,10 +432,10 @@ class ModeAnswerTile extends StatelessWidget {
                       ? Colors.green
                       : wrongSelected
                       ? Colors.red
-                      : cs.surface
+                      : defaultFill
                 : selected
                 ? accent
-                : cs.surface,
+                : defaultFill,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: revealed

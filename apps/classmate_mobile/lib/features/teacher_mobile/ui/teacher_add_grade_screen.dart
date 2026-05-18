@@ -53,7 +53,6 @@ class _TeacherAddGradeScreenState
   // ── Assignment fields ─────────────────────────────────────────────────────
   String? _selectedAssignmentId;
   final _newAssignmentTitleCtrl = TextEditingController();
-  DateTime? _newAssignmentDueDate;
 
   // ── Published ─────────────────────────────────────────────────────────────
   bool _published = true;
@@ -133,15 +132,18 @@ class _TeacherAddGradeScreenState
 
   List<String> get _availableSubjects => _schoolSubjects;
 
-  // Groups selected students by courseId for the chosen subject.
-  Map<String, List<String>> get _courseStudentGroups {
+  // Groups selected students by their cohortId. Assessments are stored per
+  // cohort in the schema, so we create one Assessment + grade-record set per
+  // distinct cohort represented in the selection. Students with no cohort
+  // are skipped because they have nowhere for the grade to attach.
+  Map<String, List<String>> get _cohortStudentGroups {
     if (_selectedSubject == null) return {};
     final groups = <String, List<String>>{};
     for (final id in _selectedStudentIds) {
       final student = _allStudents.where((s) => s.studentId == id).firstOrNull;
-      final courseId = student?.coursesBySubject[_selectedSubject!];
-      if (courseId != null && courseId.isNotEmpty) {
-        groups.putIfAbsent(courseId, () => []).add(id);
+      final cohortId = student?.cohortId ?? '';
+      if (cohortId.isNotEmpty) {
+        groups.putIfAbsent(cohortId, () => []).add(id);
       }
     }
     return groups;
@@ -226,13 +228,13 @@ class _TeacherAddGradeScreenState
     setState(() => _saving = true);
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-      final groups = _courseStudentGroups;
+      final groups = _cohortStudentGroups;
       if (groups.isEmpty) {
-        throw Exception('No course found for the selected subject and students.');
+        throw Exception('None of the selected students are assigned to a cohort yet.');
       }
 
       for (final entry in groups.entries) {
-        final courseId = entry.key;
+        final cohortId = entry.key;
         final studentIds = entry.value;
         String? assessmentId;
 
@@ -241,14 +243,6 @@ class _TeacherAddGradeScreenState
           if (_selectedAssignmentId == _kCreate) {
             assignTitle = _newAssignmentTitleCtrl.text.trim();
             if (assignTitle.isEmpty) throw Exception('Enter an assignment title.');
-            final dueAt = _newAssignmentDueDate != null
-                ? DateFormat('yyyy-MM-dd').format(_newAssignmentDueDate!)
-                : null;
-            await repo.createClassroomAssignment(
-              courseId: courseId,
-              title: assignTitle,
-              dueAt: dueAt,
-            );
           } else {
             assignTitle = _teacherAssignmentsList
                     .where((a) => (a['id'] ?? '') == _selectedAssignmentId)
@@ -256,59 +250,41 @@ class _TeacherAddGradeScreenState
                     ?.toString() ??
                 'Assignment Grade';
           }
-          await repo.createAssessment(
-            courseId: courseId,
+          final created = await repo.createAssessment(
+            cohortId: cohortId,
             title: assignTitle,
+            subject: _selectedSubject,
             date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
             published: _published,
           );
-          final b = await repo.fetchAssessments();
-          assessmentId = b.assessments
-              .where((a) => a.courseId == courseId && a.title == assignTitle)
-              .lastOrNull
-              ?.id;
+          assessmentId = _extractAssessmentId(created);
         } else if (_gradeType == _GradeType.other) {
           final title = _otherTitleCtrl.text.trim();
           if (title.isEmpty) throw Exception('Enter a title for this grade.');
-          await repo.createAssessment(
-            courseId: courseId,
+          final created = await repo.createAssessment(
+            cohortId: cohortId,
             title: title,
+            subject: _selectedSubject,
             date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
             maxGrade: int.tryParse(_otherMaxCtrl.text.trim()),
             published: _published,
           );
-          final b = await repo.fetchAssessments();
-          assessmentId = b.assessments
-              .where((a) => a.courseId == courseId && a.title == title)
-              .lastOrNull
-              ?.id;
+          assessmentId = _extractAssessmentId(created);
         } else if (_gradeType == _GradeType.exam && _selectedExamId != null) {
-          // Find or create an Assessment linked to this exam for the course.
           final exam = _teacherExamsList
               .where((e) => (e['id'] ?? '') == _selectedExamId)
               .firstOrNull;
           final examTitle = exam?['title']?.toString() ?? 'Exam';
           final maxGrade = exam?['maxGrade'] is int ? exam!['maxGrade'] as int : null;
-          // Try to reuse an existing assessment for this exam+course.
-          final existing = await repo.fetchAssessments();
-          assessmentId = existing.assessments
-              .where((a) => a.courseId == courseId && a.title == examTitle)
-              .lastOrNull
-              ?.id;
-          if (assessmentId == null) {
-            await repo.createAssessment(
-              courseId: courseId,
-              title: examTitle,
-              date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-              maxGrade: maxGrade,
-              published: _published,
-            );
-            final b2 = await repo.fetchAssessments();
-            assessmentId = b2.assessments
-                .where((a) => a.courseId == courseId && a.title == examTitle)
-                .lastOrNull
-                ?.id;
-          }
+          final created = await repo.createAssessment(
+            cohortId: cohortId,
+            title: examTitle,
+            subject: _selectedSubject,
+            date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            maxGrade: maxGrade,
+            published: _published,
+          );
+          assessmentId = _extractAssessmentId(created);
         } else {
           throw Exception('Unsupported grade type.');
         }
@@ -335,6 +311,21 @@ class _TeacherAddGradeScreenState
       setState(() => _saving = false);
       _snack('Error: $e', isError: true);
     }
+  }
+
+  /// Pulls the assessment id from createAssessment's response shape. The
+  /// server returns `{ ok, assessment: { id, ... } }`; older responses may
+  /// flatten the row at the top level. Returns null when neither shape has
+  /// a usable id.
+  String? _extractAssessmentId(Map<String, dynamic> raw) {
+    final nested = raw['assessment'];
+    if (nested is Map) {
+      final id = nested['id']?.toString().trim();
+      if (id != null && id.isNotEmpty) return id;
+    }
+    final flat = raw['id']?.toString().trim();
+    if (flat != null && flat.isNotEmpty) return flat;
+    return null;
   }
 
   void _snack(String msg, {bool isError = false}) {
@@ -560,7 +551,7 @@ class _TeacherAddGradeScreenState
                                 padding: const EdgeInsets.only(top: 12),
                                 child: FilledButton.icon(
                                   onPressed: () async {
-                                    final courseId = _courseStudentGroups.keys.firstOrNull;
+                                    final courseId = _cohortStudentGroups.keys.firstOrNull;
                                     await context.push(
                                       '/teacher/assignments/add',
                                       extra: <String, dynamic>{
@@ -639,7 +630,7 @@ class _TeacherAddGradeScreenState
                               FilledButton.icon(
                                 onPressed: () async {
                                   final courseId =
-                                      _courseStudentGroups.keys.firstOrNull;
+                                      _cohortStudentGroups.keys.firstOrNull;
                                   final cohortId = _allStudents
                                       .where((s) => _selectedStudentIds
                                           .contains(s.studentId))

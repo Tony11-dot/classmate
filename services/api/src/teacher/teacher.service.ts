@@ -1811,9 +1811,21 @@ export class TeacherService {
 
   async listSubjects(user: any) {
     this.ensureTeacher(user);
-    const teacherId = user.id ?? user.sub;
-    // Derive subjects from teacher's cohorts (via schedule slots) + classrooms
-    const [slotCohorts, classrooms] = await Promise.all([
+    const teacherId = String(user.id ?? user.sub ?? '');
+    const schoolId = String(user.schoolId ?? '');
+
+    // Authoritative list: SchoolGradeSubjectDefault rows the admin curated for
+    // this school (subjectsI18n JSON or the legacy flat `subjects` String[]).
+    // Anything the teacher actually teaches (slot subjects, classroom subjects)
+    // also gets surfaced so historical strings don't disappear when the admin
+    // hasn't catalogued them yet.
+    const [schoolDefaults, slotCohorts, classrooms] = await Promise.all([
+      schoolId
+        ? this.prisma.schoolGradeSubjectDefault.findMany({
+            where: { schoolId },
+            select: { subjects: true, subjectsI18n: true } as any,
+          })
+        : Promise.resolve([] as any[]),
       this.prisma.scheduleSlotCohort.findMany({
         where: { slot: { teacherId } },
         select: { slot: { select: { subject: true } } },
@@ -1823,11 +1835,30 @@ export class TeacherService {
         select: { subject: true },
       }),
     ]);
-    const set = new Set<string>([
-      ...slotCohorts.map((sc) => sc.slot.subject).filter(Boolean) as string[],
-      ...classrooms.map((c) => c.subject).filter(Boolean) as string[],
-      'Math', 'Physics', 'Computer Science', 'Arabic Literature', 'English', 'Hebrew', 'History', 'Biology', 'Chemistry',
-    ]);
+
+    const set = new Set<string>();
+    for (const row of schoolDefaults as any[]) {
+      const i18n = Array.isArray(row.subjectsI18n) ? row.subjectsI18n : [];
+      for (const s of i18n) {
+        const name = typeof s === 'string'
+          ? s.trim()
+          : String((s as any)?.nameEn ?? '').trim();
+        if (name) set.add(name);
+      }
+      const flat = Array.isArray(row.subjects) ? row.subjects : [];
+      for (const s of flat) {
+        const name = String(s ?? '').trim();
+        if (name) set.add(name);
+      }
+    }
+    for (const sc of slotCohorts) {
+      const s = sc.slot.subject?.trim();
+      if (s) set.add(s);
+    }
+    for (const c of classrooms) {
+      const s = c.subject?.trim();
+      if (s) set.add(s);
+    }
     return { subjects: Array.from(set).sort() };
   }
 

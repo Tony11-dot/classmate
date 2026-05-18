@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
@@ -9,6 +10,12 @@ import 'ui/widgets/splash_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
+  // Lock the app to portrait — landscape layouts are not designed for and
+  // produce broken-looking screens on phones.
+  SystemChrome.setPreferredOrientations(const [
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const ProviderScope(child: _RootApp()));
 }
 

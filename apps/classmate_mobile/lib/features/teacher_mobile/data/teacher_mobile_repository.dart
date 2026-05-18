@@ -197,10 +197,15 @@ class TeacherMobileRepository {
         .toList(growable: false);
   }
 
+  /// Creates an Assessment. The server's Assessment model is keyed on cohort,
+  /// not classroom — `cohortId` is required.  Returns the raw server payload
+  /// (e.g. `{ ok: true, assessment: { id, ... } }`); the caller can pull
+  /// `assessment.id` straight out instead of round-tripping a list query.
   Future<Map<String, dynamic>> createAssessment({
-    required String courseId,
+    required String cohortId,
     required String title,
     required String date,
+    String? subject,
     int? maxGrade,
     bool published = false,
     List<Map<String, dynamic>>? attachments,
@@ -208,8 +213,9 @@ class TeacherMobileRepository {
     final raw = await _api.postJson(
       '/teacher/grades/assessment',
       body: <String, dynamic>{
-        'courseId': courseId,
+        'cohortId': cohortId,
         'title': title.trim(),
+        if (subject != null && subject.trim().isNotEmpty) 'subject': subject.trim(),
         'date': date.trim().isEmpty ? null : date.trim(),
         'maxGrade': maxGrade,
         'published': published,

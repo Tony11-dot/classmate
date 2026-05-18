@@ -646,6 +646,35 @@ class DmChatThreadController extends ChatThreadController {
     }
   }
 
+  /// Best-effort kind + mime guess from a local file's extension so the
+  /// optimistic bubble (which paints before the upload finishes and the
+  /// server hands back the canonical mime) doesn't render a video as an
+  /// image, etc.
+  ({ChatMessageKind kind, String? mime}) _kindFromFile(File f) {
+    final ext = f.path.split('.').last.toLowerCase();
+    const imageExts = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'};
+    const videoExts = {'mp4', 'mov', 'm4v', '3gp', 'webm', 'avi', 'mkv'};
+    const audioExts = {'m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'};
+    if (imageExts.contains(ext)) {
+      return (kind: ChatMessageKind.image, mime: 'image/${ext == 'jpg' ? 'jpeg' : ext}');
+    }
+    if (videoExts.contains(ext)) {
+      return (kind: ChatMessageKind.file, mime: 'video/${ext == 'mov' ? 'quicktime' : ext}');
+    }
+    if (audioExts.contains(ext)) {
+      return (kind: ChatMessageKind.voice, mime: 'audio/$ext');
+    }
+    return (kind: ChatMessageKind.file, mime: null);
+  }
+
+  String _kindWireValue(ChatMessageKind k, String? mime) {
+    final m = (mime ?? '').toLowerCase();
+    if (k == ChatMessageKind.image || m.startsWith('image/')) return 'image';
+    if (m.startsWith('video/')) return 'video';
+    if (k == ChatMessageKind.voice || m.startsWith('audio/')) return 'voice';
+    return 'file';
+  }
+
   @override
   Future<void> sendMedia(
     List<File> files, {
@@ -654,15 +683,18 @@ class DmChatThreadController extends ChatThreadController {
   }) async {
     // Show optimistic messages immediately (local file paths shown while uploading).
     final optimistics = <ChatMessage>[];
+    final guesses = files.map(_kindFromFile).toList();
     for (var i = 0; i < files.length; i++) {
       final file = files[i];
+      final g = guesses[i];
       final optimistic = ChatMessage(
         id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}-$i',
         senderId: _currentUserId,
         senderName: 'You',
         text: i == 0 ? (caption ?? '') : '',
-        kind: ChatMessageKind.image,
+        kind: g.kind,
         mediaUrl: file.path,
+        mediaMimeType: g.mime,
         createdAt: DateTime.now(),
         isOwn: true,
         isOptimistic: true,
@@ -676,9 +708,10 @@ class DmChatThreadController extends ChatThreadController {
     for (var i = 0; i < files.length; i++) {
       final file = files[i];
       final optimistic = optimistics[i];
+      final guess = guesses[i];
       final uploadResult = await _repo.uploadDmMedia(file.path);
       final mediaUrl = _pickUploadUrl(uploadResult);
-      final mimeType = _pickUploadMime(uploadResult);
+      final mimeType = _pickUploadMime(uploadResult) ?? guess.mime;
 
       if (mediaUrl != null) {
         // Persist BEFORE sendMessage so the CDN URL is saved even if
@@ -688,7 +721,7 @@ class DmChatThreadController extends ChatThreadController {
           senderId: _currentUserId,
           senderName: 'You',
           text: i == 0 ? (caption ?? '') : '',
-          kind: ChatMessageKind.image,
+          kind: guess.kind,
           mediaUrl: mediaUrl,
           mediaMimeType: mimeType,
           createdAt: optimistic.createdAt,
@@ -707,6 +740,7 @@ class DmChatThreadController extends ChatThreadController {
           threadId: _threadId,
           text: i == 0 ? (caption ?? '') : '',
           replyToMessageId: replyToMessageId,
+          kind: _kindWireValue(guess.kind, mimeType),
           mediaUrl: mediaUrl,
           mediaMimeType: mimeType,
         );

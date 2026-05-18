@@ -51,8 +51,19 @@ export class VerifyService {
     }) as any;
     if (!user) throw new NotFoundException('User not found');
 
-    const current: string | null = channel === 'email' ? (user.email ?? null) : (user.phone ?? null);
+    const rawCurrent: string | null = channel === 'email' ? (user.email ?? null) : (user.phone ?? null);
     const newValue = args.newValue?.trim() || null;
+
+    // A stored value only counts as "current" for the change flow if it's
+    // actually deliverable. Legacy rows can carry phones without the leading
+    // `+` (early signup before E.164 was enforced) or empty/garbage emails;
+    // in those cases we can't send a verification code to the old value, so
+    // treat the change as a first-time SET (code goes to the new value).
+    const looksDeliverable = (v: string | null): boolean => {
+      if (!v) return false;
+      return channel === 'email' ? v.includes('@') : v.startsWith('+');
+    };
+    const current = looksDeliverable(rawCurrent) ? rawCurrent! : null;
 
     // Pick the address the code is actually sent TO. CHANGE flows send to the
     // OLD value; first-time SET (no current) sends to the new value; pure
@@ -67,7 +78,7 @@ export class VerifyService {
       target = current;
       kind = 'change';
     } else if (newValue && !current) {
-      // First-time set — no OLD to send to.
+      // First-time set, or legacy-malformed current — send code to NEW value.
       target = newValue;
       kind = 'change';
     } else if (current) {

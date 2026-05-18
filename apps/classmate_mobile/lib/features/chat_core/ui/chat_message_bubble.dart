@@ -152,40 +152,43 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildImageWidget(String url, {required bool previewMode}) {
+    final placeholder = Builder(builder: (ctx) {
+      final cs = Theme.of(ctx).colorScheme;
+      return Container(
+        height: previewMode ? 132 : 180,
+        alignment: Alignment.center,
+        color: cs.surfaceContainerHigh,
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2, color: cs.onSurfaceVariant),
+        ),
+      );
+    });
+    final errorPanel = Builder(builder: (ctx) {
+      final cs = Theme.of(ctx).colorScheme;
+      return Container(
+        height: previewMode ? 132 : 180,
+        alignment: Alignment.center,
+        color: cs.surfaceContainerHigh,
+        child: Icon(Icons.broken_image_outlined, color: cs.onSurfaceVariant),
+      );
+    });
     if (_isLocalPath(url)) {
       final path = url.startsWith('file://') ? Uri.parse(url).toFilePath() : url;
       return Image.file(
         File(path),
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (ctx, err, _) => Container(
-          height: previewMode ? 132 : 180,
-          alignment: Alignment.center,
-          color: Colors.white,
-          child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
-        ),
+        errorBuilder: (ctx, err, _) => errorPanel,
       );
     }
     return CachedNetworkImage(
       imageUrl: url,
       width: double.infinity,
       fit: BoxFit.cover,
-      placeholder: (ctx, url) => Container(
-        height: previewMode ? 132 : 180,
-        alignment: Alignment.center,
-        color: Colors.white,
-        child: const SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
-        ),
-      ),
-      errorWidget: (ctx, url, err) => Container(
-        height: previewMode ? 132 : 180,
-        alignment: Alignment.center,
-        color: Colors.white,
-        child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
-      ),
+      placeholder: (ctx, url) => placeholder,
+      errorWidget: (ctx, url, err) => errorPanel,
     );
   }
 

@@ -597,6 +597,7 @@ class _ScheduleTile extends StatelessWidget {
     final title = '${item['title'] ?? l.scheduleClassFallback}';
     final subject = (item['subject'] ?? '').toString().trim();
     final location = (item['location'] ?? '').toString().trim();
+    final teacherName = (item['teacherName'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
     final endsAt = '${item['endsAt'] ?? '--:--'}';
     final courseId = (item['courseId'] ?? '').toString().trim();
@@ -680,6 +681,13 @@ class _ScheduleTile extends StatelessWidget {
                       cs: cs,
                       theme: theme,
                     ),
+                  if (teacherName.isNotEmpty)
+                    _InfoPill(
+                      icon: Icons.person_rounded,
+                      label: teacherName,
+                      cs: cs,
+                      theme: theme,
+                    ),
                   if (location.isNotEmpty)
                     _InfoPill(
                       icon: Icons.room_rounded,
@@ -753,6 +761,7 @@ class _ScheduleTile extends StatelessWidget {
     final title = '${item['title'] ?? l.scheduleClassFallback}';
     final subject = (item['subject'] ?? '').toString().trim();
     final location = (item['location'] ?? '').toString().trim();
+    final teacherName = (item['teacherName'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
     final endsAt = '${item['endsAt'] ?? '--:--'}';
     final period = (item['period'] as num?)?.toInt();
@@ -761,6 +770,7 @@ class _ScheduleTile extends StatelessWidget {
 
     final subtitleParts = <String>[
       if (subject.isNotEmpty) subject,
+      if (teacherName.isNotEmpty) teacherName,
       if (location.isNotEmpty) location,
     ];
 
