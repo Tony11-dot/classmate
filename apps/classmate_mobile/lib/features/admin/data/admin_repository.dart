@@ -345,6 +345,8 @@ class AdminRepository {
     String? endTime,
     bool setEndTime = false,
     int? frequencyWeeks,
+    String? startDate,
+    bool setStartDate = false,
   }) async {
     final body = <String, dynamic>{
       if (dayOfWeek != null) 'dayOfWeek': dayOfWeek,
@@ -358,6 +360,7 @@ class AdminRepository {
       if (setStartTime) 'startTime': startTime,
       if (setEndTime) 'endTime': endTime,
       if (frequencyWeeks != null) 'frequencyWeeks': frequencyWeeks,
+      if (setStartDate) 'startDate': startDate,
     };
     await _api.patchJson('/admin/periods/$id', body: body);
   }

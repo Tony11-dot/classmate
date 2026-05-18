@@ -234,7 +234,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         audienceGrade: normalizedAudienceGrade,
         startTime: startTime ?? null,
         endTime: endTime ?? null,
-        frequencyWeeks: Number.isInteger(frequencyWeeks) && frequencyWeeks >= 1 ? frequencyWeeks : 1,
+        // 0 = one-off (renders only on startDate), 1..52 = recurring.
+        frequencyWeeks: Number.isInteger(frequencyWeeks) && frequencyWeeks >= 0 && frequencyWeeks <= 52
+          ? frequencyWeeks
+          : 1,
         startDate: startDate ?? null,
       } as any,
     });
@@ -278,6 +281,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     startTime?: string | null;
     endTime?: string | null;
     frequencyWeeks?: number;
+    startDate?: string | null;
   }) {
     this.ensureAdmin(user);
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
@@ -303,7 +307,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     }
     if ('startTime' in body) data.startTime = body.startTime ?? null;
     if ('endTime' in body) data.endTime = body.endTime ?? null;
-    if (body.frequencyWeeks !== undefined) data.frequencyWeeks = body.frequencyWeeks >= 1 ? body.frequencyWeeks : 1;
+    if (body.frequencyWeeks !== undefined) {
+      // Same range as createPeriod: 0 = one-off, 1..52 = recurring.
+      const f = body.frequencyWeeks;
+      data.frequencyWeeks = Number.isInteger(f) && f >= 0 && f <= 52 ? f : 1;
+    }
+    if ('startDate' in body) data.startDate = body.startDate ?? null;
 
     const updated = await this.prisma.scheduleSlot.update({ where: { id }, data });
 

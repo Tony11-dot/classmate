@@ -1007,12 +1007,18 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       _colorOverride = rawColor.isEmpty ? null : rawColor;
 
       final freq = (edit['frequencyWeeks'] as num?)?.toInt() ?? 1;
-      if (freq == 1 || freq == 2 || freq == 4) {
+      if (freq == 0 || freq == 1 || freq == 2 || freq == 4) {
         _frequencyWeeks = freq;
         _customFreq = false;
       } else if (freq > 0) {
         _customFreq = true;
         _customFreqCtrl.text = '$freq';
+      }
+      // Restore the anchor date so editing a Once slot shows its date
+      // pre-selected and editing a recurring slot keeps its first occurrence.
+      final rawStartDate = edit['startDate']?.toString().trim() ?? '';
+      if (rawStartDate.isNotEmpty) {
+        _startDate = DateTime.tryParse(rawStartDate);
       }
 
       final cohortRows = (edit['cohorts'] as List?) ?? const [];
@@ -1244,7 +1250,34 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         ? (int.tryParse(_customFreqCtrl.text.trim()) ?? 1).clamp(1, 52)
         : _frequencyWeeks;
 
+    // "Once" needs a concrete date — the slot persists with frequencyWeeks=0
+    // and only renders on this date, so without one it's unanchored.
+    if (freq == 0 && _startDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Pick a date for a one-off period.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
     final audience = _resolveAudience();
+
+    // Conflict check — warn before overwriting/duplicating any existing
+    // period at the same (day, slot) for an overlapping audience. The user
+    // can confirm to proceed (one-off lectures replacing a regular class is
+    // the expected case) or cancel to back out.
+    final conflicts = _findConflicts(
+      audience: audience,
+      freq: freq,
+      startDate: _startDate,
+    );
+    if (conflicts.isNotEmpty) {
+      final proceed = await _confirmConflictDialog(conflicts);
+      if (proceed != true) return;
+    }
+
     setState(() => _saving = true);
 
     // Edit path — single PATCH against the slot we opened.
@@ -1256,6 +1289,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       }
       try {
         final slot = _slots.first;
+        final sd = _startDate != null
+            ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
+            : null;
         await widget.repo.updatePeriod(
           id: id,
           dayOfWeek: slot.dayOfWeek,
@@ -1271,6 +1307,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           cohortIds: audience.cohortIds ?? const <String>[],
           studentIds: audience.studentIds ?? const <String>[],
           frequencyWeeks: freq,
+          // Stamp the date even when null so toggling between Once/Weekly
+          // clears the anchor properly.
+          startDate: sd,
+          setStartDate: true,
         );
       } catch (e) {
         if (!mounted) return;
@@ -1561,6 +1601,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
+                // Once = one-off override; replaces the regular slot just for
+                // the chosen date. Persisted as frequencyWeeks=0 + startDate.
+                _FreqChip(label: 'Once', selected: !_customFreq && _frequencyWeeks == 0,
+                    onTap: () => setState(() { _frequencyWeeks = 0; _customFreq = false; })),
                 _FreqChip(label: l.adminScheduleFreqWeekly, selected: !_customFreq && _frequencyWeeks == 1,
                     onTap: () => setState(() { _frequencyWeeks = 1; _customFreq = false; })),
                 _FreqChip(label: l.adminScheduleFreqBiweekly, selected: !_customFreq && _frequencyWeeks == 2,
@@ -1595,11 +1639,12 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               ),
             ],
 
-            // ── Start date (shown when frequency > 1) ─────────────────────
-            if (_frequencyWeeks > 1 || _customFreq) ...[
+            // ── Date picker — required for "Once", optional first-occurrence
+            // for repeating frequencies. Label shifts to match the meaning.
+            if (_frequencyWeeks == 0 || _frequencyWeeks > 1 || _customFreq) ...[
               const SizedBox(height: 16),
               Text(
-                'Starts on',
+                _frequencyWeeks == 0 ? 'On' : 'Starts on',
                 style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 6),
@@ -1637,6 +1682,172 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
 
   static const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   String _monthName(int m) => m >= 1 && m <= 12 ? _months[m] : '$m';
+
+  /// Finds existing periods that overlap this draft at the same (day, slot)
+  /// for an overlapping audience. Returns up to a handful of human-readable
+  /// labels for the warning dialog.
+  ///
+  /// Overlap rules (anything in common is a conflict):
+  ///   - Any cohort id in the draft's cohort audience also appears on the
+  ///     existing slot's cohorts.
+  ///   - Any student id in the draft's student audience also appears on the
+  ///     existing slot's students.
+  ///   - The draft's audienceGrade matches the existing slot's audienceGrade.
+  ///   - The draft's audienceGrade equals any existing slot cohort's grade
+  ///     (covers grade-mode draft conflicting with cohort-mode existing).
+  ///   - The existing slot's audienceGrade equals any of the draft's
+  ///     cohort grades (covers the reverse).
+  List<_ConflictHit> _findConflicts({
+    required ({List<String>? cohortIds, List<String>? studentIds}) audience,
+    required int freq,
+    required DateTime? startDate,
+  }) {
+    final periodsAsync = ref.read(_periodsProvider);
+    final all = periodsAsync.maybeWhen(data: (d) => d, orElse: () => const <Map<String, dynamic>>[]);
+
+    final draftCohortIds = (audience.cohortIds ?? const <String>[]).toSet();
+    final draftStudentIds = (audience.studentIds ?? const <String>[]).toSet();
+    final draftGrade = _audience == _AudienceMode.grade ? _audienceGrade : null;
+    final draftCohortGrades = <int>{};
+    if (draftCohortIds.isNotEmpty) {
+      for (final cid in draftCohortIds) {
+        final c = widget.cohorts.firstWhere(
+          (e) => e['id']?.toString() == cid,
+          orElse: () => const {},
+        );
+        for (final g in _cohortGradesOf(c)) {
+          draftCohortGrades.add(g);
+        }
+      }
+    }
+
+    final hits = <_ConflictHit>[];
+    final editingId = _editingId;
+    final draftYmd = startDate != null
+        ? '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}'
+        : null;
+    for (final slot in all) {
+      if (editingId != null && slot['id']?.toString() == editingId) continue;
+      // Same (day, slot) — different periods can coexist; same time can't.
+      final drafts = _slots;
+      final sameSpot = drafts.any((d) =>
+          d.dayOfWeek == (slot['dayOfWeek'] as num?)?.toInt() &&
+          d.period == (slot['period'] as num?)?.toInt());
+      if (!sameSpot) continue;
+
+      // Existing-slot audience
+      final exCohortRows = (slot['cohorts'] as List? ?? const []).whereType<Map>().toList();
+      final exCohortIds = exCohortRows
+          .map((c) => (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      final exStudentIds = (slot['students'] as List? ?? const [])
+          .whereType<Map>()
+          .map((s) => s['studentId']?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      final exGrade = (slot['audienceGrade'] as num?)?.toInt();
+      final exCohortGrades = <int>{};
+      for (final r in exCohortRows) {
+        final cohort = r['cohort'];
+        if (cohort is! Map) continue;
+        final gs = cohort['grades'];
+        if (gs is List) {
+          for (final g in gs) {
+            if (g is num) exCohortGrades.add(g.toInt());
+          }
+        }
+        final g = cohort['grade'];
+        if (g is num) exCohortGrades.add(g.toInt());
+      }
+
+      bool overlap = false;
+      if (draftCohortIds.any(exCohortIds.contains)) overlap = true;
+      if (!overlap && draftStudentIds.any(exStudentIds.contains)) overlap = true;
+      if (!overlap && draftGrade != null && exGrade == draftGrade) overlap = true;
+      if (!overlap && draftGrade != null && exCohortGrades.contains(draftGrade)) overlap = true;
+      if (!overlap && exGrade != null && draftCohortGrades.contains(exGrade)) overlap = true;
+      if (!overlap) continue;
+
+      // For a "Once" override against a repeating existing slot, the conflict
+      // only fires on the draft's date. (Two slots that never share a date
+      // can't really collide.) Repeating drafts conflict broadly.
+      final exFreq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
+      final exYmd = slot['startDate']?.toString();
+      if (freq == 0 && exFreq == 0 && draftYmd != null && exYmd != null && draftYmd != exYmd) {
+        continue;
+      }
+
+      hits.add(_ConflictHit(
+        subject: (slot['subject'] ?? '').toString(),
+        teacherName: (slot['teacher'] is Map ? slot['teacher']['name'] : null)?.toString() ?? '',
+        audienceLabel: _audienceLabelForSlot(slot),
+      ));
+      if (hits.length >= 5) break;
+    }
+    return hits;
+  }
+
+  String _audienceLabelForSlot(Map<String, dynamic> slot) {
+    final ag = (slot['audienceGrade'] as num?)?.toInt();
+    if (ag != null) return 'Grade $ag';
+    final names = (slot['cohorts'] as List? ?? const [])
+        .whereType<Map>()
+        .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    if (names.isNotEmpty) {
+      return names.length == 1 ? names.first : '${names.first} +${names.length - 1}';
+    }
+    final n = (slot['students'] as List? ?? const []).length;
+    return n > 0 ? '$n student${n == 1 ? '' : 's'}' : '—';
+  }
+
+  Future<bool?> _confirmConflictDialog(List<_ConflictHit> hits) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Conflicting period'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'There ${hits.length == 1 ? 'is already a period' : 'are already periods'} at this time for an overlapping audience:',
+              ),
+              const SizedBox(height: 10),
+              for (final h in hits)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(
+                    '• ${[h.subject, h.audienceLabel, if (h.teacherName.isNotEmpty) h.teacherName].where((s) => s.isNotEmpty).join(' · ')}',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              const SizedBox(height: 10),
+              const Text('Save anyway?', style: TextStyle(fontWeight: FontWeight.w600)),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ConflictHit {
+  final String subject;
+  final String teacherName;
+  final String audienceLabel;
+  const _ConflictHit({
+    required this.subject,
+    required this.teacherName,
+    required this.audienceLabel,
+  });
 }
 
 // ── Day + Period row ───────────────────────────────────────────────────────────

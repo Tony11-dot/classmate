@@ -339,7 +339,18 @@ export class ScheduleService {
   }): ScheduleItem[] {
     const dateYmd = ymdUTC(params.date);
     const dow = dayOfWeekInJerusalem(params.date); // 0..6
-    const tmpl = params.templateRows.filter((r) => Number(r.dayOfWeek) === dow);
+    const tmpl = params.templateRows.filter((r) => {
+      if (Number(r.dayOfWeek) !== dow) return false;
+      // "Once" slot — only renders on its anchor date. frequencyWeeks=0 is
+      // the convention for one-off override periods created by the admin
+      // ("Once" chip in Add Period); they must carry a startDate.
+      const freq = Number((r as any).frequencyWeeks ?? 1);
+      if (freq === 0) {
+        const sd = (r as any).startDate ?? null;
+        return typeof sd === 'string' && sd === dateYmd;
+      }
+      return true;
+    });
 
     type Entry = {
       id: string;
