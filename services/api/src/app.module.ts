@@ -59,8 +59,13 @@ if (!existsSync(uploadsRoot)) {
   mkdirSync(uploadsRoot, { recursive: true });
 }
 
-const serveStatic =
-  env.SERVE_UPLOADS === 'true' || env.NODE_ENV !== 'production'
+// Project-bundled brand assets (e.g. logo_light.png used by email templates).
+// Served unconditionally because email recipients fetch these URLs regardless
+// of the SERVE_UPLOADS env gate that controls user-uploaded media.
+const assetsRoot = join(process.cwd(), 'assets');
+
+const serveStatic = [
+  ...(env.SERVE_UPLOADS === 'true' || env.NODE_ENV !== 'production'
     ? [
         ServeStaticModule.forRoot({
           rootPath: uploadsRoot,
@@ -70,7 +75,21 @@ const serveStatic =
           },
         }),
       ]
-    : [];
+    : []),
+  ...(existsSync(assetsRoot)
+    ? [
+        ServeStaticModule.forRoot({
+          rootPath: assetsRoot,
+          serveRoot: '/static',
+          serveStaticOptions: {
+            fallthrough: false,
+            // Aggressive cache — these assets are immutable per deploy.
+            maxAge: 60 * 60 * 24 * 30 * 1000,
+          },
+        }),
+      ]
+    : []),
+];
 
 const seedControllers = [
   ...(env.NODE_ENV === 'test' ? [E2ESeedController] : []),

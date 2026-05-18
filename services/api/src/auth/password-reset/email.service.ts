@@ -281,7 +281,7 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
 
         <!-- Header w/ logo + tagline -->
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          ${logoImg({ size: 'lg' })}
           <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
@@ -333,17 +333,50 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
 }
 
 /**
+ * Public URL the API is reachable at from the outside world.  Used by email
+ * templates to absolute-reference brand assets that are served from
+ * /static (see app.module.ts ServeStaticModule mount for assets/).
+ * Mirrors the PUBLIC_APP_URL lookup in PasswordResetService.baseUrl so the
+ * two never drift.
+ */
+function emailBaseUrl(): string {
+  const explicit = process.env.PUBLIC_APP_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, '');
+  return 'https://pacific-enchantment-production-7a80.up.railway.app';
+}
+
+/**
+ * Centered logo block for email headers.  `size: 'lg'` is the gradient-banner
+ * size used by the marketing-style templates; `'sm'` is the inline badge that
+ * leads simpler transactional templates.  Both sizes hit the same
+ * /static/logo_light.png and use a TABLE-with-align="center" wrapper because
+ * email clients (Outlook in particular) ignore `margin: 0 auto` and
+ * `display: block; text-align: center` on `<img>`.
+ */
+function logoImg({ size = 'lg' }: { size?: 'lg' | 'sm' } = {}): string {
+  const url = `${emailBaseUrl()}/static/logo_light.png`;
+  const px = size === 'lg' ? 88 : 56;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto"><tr>
+  <td align="center" style="text-align:center">
+    <img src="${url}" alt="ClassMate" width="${px}" height="${px}" style="display:block;width:${px}px;height:${px}px;border:0;outline:none;text-decoration:none">
+  </td>
+</tr></table>`;
+}
+
+/**
  * Lightweight branded header for the simpler email templates (verify code,
- * heads-up). The bigger marketing-style templates use the gradient banner.
- * Renders a CM mark + "ClassMate" wordmark — small enough that Gmail won't
- * truncate the message body underneath.
+ * heads-up). Centered logo + "ClassMate" wordmark so the brand is consistent
+ * with the app's drawer (logo_light.png) regardless of where in the body
+ * the badge lands.
  */
 function cmBadgeHtml(): string {
-  return `<table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px"><tr>
-  <td style="vertical-align:middle">
-    <div style="display:inline-block;width:42px;height:42px;background:#2563eb;border-radius:50%;line-height:42px;text-align:center;color:#ffffff;font-size:18px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 18px;text-align:center"><tr>
+  <td align="center" style="padding-bottom:6px">
+    ${logoImg({ size: 'sm' })}
   </td>
-  <td style="vertical-align:middle;padding-left:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-weight:800;font-size:16px;color:#1a1a2e">ClassMate</td>
+</tr>
+<tr>
+  <td align="center" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-weight:800;font-size:16px;color:#1a1a2e;text-align:center">ClassMate</td>
 </tr></table>`;
 }
 
@@ -387,7 +420,7 @@ function buildPlatformResetCodeHtml(args: { code: string; expiresInMinutes: numb
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#dc2626 100%);">
-          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          ${logoImg({ size: 'lg' })}
           <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.85); letter-spacing:.3px;">Platform Reset</p>
         </td></tr>
@@ -465,7 +498,7 @@ function buildPasswordRequestAdminHtml(args: {
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          ${logoImg({ size: 'lg' })}
           <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>
@@ -542,7 +575,7 @@ function buildPasswordChangedHtml(args: {
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px; background:#ffffff; border-radius:20px; box-shadow:0 4px 18px rgba(0,0,0,0.04); overflow:hidden;">
 
         <tr><td align="center" style="padding:40px 24px 28px; background:linear-gradient(135deg,#1a1a2e 0%,#2563eb 100%);">
-          <div style="display:inline-block;width:64px;height:64px;background:#ffffff;border-radius:50%;line-height:64px;text-align:center;color:#2563eb;font-size:28px;font-weight:900;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">CM</div>
+          ${logoImg({ size: 'lg' })}
           <p style="margin:14px 0 0;font-size:18px;font-weight:800;color:#ffffff;letter-spacing:.3px;">ClassMate</p>
           <p style="margin:14px 0 0; font-size:13px; font-weight:500; color:rgba(255,255,255,0.78); letter-spacing:.3px;">One app. Your whole school.</p>
         </td></tr>

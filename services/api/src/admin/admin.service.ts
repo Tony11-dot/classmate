@@ -428,24 +428,32 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         name: true,
         grade: true,
         grades: true,
-        // Multi-cohort membership via StudentCohort — the schedule UI uses
-        // this to render student counts/previews per cohort without making
-        // a follow-up roster call per cohort.
+        // Both membership sources — see listCohorts() for the same union
+        // (StudentCohort join + legacy StudentProfile.cohortId scalar).
         studentLinks: { select: { studentId: true } },
+        students: { select: { userId: true } },
       } as any,
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
     return {
       ok: true,
-      cohorts: (cohorts as any[]).map((c) => ({
-        id: c.id,
-        name: c.name,
-        grade: c.grade,
-        grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
-        studentIds: Array.isArray(c.studentLinks)
-          ? c.studentLinks.map((l: any) => l.studentId).filter((id: any) => !!id)
-          : [],
-      })),
+      cohorts: (cohorts as any[]).map((c) => {
+        const ids = new Set<string>([
+          ...(Array.isArray(c.studentLinks)
+            ? c.studentLinks.map((l: any) => l.studentId).filter((id: any) => !!id)
+            : []),
+          ...(Array.isArray(c.students)
+            ? c.students.map((s: any) => s.userId).filter((id: any) => !!id)
+            : []),
+        ]);
+        return {
+          id: c.id,
+          name: c.name,
+          grade: c.grade,
+          grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
+          studentIds: Array.from(ids),
+        };
+      }),
     };
   }
 
@@ -1360,19 +1368,33 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         name: true,
         grade: true,
         grades: true,
-        _count: { select: { studentLinks: true } },
+        // Both sources of membership — pull the ids so we can union per cohort.
+        studentLinks: { select: { studentId: true } },
+        students: { select: { userId: true } },
       },
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
     return {
       ok: true,
-      cohorts: cohorts.map((c) => ({
-        id: c.id,
-        name: c.name,
-        grade: c.grade,
-        grades: (c as any).grades?.length ? (c as any).grades : [c.grade],
-        studentCount: c._count.studentLinks,
-      })),
+      cohorts: cohorts.map((c: any) => {
+        // Students belong to a cohort via two mechanisms today:
+        //   1. StudentCohort join (multi-cohort, new schema)
+        //   2. StudentProfile.cohortId scalar (legacy single-cohort).
+        // The _count helper only sees #1, so historical rosters showed 0
+        // until they were re-added.  Union both, dedupe, and report the
+        // unique-student total.
+        const ids = new Set<string>([
+          ...(c.studentLinks ?? []).map((l: any) => l.studentId),
+          ...(c.students ?? []).map((s: any) => s.userId),
+        ]);
+        return {
+          id: c.id,
+          name: c.name,
+          grade: c.grade,
+          grades: c.grades?.length ? c.grades : [c.grade],
+          studentCount: ids.size,
+        };
+      }),
     };
   }
 

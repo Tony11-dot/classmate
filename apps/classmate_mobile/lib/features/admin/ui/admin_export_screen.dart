@@ -23,13 +23,16 @@ class AdminExportScreen extends ConsumerStatefulWidget {
   ConsumerState<AdminExportScreen> createState() => _AdminExportScreenState();
 }
 
+enum _PickerMode { students, cohorts, grades }
+
 class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   // Mode
-  bool _byCohort = false;
+  _PickerMode _mode = _PickerMode.students;
 
   // Selection
   final Set<String> _selectedStudentIds = {};
   final Set<String> _selectedCohortIds  = {};
+  final Set<int>    _selectedGrades     = {};
   final Set<String> _expandedCohortIds  = {};
 
   // Data
@@ -62,16 +65,64 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
     }
   }
 
-  // Returns the effective list of selected student IDs (combining direct + cohort selections)
+  /// All grades visible in this school — derived from the cohorts DDL so we
+  /// don't need a separate school-grades fetch. Each cohort can span multiple
+  /// grades via `grades[]`, otherwise falls back to its primary `grade`.
+  List<int> get _allGrades {
+    final set = <int>{};
+    for (final c in _cohorts) {
+      final gs = c['grades'];
+      if (gs is List && gs.isNotEmpty) {
+        for (final g in gs) {
+          if (g is num) set.add(g.toInt());
+        }
+      } else {
+        final g = c['grade'];
+        if (g is num) set.add(g.toInt());
+      }
+    }
+    return set.toList()..sort();
+  }
+
+  /// Resolves the list of selected student IDs across all three picker
+  /// modes, deduplicated. Students mode = direct selection. Cohorts mode =
+  /// roster lookup by selected cohort ids (matched against StudentCohort
+  /// memberships, with a name fallback for legacy rows). Grades mode =
+  /// any student whose own grade or whose cohorts cover one of the
+  /// selected grades.
   List<String> get _effectiveStudentIds {
-    final ids = <String>{..._selectedStudentIds};
-    if (_byCohort) {
+    final ids = <String>{};
+    if (_mode == _PickerMode.students) {
+      ids.addAll(_selectedStudentIds);
+    } else if (_mode == _PickerMode.cohorts) {
       for (final cid in _selectedCohortIds) {
-        for (final s in _students) {
-          // match by cohortId or cohortName
-          final cohort = _cohorts.firstWhere((c) => c['id']?.toString() == cid, orElse: () => const {});
+        final cohort = _cohorts.firstWhere(
+          (c) => c['id']?.toString() == cid,
+          orElse: () => const {},
+        );
+        // Prefer the new multi-cohort membership lookup (cohort.studentIds
+        // from the DDL); fall back to legacy single-cohort name match.
+        final memberIds = (cohort['studentIds'] as List?)
+                ?.map((e) => e.toString())
+                .where((s) => s.isNotEmpty)
+                .toList() ??
+            const <String>[];
+        if (memberIds.isNotEmpty) {
+          ids.addAll(memberIds);
+        } else {
           final cohortName = cohort['name']?.toString() ?? '';
-          if ((s['cohortName']?.toString() ?? '') == cohortName) {
+          for (final s in _students) {
+            if ((s['cohortName']?.toString() ?? '') == cohortName) {
+              ids.add(s['id']?.toString() ?? '');
+            }
+          }
+        }
+      }
+    } else if (_mode == _PickerMode.grades) {
+      for (final g in _selectedGrades) {
+        for (final s in _students) {
+          final sg = (s['grade'] as num?)?.toInt();
+          if (sg == g) {
             ids.add(s['id']?.toString() ?? '');
           }
         }
@@ -80,13 +131,19 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
     return ids.where((id) => id.isNotEmpty).toList();
   }
 
-  int get _selectedCount => _byCohort ? _effectiveStudentIds.length : _selectedStudentIds.length;
+  int get _selectedCount {
+    if (_mode == _PickerMode.students) return _selectedStudentIds.length;
+    return _effectiveStudentIds.length;
+  }
 
   void _toggleStudent(String id) => setState(() =>
     _selectedStudentIds.contains(id) ? _selectedStudentIds.remove(id) : _selectedStudentIds.add(id));
 
   void _toggleCohort(String id) => setState(() =>
     _selectedCohortIds.contains(id) ? _selectedCohortIds.remove(id) : _selectedCohortIds.add(id));
+
+  void _toggleGrade(int g) => setState(() =>
+    _selectedGrades.contains(g) ? _selectedGrades.remove(g) : _selectedGrades.add(g));
 
   void _toggleExpandCohort(String id) => setState(() =>
     _expandedCohortIds.contains(id) ? _expandedCohortIds.remove(id) : _expandedCohortIds.add(id));
@@ -138,29 +195,37 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
             // Mode toggle
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-              child: SegmentedButton<bool>(
+              child: SegmentedButton<_PickerMode>(
                 segments: const [
-                  ButtonSegment(value: false, label: Text('Select Students'), icon: Icon(Icons.person_rounded, size: 16)),
-                  ButtonSegment(value: true,  label: Text('Select Cohorts'),  icon: Icon(Icons.groups_rounded,  size: 16)),
+                  ButtonSegment(value: _PickerMode.students, label: Text('Students'), icon: Icon(Icons.person_rounded, size: 16)),
+                  ButtonSegment(value: _PickerMode.cohorts,  label: Text('Cohorts'),  icon: Icon(Icons.groups_rounded,  size: 16)),
+                  ButtonSegment(value: _PickerMode.grades,   label: Text('Grades'),   icon: Icon(Icons.school_rounded,  size: 16)),
                 ],
-                selected: {_byCohort},
-                onSelectionChanged: (s) => setState(() { _byCohort = s.first; _selectedStudentIds.clear(); _selectedCohortIds.clear(); }),
+                selected: {_mode},
+                onSelectionChanged: (s) => setState(() {
+                  _mode = s.first;
+                  _selectedStudentIds.clear();
+                  _selectedCohortIds.clear();
+                  _selectedGrades.clear();
+                }),
               ),
             ),
 
-            // Search — works in both modes; hint flips with selection
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: TextField(
-                onChanged: (v) => setState(() => _search = v),
-                decoration: InputDecoration(
-                  hintText: _byCohort ? 'Search cohorts…' : 'Search students…',
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
+            // Search — flips its hint with the active mode. Grades mode skips
+            // it since the picker is a short chip list anyway.
+            if (_mode != _PickerMode.grades)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: TextField(
+                  onChanged: (v) => setState(() => _search = v),
+                  decoration: InputDecoration(
+                    hintText: _mode == _PickerMode.cohorts ? 'Search cohorts…' : 'Search students…',
+                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    isDense: true,
+                  ),
                 ),
               ),
-            ),
 
             // Selection count
             if (_selectedCount > 0)
@@ -188,8 +253,8 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
-                  : _byCohort
-                      ? _CohortPickerList(
+                  : switch (_mode) {
+                      _PickerMode.cohorts => _CohortPickerList(
                           cohorts: _cohorts.where((c) {
                             if (q.isEmpty) return true;
                             final name = (c['name']?.toString() ?? '').toLowerCase();
@@ -200,8 +265,14 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                           expandedCohortIds: _expandedCohortIds,
                           onToggleCohort: _toggleCohort,
                           onToggleExpand: _toggleExpandCohort,
-                        )
-                      : _StudentPickerList(
+                        ),
+                      _PickerMode.grades => _GradePickerList(
+                          grades: _allGrades,
+                          students: _students,
+                          selectedGrades: _selectedGrades,
+                          onToggle: _toggleGrade,
+                        ),
+                      _PickerMode.students => _StudentPickerList(
                           students: _students.where((s) {
                             if (q.isEmpty) return true;
                             return (s['name']?.toString() ?? '').toLowerCase().contains(q);
@@ -209,6 +280,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                           selectedIds: _selectedStudentIds,
                           onToggle: _toggleStudent,
                         ),
+                    },
             ),
           ],
         ),
@@ -276,6 +348,86 @@ class _StudentPickerList extends StatelessWidget {
                         ),
                     ],
                   ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Grade picker list ─────────────────────────────────────────────────────────
+
+class _GradePickerList extends StatelessWidget {
+  const _GradePickerList({
+    required this.grades,
+    required this.students,
+    required this.selectedGrades,
+    required this.onToggle,
+  });
+  final List<int> grades;
+  final List<Map<String, dynamic>> students;
+  final Set<int> selectedGrades;
+  final ValueChanged<int> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    if (grades.isEmpty) {
+      return Center(
+        child: Text(
+          'No grades configured for this school',
+          style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
+      itemCount: grades.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 4),
+      itemBuilder: (ctx, i) {
+        final g = grades[i];
+        final selected = selectedGrades.contains(g);
+        // Live preview of how many students this grade covers — same source
+        // the effective-selection getter uses, so the count and the export
+        // result can't drift.
+        final count = students.where((s) => (s['grade'] as num?)?.toInt() == g).length;
+        return InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => onToggle(g),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected
+                    ? cs.primary.withValues(alpha: 0.4)
+                    : cs.outlineVariant.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                  size: 20,
+                  color: selected ? cs.primary : cs.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Grade $g',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Text(
+                  '$count student${count == 1 ? '' : 's'}',
+                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ),
