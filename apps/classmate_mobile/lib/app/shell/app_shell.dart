@@ -1278,7 +1278,7 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
           ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
           : '';
       await widget.ref.read(teacherMobileRepositoryProvider).createAssessment(
-        courseId: courseId,
+        cohortId: courseId,
         title: title,
         date: dateStr,
         maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
