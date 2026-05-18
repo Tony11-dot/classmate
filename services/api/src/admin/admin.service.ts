@@ -282,6 +282,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     endTime?: string | null;
     frequencyWeeks?: number;
     startDate?: string | null;
+    skipDates?: string[];
   }) {
     this.ensureAdmin(user);
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
@@ -313,6 +314,14 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       data.frequencyWeeks = Number.isInteger(f) && f >= 0 && f <= 52 ? f : 1;
     }
     if ('startDate' in body) data.startDate = body.startDate ?? null;
+    if (Array.isArray(body.skipDates)) {
+      // Sanitize to strict YYYY-MM-DD strings — the renderer compares with
+      // string equality, so a stray timestamp would silently fail to match.
+      const re = /^\d{4}-\d{2}-\d{2}$/;
+      data.skipDates = Array.from(
+        new Set(body.skipDates.filter((s) => typeof s === 'string' && re.test(s))),
+      );
+    }
 
     const updated = await this.prisma.scheduleSlot.update({ where: { id }, data });
 

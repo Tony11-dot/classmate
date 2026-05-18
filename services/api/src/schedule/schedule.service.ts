@@ -349,6 +349,12 @@ export class ScheduleService {
         const sd = (r as any).startDate ?? null;
         return typeof sd === 'string' && sd === dateYmd;
       }
+      // Recurring slot — admin may have marked specific dates as
+      // suppressed (via the "Override" choice in the conflict dialog).
+      const skipDates: string[] = Array.isArray((r as any).skipDates)
+        ? (r as any).skipDates
+        : [];
+      if (skipDates.includes(dateYmd)) return false;
       return true;
     });
 

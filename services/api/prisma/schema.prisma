@@ -396,8 +396,12 @@ model ScheduleSlot {
   audienceGrade  Int?
   startTime      String? // override school default, e.g. "08:00"
   endTime        String? // override school default, e.g. "08:45"
-  frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc.
+  frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc. 0=one-off (anchored to startDate).
   startDate      String? // ISO date "YYYY-MM-DD" of the first occurrence for bi-weekly etc.
+  /// YYYY-MM-DD strings. The slot skips rendering on these dates, used when
+  /// a Once override replaces this recurring slot just for the override
+  /// date.  Mutated via the conflict dialog's "Override" action.
+  skipDates      String[] @default([])
 
   school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)

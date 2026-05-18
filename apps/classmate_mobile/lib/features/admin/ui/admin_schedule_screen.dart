@@ -662,7 +662,6 @@ class _ScheduleGrid extends StatelessWidget {
     final theme = Theme.of(context);
 
     final totalW = _headerW + _days * _cellW;
-    final totalH = _headerH + periodCount * _cellH;
 
     return InteractiveViewer(
       constrained: false,
@@ -671,10 +670,12 @@ class _ScheduleGrid extends StatelessWidget {
       maxScale: 2.0,
       child: Padding(
         padding: const EdgeInsets.all(16),
+        // Width is fixed; height grows to fit content so cells with many
+        // stacked slots can expand their row instead of clipping.
         child: SizedBox(
           width: totalW,
-          height: totalH,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Header row
               Row(
@@ -696,34 +697,39 @@ class _ScheduleGrid extends StatelessWidget {
                   )),
                 ],
               ),
-              // Period rows
+              // Period rows. IntrinsicHeight makes the period-label cell
+              // stretch to match whichever day cell in the row has the most
+              // stacked slots — otherwise the label is glued to _cellH and
+              // a tall cell pulls only itself out of alignment.
               ...List.generate(periodCount, (pi) {
                 final period = pi + 1;
-                return Row(
-                  children: [
-                    // Period label
-                    Container(
-                      width: _headerW,
-                      height: _cellH,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'P$period',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: cs.onSurfaceVariant,
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Period label
+                      Container(
+                        width: _headerW,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'P$period',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ),
-                    ),
-                    ...List.generate(_days, (day) {
-                      final slots = grid[(day, period)] ?? [];
-                      return _GridCell(
-                        width: _cellW,
-                        height: _cellH,
-                        slots: slots,
-                        onTap: () => onCellTap(day, period),
-                      );
-                    }),
-                  ],
+                      ...List.generate(_days, (day) {
+                        final slots = grid[(day, period)] ?? [];
+                        return _GridCell(
+                          width: _cellW,
+                          height: _cellH,
+                          slots: slots,
+                          onTap: () => onCellTap(day, period),
+                        );
+                      }),
+                    ],
+                  ),
                 );
               }),
             ],
@@ -737,6 +743,9 @@ class _ScheduleGrid extends StatelessWidget {
 class _GridCell extends StatelessWidget {
   const _GridCell({required this.width, required this.height, required this.slots, required this.onTap});
   final double width;
+  /// Minimum cell height (the row's "default" rhythm). Cells with several
+  /// stacked slots grow beyond this so every period is visible — see the
+  /// IntrinsicHeight row in [_ScheduleGrid.build].
   final double height;
   final List<Map<String, dynamic>> slots;
   final VoidCallback onTap;
@@ -750,18 +759,19 @@ class _GridCell extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: width,
-        height: height,
+        constraints: BoxConstraints(minHeight: height),
         decoration: BoxDecoration(
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
           color: hasSlots ? cs.primaryContainer.withValues(alpha: 0.08) : cs.surface,
         ),
         padding: const EdgeInsets.all(4),
+        // No more .take(3) cap and no inner scroll view — every stacked
+        // period renders, and the row grows vertically to fit. Panning the
+        // InteractiveViewer (parent) is the way to scroll.
         child: hasSlots
-            ? SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: slots.take(3).map((s) => _SlotCard(slot: s)).toList(),
-                ),
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: slots.map((s) => _SlotCard(slot: s)).toList(),
               )
             : null,
       ),
@@ -1302,9 +1312,44 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       freq: freq,
       startDate: _startDate,
     );
+    final draftYmd = _startDate != null
+        ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
+        : null;
     if (conflicts.isNotEmpty) {
-      final proceed = await _confirmConflictDialog(conflicts);
-      if (proceed != true) return;
+      // Override only makes sense for a Once draft anchored to a specific
+      // date — that's the only outcome where we can suppress just one
+      // occurrence of the existing recurring slot. Stacking is always an
+      // option.
+      final canOverride = freq == 0 && draftYmd != null;
+      final choice = await _confirmConflictDialog(
+        conflicts,
+        offerOverride: canOverride,
+      );
+      if (choice == null || choice == _ConflictChoice.cancel) return;
+      if (choice == _ConflictChoice.override) {
+        try {
+          for (final hit in conflicts) {
+            if (hit.id.isEmpty) continue;
+            // For recurring conflicts: add the draft date to skipDates so
+            // the existing slot renders on every other matching day except
+            // this one. For another Once on the same date: just delete it.
+            if (hit.frequencyWeeks == 0) {
+              await widget.repo.deletePeriod(hit.id);
+            } else {
+              final updated = <String>{...hit.skipDates, draftYmd!}.toList()
+                ..sort();
+              await widget.repo.updatePeriod(id: hit.id, skipDates: updated);
+            }
+          }
+        } catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Override failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ));
+          return;
+        }
+      }
     }
 
     setState(() => _saving = true);
@@ -1808,9 +1853,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       }
 
       hits.add(_ConflictHit(
+        id: slot['id']?.toString() ?? '',
         subject: (slot['subject'] ?? '').toString(),
         teacherName: (slot['teacher'] is Map ? slot['teacher']['name'] : null)?.toString() ?? '',
         audienceLabel: _audienceLabelForSlot(slot),
+        frequencyWeeks: (slot['frequencyWeeks'] as num?)?.toInt() ?? 1,
+        skipDates: ((slot['skipDates'] as List?) ?? const [])
+            .map((e) => e.toString())
+            .where((s) => s.isNotEmpty)
+            .toList(),
       ));
       if (hits.length >= 5) break;
     }
@@ -1832,8 +1883,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     return n > 0 ? '$n student${n == 1 ? '' : 's'}' : '—';
   }
 
-  Future<bool?> _confirmConflictDialog(List<_ConflictHit> hits) async {
-    return showDialog<bool>(
+  /// Conflict dialog outcome. `stack` = create the new slot alongside the
+  /// existing ones (both render). `override` = suppress the existing slots
+  /// on the draft's date (only valid for a Once draft, since recurring
+  /// drafts have no single date to anchor the skip on). `cancel` = back out.
+  Future<_ConflictChoice?> _confirmConflictDialog(
+    List<_ConflictHit> hits, {
+    required bool offerOverride,
+  }) async {
+    return showDialog<_ConflictChoice>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -1854,13 +1912,29 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
-              const SizedBox(height: 10),
-              const Text('Save anyway?', style: TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              Text(
+                offerOverride
+                    ? 'Replace the conflicting period for this date, or show both?'
+                    : 'Save anyway?',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.cancel),
+              child: const Text('Cancel'),
+            ),
+            if (offerOverride)
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
+                child: const Text('Override'),
+              ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.stack),
+              child: Text(offerOverride ? 'Show both' : 'Save'),
+            ),
           ],
         );
       },
@@ -1868,14 +1942,22 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   }
 }
 
+enum _ConflictChoice { cancel, override, stack }
+
 class _ConflictHit {
+  final String id;
   final String subject;
   final String teacherName;
   final String audienceLabel;
+  final int frequencyWeeks;
+  final List<String> skipDates;
   const _ConflictHit({
+    required this.id,
     required this.subject,
     required this.teacherName,
     required this.audienceLabel,
+    required this.frequencyWeeks,
+    required this.skipDates,
   });
 }
 
