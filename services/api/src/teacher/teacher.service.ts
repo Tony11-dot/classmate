@@ -1226,7 +1226,28 @@ export class TeacherService {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
     });
-    return { ok: true, items: rows.reverse() };
+    // Resolve sender names from User.name (with displayName / nameEn
+    // preferred when present). The client used to look these up via
+    // classroom roster, which fell through to "Unknown" for any sender
+    // who had since left the classroom — see student.classrooms.chatList
+    // for the same enrichment.
+    const senderIds = Array.from(new Set(rows.map((r: any) => r.senderUserId).filter(Boolean)));
+    const users = senderIds.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: senderIds } },
+          select: { id: true, name: true, displayName: true, nameEn: true } as any,
+        })
+      : [];
+    const nameById = new Map<string, string>();
+    for (const u of users as any[]) {
+      const v = String(u.displayName ?? u.nameEn ?? u.name ?? '').trim();
+      if (v) nameById.set(u.id, v);
+    }
+    const items = rows.reverse().map((r: any) => ({
+      ...r,
+      senderName: nameById.get(r.senderUserId) ?? null,
+    }));
+    return { ok: true, items };
   }
 
   async sendClassroomChat(user: any, classroomId: string, body: any) {

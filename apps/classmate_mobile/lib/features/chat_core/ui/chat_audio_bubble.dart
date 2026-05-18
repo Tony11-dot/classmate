@@ -185,6 +185,13 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         ? Colors.white
         : scheme.onSurface;
     final dimColor = onBubble;
+    // Contrast layer for content rendered ON TOP of the accent fill (play
+    // icon, active speed pill). Without this both the play-arrow and the
+    // active speed label were the same color as the circle/pill behind
+    // them, so they vanished against the bubble.
+    final onAccent = accent.computeLuminance() < 0.5
+        ? Colors.white
+        : (widget.isMine ? scheme.primary : Colors.white);
 
     // ── Waveform bars ──────────────────────────────────────────────────────
     const baseHeights = <double>[5, 9, 14, 18, 12, 8, 16, 10, 15, 6];
@@ -252,7 +259,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: accent,
+                      color: onAccent,
                     ),
                   )
                 else
@@ -260,7 +267,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                     _isPlaying
                         ? Icons.pause_rounded
                         : Icons.play_arrow_rounded,
-                    color: accent,
+                    color: onAccent,
                     size: 22,
                   ),
                 if (unreadDot)
@@ -390,9 +397,11 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   child: Text(
                     speedLabels[i],
                     style: TextStyle(
-                      color: isActive
-                          ? accent
-                          : dimColor,
+                      // When the pill is filled (active), use the contrast
+                      // foreground so the label is visible on the accent
+                      // background; otherwise stick with the bubble's
+                      // normal text color.
+                      color: isActive ? onAccent : dimColor,
                       fontSize: 10,
                       fontWeight: isActive
                           ? FontWeight.w900

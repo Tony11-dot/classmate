@@ -14,6 +14,7 @@ import '../domain/chat_message_kind.dart';
 import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
 import '../ui/forward_target_picker_sheet.dart';
+import '../utils/chat_reply_codec.dart';
 import 'chat_thread_controller.dart';
 
 class ClassroomChatThreadController extends ChatThreadController {
@@ -674,16 +675,32 @@ class ClassroomChatThreadController extends ChatThreadController {
       } catch (_) {}
     }
 
+    // Compose the inline reply prefix into the wire text — this is the
+    // canonical reply-encoding for classroom chat (the server doesn't
+    // persist replyToMessageId / replyToText columns). Without this, the
+    // optimistic bubble shows as a plain text message until the server
+    // round-trips back with the same prefix-embedded text, at which point
+    // it suddenly grows the reply quote. Doing the compose locally makes
+    // the reply appear instantly.
+    final hasReply = (replyToMessageId ?? '').trim().isNotEmpty;
+    final wireText = hasReply
+        ? composeReplyText(
+            sender: replySenderName ?? '',
+            preview: replyText ?? '',
+            body: text,
+          )
+        : text;
+
     final optimistic = <String, dynamic>{
       'id': optimisticId,
-      'text': text,
-      'body': text,
+      'text': wireText,
+      'body': wireText,
       'senderName': 'You',
       'isMine': true,
       'kind': 'TEXT',
       'createdAt': now,
     };
-    if ((replyToMessageId ?? '').trim().isNotEmpty) {
+    if (hasReply) {
       optimistic['replyToMessageId'] = replyToMessageId!.trim();
     }
     if ((replySenderName ?? '').trim().isNotEmpty) {
@@ -697,7 +714,7 @@ class ClassroomChatThreadController extends ChatThreadController {
     invalidate();
 
     try {
-      await _repo.sendChatText(_courseId, text,
+      await _repo.sendChatText(_courseId, wireText,
           replyToMessageId: replyToMessageId);
       // Remove the optimistic immediately on success so it doesn't appear
       // alongside the real server message when the post-send invalidate fires.
@@ -706,14 +723,14 @@ class ClassroomChatThreadController extends ChatThreadController {
       _optimisticMessages.removeWhere((m) => m['id'] == optimisticId);
       final localMsg = <String, dynamic>{
         'id': 'local-${DateTime.now().millisecondsSinceEpoch}',
-        'text': text,
-        'body': text,
+        'text': wireText,
+        'body': wireText,
         'senderName': 'You',
         'isMine': true,
         'kind': 'TEXT',
         'createdAt': now,
       };
-      if ((replyToMessageId ?? '').trim().isNotEmpty) {
+      if (hasReply) {
         localMsg['replyToMessageId'] = replyToMessageId!.trim();
       }
       if ((replySenderName ?? '').trim().isNotEmpty) {

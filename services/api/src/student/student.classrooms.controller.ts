@@ -182,8 +182,35 @@ export class StudentClassroomsController {
     });
     const hasMore = rows.length > take;
     const uid = this.uid(req);
-    const items = rows.slice(0, take).reverse().map((row) => ({ ...row, isMine: row.senderUserId === uid }));
+    // Resolve sender names server-side. The client used to look them up via
+    // the classroom roster, which broke for senders who had left the
+    // classroom — their name fell through to "Unknown" even though the
+    // User row still exists. Stamp the name on every row from a single
+    // batch user fetch.
+    const senderNames = await this.resolveSenderNames(rows.map((r) => r.senderUserId));
+    const items = rows.slice(0, take).reverse().map((row) => ({
+      ...row,
+      isMine: row.senderUserId === uid,
+      senderName: senderNames.get(row.senderUserId) ?? null,
+    }));
     return { ok: true, items, nextCursor: hasMore ? (rows[take - 1]?.id ?? null) : null };
+  }
+
+  /// Batch lookup of display-friendly names for a set of user ids. Prefers
+  /// the user's curated displayName, falls back through nameEn → name.
+  private async resolveSenderNames(ids: string[]): Promise<Map<string, string>> {
+    const uniq = Array.from(new Set(ids.filter((v) => typeof v === 'string' && v.length > 0)));
+    if (uniq.length === 0) return new Map();
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: uniq } },
+      select: { id: true, name: true, displayName: true, nameEn: true } as any,
+    });
+    const out = new Map<string, string>();
+    for (const u of users as any[]) {
+      const v = String(u.displayName ?? u.nameEn ?? u.name ?? '').trim();
+      if (v) out.set(u.id, v);
+    }
+    return out;
   }
 
   @Post(':id/chat/text')
@@ -374,5 +401,94 @@ export class StudentClassroomsController {
     if (!studentId) throw new BadRequestException('Missing student identity');
     await this.prisma.classroomMember.deleteMany({ where: { classroomId: id, studentId } });
     return { ok: true };
+  }
+
+  /// Joins one or more classrooms via a cohort code.  The code is generated
+  /// by the teacher/admin against a Cohort (CohortJoinCode in the schema —
+  /// classrooms don't carry their own codes today).  Matching the code:
+  ///   1. Adds the student to the cohort (StudentCohort + legacy
+  ///      studentProfile.cohortId scalar if still null).
+  ///   2. Adds them as a ClassroomMember of every Classroom whose teacher's
+  ///      slots target that cohort, so the cohort's classrooms appear in
+  ///      the student's list immediately.
+  /// Codes are single-use: the matching CohortJoinCode is deactivated.
+  @Post('join')
+  async joinByCode(@Req() req: any, @Body() body: { code?: string }) {
+    const studentId = this.uid(req);
+    if (!studentId) throw new BadRequestException('Missing student identity');
+    const code = String(body?.code ?? '').trim();
+    if (!code) throw new BadRequestException('Code is required');
+
+    const now = new Date();
+    const candidates = await this.prisma.cohortJoinCode.findMany({
+      where: {
+        active: true,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    let matchedId: string | null = null;
+    let matchedCohortId: string | null = null;
+    for (const c of candidates) {
+      if (c.expiresAt && c.expiresAt < now) continue;
+      if (await bcrypt.compare(code, c.codeHash)) {
+        matchedId = c.id;
+        matchedCohortId = c.cohortId;
+        break;
+      }
+    }
+    if (!matchedId || !matchedCohortId) {
+      throw new BadRequestException('Invalid or expired code');
+    }
+
+    // Single-use: deactivate the matched code.  updateMany returns 0 if a
+    // concurrent request already won the race.
+    const deactivated = await this.prisma.cohortJoinCode.updateMany({
+      where: { id: matchedId, active: true },
+      data: { active: false },
+    });
+    if (deactivated.count !== 1) throw new BadRequestException('Invalid or expired code');
+
+    // Cohort membership — both the new join table (multi-cohort) and the
+    // legacy scalar (only when unset, so we don't clobber a primary).
+    await this.prisma.studentCohort.upsert({
+      where: { studentId_cohortId: { studentId, cohortId: matchedCohortId } },
+      update: {},
+      create: { studentId, cohortId: matchedCohortId },
+    });
+    const profile = await this.prisma.studentProfile.findUnique({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+    if (!profile) {
+      await this.prisma.studentProfile.create({
+        data: { userId: studentId, cohortId: matchedCohortId },
+      });
+    } else if (!profile.cohortId) {
+      await this.prisma.studentProfile.update({
+        where: { userId: studentId },
+        data: { cohortId: matchedCohortId },
+      });
+    }
+
+    // Auto-add to any classroom whose teacher's slots target this cohort.
+    const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
+      where: { cohortId: matchedCohortId },
+      select: { slot: { select: { classroomId: true } } },
+    });
+    const classroomIds = Array.from(new Set(
+      slotCohorts
+        .map((sc: any) => sc.slot?.classroomId)
+        .filter((id: any): id is string => typeof id === 'string' && id.length > 0),
+    ));
+    if (classroomIds.length) {
+      await this.prisma.classroomMember.createMany({
+        data: classroomIds.map((classroomId) => ({ classroomId, studentId })),
+        skipDuplicates: true,
+      });
+    }
+
+    return { ok: true, cohortId: matchedCohortId, classroomIds };
   }
 }
