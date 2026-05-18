@@ -176,6 +176,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     ref.invalidate(
       classroomChatProvider((id: widget.courseId, limit: 50, cursor: null)),
     );
+    // Crucial: also invalidate the list providers. Without this, the
+    // home screen reads the cached list (still including this classroom)
+    // and the user reports the classroom "still there" after leaving.
+    ref.invalidate(studentClassroomsProvider);
+    ref.invalidate(orderedStudentClassroomsProvider);
 
     if (!mounted) return;
     _goBackToClassrooms();

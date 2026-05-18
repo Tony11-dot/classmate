@@ -517,6 +517,11 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _holding(BuildContext context) {
+    // Minimal Instagram-style hold HUD:
+    //   ●  0:05   ← Slide to cancel              ↑
+    // Replaces the prior dual-edge-icons + gesture meter clutter. The hint
+    // text fades to red as the cancel swipe approaches threshold, and the
+    // trailing chevron firms into a lock icon as the lock swipe approaches.
     final scheme = Theme.of(context).colorScheme;
     final cancelProgress = _clamp01(
       (-activeHoldDx) / chatRecordingCancelThreshold,
@@ -527,114 +532,244 @@ class ChatComposer extends StatelessWidget {
     final cancelActive = cancelProgress >= 1;
     final lockActive = lockProgress >= 1;
 
-    final cancelAccent =
-        Color.lerp(scheme.onSurfaceVariant, scheme.error, cancelProgress) ??
+    final cancelTint = Color.lerp(
+          scheme.onSurfaceVariant.withValues(alpha: 0.7),
+          scheme.error,
+          cancelProgress,
+        ) ??
         scheme.error;
-    final lockAccent =
-        Color.lerp(scheme.onSurfaceVariant, scheme.primary, lockProgress) ??
+    final lockTint = Color.lerp(
+          scheme.onSurfaceVariant.withValues(alpha: 0.7),
+          scheme.primary,
+          lockProgress,
+        ) ??
         scheme.primary;
+    final accent =
+        cancelActive ? scheme.error : (lockActive ? scheme.primary : scheme.primary);
+
+    // Translate the entire HUD horizontally with the cancel drag so it feels
+    // like the pill itself is being pulled left toward the trash.
+    final dragOffset = Offset(-_clamp01(cancelProgress) * 24, 0);
 
     return _shell(
       context,
       key: const ValueKey('holding'),
-      child: _recordingBar(
-        context,
-        leading: _recordingEdgeIcon(
-          context,
-          color: cancelAccent,
-          icon: cancelActive
-              ? Icons.delete_forever_rounded
-              : Icons.swipe_left_rounded,
-          active: cancelProgress > 0.18,
-        ),
-        center: _recordingCore(
-          context,
-          elapsed: recordingElapsed,
-          accent: cancelActive
-              ? cancelAccent
-              : (lockActive ? lockAccent : scheme.primary),
-          leadingIcon: cancelActive
-              ? Icons.delete_outline_rounded
-              : (lockActive ? Icons.lock_rounded : Icons.mic_rounded),
-          trailing: _recordingGestureMeter(
-            context,
-            leftProgress: cancelProgress,
-            rightProgress: lockProgress,
-            leftColor: cancelAccent,
-            rightColor: lockAccent,
+      child: Transform.translate(
+        offset: dragOffset,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: Color.lerp(scheme.outlineVariant, accent, 0.4 * (cancelProgress + lockProgress))!,
+            ),
           ),
-        ),
-        trailing: _recordingEdgeIcon(
-          context,
-          color: lockAccent,
-          icon: lockActive
-              ? Icons.lock_rounded
-              : Icons.keyboard_double_arrow_up_rounded,
-          active: lockProgress > 0.18,
-        ),
-        borderColor: Color.alphaBlend(
-          cancelAccent.withValues(alpha: 0.10 * cancelProgress),
-          scheme.outlineVariant,
-        ),
-        glowColor: Color.alphaBlend(
-          lockAccent.withValues(alpha: 0.16 * lockProgress),
-          cancelAccent.withValues(alpha: 0.08 * cancelProgress),
+          child: Row(
+            children: [
+              _recordingPulseDot(context, accent: accent),
+              const SizedBox(width: 10),
+              Text(
+                _fmtElapsed(recordingElapsed),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.w800,
+                      color: scheme.onSurface,
+                    ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      cancelActive
+                          ? Icons.delete_forever_rounded
+                          : Icons.chevron_left_rounded,
+                      size: 18,
+                      color: cancelTint,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      cancelActive ? 'Release to cancel' : 'Slide to cancel',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: cancelTint,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                width: 30 + 6 * lockProgress,
+                height: 30 + 6 * lockProgress,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: lockActive ? scheme.primary : Colors.transparent,
+                  border: Border.all(
+                    color: lockTint,
+                    width: lockActive ? 0 : 1.5,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  lockActive
+                      ? Icons.lock_rounded
+                      : Icons.keyboard_arrow_up_rounded,
+                  size: 16 + 2 * lockProgress,
+                  color: lockActive ? scheme.onPrimary : lockTint,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _locked(BuildContext context) {
+    // Minimal locked HUD:
+    //   🗑    ●  0:12  ──animated bar──   ⏸  ▶(send)
     final scheme = Theme.of(context).colorScheme;
+    final accent = isVoicePaused ? scheme.tertiary : scheme.primary;
 
     return _shell(
       context,
       key: const ValueKey('locked'),
-      child: _recordingBar(
-        context,
-        leading: _recordingActionButton(
-          context,
-          icon: Icons.delete_outline_rounded,
-          accent: scheme.error,
-          onTap: enabled ? (onTrashRecording ?? onMic) : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: scheme.outlineVariant),
         ),
-        center: _recordingCore(
-          context,
-          elapsed: recordingElapsed,
-          accent: isVoicePaused ? scheme.tertiary : scheme.primary,
-          leadingIcon: isVoicePaused
-              ? Icons.pause_circle_filled_rounded
-              : Icons.lock_rounded,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _recordingActionButton(
-                context,
-                icon: isVoicePaused
-                    ? Icons.mic_rounded
-                    : Icons.pause_rounded,
-                accent: isVoicePaused ? scheme.tertiary : scheme.primary,
-                small: true,
-                onTap: enabled
-                    ? (isVoicePaused
-                          ? (onResumeRecording ?? onMic)
-                          : (onPauseRecording ?? onMic))
-                    : null,
-              ),
-              const SizedBox(width: 6),
-              _recordingActionButton(
-                context,
-                icon: Icons.send_rounded,
-                accent: scheme.primary,
-                onTap: enabled ? onMic : null,
-                filled: true,
-              ),
-            ],
-          ),
+        child: Row(
+          children: [
+            _miniIconButton(
+              context,
+              icon: Icons.delete_outline_rounded,
+              color: scheme.error,
+              onTap: enabled ? (onTrashRecording ?? onMic) : null,
+            ),
+            const SizedBox(width: 6),
+            _recordingPulseDot(context, accent: accent, dim: isVoicePaused),
+            const SizedBox(width: 8),
+            Text(
+              _fmtElapsed(recordingElapsed),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onSurface,
+                  ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _slimWaveform(context, accent: accent, elapsed: recordingElapsed, dim: isVoicePaused),
+            ),
+            const SizedBox(width: 8),
+            _miniIconButton(
+              context,
+              icon: isVoicePaused ? Icons.mic_rounded : Icons.pause_rounded,
+              color: accent,
+              onTap: enabled
+                  ? (isVoicePaused
+                      ? (onResumeRecording ?? onMic)
+                      : (onPauseRecording ?? onMic))
+                  : null,
+            ),
+            const SizedBox(width: 6),
+            _miniIconButton(
+              context,
+              icon: Icons.send_rounded,
+              color: Colors.white,
+              fill: scheme.primary,
+              onTap: enabled ? onMic : null,
+            ),
+          ],
         ),
-        borderColor: scheme.primary,
-        glowColor: (isVoicePaused ? scheme.tertiary : scheme.primary)
-            .withValues(alpha: 0.16),
+      ),
+    );
+  }
+
+  /// Pulsing red dot — the universal "recording" indicator.
+  Widget _recordingPulseDot(BuildContext context, {required Color accent, bool dim = false}) {
+    final phase = recordingElapsed.inMilliseconds ~/ 500 % 2;
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.65, end: phase == 0 ? 1.0 : 0.7),
+      duration: const Duration(milliseconds: 480),
+      curve: Curves.easeInOutCubic,
+      builder: (context, alpha, _) => Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: (dim ? Theme.of(context).colorScheme.tertiary : Colors.red)
+              .withValues(alpha: alpha),
+        ),
+      ),
+    );
+  }
+
+  Widget _miniIconButton(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    Color? fill,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: fill ?? Colors.transparent,
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: 18, color: color),
+      ),
+    );
+  }
+
+  /// Slimmer waveform than the prior bar+track variant — a single row of
+  /// animated bars with no spacer rail, sized to fit between elapsed and
+  /// the action buttons.
+  Widget _slimWaveform(BuildContext context, {required Color accent, required Duration elapsed, bool dim = false}) {
+    final phase = elapsed.inSeconds % 4;
+    const baseHeights = <double>[6, 11, 16, 9, 13, 7, 12, 8, 14, 10];
+    final tone = dim
+        ? accent.withValues(alpha: 0.55)
+        : accent;
+    return SizedBox(
+      height: 16,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var i = 0; i < baseHeights.length; i++) ...[
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeInOutCubic,
+              width: 2.5,
+              height: baseHeights[(i + phase) % baseHeights.length],
+              decoration: BoxDecoration(
+                color: tone,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            if (i != baseHeights.length - 1) const SizedBox(width: 2),
+          ],
+        ],
       ),
     );
   }
@@ -646,250 +781,12 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  Widget _recordingBar(
-    BuildContext context, {
-    required Widget leading,
-    required Widget center,
-    Widget? trailing,
-    required Color borderColor,
-    required Color glowColor,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      constraints: const BoxConstraints(minHeight: 48),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          leading,
-          const SizedBox(width: 8),
-          Expanded(child: center),
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing,
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _recordingEdgeIcon(
-    BuildContext context, {
-    required Color color,
-    required IconData icon,
-    required bool active,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: chatRecordingHudMotionDuration,
-      curve: Curves.easeOutCubic,
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: active
-            ? color
-            : scheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: active
-              ? color
-              : scheme.outlineVariant,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        size: 18,
-        color: active ? Colors.white : scheme.onSurfaceVariant,
-      ),
-    );
-  }
-
-  Widget _recordingCore(
-    BuildContext context, {
-    required Duration elapsed,
-    required Color accent,
-    required IconData leadingIcon,
-    Widget? trailing,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent),
-      ),
-      child: Row(
-        children: [
-          _recordingPulseOrb(context, accent: accent, icon: leadingIcon),
-          const SizedBox(width: 10),
-          Text(
-            _fmtElapsed(elapsed),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: accent,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: _recordingWaveform(context, accent: accent, elapsed: elapsed)),
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing,
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _recordingPulseOrb(
-    BuildContext context, {
-    required Color accent,
-    required IconData icon,
-  }) {
-    final phase = recordingElapsed.inSeconds % 2 == 0 ? 1.0 : 0.0;
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0.9, end: phase == 1.0 ? 1.06 : 0.94),
-      duration: const Duration(milliseconds: 550),
-      curve: Curves.easeInOutCubic,
-      builder: (context, scale, child) => Transform.scale(
-        scale: scale,
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: accent),
-          ),
-          alignment: Alignment.center,
-          child: Icon(icon, size: 15, color: accent),
-        ),
-      ),
-    );
-  }
-
-  Widget _recordingWaveform(
-    BuildContext context, {
-    required Color accent,
-    required Duration elapsed,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    final phase = elapsed.inSeconds % 4;
-    final baseHeights = <double>[8, 13, 18, 12, 16, 10, 14];
-    return Container(
-      height: 20,
-      alignment: Alignment.centerLeft,
-      child: Row(
-        children: [
-          for (var index = 0; index < baseHeights.length; index++) ...[
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 320),
-              curve: Curves.easeInOutCubic,
-              width: 4,
-              height: baseHeights[(index + phase) % baseHeights.length],
-              decoration: BoxDecoration(
-                color: index.isEven
-                    ? accent
-                    : accent,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            if (index != baseHeights.length - 1) const SizedBox(width: 3),
-          ],
-          const SizedBox(width: 8),
-          Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              height: 4,
-              decoration: BoxDecoration(
-                color: scheme.outlineVariant,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              alignment: Alignment.centerLeft,
-              child: FractionallySizedBox(
-                widthFactor: ((elapsed.inSeconds % 12) + 1) / 12,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _recordingGestureMeter(
-    BuildContext context, {
-    required double leftProgress,
-    required double rightProgress,
-    required Color leftColor,
-    required Color rightColor,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 54,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            height: 4,
-            decoration: BoxDecoration(
-              color: scheme.outlineVariant,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: FractionallySizedBox(
-                    widthFactor: leftProgress,
-                    child: Container(
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: leftColor,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FractionallySizedBox(
-                    widthFactor: rightProgress,
-                    child: Container(
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: rightColor,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // ── Removed: the old multi-pill recording HUD's helpers
+  // (_recordingBar / _recordingEdgeIcon / _recordingCore /
+  // _recordingPulseOrb / _recordingWaveform / _recordingGestureMeter /
+  // _recordingActionButton). The new _holding/_locked widgets above use a
+  // single minimal pill (red dot · elapsed · slide-to-cancel · lock-or-
+  // actions) modelled on Instagram's recorder, replacing all of them.
 
   Widget _circleBtn(
     BuildContext context, {
@@ -913,9 +810,7 @@ class ChatComposer extends StatelessWidget {
               ? scheme.surfaceContainerHigh
               : scheme.surfaceContainerLow,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: scheme.outlineVariant,
-          ),
+          border: Border.all(color: scheme.outlineVariant),
         ),
         alignment: Alignment.center,
         child: Icon(
@@ -962,41 +857,8 @@ class ChatComposer extends StatelessWidget {
       ),
     );
   }
-
-  Widget _recordingActionButton(
-    BuildContext context, {
-    required IconData icon,
-    required Color accent,
-    required VoidCallback? onTap,
-    bool small = false,
-    bool filled = false,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    final size = small ? 30.0 : 34.0;
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOutCubic,
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: filled ? accent : scheme.surfaceContainerLow,
-          border: Border.all(color: accent),
-        ),
-        alignment: Alignment.center,
-        child: Icon(
-          icon,
-          size: small ? 16 : 18,
-          color: filled ? scheme.onPrimaryContainer : accent,
-        ),
-      ),
-    );
-  }
-
 }
+
 
 class _ComposerActionPopover extends StatelessWidget {
   const _ComposerActionPopover({

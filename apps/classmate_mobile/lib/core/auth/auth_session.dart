@@ -350,6 +350,11 @@ class AuthSession extends ChangeNotifier {
     for (final k in [_kNameEn, _kNameAr, _kNameHe, _kNameFr, _kNameRu, _kDisplayNameLang]) {
       await prefs.remove(k);
     }
+    // Per-user device caches that would otherwise leak across logins on the
+    // same phone. The classroom "hide-after-leave" set is the obvious one —
+    // without this, user A leaving a classroom would suppress it for user B
+    // who logs in afterwards on the same device.
+    await prefs.remove('hidden_classrooms_v1');
     _nameEn = _nameAr = _nameHe = _nameFr = _nameRu = _displayNameLang = _fullName = null;
     notifyListeners();
   }

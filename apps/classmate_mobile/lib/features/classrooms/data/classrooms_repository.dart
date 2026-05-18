@@ -81,6 +81,27 @@ class ClassroomsRepository {
       if (j is Map && j['ok'] != true) {
         throw Exception((j['message'] ?? 'Invalid or expired code').toString());
       }
+      // The server may auto-add the user to multiple classrooms (every one
+      // whose teacher's slots target the matched cohort). Clear those ids
+      // from the hidden set so a previously-left classroom re-appears.
+      final ids = <String>{};
+      if (j is Map) {
+        final raw = j['classroomIds'];
+        if (raw is List) {
+          for (final v in raw) {
+            final s = v?.toString().trim() ?? '';
+            if (s.isNotEmpty) ids.add(s);
+          }
+        }
+      }
+      if (ids.isNotEmpty) {
+        final hidden = await _readHiddenClassrooms();
+        final before = hidden.length;
+        hidden.removeAll(ids);
+        if (hidden.length != before) {
+          await _writeHiddenClassrooms(hidden);
+        }
+      }
     } on Exception catch (e) {
       // Parse NestJS error body: "label failed (404): {"message":"..."}"
       final raw = e.toString();
@@ -217,7 +238,18 @@ class ClassroomsRepository {
     } else if (j is Map) {
       raw = (j['items'] ?? j['classrooms'] ?? j['data'] ?? const []) as List? ?? const [];
     }
-    return raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+    // Drop any classroom the user explicitly left on this device — the
+    // hidden-classrooms set is populated by leaveClassroom() and acts as
+    // a client-side guard for the window between leave and the server
+    // membership row actually disappearing (e.g. retried POST, cached
+    // server response, or — when re-joining via code — to suppress a
+    // stale list response that still includes the just-left classroom).
+    final hidden = await _readHiddenClassrooms();
+    return raw
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .where((m) => !hidden.contains((m['id'] ?? '').toString()))
+        .toList();
   }
 
   Future<Map<String, dynamic>> detail(String courseId) async {
