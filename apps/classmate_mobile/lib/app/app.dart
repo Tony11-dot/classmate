@@ -51,7 +51,20 @@ class ClassMateApp extends ConsumerWidget {
           ),
           child: child ?? const SizedBox.shrink(),
         );
-        return _NotificationReceiverHost(child: scaledChild);
+        // Dismiss the keyboard whenever any scrollable below us starts a user
+        // drag. Per-screen `keyboardDismissBehavior: onDrag` is the same idea
+        // but inconsistently applied — this is the global safety net so a
+        // text-input-bearing screen never needs to remember to opt in.
+        final dismissOnDragChild = NotificationListener<ScrollNotification>(
+          onNotification: (n) {
+            if (n is ScrollStartNotification && n.dragDetails != null) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+            return false;
+          },
+          child: scaledChild,
+        );
+        return _NotificationReceiverHost(child: dismissOnDragChild);
       },
     );
   }

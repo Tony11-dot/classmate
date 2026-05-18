@@ -428,7 +428,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   final _nameHeCtrl    = TextEditingController();
   final _nameFrCtrl    = TextEditingController();
   final _nameRuCtrl    = TextEditingController();
-  final _displayCtrl   = TextEditingController();
   final _emailCtrl     = TextEditingController();
   final _usernameCtrl  = TextEditingController();
   final _phoneCtrl     = TextEditingController();
@@ -454,7 +453,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _displayCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
+    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -490,7 +489,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         nameHe: _nameHeCtrl.text.trim().isEmpty ? null : _nameHeCtrl.text.trim(),
         nameFr: _nameFrCtrl.text.trim().isEmpty ? null : _nameFrCtrl.text.trim(),
         nameRu: _nameRuCtrl.text.trim().isEmpty ? null : _nameRuCtrl.text.trim(),
-        displayName: _displayCtrl.text.trim().isEmpty ? null : _displayCtrl.text.trim(),
         email: email.isEmpty ? null : email,
         username: username,
         phone: phoneE164,
@@ -676,15 +674,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   _langField(_nameHeCtrl, 'Hebrew'),
                   _langField(_nameFrCtrl, 'French'),
                   _langField(_nameRuCtrl, 'Russian'),
-                  TextField(
-                    controller: _displayCtrl,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: 'Display name',
-                      prefixIcon: const Icon(Icons.badge_outlined, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
                   const SizedBox(height: 16),
                   // ── Role ───────────────────────────────────────────────────
                   Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
