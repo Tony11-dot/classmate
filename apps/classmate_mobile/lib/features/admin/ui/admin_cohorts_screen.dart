@@ -90,8 +90,10 @@ class AdminCohortsScreen extends ConsumerWidget {
                     child: _CohortCard(
                       cohort: cohort,
                       isAdmin: isAdmin,
-                      onTap: () => Navigator.push(
-                        context,
+                      // Root navigator so the detail screen covers the shell
+                      // (its own AppBar takes over). MaterialPageRoute (no
+                      // fullscreenDialog) preserves iOS edge-swipe-back.
+                      onTap: () => Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(builder: (_) => AdminCohortDetailScreen(cohort: cohort)),
                       ).then((_) => ref.invalidate(_cohortsProvider)),
                       onDelete: () => _confirmDelete(context, ref, cohort),
@@ -521,18 +523,40 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                             final name = s['name']?.toString() ?? '';
                             final cohortName = s['cohortName']?.toString() ?? '';
                             final grade = (s['grade'] as num?)?.toInt();
+                            // Already-in-cohort check: the DDL returns
+                            // multi-cohort membership via `cohortIds`; legacy
+                            // single `cohortId` covers older rows. Treat the
+                            // current cohort id as present in either.
+                            final cidList = (s['cohortIds'] as List?)
+                                    ?.map((e) => e.toString())
+                                    .toList() ??
+                                const <String>[];
+                            final legacyCid = s['cohortId']?.toString() ?? '';
+                            final alreadyInCohort = widget.cohortId.isNotEmpty &&
+                                (cidList.contains(widget.cohortId) ||
+                                    legacyCid == widget.cohortId);
                             final selected = widget.selected.contains(id);
 
                             return InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              onTap: () => widget.onToggle(id),
+                              // Tapping a member who's already in is a no-op;
+                              // the badge tells the admin why.
+                              onTap: alreadyInCohort ? null : () => widget.onToggle(id),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 decoration: BoxDecoration(
-                                  color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+                                  color: alreadyInCohort
+                                      ? cs.surfaceContainerLow.withValues(alpha: 0.6)
+                                      : selected
+                                          ? cs.primaryContainer
+                                          : cs.surfaceContainerLow,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.4),
+                                    color: alreadyInCohort
+                                        ? cs.outlineVariant.withValues(alpha: 0.4)
+                                        : selected
+                                            ? cs.primary.withValues(alpha: 0.4)
+                                            : cs.outlineVariant.withValues(alpha: 0.4),
                                   ),
                                 ),
                                 child: Row(
@@ -540,13 +564,25 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                                     Container(
                                       width: 38, height: 38,
                                       decoration: BoxDecoration(
-                                        color: selected ? cs.primary : cs.surfaceContainerHigh,
+                                        color: alreadyInCohort
+                                            ? cs.tertiaryContainer
+                                            : selected
+                                                ? cs.primary
+                                                : cs.surfaceContainerHigh,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Icon(
-                                        selected ? Icons.check_rounded : Icons.person_rounded,
+                                        alreadyInCohort
+                                            ? Icons.check_rounded
+                                            : selected
+                                                ? Icons.check_rounded
+                                                : Icons.person_rounded,
                                         size: 18,
-                                        color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+                                        color: alreadyInCohort
+                                            ? cs.onTertiaryContainer
+                                            : selected
+                                                ? cs.onPrimary
+                                                : cs.onSurfaceVariant,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -554,7 +590,15 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                                          Text(
+                                            name,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: alreadyInCohort
+                                                  ? cs.onSurfaceVariant
+                                                  : null,
+                                            ),
+                                          ),
                                           if (cohortName.isNotEmpty || grade != null)
                                             Text(
                                               [if (grade != null) 'Grade $grade', if (cohortName.isNotEmpty) cohortName].join(' · '),
@@ -563,6 +607,21 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                                         ],
                                       ),
                                     ),
+                                    if (alreadyInCohort)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: cs.tertiaryContainer,
+                                          borderRadius: BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          'In cohort',
+                                          style: theme.textTheme.labelSmall?.copyWith(
+                                            color: cs.onTertiaryContainer,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -676,6 +735,28 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: AppBar(
+        backgroundColor: cs.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(
+          _cohort.name,
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          overflow: TextOverflow.ellipsis,
+        ),
+        actions: [
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.edit_rounded),
+              tooltip: 'Rename',
+              onPressed: () => _showRenameSheet(context),
+            ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_student_cohort',
         // Root navigator so AddStudents covers the shell's AppBar + bottom
@@ -702,6 +783,8 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (students) {
           if (students.isEmpty) {
+            // AppBar already shows the cohort name + rename action; keep the
+            // empty-state body focused on the "no students" affordance.
             return SafeArea(
               child: Center(
                 child: Column(
@@ -709,47 +792,21 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                   children: [
                     Icon(Icons.person_outline_rounded, size: 64, color: cs.outlineVariant),
                     const SizedBox(height: 12),
-                    Text(_cohort.name, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 6),
                     Text(AppLocalizations.of(context)!.adminNoStudentsInCohort, style: theme.textTheme.titleSmall?.copyWith(color: cs.onSurfaceVariant)),
                     const SizedBox(height: 6),
                     Text(AppLocalizations.of(context)!.adminAddStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                    if (isAdmin) ...[
-                      const SizedBox(height: 16),
-                      TextButton.icon(
-                        onPressed: () => _showRenameSheet(context),
-                        icon: const Icon(Icons.edit_rounded, size: 18),
-                        label: Text('Rename'),
-                      ),
-                    ],
                   ],
                 ),
               ),
             );
           }
 
+          // AppBar already carries the cohort name + rename — body skips
+          // the duplicate title row and jumps straight into the roster.
           return SafeArea(
             child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _cohort.name,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isAdmin)
-                    IconButton(
-                      icon: const Icon(Icons.edit_rounded),
-                      tooltip: 'Rename',
-                      onPressed: () => _showRenameSheet(context),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
