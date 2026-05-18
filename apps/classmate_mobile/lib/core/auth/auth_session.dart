@@ -158,9 +158,25 @@ class AuthSession extends ChangeNotifier {
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // CM_CLEAR_SESSION=true wipes all stored credentials (used by cmr).
+    // CM_CLEAR_SESSION=true wipes credentials so the next launch lands on
+    // login (used by the `cmr` dev script). We deliberately preserve the
+    // school identity (name + logo) — those are non-sensitive branding
+    // pulled from /auth/me anyway, and wiping them caused the drawer to
+    // flash blank on every cmr run until the next /auth/me landed. The
+    // fresh /auth/me after login still re-validates them, so a school
+    // rename/relogo on the server takes effect at most one launch later.
     if (Env.clearSession) {
+      const preserve = <String>{_kSchoolName, _kSchoolLogoUrl};
+      final saved = <String, Object>{};
+      for (final k in preserve) {
+        final v = prefs.get(k);
+        if (v != null) saved[k] = v;
+      }
       await prefs.clear();
+      for (final entry in saved.entries) {
+        final v = entry.value;
+        if (v is String) await prefs.setString(entry.key, v);
+      }
     }
 
     _displayName = (prefs.getString(_kDisplayName) ?? '').trim();
