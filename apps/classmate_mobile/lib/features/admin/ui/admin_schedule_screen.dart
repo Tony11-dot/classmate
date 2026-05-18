@@ -232,7 +232,16 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     return false;
   }
 
-  /// Student filter — direct + cohort membership + student-grade transitive.
+  /// Student filter — matches when [sid] is actually in the slot's audience.
+  /// Three buckets:
+  ///   1. Direct individual enrollment (slot.students contains sid).
+  ///   2. Cohort-mode slot whose cohorts include one [sid] is a member of.
+  ///   3. Grade-mode slot whose audienceGrade equals [sid]'s own grade.
+  ///
+  /// Bucket 2 is gated on the slot being cohort-mode because grade-mode
+  /// slots persist as the union of every cohort at that grade — taking the
+  /// raw intersection would match cohorts the student isn't actually in.
+  /// Bucket 3 handles the grade case explicitly and intentionally.
   bool _slotMatchesStudent(
     Map<String, dynamic> slot,
     String sid, {
@@ -250,46 +259,41 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     );
     if (student.isEmpty) return false;
 
-    final studentCohortIds = <String>{
-      ...((student['cohortIds'] as List?)?.map((e) => e.toString()) ?? const []),
-      if ((student['cohortId'] ?? '').toString().isNotEmpty)
-        student['cohortId'].toString(),
-    };
-    for (final c in allCohorts) {
-      final ids = c['studentIds'];
-      if (ids is List && ids.any((e) => e.toString() == sid)) {
-        final cid = c['id']?.toString() ?? '';
-        if (cid.isNotEmpty) studentCohortIds.add(cid);
+    final slotGrade = slotAudienceGrade(slot, allCohorts);
+
+    // Cohort bucket — only meaningful when the slot is cohort-mode.
+    if (slotGrade == null) {
+      final studentCohortIds = <String>{
+        ...((student['cohortIds'] as List?)?.map((e) => e.toString()) ?? const []),
+        if ((student['cohortId'] ?? '').toString().isNotEmpty)
+          student['cohortId'].toString(),
+      };
+      for (final c in allCohorts) {
+        final ids = c['studentIds'];
+        if (ids is List && ids.any((e) => e.toString() == sid)) {
+          final cid = c['id']?.toString() ?? '';
+          if (cid.isNotEmpty) studentCohortIds.add(cid);
+        }
       }
+      if (studentCohortIds.isNotEmpty) {
+        final cohortsList = slot['cohorts'] as List? ?? const [];
+        final slotCohortIds = cohortsList
+            .whereType<Map>()
+            .map((c) =>
+                (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
+                    ?.toString() ??
+                '')
+            .where((id) => id.isNotEmpty)
+            .toSet();
+        if (slotCohortIds.any(studentCohortIds.contains)) return true;
+      }
+      return false;
     }
 
-    final cohortsList = slot['cohorts'] as List? ?? const [];
-    if (studentCohortIds.isNotEmpty) {
-      final slotCohortIds = cohortsList
-          .whereType<Map>()
-          .map((c) =>
-              (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))
-                  ?.toString() ??
-              '')
-          .where((id) => id.isNotEmpty)
-          .toSet();
-      if (slotCohortIds.any(studentCohortIds.contains)) return true;
-    }
-
+    // Grade bucket — slot is grade-mode; match iff it's the student's grade.
     final grade = student['grade'];
     final gradeN = grade is int ? grade : (grade is num ? grade.toInt() : null);
-    if (gradeN != null) {
-      for (final c in cohortsList) {
-        if (c is! Map) continue;
-        final cohort = c['cohort'] is Map ? c['cohort'] as Map : null;
-        final gs = cohort?['grades'];
-        if (gs is List && gs.any((e) => e == gradeN)) return true;
-        if (cohort?['grade'] == gradeN) return true;
-      }
-      final ag = slot['audienceGrade'];
-      if (ag is num && ag.toInt() == gradeN) return true;
-    }
-    return false;
+    return gradeN != null && gradeN == slotGrade;
   }
 
   /// Sheet listing every period that already lives at (day, period), with
