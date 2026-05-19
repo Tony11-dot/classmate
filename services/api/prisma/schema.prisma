@@ -402,11 +402,22 @@ model ScheduleSlot {
   /// a Once override replaces this recurring slot just for the override
   /// date.  Mutated via the conflict dialog's "Override" action.
   skipDates      String[] @default([])
-  /// Student user-ids for whom this slot does NOT render.  Used by the
-  /// per-student conflict resolver in Add Period: when the new period
-  /// overlaps for only a subset of an existing slot's audience, the rest
-  /// keep seeing it normally and only the conflicted students are skipped.
+  /// LEGACY — forever-scoped per-student skip from an earlier override
+  /// design. The new override flow writes to `studentDateSkips` instead
+  /// (date-scoped, restores automatically after the override date), and
+  /// this field is no longer read on the schedule path. Kept on the
+  /// model so historical rows don't fail Prisma's strict scalar fetch;
+  /// safe to drop in a later migration once everyone's caught up.
   skipForStudentIds String[] @default([])
+  /// Per-student per-date suppression for the conflict-override flow.
+  /// Each entry is "{studentId}:{YYYY-MM-DD}". When admin picks
+  /// Override on a Once draft that conflicts with this slot, the
+  /// affected students + the draft's anchor date are appended here.
+  /// The slot still renders for those students on every OTHER date, so
+  /// the override scope matches the overriding period's lifetime —
+  /// when the Once override's date passes (or it's deleted by clearing
+  /// the entries), the original slot reappears automatically.
+  studentDateSkips String[] @default([])
 
   school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)

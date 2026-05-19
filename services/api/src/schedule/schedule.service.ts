@@ -222,29 +222,12 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
-    // TEMP diagnostic — user still reports missing periods after the
-    // dedup fix.  Surface schoolId + per-bucket slot ids so we can see
-    // exactly why a slot the admin just created isn't being picked up.
-    // eslint-disable-next-line no-console
-    console.log('[schedule.resolve]', {
-      studentId,
-      schoolId,
-      cohortId,
-      studentGrade,
-      uniqueCohortIds,
-      byStudent: byStudent.map((r) => r.slotId),
-      byCohort: byCohort.map((r: any) => r.slotId),
-      byGrade: byGrade.map((r: any) => r.id),
-    });
-
-    const legacyAll = slotIds.length
+    const legacy = slotIds.length
       ? await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
-          // Explicit select — `include` without select would auto-expand to
-          // every scalar column Prisma knows about, which would error if
-          // the running DB hasn't db-pushed a column the client expects
-          // (e.g. mid-deploy state between schema and DB).  Be defensive
-          // and ask only for the fields we read.
+          // Explicit select — `include` would auto-expand to every scalar
+          // the Prisma client knows about, which fails during a mid-deploy
+          // state where the schema knows a column the DB hasn't pushed yet.
           select: {
             id: true,
             schoolId: true,
@@ -260,40 +243,17 @@ export class ScheduleService {
             color: true,
             audienceGrade: true,
             skipDates: true,
-            skipForStudentIds: true,
+            studentDateSkips: true,
             teacher: { select: { id: true, name: true } },
             classroom: { select: { id: true, name: true } },
           } as any,
         })
       : [];
-    // Per-student suppression — admin picked "Override" or "Keep current"
-    // in the Add Period conflict dialog for THIS student.  Slots where
-    // skipForStudentIds contains studentId drop out before they ever hit
-    // the day/period merger.
-    const legacy = legacyAll.filter((s: any) => {
-      const ids: string[] = Array.isArray(s?.skipForStudentIds) ? s.skipForStudentIds : [];
-      return !ids.includes(studentId);
-    });
-
-    // TEMP diagnostic — what came back from the slot query, what fell
-    // out via skipForStudentIds, and the row-level fields we need to
-    // confirm (schoolId / audienceGrade / dayOfWeek / period).
-    // eslint-disable-next-line no-console
-    console.log('[schedule.resolve.legacy]', {
-      fetched: legacyAll.length,
-      kept: legacy.length,
-      rows: legacyAll.map((s: any) => ({
-        id: s.id,
-        schoolId: s.schoolId ?? null,
-        dayOfWeek: s.dayOfWeek,
-        period: s.period,
-        subject: s.subject ?? null,
-        audienceGrade: s.audienceGrade ?? null,
-        frequencyWeeks: s.frequencyWeeks ?? null,
-        startDate: s.startDate ?? null,
-        skipForStudentIds: s.skipForStudentIds ?? [],
-      })),
-    });
+    // Note: the legacy `skipForStudentIds` field is intentionally NOT
+    // applied here — it was a forever-scoped per-student skip from an
+    // earlier override design that stayed sticky even after the
+    // overriding slot was gone.  Per-date suppression now flows through
+    // `studentDateSkips`, applied per-day in getWeekForStudent.
 
     // Multiple slots at the same (day, period) are legitimate now:
     //   - student in two cohorts both teaching at Mon P1
@@ -412,6 +372,24 @@ export class ScheduleService {
       where: { cohortId, date: { gte: from, lt: toExclusive } },
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
       include: { teacher: { select: { id: true, name: true } } } as any,
+    });
+  }
+
+  /// Filters out template rows whose `studentDateSkips` matches the
+  /// `<studentId>:<dateYmd>` pair currently being rendered.  Drives the
+  /// date-scoped Override semantic: a Once override stamps the existing
+  /// slot for the override date only, so the existing slot keeps
+  /// rendering on every OTHER date.
+  private _applyStudentDateSkips(
+    templateRows: any[],
+    studentId: string,
+    dateYmd: string,
+  ): any[] {
+    if (!studentId) return templateRows;
+    const needle = `${studentId}:${dateYmd}`;
+    return templateRows.filter((r: any) => {
+      const skips: string[] = Array.isArray(r?.studentDateSkips) ? r.studentDateSkips : [];
+      return !skips.includes(needle);
     });
   }
 
@@ -640,7 +618,7 @@ export class ScheduleService {
 
     return this.applyOverridesForDate({
       date: today,
-      templateRows,
+      templateRows: this._applyStudentDateSkips(templateRows, params.studentId, ymdUTC(today)),
       overrideRows,
     });
   }
@@ -669,7 +647,7 @@ export class ScheduleService {
 
       const items = this.applyOverridesForDate({
         date: d,
-        templateRows,
+        templateRows: this._applyStudentDateSkips(templateRows, params.studentId, dateYmd),
         overrideRows,
       });
 

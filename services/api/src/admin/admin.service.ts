@@ -358,6 +358,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     startDate?: string | null;
     skipDates?: string[];
     skipForStudentIds?: string[];
+    studentDateSkips?: string[];
   }) {
     this.ensureAdmin(user);
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
@@ -398,13 +399,26 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       );
     }
     if (Array.isArray(body.skipForStudentIds)) {
-      // Dedupe + non-empty strings only.  Server doesn't validate these
-      // exist (a stale id is harmless — the filter just won't match
-      // anybody) and the conflict dialog only ever pushes real ones.
+      // Legacy field — no longer read by the schedule resolver but still
+      // patchable so older clients don't error.  See ScheduleSlot model
+      // doc for the full picture.
       data.skipForStudentIds = Array.from(
         new Set(
           body.skipForStudentIds.filter(
             (s) => typeof s === 'string' && s.length > 0,
+          ),
+        ),
+      );
+    }
+    if (Array.isArray(body.studentDateSkips)) {
+      // Entries must look like "<uuid-ish>:<YYYY-MM-DD>".  Anything that
+      // doesn't is silently dropped — a malformed value would never match
+      // the resolver's needle, just create noise in the DB.
+      const re = /^[^:]+:\d{4}-\d{2}-\d{2}$/;
+      data.studentDateSkips = Array.from(
+        new Set(
+          body.studentDateSkips.filter(
+            (s) => typeof s === 'string' && re.test(s),
           ),
         ),
       );

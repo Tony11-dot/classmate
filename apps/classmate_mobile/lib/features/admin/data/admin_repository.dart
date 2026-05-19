@@ -361,6 +361,7 @@ class AdminRepository {
     bool setStartDate = false,
     List<String>? skipDates,
     List<String>? skipForStudentIds,
+    List<String>? studentDateSkips,
   }) async {
     final body = <String, dynamic>{
       if (dayOfWeek != null) 'dayOfWeek': dayOfWeek,
@@ -377,6 +378,7 @@ class AdminRepository {
       if (setStartDate) 'startDate': startDate,
       if (skipDates != null) 'skipDates': skipDates,
       if (skipForStudentIds != null) 'skipForStudentIds': skipForStudentIds,
+      if (studentDateSkips != null) 'studentDateSkips': studentDateSkips,
     };
     await _api.patchJson('/admin/periods/$id', body: body);
   }

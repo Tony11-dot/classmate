@@ -1314,26 +1314,44 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     );
     // Captured here for the post-create patch — see _ConflictChoice.keepCurrent.
     _ConflictChoice? conflictChoice;
-    final affectedStudentIdsForDraft = <String>{};
+    final draftYmd = _startDate != null
+        ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
+        : null;
+    // Override / Keep current are scoped to the draft's anchor date,
+    // so they only make sense for a Once draft. Recurring drafts can
+    // still Stack (Show both) but Cancel is the only safety net for
+    // anything else — a recurring forever-skip caused the bug where
+    // an earlier Override left a student hidden from a class long
+    // after the overriding period was gone.
+    final isDateScoped = freq == 0 && draftYmd != null;
+    final newStudentDateSkipsForDraft = <String>{};
     if (conflicts.isNotEmpty) {
-      conflictChoice = await _confirmConflictDialog(conflicts);
+      conflictChoice = await _confirmConflictDialog(
+        conflicts,
+        offerDateScoped: isDateScoped,
+      );
       if (conflictChoice == null || conflictChoice == _ConflictChoice.cancel) {
         return;
       }
       if (conflictChoice == _ConflictChoice.override) {
         try {
           for (final hit in conflicts) {
-            if (hit.id.isEmpty) continue;
-            // Existing slot loses ONLY the conflicted students — every
-            // other student in its audience keeps seeing it as usual.
+            if (hit.id.isEmpty || draftYmd == null) continue;
+            // Existing slot loses ONLY the conflicted students AND ONLY
+            // on the draft's anchor date. Every other date renders
+            // normally, so when the override date passes the existing
+            // slot reappears for those students automatically.
+            final newEntries = hit.affectedStudentIds
+                .map((sid) => '$sid:$draftYmd')
+                .toList();
             final updated = <String>{
-              ...hit.skipForStudentIds,
-              ...hit.affectedStudentIds,
+              ...hit.studentDateSkips,
+              ...newEntries,
             }.toList()
               ..sort();
             await widget.repo.updatePeriod(
               id: hit.id,
-              skipForStudentIds: updated,
+              studentDateSkips: updated,
             );
           }
         } catch (e) {
@@ -1345,11 +1363,16 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           return;
         }
       } else if (conflictChoice == _ConflictChoice.keepCurrent) {
-        // New slot will be stamped with these once it's created — keeps
-        // its audience intact for everybody else while hiding for the
-        // conflicted students.
-        for (final hit in conflicts) {
-          affectedStudentIdsForDraft.addAll(hit.affectedStudentIds);
+        // The new (draft) slot will be stamped with the same date-scoped
+        // skip entries once it's created — so it doesn't render for the
+        // conflicted students on its anchor date, while still appearing
+        // for everyone else in its audience.
+        if (draftYmd != null) {
+          for (final hit in conflicts) {
+            for (final sid in hit.affectedStudentIds) {
+              newStudentDateSkipsForDraft.add('$sid:$draftYmd');
+            }
+          }
         }
       }
       // _ConflictChoice.stack — no-op, both periods render side-by-side.
@@ -1427,16 +1450,17 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           startDate: sd,
         );
         created++;
-        // Keep-current: stamp the conflicted students onto the freshly-
-        // created slot so they don't see it, while the rest of its audience
-        // still does. No-op when the choice was Override or Stack (or
-        // there were no conflicts at all).
+        // Keep-current: stamp the new slot's studentDateSkips so it
+        // doesn't render for the conflicted students on its anchor
+        // date. Date-scoped, so when that date passes the new slot
+        // also disappears naturally (it's a Once); no-op when the
+        // choice wasn't Keep current.
         if (conflictChoice == _ConflictChoice.keepCurrent &&
             newId.isNotEmpty &&
-            affectedStudentIdsForDraft.isNotEmpty) {
+            newStudentDateSkipsForDraft.isNotEmpty) {
           await widget.repo.updatePeriod(
             id: newId,
-            skipForStudentIds: affectedStudentIdsForDraft.toList()..sort(),
+            studentDateSkips: newStudentDateSkipsForDraft.toList()..sort(),
           );
         }
       } catch (e) {
@@ -1947,7 +1971,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
             .map((e) => e.toString())
             .where((s) => s.isNotEmpty)
             .toList(),
-        skipForStudentIds: ((slot['skipForStudentIds'] as List?) ?? const [])
+        studentDateSkips: ((slot['studentDateSkips'] as List?) ?? const [])
             .map((e) => e.toString())
             .where((s) => s.isNotEmpty)
             .toList(),
@@ -1981,8 +2005,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   /// stack (both render side-by-side). The choice ONLY affects the listed
   /// students — anyone else in either audience keeps seeing what they did.
   Future<_ConflictChoice?> _confirmConflictDialog(
-    List<_ConflictHit> hits,
-  ) async {
+    List<_ConflictHit> hits, {
+    required bool offerDateScoped,
+  }) async {
     final affectedAll = <String>{};
     for (final h in hits) {
       affectedAll.addAll(h.affectedStudentNames);
@@ -2038,14 +2063,20 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.cancel),
               child: const Text('Cancel'),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
-              child: const Text('Keep current'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
-              child: const Text('Override'),
-            ),
+            // Override + Keep current are date-scoped — only show them
+            // for a Once draft anchored to a specific date. A recurring
+            // draft has no single date to bind the suppression to, so
+            // we'd be back to forever-skips and the bug that caused.
+            if (offerDateScoped) ...[
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
+                child: const Text('Keep current'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
+                child: const Text('Override'),
+              ),
+            ],
             FilledButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.stack),
               child: const Text('Show both'),
@@ -2075,7 +2106,10 @@ class _ConflictHit {
   final String audienceLabel;
   final int frequencyWeeks;
   final List<String> skipDates;
-  final List<String> skipForStudentIds;
+  /// Existing studentDateSkips entries on the conflicting slot. We merge
+  /// the new entries on top when admin picks Override so we don't blow
+  /// away any prior date-scoped suppressions on this slot.
+  final List<String> studentDateSkips;
   /// Students who would be double-booked by adding the draft — the
   /// intersection of the existing slot's audience and the draft's. Drives
   /// the dialog copy and the override patch.
@@ -2088,7 +2122,7 @@ class _ConflictHit {
     required this.audienceLabel,
     required this.frequencyWeeks,
     required this.skipDates,
-    required this.skipForStudentIds,
+    required this.studentDateSkips,
     required this.affectedStudentIds,
     required this.affectedStudentNames,
   });
