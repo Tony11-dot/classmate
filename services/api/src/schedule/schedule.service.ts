@@ -339,11 +339,46 @@ export class ScheduleService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  private timesForPeriod(period: number, slotOverride?: { startTime?: string | null; endTime?: string | null }): { start: string; end: string } {
+  /// Resolves the start/end clock for a period.  Priority: per-slot
+  /// override > school's configured bell schedule (SchoolPeriodDefault) >
+  /// the hardcoded MVP defaults.  When the school has set its own bell
+  /// schedule under Admin → School Settings → Periods, that's what the
+  /// student/teacher schedule tiles should show.
+  private timesForPeriod(
+    period: number,
+    slotOverride?: { startTime?: string | null; endTime?: string | null },
+    schoolDefaults?: Map<number, { start: string; end: string }>,
+  ): { start: string; end: string } {
     if (slotOverride?.startTime && slotOverride?.endTime) {
       return { start: slotOverride.startTime, end: slotOverride.endTime };
     }
+    const fromSchool = schoolDefaults?.get(period);
+    if (fromSchool) return fromSchool;
     return PERIOD_TIME[period] ?? { start: '00:00', end: '00:00' };
+  }
+
+  /// Loads the school's bell schedule once per request as a Map<period, time>.
+  /// Empty map when the school hasn't configured anything yet — timesForPeriod
+  /// then falls through to the hardcoded defaults.
+  private async _schoolPeriodTimes(
+    schoolId: string,
+  ): Promise<Map<number, { start: string; end: string }>> {
+    const out = new Map<number, { start: string; end: string }>();
+    if (!schoolId) return out;
+    try {
+      const rows = await this.prisma.schoolPeriodDefault.findMany({
+        where: { schoolId },
+        select: { period: true, startTime: true, endTime: true },
+      });
+      for (const r of rows) {
+        if (r.startTime && r.endTime) {
+          out.set(Number(r.period), { start: r.startTime, end: r.endTime });
+        }
+      }
+    } catch {
+      // schoolPeriodDefault is optional infra — never block schedule fetch on it.
+    }
+    return out;
   }
 
   private rowToItem(params: {
@@ -361,9 +396,20 @@ export class ScheduleService {
     teacherId?: string | null;
     teacherName?: string | null;
     color?: string | null;
+    schoolDefaults?: Map<number, { start: string; end: string }>;
   }): ScheduleItem {
-    const t = this.timesForPeriod(params.period, { startTime: params.startTimeOverride, endTime: params.endTimeOverride });
-    const title = params.classroomName ?? (params.subject ? `${params.subject} — P${params.period}` : `Period ${params.period}`);
+    const t = this.timesForPeriod(
+      params.period,
+      { startTime: params.startTimeOverride, endTime: params.endTimeOverride },
+      params.schoolDefaults,
+    );
+    // Title is just the subject (or the classroom's own name when set,
+    // or a generic Period N when neither is available).  Previously
+    // appended " — P{period}" which doubled up the period info shown
+    // in the time block and made the subject read twice on the tile.
+    const title =
+      params.classroomName ??
+      (params.subject ? params.subject : `Period ${params.period}`);
     return {
       id: params.slotId,
       title,
@@ -434,6 +480,7 @@ export class ScheduleService {
     date: Date; // UTC midnight
     templateRows: any[];
     overrideRows: any[]; // already filtered for that date
+    schoolDefaults?: Map<number, { start: string; end: string }>;
   }): ScheduleItem[] {
     const dateYmd = ymdUTC(params.date);
     const dow = dayOfWeekInJerusalem(params.date); // 0..6
@@ -558,6 +605,7 @@ export class ScheduleService {
           teacherId: entry.teacherId,
           teacherName: entry.teacherName,
           color: entry.color,
+          schoolDefaults: params.schoolDefaults,
         }));
       }
     }
@@ -675,10 +723,12 @@ export class ScheduleService {
       tomorrow,
     );
 
+    const schoolDefaults = await this._schoolPeriodTimes(params.schoolId);
     return this.applyOverridesForDate({
       date: today,
       templateRows: this._applyStudentDateSkips(templateRows, params.studentId, ymdUTC(today)),
       overrideRows,
+      schoolDefaults,
     });
   }
 
@@ -689,6 +739,7 @@ export class ScheduleService {
     weekOf?: string;
   }): Promise<ScheduleItem[]> {
     const { templateRows } = await this.resolveTemplateSlotsForStudent(params);
+    const schoolDefaults = await this._schoolPeriodTimes(params.schoolId);
 
     const cid = String(params.cohortId || '');
 
@@ -708,6 +759,7 @@ export class ScheduleService {
         date: d,
         templateRows: this._applyStudentDateSkips(templateRows, params.studentId, dateYmd),
         overrideRows,
+        schoolDefaults,
       });
 
       for (const it of items) (it as any).date = (it as any).date ?? dateYmd;

@@ -760,8 +760,14 @@ class _ScheduleTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    final title = '${item['title'] ?? l.scheduleClassFallback}';
+    // Title is the subject (with classroom-name + generic fallbacks) —
+    // the server no longer appends " — P{n}" so the period info isn't
+    // duplicated next to the dedicated time block.
     final subject = (item['subject'] ?? '').toString().trim();
+    final rawTitle = '${item['title'] ?? ''}'.trim();
+    final title = subject.isNotEmpty
+        ? subject
+        : (rawTitle.isNotEmpty ? rawTitle : l.scheduleClassFallback);
     final location = (item['location'] ?? '').toString().trim();
     final teacherName = (item['teacherName'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
@@ -770,8 +776,9 @@ class _ScheduleTile extends StatelessWidget {
     final courseId = (item['courseId'] ?? '').toString().trim();
     final hasStatus = attendanceStatus.isNotEmpty;
 
+    // Subtitle is the teacher's name — the subject is already the title,
+    // and the location pill shows up in the detail sheet if set.
     final subtitleParts = <String>[
-      if (subject.isNotEmpty) subject,
       if (teacherName.isNotEmpty) teacherName,
       if (location.isNotEmpty) location,
     ];

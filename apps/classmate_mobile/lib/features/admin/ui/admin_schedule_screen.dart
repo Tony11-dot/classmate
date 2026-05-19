@@ -1289,12 +1289,18 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         ? (int.tryParse(_customFreqCtrl.text.trim()) ?? 1).clamp(1, 52)
         : _frequencyWeeks;
 
-    // "Once" needs a concrete date — the slot persists with frequencyWeeks=0
-    // and only renders on this date, so without one it's unanchored.
-    if (freq == 0 && _startDate == null) {
+    // Any non-weekly recurring slot needs an anchor date so the
+    // bi-weekly / monthly rendering can compute "every N weeks from
+    // when".  Once obviously needs a date too — it's the only date
+    // the slot renders on.  Only freq=1 (plain weekly) doesn't need
+    // one, because it renders on every matching weekday.
+    if (freq != 1 && _startDate == null) {
+      final msg = freq == 0
+          ? 'Pick a date for a one-off period.'
+          : 'Pick a start date for the every-$freq-weeks schedule.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Pick a date for a one-off period.'),
+          content: Text(msg),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
