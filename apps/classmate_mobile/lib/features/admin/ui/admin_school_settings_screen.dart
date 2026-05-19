@@ -437,7 +437,12 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _save() async {
+  /// Persists the current `_subjects` list to the server.  Called from
+  /// every mutator (add / edit / remove / reorder) instead of a single
+  /// Save button — the user shouldn't have to remember to hit Save.
+  /// Errors surface in a snackbar; success is silent (the list itself
+  /// is the feedback).
+  Future<void> _autoSave() async {
     final session = ref.read(authSessionProvider);
     final api = CMApi(token: session.token ?? '');
     setState(() => _saving = true);
@@ -447,10 +452,6 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
         'grade': 0,
         'subjectsI18n': _subjects.map((s) => s.toJson()).toList(),
       });
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.adminSchoolSaved)),
-      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -474,23 +475,26 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     if (created == null || created.nameEn.isEmpty) return;
     if (_subjects.any((s) => s.nameEn == created.nameEn)) return;
     setState(() { _subjects = [..._subjects, created]; });
+    await _autoSave();
   }
 
-  void _removeSubject(int index) {
+  Future<void> _removeSubject(int index) async {
     setState(() {
       final list = List<SchoolSubject>.from(_subjects);
       list.removeAt(index);
       _subjects = list;
     });
+    await _autoSave();
   }
 
-  void _moveSubject(int from, int to) {
+  Future<void> _moveSubject(int from, int to) async {
     setState(() {
       final list = List<SchoolSubject>.from(_subjects);
       final item = list.removeAt(from);
       list.insert(to, item);
       _subjects = list;
     });
+    await _autoSave();
   }
 
   Future<void> _editSubject(int index) async {
@@ -507,6 +511,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
       list[index] = updated;
       _subjects = list;
     });
+    await _autoSave();
   }
 
   @override
@@ -538,18 +543,17 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
                 ],
               ),
             ),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.save_rounded, size: 16),
-              label: Text(l.adminSave),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            // No Save button — every mutation autosaves. Surface a small
+            // spinner while a save round-trip is in flight so the admin
+            // sees "something's happening" feedback after an action.
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 16),

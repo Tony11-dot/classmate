@@ -222,12 +222,16 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
-    const legacy = slotIds.length
-      ? await this.prisma.scheduleSlot.findMany({
+    // Explicit select with a graceful fallback — if a column is in the
+    // Prisma schema but the DB hasn't pushed it yet (mid-deploy state),
+    // the rich query throws and we retry without the newest column.
+    // Without this, a brand-new column blanks the entire schedule until
+    // db push catches up.
+    let legacy: any[] = [];
+    if (slotIds.length) {
+      try {
+        legacy = await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
-          // Explicit select — `include` would auto-expand to every scalar
-          // the Prisma client knows about, which fails during a mid-deploy
-          // state where the schema knows a column the DB hasn't pushed yet.
           select: {
             id: true,
             schoolId: true,
@@ -247,8 +251,41 @@ export class ScheduleService {
             teacher: { select: { id: true, name: true } },
             classroom: { select: { id: true, name: true } },
           } as any,
-        })
-      : [];
+        });
+      } catch (firstErr) {
+        // Strip the most recently-added column (`studentDateSkips`) and
+        // retry. Per-date suppression simply becomes a no-op against
+        // these rows until the DB catches up — strictly better than
+        // returning an empty schedule.
+        try {
+          legacy = await this.prisma.scheduleSlot.findMany({
+            where: { id: { in: slotIds } },
+            select: {
+              id: true,
+              schoolId: true,
+              dayOfWeek: true,
+              period: true,
+              teacherId: true,
+              classroomId: true,
+              subject: true,
+              startTime: true,
+              endTime: true,
+              frequencyWeeks: true,
+              startDate: true,
+              color: true,
+              audienceGrade: true,
+              skipDates: true,
+              teacher: { select: { id: true, name: true } },
+              classroom: { select: { id: true, name: true } },
+            } as any,
+          });
+        } catch {
+          // eslint-disable-next-line no-console
+          console.error('[schedule.resolve] slot fetch failed', firstErr);
+          legacy = [];
+        }
+      }
+    }
     // Note: the legacy `skipForStudentIds` field is intentionally NOT
     // applied here — it was a forever-scoped per-student skip from an
     // earlier override design that stayed sticky even after the

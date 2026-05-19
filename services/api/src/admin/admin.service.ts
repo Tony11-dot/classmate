@@ -263,33 +263,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (schoolId && subject) {
       const trimmedSubject = String(subject).trim();
       if (trimmedSubject) {
-        const gradeSet = new Set<number>();
-        if (typeof normalizedAudienceGrade === 'number') {
-          gradeSet.add(normalizedAudienceGrade);
-        }
-        if (cohortIds.length) {
-          const cohorts = await this.prisma.cohort.findMany({
-            where: { id: { in: cohortIds } },
-            select: { grade: true, grades: true } as any,
-          });
-          for (const c of cohorts as any[]) {
-            if (Array.isArray(c.grades) && c.grades.length) {
-              for (const g of c.grades) if (typeof g === 'number') gradeSet.add(g);
-            } else if (typeof c.grade === 'number') {
-              gradeSet.add(c.grade);
-            }
-          }
-        }
-        if (studentIds.length) {
-          const profiles = await this.prisma.studentProfile.findMany({
-            where: { userId: { in: studentIds } },
-            select: { grade: true },
-          });
-          for (const p of profiles) {
-            if (typeof p.grade === 'number') gradeSet.add(p.grade);
-          }
-        }
-        await this._addSubjectToSchoolDefaults(schoolId, trimmedSubject, Array.from(gradeSet));
+        // School-wide bucket (grade=0).  School Settings → Subjects also
+        // reads from grade=0, so a subject typed inline in Add Period
+        // appears immediately in the Settings list — single source of
+        // truth, no per-grade fan-out.
+        await this._addSubjectToSchoolDefaults(schoolId, trimmedSubject, [0]);
       }
     }
 
@@ -799,17 +777,62 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       throw new BadRequestException('grade required');
     }
 
+    const gradeNum = Number(grade);
+
+    // grade=0 is the "school-wide" bucket from School Settings → Subjects.
+    // The Add Period subject picker reads listAllSchoolSubjects which
+    // unions every grade row in the school; if grade=0 only returned the
+    // grade=0 row, legacy per-grade subjects (or subjects an admin added
+    // through a per-grade flow at some point) wouldn't show up in
+    // Settings, breaking the parity-with-Add-Period the user expects.
+    // Union them all when grade=0 is requested.
+    if (gradeNum === 0) {
+      const rows = await this.prisma.schoolGradeSubjectDefault.findMany({
+        where: { schoolId },
+        select: { subjectsI18n: true, subjects: true } as any,
+      }) as any[];
+      const byKey = new Map<string, any>();
+      for (const r of rows) {
+        const i18n = normalizeSubjectsI18n(r.subjectsI18n);
+        const list = i18n.length
+          ? i18n
+          : (r.subjects ?? []).map((s: string) => ({ nameEn: s }));
+        for (const s of list) {
+          const key = String(s.nameEn ?? '').trim().toLowerCase();
+          if (!key) continue;
+          const prev = byKey.get(key) ?? { nameEn: s.nameEn };
+          byKey.set(key, {
+            nameEn: prev.nameEn || s.nameEn,
+            nameAr: prev.nameAr || s.nameAr,
+            nameHe: prev.nameHe || s.nameHe,
+            nameFr: prev.nameFr || s.nameFr,
+            nameRu: prev.nameRu || s.nameRu,
+            color: prev.color || (s as any).color,
+          });
+        }
+      }
+      const finalI18n = Array.from(byKey.values()).sort((a, b) =>
+        String(a.nameEn ?? '').localeCompare(String(b.nameEn ?? '')),
+      );
+      return {
+        ok: true,
+        defaults: {
+          schoolId,
+          grade: 0,
+          subjects: finalI18n.map((s: any) => s.nameEn),
+          subjectsI18n: finalI18n,
+        },
+      };
+    }
+
     const row = await this.prisma.schoolGradeSubjectDefault.findUnique({
-      where: { schoolId_grade_unique: { schoolId, grade: Number(grade) } },
+      where: { schoolId_grade_unique: { schoolId, grade: gradeNum } },
       select: { schoolId: true, grade: true, subjects: true, subjectsI18n: true } as any,
     }) as any;
 
     if (!row) {
-      return { ok: true, defaults: { schoolId, grade: Number(grade), subjects: [], subjectsI18n: [] } };
+      return { ok: true, defaults: { schoolId, grade: gradeNum, subjects: [], subjectsI18n: [] } };
     }
-    // Defensive: if subjectsI18n is empty but legacy subjects has values
-    // (e.g. data written before the i18n column existed), surface them as
-    // English-only entries so clients always see a consistent shape.
     const i18n = normalizeSubjectsI18n(row.subjectsI18n);
     const finalI18n = i18n.length ? i18n : (row.subjects ?? []).map((s: string) => ({ nameEn: s }));
     return { ok: true, defaults: { ...row, subjectsI18n: finalI18n } };
