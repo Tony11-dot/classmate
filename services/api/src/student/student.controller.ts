@@ -1,6 +1,6 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import {
   StudentScheduleTodayResponseSchema,
@@ -56,22 +56,33 @@ export class StudentController {
 
   @SkipThrottle()
   @Get('schedule/week')
-  async week(@Req() req: any) {
-    const out = await this.student.weekSchedule(req.user);
+  async week(@Req() req: any, @Query('weekOf') weekOfParam?: string) {
+    // Pass the client-supplied weekOf through to the service so scrolling
+    // to a different week actually fetches that week.  Previously this
+    // method ignored the query param entirely, computed "today's week"
+    // server-side, and returned the SAME week regardless of what the
+    // client asked for — which is why scrolling to May 24 (or any other
+    // week) showed days whose dates didn't match anything in the response.
+    const out = await this.student.weekSchedule(req.user, weekOfParam);
     const rows = Array.isArray(out) ? out : [];
 
-    // weekOf: start-of-week (Sunday) in Asia/Jerusalem
-    const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
-    const todayUtcMidnight = new Date(todayYmd + 'T00:00:00.000Z');
-
-    const wk = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', weekday: 'short' }).format(todayUtcMidnight);
-    const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-    const dow = map[wk] ?? 0;
-
-    const weekStart = new Date(todayUtcMidnight.getTime());
-    weekStart.setUTCDate(weekStart.getUTCDate() - dow);
-
-    const weekOf = new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(weekStart);
+    // weekOf for the 7-day fill — honor the client's request if it sent
+    // a YYYY-MM-DD-shaped value, otherwise fall back to today's week.
+    const clientYmd = (weekOfParam ?? '').trim();
+    const useClient = /^\d{4}-\d{2}-\d{2}$/.test(clientYmd);
+    let weekOf: string;
+    if (useClient) {
+      weekOf = clientYmd;
+    } else {
+      const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
+      const todayUtcMidnight = new Date(todayYmd + 'T00:00:00.000Z');
+      const wk = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', weekday: 'short' }).format(todayUtcMidnight);
+      const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      const dow = map[wk] ?? 0;
+      const weekStart = new Date(todayUtcMidnight.getTime());
+      weekStart.setUTCDate(weekStart.getUTCDate() - dow);
+      weekOf = new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(weekStart);
+    }
 
     // group by date (YYYY-MM-DD)
     const byDate = new Map<string, any[]>();

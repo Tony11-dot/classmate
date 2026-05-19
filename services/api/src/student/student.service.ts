@@ -116,7 +116,7 @@ export class StudentService {
     });
   }
 
-  async weekSchedule(user: any) {
+  async weekSchedule(user: any, weekOf?: string) {
     this.ensureStudent(user);
     const studentId = user.sub ?? user.id;
     const sp = await this.prisma.studentProfile.findUnique({
@@ -127,6 +127,7 @@ export class StudentService {
       schoolId: String(user.schoolId ?? ''),
       studentId: String(studentId),
       cohortId: String(sp.cohortId ?? ''),
+      weekOf,
     });
   }
 
