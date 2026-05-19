@@ -222,6 +222,21 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
+    // TEMP diagnostic — user still reports missing periods after the
+    // dedup fix.  Surface schoolId + per-bucket slot ids so we can see
+    // exactly why a slot the admin just created isn't being picked up.
+    // eslint-disable-next-line no-console
+    console.log('[schedule.resolve]', {
+      studentId,
+      schoolId,
+      cohortId,
+      studentGrade,
+      uniqueCohortIds,
+      byStudent: byStudent.map((r) => r.slotId),
+      byCohort: byCohort.map((r: any) => r.slotId),
+      byGrade: byGrade.map((r: any) => r.id),
+    });
+
     const legacyAll = slotIds.length
       ? await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
@@ -258,6 +273,26 @@ export class ScheduleService {
     const legacy = legacyAll.filter((s: any) => {
       const ids: string[] = Array.isArray(s?.skipForStudentIds) ? s.skipForStudentIds : [];
       return !ids.includes(studentId);
+    });
+
+    // TEMP diagnostic — what came back from the slot query, what fell
+    // out via skipForStudentIds, and the row-level fields we need to
+    // confirm (schoolId / audienceGrade / dayOfWeek / period).
+    // eslint-disable-next-line no-console
+    console.log('[schedule.resolve.legacy]', {
+      fetched: legacyAll.length,
+      kept: legacy.length,
+      rows: legacyAll.map((s: any) => ({
+        id: s.id,
+        schoolId: s.schoolId ?? null,
+        dayOfWeek: s.dayOfWeek,
+        period: s.period,
+        subject: s.subject ?? null,
+        audienceGrade: s.audienceGrade ?? null,
+        frequencyWeeks: s.frequencyWeeks ?? null,
+        startDate: s.startDate ?? null,
+        skipForStudentIds: s.skipForStudentIds ?? [],
+      })),
     });
 
     // Multiple slots at the same (day, period) are legitimate now:
