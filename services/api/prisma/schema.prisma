@@ -402,6 +402,11 @@ model ScheduleSlot {
   /// a Once override replaces this recurring slot just for the override
   /// date.  Mutated via the conflict dialog's "Override" action.
   skipDates      String[] @default([])
+  /// Student user-ids for whom this slot does NOT render.  Used by the
+  /// per-student conflict resolver in Add Period: when the new period
+  /// overlaps for only a subset of an existing slot's audience, the rest
+  /// keep seeing it normally and only the conflicted students are skipped.
+  skipForStudentIds String[] @default([])
 
   school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)

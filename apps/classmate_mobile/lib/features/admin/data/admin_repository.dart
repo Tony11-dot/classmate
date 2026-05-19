@@ -288,7 +288,11 @@ class AdminRepository {
     return _l(_m(raw)['slots']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<void> createPeriod({
+  /// Returns the newly-created slot's id when the server response includes
+  /// one, otherwise an empty string. Callers that need to apply follow-up
+  /// patches (e.g. setting skipForStudentIds after a "Keep current" choice
+  /// in the conflict dialog) rely on this.
+  Future<String> createPeriod({
     required int dayOfWeek,
     required int period,
     String? teacherId,
@@ -302,7 +306,7 @@ class AdminRepository {
     int frequencyWeeks = 1,
     String? startDate,
   }) async {
-    await _api.postJson('/admin/periods', body: {
+    final raw = await _api.postJson('/admin/periods', body: {
       'dayOfWeek': dayOfWeek,
       'period': period,
       if (teacherId != null && teacherId.isNotEmpty) 'teacherId': teacherId,
@@ -316,6 +320,14 @@ class AdminRepository {
       'frequencyWeeks': frequencyWeeks,
       'startDate': ?startDate,
     });
+    final m = raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
+    final slot = m['slot'];
+    if (slot is Map) {
+      final id = slot['id']?.toString().trim();
+      if (id != null && id.isNotEmpty) return id;
+    }
+    final topId = m['id']?.toString().trim();
+    return topId ?? '';
   }
 
   Future<void> deletePeriod(String id) async {
@@ -348,6 +360,7 @@ class AdminRepository {
     String? startDate,
     bool setStartDate = false,
     List<String>? skipDates,
+    List<String>? skipForStudentIds,
   }) async {
     final body = <String, dynamic>{
       if (dayOfWeek != null) 'dayOfWeek': dayOfWeek,
@@ -363,6 +376,7 @@ class AdminRepository {
       if (frequencyWeeks != null) 'frequencyWeeks': frequencyWeeks,
       if (setStartDate) 'startDate': startDate,
       if (skipDates != null) 'skipDates': skipDates,
+      if (skipForStudentIds != null) 'skipForStudentIds': skipForStudentIds,
     };
     await _api.patchJson('/admin/periods/$id', body: body);
   }

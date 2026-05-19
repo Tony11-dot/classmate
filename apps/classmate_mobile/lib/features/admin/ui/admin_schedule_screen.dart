@@ -1312,34 +1312,29 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       freq: freq,
       startDate: _startDate,
     );
-    final draftYmd = _startDate != null
-        ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
-        : null;
+    // Captured here for the post-create patch — see _ConflictChoice.keepCurrent.
+    _ConflictChoice? conflictChoice;
+    final affectedStudentIdsForDraft = <String>{};
     if (conflicts.isNotEmpty) {
-      // Override only makes sense for a Once draft anchored to a specific
-      // date — that's the only outcome where we can suppress just one
-      // occurrence of the existing recurring slot. Stacking is always an
-      // option.
-      final canOverride = freq == 0 && draftYmd != null;
-      final choice = await _confirmConflictDialog(
-        conflicts,
-        offerOverride: canOverride,
-      );
-      if (choice == null || choice == _ConflictChoice.cancel) return;
-      if (choice == _ConflictChoice.override) {
+      conflictChoice = await _confirmConflictDialog(conflicts);
+      if (conflictChoice == null || conflictChoice == _ConflictChoice.cancel) {
+        return;
+      }
+      if (conflictChoice == _ConflictChoice.override) {
         try {
           for (final hit in conflicts) {
             if (hit.id.isEmpty) continue;
-            // For recurring conflicts: add the draft date to skipDates so
-            // the existing slot renders on every other matching day except
-            // this one. For another Once on the same date: just delete it.
-            if (hit.frequencyWeeks == 0) {
-              await widget.repo.deletePeriod(hit.id);
-            } else {
-              final updated = <String>{...hit.skipDates, draftYmd!}.toList()
-                ..sort();
-              await widget.repo.updatePeriod(id: hit.id, skipDates: updated);
-            }
+            // Existing slot loses ONLY the conflicted students — every
+            // other student in its audience keeps seeing it as usual.
+            final updated = <String>{
+              ...hit.skipForStudentIds,
+              ...hit.affectedStudentIds,
+            }.toList()
+              ..sort();
+            await widget.repo.updatePeriod(
+              id: hit.id,
+              skipForStudentIds: updated,
+            );
           }
         } catch (e) {
           if (!mounted) return;
@@ -1349,7 +1344,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           ));
           return;
         }
+      } else if (conflictChoice == _ConflictChoice.keepCurrent) {
+        // New slot will be stamped with these once it's created — keeps
+        // its audience intact for everybody else while hiding for the
+        // conflicted students.
+        for (final hit in conflicts) {
+          affectedStudentIdsForDraft.addAll(hit.affectedStudentIds);
+        }
       }
+      // _ConflictChoice.stack — no-op, both periods render side-by-side.
     }
 
     setState(() => _saving = true);
@@ -1409,7 +1412,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         final sd = _startDate != null
             ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
             : null;
-        await widget.repo.createPeriod(
+        final newId = await widget.repo.createPeriod(
           dayOfWeek: slot.dayOfWeek,
           period: slot.period,
           teacherId: _teacherId,
@@ -1424,6 +1427,18 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           startDate: sd,
         );
         created++;
+        // Keep-current: stamp the conflicted students onto the freshly-
+        // created slot so they don't see it, while the rest of its audience
+        // still does. No-op when the choice was Override or Stack (or
+        // there were no conflicts at all).
+        if (conflictChoice == _ConflictChoice.keepCurrent &&
+            newId.isNotEmpty &&
+            affectedStudentIdsForDraft.isNotEmpty) {
+          await widget.repo.updatePeriod(
+            id: newId,
+            skipForStudentIds: affectedStudentIdsForDraft.toList()..sort(),
+          );
+        }
       } catch (e) {
         firstError ??= e.toString();
       }
@@ -1771,6 +1786,101 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   ///     (covers grade-mode draft conflicting with cohort-mode existing).
   ///   - The existing slot's audienceGrade equals any of the draft's
   ///     cohort grades (covers the reverse).
+  /// Resolves an audience description into the concrete set of student
+  /// user-ids who would attend the period.  Used both for the new draft
+  /// and for every existing slot so the conflict resolver can intersect
+  /// them and discover the per-student overlap.
+  Set<String> _studentsForAudience({
+    Set<String>? cohortIds,
+    Set<String>? directStudentIds,
+    int? audienceGrade,
+  }) {
+    final out = <String>{};
+    if (directStudentIds != null) out.addAll(directStudentIds);
+
+    // Cohort membership comes from the cohorts DDL, which already unions
+    // the StudentCohort join + legacy studentProfile.cohortId (see
+    // listCohortsForDDL on the server). Falls back to per-student
+    // cohortIds when the cohort row's studentIds field is empty.
+    if (cohortIds != null && cohortIds.isNotEmpty) {
+      for (final cid in cohortIds) {
+        final c = widget.cohorts.firstWhere(
+          (e) => e['id']?.toString() == cid,
+          orElse: () => const {},
+        );
+        final ids = (c['studentIds'] as List?)
+                ?.map((e) => e.toString())
+                .where((s) => s.isNotEmpty)
+                .toList() ??
+            const <String>[];
+        out.addAll(ids);
+        if (ids.isEmpty) {
+          // Legacy fallback — read cohortIds off each student row.
+          for (final s in widget.students) {
+            final scs = (s['cohortIds'] as List?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                const <String>[];
+            final sc = s['cohortId']?.toString() ?? '';
+            if (scs.contains(cid) || sc == cid) {
+              final id = s['id']?.toString();
+              if (id != null && id.isNotEmpty) out.add(id);
+            }
+          }
+        }
+      }
+    }
+
+    // Grade audience — every student whose own grade matches.
+    if (audienceGrade != null) {
+      for (final s in widget.students) {
+        final g = (s['grade'] as num?)?.toInt();
+        if (g == audienceGrade) {
+          final id = s['id']?.toString();
+          if (id != null && id.isNotEmpty) out.add(id);
+        }
+      }
+    }
+    return out;
+  }
+
+  /// Same resolver, applied to an existing slot row from the periods
+  /// provider. Honors both modes the slot can persist in (cohort-mode +
+  /// audienceGrade), and reuses the audience helper for the actual lookup.
+  Set<String> _studentsForExistingSlot(Map<String, dynamic> slot) {
+    final cohortRows = (slot['cohorts'] as List? ?? const []).whereType<Map>().toList();
+    final cohortIds = cohortRows
+        .map((c) => (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final studentIds = (slot['students'] as List? ?? const [])
+        .whereType<Map>()
+        .map((s) => s['studentId']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final ag = (slot['audienceGrade'] as num?)?.toInt();
+
+    final resolved = _studentsForAudience(
+      cohortIds: cohortIds,
+      directStudentIds: studentIds,
+      audienceGrade: ag,
+    );
+
+    // Subtract previously-stamped per-student exclusions so a slot that
+    // already has [studentX] in skipForStudentIds doesn't surface as a
+    // conflict for studentX a second time.
+    final skip = ((slot['skipForStudentIds'] as List?) ?? const [])
+        .map((e) => e.toString())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    return resolved.difference(skip);
+  }
+
+  /// Per-student conflict scan. For each existing period at the same
+  /// (day, slot), intersects its student audience with the draft's,
+  /// returning a hit for every existing slot that shares at least one
+  /// student with the draft. The Once-anchor date filter still applies
+  /// so two never-overlapping one-offs don't trip the warning.
   List<_ConflictHit> _findConflicts({
     required ({List<String>? cohortIds, List<String>? studentIds}) audience,
     required int freq,
@@ -1782,18 +1892,11 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     final draftCohortIds = (audience.cohortIds ?? const <String>[]).toSet();
     final draftStudentIds = (audience.studentIds ?? const <String>[]).toSet();
     final draftGrade = _audience == _AudienceMode.grade ? _audienceGrade : null;
-    final draftCohortGrades = <int>{};
-    if (draftCohortIds.isNotEmpty) {
-      for (final cid in draftCohortIds) {
-        final c = widget.cohorts.firstWhere(
-          (e) => e['id']?.toString() == cid,
-          orElse: () => const {},
-        );
-        for (final g in _cohortGradesOf(c)) {
-          draftCohortGrades.add(g);
-        }
-      }
-    }
+    final draftStudents = _studentsForAudience(
+      cohortIds: draftCohortIds,
+      directStudentIds: draftStudentIds,
+      audienceGrade: draftGrade,
+    );
 
     final hits = <_ConflictHit>[];
     final editingId = _editingId;
@@ -1809,59 +1912,47 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           d.period == (slot['period'] as num?)?.toInt());
       if (!sameSpot) continue;
 
-      // Existing-slot audience
-      final exCohortRows = (slot['cohorts'] as List? ?? const []).whereType<Map>().toList();
-      final exCohortIds = exCohortRows
-          .map((c) => (c['cohortId'] ?? (c['cohort'] is Map ? c['cohort']['id'] : null))?.toString() ?? '')
-          .where((id) => id.isNotEmpty)
-          .toSet();
-      final exStudentIds = (slot['students'] as List? ?? const [])
-          .whereType<Map>()
-          .map((s) => s['studentId']?.toString() ?? '')
-          .where((id) => id.isNotEmpty)
-          .toSet();
-      final exGrade = (slot['audienceGrade'] as num?)?.toInt();
-      final exCohortGrades = <int>{};
-      for (final r in exCohortRows) {
-        final cohort = r['cohort'];
-        if (cohort is! Map) continue;
-        final gs = cohort['grades'];
-        if (gs is List) {
-          for (final g in gs) {
-            if (g is num) exCohortGrades.add(g.toInt());
-          }
-        }
-        final g = cohort['grade'];
-        if (g is num) exCohortGrades.add(g.toInt());
-      }
-
-      bool overlap = false;
-      if (draftCohortIds.any(exCohortIds.contains)) overlap = true;
-      if (!overlap && draftStudentIds.any(exStudentIds.contains)) overlap = true;
-      if (!overlap && draftGrade != null && exGrade == draftGrade) overlap = true;
-      if (!overlap && draftGrade != null && exCohortGrades.contains(draftGrade)) overlap = true;
-      if (!overlap && exGrade != null && draftCohortGrades.contains(exGrade)) overlap = true;
-      if (!overlap) continue;
-
-      // For a "Once" override against a repeating existing slot, the conflict
-      // only fires on the draft's date. (Two slots that never share a date
-      // can't really collide.) Repeating drafts conflict broadly.
+      // For a "Once" override against another Once, the conflict only
+      // fires when they share the anchor date.
       final exFreq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
       final exYmd = slot['startDate']?.toString();
       if (freq == 0 && exFreq == 0 && draftYmd != null && exYmd != null && draftYmd != exYmd) {
         continue;
       }
 
+      final exStudents = _studentsForExistingSlot(slot);
+      final affected = exStudents.intersection(draftStudents);
+      if (affected.isEmpty) continue;
+
+      // Resolve names from the students DDL so the dialog reads as
+      // "Tony, Sara, ...".
+      final names = <String>[];
+      for (final sid in affected) {
+        final s = widget.students.firstWhere(
+          (st) => st['id']?.toString() == sid,
+          orElse: () => const {},
+        );
+        final n = s['name']?.toString().trim() ?? '';
+        if (n.isNotEmpty) names.add(n);
+      }
+      names.sort();
+
       hits.add(_ConflictHit(
         id: slot['id']?.toString() ?? '',
         subject: (slot['subject'] ?? '').toString(),
         teacherName: (slot['teacher'] is Map ? slot['teacher']['name'] : null)?.toString() ?? '',
         audienceLabel: _audienceLabelForSlot(slot),
-        frequencyWeeks: (slot['frequencyWeeks'] as num?)?.toInt() ?? 1,
+        frequencyWeeks: exFreq,
         skipDates: ((slot['skipDates'] as List?) ?? const [])
             .map((e) => e.toString())
             .where((s) => s.isNotEmpty)
             .toList(),
+        skipForStudentIds: ((slot['skipForStudentIds'] as List?) ?? const [])
+            .map((e) => e.toString())
+            .where((s) => s.isNotEmpty)
+            .toList(),
+        affectedStudentIds: affected.toList(),
+        affectedStudentNames: names,
       ));
       if (hits.length >= 5) break;
     }
@@ -1883,57 +1974,81 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     return n > 0 ? '$n student${n == 1 ? '' : 's'}' : '—';
   }
 
-  /// Conflict dialog outcome. `stack` = create the new slot alongside the
-  /// existing ones (both render). `override` = suppress the existing slots
-  /// on the draft's date (only valid for a Once draft, since recurring
-  /// drafts have no single date to anchor the skip on). `cancel` = back out.
+  /// Builds the per-student conflict dialog. Always lists the affected
+  /// student names (the whole point of the per-student detection is that
+  /// only this subset is double-booked), and offers three resolutions:
+  /// override (new wins), keep-current (new hides for those students), or
+  /// stack (both render side-by-side). The choice ONLY affects the listed
+  /// students — anyone else in either audience keeps seeing what they did.
   Future<_ConflictChoice?> _confirmConflictDialog(
-    List<_ConflictHit> hits, {
-    required bool offerOverride,
-  }) async {
+    List<_ConflictHit> hits,
+  ) async {
+    final affectedAll = <String>{};
+    for (final h in hits) {
+      affectedAll.addAll(h.affectedStudentNames);
+    }
+    final names = affectedAll.toList()..sort();
+    final preview = names.length <= 6
+        ? names.join(', ')
+        : '${names.take(6).join(', ')} +${names.length - 6} more';
+
     return showDialog<_ConflictChoice>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           title: const Text('Conflicting period'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'There ${hits.length == 1 ? 'is already a period' : 'are already periods'} at this time for an overlapping audience:',
-              ),
-              const SizedBox(height: 10),
-              for (final h in hits)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(
-                    '• ${[h.subject, h.audienceLabel, if (h.teacherName.isNotEmpty) h.teacherName].where((s) => s.isNotEmpty).join(' · ')}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  affectedAll.length == 1
+                      ? '${names.isNotEmpty ? names.first : 'A student'} would have two periods at the same time:'
+                      : '${affectedAll.length} students would have two periods at the same time:',
                 ),
-              const SizedBox(height: 12),
-              Text(
-                offerOverride
-                    ? 'Replace the conflicting period for this date, or show both?'
-                    : 'Save anyway?',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ],
+                const SizedBox(height: 8),
+                for (final h in hits)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(
+                      '• ${[h.subject, h.audienceLabel, if (h.teacherName.isNotEmpty) h.teacherName].where((s) => s.isNotEmpty).join(' · ')}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                if (names.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    'Affected: $preview',
+                    style: const TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                const Text(
+                  'How should this be resolved for those students?',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ),
+          actionsOverflowDirection: VerticalDirection.down,
+          actionsAlignment: MainAxisAlignment.end,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.cancel),
               child: const Text('Cancel'),
             ),
-            if (offerOverride)
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
-                child: const Text('Override'),
-              ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
+              child: const Text('Keep current'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
+              child: const Text('Override'),
+            ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.stack),
-              child: Text(offerOverride ? 'Show both' : 'Save'),
+              child: const Text('Show both'),
             ),
           ],
         );
@@ -1942,7 +2057,16 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   }
 }
 
-enum _ConflictChoice { cancel, override, stack }
+/// Outcomes from the per-student conflict dialog.
+/// - `cancel`: bail out, don't save the new period.
+/// - `override`: new period wins for the affected students. We patch each
+///   existing slot's `skipForStudentIds` to add those ids, so they stop
+///   seeing the old period.
+/// - `keepCurrent`: existing period wins; the new period gets stamped with
+///   the union of affected student ids in `skipForStudentIds` after create
+///   so it never renders for them.
+/// - `stack`: both periods render side-by-side for the affected students.
+enum _ConflictChoice { cancel, override, keepCurrent, stack }
 
 class _ConflictHit {
   final String id;
@@ -1951,6 +2075,12 @@ class _ConflictHit {
   final String audienceLabel;
   final int frequencyWeeks;
   final List<String> skipDates;
+  final List<String> skipForStudentIds;
+  /// Students who would be double-booked by adding the draft — the
+  /// intersection of the existing slot's audience and the draft's. Drives
+  /// the dialog copy and the override patch.
+  final List<String> affectedStudentIds;
+  final List<String> affectedStudentNames;
   const _ConflictHit({
     required this.id,
     required this.subject,
@@ -1958,6 +2088,9 @@ class _ConflictHit {
     required this.audienceLabel,
     required this.frequencyWeeks,
     required this.skipDates,
+    required this.skipForStudentIds,
+    required this.affectedStudentIds,
+    required this.affectedStudentNames,
   });
 }
 

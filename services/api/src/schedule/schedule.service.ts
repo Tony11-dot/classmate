@@ -222,7 +222,7 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
-    const legacy = slotIds.length
+    const legacyAll = slotIds.length
       ? await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
           include: {
@@ -231,6 +231,14 @@ export class ScheduleService {
           } as any,
         })
       : [];
+    // Per-student suppression — admin picked "Override" or "Keep current"
+    // in the Add Period conflict dialog for THIS student.  Slots where
+    // skipForStudentIds contains studentId drop out before they ever hit
+    // the day/period merger.
+    const legacy = legacyAll.filter((s: any) => {
+      const ids: string[] = Array.isArray(s?.skipForStudentIds) ? s.skipForStudentIds : [];
+      return !ids.includes(studentId);
+    });
 
     const byKey = new Map<string, any>();
     const keyOf = (d: number, p: number) => `${d}:${p}`;

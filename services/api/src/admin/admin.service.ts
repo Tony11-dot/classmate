@@ -265,7 +265,91 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       });
     }
 
+    // Subject sync — if the admin typed a subject not present in the
+    // school's SchoolGradeSubjectDefault, add it for every grade this
+    // slot covers so the next School Settings → Subjects view (and the
+    // schedule subject picker, which reads from the same endpoint) finds
+    // it. No-op when the subject is already catalogued.
+    if (schoolId && subject) {
+      const trimmedSubject = String(subject).trim();
+      if (trimmedSubject) {
+        const gradeSet = new Set<number>();
+        if (typeof normalizedAudienceGrade === 'number') {
+          gradeSet.add(normalizedAudienceGrade);
+        }
+        if (cohortIds.length) {
+          const cohorts = await this.prisma.cohort.findMany({
+            where: { id: { in: cohortIds } },
+            select: { grade: true, grades: true } as any,
+          });
+          for (const c of cohorts as any[]) {
+            if (Array.isArray(c.grades) && c.grades.length) {
+              for (const g of c.grades) if (typeof g === 'number') gradeSet.add(g);
+            } else if (typeof c.grade === 'number') {
+              gradeSet.add(c.grade);
+            }
+          }
+        }
+        if (studentIds.length) {
+          const profiles = await this.prisma.studentProfile.findMany({
+            where: { userId: { in: studentIds } },
+            select: { grade: true },
+          });
+          for (const p of profiles) {
+            if (typeof p.grade === 'number') gradeSet.add(p.grade);
+          }
+        }
+        await this._addSubjectToSchoolDefaults(schoolId, trimmedSubject, Array.from(gradeSet));
+      }
+    }
+
     return { ok: true, slot: { ...slot, cohortIds, studentIds } };
+  }
+
+  /// Adds [subject] (by `nameEn` match) to the `subjectsI18n` JSON list for
+  /// each given grade's SchoolGradeSubjectDefault row, creating the row
+  /// if absent.  Idempotent — duplicates are filtered case-insensitively.
+  private async _addSubjectToSchoolDefaults(
+    schoolId: string,
+    subject: string,
+    grades: number[],
+  ): Promise<void> {
+    if (!grades.length) return;
+    for (const grade of grades) {
+      const row = await this.prisma.schoolGradeSubjectDefault.findUnique({
+        where: { schoolId_grade_unique: { schoolId, grade } } as any,
+      }) as any;
+      const existingI18n = Array.isArray(row?.subjectsI18n) ? row.subjectsI18n : [];
+      const existingFlat = Array.isArray(row?.subjects) ? row.subjects : [];
+      const lowered = new Set<string>();
+      for (const item of existingI18n) {
+        const n = typeof item === 'string'
+          ? item
+          : String((item as any)?.nameEn ?? '');
+        if (n.trim().length) lowered.add(n.trim().toLowerCase());
+      }
+      for (const s of existingFlat) {
+        if (typeof s === 'string') lowered.add(s.trim().toLowerCase());
+      }
+      if (lowered.has(subject.toLowerCase())) continue;
+      const newI18n = [...existingI18n, { nameEn: subject }];
+      const newFlat = [...existingFlat, subject];
+      if (row) {
+        await this.prisma.schoolGradeSubjectDefault.update({
+          where: { id: row.id },
+          data: { subjectsI18n: newI18n as any, subjects: newFlat },
+        });
+      } else {
+        await this.prisma.schoolGradeSubjectDefault.create({
+          data: {
+            schoolId,
+            grade,
+            subjectsI18n: newI18n as any,
+            subjects: newFlat,
+          },
+        });
+      }
+    }
   }
 
   async updatePeriod(user: any, id: string, body: {
@@ -283,6 +367,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     frequencyWeeks?: number;
     startDate?: string | null;
     skipDates?: string[];
+    skipForStudentIds?: string[];
   }) {
     this.ensureAdmin(user);
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
@@ -320,6 +405,18 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       const re = /^\d{4}-\d{2}-\d{2}$/;
       data.skipDates = Array.from(
         new Set(body.skipDates.filter((s) => typeof s === 'string' && re.test(s))),
+      );
+    }
+    if (Array.isArray(body.skipForStudentIds)) {
+      // Dedupe + non-empty strings only.  Server doesn't validate these
+      // exist (a stale id is harmless — the filter just won't match
+      // anybody) and the conflict dialog only ever pushes real ones.
+      data.skipForStudentIds = Array.from(
+        new Set(
+          body.skipForStudentIds.filter(
+            (s) => typeof s === 'string' && s.length > 0,
+          ),
+        ),
       );
     }
 
