@@ -1317,36 +1317,31 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     final draftYmd = _startDate != null
         ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
         : null;
-    // Override / Keep current are scoped to the draft's anchor date,
-    // so they only make sense for a Once draft. Recurring drafts can
-    // still Stack (Show both) but Cancel is the only safety net for
-    // anything else — a recurring forever-skip caused the bug where
-    // an earlier Override left a student hidden from a class long
-    // after the overriding period was gone.
-    final isDateScoped = freq == 0 && draftYmd != null;
     final newStudentDateSkipsForDraft = <String>{};
     if (conflicts.isNotEmpty) {
-      conflictChoice = await _confirmConflictDialog(
-        conflicts,
-        offerDateScoped: isDateScoped,
-      );
+      conflictChoice = await _confirmConflictDialog(conflicts);
       if (conflictChoice == null || conflictChoice == _ConflictChoice.cancel) {
         return;
       }
       if (conflictChoice == _ConflictChoice.override) {
         try {
+          // Compute every date the draft would render on so we can
+          // suppress the existing slot on each of them.  For Once, that's
+          // a single date.  For recurring (with or without anchor), it's
+          // the next ~year of matching dates.
+          final draftSkipDates = <String>{};
+          for (final dr in _slots) {
+            draftSkipDates.addAll(_renderDatesForSlot(
+              dayOfWeek: dr.dayOfWeek,
+              frequencyWeeks: freq,
+              startDate: draftYmd,
+            ));
+          }
           for (final hit in conflicts) {
-            if (hit.id.isEmpty || draftYmd == null) continue;
-            // Whole-day skip on the existing slot for the draft's date.
-            // That's stronger than the previous per-student approach but
-            // matches "this period is replaced on this date" semantics
-            // and — importantly — also hides the slot for the teacher
-            // (who would otherwise still see math while all their
-            // students are at the override). When draft date passes,
-            // skipDates auto-stops mattering and the slot renders again.
+            if (hit.id.isEmpty) continue;
             final updated = <String>{
               ...hit.skipDates,
-              draftYmd,
+              ...draftSkipDates,
             }.toList()
               ..sort();
             await widget.repo.updatePeriod(
@@ -1363,14 +1358,22 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           return;
         }
       } else if (conflictChoice == _ConflictChoice.keepCurrent) {
-        // Keep current: the existing slot stays for everyone (including
-        // the conflict-affected students); the NEW slot hides for those
-        // students only.  Per-student precision is desirable here — we
-        // don't want to drop the new slot for the rest of its audience.
-        if (draftYmd != null) {
-          for (final hit in conflicts) {
-            for (final sid in hit.affectedStudentIds) {
-              newStudentDateSkipsForDraft.add('$sid:$draftYmd');
+        // Keep current: existing slot stays for everyone; the new slot
+        // hides for the conflicted students on every date it would
+        // render. Per-student precision — the new slot still renders
+        // for the rest of its audience on those dates.
+        final draftDates = <String>{};
+        for (final dr in _slots) {
+          draftDates.addAll(_renderDatesForSlot(
+            dayOfWeek: dr.dayOfWeek,
+            frequencyWeeks: freq,
+            startDate: draftYmd,
+          ));
+        }
+        for (final hit in conflicts) {
+          for (final sid in hit.affectedStudentIds) {
+            for (final d in draftDates) {
+              newStudentDateSkipsForDraft.add('$sid:$d');
             }
           }
         }
@@ -1897,6 +1900,50 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     // add another period at the same time.
   }
 
+  /// Calendar-date enumeration for a slot's render schedule over the
+  /// next year.  Mirrors the server's rendering rules so the conflict
+  /// scanner sees the same dates the user would.
+  ///   - Once (freq=0): exactly the startDate.
+  ///   - Weekly (freq=1): every matching weekday from startDate (or
+  ///     today's matching weekday when none) for 52 weeks.
+  ///   - Bi-weekly / monthly (freq=2/4/N): startDate + multiples of
+  ///     N weeks, on the slot's weekday.
+  Set<String> _renderDatesForSlot({
+    required int dayOfWeek, // 0=Sun..6=Sat
+    required int frequencyWeeks,
+    required String? startDate,
+  }) {
+    final out = <String>{};
+    if (frequencyWeeks == 0) {
+      if (startDate != null && startDate.length == 10) out.add(startDate);
+      return out;
+    }
+    final step = frequencyWeeks >= 1 ? frequencyWeeks : 1;
+    DateTime anchor;
+    if (startDate != null && startDate.length == 10) {
+      final parsed = DateTime.tryParse(startDate);
+      if (parsed == null) return out;
+      anchor = DateTime(parsed.year, parsed.month, parsed.day);
+    } else {
+      // No anchor — start at "today's matching weekday" for weekly slots.
+      final today = DateTime.now();
+      final base = DateTime(today.year, today.month, today.day);
+      final delta = (dayOfWeek - (base.weekday % 7) + 7) % 7;
+      anchor = base.add(Duration(days: delta));
+    }
+    final horizon = anchor.add(const Duration(days: 365));
+    var d = anchor;
+    while (!d.isAfter(horizon)) {
+      out.add(
+        '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}',
+      );
+      d = d.add(Duration(days: step * 7));
+    }
+    return out;
+  }
+
   /// Per-student conflict scan. For each existing period at the same
   /// (day, slot), intersects its student audience with the draft's,
   /// returning a hit for every existing slot that shares at least one
@@ -1924,6 +1971,19 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     final draftYmd = startDate != null
         ? '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}'
         : null;
+    // Enumerate the dates the draft itself would render on so we can do
+    // a real calendar-date intersection against each existing slot.
+    // Without this we'd flag bi-weekly slots that share (day, period)
+    // but never actually land on the same Monday (different anchor weeks).
+    final draftDates = <String>{};
+    for (final dr in _slots) {
+      draftDates.addAll(_renderDatesForSlot(
+        dayOfWeek: dr.dayOfWeek,
+        frequencyWeeks: freq,
+        startDate: draftYmd,
+      ));
+    }
+
     for (final slot in all) {
       if (editingId != null && slot['id']?.toString() == editingId) continue;
       // Same (day, slot) — different periods can coexist; same time can't.
@@ -1933,13 +1993,25 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           d.period == (slot['period'] as num?)?.toInt());
       if (!sameSpot) continue;
 
-      // For a "Once" override against another Once, the conflict only
-      // fires when they share the anchor date.
+      // Real calendar-date intersection. Two recurring slots at the same
+      // (day, period) but different bi-weekly anchors never collide on
+      // any actual date — don't flag them as conflicting.
       final exFreq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
       final exYmd = slot['startDate']?.toString();
-      if (freq == 0 && exFreq == 0 && draftYmd != null && exYmd != null && draftYmd != exYmd) {
-        continue;
-      }
+      final exDates = _renderDatesForSlot(
+        dayOfWeek: (slot['dayOfWeek'] as num?)?.toInt() ?? 0,
+        frequencyWeeks: exFreq,
+        startDate: exYmd,
+      );
+      // Subtract skipDates from the existing slot — if it's already
+      // marked as suppressed on the draft's date, no conflict for that
+      // date.  (skipForStudentIds intentionally not consulted here; the
+      // server resolver ignores it now too.)
+      final exSkips = ((slot['skipDates'] as List?) ?? const [])
+          .map((e) => e.toString())
+          .toSet();
+      final exEffective = exDates.where((d) => !exSkips.contains(d)).toSet();
+      if (draftDates.intersection(exEffective).isEmpty) continue;
 
       final exStudents = _studentsForExistingSlot(slot);
       final affected = exStudents.intersection(draftStudents);
@@ -2002,9 +2074,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   /// stack (both render side-by-side). The choice ONLY affects the listed
   /// students — anyone else in either audience keeps seeing what they did.
   Future<_ConflictChoice?> _confirmConflictDialog(
-    List<_ConflictHit> hits, {
-    required bool offerDateScoped,
-  }) async {
+    List<_ConflictHit> hits,
+  ) async {
     final affectedAll = <String>{};
     for (final h in hits) {
       affectedAll.addAll(h.affectedStudentNames);
@@ -2060,20 +2131,19 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.cancel),
               child: const Text('Cancel'),
             ),
-            // Override + Keep current are date-scoped — only show them
-            // for a Once draft anchored to a specific date. A recurring
-            // draft has no single date to bind the suppression to, so
-            // we'd be back to forever-skips and the bug that caused.
-            if (offerDateScoped) ...[
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
-                child: const Text('Keep current'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
-                child: const Text('Override'),
-              ),
-            ],
+            // Override + Keep current are always offered.  Both use
+            // explicit date enumeration over the draft's render dates
+            // (Once = anchor date; recurring = the next year of matching
+            // dates), so the suppression's lifetime tracks the draft's
+            // schedule, not "forever."
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
+              child: const Text('Keep current'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
+              child: const Text('Override'),
+            ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.stack),
               child: const Text('Show both'),

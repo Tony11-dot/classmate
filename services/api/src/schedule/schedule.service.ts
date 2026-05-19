@@ -439,16 +439,38 @@ export class ScheduleService {
     const dow = dayOfWeekInJerusalem(params.date); // 0..6
     const tmpl = params.templateRows.filter((r) => {
       if (Number(r.dayOfWeek) !== dow) return false;
-      // "Once" slot — only renders on its anchor date. frequencyWeeks=0 is
-      // the convention for one-off override periods created by the admin
-      // ("Once" chip in Add Period); they must carry a startDate.
       const freq = Number((r as any).frequencyWeeks ?? 1);
+      const sd: string | null = typeof (r as any).startDate === 'string' &&
+              /^\d{4}-\d{2}-\d{2}$/.test((r as any).startDate)
+          ? (r as any).startDate
+          : null;
+      // Once — exactly the anchor date.
       if (freq === 0) {
-        const sd = (r as any).startDate ?? null;
-        return typeof sd === 'string' && sd === dateYmd;
+        return sd !== null && sd === dateYmd;
       }
-      // Recurring slot — admin may have marked specific dates as
-      // suppressed (via the "Override" choice in the conflict dialog).
+      // Recurring with anchor: only render when the date is an integer
+      // number of `freq` weeks from the anchor (and not before it).
+      // freq=1 collapses to "every matching weekday from the anchor".
+      // freq=2 = biweekly, freq=4 = monthly etc.
+      if (freq >= 2 && sd !== null) {
+        const startMs = Date.UTC(
+          Number(sd.slice(0, 4)),
+          Number(sd.slice(5, 7)) - 1,
+          Number(sd.slice(8, 10)),
+        );
+        const currentMs = Date.UTC(
+          Number(dateYmd.slice(0, 4)),
+          Number(dateYmd.slice(5, 7)) - 1,
+          Number(dateYmd.slice(8, 10)),
+        );
+        if (currentMs < startMs) return false;
+        const weeksSince = (currentMs - startMs) / (7 * 86400000);
+        if (!Number.isInteger(weeksSince)) return false; // shouldn't happen, same weekday
+        if (weeksSince % freq !== 0) return false;
+      } else if (freq === 1 && sd !== null) {
+        // Optional anchor for weekly slots — render only on or after sd.
+        if (dateYmd < sd) return false;
+      }
       const skipDates: string[] = Array.isArray((r as any).skipDates)
         ? (r as any).skipDates
         : [];
