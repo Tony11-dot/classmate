@@ -59,6 +59,22 @@ export class StudentController {
   async week(@Req() req: any) {
     const out = await this.student.weekSchedule(req.user);
     const rows = Array.isArray(out) ? out : [];
+    // Diagnostic — counts what the resolver returned + the dates each row
+    // carries, so we can confirm whether a missing-classes report is a
+    // resolver miss (rows.length=0) or a day-grouping mismatch (rows
+    // populated but their `date` strings don't match the 7-day fill).
+    // eslint-disable-next-line no-console
+    console.log('[student.schedule.week]', {
+      uid: String(req?.user?.sub ?? req?.user?.id ?? ''),
+      rowCount: rows.length,
+      sampleDates: rows.slice(0, 5).map((r: any) => ({
+        id: r?.id,
+        date: r?.date ?? null,
+        dayOfWeek: r?.dayOfWeek ?? null,
+        period: r?.period ?? null,
+        subject: r?.subject ?? null,
+      })),
+    });
 
     // weekOf: start-of-week (Sunday) in Asia/Jerusalem
     const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
@@ -103,6 +119,16 @@ export class StudentController {
       return { date, items };
     });
 
+    // Diagnostic — confirms the 7-day fill dates match the per-row dates
+    // above. If the day dates don't intersect rows[].date, hero counts
+    // items but the day-grouped view shows zero (the failure the user
+    // reported).
+    // eslint-disable-next-line no-console
+    console.log('[student.schedule.week] response', {
+      weekOf,
+      dayDates: days.map((d: any) => d.date),
+      itemsPerDay: days.map((d: any) => (d.items as any[]).length),
+    });
     return StudentScheduleWeekResponseSchema.parse({ ok: true, items: { weekOf, days } });
   }
 
