@@ -222,10 +222,44 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
+    // One-line diagnostic so we can see what the resolver pulled for a
+    // student when their schedule renders empty unexpectedly. Counts only;
+    // no PII gets logged.
+    // eslint-disable-next-line no-console
+    console.log('[schedule.resolve]', {
+      studentId,
+      cohortId,
+      studentGrade,
+      byStudent: byStudent.length,
+      byCohort: byCohort.length,
+      byGrade: byGrade.length,
+      uniqueSlotIds: slotIds.length,
+    });
+
     const legacyAll = slotIds.length
       ? await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
-          include: {
+          // Explicit select — `include` without select would auto-expand to
+          // every scalar column Prisma knows about, which would error if
+          // the running DB hasn't db-pushed a column the client expects
+          // (e.g. mid-deploy state between schema and DB).  Be defensive
+          // and ask only for the fields we read.
+          select: {
+            id: true,
+            schoolId: true,
+            dayOfWeek: true,
+            period: true,
+            teacherId: true,
+            classroomId: true,
+            subject: true,
+            startTime: true,
+            endTime: true,
+            frequencyWeeks: true,
+            startDate: true,
+            color: true,
+            audienceGrade: true,
+            skipDates: true,
+            skipForStudentIds: true,
             teacher: { select: { id: true, name: true } },
             classroom: { select: { id: true, name: true } },
           } as any,
