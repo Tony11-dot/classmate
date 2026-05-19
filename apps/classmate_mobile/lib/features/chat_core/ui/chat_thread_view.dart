@@ -843,9 +843,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
+      // Drag direction tracks both, but neither commits until release.
+      // The cancel indicator still LIGHTS at threshold via the HUD's
+      // own progress computation, and so does the lock chevron — but
+      // we deliberately don't flip _voiceLocked here. If we did,
+      // dragging up past the threshold while still holding would
+      // commit the lock prematurely; users expect lock to happen only
+      // when they let go past the threshold (same model as
+      // slide-to-cancel, which also resolves on release).
       _voiceCancelled = dx <= -chatRecordingCancelThreshold;
-      _voiceLocked = dy <= -chatRecordingLockThreshold;
-      if (!_voiceLocked) _voicePaused = false;
     });
   }
 
@@ -856,8 +862,14 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       await _cancelVoiceDraft();
       return;
     }
-    if (_voiceLocked) {
-      if (mounted) setState(() => _voicePaused = false);
+    // Lock is committed on release, mirroring the cancel commit semantics.
+    if (_holdDy <= -chatRecordingLockThreshold) {
+      if (mounted) {
+        setState(() {
+          _voiceLocked = true;
+          _voicePaused = false;
+        });
+      }
       return;
     }
     await _stopRecordingAndSend();

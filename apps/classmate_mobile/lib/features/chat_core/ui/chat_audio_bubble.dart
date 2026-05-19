@@ -397,11 +397,17 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   child: Text(
                     speedLabels[i],
                     style: TextStyle(
-                      // When the pill is filled (active), use the contrast
-                      // foreground so the label is visible on the accent
-                      // background; otherwise stick with the bubble's
-                      // normal text color.
-                      color: isActive ? onAccent : dimColor,
+                      // The outer pill is filled with `accent`, so EVERY
+                      // label sits on top of the accent — not just the
+                      // active one.  Using dimColor for inactive labels
+                      // hid them entirely when accent and dimColor
+                      // coincided (e.g. own bubble in light mode: white
+                      // pill + white onSurface dim → invisible until
+                      // tapped).  Inactive labels stay onAccent but at
+                      // reduced opacity so the active one still pops.
+                      color: isActive
+                          ? onAccent
+                          : onAccent.withValues(alpha: 0.55),
                       fontSize: 10,
                       fontWeight: isActive
                           ? FontWeight.w900

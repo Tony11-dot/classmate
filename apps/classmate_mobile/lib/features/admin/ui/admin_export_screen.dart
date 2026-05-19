@@ -473,8 +473,35 @@ class _CohortPickerList extends StatelessWidget {
         final selected = selectedCohortIds.contains(cid);
         final expanded = expandedCohortIds.contains(cid);
 
-        // Students of this cohort
-        final cohortStudents = students.where((s) => (s['cohortName']?.toString() ?? '') == name).toList();
+        // Students of this cohort — read the DDL's studentIds (server-side
+        // union of StudentCohort + legacy studentProfile.cohortId) and
+        // resolve to names from the students list. Falls back to a
+        // cohort-name match for legacy rows where studentIds is empty,
+        // and to cohortIds-on-the-student row when both fail. Previous
+        // behavior matched only on cohortName which silently showed 0
+        // for every cohort whose students were multi-cohort'd (the
+        // student's primary cohortName resolved to a different cohort).
+        final memberIdsFromCohort = (c['studentIds'] as List?)
+                ?.map((e) => e.toString())
+                .where((s) => s.isNotEmpty)
+                .toSet() ??
+            <String>{};
+        List<Map<String, dynamic>> cohortStudents;
+        if (memberIdsFromCohort.isNotEmpty) {
+          cohortStudents = students
+              .where((s) => memberIdsFromCohort.contains(s['id']?.toString() ?? ''))
+              .toList();
+        } else {
+          cohortStudents = students.where((s) {
+            final cohortIds = (s['cohortIds'] as List?)
+                    ?.map((e) => e.toString())
+                    .toSet() ??
+                <String>{};
+            if (cohortIds.contains(cid)) return true;
+            if ((s['cohortId']?.toString() ?? '') == cid) return true;
+            return (s['cohortName']?.toString() ?? '') == name;
+          }).toList();
+        }
 
         return Column(
           children: [
@@ -588,13 +615,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     return Rect.fromLTWH(size.width / 2, 0, 1, 1);
   }
 
-  /// Type-to-confirm dialog. The damage from accidentally resetting every
-  /// student's password is large — users locked out until they redeem the
-  /// printed temp passwords — so the confirm button stays disabled until
-  /// the admin literally types "RESET" into the field. Same posture as the
-  /// platform-reset Danger Zone over in /cms.
+  /// Pre-export warning that the file contains passwords. Replaces the
+  /// previous type-RESET ceremony: that dialog also wiped every selected
+  /// student's password (regenerating fresh temp passwords for the
+  /// export), which silently locked students out of the app. The new
+  /// flow just confirms the admin understands the file is sensitive — no
+  /// server-side password reset happens.
   Future<bool> _confirmReset() async {
-    final ctrl = TextEditingController();
     final confirm = await showDialog<bool>(
       context: context,
       builder: (d) {
@@ -604,86 +631,59 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             children: [
               Icon(Icons.warning_amber_rounded, color: cs.error),
               const SizedBox(width: 10),
-              const Text('Reset every selected password?'),
+              const Expanded(
+                child: Text('Export will include passwords'),
+              ),
             ],
           ),
-          content: StatefulBuilder(builder: (sCtx, setSt) {
-            final matches = ctrl.text.trim().toUpperCase() == 'RESET';
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'This will generate brand-new temporary passwords for ALL '
-                  '${widget.studentCount} selected student${widget.studentCount == 1 ? '' : 's'} '
-                  'and include them in the export. Their existing passwords '
-                  'will stop working immediately — every affected student needs '
-                  'to be handed the new password before they can log in again.',
-                  style: const TextStyle(height: 1.4),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'The file will contain ${widget.studentCount} '
+                'student${widget.studentCount == 1 ? '' : 's'}\' login info. '
+                'Anyone with access can sign in as those students — share with '
+                'care and delete the file when done.',
+                style: const TextStyle(height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.errorContainer.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: cs.errorContainer.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    "If you just want to print the directory without resetting, cancel and toggle off \"Include passwords\".",
-                    style: TextStyle(fontSize: 12),
-                  ),
+                child: const Text(
+                  'No password resets happen — students keep their existing logins.',
+                  style: TextStyle(fontSize: 12),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: ctrl,
-                  autofocus: true,
-                  autocorrect: false,
-                  textCapitalization: TextCapitalization.characters,
-                  onChanged: (_) => setSt(() {}),
-                  decoration: InputDecoration(
-                    labelText: 'Type RESET to confirm',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    isDense: true,
-                  ),
-                ),
-                if (!matches && ctrl.text.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      'Doesn\'t match. Type RESET in capitals.',
-                      style: TextStyle(fontSize: 11, color: cs.error),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Wrap(
-                    spacing: 6,
-                    children: [
-                      TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-                      FilledButton(
-                        onPressed: matches ? () => Navigator.pop(d, true) : null,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: cs.error,
-                          disabledBackgroundColor: cs.error.withValues(alpha: 0.3),
-                        ),
-                        child: const Text('Reset & Export'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(d, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(d, true),
+              style: FilledButton.styleFrom(backgroundColor: cs.error),
+              child: const Text('Export anyway'),
+            ),
+          ],
         );
       },
     );
-    ctrl.dispose();
     return confirm == true;
   }
 
   Future<List<Map<String, dynamic>>> _fetch() =>
-      widget.repo.exportStudents(studentIds: widget.selectedStudentIds, generatePasswords: _includePasswords);
+      // generatePasswords used to fire when _includePasswords was toggled,
+      // which silently reset every selected student's password. Now the
+      // toggle is purely informational — the warning before export
+      // explains the file is sensitive; nothing changes server-side.
+      widget.repo.exportStudents(studentIds: widget.selectedStudentIds, generatePasswords: false);
 
   // ── CSV ────────────────────────────────────────────────────────────────────
 
@@ -939,7 +939,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           ),
           const SizedBox(height: 16),
 
-          // Password toggle
+          // Password toggle — no longer regenerates anything. When on, the
+          // server still includes the password column in the export, but
+          // it's the existing temporary password admins set at user-add
+          // time (never overwritten silently). The previous design did a
+          // hard reset on toggle-on and surfaced new passwords in the
+          // file — too dangerous when an admin just wanted to share login
+          // info with parents.
           Container(
             decoration: BoxDecoration(
               color: _includePasswords ? cs.errorContainer.withValues(alpha: 0.2) : cs.surfaceContainerHigh,
@@ -953,8 +959,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: _includePasswords ? cs.error : cs.onSurface)),
               subtitle: Text(
                 _includePasswords
-                    ? 'New passwords generated — all selected students\' passwords will be reset.'
-                    : 'Generates new temp passwords and resets them.',
+                    ? 'Passwords will be visible in the export — handle the file securely.'
+                    : 'Export will not contain any passwords.',
                 style: theme.textTheme.labelSmall?.copyWith(color: _includePasswords ? cs.error : cs.onSurfaceVariant, height: 1.3),
               ),
               value: _includePasswords,
