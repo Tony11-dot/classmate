@@ -241,16 +241,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         startDate: startDate ?? null,
       } as any,
     });
-    // One-line diagnostic so we can confirm the color round-trip on the
-    // server when admins report "color didn't stick".  `savedColor` being
-    // undefined here means the Prisma client wasn't regenerated for the
-    // `color String?` field — run `prisma db push` in services/api.
-    // eslint-disable-next-line no-console
-    console.log('[createPeriod]', {
-      requestedColor: color ?? null,
-      normalizedColor,
-      savedColor: (slot as any).color ?? null,
-    });
 
     if (cohortIds.length) {
       await this.prisma.scheduleSlotCohort.createMany({

@@ -107,9 +107,12 @@ export class StudentService {
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
     return this.schedule.getTodayForStudent({
-      schoolId: String(user.schoolId),
+      // Coerce to empty string when the source field is null — the prior
+      // `String(null)` produced the literal "null", which leaked into the
+      // resolver as a bogus cohort/school id.
+      schoolId: String(user.schoolId ?? ''),
       studentId: String(studentId),
-      cohortId: String(sp.cohortId),
+      cohortId: String(sp.cohortId ?? ''),
     });
   }
 
@@ -121,9 +124,9 @@ export class StudentService {
     });
     if (!sp) throw new BadRequestException('Student not onboarded');
     return this.schedule.getWeekForStudent({
-      schoolId: String(user.schoolId),
+      schoolId: String(user.schoolId ?? ''),
       studentId: String(studentId),
-      cohortId: String(sp.cohortId),
+      cohortId: String(sp.cohortId ?? ''),
     });
   }
 

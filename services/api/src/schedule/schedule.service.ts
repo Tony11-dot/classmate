@@ -222,20 +222,6 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
-    // One-line diagnostic so we can see what the resolver pulled for a
-    // student when their schedule renders empty unexpectedly. Counts only;
-    // no PII gets logged.
-    // eslint-disable-next-line no-console
-    console.log('[schedule.resolve]', {
-      studentId,
-      cohortId,
-      studentGrade,
-      byStudent: byStudent.length,
-      byCohort: byCohort.length,
-      byGrade: byGrade.length,
-      uniqueSlotIds: slotIds.length,
-    });
-
     const legacyAll = slotIds.length
       ? await this.prisma.scheduleSlot.findMany({
           where: { id: { in: slotIds } },
