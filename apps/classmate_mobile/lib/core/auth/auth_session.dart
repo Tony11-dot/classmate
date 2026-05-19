@@ -15,6 +15,7 @@ class AuthSession extends ChangeNotifier {
   static const _kFullName = 'auth_full_name_v1';
   static const _kRoles = 'auth_roles_v1';
   static const _kEmail = 'auth_email_v1';
+  static const _kUsername = 'auth_username_v1';
   static const _kSchoolId = 'auth_school_id_v1';
   static const _kCohortId = 'auth_cohort_id_v1';
   static const _kCohortName = 'auth_cohort_name_v1';
@@ -38,6 +39,7 @@ class AuthSession extends ChangeNotifier {
   String? _displayName;
   String? _fullName; // first + last name from backend
   String? _email;
+  String? _username;
   String? _schoolId;
   String? _cohortId;
   String? _cohortName;
@@ -128,6 +130,7 @@ class AuthSession extends ChangeNotifier {
   String get displayNameLang => (_displayNameLang ?? '').trim();
 
   String get email => (_email ?? '').trim();
+  String get username => (_username ?? '').trim();
   String get schoolId => (_schoolId ?? '').trim();
   String get cohortId => (_cohortId ?? '').trim();
   String get cohortName => (_cohortName ?? '').trim();
@@ -182,6 +185,7 @@ class AuthSession extends ChangeNotifier {
     _displayName = (prefs.getString(_kDisplayName) ?? '').trim();
     _fullName = (prefs.getString(_kFullName) ?? '').trim();
     _email = (prefs.getString(_kEmail) ?? '').trim();
+    _username = (prefs.getString(_kUsername) ?? '').trim();
     _schoolId = (prefs.getString(_kSchoolId) ?? '').trim();
     _cohortId = (prefs.getString(_kCohortId) ?? '').trim();
     _cohortName = (prefs.getString(_kCohortName) ?? '').trim();
@@ -280,6 +284,18 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setUsername(String? username) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = (username ?? '').trim();
+    _username = value;
+    if (value.isEmpty) {
+      await prefs.remove(_kUsername);
+    } else {
+      await prefs.setString(_kUsername, value);
+    }
+    notifyListeners();
+  }
+
   Future<void> setSchoolId(String? schoolId) async {
     final prefs = await SharedPreferences.getInstance();
     final value = (schoolId ?? '').trim();
@@ -339,6 +355,7 @@ class AuthSession extends ChangeNotifier {
     await setToken(null);
     await setDisplayName(null);
     await setEmail(null);
+    await setUsername(null);
     await setSchoolId(null);
     await setCohortId(null);
     await setSchoolName(null);
@@ -410,6 +427,16 @@ class AuthSession extends ChangeNotifier {
       final me = AuthMe.fromJson(raw);
       await setRoles(me.roles);
       await setEmail(me.email);
+      // Username comes from /auth/me — defending against transient empty
+      // responses (same pattern as the school identity fields below): a
+      // null wipe was the reason the profile screen flashed "—" on
+      // accounts that have a server-side username but never edited it
+      // through the profile flow (which is the only path that
+      // previously populated the local cache).
+      final serverUsername = (me.username ?? '').trim();
+      if (serverUsername.isNotEmpty || (_username ?? '').trim().isEmpty) {
+        await setUsername(me.username);
+      }
       await setSchoolId(me.schoolId);
       await setCohortId(me.cohortId);
       // School identity fields (name, logo) are defended against transient

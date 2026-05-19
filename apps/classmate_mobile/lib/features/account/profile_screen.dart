@@ -33,6 +33,15 @@ class ProfileScreen extends ConsumerWidget {
     final displayName = session.displayName.isNotEmpty
         ? session.displayName
         : roleLabel;
+    // Profile state's username is only populated when the user explicitly
+    // updates it through this screen — every other code path (registration,
+    // admin Add User, onboarding) goes through the server only. Fall back
+    // to the session's username (now hydrated from /auth/me) so accounts
+    // that have a server-side username but never edited it locally still
+    // see "@theirname" instead of "—".
+    final username = profile.username.isNotEmpty
+        ? profile.username
+        : session.username;
     // Initials always from fullName (first+last) so we always get 2 letters
     final nameForInitials = session.fullName.isNotEmpty ? session.fullName : displayName;
     final initials = nameForInitials
@@ -80,10 +89,10 @@ class ProfileScreen extends ConsumerWidget {
                               .titleLarge
                               ?.copyWith(fontWeight: FontWeight.w900),
                         ),
-                        if (profile.username.isNotEmpty) ...[
+                        if (username.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(
-                            '@${profile.username}',
+                            '@$username',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -224,13 +233,13 @@ class ProfileScreen extends ConsumerWidget {
                   _InfoRow(
                     icon: Icons.alternate_email_rounded,
                     label: l.profileUsername,
-                    value: profile.username.isEmpty ? l.profileEmptyValue : '@${profile.username}',
+                    value: username.isEmpty ? l.profileEmptyValue : '@$username',
                     onEdit: () => _editField(
                       context: context,
                       title: l.profileUsername,
                       icon: Icons.alternate_email_rounded,
                       hint: l.profileUsernameHint,
-                      initial: profile.username,
+                      initial: username,
                       onSave: pc.setUsername,
                     ),
                   ),

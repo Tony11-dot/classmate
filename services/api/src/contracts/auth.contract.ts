@@ -17,6 +17,7 @@ export const LoginResponseSchema = z.object({
 export const AuthMeResponseSchema = z.object({
   id: z.string().nullable(),
   email: z.string().nullable(),
+  username: z.string().nullable().optional(),
   roles: z.array(RoleSchema).default([]),
   actingStudentId: z.string().nullable(),
   schoolId: z.string().nullable(),

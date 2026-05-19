@@ -124,6 +124,7 @@ export class AuthController {
     let nameRu: string | null = null;
     let displayNameLang: string | null = null;
     let displayName: string | null = null;
+    let username: string | null = null;
     let phone: string | null = null;
     let emailVerifiedAt: string | null = null;
     let phoneVerifiedAt: string | null = null;
@@ -137,6 +138,7 @@ export class AuthController {
             name: true,
             displayName: true,
             legalName: true,
+            username: true,
             nameEn: true,
             nameAr: true,
             nameHe: true,
@@ -151,6 +153,7 @@ export class AuthController {
         if (dbUser) {
           fullName = dbUser.legalName ?? dbUser.displayName ?? dbUser.name ?? null;
           displayName = dbUser.displayName ?? null;
+          username = dbUser.username ?? null;
           nameEn = dbUser.nameEn ?? null;
           nameAr = dbUser.nameAr ?? null;
           nameHe = dbUser.nameHe ?? null;
@@ -198,6 +201,7 @@ export class AuthController {
     return require('../contracts/auth.contract').AuthMeResponseSchema.parse({
       id: u.id ?? null,
       email: u.email ?? null,
+      username,
       roles: u.roles ?? [],
       actingStudentId: u.actingStudentId ?? null,
       schoolId,

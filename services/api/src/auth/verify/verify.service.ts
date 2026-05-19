@@ -226,11 +226,22 @@ export class VerifyService {
       }
     }
 
+    // First-time SET (the code was sent to the new value itself, not to a
+    // previously-verified old one) is proof-of-ownership for the new value
+    // — stamp `*VerifiedAt` now.  A genuine CHANGE-from-existing keeps the
+    // new value as unverified (the verified status belonged to the OLD
+    // value, not the new), so the user re-verifies via the separate
+    // verify-current flow.
+    const targetForCode = (row.target ?? '').trim();
+    const isFirstTimeSet =
+      targetForCode.toLowerCase() === finalNewValue.toLowerCase();
+    const verifiedStamp = isFirstTimeSet ? new Date() : null;
+
     await this.prisma.user.update({
       where: { id: userId },
       data: channel === 'email'
-        ? { email: finalNewValue.toLowerCase(), emailVerifiedAt: null } as any
-        : { phone: finalNewValue, phoneVerifiedAt: null } as any,
+        ? { email: finalNewValue.toLowerCase(), emailVerifiedAt: verifiedStamp } as any
+        : { phone: finalNewValue, phoneVerifiedAt: verifiedStamp } as any,
     });
 
     return { ok: true, changed: true };

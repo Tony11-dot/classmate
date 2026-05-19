@@ -2,6 +2,7 @@ class AuthMe {
   const AuthMe({
     required this.id,
     required this.email,
+    this.username,
     required this.roles,
     required this.actingStudentId,
     required this.schoolId,
@@ -14,6 +15,10 @@ class AuthMe {
 
   final String? id;
   final String? email;
+  /// User's username (lowercased login identifier). Required on the server
+  /// for every account but exposed here as nullable so the contract stays
+  /// permissive — pre-username accounts return null.
+  final String? username;
   final List<String> roles;
   final String? actingStudentId;
   final String? schoolId;
@@ -30,6 +35,7 @@ class AuthMe {
     return AuthMe(
       id: j['id']?.toString(),
       email: j['email']?.toString(),
+      username: j['username']?.toString(),
       roles: roles0,
       actingStudentId: j['actingStudentId']?.toString(),
       schoolId: j['schoolId']?.toString(),
