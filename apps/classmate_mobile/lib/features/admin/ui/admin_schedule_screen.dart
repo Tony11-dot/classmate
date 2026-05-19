@@ -1884,20 +1884,17 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         .toSet();
     final ag = (slot['audienceGrade'] as num?)?.toInt();
 
-    final resolved = _studentsForAudience(
+    return _studentsForAudience(
       cohortIds: cohortIds,
       directStudentIds: studentIds,
       audienceGrade: ag,
     );
-
-    // Subtract previously-stamped per-student exclusions so a slot that
-    // already has [studentX] in skipForStudentIds doesn't surface as a
-    // conflict for studentX a second time.
-    final skip = ((slot['skipForStudentIds'] as List?) ?? const [])
-        .map((e) => e.toString())
-        .where((s) => s.isNotEmpty)
-        .toSet();
-    return resolved.difference(skip);
+    // Note: we deliberately DON'T subtract the slot's skipForStudentIds
+    // anymore. That legacy field's filter logic was removed from the
+    // server resolver (it stayed sticky after the overriding period was
+    // gone), so a student in skipForStudentIds is back to seeing the
+    // slot and absolutely needs the conflict warning if we're about to
+    // add another period at the same time.
   }
 
   /// Per-student conflict scan. For each existing period at the same
