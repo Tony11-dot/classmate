@@ -274,27 +274,47 @@ export class ScheduleService {
       return !ids.includes(studentId);
     });
 
-    const byKey = new Map<string, any>();
+    // Multiple slots at the same (day, period) are legitimate now:
+    //   - student in two cohorts both teaching at Mon P1
+    //   - an individual one-off layered on top of a cohort slot
+    //   - the conflict dialog's "Show both" outcome
+    // The previous one-slot-per-key Map dropped everything past the first.
+    // Keep template-vs-legacy precedence per (day, period) but allow an
+    // array of legacy rows where templates don't already own the slot.
+    const byKey = new Map<string, any[]>();
     const keyOf = (d: number, p: number) => `${d}:${p}`;
+    const templateOwned = new Set<string>();
 
     for (const tid of orderedTemplateIds) {
       for (const r of tmplSlots) {
         if (String(r.templateId) !== String(tid)) continue;
         const k = keyOf(Number(r.dayOfWeek), Number(r.period));
-        if (!byKey.has(k)) byKey.set(k, r);
+        if (templateOwned.has(k)) continue;
+        templateOwned.add(k);
+        byKey.set(k, [r]);
       }
     }
 
     for (const r of legacy) {
       const k = keyOf(Number(r.dayOfWeek), Number(r.period));
-      if (!byKey.has(k)) byKey.set(k, r);
+      // Template slots from a binding hide individual/legacy slots for the
+      // same time — that's the long-standing precedence rule, preserved here.
+      if (templateOwned.has(k)) continue;
+      const arr = byKey.get(k) ?? [];
+      arr.push(r);
+      byKey.set(k, arr);
     }
 
-    const templateRows = Array.from(byKey.values()).sort((a, b) => {
-      const da = Number(a.dayOfWeek) - Number(b.dayOfWeek);
-      if (da) return da;
-      return Number(a.period) - Number(b.period);
+    const templateRows: any[] = [];
+    const sortedKeys = Array.from(byKey.keys()).sort((a, b) => {
+      const [da, pa] = a.split(':').map(Number);
+      const [db, pb] = b.split(':').map(Number);
+      if (da !== db) return da - db;
+      return pa - pb;
     });
+    for (const k of sortedKeys) {
+      for (const r of byKey.get(k)!) templateRows.push(r);
+    }
 
     return { templateRows };
   }
@@ -413,10 +433,18 @@ export class ScheduleService {
       teacherName?: string | null;
       color?: string | null;
     };
-    const byPeriod = new Map<number, Entry>();
+    // Per-period: an ARRAY of entries instead of one, so two cohort
+    // classes the student is in at Mon P1 both surface (same with
+    // an individual override layered alongside a cohort slot).  The
+    // prior one-entry-per-period Map silently dropped the second.
+    // A ScheduleOverride still REPLACES every template entry at its
+    // period for the date — that's the intended override semantic.
+    const byPeriod = new Map<number, Entry[]>();
 
     for (const r of tmpl) {
-      byPeriod.set(Number(r.period), {
+      const p = Number(r.period);
+      const arr = byPeriod.get(p) ?? [];
+      arr.push({
         id: String(r.id),
         isOverride: false,
         location: (r as any).location ?? null,
@@ -431,45 +459,51 @@ export class ScheduleService {
         teacherName: (r as any).teacher?.name ?? null,
         color: (r as any).color ?? null,
       });
+      byPeriod.set(p, arr);
     }
 
     for (const o of params.overrideRows) {
-      byPeriod.set(Number(o.period), {
-        id: String(o.id),
-        isOverride: true,
-        location: (o as any).location ?? null,
-        subject: (o as any).subject ?? null,
-        startTime: (o as any).startTime ?? null,
-        endTime: (o as any).endTime ?? null,
-        classroomId: null,
-        // Override may swap the teacher for the day.
-        teacherId: (o as any).teacherId ?? (o as any).teacher?.id ?? null,
-        teacherName: (o as any).teacher?.name ?? null,
-        color: null,
-      });
+      byPeriod.set(Number(o.period), [
+        {
+          id: String(o.id),
+          isOverride: true,
+          location: (o as any).location ?? null,
+          subject: (o as any).subject ?? null,
+          startTime: (o as any).startTime ?? null,
+          endTime: (o as any).endTime ?? null,
+          classroomId: null,
+          // Override may swap the teacher for the day.
+          teacherId: (o as any).teacherId ?? (o as any).teacher?.id ?? null,
+          teacherName: (o as any).teacher?.name ?? null,
+          color: null,
+        },
+      ]);
     }
 
     const periods = Array.from(byPeriod.keys()).sort((a, b) => a - b);
 
-    return periods.map((p) => {
-      const entry = byPeriod.get(p)!;
-      return this.rowToItem({
-        dayOfWeek: dow,
-        period: p,
-        slotId: entry.id,
-        dateYmd,
-        location: entry.location ?? null,
-        subject: entry.subject,
-        isOverride: entry.isOverride,
-        startTimeOverride: entry.startTime,
-        endTimeOverride: entry.endTime,
-        classroomId: entry.classroomId,
-        classroomName: entry.classroomName,
-        teacherId: entry.teacherId,
-        teacherName: entry.teacherName,
-        color: entry.color,
-      });
-    });
+    const items: ScheduleItem[] = [];
+    for (const p of periods) {
+      for (const entry of byPeriod.get(p)!) {
+        items.push(this.rowToItem({
+          dayOfWeek: dow,
+          period: p,
+          slotId: entry.id,
+          dateYmd,
+          location: entry.location ?? null,
+          subject: entry.subject,
+          isOverride: entry.isOverride,
+          startTimeOverride: entry.startTime,
+          endTimeOverride: entry.endTime,
+          classroomId: entry.classroomId,
+          classroomName: entry.classroomName,
+          teacherId: entry.teacherId,
+          teacherName: entry.teacherName,
+          color: entry.color,
+        }));
+      }
+    }
+    return items;
   }
 
   // Existing API used by ScheduleController route: GET /api/student/schedule
