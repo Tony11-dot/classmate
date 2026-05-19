@@ -1337,21 +1337,21 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         try {
           for (final hit in conflicts) {
             if (hit.id.isEmpty || draftYmd == null) continue;
-            // Existing slot loses ONLY the conflicted students AND ONLY
-            // on the draft's anchor date. Every other date renders
-            // normally, so when the override date passes the existing
-            // slot reappears for those students automatically.
-            final newEntries = hit.affectedStudentIds
-                .map((sid) => '$sid:$draftYmd')
-                .toList();
+            // Whole-day skip on the existing slot for the draft's date.
+            // That's stronger than the previous per-student approach but
+            // matches "this period is replaced on this date" semantics
+            // and — importantly — also hides the slot for the teacher
+            // (who would otherwise still see math while all their
+            // students are at the override). When draft date passes,
+            // skipDates auto-stops mattering and the slot renders again.
             final updated = <String>{
-              ...hit.studentDateSkips,
-              ...newEntries,
+              ...hit.skipDates,
+              draftYmd,
             }.toList()
               ..sort();
             await widget.repo.updatePeriod(
               id: hit.id,
-              studentDateSkips: updated,
+              skipDates: updated,
             );
           }
         } catch (e) {
@@ -1363,10 +1363,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           return;
         }
       } else if (conflictChoice == _ConflictChoice.keepCurrent) {
-        // The new (draft) slot will be stamped with the same date-scoped
-        // skip entries once it's created — so it doesn't render for the
-        // conflicted students on its anchor date, while still appearing
-        // for everyone else in its audience.
+        // Keep current: the existing slot stays for everyone (including
+        // the conflict-affected students); the NEW slot hides for those
+        // students only.  Per-student precision is desirable here — we
+        // don't want to drop the new slot for the rest of its audience.
         if (draftYmd != null) {
           for (final hit in conflicts) {
             for (final sid in hit.affectedStudentIds) {

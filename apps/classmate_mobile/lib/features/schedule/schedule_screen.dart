@@ -112,7 +112,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          // Bottom padding accounts for the shell's bottom nav bar +
+          // iPhone home indicator so the last period tile isn't clipped.
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
           children: [
             weekAsync.when(
               data: (data) => _heroCard(context, data),

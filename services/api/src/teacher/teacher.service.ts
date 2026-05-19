@@ -1558,56 +1558,121 @@ export class TeacherService {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
 
+    // Anchor + week-start.  Honor the client-supplied weekOf (Mon-start
+    // strings from the teacher app, Sun-start from elsewhere); fall back
+    // to today's Sun-start in Jerusalem.
     const tz = 'Asia/Jerusalem';
     const now = new Date();
     let anchor: Date;
-    if (weekOf) {
-      anchor = new Date(weekOf + 'T00:00:00');
+    if (weekOf && /^\d{4}-\d{2}-\d{2}$/.test(weekOf)) {
+      anchor = new Date(weekOf + 'T00:00:00.000Z');
     } else {
-      anchor = new Date(now.toLocaleDateString('en-CA', { timeZone: tz }) + 'T00:00:00');
+      const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(now);
+      anchor = new Date(todayYmd + 'T00:00:00.000Z');
+    }
+    const anchorDow = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(anchor);
+    const dowMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    const dow = dowMap[anchorDow] ?? 0;
+    const weekStart = new Date(anchor);
+    weekStart.setUTCDate(anchor.getUTCDate() - dow);
+
+    // All slots the teacher owns — same coverage as the student
+    // resolver, just keyed on slot.teacherId. Includes the relations
+    // applyOverridesForDate needs (teacher name, classroom name) and
+    // the fields the day-fill filter requires (freq, startDate,
+    // skipDates). studentDateSkips deliberately isn't read for the
+    // teacher view — those are per-student and don't affect whether
+    // the teacher teaches the class.
+    let slots: any[] = [];
+    try {
+      slots = await this.prisma.scheduleSlot.findMany({
+        where: { teacherId },
+        select: {
+          id: true,
+          schoolId: true,
+          dayOfWeek: true,
+          period: true,
+          teacherId: true,
+          classroomId: true,
+          subject: true,
+          startTime: true,
+          endTime: true,
+          frequencyWeeks: true,
+          startDate: true,
+          color: true,
+          audienceGrade: true,
+          skipDates: true,
+          teacher: { select: { id: true, name: true } },
+          classroom: { select: { id: true, name: true, subject: true } },
+          cohorts: { select: { cohortId: true, cohort: { select: { id: true, name: true, grade: true } } } },
+        } as any,
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[teacher.weekSchedule] slot fetch failed', e);
+      slots = [];
     }
 
-    const dow = anchor.getDay();
-    // Week starts Sunday
-    const weekStart = new Date(anchor);
-    weekStart.setDate(anchor.getDate() - dow);
-
+    // Emit 7 days always — Flutter (both student and teacher) matches
+    // by day.date, so missing days silently render as empty. With
+    // every day present, the swipe-to-different-day flow always finds
+    // a match for the selected date.
     const days: any[] = [];
-    for (let d = 0; d < 7; d++) {
-      const day = new Date(weekStart);
-      day.setDate(weekStart.getDate() + d);
-      const dayOfWeek = day.getDay();
-      const dateStr = day.toLocaleDateString('en-CA');
+    for (let i = 0; i < 7; i++) {
+      const dayUtc = new Date(weekStart.getTime());
+      dayUtc.setUTCDate(weekStart.getUTCDate() + i);
+      const dayDow = dowMap[new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(dayUtc)] ?? 0;
+      const dateYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(dayUtc);
 
-      const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
-        where: { slot: { dayOfWeek, teacherId } },
-        select: {
-          cohortId: true,
-          cohort: { select: { id: true, name: true, grade: true } },
-          slot: { select: { id: true, period: true, subject: true, startTime: true, endTime: true, classroomId: true, classroom: { select: { id: true, name: true, subject: true } } } },
-        },
-        orderBy: { slot: { period: 'asc' } },
+      const dayMatches = slots.filter((s: any) => {
+        if (Number(s.dayOfWeek) !== dayDow) return false;
+        const freq = Number(s.frequencyWeeks ?? 1);
+        if (freq === 0) {
+          const sd = (s as any).startDate ?? null;
+          return typeof sd === 'string' && sd === dateYmd;
+        }
+        const skipDates: string[] = Array.isArray(s.skipDates) ? s.skipDates : [];
+        return !skipDates.includes(dateYmd);
       });
 
-      if (slotCohorts.length > 0) {
-        days.push({
-          date: dateStr,
-          dayOfWeek,
-          slots: slotCohorts.map((sc) => ({
-            slotId: sc.slot.id,
-            period: sc.slot.period,
-            subject: sc.slot.subject ?? sc.slot.classroom?.subject ?? null,
-            startTime: sc.slot.startTime ?? null,
-            endTime: sc.slot.endTime ?? null,
-            classroomId: sc.slot.classroomId ?? null,
-            classroomName: sc.slot.classroom?.name ?? null,
-            cohort: sc.cohort,
-          })),
-        });
-      }
+      const slotsOut = dayMatches
+        .sort((a: any, b: any) => Number(a.period) - Number(b.period))
+        .map((s: any) => {
+          // Each cohort the slot covers gets its own emitted item, so
+          // teaching the same period for two cohorts shows up as two
+          // tiles in the teacher's day view (previously the dedup
+          // dropped one of them).
+          const cohorts: any[] = Array.isArray(s.cohorts) ? s.cohorts : [];
+          const base = {
+            slotId: s.id,
+            period: s.period,
+            subject: s.subject ?? s.classroom?.subject ?? null,
+            startTime: s.startTime ?? null,
+            endTime: s.endTime ?? null,
+            classroomId: s.classroomId ?? null,
+            classroomName: s.classroom?.name ?? null,
+            color: s.color ?? null,
+          };
+          if (cohorts.length === 0) {
+            return [{ ...base, cohort: null }];
+          }
+          return cohorts.map((c: any) => ({
+            ...base,
+            cohort: c.cohort ?? null,
+          }));
+        })
+        .flat();
+
+      days.push({ date: dateYmd, dayOfWeek: dayDow, slots: slotsOut });
     }
 
-    return { ok: true, weekOf: weekStart.toLocaleDateString('en-CA'), days };
+    const weekOfStr = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(weekStart);
+    return { ok: true, weekOf: weekOfStr, days };
   }
 
   async addStudentToClassroom(user: any, classroomId: string, body: any) {

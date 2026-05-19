@@ -266,8 +266,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         // School-wide bucket (grade=0).  School Settings → Subjects also
         // reads from grade=0, so a subject typed inline in Add Period
         // appears immediately in the Settings list — single source of
-        // truth, no per-grade fan-out.
-        await this._addSubjectToSchoolDefaults(schoolId, trimmedSubject, [0]);
+        // truth, no per-grade fan-out. Pass the slot's color so the
+        // subject's default color matches the admin's first choice —
+        // every future period of that subject inherits it.
+        await this._addSubjectToSchoolDefaults(
+          schoolId,
+          trimmedSubject,
+          [0],
+          normalizedColor,
+        );
       }
     }
 
@@ -277,10 +284,14 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   /// Adds [subject] (by `nameEn` match) to the `subjectsI18n` JSON list for
   /// each given grade's SchoolGradeSubjectDefault row, creating the row
   /// if absent.  Idempotent — duplicates are filtered case-insensitively.
+  /// When `color` is supplied, attaches it to the new entry so the
+  /// schedule grid + Add Period color picker default to the same hue
+  /// for every later period that uses this subject.
   private async _addSubjectToSchoolDefaults(
     schoolId: string,
     subject: string,
     grades: number[],
+    color?: string | null,
   ): Promise<void> {
     if (!grades.length) return;
     for (const grade of grades) {
@@ -300,7 +311,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         if (typeof s === 'string') lowered.add(s.trim().toLowerCase());
       }
       if (lowered.has(subject.toLowerCase())) continue;
-      const newI18n = [...existingI18n, { nameEn: subject }];
+      const newEntry: any = { nameEn: subject };
+      if (color && typeof color === 'string' && color.trim().length) {
+        newEntry.color = color.trim();
+      }
+      const newI18n = [...existingI18n, newEntry];
       const newFlat = [...existingFlat, subject];
       if (row) {
         await this.prisma.schoolGradeSubjectDefault.update({
@@ -727,7 +742,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
    */
   async addSubjectToGrades(user: any, dto: {
     grades?: number[];
-    subject?: { nameEn?: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string };
+    subject?: { nameEn?: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string; color?: string };
   }) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId;
@@ -744,6 +759,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       ...(dto?.subject?.nameHe ? { nameHe: String(dto.subject.nameHe).trim() } : {}),
       ...(dto?.subject?.nameFr ? { nameFr: String(dto.subject.nameFr).trim() } : {}),
       ...(dto?.subject?.nameRu ? { nameRu: String(dto.subject.nameRu).trim() } : {}),
+      // Color is part of the subject's identity — the admin picks a color
+      // in the subject editor and the schedule grid/picker should render
+      // every period of that subject in that color until they pick an
+      // override. Without this, the color was dropped here and the slot
+      // re-derived a deterministic palette hue, ignoring the admin's
+      // choice.
+      ...(dto?.subject?.color ? { color: String(dto.subject.color).trim() } : {}),
     };
 
     for (const grade of grades) {
