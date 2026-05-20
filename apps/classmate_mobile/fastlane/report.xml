@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: cd .. &amp;&amp; flutter build ipa --release     --dart-define=CM_API_BASE_URL=https://pacific-enchantment-production-7a80.up.railway.app     --export-options-plist=ios/ExportOptions.plist" time="138.086333">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: upload_to_testflight" time="341.688899">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
