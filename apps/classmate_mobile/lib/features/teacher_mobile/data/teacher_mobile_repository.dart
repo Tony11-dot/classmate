@@ -1088,13 +1088,36 @@ class TeacherTodaySlot {
   });
 
   factory TeacherTodaySlot.fromJson(Map<String, dynamic> json) {
-    final cohortMap = _asMap(json['cohort']);
-    final courseMap = _asMap(json['course']);
+    // Server returns `cohorts` (plural array) per slot now, not a
+    // singular `cohort`. Fall back to the first cohort entry for the
+    // tile's primary display. Also synthesise a TeacherCourse from the
+    // flat slot fields (subject, classroomId, classroomName) — the
+    // server no longer nests them under a `course` key.
+    final cohortsList = _asList(json['cohorts']);
+    final firstCohort = cohortsList.isNotEmpty ? _asMap(cohortsList.first) : _asMap(json['cohort']);
+    final subject = _asString(json['subject']);
+    final classroomId = _asString(json['classroomId']);
+    final classroomName = _asString(json['classroomName']);
+    final cohort = firstCohort.isEmpty ? null : TeacherCohort.fromJson(firstCohort);
+
+    // Synthesise a TeacherCourse so existing UI code (home screen,
+    // slot action sheet) keeps working without a wider refactor.
+    final hasCourseShape = classroomId.isNotEmpty || classroomName.isNotEmpty || subject.isNotEmpty;
+    final course = hasCourseShape
+        ? TeacherCourse(
+            id: classroomId,
+            name: classroomName.isNotEmpty ? classroomName : (subject.isNotEmpty ? subject : 'Class'),
+            subject: subject,
+            cohortId: cohort?.id ?? '',
+            cohort: cohort,
+          )
+        : null;
+
     return TeacherTodaySlot(
       period: _asInt(json['period']),
       source: _asString(json['source']),
-      cohort: cohortMap.isEmpty ? null : TeacherCohort.fromJson(cohortMap),
-      course: courseMap.isEmpty ? null : TeacherCourse.fromJson(courseMap),
+      cohort: cohort,
+      course: course,
     );
   }
 

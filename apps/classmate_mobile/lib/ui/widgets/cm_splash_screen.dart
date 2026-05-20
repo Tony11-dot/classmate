@@ -6,26 +6,21 @@ import 'package:flutter/services.dart';
 //  CmSplashScreen
 //
 //  Launch sequence (total ≈ 6 500 ms):
-//    Phase 1 (0 %–22 %): the real blue CM icon (assets/images/icon_light.png)
-//                        fades in from 0 → 100 % opacity while scaling
-//                        from 0.85 → 1.0 with a tiny easeOutBack overshoot,
-//                        landing centered on a pure-white background.
+//    Phase 1 (0 %–22 %): the real blue CM icon fades in from 0 → 100 %
+//                        while scaling 0.85 → 1.0 with easeOutBack, landing
+//                        centered on a pure-white background.
 //    Phase 2 (22 %–28 %): brief hold — logo settles, fully visible.
 //    Phase 3 (28 %–46 %): icon translates leftward as the "ClassMate"
 //                         tagline types out character-by-character to its
 //                         right. Both finish together. Cursor visible
 //                         from the moment typing starts.
-//    Phase 4 (46 %–78 %): final frame — cursor blinks softly for ~2 s
+//    Phase 4 (46 %–88 %): final frame — cursor blinks softly for ~2.7 s
 //                         alongside the fully-typed tagline.
-//    Phase 5 (78 %–85 %): text + cursor fade out. Icon stays in place.
-//    Phase 6 (85 %–100%): icon morphs — shrinks from full splash size to a
-//                         smaller "destination" size and translates up to
-//                         the position the next screen's logo will occupy,
-//                         so the hand-off feels like a hero transition
-//                         even without a Navigator-level Hero widget.
-//
-//  Renders the real PNG asset (not a painter approximation), so the
-//  splash icon is always pixel-identical to the home-screen icon.
+//    Phase 5 (88 %–100%): the whole composition fades out to white. The
+//                         next screen (login) renders the SAME
+//                         [icon + "ClassMate"] composition centered, so
+//                         the hand-off looks continuous without needing
+//                         a Navigator-level Hero widget.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class CmSplashScreen extends StatefulWidget {
@@ -57,8 +52,7 @@ class _CmSplashScreenState extends State<CmSplashScreen>
   late final Animation<double> _iconScale;   // phase 1: icon scales 0.85 → 1
   late final Animation<double> _textReveal;  // phase 3: chars typed
   late final Animation<double> _iconShift;   // phase 3: icon slides left (0 → 1)
-  late final Animation<double> _textFade;    // phase 5: text + cursor fade out
-  late final Animation<double> _morph;       // phase 6: icon morph (0 → 1)
+  late final Animation<double> _fadeOut;     // phase 5: whole composition fades
 
   @override
   void initState() {
@@ -98,18 +92,12 @@ class _CmSplashScreenState extends State<CmSplashScreen>
       curve: const Interval(0.28, 0.46, curve: Curves.easeOutCubic),
     );
 
-    // Phase 5 — text + cursor fade out (78-85%). Icon stays put.
-    _textFade = CurvedAnimation(
+    // Phase 5 — whole composition fades to white (88-100%). The next
+    // screen renders the same [icon + "ClassMate"] layout centered so
+    // the cut is invisible — no morph needed.
+    _fadeOut = CurvedAnimation(
       parent: _ctrl,
-      curve: const Interval(0.78, 0.85, curve: Curves.easeIn),
-    );
-
-    // Phase 6 — icon morphs to its hand-off position (85-100%). Shrinks
-    // and moves up so when the splash exits, the next screen's logo
-    // appears in roughly the same spot.
-    _morph = CurvedAnimation(
-      parent: _ctrl,
-      curve: const Interval(0.85, 1.00, curve: Curves.easeInOutCubic),
+      curve: const Interval(0.88, 1.00, curve: Curves.easeIn),
     );
   }
 
@@ -146,92 +134,75 @@ class _CmSplashScreenState extends State<CmSplashScreen>
             textDirection: TextDirection.ltr,
           )..layout();
           final textW = tp.width;
-          const gap = 16.0;
+          // Gap proportion matches ClassMateLogo (h * 0.16) so the
+          // splash's final frame is visually identical to the static
+          // logo widget used on login + the app bar.
+          final gap = iconSize * 0.16;
           const cursorRoom = 6.0;
           final shiftDistance = (gap + textW + cursorRoom) / 2;
           final textCenterX = (iconSize + gap) / 2;
 
-          // Phase 6 — morph the icon to its hand-off position.
-          // Destination: centered horizontally (offset X = 0), moved
-          // UP relative to the cluster's center (negative Y), and
-          // shrunk to ~ 56 % of splash size to feel like a transition
-          // into a smaller logo on the next screen.
-          //
-          // Screen height isn't known here without MediaQuery — but we
-          // know we want the icon to end roughly where a login screen
-          // logo sits (upper third). Move it up by a fraction of the
-          // available vertical space.
-          final screenH = MediaQuery.sizeOf(context).height;
-          final morphYTarget = -screenH * 0.18; // ~18% up from center
-          final morphProgress = _morph.value;
-          // During the morph the icon ALSO recenters horizontally
-          // (cancelling its phase-3 leftward slide), since the next
-          // page's logo is centered, not offset-left.
-          final iconX = -shiftDistance * _iconShift.value * (1 - morphProgress);
-          final iconY = morphYTarget * morphProgress;
-          final morphScale = 1.0 - 0.44 * morphProgress; // 1.0 → 0.56
+          final fade = (1.0 - _fadeOut.value).clamp(0.0, 1.0);
 
-          return Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              // The real PNG icon.
-              Transform.translate(
-                offset: Offset(iconX, iconY),
-                child: Opacity(
-                  opacity: _iconOpacity.value,
-                  child: Transform.scale(
-                    scale: _iconScale.value * morphScale,
-                    child: Image.asset(
-                      'assets/images/icon_light.png',
-                      width: iconSize,
-                      height: iconSize,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-              if (tagline.isNotEmpty)
+          return Opacity(
+            opacity: fade,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
                 Transform.translate(
-                  // Tagline also slides up slightly during phase 5 so
-                  // it doesn't just pop in opacity — feels like the
-                  // text is "lifting away".
-                  offset: Offset(textCenterX, -8 * _textFade.value),
-                  child: SizedBox(
-                    width: textW + cursorRoom,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Opacity(
-                        opacity: _textReveal.value > 0
-                            ? (1.0 - _textFade.value).clamp(0.0, 1.0)
-                            : 0.0,
-                        child: _TypingTagline(
-                          text: tagline,
-                          progress: _textReveal.value,
-                          cursorOpacity: _textReveal.value > 0.001
-                              ? (math.sin(_cursorBlink.value * math.pi)).clamp(0.0, 1.0)
-                              : 0.0,
-                          style: taglineStyle,
-                        ),
+                  offset: Offset(-shiftDistance * _iconShift.value, 0),
+                  child: Opacity(
+                    opacity: _iconOpacity.value,
+                    child: Transform.scale(
+                      scale: _iconScale.value,
+                      child: Image.asset(
+                        'assets/images/icon_light.png',
+                        width: iconSize,
+                        height: iconSize,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
                 ),
-            ],
+                if (tagline.isNotEmpty)
+                  Transform.translate(
+                    offset: Offset(textCenterX, 0),
+                    child: SizedBox(
+                      width: textW + cursorRoom,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Opacity(
+                          opacity: _textReveal.value > 0 ? 1.0 : 0.0,
+                          child: _TypingTagline(
+                            text: tagline,
+                            progress: _textReveal.value,
+                            cursorOpacity: _textReveal.value > 0.001
+                                ? (math.sin(_cursorBlink.value * math.pi)).clamp(0.0, 1.0)
+                                : 0.0,
+                            style: taglineStyle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),
     );
   }
 
-  /// Bold black sans-serif. Cursor color follows this style.color, so
-  /// flipping black ↔ blue here also flips the cursor.
+  /// Bold black sans-serif. Cursor color follows this style.color.
+  /// Font size locked to iconSize * 0.42 so the splash's final frame
+  /// matches the ClassMateLogo widget used on login + the app bar.
   TextStyle _taglineStyle(BuildContext context) {
-    return const TextStyle(
+    return TextStyle(
       fontWeight: FontWeight.w900,
       letterSpacing: -0.5,
       color: Colors.black,
-      fontSize: 32,
+      fontSize: widget.iconSize * 0.42,
       height: 1.0,
     );
   }

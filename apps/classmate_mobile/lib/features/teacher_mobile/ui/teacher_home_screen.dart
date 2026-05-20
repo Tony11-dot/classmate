@@ -228,8 +228,11 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     final session = ref.read(authSessionProvider);
     final bundle = _bundle;
     final today = _today;
+    // A teacher slot is renderable as long as it has a period number —
+    // course / cohort are now optional (slot may target by-grade or
+    // by-student audience and have no cohort attached at all).
     final scheduledSlots = today?.slots
-            .where((slot) => slot.course != null && slot.cohort != null)
+            .where((slot) => slot.period > 0)
             .toList(growable: false) ??
         const <TeacherTodaySlot>[];
     final upcoming = (bundle?.assessments ?? const <TeacherAssessment>[]).take(4).toList(growable: false);
