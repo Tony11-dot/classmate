@@ -141,6 +141,31 @@ export class TeacherService {
       },
     });
 
+    // TEMP DIAGNOSTIC — remove after we confirm the teacherId mismatch.
+    if (slots.length === 0) {
+      const allInSchool = await this.prisma.scheduleSlot.findMany({
+        where: {
+          dayOfWeek,
+          ...(((user as any)?.schoolId) ? { schoolId: (user as any).schoolId } : {}),
+        },
+        select: { id: true, period: true, teacherId: true, subject: true },
+        take: 20,
+      });
+      // eslint-disable-next-line no-console
+      console.log('[teacher.todaySchedule] EMPTY for teacher', JSON.stringify({
+        teacherUserId: teacherId,
+        dayOfWeek,
+        schoolId: (user as any)?.schoolId ?? null,
+        slotsInSchoolOnThisDay: allInSchool.map((s) => ({
+          id: s.id,
+          period: s.period,
+          subject: s.subject,
+          teacherId: s.teacherId,
+          teacherIdMatchesViewer: s.teacherId === teacherId,
+        })),
+      }, null, 2));
+    }
+
     if (slots.length === 0) return { ok: true, date: dateYmd, dayOfWeek, slots: [] };
 
     const out: any[] = slots.map((t) => ({
@@ -1699,6 +1724,28 @@ export class TeacherService {
         console.error('[teacher.weekSchedule] slot fetch failed', e);
         slots = [];
       }
+    }
+
+    // TEMP DIAGNOSTIC — remove after we confirm the teacherId mismatch.
+    if (slots.length === 0) {
+      const allInSchool = await this.prisma.scheduleSlot.findMany({
+        where: ((user as any)?.schoolId) ? { schoolId: (user as any).schoolId } : {},
+        select: { id: true, dayOfWeek: true, period: true, teacherId: true, subject: true },
+        take: 30,
+      });
+      // eslint-disable-next-line no-console
+      console.log('[teacher.weekSchedule] EMPTY for teacher', JSON.stringify({
+        teacherUserId: teacherId,
+        schoolId: (user as any)?.schoolId ?? null,
+        slotsInSchool: allInSchool.map((s) => ({
+          id: s.id,
+          dayOfWeek: s.dayOfWeek,
+          period: s.period,
+          subject: s.subject,
+          teacherId: s.teacherId,
+          teacherIdMatchesViewer: s.teacherId === teacherId,
+        })),
+      }, null, 2));
     }
 
     // Emit 7 days always — Flutter (both student and teacher) matches
