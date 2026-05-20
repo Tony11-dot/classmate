@@ -1,5 +1,5 @@
 PROD_API = "https://pacific-enchantment-production-7a80.up.railway.app"
-IOS_IPA  = "build/ios/ipa/classmate_mobile.ipa"
+IOS_IPA  = "build/ios/ipa/ClassMate.ipa"
 APK_PATH = "build/app/outputs/flutter-apk/app-release.apk"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ platform :ios do
   lane :beta do
     flutter_build_ios
     upload_to_testflight(
-      ipa:                        "../#{IOS_IPA}",
+      ipa:                        IOS_IPA,
       skip_waiting_for_build_processing: true,
       changelog:                  "ClassMate beta build — #{Time.now.strftime('%Y-%m-%d')}",
     )
@@ -34,7 +34,7 @@ platform :ios do
   lane :release do
     flutter_build_ios
     deliver(
-      ipa:           "../#{IOS_IPA}",
+      ipa:           IOS_IPA,
       submit_for_review: false,   # set true when ready to submit
       force:         true,
     )
