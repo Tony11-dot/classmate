@@ -28,7 +28,7 @@ class CmSplashScreen extends StatefulWidget {
     super.key,
     required this.onDone,
     this.duration = const Duration(milliseconds: 6500),
-    this.iconSize = 120,
+    this.iconSize = 80,
     this.tagline = 'ClassMate',
   });
 
@@ -134,13 +134,18 @@ class _CmSplashScreenState extends State<CmSplashScreen>
             textDirection: TextDirection.ltr,
           )..layout();
           final textW = tp.width;
-          // Gap proportion matches ClassMateLogo (h * 0.16) so the
-          // splash's final frame is visually identical to the static
-          // logo widget used on login + the app bar.
           final gap = iconSize * 0.16;
           const cursorRoom = 6.0;
           final shiftDistance = (gap + textW + cursorRoom) / 2;
           final textCenterX = (iconSize + gap) / 2;
+          // icon_light.png has its visible content offset ~2.46% LEFT of
+          // the PNG's geometric center (measured: 11px / 447px). When
+          // Flutter renders the image inside our SizedBox the bounding-
+          // box center sits on screen-center but the VISIBLE CM is
+          // shifted left of where the math thinks it is. Compensate by
+          // nudging the icon right by that same fraction of its rendered
+          // size so the visual center matches the measured center.
+          final iconAsymmetryX = iconSize * 0.0246;
 
           final fade = (1.0 - _fadeOut.value).clamp(0.0, 1.0);
 
@@ -151,7 +156,15 @@ class _CmSplashScreenState extends State<CmSplashScreen>
               clipBehavior: Clip.none,
               children: [
                 Transform.translate(
-                  offset: Offset(-shiftDistance * _iconShift.value, 0),
+                  // Icon centered initially (offset 0), slides to
+                  // -shiftDistance over phase 3. iconAsymmetryX nudges
+                  // the icon right by ~2.5% of its size so the PNG's
+                  // off-center content sits visually on the math's
+                  // expected center.
+                  offset: Offset(
+                    iconAsymmetryX - shiftDistance * _iconShift.value,
+                    0,
+                  ),
                   child: Opacity(
                     opacity: _iconOpacity.value,
                     child: Transform.scale(

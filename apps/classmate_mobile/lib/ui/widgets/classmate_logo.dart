@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// Full ClassMate logo — composed in Flutter as [icon + "ClassMate" text]
-/// so the splash's final frame and the login/app-bar logo render with the
-/// identical layout. Size is driven by [height]; if only [width] is given
-/// a FittedBox scales the natural composition to fit.
+/// Full ClassMate logo — loads the brand asset PNG directly.
+/// Light mode → logo_light.png. Dark mode → logo_dark.png.
+/// The PNG itself carries the icon + "ClassMate" wordmark together;
+/// supply [height] or [width] and the other dimension scales to keep
+/// the asset's aspect ratio.
 class ClassMateLogo extends StatelessWidget {
   const ClassMateLogo({super.key, this.height, this.width});
 
@@ -14,48 +15,16 @@ class ClassMateLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black;
-
-    // Natural sizing — text scales relative to the icon.
-    final h = height ?? 80;
-    final fontSize = h * 0.42;
-    final gap = h * 0.16;
-
-    final composition = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: h,
-          height: h,
-          child: Image.asset(
-            'assets/images/icon_light.png',
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => _FallbackIconMark(size: h, isDark: isDark),
-          ),
-        ),
-        SizedBox(width: gap),
-        Text(
-          'ClassMate',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: fontSize,
-            color: textColor,
-            letterSpacing: -0.5,
-            height: 1.0,
-          ),
-        ),
-      ],
+    return Image.asset(
+      isDark
+          ? 'assets/images/logo_dark.png'
+          : 'assets/images/logo_light.png',
+      height: height,
+      width: width,
+      fit: BoxFit.contain,
+      errorBuilder: (_, _, _) =>
+          _FallbackIconMark(size: height ?? width ?? 28, isDark: isDark),
     );
-
-    // Width-only constraint — let FittedBox scale the natural composition.
-    if (width != null && height == null) {
-      return SizedBox(
-        width: width,
-        child: FittedBox(fit: BoxFit.contain, child: composition),
-      );
-    }
-    return composition;
   }
 }
 
