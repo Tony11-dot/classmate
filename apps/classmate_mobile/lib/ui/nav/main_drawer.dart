@@ -363,6 +363,14 @@ class MainDrawer extends ConsumerWidget {
                     label: 'About',
                     route: '/about',
                   ),
+                  // Temporary diagnostic link for the teacher-periods bug —
+                  // shows user.id + raw API responses. Safe for any role.
+                  // Remove once the bug is fixed.
+                  navItem(
+                    icon: Icons.bug_report_rounded,
+                    label: 'Debug',
+                    route: '/debug',
+                  ),
                   // Logout (danger style, separate tap handler)
                   Padding(
                     padding:
