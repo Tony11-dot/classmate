@@ -1097,11 +1097,11 @@ class ChatMessageBubble extends StatelessWidget {
         theme.colorScheme.surface,
       );
     }
-    // Light mode: dark-gray fill (well past the "blends into surface" point
-    // the previous light gray hit). Foreground text still reads as
-    // onSurface because the bubble's child uses cs.onSurface — but the
-    // contrast against the off-white canvas is now unmistakable.
-    return const Color(0xFFC6CAD2);
+    // Light mode: deep slate-gray fill — pushed darker per user
+    // feedback that the prior #C6CAD2 still felt washed out. Foreground
+    // text switches to white at this darkness level via the bubble's
+    // contrast-aware color (see _bubbleTextColor).
+    return const Color(0xFF3A3F47);
   }
 }
 

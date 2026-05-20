@@ -547,87 +547,96 @@ class ChatComposer extends StatelessWidget {
     final accent =
         cancelActive ? scheme.error : (lockActive ? scheme.primary : scheme.primary);
 
-    // Translate the entire HUD horizontally with the cancel drag so it feels
-    // like the pill itself is being pulled left toward the trash.
-    final dragOffset = Offset(-_clamp01(cancelProgress) * 24, 0);
+    // Instagram-style: the pill stays put. Only the chevron + "Slide
+    // to cancel" group slides left as the user drags, and it fades out
+    // the further it goes, so the affordance feels like a button being
+    // pulled off-screen rather than the whole HUD shifting.
+    final cancelDrag = _clamp01(cancelProgress);
+    final cancelInsetOffset = Offset(-cancelDrag * 64, 0);
+    final cancelOpacity = (1.0 - cancelDrag * 0.85).clamp(0.0, 1.0);
 
     return _shell(
       context,
       key: const ValueKey('holding'),
-      child: Transform.translate(
-        offset: dragOffset,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: Color.lerp(scheme.outlineVariant, accent, 0.4 * (cancelProgress + lockProgress))!,
-            ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: Color.lerp(scheme.outlineVariant, accent, 0.4 * (cancelProgress + lockProgress))!,
           ),
-          child: Row(
-            children: [
-              _recordingPulseDot(context, accent: accent),
-              const SizedBox(width: 10),
-              Text(
-                _fmtElapsed(recordingElapsed),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                      fontWeight: FontWeight.w800,
-                      color: scheme.onSurface,
+        ),
+        child: Row(
+          children: [
+            _recordingPulseDot(context, accent: accent),
+            const SizedBox(width: 10),
+            Text(
+              _fmtElapsed(recordingElapsed),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onSurface,
+                  ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: ClipRect(
+                child: Transform.translate(
+                  offset: cancelInsetOffset,
+                  child: Opacity(
+                    opacity: cancelOpacity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          cancelActive
+                              ? Icons.delete_forever_rounded
+                              : Icons.chevron_left_rounded,
+                          size: 18,
+                          color: cancelTint,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          cancelActive ? 'Release to cancel' : 'Slide to cancel',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cancelTint,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ],
                     ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      cancelActive
-                          ? Icons.delete_forever_rounded
-                          : Icons.chevron_left_rounded,
-                      size: 18,
-                      color: cancelTint,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      cancelActive ? 'Release to cancel' : 'Slide to cancel',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cancelTint,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                width: 30 + 6 * lockProgress,
-                height: 30 + 6 * lockProgress,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: lockActive ? scheme.primary : Colors.transparent,
-                  border: Border.all(
-                    color: lockTint,
-                    width: lockActive ? 0 : 1.5,
                   ),
                 ),
-                alignment: Alignment.center,
-                child: Icon(
-                  lockActive
-                      ? Icons.lock_rounded
-                      : Icons.keyboard_arrow_up_rounded,
-                  size: 16 + 2 * lockProgress,
-                  color: lockActive ? scheme.onPrimary : lockTint,
+              ),
+            ),
+            const SizedBox(width: 10),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              width: 30 + 6 * lockProgress,
+              height: 30 + 6 * lockProgress,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: lockActive ? scheme.primary : Colors.transparent,
+                border: Border.all(
+                  color: lockTint,
+                  width: lockActive ? 0 : 1.5,
                 ),
               ),
-            ],
-          ),
+              alignment: Alignment.center,
+              child: Icon(
+                lockActive
+                    ? Icons.lock_rounded
+                    : Icons.keyboard_arrow_up_rounded,
+                size: 16 + 2 * lockProgress,
+                color: lockActive ? scheme.onPrimary : lockTint,
+              ),
+            ),
+          ],
         ),
       ),
     );
