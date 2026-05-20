@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
@@ -598,18 +599,37 @@ class _ScheduleTile extends StatelessWidget {
 
     final title = '${item['title'] ?? l.scheduleClassFallback}';
     final subject = (item['subject'] ?? '').toString().trim();
+    final caption = (item['caption'] ?? '').toString().trim();
     final location = (item['location'] ?? '').toString().trim();
     final teacherName = (item['teacherName'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
     final endsAt = '${item['endsAt'] ?? '--:--'}';
-    final courseId = (item['courseId'] ?? '').toString().trim();
     final notes = (item['notes'] ?? item['note'] ?? item['classNote'] ??
         item['teacherNote'] ?? item['description'] ?? '').toString().trim();
     final period = (item['period'] as num?)?.toInt();
     final hasStatus = attendanceStatus.isNotEmpty;
+    // Date label — derived from item.date (server YMD) when present so
+    // the sheet shows "Monday · May 24" even if the user is browsing a
+    // past/future week.
+    final dateStr = (item['date'] ?? '').toString().trim();
+    String? dayLabel;
+    if (dateStr.isNotEmpty) {
+      final parsed = DateTime.tryParse(dateStr);
+      if (parsed != null) {
+        final locale = Localizations.localeOf(context).toString();
+        dayLabel = '${DateFormat.EEEE(locale).format(parsed)} · ${DateFormat.MMM(locale).format(parsed)} ${parsed.day}';
+      }
+    }
+    final attachments = (item['attachments'] is List)
+        ? (item['attachments'] as List).whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
+        : const <Map<String, dynamic>>[];
 
+    // useRootNavigator pushes the sheet onto the root navigator stack
+    // — that's the only level above the StatefulShellRoute bottom nav,
+    // so the sheet no longer renders beneath it.
     showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
@@ -631,6 +651,14 @@ class _ScheduleTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (caption.isNotEmpty) ...[
+                          Text(caption,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              )),
+                          const SizedBox(height: 2),
+                        ],
                         Text(title,
                             style: theme.textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w800)),
@@ -670,6 +698,13 @@ class _ScheduleTile extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
+                  if (dayLabel != null)
+                    _InfoPill(
+                      icon: Icons.calendar_today_rounded,
+                      label: dayLabel,
+                      cs: cs,
+                      theme: theme,
+                    ),
                   _InfoPill(
                     icon: Icons.access_time_rounded,
                     label: '$startsAt – $endsAt',
@@ -699,6 +734,57 @@ class _ScheduleTile extends StatelessWidget {
                     ),
                 ],
               ),
+              // Attachments — tappable material pills. Wired to
+              // item['attachments'] (the server attaches the resolved
+              // material list per slot). Quietly empty when nothing's
+              // attached.
+              if (attachments.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(Icons.attach_file_rounded, size: 16, color: cs.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Attachments',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: attachments.map((m) {
+                    final mTitle = (m['title'] ?? m['name'] ?? 'Material').toString();
+                    final mUrl = (m['url'] ?? '').toString();
+                    final mMime = (m['mime'] ?? '').toString().toLowerCase();
+                    IconData icon = Icons.description_rounded;
+                    if (mMime.contains('pdf')) {
+                      icon = Icons.picture_as_pdf_rounded;
+                    } else if (mMime.contains('image')) {
+                      icon = Icons.image_rounded;
+                    } else if (mMime.contains('powerpoint') || mMime.contains('presentation')) {
+                      icon = Icons.slideshow_rounded;
+                    } else if (mMime.contains('word') || mMime.contains('document')) {
+                      icon = Icons.article_rounded;
+                    }
+                    return ActionChip(
+                      avatar: Icon(icon, size: 16, color: cs.primary),
+                      label: Text(mTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      onPressed: mUrl.isEmpty
+                          ? null
+                          : () async {
+                              final uri = Uri.tryParse(mUrl);
+                              if (uri == null) return;
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            },
+                    );
+                  }).toList(),
+                ),
+              ],
               // Notes
               if (notes.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -732,21 +818,9 @@ class _ScheduleTile extends StatelessWidget {
                   ),
                 ),
               ],
-              // Go to classroom button
-              if (courseId.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    context.push('/classrooms/$courseId');
-                  },
-                  icon: const Icon(Icons.groups_rounded, size: 18),
-                  label: const Text('Go to Classroom'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                ),
-              ],
+              // (Go-to-classroom dropped — classrooms are independent of
+              // periods now; the schedule grid is the source of truth for
+              // what's happening when.)
             ],
           ),
         ),
@@ -760,28 +834,24 @@ class _ScheduleTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    // Title is the subject (with classroom-name + generic fallbacks) —
-    // the server no longer appends " — P{n}" so the period info isn't
-    // duplicated next to the dedicated time block.
+    // Tile prints just "subject - teacher" (with an optional caption
+    // floating above). Location/period chip dropped — admins didn't want
+    // any of the secondary metadata in the grid.
     final subject = (item['subject'] ?? '').toString().trim();
     final rawTitle = '${item['title'] ?? ''}'.trim();
     final title = subject.isNotEmpty
         ? subject
         : (rawTitle.isNotEmpty ? rawTitle : l.scheduleClassFallback);
-    final location = (item['location'] ?? '').toString().trim();
+    final caption = (item['caption'] ?? '').toString().trim();
     final teacherName = (item['teacherName'] ?? '').toString().trim();
     final startsAt = '${item['startsAt'] ?? '--:--'}';
     final endsAt = '${item['endsAt'] ?? '--:--'}';
-    final period = (item['period'] as num?)?.toInt();
     final courseId = (item['courseId'] ?? '').toString().trim();
     final hasStatus = attendanceStatus.isNotEmpty;
 
-    // Subtitle is the teacher's name — the subject is already the title,
-    // and the location pill shows up in the detail sheet if set.
-    final subtitleParts = <String>[
-      if (teacherName.isNotEmpty) teacherName,
-      if (location.isNotEmpty) location,
-    ];
+    // Subtitle: just the teacher's name. Subject is already in the title
+    // (or just above as caption); location intentionally dropped.
+    final subtitle = teacherName;
 
     final borderColor = isCurrent
         ? cs.primary
@@ -865,71 +935,75 @@ class _ScheduleTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
+                    // Two-line layout differs by caption presence:
+                    //  • with caption:    caption (small)  /  subject - teacher (big)
+                    //  • without caption: subject (big)    /  teacher (small)
+                    if (caption.isNotEmpty) ...[
+                      Text(
+                        caption,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle.isEmpty ? title : '$title - $subtitle',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ] else ...[
+                      Text(
+                        title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
                         Text(
-                          title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.2,
+                          subtitle,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (period != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: cs.surfaceContainerHighest
-                                  .withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              l.teacherPeriod(period),
-                              style: theme.textTheme.labelMedium
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                          ),
                       ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
+                    ],
+                    if (hasStatus) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _attendanceColor(
+                                context, attendanceStatus),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
                           child: Text(
-                            subtitleParts.isEmpty
-                                ? l.scheduleNoSubjectLocation
-                                : subtitleParts.join(' • '),
-                            style: theme.textTheme.bodyMedium
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                            _attendanceLabel(context, attendanceStatus),
+                            style: TextStyle(
+                              color: _attendanceFg(
+                                  context, attendanceStatus),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                        // Attendance pill — visible from the card exterior
-                        if (hasStatus) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _attendanceColor(
-                                  context, attendanceStatus),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              _attendanceLabel(context, attendanceStatus),
-                              style: TextStyle(
-                                color: _attendanceFg(
-                                    context, attendanceStatus),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ],
                 ),
               ),

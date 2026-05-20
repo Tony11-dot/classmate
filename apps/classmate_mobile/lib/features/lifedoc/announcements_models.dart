@@ -7,6 +7,11 @@ class AnnouncementItem {
   final AnnouncementSeverity severity;
   final String source; // grades | attendance | solutions | system
   final DateTime createdAt;
+  /// File / link attachments, same shape AttachmentPills expects:
+  /// `[{ type, url, name, mime? }, ...]`. Empty for system-generated
+  /// announcements; populated for teacher/admin/secretary posts that
+  /// include uploads.
+  final List<Map<String, dynamic>> attachments;
 
   const AnnouncementItem({
     required this.id,
@@ -15,5 +20,6 @@ class AnnouncementItem {
     required this.severity,
     required this.source,
     required this.createdAt,
+    this.attachments = const [],
   });
 }

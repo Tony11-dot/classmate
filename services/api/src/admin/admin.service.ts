@@ -198,6 +198,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     cohortIds?: string[];
     studentIds?: string[];
     subject?: string;
+    caption?: string;
     color?: string;
     audienceGrade?: number | null;
     startTime?: string;
@@ -208,7 +209,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.ensureAdmin(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, color, audienceGrade, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
+    const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, caption, color, audienceGrade, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
     if (dayOfWeek === undefined || dayOfWeek < 0 || dayOfWeek > 6) throw new BadRequestException('dayOfWeek must be 0..6');
     if (!Number.isInteger(period) || period < 1 || period > 20) throw new BadRequestException('period must be 1..20');
 
@@ -230,6 +231,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         teacherId: teacherId ?? null,
         classroomId: classroomId ?? null,
         subject: subject ?? null,
+        caption: typeof caption === 'string' && caption.trim().length
+          ? caption.trim()
+          : null,
         color: normalizedColor,
         audienceGrade: normalizedAudienceGrade,
         startTime: startTime ?? null,
@@ -343,6 +347,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     cohortIds?: string[];
     studentIds?: string[];
     subject?: string | null;
+    caption?: string | null;
     color?: string | null;
     audienceGrade?: number | null;
     startTime?: string | null;
@@ -368,6 +373,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if ('teacherId' in body) data.teacherId = body.teacherId ?? null;
     if ('classroomId' in body) data.classroomId = body.classroomId ?? null;
     if ('subject' in body) data.subject = body.subject ?? null;
+    if ('caption' in body) {
+      const c = typeof body.caption === 'string' ? body.caption.trim() : '';
+      data.caption = c.length ? c : null;
+    }
     if ('color' in body) data.color = normalizeHexColor(body.color);
     if ('audienceGrade' in body) {
       data.audienceGrade =
@@ -501,9 +510,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async listTeachersForDDL(user: any) {
     this.ensureAdmin(user);
     const schoolId = (user as any)?.schoolId ?? null;
+    // Hard-require schoolId. Without it we'd return every teacher in
+    // every school (cross-school leak in the period editor's teacher
+    // picker). An admin should always have a schoolId on their JWT;
+    // empty = misconfigured account, not a free pass.
+    if (!schoolId) return { ok: true, teachers: [] };
+
     const teachers = await this.prisma.user.findMany({
       where: {
-        ...(schoolId ? { schoolId } : {}),
+        schoolId,
         roles: { some: { role: 'TEACHER' } },
       },
       select: { id: true, name: true },
@@ -1145,7 +1160,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     if (!row) throw new NotFoundException('User not found');
 
-    const [attendanceRate, gradeAvg] = await Promise.all([
+    const [attendanceRate, gradeAvg, classrooms] = await Promise.all([
       row.studentProfile
         ? this.prisma.attendanceRecord.count({
             where: { studentId: row.id, status: 'PRESENT' },
@@ -1160,6 +1175,34 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
             _avg: { grade: true },
           }).then((r) => r._avg.grade ? Math.round(r._avg.grade) : null)
         : null,
+      // Classroom enrollments — every classroom the student is a member
+      // of, with subject + teacher. Powers the secretary's student-detail
+      // "Classrooms" section.
+      row.studentProfile
+        ? this.prisma.classroomMember.findMany({
+            where: { studentId: row.id },
+            select: {
+              classroom: {
+                select: {
+                  id: true,
+                  name: true,
+                  subject: true,
+                  teacher: { select: { id: true, name: true } },
+                },
+              },
+            },
+          }).then((rows) =>
+            rows
+              .map((r) => r.classroom)
+              .filter((c) => c != null)
+              .map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                subject: c.subject ?? null,
+                teacherName: c.teacher?.name ?? null,
+              })),
+          )
+        : [],
     ]);
 
     return {
@@ -1182,6 +1225,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         grade: (row.studentProfile as any)?.grade ?? null,
         cohort: row.studentProfile?.cohort ?? null,
         cohorts: row.studentProfile?.cohorts.map((c) => c.cohort) ?? [],
+        classrooms,
         attendanceRate,
         gradeAvg,
       },

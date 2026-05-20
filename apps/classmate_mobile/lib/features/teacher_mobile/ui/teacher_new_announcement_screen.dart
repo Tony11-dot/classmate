@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +49,28 @@ class _TeacherNewAnnouncementScreenState
   List<({String id, String name, int grade})> _cohorts = [];
   final Map<String, List<String>> _cohortMemberCache = {};
   bool _loadingPeople = false;
+
+  // ── Attachments ───────────────────────────────────────────────────────────
+  // Files pending upload (picked locally, uploaded on _publish) + already-
+  // uploaded entries that go straight into the announcement payload.
+  final List<PlatformFile> _pendingFiles = [];
+  final List<Map<String, dynamic>> _uploadedAttachments = [];
+
+  Future<void> _pickAttachment() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+        'jpg', 'jpeg', 'png', 'webp', 'gif',
+        'mp4', 'mov', 'mp3', 'wav',
+        'zip', 'txt',
+      ],
+      allowMultiple: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      setState(() => _pendingFiles.addAll(result.files));
+    }
+  }
 
   @override
   void initState() {
@@ -133,10 +156,27 @@ class _TeacherNewAnnouncementScreenState
     }
     setState(() => _saving = true);
     try {
-      await ref.read(teacherMobileRepositoryProvider).createAnnouncement(
+      // Upload any pending files first so the announcement payload
+      // carries the resolved URLs (same shape AttachmentPills expects).
+      final repo = ref.read(teacherMobileRepositoryProvider);
+      final attachments = <Map<String, dynamic>>[..._uploadedAttachments];
+      for (final f in _pendingFiles) {
+        if (f.path == null || f.path!.isEmpty) continue;
+        try {
+          final res = await repo.uploadAttachmentFile(f.path!, f.name);
+          final url = (res['url'] ?? res['fileUrl'] ?? '').toString().trim();
+          if (url.isNotEmpty) {
+            attachments.add({'type': 'file', 'url': url, 'name': f.name});
+          }
+        } catch (_) {
+          // continue with the rest — surfaced as missing pills, not a hard fail
+        }
+      }
+      await repo.createAnnouncement(
         title: title,
         body: body,
         targets: _targets,
+        attachments: attachments,
       );
       ref.invalidate(publishedAnnouncementsProvider);
       if (!mounted) return;
@@ -332,6 +372,39 @@ class _TeacherNewAnnouncementScreenState
                   maxLines: 10,
                   textCapitalization: TextCapitalization.sentences,
                 ),
+                const SizedBox(height: 14),
+                // Attachment picker — files uploaded on publish.
+                Row(
+                  children: [
+                    Text('Attachments',
+                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: _pickAttachment,
+                      icon: const Icon(Icons.attach_file_rounded, size: 18),
+                      label: const Text('Add file'),
+                    ),
+                  ],
+                ),
+                if (_pendingFiles.isEmpty)
+                  Text(
+                    'No files attached.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  )
+                else
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _pendingFiles.asMap().entries.map((entry) {
+                      final i = entry.key;
+                      final f = entry.value;
+                      return InputChip(
+                        avatar: const Icon(Icons.insert_drive_file_rounded, size: 16),
+                        label: Text(f.name, overflow: TextOverflow.ellipsis),
+                        onDeleted: () => setState(() => _pendingFiles.removeAt(i)),
+                      );
+                    }).toList(),
+                  ),
               ],
             ),
           ),

@@ -231,6 +231,7 @@ export class AdminController {
     return this.admin.listUsers(req.user, { q, role, page: page ? Number(page) : 0 });
   }
 
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('export/students')
   exportStudents(
     @Req() req: any,
@@ -242,6 +243,7 @@ export class AdminController {
     return this.admin.exportStudents(req.user, { cohortId, grade, generatePasswords, studentIds });
   }
 
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('export/cohorts')
   exportCohorts(@Req() req: any) {
     return this.admin.exportCohorts(req.user);

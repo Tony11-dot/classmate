@@ -9,6 +9,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/attachment_pill.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'announcements_models.dart';
 import 'announcements_provider.dart';
@@ -715,6 +716,14 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                                 ),
                               ),
                             ),
+                            if (announcement.attachments.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              _SectionCard(
+                                title: 'Attachments',
+                                subtitle: 'Files shared with this announcement.',
+                                child: AttachmentPills(attachments: announcement.attachments),
+                              ),
+                            ],
                           ],
                         ),
                       ),

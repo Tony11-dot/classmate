@@ -236,6 +236,7 @@ class _TeacherAddMaterialScreenState
 
       final primaryUrl = allAttachments.isNotEmpty ? allAttachments.first['url'] as String : null;
 
+      Map<String, dynamic>? createdMaterial;
       if (_isEditing) {
         await repo.updateTeacherMaterial(
           widget.initialMaterial!['id'] as String,
@@ -252,7 +253,7 @@ class _TeacherAddMaterialScreenState
           },
         );
       } else {
-        await repo.createTeacherMaterial(
+        createdMaterial = await repo.createTeacherMaterial(
           title: title,
           description: _descCtrl.text.trim().isNotEmpty ? _descCtrl.text.trim() : null,
           url: primaryUrl,
@@ -265,7 +266,12 @@ class _TeacherAddMaterialScreenState
         );
       }
       if (!mounted) return;
-      if (context.canPop()) context.pop(true);
+      // Return the created material's id when creating so callers (e.g.
+      // the slot-attachments picker) can auto-attach. Editing keeps the
+      // legacy `true` so existing list refreshers keep working.
+      if (context.canPop()) {
+        context.pop(_isEditing ? true : (createdMaterial?['id'] ?? true));
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

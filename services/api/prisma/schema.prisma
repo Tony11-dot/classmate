@@ -398,6 +398,10 @@ model ScheduleSlot {
   endTime        String? // override school default, e.g. "08:45"
   frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc. 0=one-off (anchored to startDate).
   startDate      String? // ISO date "YYYY-MM-DD" of the first occurrence for bi-weekly etc.
+  /// Optional free-text caption shown above "subject · teacher" on the
+  /// schedule tile.  Lets admins annotate a slot (e.g. "Quiz day",
+  /// "Lab session") without renaming the subject.
+  caption        String?
   /// YYYY-MM-DD strings. The slot skips rendering on these dates, used when
   /// a Once override replaces this recurring slot just for the override
   /// date.  Mutated via the conflict dialog's "Override" action.
@@ -424,10 +428,27 @@ model ScheduleSlot {
   classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
   students  ScheduleSlotStudent[]
   cohorts   ScheduleSlotCohort[]
+  materials ScheduleSlotMaterial[]
 
   @@index([schoolId])
   @@index([teacherId])
   @@index([classroomId])
+}
+
+/// Junction between a schedule slot and a TeacherMaterial — lets a
+/// teacher attach materials (PDFs, slides, links) to a recurring period
+/// so the slot's student audience sees them as pills on their period
+/// card.  Owned by the slot's teacher; admins can also manage.
+model ScheduleSlotMaterial {
+  slotId            String
+  teacherMaterialId String
+  createdAt         DateTime @default(now())
+
+  slot     ScheduleSlot    @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  material TeacherMaterial @relation(fields: [teacherMaterialId], references: [id], onDelete: Cascade)
+
+  @@id([slotId, teacherMaterialId])
+  @@index([teacherMaterialId])
 }
 
 model ScheduleSlotStudent {
@@ -613,6 +634,10 @@ model Announcement {
   publishAt DateTime  @default(now())
   expiresAt DateTime?
   pinned    Boolean   @default(false)
+
+  /// File / link attachments, same shape as ClassroomMaterial.attachments:
+  /// `[{ type: "file"|"link"|"image", url, name, mime? }, …]`.
+  attachments Json @default("[]")
 
   creator           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   targets           AnnouncementTarget[]
@@ -1930,6 +1955,7 @@ model TeacherMaterial {
   updatedAt        DateTime             @updatedAt
 
   teacher User @relation("TeacherMaterials", fields: [teacherId], references: [id], onDelete: Cascade)
+  slots   ScheduleSlotMaterial[]
 
   @@index([teacherId])
 }

@@ -430,11 +430,31 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         final period = (s['period'] ?? 0) is int ? s['period'] as int : int.tryParse('${s['period']}') ?? 0;
         final cohortMap = s['cohort'] is Map ? Map<String, dynamic>.from(s['cohort'] as Map<Object?, Object?>) : <String, dynamic>{};
         final subject = (s['subject'] ?? '').toString();
-        final cohortName = (cohortMap['name'] ?? '').toString();
-        final grade = (cohortMap['grade'] ?? 0);
+        final caption = (s['caption'] ?? '').toString().trim();
+        final cohortName = (cohortMap['name'] ?? '').toString().trim();
+        final audienceGrade = (s['audienceGrade'] as num?)?.toInt();
+        final studentNames = (s['studentNames'] is List)
+            ? (s['studentNames'] as List).map((e) => e.toString()).where((e) => e.isNotEmpty).toList()
+            : const <String>[];
+        // Resolve the audience line shown alongside / below the subject.
+        // Cohort name wins; then "Grade N" when by-grade; otherwise a
+        // collapsed list of student names. No times, no period number —
+        // those live in the period badge.
+        String audienceLine = '';
+        if (cohortName.isNotEmpty) {
+          audienceLine = cohortName;
+        } else if (audienceGrade != null && audienceGrade > 0) {
+          audienceLine = 'Grade $audienceGrade';
+        } else if (studentNames.isNotEmpty) {
+          audienceLine = studentNames.length <= 3
+              ? studentNames.join(', ')
+              : '${studentNames.take(3).join(', ')} +${studentNames.length - 3}';
+        } else {
+          audienceLine = l.teacherNoCohort;
+        }
         final startTime = (s['startTime'] ?? '').toString();
-        final endTime = (s['endTime'] ?? '').toString();
         final color = _subjectColor(subject, cs);
+        final subjectLabel = subject.isNotEmpty ? subject : l.teacherUnassignedSlot;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -470,26 +490,41 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
-                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          [
-                            if (cohortName.isNotEmpty) cohortName,
-                            if (grade is int && grade > 0) 'Grade $grade',
-                            if (startTime.isNotEmpty && endTime.isNotEmpty) '$startTime – $endTime',
-                          ].join(' · ').isNotEmpty
-                              ? [
-                                  if (cohortName.isNotEmpty) cohortName,
-                                  if (grade is int && grade > 0) 'Grade $grade',
-                                ].join(' · ')
-                              : l.teacherNoCohort,
-                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                      ],
+                      children: caption.isNotEmpty
+                          ? [
+                              // With caption: caption above, subject - audience below.
+                              Text(
+                                caption,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '$subjectLabel - $audienceLine',
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ]
+                          : [
+                              Text(
+                                subjectLabel,
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                audienceLine,
+                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                     ),
                   ),
                   Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
@@ -532,6 +567,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     final cohortId = (cohortMap['id'] ?? '').toString();
     final grade = cohortMap['grade'] is int ? cohortMap['grade'] as int : int.tryParse('${cohortMap['grade']}') ?? 0;
     final period = (s['period'] ?? 0) is int ? s['period'] as int : int.tryParse('${s['period']}') ?? 0;
+    final slotId = (s['slotId'] ?? '').toString();
     final dateYmd = _ymd(_selectedDate);
 
     await showModalBottomSheet<void>(
@@ -602,6 +638,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                         'period': period,
                         'date': dateYmd,
                         'courseId': cohortId,
+                        if (slotId.isNotEmpty) 'slotId': slotId,
                       });
                     },
                   ),
@@ -615,10 +652,22 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                         'period': period,
                         'date': dateYmd,
                         'courseId': cohortId,
+                        if (slotId.isNotEmpty) 'slotId': slotId,
                         'focusNotes': true,
                       });
                     },
                   ),
+                  if (slotId.isNotEmpty)
+                    _SheetAction(
+                      icon: Icons.attach_file_rounded,
+                      label: 'Attachments',
+                      onTap: () {
+                        Navigator.of(ctx).pop();
+                        context.push('/teacher/slot/$slotId/attachments', extra: <String, dynamic>{
+                          'title': subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
+                        });
+                      },
+                    ),
                   const SizedBox(height: 8),
                 ],
               ),

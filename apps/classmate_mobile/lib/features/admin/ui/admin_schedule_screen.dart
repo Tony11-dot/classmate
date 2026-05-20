@@ -121,7 +121,11 @@ final _subjectColorsProvider = FutureProvider.autoDispose<Map<String, String>>((
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 class AdminScheduleScreen extends ConsumerStatefulWidget {
-  const AdminScheduleScreen({super.key});
+  /// When true, hides the Add Period FAB and disables tap-to-edit on
+  /// existing slots. Used by the secretary role's read-only schedule
+  /// view — same grid + filters as admin, no mutation entry points.
+  const AdminScheduleScreen({super.key, this.readOnly = false});
+  final bool readOnly;
 
   @override
   ConsumerState<AdminScheduleScreen> createState() => _AdminScheduleScreenState();
@@ -305,6 +309,9 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     required int period,
     required List<Map<String, dynamic>> slots,
   }) async {
+    // Secretary mode: tapping a cell does nothing. The grid is purely a
+    // view — no add, no edit, no delete entry points.
+    if (widget.readOnly) return;
     final repo = ref.read(adminRepositoryProvider);
     final action = await showModalBottomSheet<_SquareSheetAction>(
       context: context,
@@ -419,12 +426,14 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_admin_schedule',
-        onPressed: () => _openAddPeriod(),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l.adminScheduleAddPeriod),
-      ),
+      floatingActionButton: widget.readOnly
+          ? null
+          : FloatingActionButton.extended(
+              heroTag: 'fab_admin_schedule',
+              onPressed: () => _openAddPeriod(),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l.adminScheduleAddPeriod),
+            ),
       body: Column(
         children: [
           // ── Filter bar ────────────────────────────────────────────────────
@@ -1009,8 +1018,14 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   final _customFreqCtrl = TextEditingController();
   DateTime? _startDate; // first occurrence for bi-weekly etc.
 
-  /// Slot subject — either a school subject's nameEn or a freeform string.
+  /// Slot subject — must match the nameEn of a school subject. Freeform
+  /// text entry was removed; the picker only allows select-or-add.
   String? _subject;
+
+  /// Optional caption shown above "subject · teacher" on the schedule
+  /// tile. Lets admins annotate a slot ("Quiz day", "Lab session", etc.)
+  /// without renaming the subject.
+  final _captionCtrl = TextEditingController();
 
   /// Optional per-period color override (#RRGGBB).  Null = inherit from the
   /// subject's color (or palette fallback) at render time.
@@ -1042,6 +1057,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           : (edit['teacher'] is Map ? edit['teacher']['id']?.toString() : null);
 
       _subject = edit['subject']?.toString();
+      _captionCtrl.text = edit['caption']?.toString().trim() ?? '';
       final rawColor = edit['color']?.toString().trim() ?? '';
       _colorOverride = rawColor.isEmpty ? null : rawColor;
 
@@ -1127,6 +1143,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   @override
   void dispose() {
     _customFreqCtrl.dispose();
+    _captionCtrl.dispose();
     super.dispose();
   }
 
@@ -1324,6 +1341,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}'
         : null;
     final newStudentDateSkipsForDraft = <String>{};
+    // Whole-day skips applied to the new slot — used for teacher
+    // conflicts under Keep-current (we can't per-student-skip a
+    // teacher; the slot just can't run on those dates).
+    final newSkipDatesForDraft = <String>{};
     if (conflicts.isNotEmpty) {
       conflictChoice = await _confirmConflictDialog(conflicts);
       if (conflictChoice == null || conflictChoice == _ConflictChoice.cancel) {
@@ -1368,6 +1389,11 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         // hides for the conflicted students on every date it would
         // render. Per-student precision — the new slot still renders
         // for the rest of its audience on those dates.
+        //
+        // Teacher-clash hits are an exception: a teacher can't be in
+        // two places, so the new slot can't run AT ALL on those dates
+        // (regardless of audience). We stamp whole-day skipDates on
+        // the new slot for those.
         final draftDates = <String>{};
         for (final dr in _slots) {
           draftDates.addAll(_renderDatesForSlot(
@@ -1377,6 +1403,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           ));
         }
         for (final hit in conflicts) {
+          if (hit.teacherClash) {
+            newSkipDatesForDraft.addAll(draftDates);
+            continue;
+          }
           for (final sid in hit.affectedStudentIds) {
             for (final d in draftDates) {
               newStudentDateSkipsForDraft.add('$sid:$d');
@@ -1409,6 +1439,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           setTeacherId: true,
           subject: _subject,
           setSubject: true,
+          caption: _captionCtrl.text.trim().isEmpty ? null : _captionCtrl.text.trim(),
+          setCaption: true,
           color: _colorOverride,
           setColor: true,
           audienceGrade: _audience == _AudienceMode.grade ? _audienceGrade : null,
@@ -1451,6 +1483,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           cohortIds: audience.cohortIds,
           studentIds: audience.studentIds,
           subject: _subject,
+          caption: _captionCtrl.text.trim().isEmpty ? null : _captionCtrl.text.trim(),
           color: _colorOverride,
           audienceGrade: _audience == _AudienceMode.grade ? _audienceGrade : null,
           startTime: _defaultTime(slot.period, true).isNotEmpty ? _defaultTime(slot.period, true) : null,
@@ -1463,14 +1496,22 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         // doesn't render for the conflicted students on its anchor
         // date. Date-scoped, so when that date passes the new slot
         // also disappears naturally (it's a Once); no-op when the
-        // choice wasn't Keep current.
-        if (conflictChoice == _ConflictChoice.keepCurrent &&
-            newId.isNotEmpty &&
-            newStudentDateSkipsForDraft.isNotEmpty) {
-          await widget.repo.updatePeriod(
-            id: newId,
-            studentDateSkips: newStudentDateSkipsForDraft.toList()..sort(),
-          );
+        // choice wasn't Keep current.  Teacher-clash dates pile onto
+        // skipDates (whole-day) since a teacher can't be in two
+        // places — per-student precision doesn't apply.
+        if (conflictChoice == _ConflictChoice.keepCurrent && newId.isNotEmpty) {
+          if (newStudentDateSkipsForDraft.isNotEmpty) {
+            await widget.repo.updatePeriod(
+              id: newId,
+              studentDateSkips: newStudentDateSkipsForDraft.toList()..sort(),
+            );
+          }
+          if (newSkipDatesForDraft.isNotEmpty) {
+            await widget.repo.updatePeriod(
+              id: newId,
+              skipDates: newSkipDatesForDraft.toList()..sort(),
+            );
+          }
         }
       } catch (e) {
         firstError ??= e.toString();
@@ -1605,6 +1646,25 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               repo: widget.repo,
               colorOverride: _colorOverride,
               onChanged: (hex) => setState(() => _colorOverride = hex),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Caption (optional) ───────────────────────────────────────
+            // Shows above the subject on the schedule tile when set. Lets
+            // admins clarify a one-off ("Exam review") without changing
+            // the underlying subject.
+            TextField(
+              controller: _captionCtrl,
+              textInputAction: TextInputAction.done,
+              maxLength: 60,
+              decoration: InputDecoration(
+                labelText: 'Caption (optional)',
+                hintText: 'e.g. Exam review',
+                counterText: '',
+                isDense: true,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
 
@@ -2021,7 +2081,21 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
 
       final exStudents = _studentsForExistingSlot(slot);
       final affected = exStudents.intersection(draftStudents);
-      if (affected.isEmpty) continue;
+
+      // Teacher clash: the draft's teacher is already teaching at this
+      // (day, period) on overlapping dates. Independent of student
+      // overlap — even if rosters don't intersect, the teacher can't be
+      // in two places at once.
+      final exTeacherId = (slot['teacherId']?.toString().trim().isNotEmpty == true
+              ? slot['teacherId']?.toString()
+              : (slot['teacher'] is Map ? slot['teacher']['id']?.toString() : null))
+          ?.trim();
+      final draftTeacherId = (_teacherId ?? '').trim();
+      final teacherClash = draftTeacherId.isNotEmpty &&
+          exTeacherId != null &&
+          exTeacherId == draftTeacherId;
+
+      if (affected.isEmpty && !teacherClash) continue;
 
       // Resolve names from the students DDL so the dialog reads as
       // "Tony, Sara, ...".
@@ -2052,6 +2126,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
             .toList(),
         affectedStudentIds: affected.toList(),
         affectedStudentNames: names,
+        teacherClash: teacherClash,
       ));
       if (hits.length >= 5) break;
     }
@@ -2090,6 +2165,16 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     final preview = names.length <= 6
         ? names.join(', ')
         : '${names.take(6).join(', ')} +${names.length - 6} more';
+    final teacherClashHits = hits.where((h) => h.teacherClash).toList();
+    final draftTeacherName = (() {
+      final id = _teacherId ?? '';
+      if (id.isEmpty) return '';
+      final t = widget.teachers.firstWhere(
+        (e) => e['id']?.toString() == id,
+        orElse: () => const {},
+      );
+      return t['name']?.toString().trim() ?? '';
+    })();
 
     return showDialog<_ConflictChoice>(
       context: context,
@@ -2101,11 +2186,21 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  affectedAll.length == 1
-                      ? '${names.isNotEmpty ? names.first : 'A student'} would have two periods at the same time:'
-                      : '${affectedAll.length} students would have two periods at the same time:',
-                ),
+                if (teacherClashHits.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      draftTeacherName.isNotEmpty
+                          ? '$draftTeacherName would have two classes at the same time.'
+                          : 'This teacher would have two classes at the same time.',
+                    ),
+                  ),
+                if (affectedAll.isNotEmpty)
+                  Text(
+                    affectedAll.length == 1
+                        ? '${names.isNotEmpty ? names.first : 'A student'} would have two periods at the same time:'
+                        : '${affectedAll.length} students would have two periods at the same time:',
+                  ),
                 const SizedBox(height: 8),
                 for (final h in hits)
                   Padding(
@@ -2123,9 +2218,11 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                   ),
                 ],
                 const SizedBox(height: 12),
-                const Text(
-                  'How should this be resolved for those students?',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                Text(
+                  affectedAll.isEmpty
+                      ? 'How should this be resolved?'
+                      : 'How should this be resolved for those students?',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -2188,6 +2285,10 @@ class _ConflictHit {
   /// the dialog copy and the override patch.
   final List<String> affectedStudentIds;
   final List<String> affectedStudentNames;
+  /// True when the draft's teacher is the same as this slot's teacher
+  /// (the teacher would have two simultaneous classes). Independent of
+  /// student overlap — a teacher clash alone is enough to flag a hit.
+  final bool teacherClash;
   const _ConflictHit({
     required this.id,
     required this.subject,
@@ -2198,6 +2299,7 @@ class _ConflictHit {
     required this.studentDateSkips,
     required this.affectedStudentIds,
     required this.affectedStudentNames,
+    required this.teacherClash,
   });
 }
 
@@ -3856,19 +3958,11 @@ class _SubjectPickerSheet extends StatefulWidget {
 class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
   late Future<List<SchoolSubject>> _subjectsFuture;
   String _search = '';
-  final _freeformCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _subjectsFuture = widget.repo.listAllSchoolSubjects();
-    _freeformCtrl.text = widget.currentValue ?? '';
-  }
-
-  @override
-  void dispose() {
-    _freeformCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _createNew() async {
@@ -3938,40 +4032,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                   TextButton.icon(
                     onPressed: _createNew,
                     icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text('New 5-lang'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Freeform input — type anything, hit "Use" to apply
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _freeformCtrl,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: 'Type a subject…',
-                        prefixIcon: const Icon(Icons.edit_rounded, size: 18),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        isDense: true,
-                      ),
-                      onSubmitted: (v) {
-                        final t = v.trim();
-                        if (t.isNotEmpty) Navigator.pop(context, t);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: () {
-                      final t = _freeformCtrl.text.trim();
-                      if (t.isNotEmpty) Navigator.pop(context, t);
-                    },
-                    child: const Text('Use'),
+                    label: const Text('Add new'),
                   ),
                 ],
               ),
@@ -4009,7 +4070,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                         padding: const EdgeInsets.all(24),
                         child: Text(
                           all.isEmpty
-                              ? 'No school subjects yet. Type one above or tap "New 5-lang" to define one.'
+                              ? 'No school subjects yet. Tap "Add new" to define one.'
                               : 'No subjects match your search.',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),

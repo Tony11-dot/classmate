@@ -54,11 +54,13 @@ class TeacherAttendanceScreen extends ConsumerStatefulWidget {
     this.initialCohortId,
     this.initialPeriod,
     this.initialDate,
+    this.initialSlotId,
   });
 
   final String? initialCohortId;
   final int? initialPeriod;
   final String? initialDate;
+  final String? initialSlotId;
 
   @override
   ConsumerState<TeacherAttendanceScreen> createState() => _TeacherAttendanceScreenState();
@@ -108,6 +110,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
         cohortId: cohortId,
         date: _formattedDate,
         period: period,
+        slotId: widget.initialSlotId,
       );
       if (!mounted) return;
       _classNoteCtrl.text = session.classNote;
@@ -163,6 +166,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           cohortId: initCohortId,
           date: _formattedDate,
           period: initPeriod,
+          slotId: widget.initialSlotId,
         );
         if (!mounted) return;
         setState(() {

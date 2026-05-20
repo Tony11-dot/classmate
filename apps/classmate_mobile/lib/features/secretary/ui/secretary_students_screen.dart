@@ -574,55 +574,311 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
             itemBuilder: (ctx, i) {
               final s = students[i];
               final initials = _initials(s.name);
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                      color: cs.outlineVariant.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          initials,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                              color: cs.onPrimaryContainer),
+              // The card itself shows only name + grade per the spec —
+              // anything more lives behind the tap.
+              return InkWell(
+                onTap: () => _openStudentDetail(ctx, ref, s.id, s.name),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            initials,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                                color: cs.onPrimaryContainer),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(s.name,
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w700)),
-                          Text(s.email,
-                              style: theme.textTheme.labelSmall
-                                  ?.copyWith(color: cs.onSurfaceVariant)),
-                        ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(s.name,
+                                style: theme.textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700)),
+                            Text('Grade ${cohort.grade}',
+                                style: theme.textTheme.labelSmall
+                                    ?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const Icon(Icons.chevron_right_rounded, size: 18),
+                    ],
+                  ),
                 ),
               );
             },
           );
         },
       ),
+    );
+  }
+}
+
+// ── Student detail sheet ──────────────────────────────────────────────────────
+
+Future<void> _openStudentDetail(
+  BuildContext context,
+  WidgetRef ref,
+  String studentId,
+  String fallbackName,
+) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    useRootNavigator: true,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (ctx) => _StudentDetailSheet(
+      studentId: studentId,
+      fallbackName: fallbackName,
+    ),
+  );
+}
+
+class _StudentDetailSheet extends ConsumerStatefulWidget {
+  const _StudentDetailSheet({required this.studentId, required this.fallbackName});
+  final String studentId;
+  final String fallbackName;
+
+  @override
+  ConsumerState<_StudentDetailSheet> createState() => _StudentDetailSheetState();
+}
+
+class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
+  bool _loading = true;
+  Map<String, dynamic>? _user;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(_load);
+  }
+
+  Future<void> _load() async {
+    try {
+      final raw = await ref
+          .read(adminRepositoryProvider)
+          .getUserDetailRaw(widget.studentId);
+      if (!mounted) return;
+      setState(() {
+        _user = raw;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (_, scrollCtrl) => Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: cs.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Center(child: Text(_error!, style: TextStyle(color: cs.error))),
+                      )
+                    : _buildBody(scrollCtrl, theme, cs),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(ScrollController scrollCtrl, ThemeData theme, ColorScheme cs) {
+    final u = _user ?? const <String, dynamic>{};
+    final name = (u['name'] ?? widget.fallbackName).toString();
+    final username = (u['username'] ?? '').toString();
+    final email = (u['email'] ?? '').toString();
+    final phone = (u['phone'] ?? '').toString();
+    final legalName = (u['legalName'] ?? '').toString();
+    final grade = u['grade'];
+    final cohort = u['cohort'] is Map ? Map<String, dynamic>.from(u['cohort']) : null;
+    final cohorts = (u['cohorts'] is List)
+        ? (u['cohorts'] as List).whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
+        : const <Map<String, dynamic>>[];
+    final classrooms = (u['classrooms'] is List)
+        ? (u['classrooms'] as List).whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
+        : const <Map<String, dynamic>>[];
+
+    return ListView(
+      controller: scrollCtrl,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      children: [
+        Text(name, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+        if (legalName.isNotEmpty && legalName != name) ...[
+          const SizedBox(height: 2),
+          Text(legalName, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+        ],
+        const SizedBox(height: 18),
+
+        _DetailGroup(title: 'Identity', items: [
+          if (username.isNotEmpty) ('Username', username),
+          if (email.isNotEmpty) ('Email', email),
+          if (phone.isNotEmpty) ('Phone', phone),
+        ]),
+
+        if (cohort != null || grade != null) ...[
+          const SizedBox(height: 16),
+          _DetailGroup(title: 'Cohort', items: [
+            if (grade != null) ('Grade', grade.toString()),
+            if (cohort?['name'] != null) ('Primary cohort', cohort!['name'].toString()),
+          ]),
+        ],
+
+        if (cohorts.length > 1) ...[
+          const SizedBox(height: 16),
+          Text('All cohorts', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: cohorts
+                .map((c) => Chip(
+                      label: Text((c['name'] ?? '').toString()),
+                      visualDensity: VisualDensity.compact,
+                    ))
+                .toList(),
+          ),
+        ],
+
+        if (classrooms.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Classrooms', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          ...classrooms.map((c) => Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.class_rounded, size: 18, color: cs.primary),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text((c['name'] ?? '').toString(),
+                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+                          Text(
+                            [
+                              if ((c['subject'] ?? '').toString().isNotEmpty) c['subject'].toString(),
+                              if ((c['teacherName'] ?? '').toString().isNotEmpty)
+                                'Teacher: ${c['teacherName']}',
+                            ].join(' · '),
+                            style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ],
+    );
+  }
+}
+
+class _DetailGroup extends StatelessWidget {
+  const _DetailGroup({required this.title, required this.items});
+  final String title;
+  final List<(String, String)> items;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+          ),
+          child: Column(
+            children: items
+                .asMap()
+                .entries
+                .map((e) => Padding(
+                      padding: EdgeInsets.only(top: e.key == 0 ? 0 : 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 96,
+                            child: Text(e.value.$1,
+                                style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+                          ),
+                          Expanded(
+                            child: Text(e.value.$2,
+                                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          ),
+                        ],
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 }

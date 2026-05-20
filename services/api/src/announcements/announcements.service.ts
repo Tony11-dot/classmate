@@ -39,6 +39,7 @@ export class AnnouncementsService {
       pinned?: boolean;
       publishAt?: string;
       expiresAt?: string;
+      attachments?: any[];
       targets?: {
         userId?: string;
         role?: any;
@@ -62,6 +63,7 @@ export class AnnouncementsService {
     }
 
     const targets = Array.isArray(body.targets) ? body.targets : [];
+    const attachments = Array.isArray(body.attachments) ? body.attachments : [];
 
     // basic sanity: reject empty target objects
     for (const t of targets) {
@@ -78,6 +80,7 @@ export class AnnouncementsService {
         publishAt,
         expiresAt: expiresAt ?? undefined,
         createdBy: user.id,
+        attachments: attachments as any,
         targets: targets.length
           ? {
               create: targets.map((t) => ({

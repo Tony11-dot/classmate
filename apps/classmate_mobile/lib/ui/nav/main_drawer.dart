@@ -280,6 +280,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader('Secretary Tools'),
                     navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
+                    navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/secretary/schedule'),
                     navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
                     sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[

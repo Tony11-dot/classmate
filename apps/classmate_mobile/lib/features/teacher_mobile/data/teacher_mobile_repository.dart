@@ -492,6 +492,7 @@ class TeacherMobileRepository {
     required String title,
     required String body,
     List<Map<String, dynamic>> targets = const [],
+    List<Map<String, dynamic>> attachments = const [],
   }) async {
     await _api.postJson(
       '/announcements',
@@ -499,6 +500,7 @@ class TeacherMobileRepository {
         'title': title.trim(),
         'body': body.trim(),
         if (targets.isNotEmpty) 'targets': targets,
+        if (attachments.isNotEmpty) 'attachments': attachments,
       },
     );
   }
@@ -507,10 +509,16 @@ class TeacherMobileRepository {
     required String cohortId,
     required String date,
     required int period,
+    String? slotId,
   }) async {
     final raw = await _api.getJson(
       '/teacher/attendance/history',
-      query: <String, String>{'cohortId': cohortId, 'date': date, 'period': '$period'},
+      query: <String, String>{
+        'cohortId': cohortId,
+        'date': date,
+        'period': '$period',
+        if (slotId != null && slotId.isNotEmpty) 'slotId': slotId,
+      },
     );
     final map = _asMap(raw);
     return TeacherAttendanceSession(
@@ -680,6 +688,38 @@ class TeacherMobileRepository {
     return [];
   }
 
+  // ── Slot attachments ─────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listSlotMaterials(String slotId) async {
+    final raw = await _api.getJson('/teacher/schedule-slots/$slotId/materials');
+    if (raw is Map && raw['attachments'] is List) {
+      return (raw['attachments'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<void> attachSlotMaterial({
+    required String slotId,
+    required String teacherMaterialId,
+  }) async {
+    await _api.postJson(
+      '/teacher/schedule-slots/$slotId/materials',
+      body: <String, dynamic>{'teacherMaterialId': teacherMaterialId},
+    );
+  }
+
+  Future<void> detachSlotMaterial({
+    required String slotId,
+    required String teacherMaterialId,
+  }) async {
+    await _api.deleteJson(
+      '/teacher/schedule-slots/$slotId/materials/$teacherMaterialId',
+    );
+  }
+
   Future<Map<String, dynamic>> createTeacherMaterial({
     required String title,
     String? description,
@@ -704,7 +744,14 @@ class TeacherMobileRepository {
       if (attachments.isNotEmpty) 'attachments': attachments,
       'published': published,
     });
-    return raw is Map ? Map<String, dynamic>.from(raw) : {};
+    // Server wraps as { ok: true, material: {...} }. Unwrap so callers
+    // get a flat material map (with `id`, `title`, etc).
+    if (raw is Map) {
+      final inner = raw['material'];
+      if (inner is Map) return Map<String, dynamic>.from(inner);
+      return Map<String, dynamic>.from(raw);
+    }
+    return {};
   }
 
   Future<void> updateTeacherMaterial(String id, Map<String, dynamic> body) async {

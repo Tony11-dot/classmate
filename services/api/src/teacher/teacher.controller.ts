@@ -287,8 +287,9 @@ export class TeacherController {
     @Query('cohortId') cohortId: string,
     @Query('date') date: string,
     @Query('period', ParseIntPipe) period: number,
+    @Query('slotId') slotId?: string,
   ) {
-    return this.teacher.getAttendanceSession(req.user, { cohortId, date, period });
+    return this.teacher.getAttendanceSession(req.user, { cohortId, date, period, slotId });
   }
 
   // ---- Forms ----
@@ -371,6 +372,23 @@ export class TeacherController {
 
   @Delete('materials/:id')
   deleteTeacherMaterial(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherMaterial(req.user, id); }
+
+  // ── Slot Attachments (attach teacher materials to a schedule slot) ────────
+
+  @Get('schedule-slots/:slotId/materials')
+  listSlotMaterials(@Req() req: any, @Param('slotId') slotId: string) {
+    return this.teacher.listSlotMaterials(req.user, slotId);
+  }
+
+  @Post('schedule-slots/:slotId/materials')
+  attachSlotMaterial(@Req() req: any, @Param('slotId') slotId: string, @Body() body: any) {
+    return this.teacher.attachSlotMaterial(req.user, slotId, String(body?.teacherMaterialId ?? ''));
+  }
+
+  @Delete('schedule-slots/:slotId/materials/:materialId')
+  detachSlotMaterial(@Req() req: any, @Param('slotId') slotId: string, @Param('materialId') materialId: string) {
+    return this.teacher.detachSlotMaterial(req.user, slotId, materialId);
+  }
 
   // ── Teacher Meetings ──────────────────────────────────────────────────────
 

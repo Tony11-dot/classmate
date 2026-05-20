@@ -268,12 +268,24 @@ export class MessagesService {
     const viewerId = this.viewerId(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    // Fetch all users in the same school (students + teachers), excluding viewer
+    // Role-based contact restrictions:
+    //   • SECRETARY → only TEACHER and PARENT (per role spec — no DMs
+    //     to students).
+    //   • Everyone else → everyone in the school (default).
+    const viewerRoles = ((user as any)?.roles ?? []).map((r: any) =>
+      String(r ?? '').toUpperCase(),
+    );
+    const isSecretary = viewerRoles.includes('SECRETARY') && !viewerRoles.includes('ADMIN');
+    const roleFilter = isSecretary
+      ? { roles: { some: { role: { in: ['TEACHER', 'PARENT'] as any } } } }
+      : { roles: { some: {} } };
+
+    // Fetch users in the same school (excluding viewer)
     const schoolUsers = await this.prisma.user.findMany({
       where: {
         id: { not: viewerId },
         ...(schoolId ? { schoolId } : {}),
-        roles: { some: {} }, // must have at least one role
+        ...roleFilter,
       },
       select: {
         id: true,
@@ -757,11 +769,30 @@ export class MessagesService {
     ]);
     // Enforce same-school messaging — look up schoolIds directly
     const [senderRow, recipientRow] = await Promise.all([
-      this.prisma.user.findUnique({ where: { id: userId }, select: { schoolId: true } }),
-      this.prisma.user.findUnique({ where: { id: recipientUserId }, select: { schoolId: true } }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { schoolId: true, roles: { select: { role: true } } },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: recipientUserId },
+        select: { schoolId: true, roles: { select: { role: true } } },
+      }),
     ]);
     if (senderRow?.schoolId && recipientRow?.schoolId && senderRow.schoolId !== recipientRow.schoolId) {
       throw new ForbiddenException('Cannot message users from a different school');
+    }
+
+    // Role-based restriction: SECRETARY can only initiate DMs with
+    // TEACHER or PARENT (not STUDENT). Mirrors the contact-picker
+    // filter so a crafted POST can't bypass the UI.
+    const senderRoles = (senderRow?.roles ?? []).map((r) => String(r.role).toUpperCase());
+    const isSecretary = senderRoles.includes('SECRETARY') && !senderRoles.includes('ADMIN');
+    if (isSecretary) {
+      const recipientRoles = (recipientRow?.roles ?? []).map((r) => String(r.role).toUpperCase());
+      const allowed = recipientRoles.some((r) => r === 'TEACHER' || r === 'PARENT');
+      if (!allowed) {
+        throw new ForbiddenException('Secretary can only message teachers and parents');
+      }
     }
 
     const existing = await this.prisma.dmThread.findMany({

@@ -165,7 +165,7 @@ export class TeacherService {
 
   async getAttendanceSession(
     user: any,
-    query: { cohortId?: string; date?: string; period: number },
+    query: { cohortId?: string; date?: string; period: number; slotId?: string },
   ) {
     this.ensureTeacher(user);
 
@@ -183,14 +183,28 @@ export class TeacherService {
     );
 
     let cohortId = (query.cohortId ?? '').trim();
+    const slotIdHint = (query.slotId ?? '').trim();
 
-    // Find the slot for this teacher on this day/period
-    const slotForTeacher = await this.prisma.scheduleSlot.findFirst({
-      where: { dayOfWeek, period, teacherId },
-      include: { cohorts: { select: { cohortId: true } } },
-    });
+    // Resolve the slot. Prefer the explicit slotId hint (lets us
+    // disambiguate when a teacher has multiple slots at the same
+    // day/period — e.g. one cohort vs another). Fall back to day+period
+    // for older callers that don't send slotId yet.
+    const slotForTeacher = slotIdHint
+      ? await this.prisma.scheduleSlot.findFirst({
+          where: { id: slotIdHint, teacherId },
+          include: {
+            cohorts: { select: { cohortId: true } },
+            students: { select: { studentId: true } },
+          },
+        })
+      : await this.prisma.scheduleSlot.findFirst({
+          where: { dayOfWeek, period, teacherId },
+          include: {
+            cohorts: { select: { cohortId: true } },
+            students: { select: { studentId: true } },
+          },
+        });
 
-    // If no cohortId provided, infer it from the slot's first cohort
     if (!cohortId) {
       cohortId = slotForTeacher?.cohorts?.[0]?.cohortId ?? '';
       if (!cohortId) throw new BadRequestException('No teacher schedule slot found for that day/period (provide cohortId)');
@@ -207,13 +221,73 @@ export class TeacherService {
       include: { records: true, cohort: true },
     });
 
-    // Find all students in this cohort via StudentCohort (multi-cohort aware)
-    const cohortLinks = await this.prisma.studentCohort.findMany({
-      where: { cohortId },
-      select: { studentId: true, student: { select: { userId: true, user: { select: { name: true, displayName: true } } } } },
-      orderBy: { student: { user: { name: 'asc' } } },
-    });
-    const students = cohortLinks.map((l) => ({ userId: l.studentId, user: l.student.user }));
+    // Build the roster from the slot's ACTUAL audience union — cohorts
+    // attached to the slot, direct student attaches, and by-grade
+    // audience. Without this, slots that include students from outside
+    // the primary cohort (custom roster, by-grade, multi-cohort) would
+    // silently drop the missing students.
+    const cohortIdsForRoster: string[] = (slotForTeacher?.cohorts ?? [])
+      .map((c: any) => c.cohortId)
+      .filter((id: any) => typeof id === 'string' && id.length > 0);
+    if (cohortIdsForRoster.length === 0) cohortIdsForRoster.push(cohortId);
+
+    const directStudentIds: string[] = (slotForTeacher?.students ?? [])
+      .map((s: any) => s.studentId)
+      .filter((id: any) => typeof id === 'string' && id.length > 0);
+
+    const audienceGrade = (slotForTeacher as any)?.audienceGrade ?? null;
+
+    // Cohort union
+    const cohortLinks = cohortIdsForRoster.length > 0
+      ? await this.prisma.studentCohort.findMany({
+          where: { cohortId: { in: cohortIdsForRoster } },
+          select: { studentId: true, student: { select: { userId: true, user: { select: { name: true, displayName: true } } } } },
+        })
+      : [];
+
+    // By-grade resolution — every student whose profile.cohort grade
+    // matches OR direct User.grade matches, scoped to the slot's school.
+    let gradeLinks: Array<{ studentId: string; student: { userId: string; user: { name: string; displayName: string | null } } }> = [];
+    if (typeof audienceGrade === 'number' && (slotForTeacher as any)?.schoolId) {
+      const gradeRows = await this.prisma.studentProfile.findMany({
+        where: {
+          user: { schoolId: (slotForTeacher as any).schoolId },
+          OR: [
+            { cohort: { grade: audienceGrade } },
+            { user: { grade: audienceGrade } as any },
+          ],
+        },
+        select: { userId: true, user: { select: { name: true, displayName: true } } },
+      });
+      gradeLinks = gradeRows.map((p) => ({
+        studentId: p.userId,
+        student: { userId: p.userId, user: p.user },
+      }));
+    }
+
+    // Direct student attaches
+    const directLinks = directStudentIds.length > 0
+      ? await this.prisma.user.findMany({
+          where: { id: { in: directStudentIds } },
+          select: { id: true, name: true, displayName: true },
+        })
+      : [];
+
+    // Union — dedupe by userId.
+    const byUserId = new Map<string, { userId: string; name: string; displayName: string | null }>();
+    for (const l of cohortLinks) {
+      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name, displayName: l.student.user.displayName });
+    }
+    for (const l of gradeLinks) {
+      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name, displayName: l.student.user.displayName });
+    }
+    for (const u of directLinks) {
+      byUserId.set(u.id, { userId: u.id, name: u.name, displayName: u.displayName });
+    }
+
+    const students = [...byUserId.values()].sort((a, b) =>
+      (a.name ?? '').localeCompare(b.name ?? ''),
+    );
 
     const recordByStudent = new Map(
       session.records.map((r) => [r.studentId, r]),
@@ -228,13 +302,14 @@ export class TeacherService {
       date: dateYmd,
       period,
       subject: (slotForTeacher as any)?.subject ?? null,
+      slotId: slotForTeacher?.id ?? null,
       students: students.map((s) => {
         const r = recordByStudent.get(s.userId) as
           | AttendanceRowLite
           | undefined;
         return {
           studentId: s.userId,
-          name: s.user.name,
+          name: s.name,
           status: r?.status ?? 'PRESENT',
           note: r?.note ?? null,
         };
@@ -1583,34 +1658,47 @@ export class TeacherService {
     // skipDates). studentDateSkips deliberately isn't read for the
     // teacher view — those are per-student and don't affect whether
     // the teacher teaches the class.
+    // Two-stage select: try with the newest columns (caption,
+    // studentDateSkips) and fall back to the conservative shape if the
+    // DB hasn't caught up yet. Same Railway-deploy-resilience pattern
+    // used in the student resolver.
+    const baseSelect: any = {
+      id: true,
+      schoolId: true,
+      dayOfWeek: true,
+      period: true,
+      teacherId: true,
+      classroomId: true,
+      subject: true,
+      startTime: true,
+      endTime: true,
+      frequencyWeeks: true,
+      startDate: true,
+      color: true,
+      audienceGrade: true,
+      skipDates: true,
+      teacher: { select: { id: true, name: true } },
+      classroom: { select: { id: true, name: true, subject: true } },
+      cohorts: { select: { cohortId: true, cohort: { select: { id: true, name: true, grade: true } } } },
+      students: { select: { studentId: true, student: { select: { id: true, name: true } } } },
+    };
     let slots: any[] = [];
     try {
       slots = await this.prisma.scheduleSlot.findMany({
         where: { teacherId },
-        select: {
-          id: true,
-          schoolId: true,
-          dayOfWeek: true,
-          period: true,
-          teacherId: true,
-          classroomId: true,
-          subject: true,
-          startTime: true,
-          endTime: true,
-          frequencyWeeks: true,
-          startDate: true,
-          color: true,
-          audienceGrade: true,
-          skipDates: true,
-          teacher: { select: { id: true, name: true } },
-          classroom: { select: { id: true, name: true, subject: true } },
-          cohorts: { select: { cohortId: true, cohort: { select: { id: true, name: true, grade: true } } } },
-        } as any,
+        select: { ...baseSelect, caption: true } as any,
       });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('[teacher.weekSchedule] slot fetch failed', e);
-      slots = [];
+    } catch (_e) {
+      try {
+        slots = await this.prisma.scheduleSlot.findMany({
+          where: { teacherId },
+          select: baseSelect as any,
+        });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('[teacher.weekSchedule] slot fetch failed', e);
+        slots = [];
+      }
     }
 
     // Emit 7 days always — Flutter (both student and teacher) matches
@@ -1643,15 +1731,44 @@ export class TeacherService {
           // tiles in the teacher's day view (previously the dedup
           // dropped one of them).
           const cohorts: any[] = Array.isArray(s.cohorts) ? s.cohorts : [];
+          const students: any[] = Array.isArray(s.students) ? s.students : [];
+          const audienceGrade = s.audienceGrade ?? null;
+          // Resolve the single audience label the teacher tile renders
+          // beneath the subject. Cohort name wins; then "Grade N" when
+          // by-grade; then a list of student names when by-student.
+          let audienceLabel: string | null = null;
+          if (cohorts.length > 0) {
+            const names = cohorts
+              .map((c: any) => c?.cohort?.name)
+              .filter((n: any) => typeof n === 'string' && n.length > 0);
+            audienceLabel = names.length === 1
+              ? names[0]
+              : (names.length > 1 ? `${names[0]} +${names.length - 1}` : null);
+          } else if (typeof audienceGrade === 'number') {
+            audienceLabel = `Grade ${audienceGrade}`;
+          } else if (students.length > 0) {
+            const names = students
+              .map((st: any) => st?.student?.name)
+              .filter((n: any) => typeof n === 'string' && n.length > 0);
+            audienceLabel = names.length <= 3
+              ? names.join(', ')
+              : `${names.slice(0, 3).join(', ')} +${names.length - 3}`;
+          }
           const base = {
             slotId: s.id,
             period: s.period,
             subject: s.subject ?? s.classroom?.subject ?? null,
+            caption: typeof s.caption === 'string' ? s.caption : null,
             startTime: s.startTime ?? null,
             endTime: s.endTime ?? null,
             classroomId: s.classroomId ?? null,
             classroomName: s.classroom?.name ?? null,
             color: s.color ?? null,
+            audienceGrade,
+            audienceLabel,
+            studentNames: students
+              .map((st: any) => st?.student?.name)
+              .filter((n: any) => typeof n === 'string' && n.length > 0),
           };
           if (cohorts.length === 0) {
             return [{ ...base, cohort: null }];
@@ -1897,30 +2014,20 @@ export class TeacherService {
 
   async listSubjects(user: any) {
     this.ensureTeacher(user);
-    const teacherId = String(user.id ?? user.sub ?? '');
     const schoolId = String(user.schoolId ?? '');
 
-    // Authoritative list: SchoolGradeSubjectDefault rows the admin curated for
-    // this school (subjectsI18n JSON or the legacy flat `subjects` String[]).
-    // Anything the teacher actually teaches (slot subjects, classroom subjects)
-    // also gets surfaced so historical strings don't disappear when the admin
-    // hasn't catalogued them yet.
-    const [schoolDefaults, slotCohorts, classrooms] = await Promise.all([
-      schoolId
-        ? this.prisma.schoolGradeSubjectDefault.findMany({
-            where: { schoolId },
-            select: { subjects: true, subjectsI18n: true } as any,
-          })
-        : Promise.resolve([] as any[]),
-      this.prisma.scheduleSlotCohort.findMany({
-        where: { slot: { teacherId } },
-        select: { slot: { select: { subject: true } } },
-      }),
-      this.prisma.classroom.findMany({
-        where: { teacherId },
-        select: { subject: true },
-      }),
-    ]);
+    // Single source of truth: SchoolGradeSubjectDefault rows the admin
+    // curated for this school. Teacher-created classroom/slot subjects
+    // are NOT surfaced — those existed only as a transitional fallback,
+    // but allowing them lets a teacher invent a subject and have it
+    // show up in every "subject" dropdown across the app, which breaks
+    // the "admin defines, everyone else picks" model.
+    if (!schoolId) return { subjects: [] };
+
+    const schoolDefaults = await this.prisma.schoolGradeSubjectDefault.findMany({
+      where: { schoolId },
+      select: { subjects: true, subjectsI18n: true } as any,
+    });
 
     const set = new Set<string>();
     for (const row of schoolDefaults as any[]) {
@@ -1936,14 +2043,6 @@ export class TeacherService {
         const name = String(s ?? '').trim();
         if (name) set.add(name);
       }
-    }
-    for (const sc of slotCohorts) {
-      const s = sc.slot.subject?.trim();
-      if (s) set.add(s);
-    }
-    for (const c of classrooms) {
-      const s = c.subject?.trim();
-      if (s) set.add(s);
     }
     return { subjects: Array.from(set).sort() };
   }
@@ -2218,6 +2317,94 @@ export class TeacherService {
       }
     }
     return { ok: true };
+  }
+
+  // ── Slot Attachments ──────────────────────────────────────────────────────
+
+  /// Returns the materials currently attached to a teacher's schedule slot,
+  /// shaped for direct rendering as pills (id, title, url, mime).
+  async listSlotMaterials(user: any, slotId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsSlot(teacherId, slotId);
+
+    const rows = await this.prisma.scheduleSlotMaterial.findMany({
+      where: { slotId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        material: {
+          select: {
+            id: true, title: true, description: true, url: true,
+            attachments: true, subject: true, createdAt: true,
+          },
+        },
+      },
+    });
+    return {
+      ok: true,
+      attachments: rows.map((r) => this.materialToAttachment(r.material)),
+    };
+  }
+
+  /// Attach a teacher-owned material to a slot.  Idempotent — re-attaching
+  /// an already-attached material is a no-op.
+  async attachSlotMaterial(user: any, slotId: string, teacherMaterialId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!teacherMaterialId) throw new BadRequestException('teacherMaterialId is required');
+
+    await this.assertTeacherOwnsSlot(teacherId, slotId);
+
+    const material = await this.prisma.teacherMaterial.findFirst({
+      where: { id: teacherMaterialId, teacherId },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    await this.prisma.scheduleSlotMaterial.upsert({
+      where: { slotId_teacherMaterialId: { slotId, teacherMaterialId } },
+      create: { slotId, teacherMaterialId },
+      update: {},
+    });
+    return { ok: true };
+  }
+
+  async detachSlotMaterial(user: any, slotId: string, teacherMaterialId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsSlot(teacherId, slotId);
+    await this.prisma.scheduleSlotMaterial.deleteMany({
+      where: { slotId, teacherMaterialId },
+    });
+    return { ok: true };
+  }
+
+  private async assertTeacherOwnsSlot(teacherId: string, slotId: string) {
+    const slot = await this.prisma.scheduleSlot.findFirst({
+      where: { id: slotId, teacherId },
+      select: { id: true },
+    });
+    if (!slot) throw new ForbiddenException('Not your slot');
+  }
+
+  /// Normalises a TeacherMaterial row into a flat pill-friendly shape.
+  /// Inlines the first attachment's URL+mime when the row itself has no
+  /// top-level URL, so the student tile can always render a tappable pill.
+  private materialToAttachment(m: any) {
+    const list = Array.isArray(m?.attachments) ? m.attachments : [];
+    const first = list.find((a: any) => a && typeof a === 'object') ?? null;
+    const url = (typeof m?.url === 'string' && m.url.length > 0)
+      ? m.url
+      : (first && typeof first.url === 'string' ? first.url : '');
+    const mime = first && typeof first.mime === 'string' ? first.mime : '';
+    return {
+      id: m.id,
+      title: m.title ?? 'Material',
+      description: m.description ?? null,
+      url,
+      mime,
+      subject: m.subject ?? null,
+      attachments: list,
+    };
   }
 
   // ── Teacher Meetings ──────────────────────────────────────────────────────

@@ -30,6 +30,19 @@ export type ScheduleItem = {
   /// Color override for the period (#RRGGBB). Lets the client pick a tint
   /// without re-deriving from subject names.
   color?: string | null;
+  /// Optional free-text caption shown above "subject · teacher" on the
+  /// schedule tile.
+  caption?: string | null;
+  /// Materials attached to this slot, ready to render as tappable pills
+  /// on the student detail sheet (id, title, url, mime).
+  attachments?: Array<{
+    id: string;
+    title: string;
+    url: string;
+    mime: string;
+    description?: string | null;
+    subject?: string | null;
+  }>;
 };
 
 const DOW_STR: DayOfWeek[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -248,8 +261,19 @@ export class ScheduleService {
             audienceGrade: true,
             skipDates: true,
             studentDateSkips: true,
+            caption: true,
             teacher: { select: { id: true, name: true } },
             classroom: { select: { id: true, name: true } },
+            materials: {
+              select: {
+                material: {
+                  select: {
+                    id: true, title: true, description: true,
+                    url: true, attachments: true, subject: true,
+                  },
+                },
+              },
+            },
           } as any,
         });
       } catch (firstErr) {
@@ -396,6 +420,8 @@ export class ScheduleService {
     teacherId?: string | null;
     teacherName?: string | null;
     color?: string | null;
+    caption?: string | null;
+    attachments?: ScheduleItem['attachments'];
     schoolDefaults?: Map<number, { start: string; end: string }>;
   }): ScheduleItem {
     const t = this.timesForPeriod(
@@ -427,6 +453,8 @@ export class ScheduleService {
       teacherId: params.teacherId ?? null,
       teacherName: params.teacherName ?? null,
       color: params.color ?? null,
+      caption: params.caption ?? null,
+      attachments: params.attachments ?? [],
     };
   }
 
@@ -463,6 +491,33 @@ export class ScheduleService {
   /// date-scoped Override semantic: a Once override stamps the existing
   /// slot for the override date only, so the existing slot keeps
   /// rendering on every OTHER date.
+  /// Flattens a slot row's `materials` relation into the attachment
+  /// shape ScheduleItem expects (id, title, url, mime). Inlines the
+  /// first attachment's URL when the material itself has none, so the
+  /// student tile always gets a tappable pill.
+  private _materialsFromSlotRow(row: any): ScheduleItem['attachments'] {
+    const rel = Array.isArray(row?.materials) ? row.materials : [];
+    return rel
+      .map((r: any) => r?.material)
+      .filter((m: any) => m && typeof m === 'object')
+      .map((m: any) => {
+        const list = Array.isArray(m.attachments) ? m.attachments : [];
+        const first = list.find((a: any) => a && typeof a === 'object') ?? null;
+        const url = (typeof m.url === 'string' && m.url.length > 0)
+          ? m.url
+          : (first && typeof first.url === 'string' ? first.url : '');
+        const mime = first && typeof first.mime === 'string' ? first.mime : '';
+        return {
+          id: String(m.id),
+          title: String(m.title ?? 'Material'),
+          url,
+          mime,
+          description: m.description ?? null,
+          subject: m.subject ?? null,
+        };
+      });
+  }
+
   private _applyStudentDateSkips(
     templateRows: any[],
     studentId: string,
@@ -537,6 +592,8 @@ export class ScheduleService {
       teacherId?: string | null;
       teacherName?: string | null;
       color?: string | null;
+      caption?: string | null;
+      attachments?: ScheduleItem['attachments'];
     };
     // Per-period: an ARRAY of entries instead of one, so two cohort
     // classes the student is in at Mon P1 both surface (same with
@@ -563,6 +620,8 @@ export class ScheduleService {
         teacherId: (r as any).teacherId ?? (r as any).teacher?.id ?? null,
         teacherName: (r as any).teacher?.name ?? null,
         color: (r as any).color ?? null,
+        caption: (r as any).caption ?? null,
+        attachments: this._materialsFromSlotRow(r),
       });
       byPeriod.set(p, arr);
     }
@@ -605,6 +664,8 @@ export class ScheduleService {
           teacherId: entry.teacherId,
           teacherName: entry.teacherName,
           color: entry.color,
+          caption: entry.caption,
+          attachments: entry.attachments,
           schoolDefaults: params.schoolDefaults,
         }));
       }

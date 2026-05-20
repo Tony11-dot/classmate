@@ -176,6 +176,14 @@ class StudentAnnouncementsApi {
           DateTime.now();
       final body = (map['body'] ?? '').toString().trim();
 
+      final rawAttachments = map['attachments'];
+      final attachments = rawAttachments is List
+          ? rawAttachments
+              .whereType<Map>()
+              .map((m) => Map<String, dynamic>.from(m))
+              .toList()
+          : const <Map<String, dynamic>>[];
+
       return AnnouncementItem(
         id: '${map['id'] ?? ''}',
         title: '${map['title'] ?? 'Announcement'}',
@@ -185,6 +193,7 @@ class StudentAnnouncementsApi {
             : AnnouncementSeverity.info,
         source: 'system',
         createdAt: createdAt,
+        attachments: attachments,
       );
     }).toList(growable: false)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));

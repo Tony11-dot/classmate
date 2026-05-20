@@ -43,6 +43,7 @@ import '../features/teacher_mobile/ui/teacher_home_screen.dart';
 import '../features/teacher_mobile/ui/teacher_insights_screen.dart';
 import '../features/teacher_mobile/ui/teacher_new_announcement_screen.dart';
 import '../features/teacher_mobile/ui/teacher_schedule_screen.dart';
+import '../features/teacher_mobile/ui/teacher_slot_attachments_screen.dart';
 import '../features/teacher_mobile/ui/admin_periods_screen.dart';
 import '../features/teacher_mobile/ui/teacher_student_profile_screen.dart';
 import '../features/teacher_mobile/ui/teacher_students_screen.dart';
@@ -168,8 +169,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
       }
-      // Secretary must not access admin-only routes (e.g. /admin/dashboard, /admin/schedule)
-      if (loggedIn && isSecretary && isAdminOnlyRoute) {
+      // Secretary must not access admin-only routes (e.g. /admin/dashboard,
+      // /admin/schedule). Carve-out: /admin/export is shared between
+      // admin + secretary (per the export-role spec), so secretary keeps
+      // access here even though the path lives under /admin/.
+      final secretarySafeAdminRoute = loc == '/admin/export' || loc.startsWith('/admin/export/');
+      if (loggedIn && isSecretary && isAdminOnlyRoute && !secretarySafeAdminRoute) {
         return '/announcements';
       }
       // Admin/Secretary: redirect away from non-admin/secretary routes
@@ -404,6 +409,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/teacher/slot/:slotId/attachments',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? const {};
+          return TeacherSlotAttachmentsScreen(
+            slotId: state.pathParameters['slotId']!,
+            title: (extra['title'] ?? 'Period').toString(),
+          );
+        },
+      ),
+      GoRoute(
         path: '/teacher/materials/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -490,6 +505,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             initialCohortId: extra['cohortId']?.toString(),
             initialPeriod: extra['period'] is int ? extra['period'] as int : null,
             initialDate: extra['date']?.toString(),
+            initialSlotId: extra['slotId']?.toString(),
           );
         },
       ),
@@ -581,6 +597,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/secretary/students',
             builder: (context, state) => const SecretaryStudentsScreen(),
+          ),
+          GoRoute(
+            path: '/secretary/schedule',
+            builder: (context, state) => const AdminScheduleScreen(readOnly: true),
           ),
           GoRoute(
             path: '/teacher/insights',
