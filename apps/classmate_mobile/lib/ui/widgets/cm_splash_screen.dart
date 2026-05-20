@@ -120,9 +120,16 @@ class _CmSplashScreenState extends State<CmSplashScreen>
           final opacity = (1.0 - _fadeOut.value).clamp(0.0, 1.0);
 
           // Measure the rendered tagline width so the icon's leftward
-          // shift is exactly half the tagline width — keeps the
-          // [icon | gap | text] cluster perfectly centered when phase 3
-          // finishes.
+          // shift puts the [icon | gap | text + cursor] cluster
+          // perfectly centered when phase 3 finishes.
+          //
+          // Cluster width = iconSize + gap + textW + cursorRoom.
+          // For the cluster's center to land at screen center, the
+          // icon's center must end at -(cluster width)/2 + iconSize/2
+          //                          = -(gap + textW + cursorRoom)/2.
+          // The text wrapper (width textW + cursorRoom) sits to the
+          // right of the icon + gap, so its center lands at
+          // (iconSize + gap)/2 from screen center.
           final taglineStyle = _taglineStyle(context);
           final tp = TextPainter(
             text: TextSpan(text: tagline, style: taglineStyle),
@@ -131,7 +138,7 @@ class _CmSplashScreenState extends State<CmSplashScreen>
           final textW = tp.width;
           const gap = 16.0;
           const cursorRoom = 6.0;
-          final shiftDistance = (gap + textW) / 2;
+          final shiftDistance = (gap + textW + cursorRoom) / 2;
           final textCenterX = (iconSize + gap) / 2;
 
           return Opacity(
@@ -186,13 +193,13 @@ class _CmSplashScreenState extends State<CmSplashScreen>
     );
   }
 
-  /// Bold sans-serif in the same deep navy as the logo, sized so the
-  /// "C" cap-height roughly matches the icon's height.
+  /// Bold black sans-serif. Cursor color follows this style.color, so
+  /// flipping black ↔ blue here also flips the cursor.
   TextStyle _taglineStyle(BuildContext context) {
     return const TextStyle(
       fontWeight: FontWeight.w900,
       letterSpacing: -0.5,
-      color: Color(0xFF1E40AF),
+      color: Colors.black,
       fontSize: 32,
       height: 1.0,
     );
