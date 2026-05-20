@@ -1315,7 +1315,12 @@ export class PracticeService {
 
     const rp: any = requestPayload;
     const system = [
-      'You generate high-quality school practice questions for a mobile app.',
+      'You are a senior subject-matter teacher writing practice questions for your strongest student.',
+      'Aim for textbook quality: thoughtful framing, realistic numbers, distinct distractors that each represent a plausible mistake — not throwaways.',
+      'Each question should teach something on its own. Avoid trivia and avoid mechanical "plug the formula" prompts unless the topic IS pure mechanics.',
+      'Vary the question types within the set when natural (conceptual / calculation / application / comparison) so the set feels like a real exam, not 10 clones.',
+      'Difficulty should manifest in the actual cognitive load, not just bigger numbers.',
+      '',
       'Return STRICT JSON ONLY. No commentary outside the JSON payload.',
       'Markdown and LaTeX are allowed inside JSON string fields when needed for correct rendering.',
       'Generate questions EXACTLY for the requested subject and EXACT requested topic. Do not drift.',
@@ -1374,6 +1379,10 @@ export class PracticeService {
     const parsed = await this.callResponsesJson({
       apiKey,
       timeoutMs,
+      // Generation runs warm so questions feel like a thoughtful teacher
+      // wrote them, not a temperature-0 schema-filler. Verification
+      // passes below stay at 0 (the default) for deterministic judgement.
+      temperature: 0.7,
       schemaName: 'practice_questions',
       schema: {
         type: 'object',
@@ -1760,6 +1769,10 @@ export class PracticeService {
     schema: Record<string, unknown>;
     system: string;
     user: string;
+    /// Override the default temperature. Verification passes use 0;
+    /// generation passes use ~0.7 so questions read like a thoughtful
+    /// teacher wrote them, not a constrained schema-filler.
+    temperature?: number;
   }): Promise<any> {
     const { apiKey, schema, system, user, timeoutMs } = args;
     const resolvedTimeoutMs = this.resolveOpenAiTimeoutMs(timeoutMs);
@@ -1775,7 +1788,7 @@ export class PracticeService {
           max_tokens: 4000,
           system: `${system}\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation. The JSON must conform to this schema:\n${JSON.stringify(schema)}`,
           messages: [{ role: 'user', content: user }],
-          temperature: 0,
+          temperature: args.temperature ?? 0,
         }),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error('ANTHROPIC_TIMEOUT')), resolvedTimeoutMs),

@@ -1,9 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:markdown/markdown.dart' as md;
 
 import '../../core/text/normalize_question.dart';
+import '../../features/practice/domain/practice_models.dart';
+import '../../features/practice/providers/practice_providers.dart';
 import 'cm_code_block.dart';
 
 /// Full AI-response renderer.
@@ -47,10 +53,18 @@ class CMAiMessage extends StatelessWidget {
       }
 
       if (m.group(3) != null) {
-        // Fenced code block
+        // Fenced code block — `practice-cta` is a custom tag Nova emits
+        // to launch a practice session; route it to its own block type
+        // so we render a button instead of a code preview.
         final lang = (m.group(2) ?? '').trim();
         final body = (m.group(3) ?? '').trimRight();
-        if (body.isNotEmpty) out.add(_Block.code(body, lang));
+        if (body.isNotEmpty) {
+          if (lang == 'practice-cta') {
+            out.add(_Block.practiceCta(body));
+          } else {
+            out.add(_Block.code(body, lang));
+          }
+        }
       } else {
         // Block math $$...$$
         // sanitizeMathLatex already applied by prepareRenderableText, but
@@ -108,6 +122,8 @@ class CMAiMessage extends StatelessWidget {
         return _BlockMathWidget(block.value, style: base, compact: compact);
       case _BlockType.prose:
         return _ProseWidget(block.value, baseStyle: base, compact: compact);
+      case _BlockType.practiceCta:
+        return PracticeCtaButton(jsonText: block.value);
     }
   }
 
@@ -398,7 +414,7 @@ class _MathFallback extends StatelessWidget {
 
 // ── Internal block model ──────────────────────────────────────────────────────
 
-enum _BlockType { code, blockMath, prose }
+enum _BlockType { code, blockMath, prose, practiceCta }
 
 class _Block {
   const _Block._(this.type, this.value, {this.lang});
@@ -406,8 +422,156 @@ class _Block {
       _Block._(_BlockType.code, body, lang: lang);
   factory _Block.blockMath(String math) => _Block._(_BlockType.blockMath, math);
   factory _Block.prose(String text) => _Block._(_BlockType.prose, text);
+  /// A `practice-cta` fenced JSON block emitted by Nova when the user
+  /// asks for a quiz. Renders as a "Start practice session" button that
+  /// patches the practice filter and navigates to /practice.
+  factory _Block.practiceCta(String jsonBody) =>
+      _Block._(_BlockType.practiceCta, jsonBody);
 
   final _BlockType type;
   final String value;
   final String? lang;
+}
+
+// ── Practice-session CTA button ──────────────────────────────────────────────
+
+/// Rendered in place of a ```practice-cta``` fenced code block in
+/// Nova's response. Parses the JSON payload, prefills the practice
+/// filter with the inferred subject/topic/difficulty/count, and
+/// launches the practice setup screen so the user can start a real
+/// graded session instead of an inline quiz.
+class PracticeCtaButton extends ConsumerWidget {
+  const PracticeCtaButton({super.key, required this.jsonText});
+  final String jsonText;
+
+  Map<String, dynamic>? _parse() {
+    try {
+      final decoded = jsonDecode(jsonText);
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    } catch (_) {}
+    return null;
+  }
+
+  PracticeDifficulty _difficultyOf(String? raw) {
+    switch ((raw ?? '').toLowerCase().trim()) {
+      case 'easy':
+        return PracticeDifficulty.easy;
+      case 'hard':
+        return PracticeDifficulty.hard;
+      case 'olympiad':
+        return PracticeDifficulty.olympiad;
+      case 'adaptive':
+        return PracticeDifficulty.adaptive;
+      default:
+        return PracticeDifficulty.medium;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final data = _parse();
+    // Malformed JSON — silently render nothing rather than show broken
+    // text. Nova will usually self-correct on retry.
+    if (data == null) return const SizedBox.shrink();
+
+    final subject = (data['subject'] ?? '').toString().trim();
+    final topicRaw = data['topic'];
+    final topicPath = topicRaw is String && topicRaw.trim().isNotEmpty
+        ? <String>[topicRaw.trim()]
+        : (topicRaw is List
+            ? topicRaw.map((e) => e.toString()).where((e) => e.isNotEmpty).toList()
+            : <String>[]);
+    final difficulty = _difficultyOf(data['difficulty']?.toString());
+    final questionCount = (data['questionCount'] is num)
+        ? (data['questionCount'] as num).toInt().clamp(3, 20)
+        : 10;
+
+    final summaryBits = <String>[
+      if (subject.isNotEmpty) subject,
+      if (topicPath.isNotEmpty) topicPath.join(' › '),
+      '$questionCount questions',
+      _difficultyLabel(difficulty),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Material(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            // Patch the practice filter so the setup screen opens with
+            // Nova's inferred settings already selected. The user can
+            // still tweak before tapping Start.
+            ref.read(practiceFilterProvider.notifier).patch(
+                  subject: subject.isNotEmpty ? subject : null,
+                  topicPath: topicPath.isNotEmpty ? topicPath : null,
+                  difficulty: difficulty,
+                  questionCount: questionCount,
+                );
+            context.push('/practice');
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.play_arrow_rounded, color: cs.onPrimary, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Start practice session',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: cs.onPrimaryContainer,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        summaryBits.join(' · '),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.78),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: cs.onPrimaryContainer),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _difficultyLabel(PracticeDifficulty d) {
+    switch (d) {
+      case PracticeDifficulty.easy:
+        return 'Easy';
+      case PracticeDifficulty.hard:
+        return 'Hard';
+      case PracticeDifficulty.olympiad:
+        return 'Olympiad';
+      case PracticeDifficulty.adaptive:
+        return 'Adaptive';
+      case PracticeDifficulty.medium:
+        return 'Medium';
+    }
+  }
 }

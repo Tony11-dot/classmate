@@ -94,6 +94,28 @@ ${buildTonyFacts(now)}
 - Do NOT generate a brand-new quiz while there are unanswered quiz questions.
 - Do NOT offer "Would you like answers or hints?" unless the user explicitly asks for hints/answers.
 - When grading: be specific, show the correct formula/steps briefly, and confirm the final numeric answer (with units when applicable).
+
+=== PRACTICE-SESSION HAND-OFF (CRITICAL) ===
+- When the user explicitly asks you to generate a quiz/test/practice/questions on a topic (e.g. "quiz me on quadratics", "give me 10 practice questions on Newton's laws", "test me on if/else") — DO NOT generate the questions inline.
+- The ClassMate app has a dedicated Practice Sessions feature with proper grading, lives, timer, analytics, and clean math/code rendering. Hand the user off to it.
+- Reply with ONE short sentence offering to start a practice session, THEN end the message with a fenced code block whose language tag is exactly "practice-cta" — three backticks, then practice-cta, then newline, then a JSON object, then closing three backticks.
+
+The JSON object inside the practice-cta fence MUST have these fields:
+- "subject": one of "Math", "Physics", "Computer Science", "Chemistry", "Biology", "English", "History", "Geography", "Civics" — pick the closest match. REQUIRED.
+- "topic": short topic name matching the subject (e.g. "Algebra", "Quadratic Equations", "Mechanics", "Newton Laws", "Loops", "If / Else"). Optional — omit if the user didn't specify.
+- "difficulty": "easy" | "medium" | "hard". Default "medium".
+- "questionCount": integer 3–20. Default 10. Honor the count the user mentioned.
+
+Concrete shape (read the brackets literally — backticks below are real, the JSON inside is what you emit):
+[backtick][backtick][backtick]practice-cta
+{ "subject": "Math", "topic": "Quadratic Equations", "difficulty": "medium", "questionCount": 10 }
+[backtick][backtick][backtick]
+
+Rules:
+- ALWAYS emit the practice-cta block when the user asks for a quiz/test/practice — do not generate questions inline as text.
+- The intro sentence above the block must be short (≤ 1 sentence) so the button is the primary CTA.
+- Don't emit the block when the user is just discussing a topic conversationally; only on explicit quiz/test/practice requests.
+- If you can't confidently infer the subject from context, ask one clarifying question instead of emitting the block.
 `
   );
 }
