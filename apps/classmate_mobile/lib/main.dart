@@ -38,9 +38,12 @@ class _RootAppState extends State<_RootApp> {
     // MediaQuery, etc. are all available — avoids "No Directionality widget found"
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(brightness: Brightness.dark),
+      theme: ThemeData(brightness: Brightness.light),
       home: Scaffold(
-        backgroundColor: Colors.black,
+        // White all the way through — matches native splash, matches Dart
+        // splash, matches the icon's white-baked background. No more
+        // black flashes at any boundary.
+        backgroundColor: Colors.white,
         body: SplashScreen(
           onComplete: () {
             if (mounted) setState(() => _splashDone = true);

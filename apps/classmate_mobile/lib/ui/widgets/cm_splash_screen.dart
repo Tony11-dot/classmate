@@ -5,19 +5,24 @@ import 'package:flutter/services.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 //  CmSplashScreen
 //
-//  Launch sequence (total ≈ 3 600 ms):
-//    Phase 1 (0 %–28 %): the real blue CM icon (assets/images/icon_light.png)
+//  Launch sequence (total ≈ 6 500 ms):
+//    Phase 1 (0 %–22 %): the real blue CM icon (assets/images/icon_light.png)
 //                        fades in from 0 → 100 % opacity while scaling
 //                        from 0.85 → 1.0 with a tiny easeOutBack overshoot,
 //                        landing centered on a pure-white background.
-//    Phase 2 (28 %–34 %): brief hold — logo settles, fully visible.
-//    Phase 3 (34 %–55 %): icon translates leftward as the "ClassMate"
+//    Phase 2 (22 %–28 %): brief hold — logo settles, fully visible.
+//    Phase 3 (28 %–46 %): icon translates leftward as the "ClassMate"
 //                         tagline types out character-by-character to its
 //                         right. Both finish together. Cursor visible
 //                         from the moment typing starts.
-//    Phase 4 (55 %–93 %): final frame — cursor blinks softly for ~1.4 s
+//    Phase 4 (46 %–78 %): final frame — cursor blinks softly for ~2 s
 //                         alongside the fully-typed tagline.
-//    Phase 5 (93 %–100%): everything fades out.
+//    Phase 5 (78 %–85 %): text + cursor fade out. Icon stays in place.
+//    Phase 6 (85 %–100%): icon morphs — shrinks from full splash size to a
+//                         smaller "destination" size and translates up to
+//                         the position the next screen's logo will occupy,
+//                         so the hand-off feels like a hero transition
+//                         even without a Navigator-level Hero widget.
 //
 //  Renders the real PNG asset (not a painter approximation), so the
 //  splash icon is always pixel-identical to the home-screen icon.
@@ -27,7 +32,7 @@ class CmSplashScreen extends StatefulWidget {
   const CmSplashScreen({
     super.key,
     required this.onDone,
-    this.duration = const Duration(milliseconds: 3600),
+    this.duration = const Duration(milliseconds: 6500),
     this.iconSize = 120,
     this.tagline = 'ClassMate',
   });
@@ -48,11 +53,12 @@ class _CmSplashScreenState extends State<CmSplashScreen>
   late final AnimationController _cursorBlink;
 
   // Phase curves ──────────────────────────────────────────────────────────────
-  late final Animation<double> _iconOpacity; // icon fades in
-  late final Animation<double> _iconScale;   // icon scales 0.85 → 1
-  late final Animation<double> _textReveal;  // chars typed
-  late final Animation<double> _iconShift;   // icon slides left (0 → 1)
-  late final Animation<double> _fadeOut;     // everything fades
+  late final Animation<double> _iconOpacity; // phase 1: icon fades in
+  late final Animation<double> _iconScale;   // phase 1: icon scales 0.85 → 1
+  late final Animation<double> _textReveal;  // phase 3: chars typed
+  late final Animation<double> _iconShift;   // phase 3: icon slides left (0 → 1)
+  late final Animation<double> _textFade;    // phase 5: text + cursor fade out
+  late final Animation<double> _morph;       // phase 6: icon morph (0 → 1)
 
   @override
   void initState() {
@@ -70,31 +76,40 @@ class _CmSplashScreenState extends State<CmSplashScreen>
       duration: const Duration(milliseconds: 530),
     )..repeat(reverse: true);
 
-    // Phase 1 — icon fades + scales in (0-28%).
+    // Phase 1 — icon fades + scales in (0-22%).
     _iconOpacity = CurvedAnimation(
       parent: _ctrl,
-      curve: const Interval(0.00, 0.28, curve: Curves.easeOut),
+      curve: const Interval(0.00, 0.22, curve: Curves.easeOut),
     );
     _iconScale = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(
         parent: _ctrl,
-        curve: const Interval(0.00, 0.30, curve: Curves.easeOutBack),
+        curve: const Interval(0.00, 0.24, curve: Curves.easeOutBack),
       ),
     );
 
-    // Phase 3 — typing + icon slide (34-55%).
+    // Phase 3 — typing + icon slide (28-46%).
     _textReveal = CurvedAnimation(
       parent: _ctrl,
-      curve: const Interval(0.34, 0.55, curve: Curves.linear),
+      curve: const Interval(0.28, 0.46, curve: Curves.linear),
     );
     _iconShift = CurvedAnimation(
       parent: _ctrl,
-      curve: const Interval(0.34, 0.55, curve: Curves.easeOutCubic),
+      curve: const Interval(0.28, 0.46, curve: Curves.easeOutCubic),
     );
 
-    _fadeOut = CurvedAnimation(
+    // Phase 5 — text + cursor fade out (78-85%). Icon stays put.
+    _textFade = CurvedAnimation(
       parent: _ctrl,
-      curve: const Interval(0.93, 1.00, curve: Curves.easeIn),
+      curve: const Interval(0.78, 0.85, curve: Curves.easeIn),
+    );
+
+    // Phase 6 — icon morphs to its hand-off position (85-100%). Shrinks
+    // and moves up so when the splash exits, the next screen's logo
+    // appears in roughly the same spot.
+    _morph = CurvedAnimation(
+      parent: _ctrl,
+      curve: const Interval(0.85, 1.00, curve: Curves.easeInOutCubic),
     );
   }
 
@@ -117,8 +132,6 @@ class _CmSplashScreenState extends State<CmSplashScreen>
       body: AnimatedBuilder(
         animation: Listenable.merge([_ctrl, _cursorBlink]),
         builder: (context, _) {
-          final opacity = (1.0 - _fadeOut.value).clamp(0.0, 1.0);
-
           // Measure the rendered tagline width so the icon's leftward
           // shift puts the [icon | gap | text + cursor] cluster
           // perfectly centered when phase 3 finishes.
@@ -127,9 +140,6 @@ class _CmSplashScreenState extends State<CmSplashScreen>
           // For the cluster's center to land at screen center, the
           // icon's center must end at -(cluster width)/2 + iconSize/2
           //                          = -(gap + textW + cursorRoom)/2.
-          // The text wrapper (width textW + cursorRoom) sits to the
-          // right of the icon + gap, so its center lands at
-          // (iconSize + gap)/2 from screen center.
           final taglineStyle = _taglineStyle(context);
           final tp = TextPainter(
             text: TextSpan(text: tagline, style: taglineStyle),
@@ -141,52 +151,73 @@ class _CmSplashScreenState extends State<CmSplashScreen>
           final shiftDistance = (gap + textW + cursorRoom) / 2;
           final textCenterX = (iconSize + gap) / 2;
 
-          return Opacity(
-            opacity: opacity,
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none,
-              children: [
-                // The real PNG icon. Center-anchored; slides left during
-                // phase 3.
-                Transform.translate(
-                  offset: Offset(-shiftDistance * _iconShift.value, 0),
-                  child: Opacity(
-                    opacity: _iconOpacity.value,
-                    child: Transform.scale(
-                      scale: _iconScale.value,
-                      child: Image.asset(
-                        'assets/images/icon_light.png',
-                        width: iconSize,
-                        height: iconSize,
-                        fit: BoxFit.contain,
-                      ),
+          // Phase 6 — morph the icon to its hand-off position.
+          // Destination: centered horizontally (offset X = 0), moved
+          // UP relative to the cluster's center (negative Y), and
+          // shrunk to ~ 56 % of splash size to feel like a transition
+          // into a smaller logo on the next screen.
+          //
+          // Screen height isn't known here without MediaQuery — but we
+          // know we want the icon to end roughly where a login screen
+          // logo sits (upper third). Move it up by a fraction of the
+          // available vertical space.
+          final screenH = MediaQuery.sizeOf(context).height;
+          final morphYTarget = -screenH * 0.18; // ~18% up from center
+          final morphProgress = _morph.value;
+          // During the morph the icon ALSO recenters horizontally
+          // (cancelling its phase-3 leftward slide), since the next
+          // page's logo is centered, not offset-left.
+          final iconX = -shiftDistance * _iconShift.value * (1 - morphProgress);
+          final iconY = morphYTarget * morphProgress;
+          final morphScale = 1.0 - 0.44 * morphProgress; // 1.0 → 0.56
+
+          return Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              // The real PNG icon.
+              Transform.translate(
+                offset: Offset(iconX, iconY),
+                child: Opacity(
+                  opacity: _iconOpacity.value,
+                  child: Transform.scale(
+                    scale: _iconScale.value * morphScale,
+                    child: Image.asset(
+                      'assets/images/icon_light.png',
+                      width: iconSize,
+                      height: iconSize,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
-                if (tagline.isNotEmpty)
-                  Transform.translate(
-                    offset: Offset(textCenterX, 0),
-                    child: SizedBox(
-                      width: textW + cursorRoom,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Opacity(
-                          opacity: _textReveal.value > 0 ? 1.0 : 0.0,
-                          child: _TypingTagline(
-                            text: tagline,
-                            progress: _textReveal.value,
-                            cursorOpacity: _textReveal.value > 0.001
-                                ? (math.sin(_cursorBlink.value * math.pi)).clamp(0.0, 1.0)
-                                : 0.0,
-                            style: taglineStyle,
-                          ),
+              ),
+              if (tagline.isNotEmpty)
+                Transform.translate(
+                  // Tagline also slides up slightly during phase 5 so
+                  // it doesn't just pop in opacity — feels like the
+                  // text is "lifting away".
+                  offset: Offset(textCenterX, -8 * _textFade.value),
+                  child: SizedBox(
+                    width: textW + cursorRoom,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Opacity(
+                        opacity: _textReveal.value > 0
+                            ? (1.0 - _textFade.value).clamp(0.0, 1.0)
+                            : 0.0,
+                        child: _TypingTagline(
+                          text: tagline,
+                          progress: _textReveal.value,
+                          cursorOpacity: _textReveal.value > 0.001
+                              ? (math.sin(_cursorBlink.value * math.pi)).clamp(0.0, 1.0)
+                              : 0.0,
+                          style: taglineStyle,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           );
         },
       ),
