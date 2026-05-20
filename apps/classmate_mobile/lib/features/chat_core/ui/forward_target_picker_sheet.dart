@@ -252,6 +252,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
 
                 return ListView(
                   controller: scroll,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   children: [
                     if (allClassrooms.isNotEmpty) ...[

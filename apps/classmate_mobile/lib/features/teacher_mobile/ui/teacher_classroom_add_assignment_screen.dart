@@ -123,6 +123,7 @@ class _TeacherClassroomAddAssignmentScreenState
         ],
       ),
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.fromLTRB(
           16,
           16,

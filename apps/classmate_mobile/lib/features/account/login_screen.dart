@@ -91,6 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               position: _slide,
               child: Center(
                 child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

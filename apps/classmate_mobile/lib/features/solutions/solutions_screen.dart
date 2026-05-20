@@ -56,6 +56,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
         label: Text(l.solutionsUploadAction),
       ),
       body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         slivers: [
           SliverToBoxAdapter(
             child: Padding(

@@ -85,6 +85,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               ),
             Expanded(
               child: ListView.separated(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 itemCount: filtered.length,
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {

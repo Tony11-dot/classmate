@@ -53,6 +53,7 @@ class ProfileScreen extends ConsumerWidget {
         .join();
 
     return CustomScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         // ── Avatar header ────────────────────────────────────────────────
         SliverToBoxAdapter(

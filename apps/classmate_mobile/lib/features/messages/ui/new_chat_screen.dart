@@ -190,6 +190,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   }).toList(growable: false);
 
                   return ListView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
                     children: [
                       // New Group option

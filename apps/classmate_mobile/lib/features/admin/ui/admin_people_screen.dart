@@ -193,6 +193,7 @@ class _UserTab extends ConsumerWidget {
         }
 
         return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
           itemCount: filtered.length,
           separatorBuilder: (_, __) => const SizedBox(height: 6),

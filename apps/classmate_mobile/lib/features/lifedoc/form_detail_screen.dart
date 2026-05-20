@@ -10,6 +10,7 @@ import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 
 // ── Persisted submission tracking ─────────────────────────────────────────────
 // Key: 'form_submitted:$formId' → JSON-encoded map of questionId → answer.
@@ -597,15 +598,13 @@ class _QuestionCard extends StatelessWidget {
               .toList(),
         );
       case StudentFormQuestionType.dropdown:
-        return DropdownButtonFormField<String>(
-          initialValue:
-              answer?.toString().isEmpty ?? true ? null : answer.toString(),
-          decoration: const InputDecoration(),
+        return LiquidGlassDropdown<String>(
+          label: question.title.trim().isNotEmpty ? question.title : 'Select',
+          value: (answer?.toString().isEmpty ?? true) ? '' : answer.toString(),
           items: question.options
-              .map((option) =>
-                  DropdownMenuItem<String>(value: option, child: Text(option)))
+              .map((option) => LiquidGlassDropdownItem(value: option, label: option))
               .toList(),
-          onChanged: readOnly ? null : onChanged,
+          onChanged: readOnly ? (_) {} : (v) { if (onChanged != null) onChanged!(v.isEmpty ? null : v); },
         );
       case StudentFormQuestionType.linearScale:
         final selected = answer is int ? answer : null;
