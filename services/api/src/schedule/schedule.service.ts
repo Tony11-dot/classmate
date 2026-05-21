@@ -366,6 +366,114 @@ export class ScheduleService {
         }
       }
     }
+
+    // Hydrate teacher names + materials separately so they survive even
+    // when the slot select itself was downgraded to a tier-3 minimal
+    // shape (no displayName/nameEn columns, no materials relation).
+    // Each enrichment is independent: a failure here just leaves that
+    // field null on the slot row instead of blanking the whole schedule.
+    if (legacy.length) {
+      // Gather teacherIds the slot rows reference directly, AND the
+      // teacherIds of any classrooms attached to those slots so the
+      // classroom-teacher fallback still resolves.
+      const teacherIds = new Set<string>();
+      const classroomIds = new Set<string>();
+      for (const r of legacy) {
+        if (typeof r.teacherId === 'string' && r.teacherId.length > 0) teacherIds.add(r.teacherId);
+        if (typeof r.classroomId === 'string' && r.classroomId.length > 0) classroomIds.add(r.classroomId);
+      }
+      const slotIdsForMaterials = legacy.map((r: any) => String(r.id)).filter((id) => id.length > 0);
+
+      const [userRows, classroomRows, materialRows] = await Promise.all([
+        teacherIds.size
+          ? this.prisma.user.findMany({
+              where: { id: { in: Array.from(teacherIds) } },
+              select: { id: true, name: true, displayName: true, nameEn: true } as any,
+            }).catch(() => [])
+          : Promise.resolve([] as any[]),
+        classroomIds.size
+          ? this.prisma.classroom.findMany({
+              where: { id: { in: Array.from(classroomIds) } },
+              select: { id: true, teacherId: true } as any,
+            }).catch(() => [])
+          : Promise.resolve([] as any[]),
+        slotIdsForMaterials.length
+          ? this.prisma.scheduleSlotMaterial.findMany({
+              where: { slotId: { in: slotIdsForMaterials } },
+              select: {
+                slotId: true,
+                material: {
+                  select: {
+                    id: true, title: true, description: true,
+                    url: true, attachments: true, subject: true,
+                  },
+                },
+              },
+            }).catch(() => [])
+          : Promise.resolve([] as any[]),
+      ]);
+
+      const userById = new Map<string, any>();
+      for (const u of userRows as any[]) userById.set(u.id, u);
+
+      // Pull classroom-teacher ids so the fallback chain can still find
+      // a name when the slot itself has no teacher.
+      const classroomTeacherIds = new Set<string>();
+      const classroomById = new Map<string, any>();
+      for (const c of classroomRows as any[]) {
+        classroomById.set(c.id, c);
+        if (typeof c.teacherId === 'string' && c.teacherId.length > 0) {
+          classroomTeacherIds.add(c.teacherId);
+        }
+      }
+      if (classroomTeacherIds.size) {
+        const missingIds = Array.from(classroomTeacherIds).filter((id) => !userById.has(id));
+        if (missingIds.length) {
+          try {
+            const extra = await this.prisma.user.findMany({
+              where: { id: { in: missingIds } },
+              select: { id: true, name: true, displayName: true, nameEn: true } as any,
+            });
+            for (const u of extra as any[]) userById.set(u.id, u);
+          } catch {
+            // Best-effort — leave the missing ones unset.
+          }
+        }
+      }
+
+      // Bucket materials by slotId.
+      const materialsBySlot = new Map<string, any[]>();
+      for (const sm of materialRows as any[]) {
+        const sid = String(sm.slotId);
+        const arr = materialsBySlot.get(sid) ?? [];
+        arr.push(sm);
+        materialsBySlot.set(sid, arr);
+      }
+
+      // Inject the hydrated relations back onto each slot row so
+      // applyOverridesForDate's existing _pickDisplayName + materials
+      // unwrap logic finds them. Only overwrite when the tier didn't
+      // already give us the relation.
+      for (const r of legacy) {
+        if (!r.teacher && typeof r.teacherId === 'string' && r.teacherId) {
+          const u = userById.get(r.teacherId);
+          if (u) r.teacher = u;
+        }
+        if (typeof r.classroomId === 'string' && r.classroomId) {
+          const c = classroomById.get(r.classroomId);
+          if (c && !r.classroom?.teacher && typeof c.teacherId === 'string') {
+            const ct = userById.get(c.teacherId);
+            if (ct) {
+              r.classroom = { ...(r.classroom ?? { id: r.classroomId, name: null }), teacher: ct };
+            }
+          }
+        }
+        if (!Array.isArray(r.materials) || r.materials.length === 0) {
+          const m = materialsBySlot.get(String(r.id));
+          if (m && m.length) r.materials = m;
+        }
+      }
+    }
     // Note: the legacy `skipForStudentIds` field is intentionally NOT
     // applied here — it was a forever-scoped per-student skip from an
     // earlier override design that stayed sticky even after the
