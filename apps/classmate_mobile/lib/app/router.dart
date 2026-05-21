@@ -75,7 +75,6 @@ import '../features/admin/ui/admin_school_settings_screen.dart';
 import '../features/admin/ui/admin_settings_screen.dart';
 import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
-import '../features/debug/debug_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
@@ -160,8 +159,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // (student / teacher / admin / secretary) without role-based
           // redirect kicking the user back to their home.
           loc == '/about' ||
-          loc == '/support' ||
-          loc == '/debug';
+          loc == '/support';
 
       final isSecretary = primaryRole == 'SECRETARY';
 
@@ -613,10 +611,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/secretary/students',
             builder: (context, state) => const SecretaryStudentsScreen(),
-          ),
-          GoRoute(
-            path: '/debug',
-            builder: (context, state) => const DebugScreen(),
           ),
           GoRoute(
             path: '/secretary/schedule',

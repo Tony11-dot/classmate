@@ -37,6 +37,16 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
+  final Set<int> _selectedGrades = {};
+
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final c in _cohorts) {
+      if (c.grade > 0) s.add(c.grade);
+    }
+    final list = s.toList()..sort();
+    return list;
+  }
 
   // Only treat as edit when there's an actual server-side id in the map.
   // Prefill maps (passed from the add-grade flow) have no 'id' key.
@@ -68,6 +78,14 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       final sIds = exam['targetStudentIds'] ?? exam['prefillStudentIds'];
       if (sIds is List) {
         _selectedStudentIds.addAll(sIds.map((e) => e.toString()));
+      }
+
+      final gs = exam['targetGrades'];
+      if (gs is List) {
+        for (final g in gs) {
+          final n = g is int ? g : int.tryParse('$g');
+          if (n != null) _selectedGrades.add(n);
+        }
       }
 
       final rawAttach = exam['attachments'];
@@ -190,6 +208,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'targetType': _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
             'targetCohortIds': _selectedCohortIds.toList(),
             'targetStudentIds': _selectedStudentIds.toList(),
+            'targetGrades': _selectedGrades.toList(),
             'attachments': _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
           },
         );
@@ -204,6 +223,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           targetType: _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
+          targetGrades: _selectedGrades.toList(),
           attachments: _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
         );
       }
@@ -264,6 +284,8 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                     allStudents: _allStudents,
                     selectedCohortIds: _selectedCohortIds,
                     selectedStudentIds: _selectedStudentIds,
+                    selectedGrades: _selectedGrades,
+                    availableGrades: _availableGrades,
                     repo: ref.read(teacherMobileRepositoryProvider),
                     onChanged: () => setState(() {}),
                   ),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/attachment_pill.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Attendance helpers shared across the schedule tile and detail sheet
@@ -754,34 +754,27 @@ class _ScheduleTile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: attachments.map((m) {
+                // Material pills — title is the pill text, tapping opens
+                // PDFs/images in-app via the shared AttachmentPill widget.
+                AttachmentPills(
+                  attachments: attachments.map((m) {
                     final mTitle = (m['title'] ?? m['name'] ?? 'Material').toString();
                     final mUrl = (m['url'] ?? '').toString();
                     final mMime = (m['mime'] ?? '').toString().toLowerCase();
-                    IconData icon = Icons.description_rounded;
-                    if (mMime.contains('pdf')) {
-                      icon = Icons.picture_as_pdf_rounded;
-                    } else if (mMime.contains('image')) {
-                      icon = Icons.image_rounded;
-                    } else if (mMime.contains('powerpoint') || mMime.contains('presentation')) {
-                      icon = Icons.slideshow_rounded;
-                    } else if (mMime.contains('word') || mMime.contains('document')) {
-                      icon = Icons.article_rounded;
+                    final lowerUrl = mUrl.toLowerCase();
+                    String type = 'file';
+                    if (mMime.contains('pdf') || lowerUrl.endsWith('.pdf')) {
+                      type = 'pdf';
+                    } else if (mMime.contains('image') ||
+                        lowerUrl.endsWith('.jpg') ||
+                        lowerUrl.endsWith('.jpeg') ||
+                        lowerUrl.endsWith('.png') ||
+                        lowerUrl.endsWith('.webp')) {
+                      type = 'image';
+                    } else if (mUrl.startsWith('http')) {
+                      type = 'link';
                     }
-                    return ActionChip(
-                      avatar: Icon(icon, size: 16, color: cs.primary),
-                      label: Text(mTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      onPressed: mUrl.isEmpty
-                          ? null
-                          : () async {
-                              final uri = Uri.tryParse(mUrl);
-                              if (uri == null) return;
-                              await launchUrl(uri, mode: LaunchMode.externalApplication);
-                            },
-                    );
+                    return <String, dynamic>{'url': mUrl, 'name': mTitle, 'type': type};
                   }).toList(),
                 ),
               ],
@@ -847,6 +840,7 @@ class _ScheduleTile extends StatelessWidget {
     final startsAt = '${item['startsAt'] ?? '--:--'}';
     final endsAt = '${item['endsAt'] ?? '--:--'}';
     final courseId = (item['courseId'] ?? '').toString().trim();
+    final period = (item['period'] as num?)?.toInt();
     final hasStatus = attendanceStatus.isNotEmpty;
 
     // Subtitle: just the teacher's name. Subject is already in the title
@@ -935,50 +929,65 @@ class _ScheduleTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Two-line layout differs by caption presence:
-                    //  • with caption:    caption (small)  /  subject - teacher (big)
-                    //  • without caption: subject (big)    /  teacher (small)
-                    if (caption.isNotEmpty) ...[
-                      Text(
-                        caption,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    // Header line: caption (if any) + period badge.
+                    // Layout below: subject - teacher (big).
+                    if (caption.isNotEmpty || period != null) ...[
+                      Row(
+                        children: [
+                          if (period != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: cs.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                l.teacherPeriod(period),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: cs.primary,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
+                            if (caption.isNotEmpty) const SizedBox(width: 6),
+                          ],
+                          if (caption.isNotEmpty)
+                            Expanded(
+                              child: Text(
+                                caption,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        subtitle.isEmpty ? title : '$title - $subtitle',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    ],
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
                       ),
-                    ] else ...[
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
                       Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
+                        subtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (subtitle.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
                     ],
                     if (hasStatus) ...[
                       const SizedBox(height: 6),

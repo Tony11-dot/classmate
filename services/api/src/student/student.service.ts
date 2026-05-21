@@ -465,12 +465,19 @@ export class StudentService {
     const studentId = user.sub ?? user.id;
     const schoolId = user.schoolId ?? null;
 
-    // Get student's cohort IDs for targeting
-    const cohortLinks = await this.prisma.studentCohort.findMany({
-      where: { studentId },
-      select: { cohortId: true },
-    });
+    // Get student's cohort IDs + primary grade for targeting
+    const [cohortLinks, profile] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+    ]);
     const cohortIds = cohortLinks.map((c) => c.cohortId);
+    const grade = profile?.grade ?? null;
 
     const exams = await this.prisma.teacherExam.findMany({
       where: {
@@ -480,6 +487,7 @@ export class StudentService {
           { targetType: 'EVERYONE' },
           { targetStudentIds: { has: studentId } },
           ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
         ],
       },
       orderBy: { date: 'desc' },
@@ -515,11 +523,18 @@ export class StudentService {
     const studentId = user.sub ?? user.id;
     const schoolId = user.schoolId ?? null;
 
-    const cohortLinks = await this.prisma.studentCohort.findMany({
-      where: { studentId },
-      select: { cohortId: true },
-    });
+    const [cohortLinks, profile] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+    ]);
     const cohortIds = cohortLinks.map((c) => c.cohortId);
+    const grade = profile?.grade ?? null;
 
     const assignments = await this.prisma.teacherAssignment.findMany({
       where: {
@@ -529,6 +544,7 @@ export class StudentService {
           { targetType: 'EVERYONE' },
           { targetStudentIds: { has: studentId } },
           ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
         ],
       },
       orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],

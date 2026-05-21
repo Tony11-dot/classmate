@@ -57,7 +57,17 @@ class _TeacherAddMaterialScreenState
   String _targetType = 'EVERYONE';
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
+  final Set<int> _selectedGrades = {};
   final Map<String, List<String>> _memberCache = {};
+
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final c in _cohorts) {
+      if (c.grade > 0) s.add(c.grade);
+    }
+    final list = s.toList()..sort();
+    return list;
+  }
 
   bool _saving = false;
 
@@ -87,6 +97,13 @@ class _TeacherAddMaterialScreenState
       if (cIds is List) _selectedCohortIds.addAll(cIds.map((e) => e.toString()));
       final sIds = mat['targetStudentIds'];
       if (sIds is List) _selectedStudentIds.addAll(sIds.map((e) => e.toString()));
+      final gs = mat['targetGrades'];
+      if (gs is List) {
+        for (final g in gs) {
+          final n = g is int ? g : int.tryParse('$g');
+          if (n != null) _selectedGrades.add(n);
+        }
+      }
     }
     // Honor prefill from caller (period → attachments → create-new).
     // Only applied when we're NOT editing an existing material — edit
@@ -274,6 +291,7 @@ class _TeacherAddMaterialScreenState
             'targetType': effectiveTargetType,
             'targetCohortIds': _selectedCohortIds.toList(),
             'targetStudentIds': _selectedStudentIds.toList(),
+            'targetGrades': _selectedGrades.toList(),
           },
         );
       } else {
@@ -286,6 +304,7 @@ class _TeacherAddMaterialScreenState
           targetType: effectiveTargetType,
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
+          targetGrades: _selectedGrades.toList(),
           attachments: allAttachments,
         );
       }
@@ -368,6 +387,31 @@ class _TeacherAddMaterialScreenState
     );
   }
 
+  Future<void> _openGradePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _PersonPickerSheet(
+        title: 'Select grades',
+        items: _availableGrades
+            .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
+            .toList(),
+        selected: _selectedGrades.map((g) => g.toString()).toSet(),
+        onToggle: (id) => setState(() {
+          final g = int.tryParse(id);
+          if (g == null) return;
+          if (_selectedGrades.contains(g)) {
+            _selectedGrades.remove(g);
+          } else {
+            _selectedGrades.add(g);
+          }
+        }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -418,12 +462,30 @@ class _TeacherAddMaterialScreenState
                         _fetchMembersFor(id);
                       } }, cs: cs, theme: theme),
                       const SizedBox(height: 8),
+                      if (_availableGrades.isNotEmpty) ...[
+                        _MatAudiencePicker(
+                          icon: Icons.school_rounded,
+                          label: 'Grades',
+                          summary: _selectedGrades.isEmpty
+                              ? null
+                              : (_selectedGrades.toList()..sort())
+                                  .map((g) => 'Grade $g')
+                                  .join(', '),
+                          onTap: _openGradePicker,
+                          cs: cs,
+                          theme: theme,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       _MatAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
                       if (_previewMembers.isNotEmpty) ...[
                         const SizedBox(height: 10),
                         _MembersPreview(members: _previewMembers, cs: cs, theme: theme),
                       ],
-                      if (_selectedCourseId == null && _selectedCohortIds.isEmpty && _selectedStudentIds.isEmpty) ...[
+                      if (_selectedCourseId == null &&
+                          _selectedCohortIds.isEmpty &&
+                          _selectedStudentIds.isEmpty &&
+                          _selectedGrades.isEmpty) ...[
                         const SizedBox(height: 8),
                         Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],

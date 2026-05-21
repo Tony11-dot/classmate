@@ -390,6 +390,25 @@ export class TeacherController {
     return this.teacher.detachSlotMaterial(req.user, slotId, materialId);
   }
 
+  // ── Attach existing library items to a classroom ─────────────────────────
+  // Picker FABs in classroom detail tabs call these to mirror an item
+  // from the teacher's library into the classroom.
+
+  @Post('classrooms/:id/attach-material')
+  attachMaterialToClassroom(@Req() req: any, @Param('id') classroomId: string, @Body() body: any) {
+    return this.teacher.attachTeacherMaterialToClassroom(req.user, classroomId, String(body?.teacherMaterialId ?? ''));
+  }
+
+  @Post('classrooms/:id/attach-assignment')
+  attachAssignmentToClassroom(@Req() req: any, @Param('id') classroomId: string, @Body() body: any) {
+    return this.teacher.attachTeacherAssignmentToClassroom(req.user, classroomId, String(body?.teacherAssignmentId ?? ''));
+  }
+
+  @Post('classrooms/:id/attach-meeting')
+  attachMeetingToClassroom(@Req() req: any, @Param('id') classroomId: string, @Body() body: any) {
+    return this.teacher.attachTeacherMeetingToClassroom(req.user, classroomId, String(body?.teacherMeetingId ?? ''));
+  }
+
   // ── Teacher Meetings ──────────────────────────────────────────────────────
 
   @Get('meetings')

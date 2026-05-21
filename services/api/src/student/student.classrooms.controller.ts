@@ -85,39 +85,103 @@ export class StudentClassroomsController {
   }
 
   /** Aggregated materials across all classrooms the student is a member of,
-   *  plus any TeacherMaterial that targets them directly. */
+   *  plus any TeacherMaterial that targets them directly, AND any material
+   *  attached to a ScheduleSlot whose audience includes the student. */
   @Get('all-materials')
   async allMaterials(@Req() req: any) {
     const uid = this.uid(req);
 
-    // ClassroomMaterial from classrooms the student is a member of
-    const memberships = await this.prisma.classroomMember.findMany({
-      where: { studentId: uid },
-      select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
-    });
+    // Resolve the student's grade + cohorts so we can match audience scopes
+    // beyond classroom membership (slot-level attachments + cohort-targeted
+    // teacher materials).
+    const [profile, studentCohorts, memberships] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: uid },
+        select: { grade: true },
+      }),
+      this.prisma.studentCohort.findMany({
+        where: { studentId: uid },
+        select: { cohortId: true },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { studentId: uid },
+        select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
+      }),
+    ]);
+    const grade = profile?.grade ?? null;
+    const cohortIds = studentCohorts.map((c) => c.cohortId);
     const classroomIds = memberships.map((m) => m.classroomId);
     const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
 
-    const [classroomMaterials, teacherMaterials] = await Promise.all([
+    // Slot-attached materials: find every slot whose audience matches this
+    // student (direct studentId, one of their cohorts, or matching
+    // audienceGrade), then pull the materials joined to those slots.
+    const slotWhere: any = {
+      OR: [
+        { students: { some: { studentId: uid } } },
+        ...(cohortIds.length ? [{ cohorts: { some: { cohortId: { in: cohortIds } } } }] : []),
+        ...(grade != null ? [{ audienceGrade: grade }] : []),
+      ],
+    };
+    const slotIds = (slotWhere.OR.length
+      ? await this.prisma.scheduleSlot.findMany({ where: slotWhere, select: { id: true } })
+      : []
+    ).map((s) => s.id);
+
+    const [classroomMaterials, teacherMaterials, slotMaterialRows] = await Promise.all([
       classroomIds.length
         ? this.prisma.classroomMaterial.findMany({
             where: { classroomId: { in: classroomIds } },
             orderBy: { createdAt: 'desc' },
           })
         : [],
-      // TeacherMaterial targeting EVERYONE or this student's cohort/directly
+      // TeacherMaterial targeting EVERYONE, this student directly, one
+      // of their cohorts, or their grade.
       this.prisma.teacherMaterial.findMany({
         where: {
           published: true,
           OR: [
             { targetType: 'EVERYONE' },
             { targetStudentIds: { has: uid } },
+            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
           ],
         },
         orderBy: { createdAt: 'desc' },
         include: { teacher: { select: { name: true } } },
       }),
+      slotIds.length
+        ? this.prisma.scheduleSlotMaterial.findMany({
+            where: { slotId: { in: slotIds } },
+            include: {
+              material: { include: { teacher: { select: { name: true } } } },
+              slot: { select: { subject: true, period: true } },
+            },
+          })
+        : [],
     ]);
+
+    // Dedup teacher materials across direct-target and slot-cascade paths.
+    const seenTeacherMaterialIds = new Set<string>();
+    const teacherFromDirect = teacherMaterials.map((m) => {
+      seenTeacherMaterialIds.add(m.id);
+      return {
+        ...m,
+        _source: 'teacher',
+        _teacherName: (m as any).teacher?.name ?? null,
+      };
+    });
+    const teacherFromSlots = slotMaterialRows
+      .filter((r: any) => r.material && !seenTeacherMaterialIds.has(r.material.id))
+      .map((r: any) => {
+        seenTeacherMaterialIds.add(r.material.id);
+        return {
+          ...r.material,
+          _source: 'period',
+          _teacherName: r.material.teacher?.name ?? null,
+          _subject: r.material.subject ?? r.slot?.subject ?? null,
+        };
+      });
 
     const items = [
       ...classroomMaterials.map((m) => ({
@@ -126,11 +190,8 @@ export class StudentClassroomsController {
         _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
         _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
       })),
-      ...teacherMaterials.map((m) => ({
-        ...m,
-        _source: 'teacher',
-        _teacherName: (m as any).teacher?.name ?? null,
-      })),
+      ...teacherFromDirect,
+      ...teacherFromSlots,
     ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return { ok: true, items };

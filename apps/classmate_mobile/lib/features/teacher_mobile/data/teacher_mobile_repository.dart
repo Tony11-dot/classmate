@@ -622,6 +622,7 @@ class TeacherMobileRepository {
     String targetType = 'EVERYONE',
     List<String> targetCohortIds = const [],
     List<String> targetStudentIds = const [],
+    List<int> targetGrades = const [],
     List<Map<String, dynamic>> attachments = const [],
     bool published = false,
   }) async {
@@ -637,6 +638,7 @@ class TeacherMobileRepository {
         'targetType': targetType,
         'targetCohortIds': targetCohortIds,
         'targetStudentIds': targetStudentIds,
+        'targetGrades': targetGrades,
         if (attachments.isNotEmpty) 'attachments': attachments,
         'published': published,
       },
@@ -688,6 +690,41 @@ class TeacherMobileRepository {
     return [];
   }
 
+  // ── Attach existing library items to a classroom ─────────────────────────
+  // Used by the classroom-tab FAB picker (assignments/materials/meetings).
+  // Mirrors a TeacherXxx into the classroom; idempotent (server returns
+  // alreadyAttached:true if it's already there).
+
+  Future<void> attachMaterialToClassroom({
+    required String classroomId,
+    required String teacherMaterialId,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$classroomId/attach-material',
+      body: <String, dynamic>{'teacherMaterialId': teacherMaterialId},
+    );
+  }
+
+  Future<void> attachAssignmentToClassroom({
+    required String classroomId,
+    required String teacherAssignmentId,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$classroomId/attach-assignment',
+      body: <String, dynamic>{'teacherAssignmentId': teacherAssignmentId},
+    );
+  }
+
+  Future<void> attachMeetingToClassroom({
+    required String classroomId,
+    required String teacherMeetingId,
+  }) async {
+    await _api.postJson(
+      '/teacher/classrooms/$classroomId/attach-meeting',
+      body: <String, dynamic>{'teacherMeetingId': teacherMeetingId},
+    );
+  }
+
   // ── Slot attachments ─────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> listSlotMaterials(String slotId) async {
@@ -729,6 +766,7 @@ class TeacherMobileRepository {
     String targetType = 'EVERYONE',
     List<String> targetCohortIds = const [],
     List<String> targetStudentIds = const [],
+    List<int> targetGrades = const [],
     List<Map<String, dynamic>> attachments = const [],
     bool published = true,
   }) async {
@@ -741,6 +779,7 @@ class TeacherMobileRepository {
       'targetType': targetType,
       'targetCohortIds': targetCohortIds,
       'targetStudentIds': targetStudentIds,
+      'targetGrades': targetGrades,
       if (attachments.isNotEmpty) 'attachments': attachments,
       'published': published,
     });
@@ -783,6 +822,7 @@ class TeacherMobileRepository {
     String targetType = 'EVERYONE',
     List<String> targetCohortIds = const [],
     List<String> targetStudentIds = const [],
+    List<int> targetGrades = const [],
   }) async {
     final raw = await _api.postJson('/teacher/meetings', body: <String, dynamic>{
       'title': title.trim(),
@@ -795,6 +835,7 @@ class TeacherMobileRepository {
       'targetType': targetType,
       'targetCohortIds': targetCohortIds,
       'targetStudentIds': targetStudentIds,
+      'targetGrades': targetGrades,
     });
     return raw is Map ? Map<String, dynamic>.from(raw) : {};
   }
@@ -858,6 +899,7 @@ class TeacherMobileRepository {
     String targetType = 'EVERYONE',
     List<String> targetCohortIds = const [],
     List<String> targetStudentIds = const [],
+    List<int> targetGrades = const [],
     List<Map<String, dynamic>> attachments = const [],
   }) async {
     final raw = await _api.postJson(
@@ -872,6 +914,7 @@ class TeacherMobileRepository {
         'targetType': targetType,
         'targetCohortIds': targetCohortIds,
         'targetStudentIds': targetStudentIds,
+        'targetGrades': targetGrades,
         if (attachments.isNotEmpty) 'attachments': attachments,
       },
     );

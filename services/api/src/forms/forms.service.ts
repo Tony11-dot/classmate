@@ -52,9 +52,43 @@ export class FormsService {
   async live(user: any) {
     // Prefer real DB forms created by teachers; fall back to demo forms for empty schools
     const schoolId = (user as any)?.schoolId ?? null;
+    const uid = String((user as any)?.sub ?? (user as any)?.id ?? '');
+    // Pull the viewer's cohort + grade so we can filter by audience scope.
+    // Teachers/admins get all published forms in the school (no filter);
+    // students get filtered to forms that target them.
+    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const isStudent = roles.includes('STUDENT') && !roles.includes('TEACHER') && !roles.includes('ADMIN');
+    let cohortIds: string[] = [];
+    let grade: number | null = null;
+    if (isStudent && uid) {
+      const [links, profile] = await Promise.all([
+        this.prisma.studentCohort.findMany({
+          where: { studentId: uid },
+          select: { cohortId: true },
+        }),
+        this.prisma.studentProfile.findUnique({
+          where: { userId: uid },
+          select: { grade: true },
+        }),
+      ]);
+      cohortIds = links.map((c) => c.cohortId);
+      grade = profile?.grade ?? null;
+    }
     try {
       const dbForms = await this.prisma.schoolForm.findMany({
-        where: { published: true, acceptingResponses: true, ...(schoolId ? { schoolId } : {}) },
+        where: {
+          published: true,
+          acceptingResponses: true,
+          ...(schoolId ? { schoolId } : {}),
+          ...(isStudent ? {
+            OR: [
+              { targetType: 'EVERYONE' },
+              { targetStudentIds: { has: uid } },
+              ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+              ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+            ],
+          } : {}),
+        },
         orderBy: { publishedAt: 'desc' },
         take: 50,
       });

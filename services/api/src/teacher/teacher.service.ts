@@ -1943,6 +1943,12 @@ export class TeacherService {
         published: body.published === true,
         publishedAt: body.published === true ? new Date() : null,
         questions: Array.isArray(body.questions) ? body.questions : [],
+        targetType: typeof body.targetType === 'string' ? body.targetType : 'EVERYONE',
+        targetCohortIds: Array.isArray(body.targetCohortIds) ? body.targetCohortIds : [],
+        targetStudentIds: Array.isArray(body.targetStudentIds) ? body.targetStudentIds : [],
+        targetGrades: Array.isArray(body.targetGrades)
+          ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+          : [],
       },
     });
     return { ok: true, form: { id: form.id } };
@@ -1965,6 +1971,18 @@ export class TeacherService {
           publishedAt: body.published ? new Date() : null,
         }),
         ...(body.questions != null && { questions: body.questions }),
+        ...(body.targetType != null && { targetType: String(body.targetType) }),
+        ...(body.targetCohortIds != null && {
+          targetCohortIds: Array.isArray(body.targetCohortIds) ? body.targetCohortIds : [],
+        }),
+        ...(body.targetStudentIds != null && {
+          targetStudentIds: Array.isArray(body.targetStudentIds) ? body.targetStudentIds : [],
+        }),
+        ...(body.targetGrades != null && {
+          targetGrades: Array.isArray(body.targetGrades)
+            ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+            : [],
+        }),
       },
     });
     return { ok: true };
@@ -2138,6 +2156,9 @@ export class TeacherService {
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body?.targetStudentIds) ? body.targetStudentIds : [],
+        targetGrades: Array.isArray(body?.targetGrades)
+          ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+          : [],
         published: body?.published === true,
         publishedAt: body?.published === true ? new Date() : null,
       },
@@ -2176,6 +2197,9 @@ export class TeacherService {
     if (body?.targetType !== undefined) data.targetType = body.targetType;
     if (body?.targetCohortIds !== undefined) data.targetCohortIds = body.targetCohortIds;
     if (body?.targetStudentIds !== undefined) data.targetStudentIds = body.targetStudentIds;
+    if (body?.targetGrades !== undefined) data.targetGrades = Array.isArray(body.targetGrades)
+      ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+      : [];
     if (body?.published !== undefined) { data.published = body.published; if (body.published) data.publishedAt = new Date(); }
     await this.prisma.teacherAssignment.updateMany({ where: { id, teacherId }, data });
     return { ok: true };
@@ -2307,6 +2331,9 @@ export class TeacherService {
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body?.targetStudentIds) ? body.targetStudentIds : [],
+        targetGrades: Array.isArray(body?.targetGrades)
+          ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+          : [],
         published: body?.published !== false,
       },
     });
@@ -2336,6 +2363,12 @@ export class TeacherService {
     if (body?.url !== undefined) data.url = body.url ? String(body.url).trim() : null;
     if (body?.attachments !== undefined) data.attachments = Array.isArray(body.attachments) ? body.attachments : [];
     if (body?.subject !== undefined) data.subject = body.subject ? String(body.subject).trim() : null;
+    if (body?.targetType !== undefined) data.targetType = body.targetType;
+    if (body?.targetCohortIds !== undefined) data.targetCohortIds = body.targetCohortIds;
+    if (body?.targetStudentIds !== undefined) data.targetStudentIds = body.targetStudentIds;
+    if (body?.targetGrades !== undefined) data.targetGrades = Array.isArray(body.targetGrades)
+      ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+      : [];
     if (body?.published !== undefined) data.published = body.published;
     await this.prisma.teacherMaterial.updateMany({ where: { id, teacherId }, data });
     return { ok: true };
@@ -2409,7 +2442,62 @@ export class TeacherService {
       create: { slotId, teacherMaterialId },
       update: {},
     });
+    // Audience auto-expand: pull every student the slot targets into the
+    // material's audience so they see it in their materials feed too.
+    await this.expandTeacherMaterialAudienceFromSlot(teacherMaterialId, slotId);
     return { ok: true };
+  }
+
+  /// Resolves the student IDs the given slot targets (direct studentIds +
+  /// cohort members + audienceGrade matches) and merges any new ones into
+  /// the teacher material's targetStudentIds.
+  private async expandTeacherMaterialAudienceFromSlot(teacherMaterialId: string, slotId: string) {
+    const slot = await this.prisma.scheduleSlot.findUnique({
+      where: { id: slotId },
+      select: {
+        schoolId: true,
+        audienceGrade: true,
+        students: { select: { studentId: true } },
+        cohorts: { select: { cohortId: true } },
+      },
+    });
+    if (!slot) return;
+    const ids = new Set<string>();
+    for (const s of slot.students) ids.add(s.studentId);
+    if (slot.cohorts.length) {
+      const cohortIds = slot.cohorts.map((c) => c.cohortId);
+      const cohortMembers = await this.prisma.studentCohort.findMany({
+        where: { cohortId: { in: cohortIds } },
+        select: { studentId: true },
+      });
+      for (const m of cohortMembers) ids.add(m.studentId);
+    }
+    if (slot.audienceGrade != null) {
+      const gradeStudents = await this.prisma.studentProfile.findMany({
+        where: {
+          grade: slot.audienceGrade,
+          ...(slot.schoolId ? { user: { schoolId: slot.schoolId } } : {}),
+        },
+        select: { userId: true },
+      });
+      for (const s of gradeStudents) ids.add(s.userId);
+    }
+    if (ids.size === 0) return;
+    const cur = await this.prisma.teacherMaterial.findUnique({
+      where: { id: teacherMaterialId },
+      select: { targetStudentIds: true },
+    });
+    if (!cur) return;
+    const existing = new Set(cur.targetStudentIds);
+    const merged = [...cur.targetStudentIds];
+    for (const id of ids) {
+      if (!existing.has(id)) merged.push(id);
+    }
+    if (merged.length === cur.targetStudentIds.length) return;
+    await this.prisma.teacherMaterial.update({
+      where: { id: teacherMaterialId },
+      data: { targetStudentIds: merged },
+    });
   }
 
   async detachSlotMaterial(user: any, slotId: string, teacherMaterialId: string) {
@@ -2428,6 +2516,191 @@ export class TeacherService {
       select: { id: true },
     });
     if (!slot) throw new ForbiddenException('Not your slot');
+  }
+
+  // ── Attach existing library items (material/assignment/meeting) to a
+  //     classroom. The FAB in each classroom tab opens a picker showing
+  //     the teacher's library; tapping an existing one calls one of
+  //     these endpoints to mirror it into the classroom. Each operation
+  //     is idempotent — if the item is already in the classroom (by
+  //     teacherXxxId back-ref), it's a no-op success.
+
+  async attachTeacherMaterialToClassroom(user: any, classroomId: string, teacherMaterialId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!teacherMaterialId) throw new BadRequestException('teacherMaterialId is required');
+
+    await this.assertTeacherOwnsClassroom(teacherId, classroomId);
+
+    const material = await this.prisma.teacherMaterial.findFirst({
+      where: { id: teacherMaterialId, teacherId },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    const existing = await this.prisma.classroomMaterial.findFirst({
+      where: { classroomId, teacherMaterialId },
+      select: { id: true },
+    });
+    if (existing) return { ok: true, id: existing.id, alreadyAttached: true };
+
+    const primaryUrl = (typeof material.url === 'string' && material.url.length > 0)
+      ? material.url
+      : '';
+    const created = await this.prisma.classroomMaterial.create({
+      data: {
+        classroomId,
+        title: material.title,
+        description: material.description ?? null,
+        url: primaryUrl,
+        attachments: material.attachments as any,
+        mime: null,
+        createdBy: teacherId,
+        teacherMaterialId: material.id,
+      },
+    });
+    // Audience auto-expand: pull in classroom members the material doesn't
+    // already target so they see the item in their materials feed too.
+    await this.expandTeacherMaterialAudience(material.id, classroomId);
+    return { ok: true, id: created.id };
+  }
+
+  async attachTeacherAssignmentToClassroom(user: any, classroomId: string, teacherAssignmentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!teacherAssignmentId) throw new BadRequestException('teacherAssignmentId is required');
+
+    await this.assertTeacherOwnsClassroom(teacherId, classroomId);
+
+    const src = await this.prisma.teacherAssignment.findFirst({
+      where: { id: teacherAssignmentId, teacherId },
+    });
+    if (!src) throw new NotFoundException('Assignment not found');
+
+    const existing = await this.prisma.classroomAssignment.findFirst({
+      where: { classroomId, teacherAssignmentId },
+      select: { id: true },
+    });
+    if (existing) return { ok: true, id: existing.id, alreadyAttached: true };
+
+    const created = await this.prisma.classroomAssignment.create({
+      data: {
+        classroomId,
+        title: src.title,
+        description: src.description ?? null,
+        dueAt: src.dueAt,
+        maxGrade: src.maxGrade ?? null,
+        attachments: src.attachments as any,
+        published: src.published,
+        createdBy: teacherId,
+        teacherAssignmentId: src.id,
+      } as any,
+    });
+    await this.expandTeacherAssignmentAudience(src.id, classroomId);
+    return { ok: true, id: created.id };
+  }
+
+  async attachTeacherMeetingToClassroom(user: any, classroomId: string, teacherMeetingId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!teacherMeetingId) throw new BadRequestException('teacherMeetingId is required');
+
+    await this.assertTeacherOwnsClassroom(teacherId, classroomId);
+
+    const src = await this.prisma.teacherMeeting.findFirst({
+      where: { id: teacherMeetingId, teacherId },
+    });
+    if (!src) throw new NotFoundException('Meeting not found');
+
+    const existing = await this.prisma.classroomMeeting.findFirst({
+      where: { classroomId, teacherMeetingId },
+      select: { id: true },
+    });
+    if (existing) return { ok: true, id: existing.id, alreadyAttached: true };
+
+    const created = await this.prisma.classroomMeeting.create({
+      data: {
+        classroomId,
+        title: src.title,
+        startsAt: src.startsAt,
+        endsAt: src.endsAt,
+        link: src.link,
+        createdBy: teacherId,
+        teacherMeetingId: src.id,
+      } as any,
+    });
+    await this.expandTeacherMeetingAudience(src.id, classroomId);
+    return { ok: true, id: created.id };
+  }
+
+  /// Pulls every classroom member into the teacher item's targetStudentIds
+  /// so they all see the item in their feed, even when the original audience
+  /// didn't include them. Idempotent (skip ids already in the set).
+  private async classroomMemberIds(classroomId: string): Promise<string[]> {
+    const rows = await this.prisma.classroomMember.findMany({
+      where: { classroomId },
+      select: { studentId: true },
+    });
+    return rows.map((r) => r.studentId);
+  }
+
+  private async expandTeacherMaterialAudience(teacherMaterialId: string, classroomId: string) {
+    const memberIds = await this.classroomMemberIds(classroomId);
+    if (!memberIds.length) return;
+    const cur = await this.prisma.teacherMaterial.findUnique({
+      where: { id: teacherMaterialId },
+      select: { targetStudentIds: true },
+    });
+    if (!cur) return;
+    const existing = new Set(cur.targetStudentIds);
+    const merged = [...cur.targetStudentIds];
+    for (const id of memberIds) {
+      if (!existing.has(id)) merged.push(id);
+    }
+    if (merged.length === cur.targetStudentIds.length) return;
+    await this.prisma.teacherMaterial.update({
+      where: { id: teacherMaterialId },
+      data: { targetStudentIds: merged },
+    });
+  }
+
+  private async expandTeacherAssignmentAudience(teacherAssignmentId: string, classroomId: string) {
+    const memberIds = await this.classroomMemberIds(classroomId);
+    if (!memberIds.length) return;
+    const cur = await this.prisma.teacherAssignment.findUnique({
+      where: { id: teacherAssignmentId },
+      select: { targetStudentIds: true },
+    });
+    if (!cur) return;
+    const existing = new Set(cur.targetStudentIds);
+    const merged = [...cur.targetStudentIds];
+    for (const id of memberIds) {
+      if (!existing.has(id)) merged.push(id);
+    }
+    if (merged.length === cur.targetStudentIds.length) return;
+    await this.prisma.teacherAssignment.update({
+      where: { id: teacherAssignmentId },
+      data: { targetStudentIds: merged },
+    });
+  }
+
+  private async expandTeacherMeetingAudience(teacherMeetingId: string, classroomId: string) {
+    const memberIds = await this.classroomMemberIds(classroomId);
+    if (!memberIds.length) return;
+    const cur = await this.prisma.teacherMeeting.findUnique({
+      where: { id: teacherMeetingId },
+      select: { targetStudentIds: true },
+    });
+    if (!cur) return;
+    const existing = new Set(cur.targetStudentIds);
+    const merged = [...cur.targetStudentIds];
+    for (const id of memberIds) {
+      if (!existing.has(id)) merged.push(id);
+    }
+    if (merged.length === cur.targetStudentIds.length) return;
+    await this.prisma.teacherMeeting.update({
+      where: { id: teacherMeetingId },
+      data: { targetStudentIds: merged },
+    });
   }
 
   /// Normalises a TeacherMaterial row into a flat pill-friendly shape.
@@ -2507,6 +2780,9 @@ export class TeacherService {
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body?.targetStudentIds) ? body.targetStudentIds : [],
+        targetGrades: Array.isArray(body?.targetGrades)
+          ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+          : [],
       },
     });
     if (classroomId) {
@@ -2534,6 +2810,12 @@ export class TeacherService {
     if (body?.startsAt !== undefined) data.startsAt = body.startsAt ? new Date(String(body.startsAt)) : new Date();
     if (body?.endsAt !== undefined) data.endsAt = body.endsAt ? new Date(String(body.endsAt)) : null;
     if (body?.subject !== undefined) data.subject = body.subject ? String(body.subject).trim() : null;
+    if (body?.targetType !== undefined) data.targetType = body.targetType;
+    if (body?.targetCohortIds !== undefined) data.targetCohortIds = body.targetCohortIds;
+    if (body?.targetStudentIds !== undefined) data.targetStudentIds = body.targetStudentIds;
+    if (body?.targetGrades !== undefined) data.targetGrades = Array.isArray(body.targetGrades)
+      ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+      : [];
     await this.prisma.teacherMeeting.updateMany({ where: { id, teacherId }, data });
     return { ok: true };
   }
@@ -2587,6 +2869,9 @@ export class TeacherService {
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body?.targetStudentIds) ? body.targetStudentIds : [],
+        targetGrades: Array.isArray(body?.targetGrades)
+          ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+          : [],
       },
     });
     return { ok: true, exam: e };

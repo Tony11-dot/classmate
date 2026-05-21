@@ -15,6 +15,7 @@ import '../../chat_core/ui/chat_thread_view.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import 'widgets/classroom_library_picker.dart';
 
 class TeacherClassroomDetailScreen extends ConsumerStatefulWidget {
   const TeacherClassroomDetailScreen({
@@ -592,6 +593,35 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
     }
   }
 
+  Future<void> _openPicker() async {
+    // Existing classroom rows carry teacherAssignmentId when they were
+    // created via the teacher-library path. Dedup the picker against
+    // those so the same library item can't be attached twice.
+    final attached = _items
+        .map((m) => (m['teacherAssignmentId'] ?? '').toString())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    final picked = await showClassroomLibraryPicker(
+      context: context,
+      kind: ClassroomLibraryKind.assignment,
+      alreadyAttachedTeacherIds: attached,
+      prefillSubject: widget.subject,
+    );
+    if (picked == null || !mounted) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).attachAssignmentToClassroom(
+            classroomId: widget.courseId,
+            teacherAssignmentId: picked,
+          );
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -642,17 +672,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_assignment',
-              onPressed: () => context
-                  .push(
-                    '/teacher/assignments/add',
-                    extra: <String, dynamic>{
-                      'courseId': widget.courseId,
-                      'subject': widget.subject,
-                    },
-                  )
-                  .then((_) {
-                if (mounted) _load();
-              }),
+              onPressed: _openPicker,
               icon: const Icon(Icons.add_rounded),
               label: Text(l.teacherAssignmentLabel),
             ),
@@ -770,6 +790,32 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
     );
   }
 
+  Future<void> _openPicker() async {
+    final attached = _items
+        .map((m) => (m['teacherMaterialId'] ?? '').toString())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    final picked = await showClassroomLibraryPicker(
+      context: context,
+      kind: ClassroomLibraryKind.material,
+      alreadyAttachedTeacherIds: attached,
+      prefillSubject: widget.subject,
+    );
+    if (picked == null || !mounted) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).attachMaterialToClassroom(
+            classroomId: widget.courseId,
+            teacherMaterialId: picked,
+          );
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -824,17 +870,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_material',
-              onPressed: () => context
-                  .push(
-                    '/teacher/materials/add',
-                    extra: <String, dynamic>{
-                      'courseId': widget.courseId,
-                      'subject': widget.subject,
-                    },
-                  )
-                  .then((_) {
-                if (mounted) _load();
-              }),
+              onPressed: _openPicker,
               icon: const Icon(Icons.attach_file_rounded),
               label: Text(l.teacherShareMaterialLabel),
             ),
@@ -928,6 +964,32 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
     }
   }
 
+  Future<void> _openPicker() async {
+    final attached = _items
+        .map((m) => (m['teacherMeetingId'] ?? '').toString())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    final picked = await showClassroomLibraryPicker(
+      context: context,
+      kind: ClassroomLibraryKind.meeting,
+      alreadyAttachedTeacherIds: attached,
+      prefillSubject: widget.subject,
+    );
+    if (picked == null || !mounted) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).attachMeetingToClassroom(
+            classroomId: widget.courseId,
+            teacherMeetingId: picked,
+          );
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -990,17 +1052,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_meeting',
-              onPressed: () => context
-                  .push(
-                    '/teacher/classroom/${widget.courseId}/meeting/add',
-                    extra: <String, dynamic>{
-                      'courseId': widget.courseId,
-                      'subject': widget.subject,
-                    },
-                  )
-                  .then((_) {
-                if (mounted) _load();
-              }),
+              onPressed: _openPicker,
               icon: const Icon(Icons.video_call_rounded),
               label: Text(l.actionScheduleVerb),
             ),

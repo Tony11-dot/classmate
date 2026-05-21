@@ -41,6 +41,18 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   // Audience targeting
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
+  final Set<int> _selectedGrades = {};
+
+  /// Distinct grade values across the teacher's cohorts. Used as the
+  /// option list for the Grades audience picker.
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final c in _cohorts) {
+      if (c.grade > 0) s.add(c.grade);
+    }
+    final list = s.toList()..sort();
+    return list;
+  }
 
   @override
   void initState() {
@@ -112,6 +124,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
         'targetType': _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
         'targetCohortIds': _selectedCohortIds.toList(),
         'targetStudentIds': _selectedStudentIds.toList(),
+        'targetGrades': _selectedGrades.toList(),
         'questions': questions,
       });
 
@@ -199,6 +212,8 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
                 allStudents: _allStudents,
                 selectedCohortIds: _selectedCohortIds,
                 selectedStudentIds: _selectedStudentIds,
+                selectedGrades: _selectedGrades,
+                availableGrades: _availableGrades,
                 repo: ref.read(teacherMobileRepositoryProvider),
                 onChanged: () => setState(() {}),
               ),

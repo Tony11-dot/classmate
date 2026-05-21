@@ -26,19 +26,32 @@ export class StudentExamsController {
     return sp?.cohortId ?? null;
   }
 
+  private async studentGrade(uid: string): Promise<number | null> {
+    const sp = await this.prisma.studentProfile.findUnique({
+      where: { userId: uid },
+      select: { grade: true },
+    });
+    return sp?.grade ?? null;
+  }
+
   @Get()
   async list(@Req() req: any) {
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
     if (!uid) throw new BadRequestException('Missing identity');
 
-    const cohortId = await this.studentCohortId(uid);
+    const [cohortId, grade] = await Promise.all([
+      this.studentCohortId(uid),
+      this.studentGrade(uid),
+    ]);
 
     const exams = await this.prisma.teacherExam.findMany({
       where: {
         published: true,
         OR: [
+          { targetType: 'EVERYONE' },
           { targetStudentIds: { has: uid } },
           ...(cohortId ? [{ targetCohortIds: { has: cohortId } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
         ],
       },
       select: {
@@ -69,15 +82,20 @@ export class StudentExamsController {
     const uid = String(req?.user?.sub ?? req?.user?.id ?? '');
     if (!uid) throw new BadRequestException('Missing identity');
 
-    const cohortId = await this.studentCohortId(uid);
+    const [cohortId, grade] = await Promise.all([
+      this.studentCohortId(uid),
+      this.studentGrade(uid),
+    ]);
 
     const exam = await this.prisma.teacherExam.findFirst({
       where: {
         id: String(examId),
         published: true,
         OR: [
+          { targetType: 'EVERYONE' },
           { targetStudentIds: { has: uid } },
           ...(cohortId ? [{ targetCohortIds: { has: cohortId } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
         ],
       },
       select: {

@@ -1818,6 +1818,7 @@ model SchoolForm {
   targetType             String       @default("EVERYONE")
   targetCohortIds        String[]     @default([])
   targetStudentIds       String[]     @default([])
+  targetGrades           Int[]        @default([])
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @updatedAt
 
@@ -1879,6 +1880,7 @@ model TeacherAssignment {
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])
   targetStudentIds String[]             @default([])
+  targetGrades     Int[]                @default([])
   attachments      Json                 @default("[]")
   published        Boolean              @default(false)
   publishedAt      DateTime?
@@ -1926,6 +1928,7 @@ model TeacherExam {
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])
   targetStudentIds String[]             @default([])
+  targetGrades     Int[]                @default([])
   attachments      Json                 @default("[]")
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
@@ -1950,6 +1953,7 @@ model TeacherMaterial {
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])
   targetStudentIds String[]             @default([])
+  targetGrades     Int[]                @default([])
   published        Boolean              @default(true)
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
@@ -1974,6 +1978,7 @@ model TeacherMeeting {
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])
   targetStudentIds String[]             @default([])
+  targetGrades     Int[]                @default([])
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
 

@@ -257,8 +257,18 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   String _targetType = 'EVERYONE';
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
+  final Set<int> _selectedGrades = {};
   final Map<String, List<String>> _memberCache = {};
   bool _saving = false;
+
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final c in _cohorts) {
+      if (c.grade > 0) s.add(c.grade);
+    }
+    final list = s.toList()..sort();
+    return list;
+  }
 
   bool get _isEditing => widget.initialMeeting != null;
 
@@ -281,6 +291,13 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       if (cIds is List) _selectedCohortIds.addAll(cIds.map((e) => e.toString()));
       final sIds = m['targetStudentIds'];
       if (sIds is List) _selectedStudentIds.addAll(sIds.map((e) => e.toString()));
+      final gs = m['targetGrades'];
+      if (gs is List) {
+        for (final g in gs) {
+          final n = g is int ? g : int.tryParse('$g');
+          if (n != null) _selectedGrades.add(n);
+        }
+      }
     }
     Future<void>.microtask(_load);
   }
@@ -438,6 +455,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
             'link': link, 'startsAt': _startsAt!.toIso8601String(),
             'endsAt': _endsAt?.toIso8601String(), 'courseId': _selectedCourseId, 'subject': _selectedSubject,
             'targetType': effectiveTargetType, 'targetCohortIds': _selectedCohortIds.toList(), 'targetStudentIds': _selectedStudentIds.toList(),
+            'targetGrades': _selectedGrades.toList(),
           },
         );
       } else {
@@ -452,6 +470,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
           targetType: effectiveTargetType,
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
+          targetGrades: _selectedGrades.toList(),
         );
       }
       if (!mounted) return;
@@ -479,6 +498,31 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
         onToggle: (id) => setState(() {
           if (_selectedStudentIds.contains(id)) { _selectedStudentIds.remove(id); }
           else { _selectedStudentIds.add(id); }
+        }),
+      ),
+    );
+  }
+
+  Future<void> _openGradePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _PersonPickerSheet(
+        title: 'Select grades',
+        items: _availableGrades
+            .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
+            .toList(),
+        selected: _selectedGrades.map((g) => g.toString()).toSet(),
+        onToggle: (id) => setState(() {
+          final g = int.tryParse(id);
+          if (g == null) return;
+          if (_selectedGrades.contains(g)) {
+            _selectedGrades.remove(g);
+          } else {
+            _selectedGrades.add(g);
+          }
         }),
       ),
     );
@@ -519,12 +563,30 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     _fetchMembersFor(id);
                   } }, cs: cs, theme: theme),
                   const SizedBox(height: 8),
+                  if (_availableGrades.isNotEmpty) ...[
+                    _MtgAudiencePicker(
+                      icon: Icons.school_rounded,
+                      label: 'Grades',
+                      summary: _selectedGrades.isEmpty
+                          ? null
+                          : (_selectedGrades.toList()..sort())
+                              .map((g) => 'Grade $g')
+                              .join(', '),
+                      onTap: _openGradePicker,
+                      cs: cs,
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   _MtgAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
                   if (_previewMembers.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     _MembersPreview(members: _previewMembers, cs: cs, theme: theme),
                   ],
-                  if (_selectedCourseId == null && _selectedCohortIds.isEmpty && _selectedStudentIds.isEmpty) ...[
+                  if (_selectedCourseId == null &&
+                      _selectedCohortIds.isEmpty &&
+                      _selectedStudentIds.isEmpty &&
+                      _selectedGrades.isEmpty) ...[
                     const SizedBox(height: 8),
                     Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],

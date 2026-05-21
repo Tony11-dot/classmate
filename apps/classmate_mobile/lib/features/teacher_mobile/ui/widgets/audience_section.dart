@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 import '../../data/teacher_mobile_repository.dart';
 
-/// Reusable audience section: cohort DDL + student DDL + member preview.
-/// No classroom picker — use the add-assignment/material/meeting screens for that.
+/// Reusable audience section: cohort DDL + grade DDL + student DDL + member
+/// preview. No classroom picker — use the add-assignment/material/meeting
+/// screens for that.
 class AudienceSection extends StatefulWidget {
   const AudienceSection({
     super.key,
@@ -12,6 +13,8 @@ class AudienceSection extends StatefulWidget {
     required this.allStudents,
     required this.selectedCohortIds,
     required this.selectedStudentIds,
+    required this.selectedGrades,
+    required this.availableGrades,
     required this.repo,
     required this.onChanged,
   });
@@ -20,6 +23,15 @@ class AudienceSection extends StatefulWidget {
   final List<TeacherStudentWithLevel> allStudents;
   final Set<String> selectedCohortIds;
   final Set<String> selectedStudentIds;
+  /// Grade levels the teacher wants to target. Server treats this as a
+  /// union OR'd with cohort/student/EVERYONE — so a student whose
+  /// StudentProfile.grade is in this set will see the item even when
+  /// they aren't in any matching cohort or student list.
+  final Set<int> selectedGrades;
+  /// Grades the teacher can choose from. Caller typically derives this
+  /// from the school's min/max grade range or the unique grades across
+  /// their cohorts.
+  final List<int> availableGrades;
   final TeacherMobileRepository repo;
   /// Called when either set changes so parent can setState.
   final VoidCallback onChanged;
@@ -104,11 +116,42 @@ class _AudienceSectionState extends State<AudienceSection> {
     );
   }
 
+  Future<void> _openGradePicker() async {
+    final cs = Theme.of(context).colorScheme;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: cs.surfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (_) => _MultiPickerSheet(
+        title: 'Select grades',
+        items: widget.availableGrades
+            .map((g) => _Item(id: g.toString(), label: 'Grade $g'))
+            .toList(),
+        selected: widget.selectedGrades.map((g) => g.toString()).toSet(),
+        onToggle: (id) {
+          final g = int.tryParse(id);
+          if (g == null) return;
+          if (widget.selectedGrades.contains(g)) {
+            widget.selectedGrades.remove(g);
+          } else {
+            widget.selectedGrades.add(g);
+          }
+          widget.onChanged();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final preview = _previewMembers;
+
+    final sortedGrades = widget.selectedGrades.toList()..sort();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,6 +171,20 @@ class _AudienceSectionState extends State<AudienceSection> {
           theme: theme,
         ),
         const SizedBox(height: 8),
+        // Grades row — only show when the caller supplied options.
+        if (widget.availableGrades.isNotEmpty) ...[
+          _AudienceRow(
+            icon: Icons.school_rounded,
+            label: 'Grades',
+            summary: sortedGrades.isEmpty
+                ? null
+                : sortedGrades.map((g) => 'Grade $g').join(', '),
+            onTap: _openGradePicker,
+            cs: cs,
+            theme: theme,
+          ),
+          const SizedBox(height: 8),
+        ],
         // Students row
         _AudienceRow(
           icon: Icons.person_rounded,
@@ -171,7 +228,9 @@ class _AudienceSectionState extends State<AudienceSection> {
             ]),
           ),
         ],
-        if (widget.selectedCohortIds.isEmpty && widget.selectedStudentIds.isEmpty) ...[
+        if (widget.selectedCohortIds.isEmpty &&
+            widget.selectedStudentIds.isEmpty &&
+            widget.selectedGrades.isEmpty) ...[
           const SizedBox(height: 8),
           Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
         ],
