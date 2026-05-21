@@ -47,18 +47,20 @@ export type ScheduleItem = {
 
 const DOW_STR: DayOfWeek[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-// MVP bell schedule (edit later)
+// Default bell schedule. Used when the school hasn't configured its own
+// times under Admin → School Settings → Periods. Once a school sets
+// SchoolPeriodDefault rows, those take precedence for everyone in that
+// school. Per-slot startTime/endTime overrides still win above either.
 const PERIOD_TIME: Record<number, { start: string; end: string }> = {
   1: { start: '08:00', end: '08:45' },
-  2: { start: '08:50', end: '09:35' },
-  3: { start: '09:45', end: '10:30' },
-  4: { start: '10:35', end: '11:20' },
+  2: { start: '08:45', end: '09:30' },
+  3: { start: '09:30', end: '10:15' },
+  4: { start: '10:45', end: '11:30' }, // 30-min break between P3 and P4
   5: { start: '11:30', end: '12:15' },
-  6: { start: '12:20', end: '13:05' },
-  7: { start: '13:15', end: '14:00' },
-  8: { start: '14:05', end: '14:50' },
-  9: { start: '15:00', end: '15:45' },
-  10: { start: '15:50', end: '16:35' },
+  6: { start: '12:15', end: '13:00' },
+  7: { start: '13:00', end: '13:45' },
+  8: { start: '13:45', end: '14:30' },
+  9: { start: '14:30', end: '15:15' },
 };
 
 function ymdInJerusalem(date = new Date()): string {
@@ -195,7 +197,9 @@ export class ScheduleService {
     const tmplSlots = orderedTemplateIds.length
       ? await this.prisma.scheduleTemplateSlot.findMany({
           where: { templateId: { in: orderedTemplateIds } },
-          include: { teacher: { select: { id: true, name: true } } } as any,
+          include: {
+            teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+          } as any,
         })
       : [];
 
@@ -262,8 +266,14 @@ export class ScheduleService {
             skipDates: true,
             studentDateSkips: true,
             caption: true,
-            teacher: { select: { id: true, name: true } },
-            classroom: { select: { id: true, name: true } },
+            teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+            classroom: {
+              select: {
+                id: true,
+                name: true,
+                teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+              },
+            },
             materials: {
               select: {
                 material: {
@@ -299,8 +309,14 @@ export class ScheduleService {
               color: true,
               audienceGrade: true,
               skipDates: true,
-              teacher: { select: { id: true, name: true } },
-              classroom: { select: { id: true, name: true } },
+              teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+              classroom: {
+                select: {
+                  id: true,
+                  name: true,
+                  teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+                },
+              },
             } as any,
           });
         } catch {
@@ -482,8 +498,25 @@ export class ScheduleService {
     return this.prisma.scheduleOverride.findMany({
       where: { cohortId, date: { gte: from, lt: toExclusive } },
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
-      include: { teacher: { select: { id: true, name: true } } } as any,
+      include: {
+        teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+      } as any,
     });
+  }
+
+  /// Picks the best display name for a User-shaped relation. Prefers the
+  /// curated displayName, falls back through nameEn → name, returns null
+  /// when every field is empty. Used for the schedule tile's subtitle so
+  /// students see a real teacher name even when the User row was created
+  /// with just a username as `name`.
+  private _pickDisplayName(u: any): string | null {
+    if (!u || typeof u !== 'object') return null;
+    const fields = ['displayName', 'nameEn', 'name'];
+    for (const f of fields) {
+      const v = typeof u[f] === 'string' ? u[f].trim() : '';
+      if (v.length > 0) return v;
+    }
+    return null;
   }
 
   /// Filters out template rows whose `studentDateSkips` matches the
@@ -606,6 +639,14 @@ export class ScheduleService {
     for (const r of tmpl) {
       const p = Number(r.period);
       const arr = byPeriod.get(p) ?? [];
+      // Teacher name resolution: prefer the slot's own teacher relation,
+      // fall back to the classroom's teacher when the slot left it null.
+      // Within each user, prefer displayName → nameEn → name so a row
+      // whose `name` is just a username still surfaces a real name.
+      const slotTeacherName = this._pickDisplayName((r as any).teacher);
+      const classroomTeacherName = this._pickDisplayName(
+        (r as any).classroom?.teacher,
+      );
       arr.push({
         id: String(r.id),
         isOverride: false,
@@ -617,8 +658,11 @@ export class ScheduleService {
         // Joined relations come from the slot queries that include teacher
         // and classroom — see resolveTemplateSlotsForStudent / templateForCohort.
         classroomName: (r as any).classroom?.name ?? null,
-        teacherId: (r as any).teacherId ?? (r as any).teacher?.id ?? null,
-        teacherName: (r as any).teacher?.name ?? null,
+        teacherId: (r as any).teacherId
+          ?? (r as any).teacher?.id
+          ?? (r as any).classroom?.teacher?.id
+          ?? null,
+        teacherName: slotTeacherName ?? classroomTeacherName ?? null,
         color: (r as any).color ?? null,
         caption: (r as any).caption ?? null,
         attachments: this._materialsFromSlotRow(r),
@@ -638,7 +682,7 @@ export class ScheduleService {
           classroomId: null,
           // Override may swap the teacher for the day.
           teacherId: (o as any).teacherId ?? (o as any).teacher?.id ?? null,
-          teacherName: (o as any).teacher?.name ?? null,
+          teacherName: this._pickDisplayName((o as any).teacher),
           color: null,
         },
       ]);

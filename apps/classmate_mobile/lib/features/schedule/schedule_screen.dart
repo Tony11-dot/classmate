@@ -841,6 +841,9 @@ class _ScheduleTile extends StatelessWidget {
     final endsAt = '${item['endsAt'] ?? '--:--'}';
     final courseId = (item['courseId'] ?? '').toString().trim();
     final period = (item['period'] as num?)?.toInt();
+    final attachmentCount = (item['attachments'] is List)
+        ? (item['attachments'] as List).length
+        : 0;
     final hasStatus = attendanceStatus.isNotEmpty;
 
     // Subtitle: just the teacher's name. Subject is already in the title
@@ -987,6 +990,38 @@ class _ScheduleTile extends StatelessWidget {
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (attachmentCount > 0) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: cs.secondaryContainer,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.attach_file_rounded,
+                                  size: 12, color: cs.onSecondaryContainer),
+                              const SizedBox(width: 4),
+                              Text(
+                                attachmentCount == 1
+                                    ? '1 material'
+                                    : '$attachmentCount materials',
+                                style: TextStyle(
+                                  color: cs.onSecondaryContainer,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                     if (hasStatus) ...[
