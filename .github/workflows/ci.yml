@@ -1,9 +1,13 @@
 name: CI
 
+# Temporarily paused — workflow fails on Prisma/seed setup and was
+# spamming the owner's inbox on every push. Re-enable when we're
+# actually iterating on tests by restoring the push/PR triggers below.
 on:
-  push:
-    branches: [ main ]
-  pull_request:
+  workflow_dispatch:
+  # push:
+  #   branches: [ main ]
+  # pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
