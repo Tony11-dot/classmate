@@ -141,31 +141,6 @@ export class TeacherService {
       },
     });
 
-    // TEMP DIAGNOSTIC — remove after we confirm the teacherId mismatch.
-    if (slots.length === 0) {
-      const allInSchool = await this.prisma.scheduleSlot.findMany({
-        where: {
-          dayOfWeek,
-          ...(((user as any)?.schoolId) ? { schoolId: (user as any).schoolId } : {}),
-        },
-        select: { id: true, period: true, teacherId: true, subject: true },
-        take: 20,
-      });
-      // eslint-disable-next-line no-console
-      console.log('[teacher.todaySchedule] EMPTY for teacher', JSON.stringify({
-        teacherUserId: teacherId,
-        dayOfWeek,
-        schoolId: (user as any)?.schoolId ?? null,
-        slotsInSchoolOnThisDay: allInSchool.map((s) => ({
-          id: s.id,
-          period: s.period,
-          subject: s.subject,
-          teacherId: s.teacherId,
-          teacherIdMatchesViewer: s.teacherId === teacherId,
-        })),
-      }, null, 2));
-    }
-
     if (slots.length === 0) return { ok: true, date: dateYmd, dayOfWeek, slots: [] };
 
     const out: any[] = slots.map((t) => ({
@@ -1705,7 +1680,16 @@ export class TeacherService {
       teacher: { select: { id: true, name: true } },
       classroom: { select: { id: true, name: true, subject: true } },
       cohorts: { select: { cohortId: true, cohort: { select: { id: true, name: true, grade: true } } } },
-      students: { select: { studentId: true, student: { select: { id: true, name: true } } } },
+      // `student` here is a StudentProfile relation (not a User row).
+      // StudentProfile keys off userId and gets the display name via
+      // its nested User relation — selecting id/name directly throws
+      // a Prisma error and zeros out the entire slot query.
+      students: {
+        select: {
+          studentId: true,
+          student: { select: { user: { select: { name: true } } } },
+        },
+      },
     };
     let slots: any[] = [];
     try {
@@ -1726,27 +1710,6 @@ export class TeacherService {
       }
     }
 
-    // TEMP DIAGNOSTIC — remove after we confirm the teacherId mismatch.
-    if (slots.length === 0) {
-      const allInSchool = await this.prisma.scheduleSlot.findMany({
-        where: ((user as any)?.schoolId) ? { schoolId: (user as any).schoolId } : {},
-        select: { id: true, dayOfWeek: true, period: true, teacherId: true, subject: true },
-        take: 30,
-      });
-      // eslint-disable-next-line no-console
-      console.log('[teacher.weekSchedule] EMPTY for teacher', JSON.stringify({
-        teacherUserId: teacherId,
-        schoolId: (user as any)?.schoolId ?? null,
-        slotsInSchool: allInSchool.map((s) => ({
-          id: s.id,
-          dayOfWeek: s.dayOfWeek,
-          period: s.period,
-          subject: s.subject,
-          teacherId: s.teacherId,
-          teacherIdMatchesViewer: s.teacherId === teacherId,
-        })),
-      }, null, 2));
-    }
 
     // Emit 7 days always — Flutter (both student and teacher) matches
     // by day.date, so missing days silently render as empty. With
@@ -1795,7 +1758,7 @@ export class TeacherService {
             audienceLabel = `Grade ${audienceGrade}`;
           } else if (students.length > 0) {
             const names = students
-              .map((st: any) => st?.student?.name)
+              .map((st: any) => st?.student?.user?.name)
               .filter((n: any) => typeof n === 'string' && n.length > 0);
             audienceLabel = names.length <= 3
               ? names.join(', ')
@@ -1814,7 +1777,7 @@ export class TeacherService {
             audienceGrade,
             audienceLabel,
             studentNames: students
-              .map((st: any) => st?.student?.name)
+              .map((st: any) => st?.student?.user?.name)
               .filter((n: any) => typeof n === 'string' && n.length > 0),
           };
           if (cohorts.length === 0) {
