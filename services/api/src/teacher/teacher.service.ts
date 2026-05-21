@@ -1754,6 +1754,19 @@ export class TeacherService {
           student: { select: { user: { select: { name: true } } } },
         },
       },
+      // Materials attached to the slot, surfaced to the teacher tile so
+      // the count pill + detail sheet have something to render. Same
+      // shape as the student resolver uses.
+      materials: {
+        select: {
+          material: {
+            select: {
+              id: true, title: true, description: true,
+              url: true, attachments: true, subject: true,
+            },
+          },
+        },
+      },
     };
     let slots: any[] = [];
     try {
@@ -1872,6 +1885,29 @@ export class TeacherService {
             { startTime: s.startTime, endTime: s.endTime },
             schoolPeriodTimes,
           );
+          // Flatten the slot's ScheduleSlotMaterial relation into a flat
+          // list the tile can render as pills + count badge. Mirrors
+          // schedule.service._materialsFromSlotRow.
+          const slotMaterials = Array.isArray(s.materials) ? s.materials : [];
+          const attachments = slotMaterials
+            .map((sm: any) => sm?.material)
+            .filter((m: any) => m && typeof m === 'object')
+            .map((m: any) => {
+              const list = Array.isArray(m.attachments) ? m.attachments : [];
+              const first = list.find((a: any) => a && typeof a === 'object') ?? null;
+              const url = (typeof m.url === 'string' && m.url.length > 0)
+                ? m.url
+                : (first && typeof first.url === 'string' ? first.url : '');
+              const mime = first && typeof first.mime === 'string' ? first.mime : '';
+              return {
+                id: String(m.id),
+                title: String(m.title ?? 'Material'),
+                url,
+                mime,
+                description: m.description ?? null,
+                subject: m.subject ?? null,
+              };
+            });
           const base = {
             slotId: s.id,
             period: s.period,
@@ -1884,6 +1920,7 @@ export class TeacherService {
             color: s.color ?? null,
             audienceGrade,
             audienceLabel,
+            attachments,
             studentNames: students
               .map((st: any) => st?.student?.user?.name)
               .filter((n: any) => typeof n === 'string' && n.length > 0),

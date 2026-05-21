@@ -289,11 +289,9 @@ export class ScheduleService {
       } catch (firstErr) {
         // eslint-disable-next-line no-console
         console.error('[schedule.resolve] rich slot fetch failed, retrying without studentDateSkips', firstErr);
-        // Strip the most recently-added column (`studentDateSkips`) and
-        // retry. Per-date suppression simply becomes a no-op against
-        // these rows until the DB catches up — strictly better than
-        // returning an empty schedule. Keep `materials` so the period
-        // tile's attachment pills still render even mid-deploy.
+        // Tier 2: strip the most recently-added column and retry. Keep
+        // `materials` so the period tile's attachment pills still
+        // render even mid-deploy.
         try {
           legacy = await this.prisma.scheduleSlot.findMany({
             where: { id: { in: slotIds } },
@@ -335,8 +333,36 @@ export class ScheduleService {
           });
         } catch (secondErr) {
           // eslint-disable-next-line no-console
-          console.error('[schedule.resolve] conservative slot fetch failed too', secondErr);
-          legacy = [];
+          console.error('[schedule.resolve] tier-2 slot fetch failed, retrying with minimal select', secondErr);
+          // Tier 3: drop EVERY column that might be missing on a drifted
+          // production DB (the language-name fields, the newer schedule
+          // slot fields, and the materials relation). Better to return
+          // bare-bones schedule data than nothing — teacher name falls
+          // back to User.name, caption/attachments stay blank, but the
+          // schedule grid still renders.
+          try {
+            legacy = await this.prisma.scheduleSlot.findMany({
+              where: { id: { in: slotIds } },
+              select: {
+                id: true,
+                schoolId: true,
+                dayOfWeek: true,
+                period: true,
+                teacherId: true,
+                classroomId: true,
+                subject: true,
+                startTime: true,
+                endTime: true,
+                frequencyWeeks: true,
+                teacher: { select: { id: true, name: true } },
+                classroom: { select: { id: true, name: true } },
+              } as any,
+            });
+          } catch (thirdErr) {
+            // eslint-disable-next-line no-console
+            console.error('[schedule.resolve] minimal slot fetch failed too', thirdErr);
+            legacy = [];
+          }
         }
       }
     }

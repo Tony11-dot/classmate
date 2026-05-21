@@ -464,6 +464,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         final startTime = (s['startTime'] ?? '').toString();
         final color = _subjectColor(subject, cs);
         final subjectLabel = subject.isNotEmpty ? subject : l.teacherUnassignedSlot;
+        final attachmentCount = (s['attachments'] is List)
+            ? (s['attachments'] as List).length
+            : 0;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -499,41 +502,70 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: caption.isNotEmpty
-                          ? [
-                              // With caption: caption above, subject - audience below.
-                              Text(
-                                caption,
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
+                      children: [
+                        if (caption.isNotEmpty) ...[
+                          // With caption: caption above, subject - audience below.
+                          Text(
+                            caption,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$subjectLabel - $audienceLine',
+                            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ] else ...[
+                          Text(
+                            subjectLabel,
+                            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            audienceLine,
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        if (attachmentCount > 0) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: cs.secondaryContainer,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.attach_file_rounded,
+                                    size: 12, color: cs.onSecondaryContainer),
+                                const SizedBox(width: 4),
+                                Text(
+                                  attachmentCount == 1
+                                      ? '1 material'
+                                      : '$attachmentCount materials',
+                                  style: TextStyle(
+                                    color: cs.onSecondaryContainer,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '$subjectLabel - $audienceLine',
-                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ]
-                          : [
-                              Text(
-                                subjectLabel,
-                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                audienceLine,
-                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
