@@ -123,6 +123,61 @@ export class TeacherService {
       throw new ForbiddenException('Teacher only');
   }
 
+  /// Hardcoded fallback bell schedule. Kept in sync with the same
+  /// constant in schedule.service.ts so teacher + student views always
+  /// resolve identical default times.
+  private static readonly PERIOD_TIME_DEFAULTS: Record<number, { start: string; end: string }> = {
+    1: { start: '08:00', end: '08:45' },
+    2: { start: '08:45', end: '09:30' },
+    3: { start: '09:30', end: '10:15' },
+    4: { start: '10:45', end: '11:30' }, // 30-min break between P3 and P4
+    5: { start: '11:30', end: '12:15' },
+    6: { start: '12:15', end: '13:00' },
+    7: { start: '13:00', end: '13:45' },
+    8: { start: '13:45', end: '14:30' },
+    9: { start: '14:30', end: '15:15' },
+  };
+
+  /// Loads the school's SchoolPeriodDefault rows once per request.
+  /// Empty map when the school has no config; `_resolvePeriodTimes`
+  /// then falls through to PERIOD_TIME_DEFAULTS.
+  private async _loadSchoolPeriodTimes(
+    schoolId: string,
+  ): Promise<Map<number, { start: string; end: string }>> {
+    const out = new Map<number, { start: string; end: string }>();
+    if (!schoolId) return out;
+    try {
+      const rows = await this.prisma.schoolPeriodDefault.findMany({
+        where: { schoolId },
+        select: { period: true, startTime: true, endTime: true },
+      });
+      for (const r of rows) {
+        if (r.startTime && r.endTime) {
+          out.set(Number(r.period), { start: r.startTime, end: r.endTime });
+        }
+      }
+    } catch {
+      // School period defaults are optional infra — never block schedule
+      // fetch on a lookup failure.
+    }
+    return out;
+  }
+
+  /// Effective times for a period. Per-slot override wins; then school
+  /// bell schedule; then hardcoded defaults.
+  private _resolvePeriodTimes(
+    period: number,
+    slot: { startTime?: string | null; endTime?: string | null },
+    schoolDefaults: Map<number, { start: string; end: string }>,
+  ): { start: string; end: string } {
+    if (slot.startTime && slot.endTime) {
+      return { start: slot.startTime, end: slot.endTime };
+    }
+    const fromSchool = schoolDefaults.get(period);
+    if (fromSchool) return fromSchool;
+    return TeacherService.PERIOD_TIME_DEFAULTS[period] ?? { start: '', end: '' };
+  }
+
   async todaySchedule(user: any) {
     this.ensureTeacher(user);
 
@@ -1632,6 +1687,7 @@ export class TeacherService {
   async weekSchedule(user: any, weekOf?: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
+    const schoolId = String((user as any)?.schoolId ?? '');
 
     // Anchor + week-start.  Honor the client-supplied weekOf (Mon-start
     // strings from the teacher app, Sun-start from elsewhere); fall back
@@ -1650,6 +1706,14 @@ export class TeacherService {
     const dow = dowMap[anchorDow] ?? 0;
     const weekStart = new Date(anchor);
     weekStart.setUTCDate(anchor.getUTCDate() - dow);
+
+    // School bell schedule: per-period start/end times configured under
+    // Admin → School Settings → Periods. Falls back to the hardcoded
+    // PERIOD_TIME_DEFAULTS below when the school hasn't set anything,
+    // and to {null,null} on lookup failure. Same resolution chain the
+    // student-side resolver uses (per-slot override > school default >
+    // hardcoded default).
+    const schoolPeriodTimes = await this._loadSchoolPeriodTimes(schoolId);
 
     // All slots the teacher owns — same coverage as the student
     // resolver, just keyed on slot.teacherId. Includes the relations
@@ -1798,13 +1862,23 @@ export class TeacherService {
               ? names.join(', ')
               : `${names.slice(0, 3).join(', ')} +${names.length - 3}`;
           }
+          // Resolve effective period times: per-slot override wins, then
+          // the school's configured bell schedule, then the hardcoded
+          // defaults. Previously this only sent the slot's override, so
+          // periods on the school's default schedule rendered with no
+          // time text at all.
+          const periodTimes = this._resolvePeriodTimes(
+            Number(s.period),
+            { startTime: s.startTime, endTime: s.endTime },
+            schoolPeriodTimes,
+          );
           const base = {
             slotId: s.id,
             period: s.period,
             subject: s.subject ?? s.classroom?.subject ?? null,
             caption: typeof s.caption === 'string' ? s.caption : null,
-            startTime: s.startTime ?? null,
-            endTime: s.endTime ?? null,
+            startTime: periodTimes.start,
+            endTime: periodTimes.end,
             classroomId: s.classroomId ?? null,
             classroomName: s.classroom?.name ?? null,
             color: s.color ?? null,

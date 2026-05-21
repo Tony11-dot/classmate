@@ -287,10 +287,13 @@ export class ScheduleService {
           } as any,
         });
       } catch (firstErr) {
+        // eslint-disable-next-line no-console
+        console.error('[schedule.resolve] rich slot fetch failed, retrying without studentDateSkips', firstErr);
         // Strip the most recently-added column (`studentDateSkips`) and
         // retry. Per-date suppression simply becomes a no-op against
         // these rows until the DB catches up — strictly better than
-        // returning an empty schedule.
+        // returning an empty schedule. Keep `materials` so the period
+        // tile's attachment pills still render even mid-deploy.
         try {
           legacy = await this.prisma.scheduleSlot.findMany({
             where: { id: { in: slotIds } },
@@ -309,6 +312,7 @@ export class ScheduleService {
               color: true,
               audienceGrade: true,
               skipDates: true,
+              caption: true,
               teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
               classroom: {
                 select: {
@@ -317,11 +321,21 @@ export class ScheduleService {
                   teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
                 },
               },
+              materials: {
+                select: {
+                  material: {
+                    select: {
+                      id: true, title: true, description: true,
+                      url: true, attachments: true, subject: true,
+                    },
+                  },
+                },
+              },
             } as any,
           });
-        } catch {
+        } catch (secondErr) {
           // eslint-disable-next-line no-console
-          console.error('[schedule.resolve] slot fetch failed', firstErr);
+          console.error('[schedule.resolve] conservative slot fetch failed too', secondErr);
           legacy = [];
         }
       }
