@@ -414,9 +414,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/teacher/slot/:slotId/attachments',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? const {};
+          List<String>? asStrList(dynamic v) {
+            if (v is List) return v.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+            return null;
+          }
           return TeacherSlotAttachmentsScreen(
             slotId: state.pathParameters['slotId']!,
             title: (extra['title'] ?? 'Period').toString(),
+            subject: extra['subject'] as String?,
+            cohortIds: asStrList(extra['cohortIds']),
+            studentIds: asStrList(extra['studentIds']),
           );
         },
       ),
@@ -424,9 +431,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/teacher/materials/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
+          // Convert any list-shaped prefill from `extra` into List<String>.
+          List<String>? asStrList(dynamic v) {
+            if (v is List) return v.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+            return null;
+          }
           return TeacherAddMaterialScreen(
             prefillCourseId: extra?['courseId'] as String?,
             prefillSubject: extra?['subject'] as String?,
+            prefillCohortIds: asStrList(extra?['cohortIds']),
+            prefillStudentIds: asStrList(extra?['studentIds']),
             initialMaterial: extra?['_edit'] == true ? extra : null,
           );
         },

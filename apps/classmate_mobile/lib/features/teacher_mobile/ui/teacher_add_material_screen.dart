@@ -14,11 +14,20 @@ class TeacherAddMaterialScreen extends ConsumerStatefulWidget {
     super.key,
     this.prefillCourseId,
     this.prefillSubject,
+    this.prefillCohortIds,
+    this.prefillStudentIds,
     this.initialMaterial,
   });
 
   final String? prefillCourseId;
   final String? prefillSubject;
+  /// Pre-selected cohort ids — wires the audience to "By Cohort" with
+  /// these checked when the screen mounts. Used by the period →
+  /// attachments → create-new flow so the new material defaults to
+  /// the period's audience.
+  final List<String>? prefillCohortIds;
+  /// Pre-selected individual student ids — same intent as prefillCohortIds.
+  final List<String>? prefillStudentIds;
   final Map<String, dynamic>? initialMaterial;
 
   @override
@@ -78,6 +87,21 @@ class _TeacherAddMaterialScreenState
       if (cIds is List) _selectedCohortIds.addAll(cIds.map((e) => e.toString()));
       final sIds = mat['targetStudentIds'];
       if (sIds is List) _selectedStudentIds.addAll(sIds.map((e) => e.toString()));
+    }
+    // Honor prefill from caller (period → attachments → create-new).
+    // Only applied when we're NOT editing an existing material — edit
+    // mode comes with its own targetType/audience.
+    if (mat == null) {
+      final preCohorts = widget.prefillCohortIds ?? const <String>[];
+      final preStudents = widget.prefillStudentIds ?? const <String>[];
+      if (preCohorts.isNotEmpty) {
+        _targetType = 'COHORTS';
+        _selectedCohortIds.addAll(preCohorts);
+      }
+      if (preStudents.isNotEmpty) {
+        if (preCohorts.isEmpty) _targetType = 'STUDENTS';
+        _selectedStudentIds.addAll(preStudents);
+      }
     }
     Future<void>.microtask(_load);
   }

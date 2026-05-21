@@ -16,10 +16,20 @@ class TeacherSlotAttachmentsScreen extends ConsumerStatefulWidget {
     super.key,
     required this.slotId,
     required this.title,
+    this.subject,
+    this.cohortIds,
+    this.studentIds,
   });
 
   final String slotId;
   final String title;
+  /// Audience hints from the slot — passed straight through to the
+  /// "Create new material" flow so the new material defaults to this
+  /// period's audience/subject. All editable inside the add-material
+  /// screen if the teacher wants to tweak.
+  final String? subject;
+  final List<String>? cohortIds;
+  final List<String>? studentIds;
 
   @override
   ConsumerState<TeacherSlotAttachmentsScreen> createState() =>
@@ -85,7 +95,12 @@ class _TeacherSlotAttachmentsScreenState
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _MaterialPickerSheet(alreadyAttachedIds: attachedIds),
+      builder: (_) => _MaterialPickerSheet(
+        alreadyAttachedIds: attachedIds,
+        prefillSubject: widget.subject,
+        prefillCohortIds: widget.cohortIds,
+        prefillStudentIds: widget.studentIds,
+      ),
     );
     if (picked == null || picked.isEmpty) return;
     try {
@@ -255,8 +270,16 @@ class _AttachedMaterialTile extends StatelessWidget {
 }
 
 class _MaterialPickerSheet extends ConsumerStatefulWidget {
-  const _MaterialPickerSheet({required this.alreadyAttachedIds});
+  const _MaterialPickerSheet({
+    required this.alreadyAttachedIds,
+    this.prefillSubject,
+    this.prefillCohortIds,
+    this.prefillStudentIds,
+  });
   final Set<String> alreadyAttachedIds;
+  final String? prefillSubject;
+  final List<String>? prefillCohortIds;
+  final List<String>? prefillStudentIds;
 
   @override
   ConsumerState<_MaterialPickerSheet> createState() => _MaterialPickerSheetState();
@@ -297,10 +320,23 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
 
   Future<void> _createNew() async {
     // Push the existing add-material screen and await its pop value.
-    // The screen now returns the new material's id (when creating) so we
-    // can pop our picker with that id and the parent screen will attach
-    // it on return — single round trip, no manual re-select.
-    final result = await context.push('/teacher/materials/add');
+    // The screen returns the new material's id (when creating) so we
+    // pop our picker with that id and the parent screen attaches it
+    // on return — single round trip, no manual re-select.
+    //
+    // Pass the period's audience hints (subject + cohort/student
+    // selection) so the new material defaults to the same audience.
+    // All editable on the add screen.
+    final result = await context.push(
+      '/teacher/materials/add',
+      extra: <String, dynamic>{
+        if ((widget.prefillSubject ?? '').isNotEmpty) 'subject': widget.prefillSubject,
+        if ((widget.prefillCohortIds ?? const []).isNotEmpty)
+          'cohortIds': widget.prefillCohortIds,
+        if ((widget.prefillStudentIds ?? const []).isNotEmpty)
+          'studentIds': widget.prefillStudentIds,
+      },
+    );
     if (!mounted) return;
     if (result is String && result.isNotEmpty && result != 'true') {
       Navigator.of(context).pop(result);

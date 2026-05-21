@@ -1722,15 +1722,49 @@ export class TeacherService {
       const dayDow = dowMap[new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(dayUtc)] ?? 0;
       const dateYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(dayUtc);
 
+      // Mirrors schedule.service.applyOverridesForDate's template
+      // filter exactly so the teacher view honours frequencyWeeks +
+      // startDate anchors + skipDates the same way the student view
+      // does. Previously biweekly slots showed every week and override
+      // skipDates worked partially — leading to "some periods appear,
+      // others don't" in the teacher schedule.
       const dayMatches = slots.filter((s: any) => {
         if (Number(s.dayOfWeek) !== dayDow) return false;
         const freq = Number(s.frequencyWeeks ?? 1);
+        const sd: string | null = typeof (s as any).startDate === 'string' &&
+                /^\d{4}-\d{2}-\d{2}$/.test((s as any).startDate)
+            ? (s as any).startDate
+            : null;
+        // Once — exactly the anchor date.
         if (freq === 0) {
-          const sd = (s as any).startDate ?? null;
-          return typeof sd === 'string' && sd === dateYmd;
+          return sd !== null && sd === dateYmd;
         }
+        // freq >= 2: only when the date is an integer number of `freq`
+        // weeks from the anchor, AND on or after it.
+        if (freq >= 2 && sd !== null) {
+          const startMs = Date.UTC(
+            Number(sd.slice(0, 4)),
+            Number(sd.slice(5, 7)) - 1,
+            Number(sd.slice(8, 10)),
+          );
+          const currentMs = Date.UTC(
+            Number(dateYmd.slice(0, 4)),
+            Number(dateYmd.slice(5, 7)) - 1,
+            Number(dateYmd.slice(8, 10)),
+          );
+          if (currentMs < startMs) return false;
+          const weeksSince = (currentMs - startMs) / (7 * 86400000);
+          if (!Number.isInteger(weeksSince)) return false;
+          if (weeksSince % freq !== 0) return false;
+        } else if (freq === 1 && sd !== null) {
+          // Weekly with an optional anchor — render only on or after sd.
+          if (dateYmd < sd) return false;
+        }
+        // Whole-day override suppression (used by admin's Override
+        // conflict resolution to replace a recurring slot for a date).
         const skipDates: string[] = Array.isArray(s.skipDates) ? s.skipDates : [];
-        return !skipDates.includes(dateYmd);
+        if (skipDates.includes(dateYmd)) return false;
+        return true;
       });
 
       const slotsOut = dayMatches

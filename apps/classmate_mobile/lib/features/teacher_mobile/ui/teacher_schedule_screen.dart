@@ -663,8 +663,14 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       label: 'Attachments',
                       onTap: () {
                         Navigator.of(ctx).pop();
+                        // Pass the period's audience hints so the
+                        // "Create new material" shortcut inside the
+                        // attachments screen prefills the audience +
+                        // subject to match this period.
                         context.push('/teacher/slot/$slotId/attachments', extra: <String, dynamic>{
                           'title': subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
+                          if (subject.isNotEmpty) 'subject': subject,
+                          if (cohortId.isNotEmpty) 'cohortIds': <String>[cohortId],
                         });
                       },
                     ),
