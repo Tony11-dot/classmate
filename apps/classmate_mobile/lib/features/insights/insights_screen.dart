@@ -606,8 +606,6 @@ class _StateCard extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
           ),
           const SizedBox(height: 14),
           child,
