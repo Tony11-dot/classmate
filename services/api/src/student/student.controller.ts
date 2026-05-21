@@ -102,13 +102,25 @@ export class StudentController {
 
       const items = (byDate.get(date) ?? []).map((x: any) => ({
         id: String(x?.id ?? ''),
-        startsAt: String(x?.startTime ?? ''),
-        endsAt: String(x?.endTime ?? ''),
+        startsAt: String(x?.startTime ?? x?.startsAt ?? ''),
+        endsAt: String(x?.endTime ?? x?.endsAt ?? ''),
         title: String(x?.title ?? ''),
         period: x?.period ?? null,
         location: x?.location ?? null,
         cohortId: x?.cohortId ?? null,
         subject: x?.subject ?? null,
+        // The previous shape stripped these — the schedule tile reads
+        // teacherName for the subtitle, caption for the header row,
+        // and attachments for the "N materials" pill + detail-sheet
+        // pill list. Without them the tile rendered only time + period
+        // + subject even though the underlying resolver populated the
+        // rest correctly.
+        teacherName: x?.teacherName ?? null,
+        teacherId: x?.teacherId ?? null,
+        caption: x?.caption ?? null,
+        classroomId: x?.classroomId ?? null,
+        date: x?.date ?? date,
+        attachments: Array.isArray(x?.attachments) ? x.attachments : [],
       }));
 
       return { date, items };
