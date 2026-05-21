@@ -23,9 +23,15 @@ String _ymd(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 String _weekStartYmd(DateTime d) {
-  final diff = (d.weekday - DateTime.monday) % 7;
-  final monday = d.subtract(Duration(days: diff));
-  return _ymd(monday);
+  // Israeli school weeks start on Sunday. Computing Monday-of-week here
+  // meant a Sunday view sent the *previous* Monday's weekOf, which made
+  // the server emit a 7-day range that didn't include the selected day —
+  // hero counted the week's slots but the day list was empty because no
+  // day matched. Mirror the student resolver (Sun=0 .. Sat=6) so the
+  // selected date is always inside the fetched week.
+  final sundayBased = d.weekday % 7;
+  final sunday = d.subtract(Duration(days: sundayBased));
+  return _ymd(sunday);
 }
 
 Color _subjectColor(String subject, ColorScheme cs) {
@@ -394,7 +400,10 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
     final slots = dayData is Map && dayData['slots'] is List
         ? (dayData['slots'] as List)
-            .where((s) => s is Map && (s['course'] is Map || s['period'] != null))
+            // Server always emits `period` on every slot (the `course` key
+            // was an older shape that's no longer sent); just keep the
+            // shape check so a malformed row doesn't crash the list.
+            .where((s) => s is Map && s['period'] != null)
             .toList()
         : <dynamic>[];
 
