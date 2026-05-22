@@ -727,8 +727,19 @@ class TeacherMobileRepository {
 
   // ── Slot attachments ─────────────────────────────────────────────────────
 
-  Future<List<Map<String, dynamic>>> listSlotMaterials(String slotId) async {
-    final raw = await _api.getJson('/teacher/schedule-slots/$slotId/materials');
+  /// Lists materials attached to a slot. When [date] is supplied (a
+  /// YYYY-MM-DD string), only attachments for that exact occurrence
+  /// plus any legacy "all-dates" entries come back. Without a date the
+  /// list returns every attachment across every date — useful for an
+  /// admin overview.
+  Future<List<Map<String, dynamic>>> listSlotMaterials(
+    String slotId, {
+    String? date,
+  }) async {
+    final raw = await _api.getJson(
+      '/teacher/schedule-slots/$slotId/materials',
+      query: (date != null && date.isNotEmpty) ? {'date': date} : null,
+    );
     if (raw is Map && raw['attachments'] is List) {
       return (raw['attachments'] as List)
           .whereType<Map>()
@@ -738,22 +749,33 @@ class TeacherMobileRepository {
     return [];
   }
 
+  /// Attach a material to a slot's specific date occurrence. When the
+  /// caller passes a [date], the attachment only appears on that
+  /// date's period card — other occurrences of the same recurring slot
+  /// stay unaffected. Skipping the date keeps the legacy "applies to
+  /// every occurrence" behaviour for older callers.
   Future<void> attachSlotMaterial({
     required String slotId,
     required String teacherMaterialId,
+    String? date,
   }) async {
     await _api.postJson(
       '/teacher/schedule-slots/$slotId/materials',
-      body: <String, dynamic>{'teacherMaterialId': teacherMaterialId},
+      body: <String, dynamic>{
+        'teacherMaterialId': teacherMaterialId,
+        if (date != null && date.isNotEmpty) 'date': date,
+      },
     );
   }
 
   Future<void> detachSlotMaterial({
     required String slotId,
     required String teacherMaterialId,
+    String? date,
   }) async {
     await _api.deleteJson(
-      '/teacher/schedule-slots/$slotId/materials/$teacherMaterialId',
+      '/teacher/schedule-slots/$slotId/materials/$teacherMaterialId'
+      '${(date != null && date.isNotEmpty) ? '?date=$date' : ''}',
     );
   }
 

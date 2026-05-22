@@ -712,6 +712,10 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                           'title': subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
                           if (subject.isNotEmpty) 'subject': subject,
                           if (cohortId.isNotEmpty) 'cohortIds': <String>[cohortId],
+                          // Scope every attach/detach on this screen to
+                          // the date the teacher came from — so PDFs
+                          // added on May 24 don't bleed into May 17.
+                          'date': dateYmd,
                         });
                       },
                     ),

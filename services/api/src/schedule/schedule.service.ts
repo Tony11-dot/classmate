@@ -422,6 +422,7 @@ export class ScheduleService {
               where: { slotId: { in: slotIdsForMaterials } },
               select: {
                 slotId: true,
+                date: true,
                 material: {
                   select: {
                     id: true, title: true, description: true,
@@ -696,9 +697,20 @@ export class ScheduleService {
   /// shape ScheduleItem expects (id, title, url, mime). Inlines the
   /// first attachment's URL when the material itself has none, so the
   /// student tile always gets a tappable pill.
-  private _materialsFromSlotRow(row: any): ScheduleItem['attachments'] {
+  ///
+  /// When `forDate` is supplied, only attachments tagged with that
+  /// exact date (or the legacy "" entries that pre-date date-scoping)
+  /// are included — that's how "PDF attached to math on May 24" stays
+  /// hidden when the student views May 17's math.
+  private _materialsFromSlotRow(row: any, forDate?: string): ScheduleItem['attachments'] {
     const rel = Array.isArray(row?.materials) ? row.materials : [];
-    return rel
+    const filtered = (forDate && /^\d{4}-\d{2}-\d{2}$/.test(forDate))
+      ? rel.filter((r: any) => {
+          const d = typeof r?.date === 'string' ? r.date : '';
+          return d === forDate || d === '';
+        })
+      : rel;
+    return filtered
       .map((r: any) => r?.material)
       .filter((m: any) => m && typeof m === 'object')
       .map((m: any) => {
@@ -833,7 +845,10 @@ export class ScheduleService {
         teacherName: slotTeacherName ?? classroomTeacherName ?? null,
         color: (r as any).color ?? null,
         caption: (r as any).caption ?? null,
-        attachments: this._materialsFromSlotRow(r),
+        // Filter attachments to the exact date being rendered so a PDF
+        // attached to May 24's occurrence doesn't appear on May 17.
+        // Legacy "" entries (pre-date-scoping) still apply everywhere.
+        attachments: this._materialsFromSlotRow(r, dateYmd),
       });
       byPeriod.set(p, arr);
     }

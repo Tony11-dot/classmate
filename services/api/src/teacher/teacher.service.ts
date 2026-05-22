@@ -1759,6 +1759,7 @@ export class TeacherService {
       // shape as the student resolver uses.
       materials: {
         select: {
+          date: true,
           material: {
             select: {
               id: true, title: true, description: true,
@@ -1888,7 +1889,15 @@ export class TeacherService {
           // Flatten the slot's ScheduleSlotMaterial relation into a flat
           // list the tile can render as pills + count badge. Mirrors
           // schedule.service._materialsFromSlotRow.
-          const slotMaterials = Array.isArray(s.materials) ? s.materials : [];
+          // Filter by the day being rendered so an attachment added on
+          // May 24 doesn't show on the teacher's May 17 view either.
+          // Legacy "" entries (pre-date-scoping) keep showing on every
+          // occurrence.
+          const allSlotMaterials = Array.isArray(s.materials) ? s.materials : [];
+          const slotMaterials = allSlotMaterials.filter((sm: any) => {
+            const d = typeof sm?.date === 'string' ? sm.date : '';
+            return d === dateYmd || d === '';
+          });
           const attachments = slotMaterials
             .map((sm: any) => sm?.material)
             .filter((m: any) => m && typeof m === 'object')
@@ -2509,15 +2518,30 @@ export class TeacherService {
 
   // ── Slot Attachments ──────────────────────────────────────────────────────
 
-  /// Returns the materials currently attached to a teacher's schedule slot,
-  /// shaped for direct rendering as pills (id, title, url, mime).
-  async listSlotMaterials(user: any, slotId: string) {
+  /// Sanitises a YYYY-MM-DD value passed from the client. Anything that
+  /// doesn't match the strict format becomes "" (which the schema treats
+  /// as "legacy / applies-to-every-occurrence").
+  private _normalizeAttachDate(raw: any): string {
+    const s = typeof raw === 'string' ? raw.trim() : '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    return '';
+  }
+
+  /// Returns the materials currently attached to a teacher's schedule
+  /// slot. When `date` is supplied, only attachments for that exact
+  /// occurrence (plus any legacy "" entries that pre-date date-scoping)
+  /// are returned. Without a date the teacher sees the full history.
+  async listSlotMaterials(user: any, slotId: string, date?: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsSlot(teacherId, slotId);
 
+    const d = this._normalizeAttachDate(date);
+    const where: any = { slotId };
+    if (d) where.date = { in: [d, ''] }; // include legacy permanent entries
+
     const rows = await this.prisma.scheduleSlotMaterial.findMany({
-      where: { slotId },
+      where,
       orderBy: { createdAt: 'desc' },
       include: {
         material: {
@@ -2530,13 +2554,19 @@ export class TeacherService {
     });
     return {
       ok: true,
-      attachments: rows.map((r) => this.materialToAttachment(r.material)),
+      attachments: rows.map((r) => ({
+        ...this.materialToAttachment(r.material),
+        date: (r as any).date ?? '',
+      })),
     };
   }
 
-  /// Attach a teacher-owned material to a slot.  Idempotent — re-attaching
-  /// an already-attached material is a no-op.
-  async attachSlotMaterial(user: any, slotId: string, teacherMaterialId: string) {
+  /// Attach a teacher-owned material to a SPECIFIC date occurrence of a
+  /// slot. Idempotent — re-attaching the same material to the same
+  /// (slot, date) is a no-op. When `date` is omitted or invalid, falls
+  /// back to "" which means "applies to every occurrence" (the old
+  /// behaviour, preserved for legacy clients).
+  async attachSlotMaterial(user: any, slotId: string, teacherMaterialId: string, date?: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     if (!teacherMaterialId) throw new BadRequestException('teacherMaterialId is required');
@@ -2548,9 +2578,11 @@ export class TeacherService {
     });
     if (!material) throw new NotFoundException('Material not found');
 
+    const d = this._normalizeAttachDate(date);
+
     await this.prisma.scheduleSlotMaterial.upsert({
-      where: { slotId_teacherMaterialId: { slotId, teacherMaterialId } },
-      create: { slotId, teacherMaterialId },
+      where: { slotId_teacherMaterialId_date: { slotId, teacherMaterialId, date: d } },
+      create: { slotId, teacherMaterialId, date: d },
       update: {},
     });
     // Audience auto-expand: pull every student the slot targets into the
@@ -2611,13 +2643,26 @@ export class TeacherService {
     });
   }
 
-  async detachSlotMaterial(user: any, slotId: string, teacherMaterialId: string) {
+  async detachSlotMaterial(user: any, slotId: string, teacherMaterialId: string, date?: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsSlot(teacherId, slotId);
-    await this.prisma.scheduleSlotMaterial.deleteMany({
-      where: { slotId, teacherMaterialId },
-    });
+    // Date-scoped detach: when a date is provided we only remove the
+    // matching occurrence's attachment (plus its sibling legacy ""
+    // entry if any), so detaching from May 24 doesn't wipe May 31's
+    // attachment of the same material. Omitting the date falls back to
+    // the old "remove every attachment of this material from this
+    // slot" behaviour for legacy callers.
+    const d = this._normalizeAttachDate(date);
+    if (d) {
+      await this.prisma.scheduleSlotMaterial.deleteMany({
+        where: { slotId, teacherMaterialId, date: d },
+      });
+    } else {
+      await this.prisma.scheduleSlotMaterial.deleteMany({
+        where: { slotId, teacherMaterialId },
+      });
+    }
     return { ok: true };
   }
 

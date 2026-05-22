@@ -436,19 +436,29 @@ model ScheduleSlot {
 }
 
 /// Junction between a schedule slot and a TeacherMaterial — lets a
-/// teacher attach materials (PDFs, slides, links) to a recurring period
-/// so the slot's student audience sees them as pills on their period
-/// card.  Owned by the slot's teacher; admins can also manage.
+/// teacher attach materials (PDFs, slides, links) to a SPECIFIC date
+/// occurrence of a recurring period (e.g. "math class on May 24" gets a
+/// PDF that doesn't show up for math class on May 17 or May 31).
+///
+/// `date` is the YYYY-MM-DD the attachment applies to. The empty
+/// string "" is reserved for legacy attachments created before
+/// date-scoping landed — those continue to apply to every occurrence
+/// of the slot (existing rows from the old composite PK keep that
+/// shape after db push). New attachments always carry a real date.
+///
+/// Owned by the slot's teacher; admins can also manage.
 model ScheduleSlotMaterial {
   slotId            String
   teacherMaterialId String
+  date              String   @default("")
   createdAt         DateTime @default(now())
 
   slot     ScheduleSlot    @relation(fields: [slotId], references: [id], onDelete: Cascade)
   material TeacherMaterial @relation(fields: [teacherMaterialId], references: [id], onDelete: Cascade)
 
-  @@id([slotId, teacherMaterialId])
+  @@id([slotId, teacherMaterialId, date])
   @@index([teacherMaterialId])
+  @@index([slotId, date])
 }
 
 model ScheduleSlotStudent {

@@ -19,6 +19,7 @@ class TeacherSlotAttachmentsScreen extends ConsumerStatefulWidget {
     this.subject,
     this.cohortIds,
     this.studentIds,
+    this.date,
   });
 
   final String slotId;
@@ -30,6 +31,11 @@ class TeacherSlotAttachmentsScreen extends ConsumerStatefulWidget {
   final String? subject;
   final List<String>? cohortIds;
   final List<String>? studentIds;
+  /// The specific occurrence (YYYY-MM-DD) the teacher came from. When
+  /// set, attach/detach/list calls are scoped to that date so a PDF
+  /// attached on May 24 doesn't bleed into May 17 / May 31 of the
+  /// same recurring slot.
+  final String? date;
 
   @override
   ConsumerState<TeacherSlotAttachmentsScreen> createState() =>
@@ -55,7 +61,7 @@ class _TeacherSlotAttachmentsScreenState
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-      final list = await repo.listSlotMaterials(widget.slotId);
+      final list = await repo.listSlotMaterials(widget.slotId, date: widget.date);
       if (!mounted) return;
       setState(() {
         _attached = list;
@@ -75,6 +81,7 @@ class _TeacherSlotAttachmentsScreenState
       await ref.read(teacherMobileRepositoryProvider).detachSlotMaterial(
             slotId: widget.slotId,
             teacherMaterialId: materialId,
+            date: widget.date,
           );
       await _load();
     } catch (e) {
@@ -107,6 +114,7 @@ class _TeacherSlotAttachmentsScreenState
       await ref.read(teacherMobileRepositoryProvider).attachSlotMaterial(
             slotId: widget.slotId,
             teacherMaterialId: picked,
+            date: widget.date,
           );
       await _load();
     } catch (e) {

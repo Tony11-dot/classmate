@@ -422,6 +422,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             subject: extra['subject'] as String?,
             cohortIds: asStrList(extra['cohortIds']),
             studentIds: asStrList(extra['studentIds']),
+            date: extra['date'] as String?,
           );
         },
       ),

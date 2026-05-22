@@ -376,18 +376,32 @@ export class TeacherController {
   // ── Slot Attachments (attach teacher materials to a schedule slot) ────────
 
   @Get('schedule-slots/:slotId/materials')
-  listSlotMaterials(@Req() req: any, @Param('slotId') slotId: string) {
-    return this.teacher.listSlotMaterials(req.user, slotId);
+  listSlotMaterials(
+    @Req() req: any,
+    @Param('slotId') slotId: string,
+    @Query('date') date?: string,
+  ) {
+    return this.teacher.listSlotMaterials(req.user, slotId, date);
   }
 
   @Post('schedule-slots/:slotId/materials')
   attachSlotMaterial(@Req() req: any, @Param('slotId') slotId: string, @Body() body: any) {
-    return this.teacher.attachSlotMaterial(req.user, slotId, String(body?.teacherMaterialId ?? ''));
+    return this.teacher.attachSlotMaterial(
+      req.user,
+      slotId,
+      String(body?.teacherMaterialId ?? ''),
+      typeof body?.date === 'string' ? body.date : undefined,
+    );
   }
 
   @Delete('schedule-slots/:slotId/materials/:materialId')
-  detachSlotMaterial(@Req() req: any, @Param('slotId') slotId: string, @Param('materialId') materialId: string) {
-    return this.teacher.detachSlotMaterial(req.user, slotId, materialId);
+  detachSlotMaterial(
+    @Req() req: any,
+    @Param('slotId') slotId: string,
+    @Param('materialId') materialId: string,
+    @Query('date') date?: string,
+  ) {
+    return this.teacher.detachSlotMaterial(req.user, slotId, materialId, date);
   }
 
   // ── Attach existing library items to a classroom ─────────────────────────
