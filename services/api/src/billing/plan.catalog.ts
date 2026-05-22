@@ -63,7 +63,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     tier: 'BUDGET',
     label: 'Budget',
     blurb: 'Daily homework help.',
-    priceAgorot: 1900, // ₪19
+    priceAgorot: 1990, // ₪19.90 (matches App Store Connect)
     priceUsd: 5,
     monthlyTokens: 300_000,
     storeProductId: 'com.classmate.plan.budget.monthly',
@@ -72,7 +72,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     tier: 'BALANCE',
     label: 'Balance',
     blurb: 'For students who study every day.',
-    priceAgorot: 4900, // ₪49
+    priceAgorot: 4990, // ₪49.90
     priceUsd: 13,
     monthlyTokens: 1_000_000,
     storeProductId: 'com.classmate.plan.balance.monthly',
@@ -81,7 +81,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     tier: 'COMMITMENT',
     label: 'Commitment',
     blurb: 'Heavy practice + unlimited curiosity.',
-    priceAgorot: 9900, // ₪99
+    priceAgorot: 9990, // ₪99.90
     priceUsd: 27,
     monthlyTokens: 2_500_000,
     storeProductId: 'com.classmate.plan.commitment.monthly',

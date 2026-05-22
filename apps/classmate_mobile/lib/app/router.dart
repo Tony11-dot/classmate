@@ -6,6 +6,7 @@ import '../features/account/login_screen.dart';
 import '../features/account/forgot_password_screen.dart';
 import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
+import '../features/billing/ui/plans_screen.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
 import '../features/insights/insights_screen.dart';
@@ -720,6 +721,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/plans',
+            builder: (context, state) => const PlansScreen(),
           ),
           GoRoute(
             path: '/settings',

@@ -348,6 +348,15 @@ class MainDrawer extends ConsumerWidget {
                     label: l.navProfile,
                     route: '/profile',
                   ),
+                  // NOVA Plans — token-economy management. Placed under
+                  // Account so users navigate here from the same drawer
+                  // section as Profile / Settings rather than having a
+                  // standalone billing surface.
+                  navItem(
+                    icon: Icons.workspace_premium_rounded,
+                    label: 'NOVA Plans',
+                    route: '/plans',
+                  ),
                   navItem(
                     icon: Icons.settings_rounded,
                     label: l.navSettings,

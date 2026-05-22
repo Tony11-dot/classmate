@@ -5,12 +5,12 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: cd .. &amp;&amp; flutter build ipa --release     --dart-define=CM_API_BASE_URL=https://pacific-enchantment-production-7a80.up.railway.app     --export-options-plist=ios/ExportOptions.plist" time="117.358741">
+      <testcase classname="fastlane.lanes" name="0: cd .. &amp;&amp; flutter build ipa --release     --dart-define=CM_API_BASE_URL=https://pacific-enchantment-production-7a80.up.railway.app     --export-options-plist=ios/ExportOptions.plist" time="122.884943">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: upload_to_testflight" time="387.742142">
+      <testcase classname="fastlane.lanes" name="1: upload_to_testflight" time="1043.316799">
         
       </testcase>
     
