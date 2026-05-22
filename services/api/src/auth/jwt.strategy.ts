@@ -44,19 +44,47 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     let payload: any;
     try {
       payload = await this.jwt.verifyAsync(token);
-    } catch {
+    } catch (err: any) {
+      // Diagnostic: hunt the "schedule empty until logout+relogin" bug.
+      // If the persisted JWT fails verification (expired, signature
+      // mismatch from a rotated JWT_SECRET, etc.), every downstream
+      // protected request 401s before reaching its service — which
+      // matches the user's symptom of "no schedule log lines until
+      // logout+relogin".
+      // eslint-disable-next-line no-console
+      console.log('[jwt.tryRealJwt.verifyFailed]', JSON.stringify({
+        tokenLen: token.length,
+        tokenHead: token.slice(0, 12),
+        err: err?.name ?? null,
+        msg: err?.message ?? null,
+      }));
       return null;
     }
     const userId = String(payload?.sub ?? '').trim();
-    if (!userId) return null;
+    if (!userId) {
+      // eslint-disable-next-line no-console
+      console.log('[jwt.tryRealJwt.noSub]', JSON.stringify({ payload }));
+      return null;
+    }
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { roles: true, studentProfile: { select: { cohortId: true } } } as any,
     }) as any;
-    if (!user) throw new UnauthorizedException('Account no longer exists');
+    if (!user) {
+      // eslint-disable-next-line no-console
+      console.log('[jwt.tryRealJwt.userMissing]', JSON.stringify({ userId }));
+      throw new UnauthorizedException('Account no longer exists');
+    }
 
     const roles: Role[] = (user.roles ?? []).map((r: any) => r.role);
+    // eslint-disable-next-line no-console
+    console.log('[jwt.tryRealJwt.success]', JSON.stringify({
+      userId,
+      roles,
+      schoolId: user.schoolId ?? null,
+      cohortId: user.studentProfile?.cohortId ?? null,
+    }));
     const displayName = user.displayName ?? user.nameEn ?? user.name ?? user.email?.split('@')[0] ?? '';
     const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
     const resolvedSchoolId = user.schoolId ?? schoolId ?? null;
