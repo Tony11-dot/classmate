@@ -668,11 +668,16 @@ class DmChatThreadController extends ChatThreadController {
   }
 
   String _kindWireValue(ChatMessageKind k, String? mime) {
+    // Server DTO requires uppercase values (TEXT/IMAGE/VOICE/VIDEO/FILE).
+    // Sending lowercase was failing class-validator's @IsIn check with
+    // "kind must be one of the following values: TEXT, IMAGE, VOICE,
+    // VIDEO, FILE" — every photo/voice send from DM failed silently.
+    // Classroom chat already used uppercase; DM is the outlier.
     final m = (mime ?? '').toLowerCase();
-    if (k == ChatMessageKind.image || m.startsWith('image/')) return 'image';
-    if (m.startsWith('video/')) return 'video';
-    if (k == ChatMessageKind.voice || m.startsWith('audio/')) return 'voice';
-    return 'file';
+    if (k == ChatMessageKind.image || m.startsWith('image/')) return 'IMAGE';
+    if (m.startsWith('video/')) return 'VIDEO';
+    if (k == ChatMessageKind.voice || m.startsWith('audio/')) return 'VOICE';
+    return 'FILE';
   }
 
   @override
@@ -803,7 +808,7 @@ class DmChatThreadController extends ChatThreadController {
         threadId: _threadId,
         text: '',
         replyToMessageId: replyToMessageId,
-        kind: 'voice',
+        kind: 'VOICE',
         mediaUrl: mediaUrl,
         mediaMimeType: mimeType,
       );
