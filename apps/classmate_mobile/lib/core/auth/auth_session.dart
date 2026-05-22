@@ -243,6 +243,58 @@ class AuthSession extends ChangeNotifier {
       _token = token;
     }
     notifyListeners();
+    // Keep RevenueCat's app_user_id in sync with our JWT subject so
+    // every store purchase routes to the right user on the server.
+    // Fire-and-forget — no awaiting; the SDK call queues internally
+    // and the next purchase blocks on its own identify under the hood
+    // if this hasn't completed yet.
+    _syncRevenueCatIdentity();
+  }
+
+  /// Best-effort identity sync with RevenueCat. Lazy-loaded to avoid
+  /// pulling the RC SDK into every test that touches AuthSession (and
+  /// to keep this file's dependency surface small).
+  Future<void> _syncRevenueCatIdentity() async {
+    try {
+      // Late import to avoid a cycle: auth_session is imported by main.dart
+      // which also imports the RC service. Using a top-level import here
+      // is fine because RevenueCatService itself doesn't touch AuthSession.
+      // ignore: avoid_dynamic_calls
+      final svc = await _loadRcService();
+      if (svc == null) return;
+      final id = userId;
+      if (id.isEmpty) {
+        await svc.reset();
+      } else {
+        await svc.identify(id);
+      }
+    } catch (_) {
+      // RC is non-essential — never let a sync failure break login.
+    }
+  }
+
+  Future<dynamic> _loadRcService() async {
+    // Use a deferred import would be cleanest, but Dart's deferred
+    // imports only work for web. Direct import is fine here — the
+    // service is a tiny singleton and only configures once.
+    final mod = await Future<dynamic>.value(_rcServiceLoader());
+    return mod;
+  }
+
+  /// Indirection point so a test can stub the RC service if needed.
+  /// Returns the singleton; non-overridable in production.
+  dynamic _rcServiceLoader() {
+    // The RC service is intentionally lazy-loaded via a function ref
+    // so this file doesn't have a hard import on purchases_flutter.
+    // Replaced at runtime by `wireRevenueCatToAuthSession()` in main.dart.
+    return _rcServiceFactory?.call();
+  }
+
+  static dynamic Function()? _rcServiceFactory;
+  /// main.dart calls this once on startup to register the RC singleton
+  /// without auth_session needing to import the SDK directly.
+  static void registerRcServiceFactory(dynamic Function() factory) {
+    _rcServiceFactory = factory;
   }
 
   Future<void> setRoles(List<String> roles) async {

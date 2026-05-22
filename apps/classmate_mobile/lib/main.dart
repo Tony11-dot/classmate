@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'core/auth/auth_session.dart';
 import 'core/config/env.dart';
 import 'core/realtime/realtime_listener.dart';
+import 'features/billing/data/revenuecat_service.dart';
 import 'ui/widgets/splash_screen.dart';
 
 void main() {
@@ -16,6 +18,14 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  // RevenueCat — configure as early as possible so by the time the
+  // user opens the Plans screen we already have offerings cached.
+  // No-ops cleanly on web / Android-without-key, so safe to always call.
+  RevenueCatService.instance.configure();
+  // Hook AuthSession → RevenueCat so every JWT change re-identifies
+  // the RC user. The session doesn't import the SDK directly to keep
+  // its dependency surface small; we register the factory here.
+  AuthSession.registerRcServiceFactory(() => RevenueCatService.instance);
   runApp(const ProviderScope(child: _RootApp()));
 }
 
